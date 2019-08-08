@@ -29,14 +29,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -87,6 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,6 +114,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,16 +140,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aux_math.h" />
+    <ClInclude Include="aux_stl.h" />
+    <ClInclude Include="geometries.h" />
+    <ClInclude Include="cJSON.h" />
+    <ClInclude Include="frustum.h" />
+    <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="handle.h" />
+    <ClInclude Include="heap.h" />
+    <ClInclude Include="intrusive_list.h" />
+    <ClInclude Include="memory_istream.h" />
+    <ClInclude Include="object_pool.h" />
+    <ClInclude Include="OpenGLDefs.h" />
+    <ClInclude Include="randomizer.h" />
+    <ClInclude Include="refcounted.h" />
+    <ClInclude Include="stbi_image_write.h" />
+    <ClInclude Include="stb_rect_pack.h" />
+    <ClInclude Include="stb_sprintf.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="std_image.h" />
+    <ClInclude Include="strings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Carnage3D.cpp" />
+    <ClCompile Include="cJSON.cpp" />
+    <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="strings.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\CorrectionsToCDS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

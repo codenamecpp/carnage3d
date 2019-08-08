@@ -5,10 +5,85 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{9327d855-594b-480f-9bb6-f945ba24d138}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{caef6826-64e1-4445-a245-6161ac87ba7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{8f0add5f-f347-486d-8d59-290e803a60c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shaders">
+      <UniqueIdentifier>{400b3b38-eea0-4c00-abd6-a83376d63fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lib\Third_Party">
+      <UniqueIdentifier>{1f1ffaf5-f87b-44d2-b090-043999b5fdca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{9404e22a-5edb-423f-a41f-b4ec226e6311}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>_Pch</Filter>
+    </ClInclude>
+    <ClInclude Include="cJSON.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_rect_pack.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_sprintf.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="stbi_image_write.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="std_image.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLDefs.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsDevice.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="aux_math.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="heap.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="geometries.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="handle.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="intrusive_list.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_istream.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="aux_stl.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="object_pool.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="randomizer.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="refcounted.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="strings.h">
+      <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -16,5 +91,19 @@
       <Filter>_Pch</Filter>
     </ClCompile>
     <ClCompile Include="Carnage3D.cpp" />
+    <ClCompile Include="cJSON.cpp">
+      <Filter>Lib\Third_Party</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsDevice.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="strings.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\CorrectionsToCDS.txt">
+      <Filter>Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>
