@@ -17,11 +17,20 @@ public:
     // Free allocated resources
     void Deinit();
 
+    // Add search place directory
+    // @param searchPlace: Path
+    void AddSearchPlace(const char* searchPlace);
+
     // Open text or binary file stream for reading operations
     // @param objectName: File name
     // @param instream: Output stream
     bool OpenBinaryFile(const char* objectName, std::ifstream& instream);
     bool OpenTextFile(const char* objectName, std::ifstream& instream);
+
+    // Load whole text file content to std string
+    // @param objectName: File name
+    // @param output: Content
+    bool ReadTextFile(const char* objectName, std::string& output);
 
     // Test whether file exists
     // @param objectName: File name

@@ -14,9 +14,6 @@
     <Filter Include="Data">
       <UniqueIdentifier>{8f0add5f-f347-486d-8d59-290e803a60c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Shaders">
-      <UniqueIdentifier>{400b3b38-eea0-4c00-abd6-a83376d63fce}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lib\Third_Party">
       <UniqueIdentifier>{1f1ffaf5-f87b-44d2-b090-043999b5fdca}</UniqueIdentifier>
     </Filter>
@@ -32,8 +29,11 @@
     <Filter Include="Game">
       <UniqueIdentifier>{8d55ffe5-3706-424b-97c4-1ad8379162f6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Config">
+    <Filter Include="Data\config">
       <UniqueIdentifier>{d9a808c1-c58f-449e-a952-e5a1c71e9044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\shaders">
+      <UniqueIdentifier>{400b3b38-eea0-4c00-abd6-a83376d63fce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -177,5 +177,10 @@
     <Text Include="docs\CorrectionsToCDS.txt">
       <Filter>Docs</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gamedata\config\sys_config.json">
+      <Filter>Data\config</Filter>
+    </None>
   </ItemGroup>
 </Project>

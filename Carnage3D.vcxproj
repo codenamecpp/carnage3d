@@ -208,6 +208,9 @@
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="gamedata\config\sys_config.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

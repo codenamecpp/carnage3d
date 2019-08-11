@@ -5,7 +5,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-static const char* settingsPath = "config/sys_config.json";
+static const char* SysConfigPath = "config/sys_config.json";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -151,11 +151,18 @@ bool System::LoadConfiguration()
     const int DefaultResolutionY = 900;
     mConfig.SetParams(DefaultResolutionX, DefaultResolutionY, false, false); // defaults
 
+    // read config
+    std::string jsonContent;
+    if (!gFiles.ReadTextFile(SysConfigPath, jsonContent))
+        return false;
+
     gConsole.LogMessage(eLogMessage_Info, "Screen resolution: %dx%d, Vsync: %s", 
         mConfig.mScreenSizex, 
         mConfig.mScreenSizey, mConfig.mEnableVSync ? "enabled" : "disabled");
 
     // gta1 data files location
+
+    gFiles.AddSearchPlace(""); // TODO
 
     return true;
 }
