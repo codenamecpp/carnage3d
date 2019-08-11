@@ -23,6 +23,18 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{9404e22a-5edb-423f-a41f-b4ec226e6311}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lib\cxx">
+      <UniqueIdentifier>{f35a531d-6de0-4693-a10b-f67ed3c1ad31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{7bc9d5ce-6088-41d3-822e-279255239e24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{8d55ffe5-3706-424b-97c4-1ad8379162f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Config">
+      <UniqueIdentifier>{d9a808c1-c58f-449e-a952-e5a1c71e9044}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -50,47 +62,82 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="aux_math.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="frustum.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="heap.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="geometries.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="handle.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="intrusive_list.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="memory_istream.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="aux_stl.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="geometries.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="handle.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="heap.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="intrusive_list.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_istream.h">
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="object_pool.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="randomizer.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="refcounted.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="strings.h">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsDefs.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonTypes.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsContext.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuProgram.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuTexture2D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Inputs.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="CarnageGame.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="path_utils.h">
+      <Filter>Lib\cxx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>_Pch</Filter>
     </ClCompile>
-    <ClCompile Include="Carnage3D.cpp" />
     <ClCompile Include="cJSON.cpp">
       <Filter>Lib\Third_Party</Filter>
     </ClCompile>
@@ -98,7 +145,32 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="strings.cpp">
-      <Filter>Lib</Filter>
+      <Filter>Lib\cxx</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuProgram.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuTexture2D.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Inputs.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="CarnageGame.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

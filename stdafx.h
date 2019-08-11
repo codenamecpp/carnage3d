@@ -82,7 +82,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <cctype>
 #include <unordered_map>
 #include <unordered_set>
-#include <filesystem>
 
 // opengl
 #include <gl/glew.h>
@@ -113,3 +112,13 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "randomizer.h"
 #include "refcounted.h"
 #include "strings.h"
+#include "path_utils.h"
+
+// app
+#include "CommonTypes.h"
+#include "Console.h"
+#include "Inputs.h"
+#include "System.h"
+#include "FileSystem.h"
+#include "GraphicsDevice.h"
+#include "CarnageGame.h"

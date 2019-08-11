@@ -7,7 +7,7 @@ namespace cxx
     class heap_sorter
     {
     public:
-        typedef typename container::value_type element_type;
+        using element_type = typename container::value_type;
         static void push_element(container& containerref, const element_type& elementref)
         {
             containerref.emplace_back(elementref);

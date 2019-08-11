@@ -59,29 +59,29 @@ namespace cxx
         inline int get_capacity() const { return mBufferCapacity; }
         inline int get_length() const 
         { 
-            return mBufferEnd - mBufferBegin; 
+            return mBufferEnd - mBufferPtr; 
         }
         // clear string buffer content
         inline void clear()
         {
-            debug_assert(mBufferBegin);
+            debug_assert(mBufferPtr);
             if (mBufferCapacity > 0)
             {
-                mBufferEnd = mBufferBegin;
-                *mBufferBegin = 0;
+                mBufferEnd = mBufferPtr;
+                *mBufferPtr = 0;
             }
         }
         // get c-string pointer for read only access
         inline const char* c_str() const 
         { 
-            debug_assert(mBufferBegin);
-            return mBufferBegin; 
+            debug_assert(mBufferPtr);
+            return mBufferPtr; 
         }
         // get c-string pointer for both reading and write data
         inline char* c_str() 
         { 
-            debug_assert(mBufferBegin);
-            return mBufferBegin; 
+            debug_assert(mBufferPtr);
+            return mBufferPtr; 
         }
         // push back character, will be discarded if buffer is full
         inline void append_char(char c)
@@ -97,7 +97,7 @@ namespace cxx
         // discard last character in buffer
         inline void pop_back()
         {
-            if (mBufferBegin == mBufferEnd)
+            if (mBufferPtr == mBufferEnd)
             {
                 debug_assert(false);
                 return;
@@ -108,7 +108,7 @@ namespace cxx
         // append string to buffer, will discard all data that does not fit in buffer
         inline void append_string(const char* sourceString)
         {
-            if (mBufferBegin == sourceString)
+            if (mBufferPtr == sourceString)
                 return;
 
             for (;sourceString && *sourceString; ++sourceString)
@@ -129,7 +129,7 @@ namespace cxx
         // @param length: Source string length, optional
         inline void set_content(const char* sourceString, int length = 0)
         {
-            if (mBufferBegin == sourceString)
+            if (mBufferPtr == sourceString)
                 return;
 
             clear();
@@ -157,47 +157,47 @@ namespace cxx
         inline char& operator [] (int ichar) 
         { 
             debug_assert(ichar > -1 && ichar < get_length());
-            return mBufferBegin[ichar]; 
+            return mBufferPtr[ichar]; 
         }
         // get string buffer character by index
         inline char operator [] (int ichar) const
         {
             debug_assert(ichar > -1 && ichar < get_length());
-            return mBufferBegin[ichar];
+            return mBufferPtr[ichar];
         }
         //print formatted
         // @param szFormatString: Format string
         inline int printf(const char* szFormatString, ...)
         {
-            debug_assert(mBufferBegin);
+            debug_assert(mBufferPtr);
 
             clear();
 
             // formatted print routine
             va_list parguments;
             va_start(parguments, szFormatString);
-            int icounter = f_vsnprintf(mBufferBegin, mBufferCapacity + 1, szFormatString, parguments);
+            int icounter = f_vsnprintf(mBufferPtr, mBufferCapacity + 1, szFormatString, parguments);
             if (icounter > 0)
             {
-                mBufferEnd = mBufferBegin + (icounter > mBufferCapacity ? mBufferCapacity : icounter);
+                mBufferEnd = mBufferPtr + (icounter > mBufferCapacity ? mBufferCapacity : icounter);
             }
             va_end(parguments);
             return icounter;
         }
         // test whether content is empty
-        inline bool empty() const { return mBufferBegin == mBufferEnd; }
+        inline bool empty() const { return mBufferPtr == mBufferEnd; }
 
     protected:
         string_buffer(char* buffer_begin, char* buffer_end, int buffer_capacity)
-            : mBufferBegin(buffer_begin)
+            : mBufferPtr(buffer_begin)
             , mBufferEnd(buffer_end)
             , mBufferCapacity(buffer_capacity)
         {
-            debug_assert(mBufferBegin);
+            debug_assert(mBufferPtr);
             clear();
         }
     private:
-        char* mBufferBegin;
+        char* mBufferPtr;
         char* mBufferEnd;
         int mBufferCapacity;
     };
@@ -224,14 +224,14 @@ namespace cxx
         string_buffer_t(const string_buffer_t<OtherStringBufferCapacity>& sourceBuffer)
             : string_buffer(mStringBuffer, mStringBuffer, BufferCapacity)
         {
-            set_content(sourceBuffer.mBuffer, sourceBuffer.get_length());
+            set_content(sourceBuffer.mBufferPtr, sourceBuffer.get_length());
         }
         // set content
         // @param sourceBuffer: Source buffer
         template<unsigned int OtherStringBufferCapacity>
         inline string_buffer_t& operator = (const string_buffer_t<OtherStringBufferCapacity>& sourceBuffer) 
         {
-            set_content(sourceBuffer.mBuffer, sourceBuffer.get_length());
+            set_content(sourceBuffer.mBufferPtr, sourceBuffer.get_length());
             return *this;
         }
         // set content

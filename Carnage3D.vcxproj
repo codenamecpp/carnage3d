@@ -92,7 +92,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -121,7 +127,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -142,16 +154,27 @@
   <ItemGroup>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
+    <ClInclude Include="CarnageGame.h" />
+    <ClInclude Include="CommonTypes.h" />
+    <ClInclude Include="Console.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="geometries.h" />
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="frustum.h" />
+    <ClInclude Include="GpuBuffer.h" />
+    <ClInclude Include="GpuProgram.h" />
+    <ClInclude Include="GpuTexture2D.h" />
+    <ClInclude Include="GraphicsContext.h" />
+    <ClInclude Include="GraphicsDefs.h" />
     <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="heap.h" />
+    <ClInclude Include="Inputs.h" />
     <ClInclude Include="intrusive_list.h" />
     <ClInclude Include="memory_istream.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="OpenGLDefs.h" />
+    <ClInclude Include="path_utils.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="stbi_image_write.h" />
@@ -160,11 +183,19 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="std_image.h" />
     <ClInclude Include="strings.h" />
+    <ClInclude Include="System.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Carnage3D.cpp" />
+    <ClCompile Include="CarnageGame.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="cJSON.cpp" />
+    <ClCompile Include="Console.cpp" />
+    <ClCompile Include="GpuBuffer.cpp" />
+    <ClCompile Include="GpuProgram.cpp" />
+    <ClCompile Include="GpuTexture2D.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
+    <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -172,6 +203,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="strings.cpp" />
+    <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt" />
