@@ -5,61 +5,61 @@
 namespace cxx
 {
 
-config_element::config_element(cJSON* jsonElementImplementation)
+config_node::config_node(cJSON* jsonElementImplementation)
     : mJsonElement(jsonElementImplementation)
 {
 }
 
-config_element::~config_element()
+config_node::~config_node()
 {
 }
 
-config_element config_element::get_child(const char* name) const
+config_node config_node::get_child(const char* name) const
 {
     if (mJsonElement == nullptr)
-        return config_element { nullptr };
+        return config_node { nullptr };
 
     cJSON* element = cJSON_GetObjectItem(mJsonElement, name);
-    return config_element { element };
+    return config_node { element };
 }
 
-config_element config_element::next_sibling() const
+config_node config_node::next_sibling() const
 {
     if (mJsonElement == nullptr)
-        return config_element { nullptr };
+        return config_node { nullptr };
 
     cJSON* element = mJsonElement->next;
-    return config_element { element };
+    return config_node { element };
 }
 
-config_element config_element::prev_sibling() const
+config_node config_node::prev_sibling() const
 {
     if (mJsonElement == nullptr)
-        return config_element { nullptr };
+        return config_node { nullptr };
 
     cJSON* element = mJsonElement->prev;
-    return config_element { element };
+    return config_node { element };
 }
 
-config_element config_element::first_child() const
+config_node config_node::first_child() const
 {
     if (mJsonElement == nullptr)
-        return config_element { nullptr };
+        return config_node { nullptr };
 
     cJSON* element = mJsonElement->child;
-    return config_element { element };
+    return config_node { element };
 }
 
-config_element config_element::get_array_element(int elementIndex) const
+config_node config_node::get_array_element(int elementIndex) const
 {
     if (mJsonElement == nullptr)
-        return config_element { nullptr };
+        return config_node { nullptr };
 
     cJSON* element = cJSON_GetArrayItem(mJsonElement, elementIndex);
-    return config_element { element };
+    return config_node { element };
 }
 
-int config_element::get_array_elements_count() const
+int config_node::get_array_elements_count() const
 {
     if (mJsonElement == nullptr)
         return 0;
@@ -67,7 +67,7 @@ int config_element::get_array_elements_count() const
     return cJSON_GetArraySize(mJsonElement);
 }
 
-bool config_element::is_child_exists(const char* name) const
+bool config_node::is_child_exists(const char* name) const
 {
     if (mJsonElement == nullptr)
         return false;
@@ -75,7 +75,7 @@ bool config_element::is_child_exists(const char* name) const
     return cJSON_HasObjectItem(mJsonElement, name) > 0;
 }
 
-const char* config_element::get_element_name() const
+const char* config_node::get_element_name() const
 {
     if (mJsonElement == nullptr || mJsonElement->string == nullptr)
         return "";
@@ -83,32 +83,32 @@ const char* config_element::get_element_name() const
     return mJsonElement->string;
 }
 
-bool config_element::is_string_element() const
+bool config_node::is_string_element() const
 {
     return mJsonElement && mJsonElement->type == cJSON_String;
 }
 
-bool config_element::is_number_element() const
+bool config_node::is_number_element() const
 {
     return mJsonElement && mJsonElement->type == cJSON_Number;
 }
 
-bool config_element::is_boolean_element() const
+bool config_node::is_boolean_element() const
 {
     return mJsonElement && (mJsonElement->type == cJSON_True || mJsonElement->type == cJSON_False);
 }
 
-bool config_element::is_array_element() const
+bool config_node::is_array_element() const
 {
     return mJsonElement && mJsonElement->type == cJSON_Array;
 }
 
-bool config_element::is_object_element() const
+bool config_node::is_object_element() const
 {
     return mJsonElement && mJsonElement->type == cJSON_Object;
 }
 
-const char* config_element::get_value_string() const
+const char* config_node::get_value_string() const
 {
     debug_assert(is_string_element());
 
@@ -118,13 +118,13 @@ const char* config_element::get_value_string() const
     return mJsonElement->valuestring;
 }
 
-bool config_element::get_value_boolean() const
+bool config_node::get_value_boolean() const
 {
     debug_assert(is_boolean_element());
     return mJsonElement && mJsonElement->valueint != 0;
 }
 
-int config_element::get_value_integer() const
+int config_node::get_value_integer() const
 {
     debug_assert(is_number_element());
     if (mJsonElement == nullptr)
@@ -133,7 +133,7 @@ int config_element::get_value_integer() const
     return mJsonElement->valueint;
 }
 
-float config_element::get_value_float() const
+float config_node::get_value_float() const
 {
     debug_assert(is_number_element());
     if (mJsonElement == nullptr)
@@ -177,9 +177,9 @@ void config_document::close_document()
     }
 }
 
-config_element config_document::get_root_element() const
+config_node config_document::get_root_node() const
 {
-    return config_element { mJsonElement };
+    return config_node { mJsonElement };
 }
 
 bool config_document::is_loaded() const

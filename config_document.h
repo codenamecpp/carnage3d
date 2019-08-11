@@ -6,22 +6,22 @@ struct cJSON;
 namespace cxx
 {
     // element of configuration document
-    class config_element
+    class config_node
     {
     public:
-        config_element(cJSON* jsonElementImplementation);
-        ~config_element();
+        config_node(cJSON* jsonElementImplementation);
+        ~config_node();
         // find child node element by name
         // @param name: Name
-        config_element get_child(const char* name) const;
+        config_node get_child(const char* name) const;
         // get next / previous sibling element
-        config_element next_sibling() const;
-        config_element prev_sibling() const;
+        config_node next_sibling() const;
+        config_node prev_sibling() const;
         // get first child element of object or array element
-        config_element first_child() const;
+        config_node first_child() const;
         // get array element by index
         // @param elementIndex: Array element index
-        config_element get_array_element(int elementIndex) const;
+        config_node get_array_element(int elementIndex) const;
         // get number of elements in array
         int get_array_elements_count() const;
         // test whether child node element is exists
@@ -41,8 +41,8 @@ namespace cxx
         // get name of element
         const char* get_element_name() const;
         // operators
-        inline bool operator == (const config_element& rhs) const { return mJsonElement && rhs.mJsonElement == mJsonElement; }
-        inline bool operator != (const config_element& rhs) const { return !mJsonElement || rhs.mJsonElement != mJsonElement; }
+        inline bool operator == (const config_node& rhs) const { return mJsonElement && rhs.mJsonElement == mJsonElement; }
+        inline bool operator != (const config_node& rhs) const { return !mJsonElement || rhs.mJsonElement != mJsonElement; }
         inline operator bool () const { return mJsonElement != nullptr; }
     private:
         cJSON* mJsonElement;
@@ -61,7 +61,7 @@ namespace cxx
         bool parse_document(const char* content);
         void close_document();
         // Get root json object of document
-        config_element get_root_element() const;
+        config_node get_root_node() const;
         // test whether document is loaded
         bool is_loaded() const;
     private:

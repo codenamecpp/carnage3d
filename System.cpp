@@ -19,8 +19,7 @@ void System::Execute()
 {
     Initialize();
 
-    // map loop
-
+    // main loop
     long mPreviousFrameTimestamp = GetSysMilliseconds();
     for (; !mQuitRequested; )
     {
@@ -80,7 +79,7 @@ void System::Initialize()
 
     if (!gCarnageGame.Initialize())
     {
-        gConsole.LogMessage(eLogMessage_Error, "Canot initialize game application");
+        gConsole.LogMessage(eLogMessage_Error, "Cannot initialize game");
         Terminate();
     }
     mQuitRequested = false;
@@ -162,7 +161,7 @@ bool System::LoadConfiguration()
         return false;
     }
 
-    cxx::config_element screenConfig = configDocument.get_root_element().get_child("screen");
+    cxx::config_node screenConfig = configDocument.get_root_node().get_child("screen");
     if (!screenConfig)
     {
         gConsole.LogMessage(eLogMessage_Warning, "Screen config section is missed");
@@ -171,7 +170,7 @@ bool System::LoadConfiguration()
 
     int screen_sizex = DefaultResolutionX;
     int screen_sizey = DefaultResolutionY;
-    if (cxx::config_element screenResolution = screenConfig.get_child("resolution"))
+    if (cxx::config_node screenResolution = screenConfig.get_child("resolution"))
     {
         screen_sizex = screenResolution.get_array_element(0).get_value_integer();
         screen_sizey = screenResolution.get_array_element(1).get_value_integer();
@@ -188,7 +187,7 @@ bool System::LoadConfiguration()
         mConfig.mScreenSizey, mConfig.mEnableVSync ? "enabled" : "disabled");
 
     // gta1 data files location
-    const char* gta_data_root = configDocument.get_root_element().get_child("gta_gamedata_location").get_value_string();
+    const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
     gFiles.AddSearchPlace(gta_data_root);
 
     return true;
