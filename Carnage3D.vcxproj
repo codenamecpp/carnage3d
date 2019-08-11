@@ -171,6 +171,7 @@
     <ClInclude Include="heap.h" />
     <ClInclude Include="Inputs.h" />
     <ClInclude Include="intrusive_list.h" />
+    <ClInclude Include="config_document.h" />
     <ClInclude Include="memory_istream.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="OpenGLDefs.h" />
@@ -187,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CarnageGame.cpp" />
+    <ClCompile Include="config_document.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="cJSON.cpp" />

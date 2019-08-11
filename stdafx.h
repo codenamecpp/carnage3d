@@ -113,6 +113,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "refcounted.h"
 #include "strings.h"
 #include "path_utils.h"
+#include "config_document.h"
 
 // app
 #include "CommonTypes.h"

@@ -133,6 +133,9 @@
     <ClInclude Include="path_utils.h">
       <Filter>Lib\cxx</Filter>
     </ClInclude>
+    <ClInclude Include="config_document.h">
+      <Filter>Lib\cxx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -171,6 +174,9 @@
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="config_document.cpp">
+      <Filter>Lib\cxx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
