@@ -34,13 +34,25 @@ public:
     void EnableFullscreen(bool fullscreenEnabled);
 
     // Create 2D texture, client is responsible for destroying resource
+    // @param textureFormat: Format
+    // @param sizex, sizey: Texture dimensions, must be POT!
+    // @param sourceData: Source data buffer
     GpuTexture2D* CreateTexture2D();
+    GpuTexture2D* CreateTexture2D(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData);
 
     // Create render program, client is responsible for destroying resource
+    // @param shaderSource: Source code
     GpuProgram* CreateRenderProgram();
+    GpuProgram* CreateRenderProgram(const char* shaderSource);
 
     // Create hardware buffer, client is responsible for destroying resource
+    // @param bufferContent: Content type stored in buffer
+    // @param bufferUsage: Usage hint of buffer
+    // @param theLength: Data length
+    // @param dataBuffer: Initial data, optional
+    // @returns false if out of memory
     GpuBuffer* CreateBuffer();
+    GpuBuffer* CreateBuffer(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
 
     // Set source buffer for geometries vertex data and setup layout for bound shader
     // @param sourceBuffer: Buffer reference or nullptr to unbind current

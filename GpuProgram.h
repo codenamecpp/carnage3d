@@ -20,7 +20,7 @@ public:
 
     // Create render program from shader source code
     // @param shaderSource: Source code
-    bool CompileShader(const std::string& shaderSource);
+    bool CompileShader(const char* shaderSource);
 
     // Test whether render program is currently activated
     bool IsProgramBound() const;

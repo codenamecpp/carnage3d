@@ -219,6 +219,23 @@ GpuTexture2D* GraphicsDevice::CreateTexture2D()
     return texture2D;
 }
 
+GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuTexture2D* texture2D = new GpuTexture2D(mGraphicsContext);
+    if (!texture2D->Create(textureFormat, sizex, sizey, sourceData))
+    {
+        DestroyTexture2D(texture2D);
+        return nullptr;
+    }
+    return texture2D;
+}
+
 GpuProgram* GraphicsDevice::CreateRenderProgram()
 {
     if (!IsDeviceInited())
@@ -231,6 +248,23 @@ GpuProgram* GraphicsDevice::CreateRenderProgram()
     return program;
 }
 
+GpuProgram* GraphicsDevice::CreateRenderProgram(const char* shaderSource)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuProgram* program = new GpuProgram(mGraphicsContext);
+    if (!program->CompileShader(shaderSource))
+    {
+        DestroyRenderProgram(program);
+        return nullptr;
+    }
+    return program;
+}
+
 GpuBuffer* GraphicsDevice::CreateBuffer()
 {
     if (!IsDeviceInited())
@@ -240,6 +274,23 @@ GpuBuffer* GraphicsDevice::CreateBuffer()
     }
 
     GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext);
+    return bufferObject;
+}
+
+GpuBuffer* GraphicsDevice::CreateBuffer(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext);
+    if (!bufferObject->Create(bufferContent, bufferUsage, bufferLength, dataBuffer))
+    {
+        DestroyBuffer(bufferObject);
+        return nullptr;
+    }
     return bufferObject;
 }
 

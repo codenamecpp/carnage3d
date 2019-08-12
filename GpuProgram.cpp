@@ -169,9 +169,8 @@ void GpuProgram::SetConstant(eRenderConstant constant, const glm::mat4& floatMat
     glCheckError();
 }
 
-bool GpuProgram::CompileShader(const std::string& shaderSource)
+bool GpuProgram::CompileShader(const char* shaderSource)
 {
-    const char* programSrcString = shaderSource.c_str();
     // set unbound
     if (this == mGraphicsContext.mCurrentProgram)
     {
@@ -186,7 +185,7 @@ bool GpuProgram::CompileShader(const std::string& shaderSource)
         programHandleGL = ::glCreateProgram();
         glCheckError();
 
-        isSuccessed = CompileShader(programHandleGL, programSrcString);
+        isSuccessed = CompileShader(programHandleGL, shaderSource);
         if (!isSuccessed)
         {
             // destroy temporary program
@@ -203,7 +202,7 @@ bool GpuProgram::CompileShader(const std::string& shaderSource)
     }
     else
     {
-        isSuccessed = CompileShader(mResourceHandle, programSrcString);
+        isSuccessed = CompileShader(mResourceHandle, shaderSource);
     }
 
     if (!isSuccessed)
