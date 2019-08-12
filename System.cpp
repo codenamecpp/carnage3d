@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "System.h"
 #include "GraphicsDevice.h"
+#include "RenderSystem.h"
 #include <mmsystem.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -9,11 +10,35 @@ static const char* SysConfigPath = "config/sys_config.json";
 
 //////////////////////////////////////////////////////////////////////////
 
-System gSystem;
-
-System::System() : mQuitRequested(), mStartTimestamp()
+SysConfig::SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
+    : mScreenSizex(screenSizex)
+    , mScreenSizey(screenSizey)
+    , mFullscreen(fullscreen)
+    , mEnableVSync(vsync)
+    , mScreenAspectRatio(1.0f)
 {
+    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
 }
+
+void SysConfig::SetScreenSize(int screenSizex, int screenSizey)
+{
+    mScreenSizex = screenSizex;
+    mScreenSizey = screenSizey;
+    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
+}
+
+void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
+{
+    mEnableVSync = vsync;
+    mFullscreen = fullscreen;
+    mScreenSizex = screenSizex;
+    mScreenSizey = screenSizey;
+    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+System gSystem;
 
 void System::Execute()
 {
@@ -34,7 +59,7 @@ void System::Execute()
 
         // order in which subsystems gets updated is significant
         gCarnageGame.UpdateFrame(deltaTime);
-        gGraphicsDevice.Present();
+        gRenderSystem.RenderFrame();
         mPreviousFrameTimestamp = mCurrentTimestamp;
     }
 
@@ -43,6 +68,7 @@ void System::Execute()
 
 void System::Initialize()
 {
+    mQuitRequested = false;
     if (!gConsole.Initialize())
     {
         debug_assert(false);
@@ -77,6 +103,12 @@ void System::Initialize()
         Terminate();
     }
 
+    if (!gRenderSystem.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Error, "Cannot initialize render system");
+        Terminate();
+    }
+
     if (!gCarnageGame.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize game");
@@ -92,6 +124,7 @@ void System::Deinit()
     ::timeEndPeriod(1);
 
     gCarnageGame.Deinit();
+    gRenderSystem.Deinit();
     gGraphicsDevice.Deinit();
     gFiles.Deinit();
     gConsole.Deinit();

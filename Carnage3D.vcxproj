@@ -93,11 +93,11 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
-</Command>
+copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,11 +128,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
-</Command>
+copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -178,6 +178,7 @@
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
+    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="stbi_image_write.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_sprintf.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="GpuTexture2D.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

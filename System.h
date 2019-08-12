@@ -5,35 +5,15 @@ class SysConfig
 {
 public:
     SysConfig() = default;
-    SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
-        : mScreenSizex(screenSizex)
-        , mScreenSizey(screenSizey)
-        , mFullscreen(fullscreen)
-        , mEnableVSync(vsync)
-        , mScreenAspectRatio(1.0f)
-    {
-        mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
-    }
+    SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
 
     // Set screen dimensions and automatically compute aspect ratio
     // @param screenSizex, screenSizey: Dimensions
-    void SetScreenSize(int screenSizex, int screenSizey)
-    {
-        mScreenSizex = screenSizex;
-        mScreenSizey = screenSizey;
-        mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
-    }
+    void SetScreenSize(int screenSizex, int screenSizey);
 
     // Set screen dimensions and automatically compute aspect ratio
     // @param screenSizex, screenSizey: Dimensions
-    void SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
-    {
-        mEnableVSync = vsync;
-        mFullscreen = fullscreen;
-        mScreenSizex = screenSizex;
-        mScreenSizey = screenSizey;
-        mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
-    }
+    void SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
 
 public:
     int mScreenSizex = 0; // screen dimensions
@@ -51,8 +31,6 @@ public:
     SysConfig mConfig; // current configuration of the system
 
 public:
-    System();
-
     // Initialize game subsystems and run main loop
     void Execute();
 
