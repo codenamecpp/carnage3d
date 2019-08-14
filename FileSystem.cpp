@@ -33,7 +33,25 @@ void FileSystem::Deinit()
 
 bool FileSystem::OpenBinaryFile(const char* objectName, std::ifstream& instream)
 {
-    return false;
+    instream.close();
+
+    if (cxx::is_absolute_path(objectName))
+    {
+        instream.open(objectName, std::ios::in | std::ios::binary);
+        return instream.is_open();
+    }
+
+    cxx::string_buffer_512 pathBuffer;
+    // search file in search places
+    for (const std::string& currPlace: mSearchPlaces)
+    {
+        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        if (IsFileExists(pathBuffer.c_str()))
+        {
+            instream.open(pathBuffer.c_str(), std::ios::in | std::ios::binary);
+        }
+    }
+    return instream.is_open();
 }
 
 bool FileSystem::OpenTextFile(const char* objectName, std::ifstream& instream)
@@ -54,11 +72,9 @@ bool FileSystem::OpenTextFile(const char* objectName, std::ifstream& instream)
         if (IsFileExists(pathBuffer.c_str()))
         {
             instream.open(pathBuffer.c_str(), std::ios::in);
-            return instream.is_open();
         }
-        return false;
     }
-    return false;
+    return instream.is_open();
 }
 
 bool FileSystem::IsDirectoryExists(const char* objectName)

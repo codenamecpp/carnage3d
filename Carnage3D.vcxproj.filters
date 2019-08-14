@@ -38,6 +38,9 @@
     <Filter Include="Game\Rendering">
       <UniqueIdentifier>{3c3cf768-b65d-4114-8aa7-4d10f76371ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Resources">
+      <UniqueIdentifier>{b8cc8a27-b473-4e3b-94c8-8f95ce955c03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -50,9 +53,6 @@
       <Filter>Lib\Third_Party</Filter>
     </ClInclude>
     <ClInclude Include="stb_sprintf.h">
-      <Filter>Lib\Third_Party</Filter>
-    </ClInclude>
-    <ClInclude Include="stbi_image_write.h">
       <Filter>Lib\Third_Party</Filter>
     </ClInclude>
     <ClInclude Include="std_image.h">
@@ -142,6 +142,12 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Bitmap.h">
+      <Filter>Game\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -186,6 +192,9 @@
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Bitmap.cpp">
+      <Filter>Game\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -179,13 +179,14 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="RenderSystem.h" />
-    <ClInclude Include="stbi_image_write.h" />
+    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_sprintf.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="std_image.h" />
     <ClInclude Include="strings.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="Bitmap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CarnageGame.cpp" />
@@ -208,6 +209,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     </ClCompile>
     <ClCompile Include="strings.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Bitmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt" />

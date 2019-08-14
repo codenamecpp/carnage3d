@@ -236,6 +236,29 @@ inline const char* ToString(eTextureFormat format)
     return "";
 }
 
+// Get number of bytes per pixel for specific texture format
+// @param format: Format identifier
+inline int NumBytesPerPixel(eTextureFormat format) 
+{
+    debug_assert(format < eTextureFormat_COUNT && format > eTextureFormat_Null);
+    switch (format)
+    {
+        case eTextureFormat_RGBA8 : return 4;
+        case eTextureFormat_RGB8 : return 3;
+        case eTextureFormat_R8_G8 : return 2;
+        case eTextureFormat_R8 : return 1;
+    }
+    return 0;
+}
+
+// Get number of bits per pixel for specific pixel format
+// @param format: Format identifier
+inline int NumBitsPerPixel(eTextureFormat format) 
+{
+    int numBytes = NumBytesPerPixel(format);
+    return numBytes * 8;
+}
+
 enum ePrimitiveType
 {
     ePrimitiveType_Points, 

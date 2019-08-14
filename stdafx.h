@@ -123,3 +123,4 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "FileSystem.h"
 #include "GraphicsDevice.h"
 #include "CarnageGame.h"
+#include "Bitmap.h"

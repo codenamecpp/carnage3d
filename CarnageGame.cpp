@@ -5,6 +5,11 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
+
+    Bitmap bmp;
+    bool isSuccess = bmp.LoadFromFile("textures/flowey.png");
+
+    debug_assert(isSuccess);
     return true;
 }
 
