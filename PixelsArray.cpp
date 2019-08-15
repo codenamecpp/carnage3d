@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Bitmap.h"
+#include "PixelsArray.h"
 #define STBI_ASSERT(s) debug_assert(s)
 #define STBI_NO_JPEG
 #define STBI_NO_PSD
@@ -12,12 +12,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-Bitmap::~Bitmap()
+PixelsArray::~PixelsArray()
 {
     Cleanup();
 }
 
-bool Bitmap::Create(eTextureFormat format, int sizex, int sizey)
+bool PixelsArray::Create(eTextureFormat format, int sizex, int sizey)
 {
     if (format == eTextureFormat_Null || sizex < 1 || sizey < 1)
     {
@@ -51,7 +51,7 @@ bool Bitmap::Create(eTextureFormat format, int sizex, int sizey)
     return true;
 }
 
-bool Bitmap::LoadFromFile(const char* fileName, eTextureFormat forceFormat)
+bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat)
 {
     Cleanup();
 
@@ -128,7 +128,7 @@ bool Bitmap::LoadFromFile(const char* fileName, eTextureFormat forceFormat)
     return true;
 }
 
-bool Bitmap::SaveToFile(const char* fileName)
+bool PixelsArray::SaveToFile(const char* fileName)
 {
     if (mFormat == eTextureFormat_Null)
         return false;
@@ -137,7 +137,7 @@ bool Bitmap::SaveToFile(const char* fileName)
     return stbi_write_png(fileName, mSizex, mSizey, comp, mData, mSizex * comp) > 0;
 }
 
-bool Bitmap::FillWithCheckerBoard()
+bool PixelsArray::FillWithCheckerBoard()
 {
     if (mFormat == eTextureFormat_Null)
         return false;
@@ -178,7 +178,7 @@ bool Bitmap::FillWithCheckerBoard()
     return true;
 }
 
-bool Bitmap::FillWithColor(Color32 color)
+bool PixelsArray::FillWithColor(Color32 color)
 {
     if (mFormat == eTextureFormat_Null)
         return false;
@@ -201,7 +201,7 @@ bool Bitmap::FillWithColor(Color32 color)
     return true;
 }
 
-void Bitmap::Cleanup()
+void PixelsArray::Cleanup()
 {
     if (mFormat == eTextureFormat_Null)
         return;
@@ -218,7 +218,7 @@ void Bitmap::Cleanup()
     mSizey = 0;
 }
 
-bool Bitmap::HasContent() const
+bool PixelsArray::HasContent() const
 {
     return mFormat != eTextureFormat_Null;
 }

@@ -186,6 +186,30 @@ inline const char* ToString(eLogMessage messageType)
     return "";
 }
 
+namespace SceneAxes
+{
+    static const glm::vec3 X {1.0f, 0.0f, 0.0f};
+    static const glm::vec3 Y {0.0f, 1.0f, 0.0f};
+    static const glm::vec3 Z {0.0f, 0.0f, 1.0f};
+};
+
+enum eSceneCameraMode
+{
+    eSceneCameraMode_Perspective,
+    eSceneCameraMode_Orthographic,
+};
+
+inline const char* ToString(eSceneCameraMode cameraMode)
+{
+    switch (cameraMode)
+    {
+        case eSceneCameraMode_Perspective: return "perspective";
+        case eSceneCameraMode_Orthographic: return "orthographic";
+    }
+    debug_assert(false);
+    return "";
+}
+
 // defines time interval in milliseconds
 struct Timespan
 {

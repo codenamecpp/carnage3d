@@ -122,5 +122,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "System.h"
 #include "FileSystem.h"
 #include "GraphicsDevice.h"
+#include "SceneCamera.h"
 #include "CarnageGame.h"
-#include "Bitmap.h"
+#include "PixelsArray.h"

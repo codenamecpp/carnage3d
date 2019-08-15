@@ -1,17 +1,18 @@
 #pragma once
 
-// defines simple pixels array in system memory
-class Bitmap final: public cxx::noncopyable
+// defines bitmap in system memory
+class PixelsArray final: public cxx::noncopyable
 {
 public:
     eTextureFormat mFormat = eTextureFormat_Null;
+
     int mSizex = 0;
     int mSizey = 0;
     unsigned char* mData = nullptr;
 
 public:
-    Bitmap() = default;
-    ~Bitmap();
+    PixelsArray() = default;
+    ~PixelsArray();
 
     // Allocates array of pixels of specified format and dimensions
     // @param format: Format

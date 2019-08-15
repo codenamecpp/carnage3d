@@ -142,11 +142,14 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Bitmap.h">
-      <Filter>Game\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image_write.h">
       <Filter>Lib\Third_Party</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelsArray.h">
+      <Filter>Game\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneCamera.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -193,8 +196,11 @@
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Bitmap.cpp">
+    <ClCompile Include="PixelsArray.cpp">
       <Filter>Game\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneCamera.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
