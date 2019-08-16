@@ -47,5 +47,8 @@ public:
     bool IsTextureInited() const;
 
 private:
+    void SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating);
+
+private:
     GraphicsContext& mGraphicsContext;
 };

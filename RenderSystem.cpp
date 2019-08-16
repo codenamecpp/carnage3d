@@ -27,7 +27,6 @@ bool RenderSystem::Initialize()
 
     mDummyTexture = gGraphicsDevice.CreateTexture2D(texPixels.mFormat, texPixels.mSizex, texPixels.mSizey, texPixels.mData);
     debug_assert(mDummyTexture);
-    mDummyTexture->SetSamplerState(eTextureFilterMode_Bilinear, eTextureWrapMode_ClampToEdge);
 
     Rect2D rcSource { 0, 0, texPixels.mSizex, texPixels.mSizey };
     Rect2D rcDest { 

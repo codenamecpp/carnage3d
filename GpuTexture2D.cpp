@@ -111,7 +111,8 @@ bool GpuTexture2D::Create(eTextureFormat textureFormat, int sizex, int sizey, co
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
     glCheckError();
 
-    // set default filter and wrap mode
+    // set default filter and repeat mode for texture
+    SetSamplerStateImpl(gGraphicsDevice.mDefaultTextureFilter, gGraphicsDevice.mDefaultTextureWrap);
     return true;
 }
 
@@ -123,62 +124,13 @@ void GpuTexture2D::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMod
         return;
     }
 
+    // already set
+    if (mFiltering == filtering && mRepeating == repeating)
+        return;
+
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
 
-    mFiltering = filtering;
-    mRepeating = repeating;
-
-    // set filtering
-    GLint magFilterGL = GL_NEAREST;
-    GLint minFilterGL = GL_NEAREST;
-    switch (filtering)
-    {
-        case eTextureFilterMode_Nearest: 
-        break;
-        case eTextureFilterMode_Bilinear:
-            magFilterGL = GL_LINEAR;
-            minFilterGL = GL_LINEAR;
-        break;
-        case eTextureFilterMode_Trilinear:
-            magFilterGL = GL_LINEAR;
-            minFilterGL = GL_LINEAR;
-        break;
-        default:
-        {
-            debug_assert(filtering == eTextureFilterMode_Nearest);
-        }
-        break;
-    }
-
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterGL);
-    glCheckError();
-
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterGL);
-    glCheckError();
-
-    // set repeating
-    GLint wrapSGL = GL_CLAMP_TO_EDGE;
-    GLint wrapTGL = GL_CLAMP_TO_EDGE;
-    switch (repeating)
-    {
-        case eTextureWrapMode_Repeat:
-            wrapSGL = GL_REPEAT;
-            wrapTGL = GL_REPEAT;
-        break;
-        case eTextureWrapMode_ClampToEdge:
-        break;
-        default:
-        {
-            debug_assert(repeating == eTextureWrapMode_ClampToEdge);
-        }
-        break;
-    }
-
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSGL);
-    glCheckError();
-
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTGL);
-    glCheckError();
+    SetSamplerStateImpl(filtering, repeating);
 }
 
 bool GpuTexture2D::IsTextureBound(eTextureUnit textureUnit) const
@@ -272,4 +224,62 @@ bool GpuTexture2D::Upload(const void* sourceData)
 bool GpuTexture2D::IsTextureInited() const
 {
     return mResourceHandle > 0;
+}
+
+void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
+{
+    mFiltering = filtering;
+    mRepeating = repeating;
+
+    // set filtering
+    GLint magFilterGL = GL_NEAREST;
+    GLint minFilterGL = GL_NEAREST;
+    switch (filtering)
+    {
+        case eTextureFilterMode_Nearest: 
+        break;
+        case eTextureFilterMode_Bilinear:
+            magFilterGL = GL_LINEAR;
+            minFilterGL = GL_LINEAR;
+        break;
+        case eTextureFilterMode_Trilinear:
+            magFilterGL = GL_LINEAR;
+            minFilterGL = GL_LINEAR;
+        break;
+        default:
+        {
+            debug_assert(filtering == eTextureFilterMode_Nearest);
+        }
+        break;
+    }
+
+    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterGL);
+    glCheckError();
+
+    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterGL);
+    glCheckError();
+
+    // set repeating
+    GLint wrapSGL = GL_CLAMP_TO_EDGE;
+    GLint wrapTGL = GL_CLAMP_TO_EDGE;
+    switch (repeating)
+    {
+        case eTextureWrapMode_Repeat:
+            wrapSGL = GL_REPEAT;
+            wrapTGL = GL_REPEAT;
+        break;
+        case eTextureWrapMode_ClampToEdge:
+        break;
+        default:
+        {
+            debug_assert(repeating == eTextureWrapMode_ClampToEdge);
+        }
+        break;
+    }
+
+    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSGL);
+    glCheckError();
+
+    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTGL);
+    glCheckError();
 }

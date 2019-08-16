@@ -12,6 +12,10 @@ public:
     RenderStates mCurrentStates;
     Rect2D mViewportRect;
 
+    // these params will automatically set during texture creation
+    eTextureFilterMode mDefaultTextureFilter = eTextureFilterMode_Nearest;
+    eTextureWrapMode mDefaultTextureWrap = eTextureWrapMode_ClampToEdge;
+
 public:
     GraphicsDevice();
     ~GraphicsDevice();
