@@ -117,3 +117,26 @@ void SceneCamera::Translate(const glm::vec3& direction)
     mPosition += direction;
     mViewMatrixDirty = true;
 }
+
+bool SceneCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay)
+{
+    // wrap y
+    const int32_t mouseY = gGraphicsDevice.mViewportRect.h - screenCoordinate.y;
+    const glm::ivec4 viewport { 
+        gGraphicsDevice.mViewportRect.x, 
+        gGraphicsDevice.mViewportRect.y, 
+        gGraphicsDevice.mViewportRect.w, 
+        gGraphicsDevice.mViewportRect.h };
+        //unproject twice to build a ray from near to far plane
+    const glm::vec3 v0 = glm::unProject(glm::vec3{screenCoordinate.x * 1.0f, mouseY * 1.0f, 0.0f}, 
+        mViewMatrix, 
+        mProjectionMatrix, viewport); // near plane
+
+    const glm::vec3 v1 = glm::unProject(glm::vec3{screenCoordinate.x * 1.0f, mouseY * 1.0f, 1.0f}, 
+        mViewMatrix, 
+        mProjectionMatrix, viewport); // far plane
+
+    resultRay.mOrigin = v0;
+    resultRay.mDirection = glm::normalize(v1 - v0);
+    return true;
+}

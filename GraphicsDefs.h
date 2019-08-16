@@ -174,6 +174,45 @@ inline void MakeQuad2D(const Size2D& textureSize, const Rect2D& rcSrc, const Rec
     vertices[3].mPosition.y  = vertices[0].mPosition.y;
 }
 
+// same as MakeQuad2D but with 3rd dimension
+inline void MakeQuad3D(const Size2D& textureSize, const Rect2D& rcSrc, const Rect2D& rcDest, Color32 color, Vertex3D* vertices)
+{
+    const float invx = 1.0f / textureSize.x;
+    const float invy = 1.0f / textureSize.y;
+
+    // TOP LEFT
+    vertices[0].mColor       = color.mRGBA;
+    vertices[0].mTexcoord[0] = rcSrc.x * invx;
+    vertices[0].mTexcoord[1] = rcSrc.y * invy;
+    vertices[0].mPosition.x  = rcDest.x * 1.0f;
+    vertices[0].mPosition.y  = rcDest.y * 1.0f;
+    vertices[0].mPosition.z  = 0.0f;
+
+    // BOTTOM LEFT
+    vertices[1].mColor       = color.mRGBA;
+    vertices[1].mTexcoord[0] = vertices[0].mTexcoord[0];
+    vertices[1].mTexcoord[1] = (rcSrc.y + rcSrc.h) * invy;
+    vertices[1].mPosition.x  = vertices[0].mPosition.x;
+    vertices[1].mPosition.y  = (rcDest.y + rcDest.h) * 1.0f;
+    vertices[1].mPosition.z  = 0.0f;
+
+    // BOTTOM RIGHT
+    vertices[2].mColor       = color.mRGBA;
+    vertices[2].mTexcoord[0] = (rcSrc.x + rcSrc.w) * invx;
+    vertices[2].mTexcoord[1] = vertices[1].mTexcoord[1];
+    vertices[2].mPosition.x  = (rcDest.x + rcDest.w) * 1.0f;
+    vertices[2].mPosition.y  = vertices[1].mPosition.y;
+    vertices[2].mPosition.z  = 0.0f;
+
+    // TOP RIGHT
+    vertices[3].mColor       = color.mRGBA;
+    vertices[3].mTexcoord[0] = vertices[2].mTexcoord[0];
+    vertices[3].mTexcoord[1] = vertices[0].mTexcoord[1];
+    vertices[3].mPosition.x  = vertices[2].mPosition.x;
+    vertices[3].mPosition.y  = vertices[0].mPosition.y;
+    vertices[3].mPosition.z  = 0.0f;
+}
+
 enum eTextureFilterMode
 {
     eTextureFilterMode_Nearest,
@@ -602,6 +641,7 @@ enum eRenderConstant
     eRenderConstant_ViewProjectionMatrix,
     eRenderConstant_NormalMatrix,         
     eRenderConstant_CameraPosition, // world space camera position
+    eRenderConstant_EnableTextureMapping,
     eRenderConstant_COUNT
 };
 
@@ -617,6 +657,7 @@ inline const char* ToString(eRenderConstant constant)
         case eRenderConstant_ViewProjectionMatrix: return "view_projection_matrix";
         case eRenderConstant_NormalMatrix: return "normal_matrix";
         case eRenderConstant_CameraPosition: return "camera_position";
+        case eRenderConstant_EnableTextureMapping: return "enable_texture_mapping";
     }
     debug_assert(false);
     return "";

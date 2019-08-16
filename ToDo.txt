@@ -1,0 +1,23 @@
+
+1 iteration
+    - Load standard render programs in render system
+    - Top Down Camera controller
+    - Init Scene Camera
+    - Draw something in 3D
+
+2 iteration
+    - Load gta city data file
+    - Build city geometry
+    - Textures cache, texture array 2D ?
+    - Recolor for city tiles in shader (probably)
+    - Draw city in layers from bottom to top
+
+3 iteration
+    - Dynamic build city geometry
+    - Simple peds and cars loading and draw
+    - Sprites cache
+    - Top Down Camera controller for ped/car mode
+
+4 iteration
+    - peds collision and physics
+    - cars collision and physics

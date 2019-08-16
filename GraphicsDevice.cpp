@@ -259,7 +259,7 @@ GpuProgram* GraphicsDevice::CreateRenderProgram(const char* shaderSource)
     GpuProgram* program = new GpuProgram(mGraphicsContext);
     if (!program->CompileShader(shaderSource))
     {
-        DestroyRenderProgram(program);
+        DestroyProgram(program);
         return nullptr;
     }
     return program;
@@ -429,7 +429,7 @@ void GraphicsDevice::DestroyTexture2D(GpuTexture2D* textureResource)
     SafeDelete(textureResource);
 }
 
-void GraphicsDevice::DestroyRenderProgram(GpuProgram* programResource)
+void GraphicsDevice::DestroyProgram(GpuProgram* programResource)
 {
     if (!IsDeviceInited())
     {

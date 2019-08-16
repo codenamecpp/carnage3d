@@ -78,7 +78,7 @@ public:
 
     // Free hardware resource
     // @param programResource: Target render program, pointer becomes invalid
-    void DestroyRenderProgram(GpuProgram* programResource);
+    void DestroyProgram(GpuProgram* programResource);
 
     // Free hardware resource
     // @param bufferResource: Target buffer, pointer becomes invalid

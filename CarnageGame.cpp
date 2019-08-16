@@ -5,7 +5,10 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
-
+    // todo: move camera initialization to game state
+    gCamera.SetIdentity();
+    //gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 45.0f, 0.01f, 1000.0f);
+    gCamera.SetOrthographicProjection(0.0, 1000.0, 1000.0, 0.0f);
     return true;
 }
 

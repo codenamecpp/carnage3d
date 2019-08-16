@@ -58,6 +58,11 @@ public:
     // @param direction: Move direction
     void Translate(const glm::vec3& direction);
 
+    // Cast ray in specific viewport coordinate, make sure to ComputeMatricesAndFrustum
+    // @param screenCoordinate: 2d coordinates on screen
+    // @param resultRay: Output ray info
+    bool CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay);
+
 private:
     bool mProjMatrixDirty; // projection matrix need recomputation
     bool mViewMatrixDirty; // view matrix need recomputation

@@ -151,6 +151,9 @@
     <ClInclude Include="SceneCamera.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="RenderProgram.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -202,15 +205,24 @@
     <ClCompile Include="SceneCamera.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="RenderProgram.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt">
+      <Filter>Docs</Filter>
+    </Text>
+    <Text Include="ToDo.txt">
       <Filter>Docs</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="gamedata\config\sys_config.json">
       <Filter>Data\config</Filter>
+    </None>
+    <None Include="gamedata\shaders\texture_color.glsl">
+      <Filter>Data\shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
