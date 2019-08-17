@@ -6,7 +6,7 @@
 RenderSystem gRenderSystem;
 
 RenderSystem::RenderSystem()
-    : mTextureColorProgram("shaders/texture_color.glsl")
+    : mDefaultTexColorProgram("shaders/texture_color.glsl")
 {
 }
 
@@ -80,11 +80,11 @@ void RenderSystem::RenderFrame()
     // todo
 
     gGraphicsDevice.BindTexture2D(eTextureUnit_0, mDummyTexture);
-    mTextureColorProgram.Activate();
+    mDefaultTexColorProgram.Activate();
 
     gCamera.ComputeMatricesAndFrustum();
 
-    mTextureColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, gCamera.mViewProjectionMatrix);
+    mDefaultTexColorProgram.UploadCameraTransformMatrices();
 
     gGraphicsDevice.BindVertexBuffer(mDummyVertexBuffer, Vertex3D_Format::Get());
     gGraphicsDevice.BindIndexBuffer(mDummyIndexBuffer);
@@ -97,17 +97,17 @@ void RenderSystem::RenderFrame()
 
 void RenderSystem::FreeRenderPrograms()
 {
-    mTextureColorProgram.Deinit();
+    mDefaultTexColorProgram.Deinit();
 }
 
 bool RenderSystem::InitRenderPrograms()
 {
-    mTextureColorProgram.Initialize();
+    mDefaultTexColorProgram.Initialize();
 
     return true;
 }
 
 void RenderSystem::ReloadRenderPrograms()
 {
-    mTextureColorProgram.Reinitialize();
+    mDefaultTexColorProgram.Reinitialize();
 }

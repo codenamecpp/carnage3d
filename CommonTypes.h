@@ -210,6 +210,41 @@ inline const char* ToString(eSceneCameraMode cameraMode)
     return "";
 }
 
+// defines rgba palette with 256 colors
+struct Palette256
+{
+public:
+    Palette256() = default;
+
+    // fill whole palette with specified color
+    // @param fillColor: Fill color
+    inline void FillWithColor(Color32 fillColor)
+    {
+        for (int icolor = 0; icolor < CountOf(mColors); ++icolor)
+        {
+            mColors[icolor] = fillColor;
+        }
+    }
+    inline void FillWithFadeOut()
+    {
+        for (int icolor = 0; icolor < CountOf(mColors); ++icolor)
+        {
+            mColors[icolor].mR = mColors[icolor].mG = mColors[icolor].mB = (255 - icolor);
+            mColors[icolor].mA = 255;
+        }
+    }
+    inline void FillWithFadeIn()
+    {
+        for (int icolor = 0; icolor < CountOf(mColors); ++icolor)
+        {
+            mColors[icolor].mR = mColors[icolor].mG = mColors[icolor].mB = (icolor);
+            mColors[icolor].mA = 255;
+        }
+    }
+public:
+    Color32 mColors[256];
+};
+
 // defines time interval in milliseconds
 struct Timespan
 {

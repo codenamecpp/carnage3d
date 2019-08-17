@@ -93,3 +93,37 @@ void RenderProgram::Deactivate()
 
     gGraphicsDevice.BindRenderProgram(nullptr);
 }
+
+void RenderProgram::UploadCameraTransformMatrices()
+{
+    bool isInited = IsInitialized();
+    if (isInited)
+    {
+        #define SET_UNIFORM(uniform_id, matrix_reference) \
+            if (mGpuProgram->IsUniformExists(uniform_id)) \
+            { \
+                mGpuProgram->SetUniform(uniform_id, matrix_reference); \
+            }
+
+        SET_UNIFORM(eRenderUniform_ViewMatrix, gCamera.mViewMatrix);
+        SET_UNIFORM(eRenderUniform_ProjectionMatrix, gCamera.mProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_ViewProjectionMatrix, gCamera.mViewProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_CameraPosition, gCamera.mPosition);
+
+        #undef SET_UNIFORM
+    }
+    debug_assert(isInited);
+}
+
+void RenderProgram::SetTextureMappingEnabled(bool isEnabled)
+{
+    bool isInited = IsInitialized();
+    if (isInited)
+    {
+        if (mGpuProgram->IsUniformExists(eRenderUniform_EnableTextureMapping))
+        {
+            mGpuProgram->SetUniform(eRenderUniform_EnableTextureMapping, isEnabled ? 1 : 0);
+        }
+    }
+    debug_assert(isInited);
+}
