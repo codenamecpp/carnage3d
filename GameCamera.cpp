@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "SceneCamera.h"
+#include "GameCamera.h"
 
-SceneCamera gCamera;
+GameCamera gCamera;
 
-SceneCamera::SceneCamera()
+GameCamera::GameCamera()
     : mProjMatrixDirty(true)
     , mViewMatrixDirty(true)
     , mCurrentMode(eSceneCameraMode_Perspective)
@@ -11,7 +11,7 @@ SceneCamera::SceneCamera()
     SetIdentity();
 }
 
-void SceneCamera::SetPerspectiveProjection(float aspect, float fovy, float nearPlane, float farPlane)
+void GameCamera::SetPerspectiveProjection(float aspect, float fovy, float nearPlane, float farPlane)
 {
     mCurrentMode = eSceneCameraMode_Perspective;
     mPerspectiveParams.mAspect = aspect;
@@ -21,7 +21,7 @@ void SceneCamera::SetPerspectiveProjection(float aspect, float fovy, float nearP
     mProjMatrixDirty = true;
 }
 
-void SceneCamera::SetOrthographicProjection(float leftp, float rightp, float bottomp, float topp)
+void GameCamera::SetOrthographicProjection(float leftp, float rightp, float bottomp, float topp)
 {
     mCurrentMode = eSceneCameraMode_Orthographic;
     mOrthographicParams.mLeftP = leftp;
@@ -31,7 +31,7 @@ void SceneCamera::SetOrthographicProjection(float leftp, float rightp, float bot
     mProjMatrixDirty = true;
 }
 
-void SceneCamera::ComputeMatricesAndFrustum()
+void GameCamera::ComputeMatricesAndFrustum()
 {
     bool computeViewProjectionMatrix = mProjMatrixDirty || mViewMatrixDirty;
     if (mProjMatrixDirty)
@@ -64,7 +64,7 @@ void SceneCamera::ComputeMatricesAndFrustum()
     }
 }
 
-void SceneCamera::SetIdentity()
+void GameCamera::SetIdentity()
 {
     // set ident matrices
     mProjectionMatrix = glm::mat4(1.0f);
@@ -84,7 +84,7 @@ void SceneCamera::SetIdentity()
     mViewMatrixDirty = true;
 }
 
-void SceneCamera::FocusAt(const glm::vec3& point, const glm::vec3& upward)
+void GameCamera::FocusAt(const glm::vec3& point, const glm::vec3& upward)
 {
     mFrontDirection = glm::normalize(point - mPosition);
     mRightDirection = glm::normalize(glm::cross(upward, mFrontDirection));
@@ -92,13 +92,13 @@ void SceneCamera::FocusAt(const glm::vec3& point, const glm::vec3& upward)
     mViewMatrixDirty = true;
 }
 
-void SceneCamera::SetPosition(const glm::vec3& position)
+void GameCamera::SetPosition(const glm::vec3& position)
 {
     mPosition = position;
     mViewMatrixDirty = true;
 }
 
-void SceneCamera::SetRotationAngles(const glm::vec3& rotationAngles)
+void GameCamera::SetRotationAngles(const glm::vec3& rotationAngles)
 {
     const glm::mat4 rotationMatrix = glm::eulerAngleYXZ(
         glm::radians(rotationAngles.y), 
@@ -112,13 +112,13 @@ void SceneCamera::SetRotationAngles(const glm::vec3& rotationAngles)
     mViewMatrixDirty = true;
 }
 
-void SceneCamera::Translate(const glm::vec3& direction)
+void GameCamera::Translate(const glm::vec3& direction)
 {
     mPosition += direction;
     mViewMatrixDirty = true;
 }
 
-bool SceneCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay)
+bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay)
 {
     // wrap y
     const int32_t mouseY = gGraphicsDevice.mViewportRect.h - screenCoordinate.y;

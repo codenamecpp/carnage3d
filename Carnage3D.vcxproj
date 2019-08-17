@@ -154,8 +154,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   <ItemGroup>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
-    <ClInclude Include="RenderProgram.h" />
-    <ClInclude Include="SceneCamera.h" />
+    <ClInclude Include="GameCamera.h" />
     <ClInclude Include="CarnageGame.h" />
     <ClInclude Include="CommonTypes.h" />
     <ClInclude Include="Console.h" />
@@ -191,8 +190,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="PixelsArray.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RenderProgram.cpp" />
-    <ClCompile Include="SceneCamera.cpp" />
+    <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />
     <ClCompile Include="FileSystem.cpp" />

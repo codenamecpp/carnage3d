@@ -3,7 +3,7 @@
 #include "CommonTypes.h"
 
 // defines camera in 3d space
-class SceneCamera final: cxx::noncopyable
+class GameCamera final: cxx::noncopyable
 {
 public:
     // public for convenience, should not be modified directly
@@ -21,7 +21,7 @@ public:
     eSceneCameraMode mCurrentMode;
 
 public:
-    SceneCamera();
+    GameCamera();
 
     // Setup perspective projection matrix
     // @param aspect: Screen aspect ratio
@@ -88,4 +88,4 @@ private:
     OrthographicParams mOrthographicParams;
 };
 
-extern SceneCamera gCamera;
+extern GameCamera gCamera;

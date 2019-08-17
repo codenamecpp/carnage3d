@@ -148,11 +148,8 @@
     <ClInclude Include="PixelsArray.h">
       <Filter>Game\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="SceneCamera.h">
+    <ClInclude Include="GameCamera.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderProgram.h">
-      <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -202,11 +199,8 @@
     <ClCompile Include="PixelsArray.cpp">
       <Filter>Game\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="SceneCamera.cpp">
+    <ClCompile Include="GameCamera.cpp">
       <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderProgram.cpp">
-      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

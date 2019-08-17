@@ -1,17 +1,14 @@
 #pragma once
 
 #include "GraphicsDefs.h"
-#include "RenderProgram.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderSystem final: public cxx::noncopyable
 {
 public:
-    RenderProgram mTextureColorProgram;
+    GpuProgram* mTextureColorProgram = nullptr;
 
 public:
-    RenderSystem();
-
     // First time render system initialization
     // All shaders, buffers and other graphics resources might be loaded here
     // Return false on error
@@ -30,6 +27,9 @@ public:
 private:
     bool InitRenderPrograms();
     void FreeRenderPrograms();
+
+    bool InitRenderProgram(const char* srcFileName, GpuProgram** program);
+    void DeinitRenderProgram(GpuProgram** program);
 
 private:
     GpuTexture2D* mDummyTexture = nullptr;

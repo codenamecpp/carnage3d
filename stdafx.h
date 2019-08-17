@@ -3,7 +3,6 @@
 #ifdef _UNICODE
     #error Unicode is unsupported!
 #endif
-
 #ifdef UNICODE
     #error Unicode is unsupported!
 #endif
@@ -71,17 +70,13 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <map>
 #include <set>
 #include <deque>
-#include <queue>
 #include <list>
-#include <bitset>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <stack>
 #include <stdint.h>
 #include <cctype>
 #include <unordered_map>
-#include <unordered_set>
 
 // opengl
 #include <gl/glew.h>
@@ -90,7 +85,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glfw/glfw3.h>
 
 // glm
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
@@ -98,6 +92,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/glm.hpp>
 
 // lib
 #include "aux_math.h"
@@ -122,6 +117,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "System.h"
 #include "FileSystem.h"
 #include "GraphicsDevice.h"
-#include "SceneCamera.h"
+#include "GameCamera.h"
 #include "CarnageGame.h"
 #include "PixelsArray.h"
