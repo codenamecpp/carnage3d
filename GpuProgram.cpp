@@ -97,79 +97,124 @@ bool GpuProgram::IsProgramCompiled() const
     return mInputLayout.mEnabledAttributes > 0;
 }
 
-void GpuProgram::SetConstantf(eRenderConstant constant, float param0)
+void GpuProgram::SetUniform(eRenderUniform constant, float param0)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform1f(mResourceHandle, mConstants[constant], param0);
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], param0);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, float param0, float param1)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], param0, param1);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, float param0, float param1, float param2)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], param0, param1, param2);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, int param0)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], param0);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, const glm::vec2& floatVector2)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], floatVector2);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, const glm::vec3& floatVector3)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], floatVector3);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, const glm::vec4& floatVector4)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], floatVector4);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, const glm::mat3& floatMatrix3)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], floatMatrix3);
+}
+
+void GpuProgram::SetUniform(eRenderUniform constant, const glm::mat4& floatMatrix4)
+{
+    debug_assert(constant < eRenderUniform_COUNT);
+    SetCustomUniform(mConstants[constant], floatMatrix4);
+}
+
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0)
+{
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform1f(mResourceHandle, constantLocation, param0);
     glCheckError();
 }
 
-void GpuProgram::SetConstantf(eRenderConstant constant, float param0, float param1)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0, float param1)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform2f(mResourceHandle, mConstants[constant], param0, param1);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform2f(mResourceHandle, constantLocation, param0, param1);
     glCheckError();
 }
 
-void GpuProgram::SetConstantf(eRenderConstant constant, float param0, float param1, float param2)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0, float param1, float param2)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform3f(mResourceHandle, mConstants[constant], param0, param1, param2);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform3f(mResourceHandle, constantLocation, param0, param1, param2);
     glCheckError();
 }
 
-void GpuProgram::SetConstanti(eRenderConstant constant, int param0)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, int param0)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform1i(mResourceHandle, mConstants[constant], param0);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform1i(mResourceHandle, constantLocation, param0);
     glCheckError();
 }
 
-void GpuProgram::SetConstant(eRenderConstant constant, const glm::vec2& floatVector2)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec2& floatVector2)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform2fv(mResourceHandle, mConstants[constant], 1, &floatVector2.x);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform2fv(mResourceHandle, constantLocation, 1, &floatVector2.x);
     glCheckError();
 }
 
-void GpuProgram::SetConstant(eRenderConstant constant, const glm::vec3& floatVector3)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec3& floatVector3)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform3fv(mResourceHandle, mConstants[constant], 1, &floatVector3.x);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform3fv(mResourceHandle, constantLocation, 1, &floatVector3.x);
     glCheckError();
 }
 
-void GpuProgram::SetConstant(eRenderConstant constant, const glm::vec4& floatVector4)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec4& floatVector4)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniform4fv(mResourceHandle, mConstants[constant], 1, &floatVector4.x);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniform4fv(mResourceHandle, constantLocation, 1, &floatVector4.x);
     glCheckError();
 }
 
-void GpuProgram::SetConstant(eRenderConstant constant, const glm::mat3& floatMatrix3)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::mat3& floatMatrix3)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniformMatrix3fv(mResourceHandle, mConstants[constant], 1, GL_FALSE, &floatMatrix3[0][0]);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniformMatrix3fv(mResourceHandle, constantLocation, 1, GL_FALSE, &floatMatrix3[0][0]);
     glCheckError();
 }
 
-void GpuProgram::SetConstant(eRenderConstant constant, const glm::mat4& floatMatrix4)
+void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::mat4& floatMatrix4)
 {
-    debug_assert(IsProgramCompiled());
-    debug_assert(constant < eRenderConstant_COUNT);
-    ::glProgramUniformMatrix4fv(mResourceHandle, mConstants[constant], 1, GL_FALSE, &floatMatrix4[0][0]);
+    debug_assert(constantLocation != GpuVariableNULL);
+    ::glProgramUniformMatrix4fv(mResourceHandle, constantLocation, 1, GL_FALSE, &floatMatrix4[0][0]);
     glCheckError();
 }
 
-bool GpuProgram::CompileShader(const char* shaderSource)
+bool GpuProgram::CompileSourceCode(const char* shaderSource)
 {
     // set unbound
     if (this == mGraphicsContext.mCurrentProgram)
@@ -185,7 +230,7 @@ bool GpuProgram::CompileShader(const char* shaderSource)
         programHandleGL = ::glCreateProgram();
         glCheckError();
 
-        isSuccessed = CompileShader(programHandleGL, shaderSource);
+        isSuccessed = CompileSourceCode(programHandleGL, shaderSource);
         if (!isSuccessed)
         {
             // destroy temporary program
@@ -202,7 +247,7 @@ bool GpuProgram::CompileShader(const char* shaderSource)
     }
     else
     {
-        isSuccessed = CompileShader(mResourceHandle, shaderSource);
+        isSuccessed = CompileSourceCode(mResourceHandle, shaderSource);
     }
 
     if (!isSuccessed)
@@ -228,9 +273,9 @@ bool GpuProgram::CompileShader(const char* shaderSource)
     }
 
     // query standard constants
-    for (int iconst = 0; iconst < eRenderConstant_COUNT; ++iconst)
+    for (int iconst = 0; iconst < eRenderUniform_COUNT; ++iconst)
     { 
-        mConstants[iconst] = ::glGetUniformLocation(mResourceHandle, ToString((eRenderConstant) iconst));
+        mConstants[iconst] = ::glGetUniformLocation(mResourceHandle, ToString((eRenderUniform) iconst));
         glCheckError();
     }
 
@@ -250,7 +295,7 @@ bool GpuProgram::CompileShader(const char* shaderSource)
     return true;
 }
 
-bool GpuProgram::CompileShader(GpuProgramHandle targetHandle, const char* programSrc)
+bool GpuProgram::CompileSourceCode(GpuProgramHandle targetHandle, const char* programSrc)
 {
     // source strings
     const char* vertSource[] = { gGLSL_version_string, gGLSL_vertex_shader_string, programSrc };
@@ -306,8 +351,17 @@ bool GpuProgram::CompileShader(GpuProgramHandle targetHandle, const char* progra
     return true;
 }
 
-bool GpuProgram::ConstantExists(eRenderConstant constant) const
+bool GpuProgram::IsUniformExists(eRenderUniform constant) const
 {
-    debug_assert(constant < eRenderConstant_COUNT);
+    debug_assert(constant < eRenderUniform_COUNT);
     return mConstants[constant] > GpuVariableNULL;
+}
+
+bool GpuProgram::QueryUniformLocation(const char* constantName, GpuVariableLocation& outLocation) const
+{
+    outLocation = ::glGetUniformLocation(mResourceHandle, constantName);
+    glCheckError();
+
+    bool constantExists = (outLocation != GpuVariableNULL);
+    return constantExists;
 }

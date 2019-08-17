@@ -151,6 +151,9 @@
     <ClInclude Include="GameCamera.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="RenderProgram.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -201,6 +204,9 @@
     </ClCompile>
     <ClCompile Include="GameCamera.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderProgram.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

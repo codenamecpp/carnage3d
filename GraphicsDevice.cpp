@@ -257,7 +257,7 @@ GpuProgram* GraphicsDevice::CreateRenderProgram(const char* shaderSource)
     }
 
     GpuProgram* program = new GpuProgram(mGraphicsContext);
-    if (!program->CompileShader(shaderSource))
+    if (!program->CompileSourceCode(shaderSource))
     {
         DestroyProgram(program);
         return nullptr;

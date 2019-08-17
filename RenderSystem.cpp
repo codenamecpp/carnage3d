@@ -5,7 +5,10 @@
 
 RenderSystem gRenderSystem;
 
-const char* TextureColorProgramFileName = "shaders/texture_color.glsl";
+RenderSystem::RenderSystem()
+    : mTextureColorProgram("shaders/texture_color.glsl")
+{
+}
 
 bool RenderSystem::Initialize()
 {
@@ -77,12 +80,11 @@ void RenderSystem::RenderFrame()
     // todo
 
     gGraphicsDevice.BindTexture2D(eTextureUnit_0, mDummyTexture);
-    gGraphicsDevice.BindRenderProgram(mTextureColorProgram);
+    mTextureColorProgram.Activate();
 
     gCamera.ComputeMatricesAndFrustum();
 
-    mTextureColorProgram->SetConstant(eRenderConstant_ViewProjectionMatrix, gCamera.mViewProjectionMatrix);
-    mTextureColorProgram->SetConstanti(eRenderConstant_EnableTextureMapping, 1);
+    mTextureColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, gCamera.mViewProjectionMatrix);
 
     gGraphicsDevice.BindVertexBuffer(mDummyVertexBuffer, Vertex3D_Format::Get());
     gGraphicsDevice.BindIndexBuffer(mDummyIndexBuffer);
@@ -95,69 +97,17 @@ void RenderSystem::RenderFrame()
 
 void RenderSystem::FreeRenderPrograms()
 {
-    DeinitRenderProgram(&mTextureColorProgram);
+    mTextureColorProgram.Deinit();
 }
 
 bool RenderSystem::InitRenderPrograms()
 {
-    if (!InitRenderProgram(TextureColorProgramFileName, &mTextureColorProgram))
-        return false;
+    mTextureColorProgram.Initialize();
 
     return true;
 }
 
 void RenderSystem::ReloadRenderPrograms()
 {
-    InitRenderProgram(TextureColorProgramFileName, &mTextureColorProgram);
-}
-
-bool RenderSystem::InitRenderProgram(const char* srcFileName, GpuProgram** program)
-{
-    if (program == nullptr)
-    {
-        debug_assert(false);
-        return false;
-    }
-
-    if (*program == nullptr) // create new program object
-    {
-        *program = gGraphicsDevice.CreateRenderProgram();
-        if (*program == nullptr)
-        {
-            gConsole.LogMessage(eLogMessage_Warning, "Cannot create shader object");
-            return false;
-        }
-    }
-
-    // load shader source code
-    std::string shaderSourceCode;
-    if (!gFiles.ReadTextFile(srcFileName, shaderSourceCode))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load shader %s", srcFileName);
-        return false;
-    }
-
-    if ((*program)->CompileShader(shaderSourceCode.c_str()))
-    {
-        gConsole.LogMessage(eLogMessage_Debug, "Shader loaded %s", srcFileName);
-        return true;
-    }
-
-    gConsole.LogMessage(eLogMessage_Debug, "Cannot init shader %s", srcFileName);
-    return false;
-}
-
-void RenderSystem::DeinitRenderProgram(GpuProgram** program)
-{
-    if (program == nullptr)
-    {
-        debug_assert(false);
-        return;
-    }
-
-    if (*program)
-    {
-        gGraphicsDevice.DestroyProgram(*program);
-        *program = nullptr;
-    }
+    mTextureColorProgram.Reinitialize();
 }

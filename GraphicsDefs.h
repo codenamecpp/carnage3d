@@ -631,33 +631,33 @@ const BufferAccessBits BufferAccess_InvalidateRange = (1 << 3); // have meaning 
 const BufferAccessBits BufferAccess_InvalidateBuffer = (1 << 4); // orphan whole buffer
 const BufferAccessBits BufferAccess_UnsynchronizedWrite = BufferAccess_Unsynchronized + BufferAccess_Write;
 
-enum eRenderConstant
+enum eRenderUniform
 {
-    eRenderConstant_ModelMatrix,
-    eRenderConstant_ViewMatrix,
-    eRenderConstant_ProjectionMatrix,
-    eRenderConstant_ModelViewMatrix,
-    eRenderConstant_ModelViewProjectionMatrix,
-    eRenderConstant_ViewProjectionMatrix,
-    eRenderConstant_NormalMatrix,         
-    eRenderConstant_CameraPosition, // world space camera position
-    eRenderConstant_EnableTextureMapping,
-    eRenderConstant_COUNT
+    eRenderUniform_ModelMatrix,
+    eRenderUniform_ViewMatrix,
+    eRenderUniform_ProjectionMatrix,
+    eRenderUniform_ModelViewMatrix,
+    eRenderUniform_ModelViewProjectionMatrix,
+    eRenderUniform_ViewProjectionMatrix,
+    eRenderUniform_NormalMatrix,         
+    eRenderUniform_CameraPosition, // world space camera position
+    eRenderUniform_EnableTextureMapping,
+    eRenderUniform_COUNT
 };
 
-inline const char* ToString(eRenderConstant constant)
+inline const char* ToString(eRenderUniform constant)
 {
     switch (constant)
     {
-        case eRenderConstant_ModelMatrix: return "model_matrix";
-        case eRenderConstant_ViewMatrix: return "view_matrix";
-        case eRenderConstant_ProjectionMatrix: return "projection_matrix";
-        case eRenderConstant_ModelViewMatrix: return "model_view_matrix";
-        case eRenderConstant_ModelViewProjectionMatrix: return "model_view_projection_matrix";
-        case eRenderConstant_ViewProjectionMatrix: return "view_projection_matrix";
-        case eRenderConstant_NormalMatrix: return "normal_matrix";
-        case eRenderConstant_CameraPosition: return "camera_position";
-        case eRenderConstant_EnableTextureMapping: return "enable_texture_mapping";
+        case eRenderUniform_ModelMatrix: return "model_matrix";
+        case eRenderUniform_ViewMatrix: return "view_matrix";
+        case eRenderUniform_ProjectionMatrix: return "projection_matrix";
+        case eRenderUniform_ModelViewMatrix: return "model_view_matrix";
+        case eRenderUniform_ModelViewProjectionMatrix: return "model_view_projection_matrix";
+        case eRenderUniform_ViewProjectionMatrix: return "view_projection_matrix";
+        case eRenderUniform_NormalMatrix: return "normal_matrix";
+        case eRenderUniform_CameraPosition: return "camera_position";
+        case eRenderUniform_EnableTextureMapping: return "enable_texture_mapping";
     }
     debug_assert(false);
     return "";
