@@ -104,6 +104,42 @@ inline bool operator != (const Point2D& theL, const Point2D& theR) { return theL
 inline Point2D operator - (const Point2D& theL, const Point2D& theR) { return {theL.x - theR.x, theL.y - theR.y}; }
 inline Point2D operator + (const Point2D& theL, const Point2D& theR) { return {theL.x + theR.x, theL.y + theR.y}; }
 
+// defines point in 3d space
+struct Point3D
+{
+public:
+    Point3D() = default;
+    Point3D(int posx, int posy, int posz)
+        : x(posx)
+        , y(posy)
+        , z(posz)
+    {
+    }
+    inline Point3D& operator += (const Point3D& point)
+    {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+        return *this;
+    }
+    inline Point3D& operator -= (const Point3D& point)
+    {
+        x -= point.x;
+        y -= point.y;
+        z -= point.z;
+        return *this;
+    }
+    inline Point3D operator -() const { return { -x, -y, -z }; }
+public:
+    int x, y, z;
+};
+
+inline bool operator == (const Point3D& lhs, const Point3D& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
+inline bool operator != (const Point3D& lhs, const Point3D& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y || lhs.z != rhs.z; }
+
+inline Point3D operator - (const Point3D& lhs, const Point3D& rhs) { return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z}; }
+inline Point3D operator + (const Point3D& lhs, const Point3D& rhs) { return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z}; }
+
 // defines size in 2d space
 struct Size2D
 {

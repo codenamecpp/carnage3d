@@ -120,3 +120,4 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "GameCamera.h"
 #include "CarnageGame.h"
 #include "PixelsArray.h"
+#include "GameDefs.h"

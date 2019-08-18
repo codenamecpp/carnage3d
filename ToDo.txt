@@ -4,6 +4,7 @@
     - Top Down Camera controller
     - Init Scene Camera
     - Draw something in 3D
+    - add debug console - imgui
 
 2 iteration
     - Load gta city data file

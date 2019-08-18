@@ -36,4 +36,16 @@ namespace cxx
         }
         return angleDegrees - 180.0f;
     }
+
+    // round up value
+    inline unsigned int round_up_to(unsigned int value, unsigned int pad)
+    {
+        if (pad > 0 && (value % pad))
+        {
+            const unsigned int value_to_add = pad - (value % pad);
+            return value + value_to_add;
+        }
+        return value;
+    }
+
 } // namespace cxx

@@ -154,6 +154,15 @@
     <ClInclude Include="RenderProgram.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefs.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CityStyleData.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CityScapeData.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -207,6 +216,12 @@
     </ClCompile>
     <ClCompile Include="RenderProgram.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CityStyleData.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CityScapeData.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CityScapeData.h"
+
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
 {
@@ -18,8 +20,8 @@ public:
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
 
-private:
-
+public:
+    CityScapeData mCityScape;
 };
 
 extern CarnageGame gCarnageGame;
