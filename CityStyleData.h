@@ -27,7 +27,7 @@ public:
     // @param blockIndex: Source block index
     // @param pixelsArray: Target bitmap, must be created
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
-    bool GetBlockPixels(eBlockType blockType, int blockIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
+    bool GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
 
     // Get number of textures total or for specific block type only
     // @param blockType: Block type
@@ -64,7 +64,7 @@ public:
     // @param spriteIndex: Sprite index
     // @param pixelsArray: Target bitmap, must be created
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
-    bool GetSpritePixels(int spriteIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
+    bool GetSpriteTexture(int spriteIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
 
     // Map sprite type and id pair to sprite index
     // @param spriteType: Sprite type
