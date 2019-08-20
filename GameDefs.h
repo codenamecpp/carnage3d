@@ -167,13 +167,23 @@ inline const char* ToString(eBlockFace value)
     return "";
 }
 
+// define sprite HLS remap information
 struct HLSRemap
 {
 public:
-    int mH, mL, mS;
+    HLSRemap() = default;
+    HLSRemap(short h, short l, short s)
+        : mH(h)
+        , mL(l)
+        , mS(s)
+    {
+    }
+public:
+    short mH, mL, mS;
 };
 
-struct MapBlockInfo
+// define map block information
+struct BlockStyleData
 {
 public:
     eLidRotation mLidRotation;
@@ -207,7 +217,8 @@ public:
     bool mIsRailway : 1;
 };
 
-struct MapBlockAnimationInfo
+// define map block anim information
+struct BlockAnimationStyleData
 {
 public:
     int mBlock = 0; // the block number
@@ -217,7 +228,8 @@ public:
     int mFrames[MAX_MAP_BLOCK_ANIM_FRAMES]; // an array of block numbers, these refer to aux_block
 };
 
-struct MapObjectInfo
+// define map object information
+struct MapObjectStyleData
 {
 public:
     int mWidth;
@@ -229,7 +241,8 @@ public:
     int mStatus;
 };
 
-struct CarDoorInfo
+// define car door information
+struct CarDoorStyleData
 {
 public:
 	int mRpx, mRpy;
@@ -237,7 +250,8 @@ public:
 	int mDelta;
 };
 
-struct CarClassInfo
+// define car class information
+struct CarStyleData
 {
 public:
     // dimensions of the car with respect to collision checking
@@ -273,26 +287,27 @@ public:
     int mSoundFunction;
     int mFastChangeFlag;
     int mDoorsCount;
-    CarDoorInfo mDoors[MAX_CAR_DOORS];
+    CarDoorStyleData mDoors[MAX_CAR_DOORS];
 };
 
-struct SpriteDeltaInfo
-{
-public:
-    int mSize; // bytes for this delta
-    int mOffset;
-};
-
-struct SpriteInfo
+// define sprite information
+struct SpriteStyleData
 {
 public:
     int mWidth;
     int mHeight;
-    int mDeltaCount;
     int mSize; // bytes per frame w x h
     int mClut;
     int mPageOffsetX, mPageOffsetY;
     int mPageNumber;
-    SpriteDeltaInfo mDeltas[MAX_SPRITE_DELTAS];
+    int mDeltaCount;
+
+    // delta information for sprite
+    struct DeltaInfo
+    {
+        int mSize; // bytes for this delta
+        int mOffset;
+    };
+    DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
 };
 

@@ -24,8 +24,8 @@ public:
     // get map block info at specific location
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for z
     // point, tilex, tiley, tilez: Location
-    MapBlockInfo* GetBlock(int tilex, int tiley, int tilez);
-    MapBlockInfo* GetBlock(const Point3D& point);
+    BlockStyleData* GetBlock(int tilex, int tiley, int tilez);
+    BlockStyleData* GetBlock(const Point3D& point);
 
 private:
     // Reading map data internals
@@ -35,5 +35,5 @@ private:
 private:
     int mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
-    std::vector<MapBlockInfo> mBlocksData;
+    std::vector<BlockStyleData> mBlocksData;
 };

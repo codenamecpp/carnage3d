@@ -237,10 +237,10 @@ bool CityStyleData::IsLoaded() const
     return (mLidBlocksCount + mSideBlocksCount + mAuxBlocksCount) > 0;
 }
 
-bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, MapBlockAnimationInfo* animationInfo)
+bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyleData* animationInfo)
 {
     debug_assert(animationInfo);
-    for (const MapBlockAnimationInfo& currAnim: mBlocksAnimations)
+    for (const BlockAnimationStyleData& currAnim: mBlocksAnimations)
     {
         if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
         {
@@ -252,7 +252,7 @@ bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, 
     return false;
 }
 
-bool CityStyleData::GetCarClassInfo(int index, CarClassInfo* carInfo)
+bool CityStyleData::GetCarClassInfo(int index, CarStyleData* carInfo)
 {
     debug_assert(carInfo);
 
@@ -266,7 +266,7 @@ bool CityStyleData::GetCarClassInfo(int index, CarClassInfo* carInfo)
     return false;
 }
 
-bool CityStyleData::GetObjectInfo(int index, MapObjectInfo* objectInfo)
+bool CityStyleData::GetObjectInfo(int index, MapObjectStyleData* objectInfo)
 {
     debug_assert(objectInfo);
 
@@ -280,7 +280,7 @@ bool CityStyleData::GetObjectInfo(int index, MapObjectInfo* objectInfo)
     return false;
 }
 
-bool CityStyleData::GetSpriteInfo(int index, SpriteInfo* spriteInfo)
+bool CityStyleData::GetSpriteInfo(int index, SpriteStyleData* spriteInfo)
 {
     debug_assert(spriteInfo);
 
@@ -294,7 +294,7 @@ bool CityStyleData::GetSpriteInfo(int index, SpriteInfo* spriteInfo)
     return false;
 }
 
-bool CityStyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool CityStyleData::GetBlockPixels(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target bitmap must be allocated otherwise operation makes no sence
     if (bitmap == nullptr || !bitmap->HasContent())
@@ -374,7 +374,7 @@ int CityStyleData::GetBlockTexturesCount() const
     return mSideBlocksCount + mLidBlocksCount + mAuxBlocksCount;
 }
 
-bool CityStyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool CityStyleData::GetSpritePixels(int spriteIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target texture must be allocated otherwise operation makes no sence
     if (bitmap == nullptr || !bitmap->HasContent())
@@ -390,7 +390,7 @@ bool CityStyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int d
         return false;
     }
 
-    const SpriteInfo& sprite = mSprites[spriteIndex];
+    const SpriteStyleData& sprite = mSprites[spriteIndex];
 
     unsigned char* srcPixels = mSpriteGraphicsRaw.data() + GTA_SPRITE_PAGE_SIZE * sprite.mPageNumber;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
@@ -506,7 +506,7 @@ bool CityStyleData::ReadAnimations(std::ifstream& file, int dataLength)
 
     for (int ianimation = 0; ianimation < numAnimationBlocks; ++ianimation)
     {
-        MapBlockAnimationInfo animation;
+        BlockAnimationStyleData animation;
 
         READ_I8(file, animation.mBlock);
         READ_I8(file, animation.mWhich);
@@ -528,7 +528,7 @@ bool CityStyleData::ReadObjects(std::ifstream& file, int dataLength)
 {
     for (; dataLength > 0;)
     {
-        MapObjectInfo objectInfo;
+        MapObjectStyleData objectInfo;
 
         READ_I32(file, objectInfo.mWidth);
         READ_I32(file, objectInfo.mHeight);
@@ -563,7 +563,7 @@ bool CityStyleData::ReadCars(std::ifstream& file, int dataLength)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        CarClassInfo carInfo;
+        CarStyleData carInfo;
         READ_I16(file, carInfo.mWidth);
         READ_I16(file, carInfo.mHeight);
         READ_I16(file, carInfo.mDepth);
@@ -651,7 +651,7 @@ bool CityStyleData::ReadSprites(std::ifstream& file, int dataLength)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        SpriteInfo spriteInfo;
+        SpriteStyleData spriteInfo;
         READ_I8(file, spriteInfo.mWidth);
         READ_I8(file, spriteInfo.mHeight);
         READ_I8(file, spriteInfo.mDeltaCount);
