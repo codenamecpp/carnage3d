@@ -51,6 +51,17 @@ inline GLenum EnumToGL(eBufferUsage usageHint)
     return GL_STATIC_DRAW;
 }
 
+inline GLenum EnumToGL(eIndicesType indicesType)
+{
+    switch (indicesType)
+    {
+        case eIndicesType_i16: return GL_UNSIGNED_SHORT;
+        case eIndicesType_i32: return GL_UNSIGNED_INT;
+    }
+    debug_assert(false);
+    return GL_STATIC_DRAW;
+}
+
 inline GLenum EnumToGL(ePrimitiveType primitiveType)
 {
     switch (primitiveType)

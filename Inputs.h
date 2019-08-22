@@ -8,6 +8,9 @@ enum
     KEYCODE_PAGE_UP     = GLFW_KEY_PAGE_UP,
     KEYCODE_PAGE_DOWN   = GLFW_KEY_PAGE_DOWN,
     KEYCODE_HOME        = GLFW_KEY_HOME,
+    KEYCODE_END         = GLFW_KEY_END,
+    KEYCODE_INSERT      = GLFW_KEY_INSERT,
+    KEYCODE_DELETE      = GLFW_KEY_DELETE,
     KEYCODE_RIGHT_CTRL  = GLFW_KEY_RIGHT_CONTROL,
     KEYCODE_LEFT_CTRL   = GLFW_KEY_LEFT_CONTROL,
     KEYCODE_BACKSPACE   = GLFW_KEY_BACKSPACE,
@@ -30,10 +33,14 @@ enum
 
     // Letters
     KEYCODE_A           = GLFW_KEY_A,
+    KEYCODE_C           = GLFW_KEY_C,
+    KEYCODE_V           = GLFW_KEY_V,
+    KEYCODE_X           = GLFW_KEY_X,
     KEYCODE_W           = GLFW_KEY_W,
     KEYCODE_D           = GLFW_KEY_D,
     KEYCODE_S           = GLFW_KEY_S,
-
+    KEYCODE_Y           = GLFW_KEY_Y,
+    KEYCODE_Z           = GLFW_KEY_Z,
     KEYCODE_R           = GLFW_KEY_R,
 
     // digits

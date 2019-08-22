@@ -7,6 +7,7 @@ RenderSystem gRenderSystem;
 
 RenderSystem::RenderSystem()
     : mDefaultTexColorProgram("shaders/texture_color.glsl")
+    , mGuiTexColorProgram("shaders/gui.glsl")
 {
 }
 
@@ -39,7 +40,7 @@ bool RenderSystem::Initialize()
     Vertex3D verts[4];
     MakeQuad3D(mDummyTexture->mSize, rcSource, rcDest, COLOR_WHITE, verts);
 
-    int indices[6] =
+    short indices[6] =
     {
         0, 1, 2, 0, 2, 3
     };
@@ -47,7 +48,7 @@ bool RenderSystem::Initialize()
     mDummyVertexBuffer = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices, eBufferUsage_Static, Sizeof_Vertex3D * 4, verts);
     debug_assert(mDummyVertexBuffer);
 
-    mDummyIndexBuffer = gGraphicsDevice.CreateBuffer(eBufferContent_Indices, eBufferUsage_Static, sizeof(int) * 6, indices);
+    mDummyIndexBuffer = gGraphicsDevice.CreateBuffer(eBufferContent_Indices, eBufferUsage_Static, sizeof(short) * 6, indices);
     debug_assert(mDummyIndexBuffer);
 
     return true;
@@ -88,9 +89,11 @@ void RenderSystem::RenderFrame()
 
     gGraphicsDevice.BindVertexBuffer(mDummyVertexBuffer, Vertex3D_Format::Get());
     gGraphicsDevice.BindIndexBuffer(mDummyIndexBuffer);
-    gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, 0, 6);
+    gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i16, 0, 6);
 
     // todo
+
+    gGuiSystem.RenderFrame();
 
     gGraphicsDevice.Present();
 }
@@ -98,11 +101,13 @@ void RenderSystem::RenderFrame()
 void RenderSystem::FreeRenderPrograms()
 {
     mDefaultTexColorProgram.Deinit();
+    mGuiTexColorProgram.Deinit();
 }
 
 bool RenderSystem::InitRenderPrograms()
 {
     mDefaultTexColorProgram.Initialize();
+    mGuiTexColorProgram.Initialize();
 
     return true;
 }
@@ -110,4 +115,5 @@ bool RenderSystem::InitRenderPrograms()
 void RenderSystem::ReloadRenderPrograms()
 {
     mDefaultTexColorProgram.Reinitialize();
+    mGuiTexColorProgram.Reinitialize();
 }

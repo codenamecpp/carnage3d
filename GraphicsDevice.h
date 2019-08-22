@@ -96,12 +96,13 @@ public:
     }
 
     // Render indexed geometry
-    // @param primitiveType: Type of primitives to render
-    // @param indexOffset: Offset within index buffer in bytes
+    // @param primitive: Type of primitives to render
+    // @param indicesType: Type of indices data
+    // @param offset: Offset within index buffer in bytes
     // @param numIndices: Number of elements
     // @param baseVertex: Specifies a constant that should be added to each element of indices when chosing elements from the vertex arrays
-    void RenderIndexedPrimitives(ePrimitiveType primitiveType, unsigned int dataOffset, unsigned int numIndices);
-    void RenderIndexedPrimitives(ePrimitiveType primitiveType, unsigned int dataOffset, unsigned int numIndices, unsigned int baseVertex);
+    void RenderIndexedPrimitives(ePrimitiveType primitive, eIndicesType indicesType, unsigned int offset, unsigned int numIndices);
+    void RenderIndexedPrimitives(ePrimitiveType primitive, eIndicesType indicesType, unsigned int offset, unsigned int numIndices, unsigned int baseVertex);
 
     // Render geometry
     // @param primitiveType: Type of primitives to render

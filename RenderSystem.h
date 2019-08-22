@@ -8,6 +8,7 @@ class RenderSystem final: public cxx::noncopyable
 {
 public:
     RenderProgram mDefaultTexColorProgram;
+    RenderProgram mGuiTexColorProgram;
 
 public:
     RenderSystem();

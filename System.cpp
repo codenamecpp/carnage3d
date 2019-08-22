@@ -58,6 +58,7 @@ void System::Execute()
         Timespan deltaTime ( mCurrentTimestamp - mPreviousFrameTimestamp );
 
         // order in which subsystems gets updated is significant
+        gGuiSystem.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
         gRenderSystem.RenderFrame();
         mPreviousFrameTimestamp = mCurrentTimestamp;
@@ -109,6 +110,12 @@ void System::Initialize()
         Terminate();
     }
 
+    if (!gGuiSystem.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Error, "Cannot initialize gui system");
+        Terminate();
+    }
+
     if (!gCarnageGame.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize game");
@@ -124,6 +131,7 @@ void System::Deinit()
     ::timeEndPeriod(1);
 
     gCarnageGame.Deinit();
+    gGuiSystem.Deinit();
     gRenderSystem.Deinit();
     gGraphicsDevice.Deinit();
     gFiles.Deinit();
@@ -144,30 +152,35 @@ void System::QuitRequest()
 void System::HandleEvent(MouseButtonInputEvent& inputEvent)
 {
     gInputs.HandleEvent(inputEvent);
+    gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
 void System::HandleEvent(MouseMovedInputEvent& inputEvent)
 {
     gInputs.HandleEvent(inputEvent);
+    gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
 void System::HandleEvent(MouseScrollInputEvent& inputEvent)
 {
     gInputs.HandleEvent(inputEvent);
+    gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
 void System::HandleEvent(KeyInputEvent& inputEvent)
 {
     gInputs.HandleEvent(inputEvent);
+    gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
 void System::HandleEvent(KeyCharEvent& inputEvent)
 {
     gInputs.HandleEvent(inputEvent);
+    gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 

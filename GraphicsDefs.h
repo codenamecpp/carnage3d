@@ -324,6 +324,24 @@ inline const char* ToString(ePrimitiveType primitive)
     return "";
 }
 
+enum eIndicesType
+{
+    eIndicesType_i16, 
+    eIndicesType_i32, 
+    eIndicesType_COUNT,
+};
+
+inline const char* ToString(eIndicesType value)
+{
+    switch (value)
+    {
+        case eIndicesType_i16: return "i16";
+        case eIndicesType_i32: return "i32";
+    }
+    debug_assert(false);
+    return "";
+}
+
 enum eTextureUnit
 {
     eTextureUnit_0,

@@ -451,7 +451,7 @@ void GraphicsDevice::DestroyBuffer(GpuBuffer* bufferResource)
     SafeDelete(bufferResource);
 }
 
-void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitiveType, unsigned int dataOffset, unsigned int numIndices)
+void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitive, eIndicesType indices, unsigned int offset, unsigned int numIndices)
 {
     if (!IsDeviceInited())
     {
@@ -463,12 +463,13 @@ void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitiveType, unsig
     GpuBuffer* vertexBuffer = mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices];
     debug_assert(indexBuffer && vertexBuffer && mGraphicsContext.mCurrentProgram);
 
-    GLenum primitives = EnumToGL(primitiveType);
-    ::glDrawElements(primitives, numIndices, GL_UNSIGNED_INT, BUFFER_OFFSET(dataOffset));
+    GLenum primitives = EnumToGL(primitive);
+    GLenum indicesTypeGL = EnumToGL(indices);
+    ::glDrawElements(primitives, numIndices, indicesTypeGL, BUFFER_OFFSET(offset));
     glCheckError();
 }
 
-void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitiveType, unsigned int dataOffset, unsigned int numIndices, unsigned int baseVertex)
+void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitive, eIndicesType indices, unsigned int offset, unsigned int numIndices, unsigned int baseVertex)
 {
     if (!IsDeviceInited())
     {
@@ -480,8 +481,9 @@ void GraphicsDevice::RenderIndexedPrimitives(ePrimitiveType primitiveType, unsig
     GpuBuffer* vertexBuffer = mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices];
     debug_assert(indexBuffer && vertexBuffer && mGraphicsContext.mCurrentProgram);
 
-    GLenum primitives = EnumToGL(primitiveType);
-    ::glDrawElementsBaseVertex(primitives, numIndices, GL_UNSIGNED_INT, BUFFER_OFFSET(dataOffset), baseVertex);
+    GLenum primitives = EnumToGL(primitive);
+    GLenum indicesTypeGL = EnumToGL(indices);
+    ::glDrawElementsBaseVertex(primitives, numIndices, indicesTypeGL, BUFFER_OFFSET(offset), baseVertex);
     glCheckError();
 }
 

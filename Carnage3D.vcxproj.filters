@@ -14,14 +14,8 @@
     <Filter Include="Data">
       <UniqueIdentifier>{8f0add5f-f347-486d-8d59-290e803a60c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lib\Third_Party">
-      <UniqueIdentifier>{1f1ffaf5-f87b-44d2-b090-043999b5fdca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Graphics">
       <UniqueIdentifier>{9404e22a-5edb-423f-a41f-b4ec226e6311}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Lib\cxx">
-      <UniqueIdentifier>{f35a531d-6de0-4693-a10b-f67ed3c1ad31}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application">
       <UniqueIdentifier>{7bc9d5ce-6088-41d3-822e-279255239e24}</UniqueIdentifier>
@@ -41,64 +35,34 @@
     <Filter Include="Game\Resources">
       <UniqueIdentifier>{b8cc8a27-b473-4e3b-94c8-8f95ce955c03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GUI">
+      <UniqueIdentifier>{2012cf28-2f74-4790-abf5-66d9b339079b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GUI\DebugUI">
+      <UniqueIdentifier>{3de37338-6295-41c3-93df-a00af8fdd4d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party">
+      <UniqueIdentifier>{1f1ffaf5-f87b-44d2-b090-043999b5fdca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party\imgui">
+      <UniqueIdentifier>{0007b562-ec72-4afb-99a1-fc5711dc8e50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party\cjson">
+      <UniqueIdentifier>{c13f070d-0830-4fa7-87c5-ebd42a7e33d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party\stb">
+      <UniqueIdentifier>{4cca613e-8979-4fd2-8976-bef3ea433c70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>_Pch</Filter>
-    </ClInclude>
-    <ClInclude Include="cJSON.h">
-      <Filter>Lib\Third_Party</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_rect_pack.h">
-      <Filter>Lib\Third_Party</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_sprintf.h">
-      <Filter>Lib\Third_Party</Filter>
-    </ClInclude>
-    <ClInclude Include="std_image.h">
-      <Filter>Lib\Third_Party</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLDefs.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsDevice.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="aux_math.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="aux_stl.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="frustum.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="geometries.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="handle.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="heap.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="intrusive_list.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="memory_istream.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="object_pool.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="randomizer.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="refcounted.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="strings.h">
-      <Filter>Lib\cxx</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsDefs.h">
       <Filter>Graphics</Filter>
@@ -133,17 +97,8 @@
     <ClInclude Include="FileSystem.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="path_utils.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
-    <ClInclude Include="config_document.h">
-      <Filter>Lib\cxx</Filter>
-    </ClInclude>
     <ClInclude Include="RenderSystem.h">
       <Filter>Game\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image_write.h">
-      <Filter>Lib\Third_Party</Filter>
     </ClInclude>
     <ClInclude Include="PixelsArray.h">
       <Filter>Game\Resources</Filter>
@@ -163,19 +118,94 @@
     <ClInclude Include="CityScapeData.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="cJSON.h">
+      <Filter>Third_Party\cjson</Filter>
+    </ClInclude>
+    <ClInclude Include="std_image.h">
+      <Filter>Third_Party\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>Third_Party\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_rect_pack.h">
+      <Filter>Third_Party\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_sprintf.h">
+      <Filter>Third_Party\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="aux_math.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="aux_stl.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="config_document.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="geometries.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="handle.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="heap.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="intrusive_list.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_istream.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="object_pool.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="path_utils.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="randomizer.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="refcounted.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="strings.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_rectpack.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_textedit.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_truetype.h">
+      <Filter>Third_Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiSystem.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiRenderer.h">
+      <Filter>Game\GUI\DebugUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>_Pch</Filter>
     </ClCompile>
-    <ClCompile Include="cJSON.cpp">
-      <Filter>Lib\Third_Party</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsDevice.cpp">
       <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="strings.cpp">
-      <Filter>Lib\cxx</Filter>
     </ClCompile>
     <ClCompile Include="GpuBuffer.cpp">
       <Filter>Graphics</Filter>
@@ -202,9 +232,6 @@
     <ClCompile Include="FileSystem.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="config_document.cpp">
-      <Filter>Lib\cxx</Filter>
-    </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
@@ -223,6 +250,33 @@
     <ClCompile Include="CityScapeData.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Third_Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="cJSON.cpp">
+      <Filter>Third_Party\cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="config_document.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="strings.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Third_Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Third_Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Third_Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiSystem.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiRenderer.cpp">
+      <Filter>Game\GUI\DebugUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt">
@@ -237,6 +291,9 @@
       <Filter>Data\config</Filter>
     </None>
     <None Include="gamedata\shaders\texture_color.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="gamedata\shaders\gui.glsl">
       <Filter>Data\shaders</Filter>
     </None>
   </ItemGroup>
