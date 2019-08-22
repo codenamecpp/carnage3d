@@ -48,18 +48,30 @@ GpuBuffer::GpuBuffer(GraphicsContext& graphicsContext)
     , mBufferLength()
     , mBufferCapacity()
 {
+    ::glGenBuffers(1, &mResourceHandle);
+    glCheckError();
 }
 
 GpuBuffer::~GpuBuffer()
 {
-    Deinit();
+    // set unbound
+    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices])
+    {
+        mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices] = nullptr;
+    }
+
+    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Indices])
+    {
+        mGraphicsContext.mCurrentBuffers[eBufferContent_Indices] = nullptr;
+    }
+
+    ::glDeleteBuffers(1, &mResourceHandle);
+    glCheckError();
 }
 
-bool GpuBuffer::Create(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
+bool GpuBuffer::Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
 {
     unsigned int paddedContentLength = (bufferLength + 15U) & (~15U);
-
-    Deinit();
 
     mBufferLength = bufferLength;
     mBufferCapacity = paddedContentLength;
@@ -69,9 +81,6 @@ bool GpuBuffer::Create(eBufferContent bufferContent, eBufferUsage bufferUsage, u
 
     mUsageHint = bufferUsage;
     debug_assert(mUsageHint < eBufferUsage_COUNT);
-
-    ::glGenBuffers(1, &mResourceHandle);
-    glCheckError();
 
     ScopedBufferBinder scopedBind (mGraphicsContext, this);
     GLenum bufferTargetGL = EnumToGL(mContent);
@@ -99,25 +108,6 @@ bool GpuBuffer::Create(eBufferContent bufferContent, eBufferUsage bufferUsage, u
     return true;
 }
 
-void GpuBuffer::Deinit()
-{
-    if (!IsBufferInited())
-        return;
-
-    // set unbound
-    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices])
-    {
-        mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices] = nullptr;
-    }
-
-    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Indices])
-    {
-        mGraphicsContext.mCurrentBuffers[eBufferContent_Indices] = nullptr;
-    }
-    ::glDeleteBuffers(1, &mResourceHandle);
-    glCheckError();
-}
-
 void* GpuBuffer::Lock(BufferAccessBits accessBits)
 {
     return Lock(accessBits, 0, mBufferCapacity);
@@ -129,12 +119,6 @@ void* GpuBuffer::Lock(BufferAccessBits accessBits, unsigned int bufferOffset, un
     {
         debug_assert(false);
         return nullptr;
-    }
-
-    if (mBufferCapacity == 0)
-    {
-        debug_assert(false);
-        return false;
     }
 
     GLbitfield accessBitsGL = ((accessBits & BufferAccess_Read) > 0 ? GL_MAP_READ_BIT : 0) |
@@ -183,12 +167,6 @@ void GpuBuffer::Invalidate()
         return;
     }
 
-    if (mBufferCapacity == 0)
-    {
-        debug_assert(false);
-        return;
-    }
-
     ScopedBufferBinder scopedBind (mGraphicsContext, this);
     GLenum bufferTargetGL = EnumToGL(mContent);
     GLenum bufferUsageGL = EnumToGL(mUsageHint);
@@ -207,5 +185,5 @@ bool GpuBuffer::IsBufferBound() const
 
 bool GpuBuffer::IsBufferInited() const
 {
-    return mResourceHandle > 0;
+    return mBufferCapacity > 0;
 }

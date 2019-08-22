@@ -21,10 +21,7 @@ public:
     // @param textureFormat: Format
     // @param sizex, sizey: Texture dimensions, must be POT!
     // @param sourceData: Source data buffer
-    bool Create(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData);
-
-    // Deallocate texture with its data
-    void Deinit();
+    bool Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData);
 
     // Free texture data but dont destroy hardware object
     void Invalidate();

@@ -228,7 +228,7 @@ GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int 
     }
 
     GpuTexture2D* texture2D = new GpuTexture2D(mGraphicsContext);
-    if (!texture2D->Create(textureFormat, sizex, sizey, sourceData))
+    if (!texture2D->Setup(textureFormat, sizex, sizey, sourceData))
     {
         DestroyTexture2D(texture2D);
         return nullptr;
@@ -286,7 +286,7 @@ GpuBuffer* GraphicsDevice::CreateBuffer(eBufferContent bufferContent, eBufferUsa
     }
 
     GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext);
-    if (!bufferObject->Create(bufferContent, bufferUsage, bufferLength, dataBuffer))
+    if (!bufferObject->Setup(bufferContent, bufferUsage, bufferLength, dataBuffer))
     {
         DestroyBuffer(bufferObject);
         return nullptr;

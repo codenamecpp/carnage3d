@@ -395,6 +395,7 @@ enum eVertexAttributeSemantics
     eVertexAttributeSemantics_Normal,       // 3 floats
     eVertexAttributeSemantics_Color,        // 4 unsigned bytes
     eVertexAttributeSemantics_Texcoord,     // 2 floats
+    eVertexAttributeSemantics_Position2d,   // 2 floats
     eVertexAttributeSemantics_Unknown
 };
 
@@ -406,6 +407,7 @@ inline const char* ToString(eVertexAttributeSemantics semantics)
         case eVertexAttributeSemantics_Normal: return "normal";
         case eVertexAttributeSemantics_Color: return "color";
         case eVertexAttributeSemantics_Texcoord: return "texcoord";
+        case eVertexAttributeSemantics_Position2d: return "position2d";
         case eVertexAttributeSemantics_Unknown: return "unknown";
     }
     debug_assert(false);
@@ -479,6 +481,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeSemantics attribu
         case eVertexAttributeSemantics_Position: return 3;
         case eVertexAttributeSemantics_Color: return 4;
         case eVertexAttributeSemantics_Texcoord: return 2;
+        case eVertexAttributeSemantics_Position2d: return 2;
     }
     debug_assert(false);
     return 0;
@@ -490,10 +493,11 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeSemantics attributeSem
 {
     switch (attributeSemantics)
     {
-        case eVertexAttributeSemantics_Normal: return sizeof(glm::vec3);
-        case eVertexAttributeSemantics_Position: return sizeof(glm::vec3);
+        case eVertexAttributeSemantics_Normal: return sizeof(float) * 3;
+        case eVertexAttributeSemantics_Position: return sizeof(float) * 3;
         case eVertexAttributeSemantics_Color: return sizeof(unsigned int);
-        case eVertexAttributeSemantics_Texcoord: return sizeof(glm::vec2);
+        case eVertexAttributeSemantics_Texcoord: return sizeof(float) * 2;
+        case eVertexAttributeSemantics_Position2d: return sizeof(float) * 2;
     }
     debug_assert(false);
     return 0;
@@ -513,6 +517,13 @@ public:
         debug_assert(attribute < eVertexAttribute_COUNT);
         mAttributes[attribute].mDataOffset = dataOffset;
         mAttributes[attribute].mSemantics = GetAttributeSemantics(attribute);
+    }
+    // @param forceSemantics: Override default semantics for specified attribute
+    inline void SetAttribute(eVertexAttribute attribute, eVertexAttributeSemantics forceSemantics, unsigned int dataOffset)
+    {
+        debug_assert(attribute < eVertexAttribute_COUNT);
+        mAttributes[attribute].mDataOffset = dataOffset;
+        mAttributes[attribute].mSemantics = forceSemantics;
     }
 public:
     struct SingleAttribute
@@ -572,9 +583,10 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_Vertex2D;
-        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
         this->SetAttribute(eVertexAttribute_Texcoord0, offsetof(TVertexType, mTexcoord));
         this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        // force semantics for pos0 attribute - expect 2 floats per vertex
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeSemantics_Position2d, offsetof(TVertexType, mPosition));
     }
 };
 

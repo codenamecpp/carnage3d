@@ -5,6 +5,10 @@
 
 ImGuiRenderer gImGuiRenderer;
 
+// imgui specific data size constants
+const unsigned int Sizeof_ImGuiVertex = sizeof(ImDrawVert);
+const unsigned int Sizeof_ImGuiIndex = sizeof(ImDrawIdx);
+
 bool ImGuiRenderer::Initialize()
 {
     IMGUI_CHECKVERSION();
@@ -44,7 +48,7 @@ bool ImGuiRenderer::Initialize()
     GpuTexture2D* fontTexture = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, iWidth, iHeight, pcPixels);
     debug_assert(fontTexture);
 
-    io.Fonts->TexID = (void *)fontTexture;
+    io.Fonts->TexID = fontTexture;
     io.MouseDrawCursor = true;
 
     // allocate buffers

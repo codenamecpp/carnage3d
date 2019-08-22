@@ -23,10 +23,7 @@ public:
     // @param theLength: Data length
     // @param dataBuffer: Initial data, optional
     // @returns false if out of memory
-    bool Create(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
-
-    // Deallocate buffer with its data
-    void Deinit();
+    bool Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
 
     // Map hardware buffer content to process memory
     // @param accessBits: Desired data access policy

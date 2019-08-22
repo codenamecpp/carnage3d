@@ -44,18 +44,12 @@ GpuTexture2D::GpuTexture2D(GraphicsContext& renderContext)
     , mSize()
     , mFormat()
 {
+    ::glGenTextures(1, &mResourceHandle);
+    glCheckError();
 }
 
 GpuTexture2D::~GpuTexture2D()
 {
-    Deinit();
-}
-
-void GpuTexture2D::Deinit()
-{
-    if (!IsTextureInited())
-        return;
-
     // set unbound
     for (int iTextureUnit = 0; iTextureUnit < eTextureUnit_COUNT; ++iTextureUnit)
     {
@@ -64,14 +58,13 @@ void GpuTexture2D::Deinit()
             mGraphicsContext.mCurrentTextures2D[iTextureUnit] = nullptr;
         }
     }
+
     ::glDeleteTextures(1, &mResourceHandle);
     glCheckError();
 }
 
-bool GpuTexture2D::Create(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
 {
-    Deinit();
-
     GLuint formatGL = 0;
     GLint internalFormatGL = 0;
     switch (textureFormat)
@@ -99,9 +92,6 @@ bool GpuTexture2D::Create(eTextureFormat textureFormat, int sizex, int sizey, co
         debug_assert(false);
         return false;
     }
-
-    ::glGenTextures(1, &mResourceHandle);
-    glCheckError();
 
     mFormat = textureFormat;
     mSize.x = sizex;
@@ -223,7 +213,7 @@ bool GpuTexture2D::Upload(const void* sourceData)
 
 bool GpuTexture2D::IsTextureInited() const
 {
-    return mResourceHandle > 0;
+    return mFormat != eTextureFormat_Null;
 }
 
 void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
