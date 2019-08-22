@@ -59,7 +59,7 @@ inline GLenum EnumToGL(eIndicesType indicesType)
         case eIndicesType_i32: return GL_UNSIGNED_INT;
     }
     debug_assert(false);
-    return GL_STATIC_DRAW;
+    return GL_UNSIGNED_INT;
 }
 
 inline GLenum EnumToGL(ePrimitiveType primitiveType)

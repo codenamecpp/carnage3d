@@ -98,6 +98,11 @@ public:
         , mPressed(argIsPressed)
     {
     }
+    // test whether modifier keys are pressed
+    bool HasMods(int bits) const
+    {
+        return (mMods & bits) == bits;
+    }
 public:
     int mKeycode;
     int mScancode;

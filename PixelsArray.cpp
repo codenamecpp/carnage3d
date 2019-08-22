@@ -130,11 +130,16 @@ bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat)
 
 bool PixelsArray::SaveToFile(const char* fileName)
 {
-    if (mFormat == eTextureFormat_Null)
+    return SaveToFile(fileName, mFormat, mSizex, mSizey, mData);
+}
+
+bool PixelsArray::SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels)
+{
+    if (format == eTextureFormat_Null)
         return false;
 
-    int comp = NumBytesPerPixel(mFormat);
-    return stbi_write_png(fileName, mSizex, mSizey, comp, mData, mSizex * comp) > 0;
+    int comp = NumBytesPerPixel(format);
+    return stbi_write_png(fileName, sizex, sizey, comp, pixels, sizex * comp) > 0;
 }
 
 bool PixelsArray::FillWithCheckerBoard()

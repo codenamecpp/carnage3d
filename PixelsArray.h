@@ -43,4 +43,11 @@ public:
 
     // Test whether bitmap has pixels
     bool HasContent() const;
+
+    // Save pixels of specified format to external file
+    // @param fileName: File name
+    // @param format: Format of pixels array
+    // @param sizex, sizey: Picture dimensions
+    // @param pixels: Source data
+    static bool SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels);
 };
