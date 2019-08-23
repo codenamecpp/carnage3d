@@ -138,3 +138,24 @@ void FileSystem::AddSearchPlace(const char* searchPlace)
 
     mSearchPlaces.emplace_back(searchPlace);
 }
+
+bool FileSystem::GetFullPathToFile(const char* objectName, std::string& fullPath) const
+{
+    if (cxx::is_absolute_path(objectName))
+    {
+        fullPath = objectName;
+        return true;
+    }
+    cxx::string_buffer_512 pathBuffer;
+    // search directory in search places
+    for (const std::string& currPlace: mSearchPlaces)
+    {
+        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        if (cxx::is_file_exists(pathBuffer.c_str()))
+        {
+            fullPath = pathBuffer.c_str();
+            return true;
+        }
+    }
+    return false;
+}

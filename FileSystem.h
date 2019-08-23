@@ -39,6 +39,11 @@ public:
     // Test whether directory exists
     // @param objectName: Directory name
     bool IsDirectoryExists(const char* objectName);
+
+    // Find file within search places and get full path to it
+    // @param objectName: File name
+    // @param fullPath: Out full path
+    bool GetFullPathToFile(const char* objectName, std::string& fullPath) const;
 };
 
 extern FileSystem gFiles;
