@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "ImGuiRenderer.h"
+#include "ImGuiManager.h"
 #include "RenderSystem.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
 
-ImGuiRenderer gImGuiRenderer;
+ImGuiManager gImGuiManager;
 
 // imgui specific data size constants
 const unsigned int Sizeof_ImGuiVertex = sizeof(ImDrawVert);
 const unsigned int Sizeof_ImGuiIndex = sizeof(ImDrawIdx);
 
-bool ImGuiRenderer::Initialize()
+bool ImGuiManager::Initialize()
 {
     // allocate buffers
     mVertexBuffer = gGraphicsDevice.CreateBuffer();
@@ -63,7 +63,7 @@ bool ImGuiRenderer::Initialize()
     return true;
 }
 
-void ImGuiRenderer::Deinit()
+void ImGuiManager::Deinit()
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -90,7 +90,7 @@ void ImGuiRenderer::Deinit()
     }
 }
  
-void ImGuiRenderer::RenderFrame()
+void ImGuiManager::RenderFrame()
 {
     ImGui::EndFrame();
     ImGui::Render();
@@ -192,7 +192,7 @@ void ImGuiRenderer::RenderFrame()
     }
 }
 
-void ImGuiRenderer::UpdateFrame(Timespan deltaTime)
+void ImGuiManager::UpdateFrame(Timespan deltaTime)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -213,11 +213,11 @@ void ImGuiRenderer::UpdateFrame(Timespan deltaTime)
     ImGui::ShowUserGuide();
 }
 
-void ImGuiRenderer::HandleEvent(MouseMovedInputEvent& inputEvent)
+void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
 {
 }
 
-void ImGuiRenderer::HandleEvent(MouseScrollInputEvent& inputEvent)
+void ImGuiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -225,11 +225,11 @@ void ImGuiRenderer::HandleEvent(MouseScrollInputEvent& inputEvent)
     io.MouseWheel += inputEvent.mScrollY * 1.0f;
 }
 
-void ImGuiRenderer::HandleEvent(MouseButtonInputEvent& inputEvent)
+void ImGuiManager::HandleEvent(MouseButtonInputEvent& inputEvent)
 {
 }
 
-void ImGuiRenderer::HandleEvent(KeyInputEvent& inputEvent)
+void ImGuiManager::HandleEvent(KeyInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -239,7 +239,7 @@ void ImGuiRenderer::HandleEvent(KeyInputEvent& inputEvent)
     io.KeyAlt = inputEvent.HasMods(KEYMOD_ALT);
 }
 
-void ImGuiRenderer::HandleEvent(KeyCharEvent& inputEvent)
+void ImGuiManager::HandleEvent(KeyCharEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 

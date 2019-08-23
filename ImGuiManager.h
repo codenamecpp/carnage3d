@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 
-class ImGuiRenderer final: public cxx::noncopyable
+class ImGuiManager final: public cxx::noncopyable
 {
 public:
     // setup internal resources
@@ -33,4 +33,4 @@ private:
     GpuBuffer* mIndexBuffer = nullptr;
 };
 
-extern ImGuiRenderer gImGuiRenderer;
+extern ImGuiManager gImGuiManager;

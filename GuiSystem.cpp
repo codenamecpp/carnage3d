@@ -1,52 +1,52 @@
 #include "stdafx.h"
 #include "GuiSystem.h"
-#include "ImGuiRenderer.h"
+#include "ImGuiManager.h"
 
 GuiSystem gGuiSystem;
 
 bool GuiSystem::Initialize()
 {
-    gImGuiRenderer.Initialize();
+    gImGuiManager.Initialize();
 
     return true;
 }
 
 void GuiSystem::Deinit()
 {
-    gImGuiRenderer.Deinit();
+    gImGuiManager.Deinit();
 }
 
 void GuiSystem::RenderFrame()
 {
-    gImGuiRenderer.RenderFrame();
+    gImGuiManager.RenderFrame();
 }
 
 void GuiSystem::UpdateFrame(Timespan deltaTime)
 {
-    gImGuiRenderer.UpdateFrame(deltaTime);
+    gImGuiManager.UpdateFrame(deltaTime);
 }
 
 void GuiSystem::HandleEvent(MouseMovedInputEvent& inputEvent)
 {
-    gImGuiRenderer.HandleEvent(inputEvent);
+    gImGuiManager.HandleEvent(inputEvent);
 }
 
 void GuiSystem::HandleEvent(MouseScrollInputEvent& inputEvent)
 {
-    gImGuiRenderer.HandleEvent(inputEvent);
+    gImGuiManager.HandleEvent(inputEvent);
 }
 
 void GuiSystem::HandleEvent(MouseButtonInputEvent& inputEvent)
 {
-    gImGuiRenderer.HandleEvent(inputEvent);
+    gImGuiManager.HandleEvent(inputEvent);
 }
 
 void GuiSystem::HandleEvent(KeyInputEvent& inputEvent)
 {
-    gImGuiRenderer.HandleEvent(inputEvent);
+    gImGuiManager.HandleEvent(inputEvent);
 }
 
 void GuiSystem::HandleEvent(KeyCharEvent& inputEvent)
 {
-    gImGuiRenderer.HandleEvent(inputEvent);
+    gImGuiManager.HandleEvent(inputEvent);
 }

@@ -196,7 +196,7 @@
     <ClInclude Include="GuiSystem.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiRenderer.h">
+    <ClInclude Include="ImGuiManager.h">
       <Filter>Game\GUI\DebugUI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -274,7 +274,7 @@
     <ClCompile Include="GuiSystem.cpp">
       <Filter>Game\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiRenderer.cpp">
+    <ClCompile Include="ImGuiManager.cpp">
       <Filter>Game\GUI\DebugUI</Filter>
     </ClCompile>
   </ItemGroup>
