@@ -25,7 +25,7 @@ bool ImGuiRenderer::Initialize()
     ImGuiIO& io = ImGui::GetIO();
 
     io.BackendRendererName          = "imgui_impl_opengl3";
-    io.BackendFlags                 = ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_RendererHasVtxOffset;
+    io.BackendFlags                 = ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos;
     io.ConfigFlags                  = ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableSetMousePos;
     io.KeyMap[ImGuiKey_Tab]         = KEYCODE_TAB;
     io.KeyMap[ImGuiKey_LeftArrow]   = KEYCODE_LEFT;
@@ -185,7 +185,7 @@ void ImGuiRenderer::RenderFrame()
             // By default the indices ImDrawIdx are 16-bits, you can change them to 32-bits in imconfig.h if your engine doesn't support 16-bits indices.
 
             eIndicesType indicesType = Sizeof_ImGuiIndex == 2 ? eIndicesType_i16 : eIndicesType_i32;
-            gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, indicesType, Sizeof_ImGuiIndex * pcmd->IdxOffset, pcmd->ElemCount, pcmd->VtxOffset);
+            gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, indicesType, Sizeof_ImGuiIndex * pcmd->IdxOffset, pcmd->ElemCount);
         }
     }
 }
