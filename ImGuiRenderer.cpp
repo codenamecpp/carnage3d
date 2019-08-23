@@ -23,6 +23,8 @@ bool ImGuiRenderer::Initialize()
     ImGui::StyleColorsLight();
 
     ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr; // disable saving state
+    io.LogFilename = nullptr; // disable saving log
 
     io.BackendRendererName          = "imgui_impl_opengl3";
     io.BackendFlags                 = ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos;
