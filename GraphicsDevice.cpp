@@ -136,6 +136,10 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glBindVertexArray(mGraphicsContext.mVaoHandle);
     glCheckError();
 
+    // scissor test always enabled
+    ::glEnable(GL_SCISSOR_TEST);
+    glCheckError();
+
     // setup viewport
     mViewportRect.x = 0;
     mViewportRect.y = 0;
@@ -143,6 +147,12 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     mViewportRect.h = screensizey;
 
     ::glViewport(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
+    glCheckError();
+
+    // default value for scissor is whole viewport
+    mScissorBox = mViewportRect;
+
+    ::glScissor(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
     glCheckError();
 
     ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -537,6 +547,22 @@ void GraphicsDevice::SetViewportRect(const Rect2D& sourceRectangle)
     glCheckError();
 }
 
+void GraphicsDevice::SetScissorRect(const Rect2D& sourceRectangle)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    if (mScissorBox == sourceRectangle)
+        return;
+
+    mScissorBox = sourceRectangle;
+    ::glScissor(mScissorBox.x, mScissorBox.y, mScissorBox.w, mScissorBox.h);
+    glCheckError();
+}
+
 void GraphicsDevice::SetClearColor(Color32 clearColor)
 {
     if (!IsDeviceInited())
@@ -795,3 +821,4 @@ void GraphicsDevice::InternalSetRenderStates(const RenderStates& renderStates, b
 
     mCurrentStates = renderStates;
 }
+

@@ -11,6 +11,7 @@ public:
     // public for convenience, don't change these fields directly
     RenderStates mCurrentStates;
     Rect2D mViewportRect;
+    Rect2D mScissorBox;
 
     // these params will automatically set during texture creation
     eTextureFilterMode mDefaultTextureFilter = eTextureFilterMode_Nearest;
@@ -116,6 +117,10 @@ public:
     // Setup dimensions of graphic device viewport
     // @param sourceRectangle: Viewport rectangle
     void SetViewportRect(const Rect2D& sourceRectangle);
+
+    // Setup clip rect, default is whole viewport area
+    // @param sourceRectangle: Clipping rectangle
+    void SetScissorRect(const Rect2D& sourceRectangle);
 
     // Set clear color for render revice
     // @param clearColor: Color components

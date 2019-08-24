@@ -121,16 +121,12 @@ void ImGuiManager::RenderFrame()
     };
     gGraphicsDevice.SetViewportRect(imguiViewportRect);
 
-    // todo : enable scissors
-
     // compute ortho matrix
     glm::mat4 projmatrix = glm::ortho(imGuiDrawData->DisplayPos.x, imGuiDrawData->DisplayPos.x + imGuiDrawData->DisplaySize.x, 
         imGuiDrawData->DisplayPos.y + imGuiDrawData->DisplaySize.y, imGuiDrawData->DisplayPos.y);
 
     gRenderSystem.mGuiTexColorProgram.Activate();
     gRenderSystem.mGuiTexColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, projmatrix);
-
-    glEnable(GL_SCISSOR_TEST);
 
     ImVec2 clip_off = imGuiDrawData->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = imGuiDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
@@ -158,18 +154,22 @@ void ImGuiManager::RenderFrame()
             }
 
             // Project scissor/clipping rectangles into framebuffer space
-            ImVec4 clip_rect;
-            clip_rect.x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
-            clip_rect.y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
-            clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
-            clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
+          
+            float clip_rect_x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
+            float clip_rect_y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
+            float clip_rect_w = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
+            float clip_rect_h = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
 
-            bool should_draw = (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f);
-
+            bool should_draw = (clip_rect_x < fb_width && clip_rect_y < fb_height && clip_rect_w >= 0.0f && clip_rect_h >= 0.0f);
             if (!should_draw)
                 continue;
 
-            glScissor((int)clip_rect.x, (int)(fb_height - clip_rect.w), (int)(clip_rect.z - clip_rect.x), (int)(clip_rect.w - clip_rect.y));
+            Rect2D rcClip {
+                static_cast<int>(clip_rect_x), static_cast<int>(fb_height - clip_rect_h), 
+                static_cast<int>(clip_rect_w - clip_rect_x), 
+                static_cast<int>(clip_rect_h - clip_rect_y)
+            };
+            gGraphicsDevice.SetScissorRect(rcClip);
 
             // The texture for the draw call is specified by pcmd->TextureId.
             // The vast majority of draw calls will use the Dear ImGui texture atlas, which value you have set yourself during initialization.
@@ -316,29 +316,25 @@ void ImGuiManager::SetupStyle(ImGuiIO& imguiIO)
 	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 
-	style.PopupRounding = 3;
-
-	style.WindowPadding = ImVec2(4, 4);
-	style.FramePadding  = ImVec2(6, 4);
-	style.ItemSpacing   = ImVec2(6, 2);
-
-	style.ScrollbarSize = 18;
-
-	style.WindowBorderSize = 1;
-	style.ChildBorderSize  = 1;
-	style.PopupBorderSize  = 1;
-	style.FrameBorderSize  = is3D * 1.0f; 
-
-	style.WindowRounding    = 3;
-	style.ChildRounding     = 3;
-	style.FrameRounding     = 3;
+	style.PopupRounding     = 3;
+	style.WindowPadding     = ImVec2(4, 4);
+	style.FramePadding      = ImVec2(6, 4);
+	style.ItemSpacing       = ImVec2(6, 2);
+	style.ScrollbarSize     = 15;
+	style.WindowBorderSize  = 1;
+	style.ChildBorderSize   = 1;
+	style.PopupBorderSize   = 1;
+    style.IndentSpacing     = 22.0f;
+	style.FrameBorderSize   = is3D * 1.0f; 
+	style.WindowRounding    = 2;
+	style.ChildRounding     = 2;
+	style.FrameRounding     = 2;
 	style.ScrollbarRounding = 2;
-	style.GrabRounding      = 3;
+	style.GrabRounding      = 2;
+	style.TabBorderSize     = is3D * 1.0f; 
+	style.TabRounding       = 2;
 
 	#ifdef IMGUI_HAS_DOCK 
-		style.TabBorderSize = is3D; 
-		style.TabRounding   = 3;
-
 		colors[ImGuiCol_DockingEmptyBg]     = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
 		colors[ImGuiCol_Tab]                = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 		colors[ImGuiCol_TabHovered]         = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
