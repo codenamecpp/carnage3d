@@ -2,6 +2,8 @@
 
 #include "imgui.h"
 
+class GuiRenderContext;
+
 class ImGuiManager final: public cxx::noncopyable
 {
 public:
@@ -12,7 +14,7 @@ public:
     void Deinit();
 
     // render 
-    void RenderFrame();
+    void RenderFrame(GuiRenderContext& renderContext);
 
     // process logic
     // @param deltaTime: Time passed since previous update

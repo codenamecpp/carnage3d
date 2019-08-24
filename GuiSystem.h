@@ -1,8 +1,13 @@
 #pragma once
 
+#include "GuiRenderContext.h"
+
 // manages all graphical user interface operation
 class GuiSystem final: public cxx::noncopyable
 {
+public:
+    GuiRenderContext mRenderContext;
+
 public:
     // setup internal resources
     bool Initialize();

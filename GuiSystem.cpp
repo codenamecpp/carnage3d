@@ -6,19 +6,31 @@ GuiSystem gGuiSystem;
 
 bool GuiSystem::Initialize()
 {
-    gImGuiManager.Initialize();
+    if (!mRenderContext.Initialize(gGraphicsDevice.mViewportRect))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize gui render context");
+        return false;
+    }
 
+    gImGuiManager.Initialize();
     return true;
 }
 
 void GuiSystem::Deinit()
 {
     gImGuiManager.Deinit();
+
+    mRenderContext.Deinit();
 }
 
 void GuiSystem::RenderFrame()
 {
-    gImGuiManager.RenderFrame();
+    mRenderContext.RenderFrameBegin();
+
+    // draw imgui debug ui
+    gImGuiManager.RenderFrame(mRenderContext);
+
+    mRenderContext.RenderFrameEnd();
 }
 
 void GuiSystem::UpdateFrame(Timespan deltaTime)

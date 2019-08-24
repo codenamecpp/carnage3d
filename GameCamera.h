@@ -3,7 +3,7 @@
 #include "CommonTypes.h"
 
 // defines camera in 3d space
-class GameCamera final: cxx::noncopyable
+class GameCamera final: public cxx::noncopyable
 {
 public:
     // public for convenience, should not be modified directly

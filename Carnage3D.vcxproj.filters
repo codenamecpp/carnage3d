@@ -199,6 +199,9 @@
     <ClInclude Include="ImGuiManager.h">
       <Filter>Game\GUI\DebugUI</Filter>
     </ClInclude>
+    <ClInclude Include="GuiRenderContext.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -276,6 +279,9 @@
     </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>Game\GUI\DebugUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiRenderContext.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

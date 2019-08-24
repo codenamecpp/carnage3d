@@ -95,7 +95,7 @@ void ImGuiManager::Deinit()
     }
 }
  
-void ImGuiManager::RenderFrame()
+void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
 {
     ImGui::EndFrame();
     ImGui::Render();
@@ -107,26 +107,6 @@ void ImGuiManager::RenderFrame()
     int fb_height = (int)(imGuiDrawData->DisplaySize.y * imGuiDrawData->FramebufferScale.y);
     if (fb_width <= 0 || fb_height <= 0)
         return;
-
-    RenderStates imguiRenderStates = RenderStates()
-        .Disable(RenderStateFlags_FaceCulling)
-        .Disable(RenderStateFlags_DepthTest)
-        .SetAlphaBlend(eBlendMode_Alpha);
-
-    gGraphicsDevice.SetRenderStates(imguiRenderStates);
-
-    Rect2D imguiViewportRect { 
-        static_cast<int>(imGuiDrawData->DisplayPos.x), static_cast<int>(imGuiDrawData->DisplayPos.y),
-        static_cast<int>(imGuiDrawData->DisplaySize.x), static_cast<int>(imGuiDrawData->DisplaySize.y) 
-    };
-    gGraphicsDevice.SetViewportRect(imguiViewportRect);
-
-    // compute ortho matrix
-    glm::mat4 projmatrix = glm::ortho(imGuiDrawData->DisplayPos.x, imGuiDrawData->DisplayPos.x + imGuiDrawData->DisplaySize.x, 
-        imGuiDrawData->DisplayPos.y + imGuiDrawData->DisplaySize.y, imGuiDrawData->DisplayPos.y);
-
-    gRenderSystem.mGuiTexColorProgram.Activate();
-    gRenderSystem.mGuiTexColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, projmatrix);
 
     ImVec2 clip_off = imGuiDrawData->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = imGuiDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
