@@ -200,7 +200,7 @@
       <Filter>Game\GUI\DebugUI</Filter>
     </ClInclude>
     <ClInclude Include="GuiRenderContext.h">
-      <Filter>Game\Rendering</Filter>
+      <Filter>Game\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,7 +281,7 @@
       <Filter>Game\GUI\DebugUI</Filter>
     </ClCompile>
     <ClCompile Include="GuiRenderContext.cpp">
-      <Filter>Game\Rendering</Filter>
+      <Filter>Game\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
