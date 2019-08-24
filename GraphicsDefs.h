@@ -536,6 +536,7 @@ public:
     };
     SingleAttribute mAttributes[eVertexAttribute_COUNT];
     unsigned int mDataStride = 0; // common to all attributes
+    unsigned int mBaseOffset = 0; // additional offset in bytes within source vertex buffer, affects on all attribues
 };
 
 // standard engine vertex definition

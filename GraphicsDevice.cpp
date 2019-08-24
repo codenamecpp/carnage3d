@@ -665,7 +665,7 @@ void GraphicsDevice::SetupVertexAttributes(const VertexFormat& streamDefinition)
         bool isColorAttribute = (attribute.mSemantics == eVertexAttributeSemantics_Color);
         ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, 
             isColorAttribute ? GL_UNSIGNED_BYTE : GL_FLOAT, 
-            isColorAttribute ? GL_TRUE : GL_FALSE, streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset));
+            isColorAttribute ? GL_TRUE : GL_FALSE, streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
         glCheckError();
     }
 }
