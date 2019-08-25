@@ -64,29 +64,40 @@ bool TransientBuffer::NonNull() const
 
 bool DynamicVertexCache::Initialize()
 {
-    if (!InitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer, eBufferContent_Vertices, MaxVertexBufferLength) ||
-        !InitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer, eBufferContent_Indices, MaxIndexBufferLength))
+    for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
-        Deinit();
-        return false;
+        if (!InitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer, eBufferContent_Vertices, MaxVertexBufferLength) ||
+            !InitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer, eBufferContent_Indices, MaxIndexBufferLength))
+        {
+            Deinit();
+            return false;
+        }
     }
+    mCurrentFrame = 0;
     return true;
 }
 
 void DynamicVertexCache::Deinit()
 {
-    DeinitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer);
-    DeinitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer);
+    for (int iframe = 0; iframe < NumFrames; ++iframe)
+    {
+        DeinitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer);
+        DeinitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer);
+    }
 }
 
 void DynamicVertexCache::RenderFrameBegin()
 {
-    SetCurrentFrameOffset(mFrameCache.mVertexCacheBuffer);
-    SetCurrentFrameOffset(mFrameCache.mIndexCacheBuffer);
+    for (int iframe = 0; iframe < NumFrames; ++iframe)
+    {
+        SetCurrentFrameOffset(mFrameCache[iframe].mVertexCacheBuffer);
+        SetCurrentFrameOffset(mFrameCache[iframe].mIndexCacheBuffer);
+    }
 }
 
 void DynamicVertexCache::RenderFrameEnd()
 {
+    mCurrentFrame = (mCurrentFrame + 1) % NumFrames;
 }
 
 bool DynamicVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
@@ -158,7 +169,9 @@ bool DynamicVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned
 
 bool DynamicVertexCache::Allocate(eBufferContent content, unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
-    FrameCacheBuffer& cacheBuffer = (content == eBufferContent_Vertices) ? mFrameCache.mVertexCacheBuffer : mFrameCache.mIndexCacheBuffer;
+    FrameCacheBuffer& cacheBuffer = (content == eBufferContent_Vertices) ? 
+        mFrameCache[mCurrentFrame].mVertexCacheBuffer : 
+        mFrameCache[mCurrentFrame].mIndexCacheBuffer;
 
     outputBuffer.SetNull();
     if (cacheBuffer.mBufferObject)

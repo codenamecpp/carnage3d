@@ -2,14 +2,14 @@
 
 // defines part of dynamic vertex buffer
 // the data within it is only valid for one frame of rendering
-class TransientBuffer final: public cxx::noncopyable
+class TransientBuffer final
 {
 public:
     TransientBuffer() = default;
     ~TransientBuffer();
 
     // @param bufferObject: Source dynamic buffer
-    // @param dataOffset, dataLength: Allocated buffer area 
+    // @param dataOffset, dataLength: Allocated area within buffer
     void SetSourceBuffer(GpuBuffer* bufferObject, unsigned int dataOffset, unsigned int dataLength);
     void SetNull();
     bool NonNull() const;
@@ -26,7 +26,7 @@ public:
     GpuBuffer* mBufferObject = nullptr; // temporary reference, it must not be stored
 };
 
-// defines cache of dynamic vertex data
+// defines cache system for dynamic geometry that being created each render frame
 class DynamicVertexCache final: public cxx::noncopyable
 {
 public:
@@ -42,8 +42,9 @@ public:
     bool Allocate(eBufferContent content, unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
 private:
-    static const unsigned int MaxVertexBufferLength = 4 * 1024 * 1024; // 4 MB
-    static const unsigned int MaxIndexBufferLength = 6 * 1024 * 1024; // 6 MB
+    static const unsigned int MaxVertexBufferLength = 2 * 1024 * 1024; // 2 MB
+    static const unsigned int MaxIndexBufferLength = 2 * 1024 * 1024; // 2 MB
+    static const int NumFrames = 2;
 
     struct FrameCacheBuffer
     {
@@ -66,5 +67,6 @@ private:
     void SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer);
     bool TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
-    FrameCache mFrameCache;
+    int mCurrentFrame = 0;
+    FrameCache mFrameCache[NumFrames];
 };
