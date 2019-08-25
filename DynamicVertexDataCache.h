@@ -6,20 +6,13 @@ class TransientBuffer final
 {
 public:
     TransientBuffer() = default;
-    ~TransientBuffer();
-
     // @param bufferObject: Source dynamic buffer
     // @param dataOffset, dataLength: Allocated area within buffer
     void SetSourceBuffer(GpuBuffer* bufferObject, unsigned int dataOffset, unsigned int dataLength);
     void SetNull();
     bool NonNull() const;
     bool IsNull() const;
-    void* Lock();
-    bool Unlock();
-    bool IsLocked() const;
-
 public:
-    void* mDataPointer = nullptr; // write only, it valid while buffer is locked
     // area of allocated data within buffer
     unsigned int mBufferDataOffset = 0;
     unsigned int mBufferDataLength = 0;
@@ -27,23 +20,22 @@ public:
 };
 
 // defines cache system for dynamic geometry that being created each render frame
-class DynamicVertexCache final: public cxx::noncopyable
+class DynamicVertexDataCache final: public cxx::noncopyable
 {
 public:
     bool Initialize();
     void Deinit();
-    void RenderFrameBegin();
     void RenderFrameEnd();
     // try to allocate vertex memory of specified size and upload source data
-    // @param content: Type of source data content
     // @param dataLength: Source data length in bytes
-    // @param sourceData: Source data, optional
+    // @param sourceData: Source data to upload
     // @param outputBuffer: Output transient buffer, only valid for one frame
-    bool Allocate(eBufferContent content, unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
+    bool AllocateVertices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
+    bool AllocateIndices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
 private:
-    static const unsigned int MaxVertexBufferLength = 2 * 1024 * 1024; // 2 MB
-    static const unsigned int MaxIndexBufferLength = 2 * 1024 * 1024; // 2 MB
+    static const unsigned int StartVertexBufferSize = (1024 * 1024) * 1; // 1 MB
+    static const unsigned int StartIndexBufferSize = (1024 * 1024) * 1; // 1 MB
     static const int NumFrames = 2;
 
     struct FrameCacheBuffer

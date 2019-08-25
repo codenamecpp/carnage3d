@@ -25,6 +25,12 @@ public:
     // @returns false if out of memory
     bool Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
 
+    // Upload source data to buffer replacing old content
+    // @param dataOffset: Offset within buffer to write in bytes
+    // @param dataLength: Size of data to write in bytes
+    // @param dataSource: Source data
+    bool SubData(unsigned int dataOffset, unsigned int dataLength, const void* dataSource);
+
     // Map hardware buffer content to process memory
     // @param accessBits: Desired data access policy
     // @param bufferOffset: Offset from start, bytes

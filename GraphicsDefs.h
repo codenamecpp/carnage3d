@@ -660,7 +660,7 @@ const BufferAccessBits BufferAccess_Write = (1 << 1);
 const BufferAccessBits BufferAccess_Unsynchronized = (1 << 2); // client must to guarantee that mapped buffer region is doesn't used by the GPU
 const BufferAccessBits BufferAccess_InvalidateRange = (1 << 3); // have meaning only for range lock
 const BufferAccessBits BufferAccess_InvalidateBuffer = (1 << 4); // orphan whole buffer
-const BufferAccessBits BufferAccess_UnsynchronizedWrite = BufferAccess_Unsynchronized + BufferAccess_Write;
+const BufferAccessBits BufferAccess_UnsynchronizedWrite = (BufferAccess_Unsynchronized | BufferAccess_Write);
 
 enum eRenderUniform
 {

@@ -108,6 +108,25 @@ bool GpuBuffer::Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, un
     return true;
 }
 
+bool GpuBuffer::SubData(unsigned int dataOffset, unsigned int dataLength, const void* dataSource)
+{
+    if (!IsBufferInited())
+    {
+        debug_assert(false);
+        return false;
+    }
+
+    debug_assert(dataLength && dataSource);
+    debug_assert(dataOffset + dataLength < mBufferCapacity);
+
+    ScopedBufferBinder scopedBind (mGraphicsContext, this);
+    GLenum bufferTargetGL = EnumToGL(mContent);
+    ::glBufferSubData(bufferTargetGL, dataOffset, dataLength, dataSource);
+    glCheckError();
+
+    return true;
+}
+
 void* GpuBuffer::Lock(BufferAccessBits accessBits)
 {
     return Lock(accessBits, 0, mBufferCapacity);

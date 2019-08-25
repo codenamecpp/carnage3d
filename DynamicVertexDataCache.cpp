@@ -1,18 +1,12 @@
 #include "stdafx.h"
-#include "DynamicVertexCache.h"
+#include "DynamicVertexDataCache.h"
 #include "GpuBuffer.h"
-
-TransientBuffer::~TransientBuffer()
-{
-    debug_assert(mDataPointer == nullptr);
-}
 
 void TransientBuffer::SetSourceBuffer(GpuBuffer* bufferObject, unsigned int dataOffset, unsigned int dataLength)
 {
     mBufferObject = bufferObject;
     mBufferDataOffset = dataOffset;
     mBufferDataLength = dataLength;
-    mDataPointer = nullptr;
 }
 
 void TransientBuffer::SetNull()
@@ -20,34 +14,6 @@ void TransientBuffer::SetNull()
     mBufferObject = nullptr;
     mBufferDataOffset = 0;
     mBufferDataLength = 0;
-    mDataPointer = nullptr;
-}
-
-void* TransientBuffer::Lock()
-{
-    debug_assert(mBufferObject);
-    if (mDataPointer == nullptr && mBufferObject)
-    {
-        mDataPointer = mBufferObject->Lock(BufferAccess_UnsynchronizedWrite | BufferAccess_InvalidateRange, mBufferDataOffset, mBufferDataLength);
-        debug_assert(mDataPointer);
-    }
-    return mDataPointer;
-}
-
-bool TransientBuffer::Unlock()
-{
-    if (mDataPointer && mBufferObject)
-    {
-        mDataPointer = nullptr;
-        return mBufferObject->Unlock();
-    }
-    debug_assert(false);
-    return false;
-}
-
-bool TransientBuffer::IsLocked() const
-{
-    return mDataPointer != nullptr;
 }
 
 bool TransientBuffer::IsNull() const
@@ -62,12 +28,12 @@ bool TransientBuffer::NonNull() const
 
 //////////////////////////////////////////////////////////////////////////
 
-bool DynamicVertexCache::Initialize()
+bool DynamicVertexDataCache::Initialize()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
-        if (!InitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer, eBufferContent_Vertices, MaxVertexBufferLength) ||
-            !InitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer, eBufferContent_Indices, MaxIndexBufferLength))
+        if (!InitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer, eBufferContent_Vertices, StartVertexBufferSize) ||
+            !InitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer, eBufferContent_Indices, StartIndexBufferSize))
         {
             Deinit();
             return false;
@@ -77,7 +43,7 @@ bool DynamicVertexCache::Initialize()
     return true;
 }
 
-void DynamicVertexCache::Deinit()
+void DynamicVertexDataCache::Deinit()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
@@ -86,21 +52,17 @@ void DynamicVertexCache::Deinit()
     }
 }
 
-void DynamicVertexCache::RenderFrameBegin()
+void DynamicVertexDataCache::RenderFrameEnd()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
         SetCurrentFrameOffset(mFrameCache[iframe].mVertexCacheBuffer);
         SetCurrentFrameOffset(mFrameCache[iframe].mIndexCacheBuffer);
     }
-}
-
-void DynamicVertexCache::RenderFrameEnd()
-{
     mCurrentFrame = (mCurrentFrame + 1) % NumFrames;
 }
 
-bool DynamicVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
+bool DynamicVertexDataCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
 {
     cacheBuffer.mBufferObject = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, bufferLength, nullptr);
     debug_assert(cacheBuffer.mBufferObject);
@@ -109,7 +71,7 @@ bool DynamicVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBu
     return cacheBuffer.mBufferObject != nullptr;
 }
 
-void DynamicVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
+void DynamicVertexDataCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
 {
     if (cacheBuffer.mBufferObject)
     {
@@ -120,12 +82,12 @@ void DynamicVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
     }
 }
 
-void DynamicVertexCache::SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer)
+void DynamicVertexDataCache::SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer)
 {
     cacheBuffer.mFrameStartOffset = cacheBuffer.mCurrentOffset;
 }
 
-bool DynamicVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     debug_assert (cacheBuffer.mBufferObject);
 
@@ -144,7 +106,7 @@ bool DynamicVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned
         // overlaps current frame data, out of memory
         if (dataLength > cacheBuffer.mFrameStartOffset)
         {
-            debug_assert(false);
+            debug_assert(false); // TODO : reallocate buffer
             return false;
         }
         dataStartOffset = 0;
@@ -157,23 +119,35 @@ bool DynamicVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned
     // upload data right away
     if (sourceData)
     {
-        if (void* destPointer = outputBuffer.Lock())
+        if (void* destPointer = outputBuffer.mBufferObject->Lock(BufferAccess_UnsynchronizedWrite | BufferAccess_InvalidateRange, 
+            outputBuffer.mBufferDataOffset, outputBuffer.mBufferDataLength))
         {
             memcpy(destPointer, sourceData, dataLength);
-            bool isSuccess = outputBuffer.Unlock();
+            bool isSuccess = outputBuffer.mBufferObject->Unlock();
             debug_assert(isSuccess);
         }
     }
     return true;
 }
 
-bool DynamicVertexCache::Allocate(eBufferContent content, unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool DynamicVertexDataCache::AllocateVertices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
-    FrameCacheBuffer& cacheBuffer = (content == eBufferContent_Vertices) ? 
-        mFrameCache[mCurrentFrame].mVertexCacheBuffer : 
-        mFrameCache[mCurrentFrame].mIndexCacheBuffer;
-
     outputBuffer.SetNull();
+
+    FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mVertexCacheBuffer;
+    if (cacheBuffer.mBufferObject)
+    {
+        return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
+    }
+    debug_assert(false);
+    return false;
+}
+
+bool DynamicVertexDataCache::AllocateIndices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+{
+    outputBuffer.SetNull();
+
+    FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mIndexCacheBuffer;
     if (cacheBuffer.mBufferObject)
     {
         return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);

@@ -19,7 +19,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    if (!mDynamicVertexCache.Initialize())
+    if (!mGuiVertexCache.Initialize())
     {
         Deinit();
         return false;
@@ -30,14 +30,13 @@ bool RenderSystem::Initialize()
 
 void RenderSystem::Deinit()
 {
-    mDynamicVertexCache.Deinit();
+    mGuiVertexCache.Deinit();
 
     FreeRenderPrograms();
 }
 
 void RenderSystem::RenderFrame()
 {
-    mDynamicVertexCache.RenderFrameBegin();
     gGraphicsDevice.ClearScreen();
 
     // todo
@@ -52,7 +51,7 @@ void RenderSystem::RenderFrame()
 
     gGuiSystem.RenderFrame();
 
-    mDynamicVertexCache.RenderFrameEnd();
+    mGuiVertexCache.RenderFrameEnd();
     gGraphicsDevice.Present();
 }
 
