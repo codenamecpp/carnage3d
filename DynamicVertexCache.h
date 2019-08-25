@@ -42,8 +42,8 @@ public:
     bool Allocate(eBufferContent content, unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
 private:
-    static const unsigned int MaxVertexBufferLength = 2 * 1024 * 1024; // 2 MB
-    static const unsigned int MaxIndexBufferLength = 4 * 1024 * 1024; // 4 MB
+    static const unsigned int MaxVertexBufferLength = 4 * 1024 * 1024; // 4 MB
+    static const unsigned int MaxIndexBufferLength = 6 * 1024 * 1024; // 6 MB
 
     struct FrameCacheBuffer
     {

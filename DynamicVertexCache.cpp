@@ -91,7 +91,7 @@ void DynamicVertexCache::RenderFrameEnd()
 
 bool DynamicVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
 {
-    cacheBuffer.mBufferObject = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Dynamic, bufferLength, nullptr);
+    cacheBuffer.mBufferObject = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, bufferLength, nullptr);
     debug_assert(cacheBuffer.mBufferObject);
     cacheBuffer.mCurrentOffset = 0;
     cacheBuffer.mFrameStartOffset = 0;

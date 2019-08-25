@@ -34,11 +34,6 @@ public:
 private:
     bool InitRenderPrograms();
     void FreeRenderPrograms();
-
-private:
-    GpuTexture2D* mDummyTexture = nullptr;
-    GpuBuffer* mDummyVertexBuffer = nullptr;
-    GpuBuffer* mDummyIndexBuffer = nullptr;
 };
 
 extern RenderSystem gRenderSystem;
