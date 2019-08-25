@@ -50,14 +50,7 @@ GpuTexture2D::GpuTexture2D(GraphicsContext& renderContext)
 
 GpuTexture2D::~GpuTexture2D()
 {
-    // set unbound
-    for (int iTextureUnit = 0; iTextureUnit < eTextureUnit_COUNT; ++iTextureUnit)
-    {
-        if (this == mGraphicsContext.mCurrentTextures2D[iTextureUnit])
-        {
-            mGraphicsContext.mCurrentTextures2D[iTextureUnit] = nullptr;
-        }
-    }
+    SetUnbound();
 
     ::glDeleteTextures(1, &mResourceHandle);
     glCheckError();
@@ -272,4 +265,15 @@ void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWra
 
     ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTGL);
     glCheckError();
+}
+
+void GpuTexture2D::SetUnbound()
+{
+    for (int iTextureUnit = 0; iTextureUnit < eTextureUnit_COUNT; ++iTextureUnit)
+    {
+        if (this == mGraphicsContext.mCurrentTextures2D[iTextureUnit])
+        {
+            mGraphicsContext.mCurrentTextures2D[iTextureUnit] = nullptr;
+        }
+    }
 }

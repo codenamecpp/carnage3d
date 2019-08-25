@@ -63,6 +63,7 @@ public:
 private:
     // implementation details
     bool CompileSourceCode(GpuProgramHandle targetHandle, const char* programSrc);
+    void SetUnbound();
 
 private:
     GraphicsContext& mGraphicsContext;

@@ -31,6 +31,10 @@ public:
     // @param dataSource: Source data
     bool SubData(unsigned int dataOffset, unsigned int dataLength, const void* dataSource);
 
+    // Resize buffer and save all uploaded data, works only for growth and does nothing if new size less then current capacity
+    // @param newLength: New buffer size
+    bool Resize(unsigned int newLength);
+
     // Map hardware buffer content to process memory
     // @param accessBits: Desired data access policy
     // @param bufferOffset: Offset from start, bytes
@@ -63,6 +67,9 @@ public:
 
     // Test whether buffer is created
     bool IsBufferInited() const;
+
+private:
+    void SetBound(bool state);
 
 private:
     GraphicsContext& mGraphicsContext;

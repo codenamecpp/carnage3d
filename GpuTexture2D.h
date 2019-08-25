@@ -45,6 +45,7 @@ public:
 
 private:
     void SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating);
+    void SetUnbound();
 
 private:
     GraphicsContext& mGraphicsContext;

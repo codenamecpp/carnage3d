@@ -77,11 +77,7 @@ GpuProgram::GpuProgram(GraphicsContext& graphicsContext)
 
 GpuProgram::~GpuProgram()
 {
-    // set unbound
-    if (this == mGraphicsContext.mCurrentProgram)
-    {
-        mGraphicsContext.mCurrentProgram = nullptr;
-    }
+    SetUnbound();
 
     ::glDeleteProgram(mResourceHandle);
     glCheckError();
@@ -364,4 +360,12 @@ bool GpuProgram::QueryUniformLocation(const char* constantName, GpuVariableLocat
 
     bool constantExists = (outLocation != GpuVariableNULL);
     return constantExists;
+}
+
+void GpuProgram::SetUnbound()
+{
+    if (this == mGraphicsContext.mCurrentProgram)
+    {
+        mGraphicsContext.mCurrentProgram = nullptr;
+    }
 }

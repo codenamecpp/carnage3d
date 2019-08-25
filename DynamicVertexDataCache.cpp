@@ -106,10 +106,19 @@ bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsi
         // overlaps current frame data, out of memory
         if (dataLength > cacheBuffer.mFrameStartOffset)
         {
-            debug_assert(false); // TODO : reallocate buffer
-            return false;
+            // grow
+            maxLength = static_cast<unsigned int>((maxLength + dataLength) * 1.6f);
+
+            bool isSuccess = cacheBuffer.mBufferObject->Resize(maxLength);
+            debug_assert(isSuccess);
+
+            if (!isSuccess)
+                return false;
         }
-        dataStartOffset = 0;
+        else
+        {
+            dataStartOffset = 0;
+        }
     }
 
     cacheBuffer.mCurrentOffset = dataStartOffset + dataLength;

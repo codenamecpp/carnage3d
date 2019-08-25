@@ -54,19 +54,24 @@ GpuBuffer::GpuBuffer(GraphicsContext& graphicsContext)
 
 GpuBuffer::~GpuBuffer()
 {
-    // set unbound
-    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices])
-    {
-        mGraphicsContext.mCurrentBuffers[eBufferContent_Vertices] = nullptr;
-    }
-
-    if (this == mGraphicsContext.mCurrentBuffers[eBufferContent_Indices])
-    {
-        mGraphicsContext.mCurrentBuffers[eBufferContent_Indices] = nullptr;
-    }
+    SetBound(false);
 
     ::glDeleteBuffers(1, &mResourceHandle);
     glCheckError();
+}
+
+void GpuBuffer::SetBound(bool state)
+{
+    if (state)
+    {
+        mGraphicsContext.mCurrentBuffers[mContent] = this;
+        return;
+    }
+    
+    if (mGraphicsContext.mCurrentBuffers[mContent] == this)
+    {
+        mGraphicsContext.mCurrentBuffers[mContent] = nullptr;
+    }
 }
 
 bool GpuBuffer::Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
@@ -105,6 +110,66 @@ bool GpuBuffer::Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, un
         glCheckError();
         debug_assert(unmapResult == GL_TRUE);
     }
+    return true;
+}
+
+bool GpuBuffer::Resize(unsigned int newLength)
+{
+    if (!IsBufferInited())
+    {
+        debug_assert(false);
+        return false;
+    }
+
+    if (newLength <= mBufferCapacity)
+    {
+        mBufferLength = newLength;
+        return true;
+    }
+
+    unsigned int newBufferCapacity = (newLength + 15U) & (~15U); // padded
+
+    // allocate new buffer and transfer data
+    bool wasBound = IsBufferBound();
+
+    GLenum bufferTargetGL = EnumToGL(mContent);
+    GLenum bufferUsageGL = EnumToGL(mUsageHint);
+
+    // generate new buffer object and do setup params
+    GLuint newVBO;
+    ::glGenBuffers(1, &newVBO);
+    glCheckError();
+    ::glBindBuffer(bufferTargetGL, newVBO);
+    glCheckError();
+    ::glBufferData(bufferTargetGL, newBufferCapacity, nullptr, bufferUsageGL);
+    glCheckError();
+
+    // bind source and destination buffers and do copy data
+    ::glBindBuffer(GL_COPY_READ_BUFFER, mResourceHandle);
+    glCheckError();
+    ::glCopyBufferSubData(GL_COPY_READ_BUFFER, bufferTargetGL, 0, 0, mBufferCapacity);
+    glCheckError();
+
+    // unbind source and destination buffers
+    ::glBindBuffer(GL_COPY_READ_BUFFER, 0);
+    glCheckError();
+
+    // destroy old buffer
+    ::glDeleteBuffers(1, &mResourceHandle);
+    glCheckError();
+
+    // set new params
+    mBufferCapacity = newBufferCapacity;
+    mBufferLength = newLength;
+    mResourceHandle = newVBO;
+
+    // restore state
+    if (!wasBound)
+    {
+        ::glBindBuffer(bufferTargetGL, 0);
+        glCheckError();
+    }
+
     return true;
 }
 
