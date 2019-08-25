@@ -2,6 +2,7 @@
 
 #include "GraphicsDefs.h"
 #include "RenderProgram.h"
+#include "DynamicVertexCache.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderSystem final: public cxx::noncopyable
@@ -9,6 +10,8 @@ class RenderSystem final: public cxx::noncopyable
 public:
     RenderProgram mDefaultTexColorProgram;
     RenderProgram mGuiTexColorProgram;
+
+    DynamicVertexCache mDynamicVertexCache;
 
 public:
     RenderSystem();

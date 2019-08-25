@@ -19,6 +19,12 @@ bool RenderSystem::Initialize()
         return false;
     }
 
+    if (!mDynamicVertexCache.Initialize())
+    {
+        Deinit();
+        return false;
+    }
+
     PixelsArray texPixels;
     if (!texPixels.LoadFromFile("textures/flowey.png", eTextureFormat_RGB8))
     {
@@ -71,11 +77,13 @@ void RenderSystem::Deinit()
         gGraphicsDevice.DestroyBuffer(mDummyIndexBuffer);
         mDummyIndexBuffer = nullptr;
     }
+    mDynamicVertexCache.Deinit();
     FreeRenderPrograms();
 }
 
 void RenderSystem::RenderFrame()
 {
+    mDynamicVertexCache.RenderFrameBegin();
     gGraphicsDevice.ClearScreen();
 
     // todo
@@ -95,6 +103,7 @@ void RenderSystem::RenderFrame()
 
     gGuiSystem.RenderFrame();
 
+    mDynamicVertexCache.RenderFrameEnd();
     gGraphicsDevice.Present();
 }
 

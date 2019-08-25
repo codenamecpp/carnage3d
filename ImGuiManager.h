@@ -28,13 +28,12 @@ public:
     void HandleEvent(KeyInputEvent& inputEvent);
     void HandleEvent(KeyCharEvent& inputEvent);
 
+    bool IsInitialized() const;
+
 public:
     bool AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize);
     void SetupStyle(ImGuiIO& imguiIO);
 
-private:
-    GpuBuffer* mVertexBuffer = nullptr;
-    GpuBuffer* mIndexBuffer = nullptr;
 };
 
 extern ImGuiManager gImGuiManager;

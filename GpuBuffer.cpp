@@ -131,7 +131,7 @@ void* GpuBuffer::Lock(BufferAccessBits accessBits, unsigned int bufferOffset, un
     if (accessBitsGL == 0)
         return nullptr;
 
-    if (dataLength == 0 || bufferOffset + dataLength > mBufferCapacity)
+    if (dataLength == 0 || ((bufferOffset + dataLength) > mBufferCapacity))
     {
         debug_assert(false);
         return nullptr;

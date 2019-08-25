@@ -202,6 +202,9 @@
     <ClInclude Include="GuiRenderContext.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="DynamicVertexCache.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -282,6 +285,9 @@
     </ClCompile>
     <ClCompile Include="GuiRenderContext.cpp">
       <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicVertexCache.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

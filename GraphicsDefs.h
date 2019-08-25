@@ -573,7 +573,7 @@ public:
     {
         Setup();
     }
-    // Get format definition
+    // get format definition
     static const Vertex2D_Format& Get() 
     { 
         static const Vertex2D_Format sDefinition; 
