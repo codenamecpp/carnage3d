@@ -12,6 +12,7 @@ public:
     RenderStates mCurrentStates;
     Rect2D mViewportRect;
     Rect2D mScissorBox;
+    GraphicsDeviceCaps mCaps;
 
     // these params will automatically set during texture creation
     eTextureFilterMode mDefaultTextureFilter = eTextureFilterMode_Nearest;
@@ -137,6 +138,7 @@ private:
     // @param rstate: Render state
     void InternalSetRenderStates(const RenderStates& renderStates, bool forceState);
     bool InitializeOGLExtensions();
+    void QueryGraphicsDeviceCaps();
 
     void SetupVertexAttributes(const VertexFormat& streamDefinition);
 

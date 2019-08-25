@@ -887,3 +887,19 @@ public:
 
 inline bool operator == (const RenderProgramInputLayout& a, const RenderProgramInputLayout& b) { return a.mEnabledAttributes == b.mEnabledAttributes; }
 inline bool operator != (const RenderProgramInputLayout& a, const RenderProgramInputLayout& b) { return a.mEnabledAttributes != b.mEnabledAttributes; }
+
+enum eGraphicsFeature
+{
+    eGraphicsFeature_NPOT_Textures,
+    eGraphicsFeature_ABGR,
+    eGraphicsFeature_COUNT
+};
+
+struct GraphicsDeviceCaps
+{
+public:
+    GraphicsDeviceCaps() = default;
+
+public:
+    bool mFeatures[eGraphicsFeature_COUNT];
+};

@@ -14,7 +14,7 @@ public:
         , mCurrentTextures2D()
         , mCurrentProgram()
         , mVaoHandle()
-    { 
+    {
     }
 public:
     GpuVertexArrayHandle mVaoHandle;

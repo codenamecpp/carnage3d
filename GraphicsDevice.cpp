@@ -126,6 +126,8 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     mGraphicsWindow = graphicsWindow;
     mGraphicsMonitor = graphicsMonitor;
 
+    QueryGraphicsDeviceCaps();
+
     // clear opengl errors
     glClearError();
 
@@ -820,5 +822,12 @@ void GraphicsDevice::InternalSetRenderStates(const RenderStates& renderStates, b
     }
 
     mCurrentStates = renderStates;
+}
+
+void GraphicsDevice::QueryGraphicsDeviceCaps()
+{
+    // gather features
+    mCaps.mFeatures[eGraphicsFeature_NPOT_Textures] = (GLEW_ARB_texture_non_power_of_two == GL_TRUE);
+    mCaps.mFeatures[eGraphicsFeature_ABGR] = (GLEW_EXT_abgr == GL_TRUE);
 }
 
