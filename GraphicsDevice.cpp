@@ -123,13 +123,13 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
         return false;
     }
 
+    // clear opengl errors
+    glClearError();
+
     mGraphicsWindow = graphicsWindow;
     mGraphicsMonitor = graphicsMonitor;
 
     QueryGraphicsDeviceCaps();
-
-    // clear opengl errors
-    glClearError();
 
     // create global vertex array object
     ::glGenVertexArrays(1, &mGraphicsContext.mVaoHandle);
@@ -826,8 +826,10 @@ void GraphicsDevice::InternalSetRenderStates(const RenderStates& renderStates, b
 
 void GraphicsDevice::QueryGraphicsDeviceCaps()
 {
-    // gather features
     mCaps.mFeatures[eGraphicsFeature_NPOT_Textures] = (GLEW_ARB_texture_non_power_of_two == GL_TRUE);
     mCaps.mFeatures[eGraphicsFeature_ABGR] = (GLEW_EXT_abgr == GL_TRUE);
+
+    ::glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &mCaps.mMaxArrayTextureLayers);
+    glCheckError();
 }
 

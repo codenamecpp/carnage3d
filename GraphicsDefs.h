@@ -901,5 +901,6 @@ public:
     GraphicsDeviceCaps() = default;
 
 public:
+    int mMaxArrayTextureLayers;
     bool mFeatures[eGraphicsFeature_COUNT];
 };
