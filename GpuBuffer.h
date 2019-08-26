@@ -10,8 +10,8 @@ public:
     GpuBufferHandle mResourceHandle;
     eBufferContent mContent;
     eBufferUsage mUsageHint;
-    unsigned int mBufferLength; // user requested length in bytes
-    unsigned int mBufferCapacity; // actually allocated length int bytes
+    unsigned int mBufferLength; // user requested length, bytes
+    unsigned int mBufferCapacity; // actually allocated length, bytes
 
 public:
     GpuBuffer(GraphicsContext& graphicsContext);
@@ -69,7 +69,7 @@ public:
     bool IsBufferInited() const;
 
 private:
-    void SetBound(bool state);
+    void SetUnbound();
 
 private:
     GraphicsContext& mGraphicsContext;

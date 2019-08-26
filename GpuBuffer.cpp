@@ -54,20 +54,14 @@ GpuBuffer::GpuBuffer(GraphicsContext& graphicsContext)
 
 GpuBuffer::~GpuBuffer()
 {
-    SetBound(false);
+    SetUnbound();
 
     ::glDeleteBuffers(1, &mResourceHandle);
     glCheckError();
 }
 
-void GpuBuffer::SetBound(bool state)
-{
-    if (state)
-    {
-        mGraphicsContext.mCurrentBuffers[mContent] = this;
-        return;
-    }
-    
+void GpuBuffer::SetUnbound()
+{    
     if (mGraphicsContext.mCurrentBuffers[mContent] == this)
     {
         mGraphicsContext.mCurrentBuffers[mContent] = nullptr;
