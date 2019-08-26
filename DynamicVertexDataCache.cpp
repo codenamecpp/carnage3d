@@ -139,7 +139,7 @@ bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsi
     return true;
 }
 
-bool DynamicVertexDataCache::AllocateVertices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool DynamicVertexDataCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 
@@ -152,7 +152,7 @@ bool DynamicVertexDataCache::AllocateVertices(unsigned int dataLength, void* sou
     return false;
 }
 
-bool DynamicVertexDataCache::AllocateIndices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool DynamicVertexDataCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 

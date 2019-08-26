@@ -30,8 +30,8 @@ public:
     // @param dataLength: Source data length in bytes
     // @param sourceData: Source data to upload
     // @param outputBuffer: Output transient buffer, only valid for one frame
-    bool AllocateVertices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
-    bool AllocateIndices(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
+    bool AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
+    bool AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
 private:
     static const unsigned int StartVertexBufferSize = (1024 * 1024) * 1; // 1 MB
