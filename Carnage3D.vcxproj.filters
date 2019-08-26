@@ -205,6 +205,9 @@
     <ClInclude Include="StreamingVertexCache.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiConsole.h">
+      <Filter>Game\GUI\DebugUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -288,6 +291,9 @@
     </ClCompile>
     <ClCompile Include="StreamingVertexCache.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiConsole.cpp">
+      <Filter>Game\GUI\DebugUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

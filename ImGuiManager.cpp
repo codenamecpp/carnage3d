@@ -60,6 +60,8 @@ bool ImGuiManager::Initialize()
 
     io.Fonts->TexID = fontTexture;
     io.MouseDrawCursor = true;
+
+    mConsoleWindow.mShown = true;
     return true;
 }
 
@@ -172,9 +174,12 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
 
     ImGui::NewFrame();
 
-    // todo: process all imgui windows
+    if (mConsoleWindow.mShown)
+    {
+        mConsoleWindow.UpdateFrame(deltaTime);
+    }
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     ImGui::ShowMetricsWindow();
 }
 

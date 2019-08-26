@@ -1,11 +1,15 @@
 #pragma once
 
 #include "imgui.h"
+#include "ImGuiConsole.h"
 
 class GuiRenderContext;
 
 class ImGuiManager final: public cxx::noncopyable
 {
+public:
+    ImGuiConsole mConsoleWindow;
+
 public:
     // setup internal resources
     bool Initialize();
@@ -31,9 +35,9 @@ public:
     bool IsInitialized() const;
 
 public:
+    // internals
     bool AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize);
     void SetupStyle(ImGuiIO& imguiIO);
-
 };
 
 extern ImGuiManager gImGuiManager;

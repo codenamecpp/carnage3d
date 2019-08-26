@@ -177,6 +177,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="heap.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
+    <ClInclude Include="ImGuiConsole.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="imstb_rectpack.h" />
@@ -213,6 +214,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GuiRenderContext.cpp" />
     <ClCompile Include="GuiSystem.cpp" />
     <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="ImGuiConsole.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
