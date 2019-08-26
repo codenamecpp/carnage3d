@@ -12,15 +12,17 @@ public:
     void SetNull();
     bool NonNull() const;
     bool IsNull() const;
+
 public:
     // area of allocated data within buffer
     unsigned int mBufferDataOffset = 0;
     unsigned int mBufferDataLength = 0;
-    GpuBuffer* mBufferObject = nullptr; // temporary reference, it must not be stored
+
+    GpuBuffer* mGraphicsBuffer = nullptr; // temporary reference, it must not be stored
 };
 
 // defines cache system for dynamic geometry that being created each render frame
-class DynamicVertexDataCache final: public cxx::noncopyable
+class StreamingVertexCache final: public cxx::noncopyable
 {
 public:
     bool Initialize();
@@ -41,10 +43,9 @@ private:
     struct FrameCacheBuffer
     {
     public:
+        GpuBuffer* mGraphicsBuffer = nullptr;
         unsigned int mFrameStartOffset = 0;
         unsigned int mCurrentOffset = 0;
-
-        GpuBuffer* mBufferObject = nullptr;
     };
 
     struct FrameCache

@@ -108,7 +108,7 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
         {
             Vertex2D_Format vFormat;
             vFormat.mBaseOffset = vBuffer.mBufferDataOffset;
-            gGraphicsDevice.BindVertexBuffer(vBuffer.mBufferObject, vFormat);
+            gGraphicsDevice.BindVertexBuffer(vBuffer.mGraphicsBuffer, vFormat);
         }
         debug_assert(vBuffer.NonNull());
 
@@ -116,7 +116,7 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
         TransientBuffer iBuffer;
         if (gRenderSystem.mGuiVertexCache.AllocIndex(cmd_list->IdxBuffer.size_in_bytes(), cmd_list->IdxBuffer.Data, iBuffer))
         {
-            gGraphicsDevice.BindIndexBuffer(iBuffer.mBufferObject);
+            gGraphicsDevice.BindIndexBuffer(iBuffer.mGraphicsBuffer);
         }
         debug_assert(iBuffer.NonNull());
 

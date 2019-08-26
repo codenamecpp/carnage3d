@@ -1,34 +1,34 @@
 #include "stdafx.h"
-#include "DynamicVertexDataCache.h"
+#include "StreamingVertexCache.h"
 #include "GpuBuffer.h"
 
 void TransientBuffer::SetSourceBuffer(GpuBuffer* bufferObject, unsigned int dataOffset, unsigned int dataLength)
 {
-    mBufferObject = bufferObject;
+    mGraphicsBuffer = bufferObject;
     mBufferDataOffset = dataOffset;
     mBufferDataLength = dataLength;
 }
 
 void TransientBuffer::SetNull()
 {
-    mBufferObject = nullptr;
+    mGraphicsBuffer = nullptr;
     mBufferDataOffset = 0;
     mBufferDataLength = 0;
 }
 
 bool TransientBuffer::IsNull() const
 {
-    return mBufferObject == nullptr;
+    return mGraphicsBuffer == nullptr;
 }
 
 bool TransientBuffer::NonNull() const
 {
-    return mBufferObject != nullptr;
+    return mGraphicsBuffer != nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool DynamicVertexDataCache::Initialize()
+bool StreamingVertexCache::Initialize()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
@@ -43,7 +43,7 @@ bool DynamicVertexDataCache::Initialize()
     return true;
 }
 
-void DynamicVertexDataCache::Deinit()
+void StreamingVertexCache::Deinit()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
@@ -52,7 +52,7 @@ void DynamicVertexDataCache::Deinit()
     }
 }
 
-void DynamicVertexDataCache::RenderFrameEnd()
+void StreamingVertexCache::RenderFrameEnd()
 {
     for (int iframe = 0; iframe < NumFrames; ++iframe)
     {
@@ -62,36 +62,36 @@ void DynamicVertexDataCache::RenderFrameEnd()
     mCurrentFrame = (mCurrentFrame + 1) % NumFrames;
 }
 
-bool DynamicVertexDataCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
+bool StreamingVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
 {
-    cacheBuffer.mBufferObject = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, bufferLength, nullptr);
-    debug_assert(cacheBuffer.mBufferObject);
+    cacheBuffer.mGraphicsBuffer = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, bufferLength, nullptr);
+    debug_assert(cacheBuffer.mGraphicsBuffer);
     cacheBuffer.mCurrentOffset = 0;
     cacheBuffer.mFrameStartOffset = 0;
-    return cacheBuffer.mBufferObject != nullptr;
+    return cacheBuffer.mGraphicsBuffer != nullptr;
 }
 
-void DynamicVertexDataCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
+void StreamingVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
 {
-    if (cacheBuffer.mBufferObject)
+    if (cacheBuffer.mGraphicsBuffer)
     {
-        gGraphicsDevice.DestroyBuffer(cacheBuffer.mBufferObject);
-        cacheBuffer.mBufferObject = nullptr;
+        gGraphicsDevice.DestroyBuffer(cacheBuffer.mGraphicsBuffer);
+        cacheBuffer.mGraphicsBuffer = nullptr;
         cacheBuffer.mCurrentOffset = 0;
         cacheBuffer.mFrameStartOffset = 0;
     }
 }
 
-void DynamicVertexDataCache::SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer)
+void StreamingVertexCache::SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer)
 {
     cacheBuffer.mFrameStartOffset = cacheBuffer.mCurrentOffset;
 }
 
-bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool StreamingVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
-    debug_assert (cacheBuffer.mBufferObject);
+    debug_assert (cacheBuffer.mGraphicsBuffer);
 
-    unsigned int maxLength = cacheBuffer.mBufferObject->mBufferCapacity;
+    unsigned int maxLength = cacheBuffer.mGraphicsBuffer->mBufferCapacity;
     if (maxLength < dataLength || dataLength == 0)
     {
         debug_assert(false);
@@ -109,7 +109,7 @@ bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsi
             // grow
             maxLength = static_cast<unsigned int>((maxLength + dataLength) * 1.6f);
 
-            bool isSuccess = cacheBuffer.mBufferObject->Resize(maxLength);
+            bool isSuccess = cacheBuffer.mGraphicsBuffer->Resize(maxLength);
             debug_assert(isSuccess);
 
             if (!isSuccess)
@@ -123,28 +123,28 @@ bool DynamicVertexDataCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsi
 
     cacheBuffer.mCurrentOffset = dataStartOffset + dataLength;
     debug_assert(cacheBuffer.mCurrentOffset <= maxLength);
-    outputBuffer.SetSourceBuffer(cacheBuffer.mBufferObject, dataStartOffset, dataLength);
+    outputBuffer.SetSourceBuffer(cacheBuffer.mGraphicsBuffer, dataStartOffset, dataLength);
 
     // upload data right away
     if (sourceData)
     {
-        if (void* destPointer = outputBuffer.mBufferObject->Lock(BufferAccess_UnsynchronizedWrite | BufferAccess_InvalidateRange, 
+        if (void* destPointer = outputBuffer.mGraphicsBuffer->Lock(BufferAccess_UnsynchronizedWrite | BufferAccess_InvalidateRange, 
             outputBuffer.mBufferDataOffset, outputBuffer.mBufferDataLength))
         {
             memcpy(destPointer, sourceData, dataLength);
-            bool isSuccess = outputBuffer.mBufferObject->Unlock();
+            bool isSuccess = outputBuffer.mGraphicsBuffer->Unlock();
             debug_assert(isSuccess);
         }
     }
     return true;
 }
 
-bool DynamicVertexDataCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 
     FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mVertexCacheBuffer;
-    if (cacheBuffer.mBufferObject)
+    if (cacheBuffer.mGraphicsBuffer)
     {
         return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
     }
@@ -152,12 +152,12 @@ bool DynamicVertexDataCache::AllocVertex(unsigned int dataLength, void* sourceDa
     return false;
 }
 
-bool DynamicVertexDataCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool StreamingVertexCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 
     FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mIndexCacheBuffer;
-    if (cacheBuffer.mBufferObject)
+    if (cacheBuffer.mGraphicsBuffer)
     {
         return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
     }
