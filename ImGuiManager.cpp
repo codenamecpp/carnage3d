@@ -130,7 +130,6 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
             }
 
             // Project scissor/clipping rectangles into framebuffer space
-          
             float clip_rect_x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
             float clip_rect_y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
             float clip_rect_w = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
@@ -145,28 +144,11 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
                 static_cast<int>(clip_rect_w - clip_rect_x), 
                 static_cast<int>(clip_rect_h - clip_rect_y)
             };
-            gGraphicsDevice.SetScissorRect(rcClip);
 
-            // The texture for the draw call is specified by pcmd->TextureId.
-            // The vast majority of draw calls will use the Dear ImGui texture atlas, which value you have set yourself during initialization.
             GpuTexture2D* bindTexture = static_cast<GpuTexture2D*>(pcmd->TextureId);
             gGraphicsDevice.BindTexture2D(eTextureUnit_0, bindTexture);
 
-            // We are using scissoring to clip some objects. All low-level graphics API should supports it.
-            // - If your engine doesn't support scissoring yet, you may ignore this at first. You will get some small glitches
-            //   (some elements visible outside their bounds) but you can fix that once everything else works!
-            // - Clipping coordinates are provided in imgui coordinates space (from draw_data->DisplayPos to draw_data->DisplayPos + draw_data->DisplaySize)
-            //   In a single viewport application, draw_data->DisplayPos will always be (0,0) and draw_data->DisplaySize will always be == io.DisplaySize.
-            //   However, in the interest of supporting multi-viewport applications in the future (see 'viewport' branch on github),
-            //   always subtract draw_data->DisplayPos from clipping bounds to convert them to your viewport space.
-            // - Note that pcmd->ClipRect contains Min+Max bounds. Some graphics API may use Min+Max, other may use Min+Size (size being Max-Min)
-
-            //ImVec2 pos = imGuiDrawData->DisplayPos;
-            //MyEngineScissor((int)(pcmd->ClipRect.x - pos.x), (int)(pcmd->ClipRect.y - pos.y), (int)(pcmd->ClipRect.z - pos.x), (int)(pcmd->ClipRect.w - pos.y));
-
-            // Render 'pcmd->ElemCount/3' indexed triangles.
-            // By default the indices ImDrawIdx are 16-bits, you can change them to 32-bits in imconfig.h if your engine doesn't support 16-bits indices.
-
+            gGraphicsDevice.SetScissorRect(rcClip);
             unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_ImGuiIndex * pcmd->IdxOffset;
 
             eIndicesType indicesType = Sizeof_ImGuiIndex == 2 ? eIndicesType_i16 : eIndicesType_i32;
