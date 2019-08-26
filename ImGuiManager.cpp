@@ -180,6 +180,12 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
 
 void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
 {
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.WantCaptureMouse)
+    {
+        inputEvent.SetConsumed();
+    }
 }
 
 void ImGuiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
@@ -188,10 +194,21 @@ void ImGuiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
 
     io.MouseWheelH += inputEvent.mScrollX * 1.0f;
     io.MouseWheel += inputEvent.mScrollY * 1.0f;
+
+    if (io.WantCaptureMouse)
+    {
+        inputEvent.SetConsumed();
+    }
 }
 
 void ImGuiManager::HandleEvent(MouseButtonInputEvent& inputEvent)
 {
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.WantCaptureMouse)
+    {
+        inputEvent.SetConsumed();
+    }
 }
 
 void ImGuiManager::HandleEvent(KeyInputEvent& inputEvent)
@@ -202,6 +219,11 @@ void ImGuiManager::HandleEvent(KeyInputEvent& inputEvent)
     io.KeyCtrl = inputEvent.HasMods(KEYMOD_CTRL);
     io.KeyShift = inputEvent.HasMods(KEYMOD_SHIFT);
     io.KeyAlt = inputEvent.HasMods(KEYMOD_ALT);
+
+    if (io.WantCaptureKeyboard)
+    {
+        inputEvent.SetConsumed();
+    }
 }
 
 void ImGuiManager::HandleEvent(KeyCharEvent& inputEvent)
@@ -209,6 +231,11 @@ void ImGuiManager::HandleEvent(KeyCharEvent& inputEvent)
     ImGuiIO& io = ImGui::GetIO();
 
     io.AddInputCharacter(inputEvent.mUnicodeChar);
+
+    if (io.WantTextInput)
+    {
+        inputEvent.SetConsumed();
+    }
 }
 
 bool ImGuiManager::AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize)
