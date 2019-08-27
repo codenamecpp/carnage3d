@@ -61,7 +61,7 @@ bool ImGuiManager::Initialize()
     io.Fonts->TexID = fontTexture;
     io.MouseDrawCursor = true;
 
-    mConsoleWindow.mShown = true;
+    //mConsoleWindow.mShown = true;
     return true;
 }
 
