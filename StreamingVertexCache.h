@@ -36,16 +36,17 @@ public:
     bool AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer);
 
 private:
-    static const unsigned int StartVertexBufferSize = (1024 * 1024) * 1; // 1 MB
-    static const unsigned int StartIndexBufferSize = (1024 * 1024) * 1; // 1 MB
-    static const int NumFrames = 2;
+    static const unsigned int MaxVertexBufferSize = (1024 * 1024) * 1; // 1 MB
+    static const unsigned int MaxIndexBufferSize = (1024 * 1024) * 1; // 1 MB
 
     struct FrameCacheBuffer
     {
     public:
-        GpuBuffer* mGraphicsBuffer = nullptr;
-        unsigned int mFrameStartOffset = 0;
-        unsigned int mCurrentOffset = 0;
+        GpuBuffer* mGraphicsBuffer = nullptr; // current buffer object to fill with data
+        unsigned int mFreeLength = 0;
+        unsigned int mUsedLength = 0;
+        std::deque<GpuBuffer*> mFreeBuffers;
+        std::deque<GpuBuffer*> mFullBuffers;
     };
 
     struct FrameCache
@@ -55,11 +56,11 @@ private:
         FrameCacheBuffer mIndexCacheBuffer;
     };
 
-    bool InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength);
+    bool InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned int maxBufferLength);
     void DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer);
-    void SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer);
+    void SetFreeBuffers(FrameCacheBuffer& cacheBuffer);
     bool TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer);
-
-    int mCurrentFrame = 0;
-    FrameCache mFrameCache[NumFrames];
+    bool RequestNextBuffer(FrameCacheBuffer& cacheBuffer);
+    
+    FrameCache mFrameCache;
 };

@@ -30,100 +30,154 @@ bool TransientBuffer::NonNull() const
 
 bool StreamingVertexCache::Initialize()
 {
-    for (int iframe = 0; iframe < NumFrames; ++iframe)
+    if (!InitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer, eBufferContent_Vertices, MaxVertexBufferSize) ||
+        !InitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer, eBufferContent_Indices, MaxIndexBufferSize))
     {
-        if (!InitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer, eBufferContent_Vertices, StartVertexBufferSize) ||
-            !InitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer, eBufferContent_Indices, StartIndexBufferSize))
-        {
-            Deinit();
-            return false;
-        }
+        Deinit();
+        return false;
     }
-    mCurrentFrame = 0;
     return true;
 }
 
 void StreamingVertexCache::Deinit()
 {
-    for (int iframe = 0; iframe < NumFrames; ++iframe)
-    {
-        DeinitFrameCacheBuffer(mFrameCache[iframe].mVertexCacheBuffer);
-        DeinitFrameCacheBuffer(mFrameCache[iframe].mIndexCacheBuffer);
-    }
+    DeinitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer);
+    DeinitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer);
 }
 
 void StreamingVertexCache::RenderFrameEnd()
 {
-    for (int iframe = 0; iframe < NumFrames; ++iframe)
-    {
-        SetCurrentFrameOffset(mFrameCache[iframe].mVertexCacheBuffer);
-        SetCurrentFrameOffset(mFrameCache[iframe].mIndexCacheBuffer);
-    }
-    mCurrentFrame = (mCurrentFrame + 1) % NumFrames;
+    SetFreeBuffers(mFrameCache.mVertexCacheBuffer);
+    SetFreeBuffers(mFrameCache.mIndexCacheBuffer);
 }
 
-bool StreamingVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned long bufferLength)
+bool StreamingVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned int maxBufferLength)
 {
-    cacheBuffer.mGraphicsBuffer = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, bufferLength, nullptr);
+    // create initial buffer object
+
+    cacheBuffer.mGraphicsBuffer = gGraphicsDevice.CreateBuffer(content, eBufferUsage_Stream, maxBufferLength, nullptr);
+    if (cacheBuffer.mGraphicsBuffer)
+    {
+        cacheBuffer.mFreeLength = maxBufferLength;
+        cacheBuffer.mUsedLength = 0;
+        return true;
+    }
     debug_assert(cacheBuffer.mGraphicsBuffer);
-    cacheBuffer.mCurrentOffset = 0;
-    cacheBuffer.mFrameStartOffset = 0;
-    return cacheBuffer.mGraphicsBuffer != nullptr;
+    return false;
 }
 
 void StreamingVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
 {
+    // destroy all allocated buffers
+
     if (cacheBuffer.mGraphicsBuffer)
     {
         gGraphicsDevice.DestroyBuffer(cacheBuffer.mGraphicsBuffer);
         cacheBuffer.mGraphicsBuffer = nullptr;
-        cacheBuffer.mCurrentOffset = 0;
-        cacheBuffer.mFrameStartOffset = 0;
+        cacheBuffer.mFreeLength = 0;
+        cacheBuffer.mUsedLength = 0;
+    }
+
+    for (GpuBuffer* curr: cacheBuffer.mFullBuffers)
+    {
+        gGraphicsDevice.DestroyBuffer(curr);
+    }
+
+    for (GpuBuffer* curr: cacheBuffer.mFreeBuffers)
+    {
+        gGraphicsDevice.DestroyBuffer(curr);
+    }
+
+    cacheBuffer.mFullBuffers.clear();
+    cacheBuffer.mFreeBuffers.clear();
+}
+
+void StreamingVertexCache::SetFreeBuffers(FrameCacheBuffer& cacheBuffer)
+{
+    if (!cacheBuffer.mFullBuffers.empty())
+    {
+        cacheBuffer.mFreeBuffers.insert(cacheBuffer.mFreeBuffers.end(), 
+            cacheBuffer.mFullBuffers.begin(), 
+            cacheBuffer.mFullBuffers.end());
+        cacheBuffer.mFullBuffers.clear();
     }
 }
 
-void StreamingVertexCache::SetCurrentFrameOffset(FrameCacheBuffer& cacheBuffer)
+bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
-    cacheBuffer.mFrameStartOffset = cacheBuffer.mCurrentOffset;
+    outputBuffer.SetNull();
+
+    FrameCacheBuffer& cacheBuffer = mFrameCache.mVertexCacheBuffer;
+    if (cacheBuffer.mGraphicsBuffer)
+    {
+        return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
+    }
+    debug_assert(false);
+    return false;
+}
+
+bool StreamingVertexCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+{
+    outputBuffer.SetNull();
+
+    FrameCacheBuffer& cacheBuffer = mFrameCache.mIndexCacheBuffer;
+    if (cacheBuffer.mGraphicsBuffer)
+    {
+        return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
+    }
+    debug_assert(false);
+    return false;
+}
+
+bool StreamingVertexCache::RequestNextBuffer(FrameCacheBuffer& cacheBuffer)
+{
+    GpuBuffer* prevBufferObject = cacheBuffer.mGraphicsBuffer;
+    GpuBuffer* nextBufferObject = nullptr;
+    if (cacheBuffer.mFreeBuffers.size())
+    {
+        nextBufferObject = cacheBuffer.mFreeBuffers[0];
+        cacheBuffer.mFreeBuffers.pop_front();
+
+        nextBufferObject->Invalidate(); // do orphan trick
+    }
+    else // allocate new buffer
+    {
+        nextBufferObject = gGraphicsDevice.CreateBuffer(prevBufferObject->mContent, eBufferUsage_Stream, prevBufferObject->mBufferLength, nullptr);
+    }
+    debug_assert(nextBufferObject);
+    if (nextBufferObject)
+    {
+        cacheBuffer.mFullBuffers.push_back(prevBufferObject);
+        cacheBuffer.mGraphicsBuffer = nextBufferObject;
+        cacheBuffer.mUsedLength = 0;
+        cacheBuffer.mFreeLength = nextBufferObject->mBufferLength;
+        return true;
+    }
+
+    return false;
 }
 
 bool StreamingVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     debug_assert (cacheBuffer.mGraphicsBuffer);
 
-    unsigned int maxLength = cacheBuffer.mGraphicsBuffer->mBufferCapacity;
-    if (maxLength < dataLength || dataLength == 0)
+    if (dataLength == 0 || dataLength > cacheBuffer.mGraphicsBuffer->mBufferLength)
     {
         debug_assert(false);
         return false;
     }
 
-    int dataStartOffset = cacheBuffer.mCurrentOffset;
-
-    // not enough space left, try from start
-    if (dataStartOffset + dataLength > maxLength)
+    // is there no free space left in current buffer?
+    if (dataLength > cacheBuffer.mFreeLength)
     {
-        // overlaps current frame data, out of memory
-        if (dataLength > cacheBuffer.mFrameStartOffset)
-        {
-            // grow
-            maxLength = static_cast<unsigned int>((maxLength + dataLength) * 1.6f);
-
-            bool isSuccess = cacheBuffer.mGraphicsBuffer->Resize(maxLength);
-            debug_assert(isSuccess);
-
-            if (!isSuccess)
-                return false;
-        }
-        else
-        {
-            dataStartOffset = 0;
-        }
+        if (!RequestNextBuffer(cacheBuffer))
+            return false;
     }
 
-    cacheBuffer.mCurrentOffset = dataStartOffset + dataLength;
-    debug_assert(cacheBuffer.mCurrentOffset <= maxLength);
-    outputBuffer.SetSourceBuffer(cacheBuffer.mGraphicsBuffer, dataStartOffset, dataLength);
+    outputBuffer.SetSourceBuffer(cacheBuffer.mGraphicsBuffer, cacheBuffer.mUsedLength, dataLength);
+
+    cacheBuffer.mUsedLength += dataLength;
+    cacheBuffer.mFreeLength -= dataLength;
 
     // upload data right away
     if (sourceData)
@@ -137,30 +191,4 @@ bool StreamingVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsign
         }
     }
     return true;
-}
-
-bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
-{
-    outputBuffer.SetNull();
-
-    FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mVertexCacheBuffer;
-    if (cacheBuffer.mGraphicsBuffer)
-    {
-        return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
-    }
-    debug_assert(false);
-    return false;
-}
-
-bool StreamingVertexCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
-{
-    outputBuffer.SetNull();
-
-    FrameCacheBuffer& cacheBuffer = mFrameCache[mCurrentFrame].mIndexCacheBuffer;
-    if (cacheBuffer.mGraphicsBuffer)
-    {
-        return TryAllocateData(cacheBuffer, dataLength, sourceData, outputBuffer);
-    }
-    debug_assert(false);
-    return false;
 }
