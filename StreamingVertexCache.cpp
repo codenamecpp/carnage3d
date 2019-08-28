@@ -190,7 +190,7 @@ bool StreamingVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsign
     // upload data right away
     if (sourceData)
     {
-        if (void* destPointer = outputBuffer.mGraphicsBuffer->Lock(BufferAccess_UnsynchronizedWrite | BufferAccess_InvalidateRange, 
+        if (void* destPointer = outputBuffer.mGraphicsBuffer->Lock(BufferAccess_UnsynchronizedWrite, 
             outputBuffer.mBufferDataOffset, outputBuffer.mBufferDataLength))
         {
             memcpy(destPointer, sourceData, dataLength);
