@@ -8,6 +8,7 @@ RenderSystem gRenderSystem;
 RenderSystem::RenderSystem()
     : mDefaultTexColorProgram("shaders/texture_color.glsl")
     , mGuiTexColorProgram("shaders/gui.glsl")
+    , mCityMeshProgram("shaders/city_mesh.glsl")
 {
 }
 
@@ -19,7 +20,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    if (!mGuiVertexCache.Initialize())
+    if (!mCityRenderer.Initialize() || !mGuiVertexCache.Initialize())
     {
         Deinit();
         return false;
@@ -30,6 +31,7 @@ bool RenderSystem::Initialize()
 
 void RenderSystem::Deinit()
 {
+    mCityRenderer.Deinit();
     mGuiVertexCache.Deinit();
 
     FreeRenderPrograms();
@@ -38,16 +40,12 @@ void RenderSystem::Deinit()
 void RenderSystem::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
-
-    // todo
-
-    mDefaultTexColorProgram.Activate();
-
     gCamera.ComputeMatricesAndFrustum();
 
-    mDefaultTexColorProgram.UploadCameraTransformMatrices();
+    //mDefaultTexColorProgram.Activate();
+    //mDefaultTexColorProgram.UploadCameraTransformMatrices();
 
-    // todo
+    mCityRenderer.RenderFrame();
 
     gGuiSystem.RenderFrame();
 
@@ -58,13 +56,19 @@ void RenderSystem::RenderFrame()
 void RenderSystem::FreeRenderPrograms()
 {
     mDefaultTexColorProgram.Deinit();
+    mCityMeshProgram.Deinit();
     mGuiTexColorProgram.Deinit();
 }
 
 bool RenderSystem::InitRenderPrograms()
 {
-    mDefaultTexColorProgram.Initialize();
-    mGuiTexColorProgram.Initialize();
+    if (!mDefaultTexColorProgram.Initialize() ||
+        !mGuiTexColorProgram.Initialize() ||
+        !mCityMeshProgram.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize render programs");
+        return false;
+    }
 
     return true;
 }
@@ -73,4 +77,5 @@ void RenderSystem::ReloadRenderPrograms()
 {
     mDefaultTexColorProgram.Reinitialize();
     mGuiTexColorProgram.Reinitialize();
+    mCityMeshProgram.Reinitialize();
 }

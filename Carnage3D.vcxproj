@@ -155,6 +155,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CityMeshBuilder.h" />
+    <ClInclude Include="CityRenderer.h" />
     <ClInclude Include="CityScapeData.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="GameCamera.h" />
@@ -209,6 +210,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="CityMeshBuilder.cpp" />
     <ClCompile Include="CityScapeData.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
+    <ClCompile Include="CityRenderer.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />
@@ -248,6 +250,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="gamedata\config\sys_config.json" />
+    <None Include="gamedata\shaders\city_mesh.glsl" />
     <None Include="gamedata\shaders\gui.glsl" />
     <None Include="gamedata\shaders\texture_color.glsl" />
   </ItemGroup>

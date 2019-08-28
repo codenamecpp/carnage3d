@@ -211,6 +211,9 @@
     <ClInclude Include="CityMeshBuilder.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="CityRenderer.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -301,6 +304,9 @@
     <ClCompile Include="CityMeshBuilder.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="CityRenderer.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt">
@@ -318,6 +324,9 @@
       <Filter>Data\shaders</Filter>
     </None>
     <None Include="gamedata\shaders\gui.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="gamedata\shaders\city_mesh.glsl">
       <Filter>Data\shaders</Filter>
     </None>
   </ItemGroup>

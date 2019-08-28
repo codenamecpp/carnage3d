@@ -3,15 +3,19 @@
 #include "GraphicsDefs.h"
 #include "RenderProgram.h"
 #include "StreamingVertexCache.h"
+#include "CityRenderer.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderSystem final: public cxx::noncopyable
 {
 public:
     RenderProgram mDefaultTexColorProgram;
+    RenderProgram mCityMeshProgram;
     RenderProgram mGuiTexColorProgram;
 
     StreamingVertexCache mGuiVertexCache;
+
+    CityRenderer mCityRenderer;
 
 public:
     RenderSystem();
