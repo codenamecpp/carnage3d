@@ -17,6 +17,9 @@ using GpuVariableLocation = int;
 // predefined value for unspecified render program variable location
 const GpuVariableLocation GpuVariableNULL = -1;
 
+using DrawIndex_t = unsigned int;
+const unsigned int Sizeof_DrawIndex_t = sizeof(DrawIndex_t);
+
 // vertex 3d
 struct Vertex3D
 {

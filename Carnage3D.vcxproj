@@ -154,6 +154,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   <ItemGroup>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
+    <ClInclude Include="CityMeshBuilder.h" />
     <ClInclude Include="CityScapeData.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="GameCamera.h" />
@@ -205,6 +206,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="StreamingVertexCache.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CityMeshBuilder.cpp" />
     <ClCompile Include="CityScapeData.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
     <ClCompile Include="GameCamera.cpp" />

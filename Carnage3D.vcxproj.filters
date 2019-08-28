@@ -208,6 +208,9 @@
     <ClInclude Include="ImGuiConsole.h">
       <Filter>Game\GUI\DebugUI</Filter>
     </ClInclude>
+    <ClInclude Include="CityMeshBuilder.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -294,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="ImGuiConsole.cpp">
       <Filter>Game\GUI\DebugUI</Filter>
+    </ClCompile>
+    <ClCompile Include="CityMeshBuilder.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

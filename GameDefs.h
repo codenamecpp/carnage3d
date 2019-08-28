@@ -311,3 +311,28 @@ public:
     DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
 };
 
+// defines mesh data for city area
+struct CityMeshData
+{
+public:
+    CityMeshData() = default;
+
+    // reset mesh data
+    inline void SetNull()
+    {
+        mMapRect.x = 0;
+        mMapRect.y = 0;
+        mMapRect.w = 0;
+        mMapRect.h = 0;
+
+        mMeshVertices.clear();
+        mMeshIndices.clear();
+    }
+
+public:
+    Rect2D mMapRect {0, 0, 0, 0};
+
+    std::vector<Vertex3D> mMeshVertices;
+    std::vector<DrawIndex_t> mMeshIndices;
+    cxx::aabbox_t mMeshBounds;
+};

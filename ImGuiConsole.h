@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imgui.h"
+struct ImGuiInputTextCallbackData;
 
 // defines debug console window as part of imgui system
 class ImGuiConsole final: public cxx::noncopyable

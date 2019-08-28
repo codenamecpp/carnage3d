@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ImGuiConsole.h"
+#include "imgui.h"
 
 ImGuiConsole::ImGuiConsole()
 {

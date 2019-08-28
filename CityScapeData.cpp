@@ -185,7 +185,7 @@ bool CityScapeData::ReadCompressedMapData(std::ifstream& file, int columnLength,
     return true;
 }
 
-inline BlockStyleData* CityScapeData::GetBlock(int tilex, int tiley, int tilez)
+BlockStyleData* CityScapeData::GetBlock(int tilex, int tiley, int tilez)
 {
     int tileindex = mMapTiles[tilez][tiley][tilex];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
@@ -193,7 +193,7 @@ inline BlockStyleData* CityScapeData::GetBlock(int tilex, int tiley, int tilez)
     return &mBlocksData[tileindex];     
 }
 
-inline BlockStyleData* CityScapeData::GetBlock(const Point3D& point)
+BlockStyleData* CityScapeData::GetBlock(const Point3D& point)
 {
     int tileindex = mMapTiles[point.z][point.y][point.x];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
