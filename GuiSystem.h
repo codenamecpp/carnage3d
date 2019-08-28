@@ -30,6 +30,8 @@ public:
     void HandleEvent(KeyInputEvent& inputEvent);
     void HandleEvent(KeyCharEvent& inputEvent);
 
+    // show or hide debug console window
+    void SetShowDebugConsole(bool isShown);
 };
 
 extern GuiSystem gGuiSystem;

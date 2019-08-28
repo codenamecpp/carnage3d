@@ -26,6 +26,13 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 {
+    if (!inputEvent.mConsumed)
+    {
+        if (inputEvent.mKeycode == KEYCODE_TILDE) // show debug console
+        {
+            gGuiSystem.SetShowDebugConsole(true);
+        }
+    }
 }
 
 void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)

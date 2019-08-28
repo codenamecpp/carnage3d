@@ -10,6 +10,8 @@ class ImGuiManager final: public cxx::noncopyable
 public:
     ImGuiConsole mConsoleWindow;
 
+    bool mShowDebugInfoWindow = true;
+
 public:
     // setup internal resources
     bool Initialize();
@@ -38,6 +40,7 @@ public:
     // internals
     bool AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize);
     void SetupStyle(ImGuiIO& imguiIO);
+    void DrawDebugInfoWindow();
 };
 
 extern ImGuiManager gImGuiManager;

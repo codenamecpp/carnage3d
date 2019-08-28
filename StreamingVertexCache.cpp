@@ -45,7 +45,7 @@ void StreamingVertexCache::Deinit()
     DeinitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer);
 }
 
-void StreamingVertexCache::RenderFrameEnd()
+void StreamingVertexCache::FlushCache()
 {
     SetFreeBuffers(mFrameCache.mVertexCacheBuffer);
     SetFreeBuffers(mFrameCache.mIndexCacheBuffer);

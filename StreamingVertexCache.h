@@ -27,7 +27,7 @@ class StreamingVertexCache final: public cxx::noncopyable
 public:
     bool Initialize();
     void Deinit();
-    void RenderFrameEnd();
+    void FlushCache();
     // try to allocate vertex memory of specified size and upload source data
     // @param dataLength: Source data length in bytes
     // @param sourceData: Source data to upload

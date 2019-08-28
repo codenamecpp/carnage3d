@@ -17,8 +17,8 @@ bool ImGuiManager::Initialize()
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
-    //io.IniFilename = nullptr; // disable saving state
-    //io.LogFilename = nullptr; // disable saving log
+    io.IniFilename = nullptr; // disable saving state
+    io.LogFilename = nullptr; // disable saving log
 
     io.BackendRendererName          = "imgui_impl_opengl3";
     io.BackendFlags                 = ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos;
@@ -174,13 +174,18 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
 
     ImGui::NewFrame();
 
+    //ImGui::ShowDemoWindow();
+    //ImGui::ShowMetricsWindow();
+
     if (mConsoleWindow.mShown)
     {
         mConsoleWindow.UpdateFrame(deltaTime);
     }
 
-    //ImGui::ShowDemoWindow();
-    ImGui::ShowMetricsWindow();
+    if (mShowDebugInfoWindow)
+    {
+        DrawDebugInfoWindow();
+    }
 }
 
 void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
@@ -347,4 +352,27 @@ bool ImGuiManager::IsInitialized() const
 {
     ImGuiContext* context = ImGui::GetCurrentContext();
     return context != nullptr;
+}
+
+void ImGuiManager::DrawDebugInfoWindow()
+{
+    if (!ImGui::Begin("Debug Information", &mShowDebugInfoWindow))
+    {
+        ImGui::End();
+        return;
+    }
+
+    // Basic info
+    ImGuiIO& io = ImGui::GetIO();
+
+	ImGuiStyle & style = ImGui::GetStyle();
+	ImVec4 * colors = style.Colors;
+
+    ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), ".:: Dear ImGui %s ::.", ImGui::GetVersion());
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
+    ImGui::Text("%d active windows (%d visible)", io.MetricsActiveWindows, io.MetricsRenderWindows);
+    ImGui::Text("%d active allocations", io.MetricsActiveAllocations);
+    ImGui::Separator();
+    ImGui::End();
 }

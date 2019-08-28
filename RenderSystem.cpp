@@ -51,7 +51,7 @@ void RenderSystem::RenderFrame()
 
     gGuiSystem.RenderFrame();
 
-    mGuiVertexCache.RenderFrameEnd();
+    mGuiVertexCache.FlushCache();
     gGraphicsDevice.Present();
 }
 

@@ -62,3 +62,8 @@ void GuiSystem::HandleEvent(KeyCharEvent& inputEvent)
 {
     gImGuiManager.HandleEvent(inputEvent);
 }
+
+void GuiSystem::SetShowDebugConsole(bool isShown)
+{
+    gImGuiManager.mConsoleWindow.mShown = isShown;
+}
