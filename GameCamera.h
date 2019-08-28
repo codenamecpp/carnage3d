@@ -63,6 +63,9 @@ public:
     // @param resultRay: Output ray info
     bool CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay);
 
+    // Will swap Z and Y direction vectors
+    void SetTopDownView();
+
 private:
     bool mProjMatrixDirty; // projection matrix need recomputation
     bool mViewMatrixDirty; // view matrix need recomputation

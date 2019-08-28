@@ -356,7 +356,8 @@ bool ImGuiManager::IsInitialized() const
 
 void ImGuiManager::DrawDebugInfoWindow()
 {
-    if (!ImGui::Begin("Debug Information", &mShowDebugInfoWindow))
+    if (!ImGui::Begin("Debug Information", &mShowDebugInfoWindow, ImGuiWindowFlags_NoFocusOnAppearing | 
+        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus))
     {
         ImGui::End();
         return;

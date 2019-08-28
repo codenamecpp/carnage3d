@@ -214,6 +214,9 @@
     <ClInclude Include="CityRenderer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="TopDownCameraController.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -306,6 +309,9 @@
     </ClCompile>
     <ClCompile Include="CityRenderer.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TopDownCameraController.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

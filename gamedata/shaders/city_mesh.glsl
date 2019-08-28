@@ -45,7 +45,7 @@ out vec4 FinalColor;
 // entry point
 void main()
 {
-    vec4 pixelColor = texture(tex_0, Texcoord);
+    vec4 pixelColor = FragColor;//texture(tex_0, Texcoord);
 
     FinalColor = clamp(pixelColor, 0.0f, 1.0f);
 }

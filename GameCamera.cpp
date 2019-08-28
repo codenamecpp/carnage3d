@@ -140,3 +140,11 @@ bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx:
     resultRay.mDirection = glm::normalize(v1 - v0);
     return true;
 }
+
+void GameCamera::SetTopDownView()
+{
+    mFrontDirection = -SceneAxes::Y;
+    mUpDirection = -SceneAxes::Z;
+    mRightDirection = SceneAxes::X;
+    mViewMatrixDirty = true;
+}

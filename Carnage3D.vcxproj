@@ -205,6 +205,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="System.h" />
     <ClInclude Include="PixelsArray.h" />
     <ClInclude Include="StreamingVertexCache.h" />
+    <ClInclude Include="TopDownCameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CityMeshBuilder.cpp" />
@@ -243,6 +244,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="System.cpp" />
     <ClCompile Include="PixelsArray.cpp" />
     <ClCompile Include="StreamingVertexCache.cpp" />
+    <ClCompile Include="TopDownCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt" />

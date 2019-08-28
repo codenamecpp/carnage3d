@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CityScapeData.h"
+#include "TopDownCameraController.h"
 
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
@@ -22,6 +23,7 @@ public:
 
 public:
     CityScapeData mCityScape;
+    TopDownCameraController mTopDownCameraController;
 };
 
 extern CarnageGame gCarnageGame;
