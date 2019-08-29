@@ -22,7 +22,7 @@ public:
     void Deinit();
 
     // test whether program is initialized and currently active
-    bool IsInitialized() const;
+    bool IsProgramInited() const;
     bool IsActive() const;
 
     // activate or deactivate render program

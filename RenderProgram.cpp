@@ -14,7 +14,7 @@ RenderProgram::~RenderProgram()
 
 bool RenderProgram::Initialize()
 {
-    if (IsInitialized())
+    if (IsProgramInited())
         return true;
 
     return Reinitialize();
@@ -63,7 +63,7 @@ void RenderProgram::Deinit()
     mGpuProgram = nullptr;
 }
 
-bool RenderProgram::IsInitialized() const
+bool RenderProgram::IsProgramInited() const
 {
     return mGpuProgram && mGpuProgram->IsProgramCompiled();
 }
@@ -75,7 +75,7 @@ bool RenderProgram::IsActive() const
 
 void RenderProgram::Activate()
 {
-    bool isInited = IsInitialized();
+    bool isInited = IsProgramInited();
     debug_assert(isInited);
     if (!isInited || mGpuProgram->IsProgramBound()) // program should be not active
         return;
@@ -86,7 +86,7 @@ void RenderProgram::Activate()
 
 void RenderProgram::Deactivate()
 {
-    bool isInited = IsInitialized();
+    bool isInited = IsProgramInited();
     debug_assert(isInited);
     if (!isInited || !mGpuProgram->IsProgramBound()) // program should be active
         return;
@@ -96,7 +96,7 @@ void RenderProgram::Deactivate()
 
 void RenderProgram::UploadCameraTransformMatrices()
 {
-    bool isInited = IsInitialized();
+    bool isInited = IsProgramInited();
     if (isInited)
     {
         #define SET_UNIFORM(uniform_id, matrix_reference) \
@@ -117,7 +117,7 @@ void RenderProgram::UploadCameraTransformMatrices()
 
 void RenderProgram::SetTextureMappingEnabled(bool isEnabled)
 {
-    bool isInited = IsInitialized();
+    bool isInited = IsProgramInited();
     if (isInited)
     {
         if (mGpuProgram->IsUniformExists(eRenderUniform_EnableTextureMapping))

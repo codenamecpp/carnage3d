@@ -43,6 +43,7 @@ GpuTexture::GpuTexture(GraphicsContext& renderContext)
     , mRepeating()
     , mSize()
     , mFormat()
+    , mTextureType(eTextureType_Texture2D)
 {
     ::glGenTextures(1, &mResourceHandle);
     glCheckError();

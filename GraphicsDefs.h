@@ -263,6 +263,19 @@ define_enum_strings(eTextureFormat)
     eTextureFormat_RGBA8, "rgba8",
 };
 
+enum eTextureType
+{
+    eTextureType_Texture2D,
+    eTextureType_ArrayTexture2D,
+    eTextureType_COUNT,
+};
+
+define_enum_strings(eTextureType)
+{
+    eTextureType_Texture2D, "2d",
+    eTextureType_ArrayTexture2D, "array2d",
+};
+
 // Get number of bytes per pixel for specific texture format
 // @param format: Format identifier
 inline int NumBytesPerPixel(eTextureFormat format) 

@@ -12,6 +12,7 @@ public:
     eTextureWrapMode mRepeating;
     Size2D mSize;
     eTextureFormat mFormat;
+    eTextureType mTextureType;
 
 public:
     GpuTexture(GraphicsContext& graphicsContext);
