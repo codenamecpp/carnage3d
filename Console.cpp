@@ -31,7 +31,7 @@ void Console::LogMessage(eLogMessage messageCat, const char* format, ...)
 
     if (messageCat > eLogMessage_Debug)
     {
-        const char* logLevelString = ToString(messageCat);
+        const char* logLevelString = cxx::enum_to_string(messageCat);
         printf("%s: %s\n", logLevelString, ConsoleMessageBuffer);
     }
     else

@@ -224,17 +224,12 @@ enum eTextureFilterMode
     eTextureFilterMode_COUNT
 };
 
-inline const char* ToString(eTextureFilterMode mode)
+define_enum_strings(eTextureFilterMode)
 {
-    switch (mode)
-    {
-        case eTextureFilterMode_Nearest: return "nearest";
-        case eTextureFilterMode_Bilinear: return "bilinear";
-        case eTextureFilterMode_Trilinear: return "trilinear";
-    }
-    debug_assert(false);
-    return "";
-}
+    eTextureFilterMode_Nearest, "nearest",
+    eTextureFilterMode_Bilinear, "bilinear",
+    eTextureFilterMode_Trilinear, "trilinear",
+};
 
 enum eTextureWrapMode
 {
@@ -243,16 +238,11 @@ enum eTextureWrapMode
     eTextureWrapMode_COUNT
 };
 
-inline const char* ToString(eTextureWrapMode mode)
+define_enum_strings(eTextureWrapMode)
 {
-    switch (mode)
-    {
-        case eTextureWrapMode_Repeat: return "repeat";
-        case eTextureWrapMode_ClampToEdge: return "clamp_to_edge";
-    }
-    debug_assert(false);
-    return "";
-}
+    eTextureWrapMode_Repeat, "repeat",
+    eTextureWrapMode_ClampToEdge, "clamp_to_edge",
+};
 
 enum eTextureFormat
 {
@@ -264,19 +254,14 @@ enum eTextureFormat
     eTextureFormat_COUNT,
 };
 
-inline const char* ToString(eTextureFormat format)
+define_enum_strings(eTextureFormat)
 {
-    switch (format)
-    {
-        case eTextureFormat_Null: return "null";
-        case eTextureFormat_R8: return "r8";
-        case eTextureFormat_R8_G8: return "r8_g8";
-        case eTextureFormat_RGB8: return "rgb8";
-        case eTextureFormat_RGBA8: return "rgba8";
-    }
-    debug_assert(false);
-    return "";
-}
+    eTextureFormat_Null, "null",
+    eTextureFormat_R8, "r8",
+    eTextureFormat_R8_G8, "r8_g8",
+    eTextureFormat_RGB8, "rgb8",
+    eTextureFormat_RGBA8, "rgba8",
+};
 
 // Get number of bytes per pixel for specific texture format
 // @param format: Format identifier
@@ -312,20 +297,15 @@ enum ePrimitiveType
     ePrimitiveType_COUNT,
 };
 
-inline const char* ToString(ePrimitiveType primitive)
+define_enum_strings(ePrimitiveType)
 {
-    switch (primitive)
-    {
-        case ePrimitiveType_Points: return "points";
-        case ePrimitiveType_Lines: return "lines";
-        case ePrimitiveType_LineLoop: return "line_loop";
-        case ePrimitiveType_Triangles: return "triangles";
-        case ePrimitiveType_TriangleStrip: return "triangle_strip";
-        case ePrimitiveType_TriangleFan: return "triangle_fan";
-    }
-    debug_assert(false);
-    return "";
-}
+    ePrimitiveType_Points, "points",
+    ePrimitiveType_Lines, "lines",
+    ePrimitiveType_LineLoop, "line_loop",
+    ePrimitiveType_Triangles, "triangles",
+    ePrimitiveType_TriangleStrip, "triangle_strip",
+    ePrimitiveType_TriangleFan, "triangle_fan",
+};
 
 enum eIndicesType
 {
@@ -334,16 +314,11 @@ enum eIndicesType
     eIndicesType_COUNT,
 };
 
-inline const char* ToString(eIndicesType value)
+define_enum_strings(eIndicesType)
 {
-    switch (value)
-    {
-        case eIndicesType_i16: return "i16";
-        case eIndicesType_i32: return "i32";
-    }
-    debug_assert(false);
-    return "";
-}
+    eIndicesType_i16, "i16",
+    eIndicesType_i32, "i32",
+};
 
 enum eTextureUnit
 {
@@ -366,29 +341,24 @@ enum eTextureUnit
     eTextureUnit_COUNT = 16, // not valid texture unit
 };
 
-inline const char* ToString(eTextureUnit textureUnit)
+define_enum_strings(eTextureUnit)
 {
-    switch (textureUnit)
-    {
-        case eTextureUnit_0: return "tex_0";
-        case eTextureUnit_1: return "tex_1";
-        case eTextureUnit_2: return "tex_2";
-        case eTextureUnit_3: return "tex_3";
-        case eTextureUnit_4: return "tex_4";
-        case eTextureUnit_5: return "tex_5";
-        case eTextureUnit_6: return "tex_6";
-        case eTextureUnit_7: return "tex_7";
-        case eTextureUnit_8: return "tex_8";
-        case eTextureUnit_9: return "tex_9";
-        case eTextureUnit_10: return "tex_10";
-        case eTextureUnit_11: return "tex_11";
-        case eTextureUnit_12: return "tex_12";
-        case eTextureUnit_13: return "tex_13";
-        case eTextureUnit_14: return "tex_14";
-        case eTextureUnit_15: return "tex_15";
-    }
-    debug_assert(false);
-    return "";
+    eTextureUnit_0, "tex_0",
+    eTextureUnit_1, "tex_1",
+    eTextureUnit_2, "tex_2",
+    eTextureUnit_3, "tex_3",
+    eTextureUnit_4, "tex_4",
+    eTextureUnit_5, "tex_5",
+    eTextureUnit_6, "tex_6",
+    eTextureUnit_7, "tex_7",
+    eTextureUnit_8, "tex_8",
+    eTextureUnit_9, "tex_9",
+    eTextureUnit_10, "tex_10",
+    eTextureUnit_11, "tex_11",
+    eTextureUnit_12, "tex_12",
+    eTextureUnit_13, "tex_13",
+    eTextureUnit_14, "tex_14",
+    eTextureUnit_15, "tex_15",
 };
 
 // standard vertex attributes
@@ -402,20 +372,15 @@ enum eVertexAttributeSemantics
     eVertexAttributeSemantics_Unknown
 };
 
-inline const char* ToString(eVertexAttributeSemantics semantics)
+define_enum_strings(eVertexAttributeSemantics)
 {
-    switch (semantics)
-    {
-        case eVertexAttributeSemantics_Position: return "position";
-        case eVertexAttributeSemantics_Normal: return "normal";
-        case eVertexAttributeSemantics_Color: return "color";
-        case eVertexAttributeSemantics_Texcoord: return "texcoord";
-        case eVertexAttributeSemantics_Position2d: return "position2d";
-        case eVertexAttributeSemantics_Unknown: return "unknown";
-    }
-    debug_assert(false);
-    return "";
-}
+    eVertexAttributeSemantics_Position, "position",
+    eVertexAttributeSemantics_Normal, "normal",
+    eVertexAttributeSemantics_Color, "color",
+    eVertexAttributeSemantics_Texcoord, "texcoord",
+    eVertexAttributeSemantics_Position2d, "position2d",
+    eVertexAttributeSemantics_Unknown, "unknown",
+};
 
 enum eVertexAttribute
 {
@@ -431,22 +396,17 @@ enum eVertexAttribute
     eVertexAttribute_MAX = 16,
 };
 
-inline const char* ToString(eVertexAttribute attribute)
+define_enum_strings(eVertexAttribute)
 {
-    switch (attribute)
-    {
-        case eVertexAttribute_Position0: return "in_pos0";
-        case eVertexAttribute_Position1: return "in_pos1";
-        case eVertexAttribute_Texcoord0: return "in_texcoord0";
-        case eVertexAttribute_Texcoord1: return "in_texcoord1";
-        case eVertexAttribute_Normal0: return "in_normal0";
-        case eVertexAttribute_Normal1: return "in_normal1";
-        case eVertexAttribute_Color0: return "in_color0";
-        case eVertexAttribute_Color1: return "in_color1";
-    }
-    debug_assert(false);
-    return "";
-}
+    eVertexAttribute_Position0, "in_pos0",
+    eVertexAttribute_Position1, "in_pos1",
+    eVertexAttribute_Texcoord0, "in_texcoord0",
+    eVertexAttribute_Texcoord1, "in_texcoord1",
+    eVertexAttribute_Normal0, "in_normal0",
+    eVertexAttribute_Normal1, "in_normal1",
+    eVertexAttribute_Color0, "in_color0",
+    eVertexAttribute_Color1, "in_color1",
+};
 
 // Get semantics of vertex attribute
 // @param attribute: Attribute identifier
@@ -625,16 +585,11 @@ enum eBufferContent
     eBufferContent_COUNT
 };
 
-inline const char* ToString(eBufferContent content)
+define_enum_strings(eBufferContent)
 {
-    switch (content)
-    {
-        case eBufferContent_Vertices: return "vertices";
-        case eBufferContent_Indices: return "indices";
-    }
-    debug_assert(false);
-    return "";
-}
+    eBufferContent_Vertices, "vertices",
+    eBufferContent_Indices, "indices",
+};
 
 enum eBufferUsage
 {
@@ -644,17 +599,12 @@ enum eBufferUsage
     eBufferUsage_COUNT
 };
 
-inline const char* ToString(eBufferUsage usage)
+define_enum_strings(eBufferUsage)
 {
-    switch (usage)
-    {
-        case eBufferUsage_Static: return "static";
-        case eBufferUsage_Dynamic: return "dynamic";
-        case eBufferUsage_Stream: return "stream";
-    }
-    debug_assert(false);
-    return "";
-}
+    eBufferUsage_Static, "static",
+    eBufferUsage_Dynamic, "dynamic",
+    eBufferUsage_Stream, "stream",
+};
 
 using BufferAccessBits = unsigned int;
 
@@ -679,23 +629,18 @@ enum eRenderUniform
     eRenderUniform_COUNT
 };
 
-inline const char* ToString(eRenderUniform constant)
+define_enum_strings(eRenderUniform)
 {
-    switch (constant)
-    {
-        case eRenderUniform_ModelMatrix: return "model_matrix";
-        case eRenderUniform_ViewMatrix: return "view_matrix";
-        case eRenderUniform_ProjectionMatrix: return "projection_matrix";
-        case eRenderUniform_ModelViewMatrix: return "model_view_matrix";
-        case eRenderUniform_ModelViewProjectionMatrix: return "model_view_projection_matrix";
-        case eRenderUniform_ViewProjectionMatrix: return "view_projection_matrix";
-        case eRenderUniform_NormalMatrix: return "normal_matrix";
-        case eRenderUniform_CameraPosition: return "camera_position";
-        case eRenderUniform_EnableTextureMapping: return "enable_texture_mapping";
-    }
-    debug_assert(false);
-    return "";
-}
+    eRenderUniform_ModelMatrix, "model_matrix",
+    eRenderUniform_ViewMatrix, "view_matrix",
+    eRenderUniform_ProjectionMatrix, "projection_matrix",
+    eRenderUniform_ModelViewMatrix, "model_view_matrix",
+    eRenderUniform_ModelViewProjectionMatrix, "model_view_projection_matrix",
+    eRenderUniform_ViewProjectionMatrix, "view_projection_matrix",
+    eRenderUniform_NormalMatrix, "normal_matrix",
+    eRenderUniform_CameraPosition, "camera_position",
+    eRenderUniform_EnableTextureMapping, "enable_texture_mapping",
+};
 
 enum eBlendMode
 {
@@ -706,19 +651,14 @@ enum eBlendMode
     eBlendMode_Screen
 };
 
-inline const char* ToString(eBlendMode mode)
+define_enum_strings(eBlendMode)
 {
-    switch (mode)
-    {
-        case eBlendMode_Alpha: return "alpha";
-        case eBlendMode_Additive: return "additive";
-        case eBlendMode_Multiply: return "multiply";
-        case eBlendMode_Premultiplied: return "premultiplied";
-        case eBlendMode_Screen: return "screen";
-    }
-    debug_assert(false);
-    return "";
-}
+    eBlendMode_Alpha, "alpha",
+    eBlendMode_Additive, "additive",
+    eBlendMode_Multiply, "multiply",
+    eBlendMode_Premultiplied, "premultiplied",
+    eBlendMode_Screen, "screen",
+};
 
 enum eDepthTestFunc : unsigned short
 {
@@ -731,21 +671,16 @@ enum eDepthTestFunc : unsigned short
     eDepthTestFunc_GreaterEqual
 };
 
-inline const char* ToString(eDepthTestFunc func)
+define_enum_strings(eDepthTestFunc)
 {
-    switch (func)
-    {
-        case eDepthTestFunc_Always: return "always";
-        case eDepthTestFunc_Equal: return "equal";
-        case eDepthTestFunc_NotEqual: return "not_equal";
-        case eDepthTestFunc_Less: return "less";
-        case eDepthTestFunc_Greater: return "greater";
-        case eDepthTestFunc_LessEqual: return "less_equal";
-        case eDepthTestFunc_GreaterEqual: return "greater_equal";
-    }
-    debug_assert(false);
-    return "";
-}
+    eDepthTestFunc_Always, "always",
+    eDepthTestFunc_Equal, "equal",
+    eDepthTestFunc_NotEqual, "not_equal",
+    eDepthTestFunc_Less, "less",
+    eDepthTestFunc_Greater, "greater",
+    eDepthTestFunc_LessEqual, "less_equal",
+    eDepthTestFunc_GreaterEqual, "greater_equal",
+};
 
 enum eCullMode : unsigned short
 {
@@ -754,17 +689,12 @@ enum eCullMode : unsigned short
     eCullMode_FrontAndBack,
 };
 
-inline const char* ToString(eCullMode mode)
+define_enum_strings(eCullMode)
 {
-    switch (mode)
-    {
-        case eCullMode_Front: return "front";
-        case eCullMode_Back: return "back";
-        case eCullMode_FrontAndBack: return "front_and_back";
-    }
-    debug_assert(false);
-    return "";
-}
+    eCullMode_Front, "front",
+    eCullMode_Back, "back",
+    eCullMode_FrontAndBack, "front_and_back",
+};
 
 enum eFillMode : unsigned short
 {
@@ -772,16 +702,11 @@ enum eFillMode : unsigned short
     eFillMode_WireFrame,
 };
 
-inline const char* ToString(eFillMode mode)
+define_enum_strings(eFillMode)
 {
-    switch (mode)
-    {
-        case eFillMode_Solid: return "solid";
-        case eFillMode_WireFrame: return "wireframe";
-    }
-    debug_assert(false);
-    return "";
-}
+    eFillMode_Solid, "solid",
+    eFillMode_WireFrame, "wireframe",
+};
 
 using RenderStateFlags = unsigned short;
 

@@ -25,18 +25,13 @@ enum eLidRotation : unsigned short
     eLidRotation_270
 };
 
-inline const char* ToString(eLidRotation value)
+define_enum_strings(eLidRotation)
 {
-    switch (value)
-    {
-        case eLidRotation_0: return "0";
-        case eLidRotation_90: return "90";
-        case eLidRotation_180: return "180";
-        case eLidRotation_270: return "270";
-    }
-    debug_assert(false);
-    return "";
-}
+    eLidRotation_0, "0",
+    eLidRotation_90, "90",
+    eLidRotation_180, "180",
+    eLidRotation_270, "270",
+};
 
 // map block type
 enum eBlockType : unsigned short
@@ -47,17 +42,12 @@ enum eBlockType : unsigned short
     eBlockType_COUNT
 };
 
-inline const char* ToString(eBlockType value)
+define_enum_strings(eBlockType)
 {
-    switch (value)
-    {
-        case eBlockType_Side: return "side";
-        case eBlockType_Lid: return "lid";
-        case eBlockType_Aux: return "aux";
-    }
-    debug_assert(false);
-    return "";
-}
+    eBlockType_Side, "side",
+    eBlockType_Lid, "lid",
+    eBlockType_Aux, "aux",
+};
 
 enum eSpriteType : unsigned short
 {
@@ -85,35 +75,30 @@ enum eSpriteType : unsigned short
     eSpriteType_COUNT
 };
 
-inline const char* ToString(eSpriteType value)
+define_enum_strings(eSpriteType)
 {
-    switch (value)
-    {
-        case eSpriteType_Arrow: return "arrow";
-        case eSpriteType_Digit: return "digit";
-        case eSpriteType_Boat: return "boat";
-        case eSpriteType_Box: return "box";
-        case eSpriteType_Bus: return "bus";
-        case eSpriteType_Car: return "car";
-        case eSpriteType_Object: return "object";
-        case eSpriteType_Ped: return "ped";
-        case eSpriteType_Speedo: return "speedo";
-        case eSpriteType_Tank: return "tank";
-        case eSpriteType_TrafficLight: return "traffic_light";
-        case eSpriteType_Train: return "train";
-        case eSpriteType_TrDoor: return "trdoor";
-        case eSpriteType_Bike: return "bike";
-        case eSpriteType_Tram: return "tram";
-        case eSpriteType_WCar: return "wcar";
-        case eSpriteType_WBus: return "wbus";
-        case eSpriteType_Ex: return "ex";
-        case eSpriteType_TumCar: return "tumcar";
-        case eSpriteType_TumTruck: return "tumtruck";
-        case eSpriteType_Ferry: return "ferry";
-    }
-    debug_assert(false);
-    return "";
-}
+    eSpriteType_Arrow, "arrow",
+    eSpriteType_Digit, "digit",
+    eSpriteType_Boat, "boat",
+    eSpriteType_Box, "box",
+    eSpriteType_Bus, "bus",
+    eSpriteType_Car, "car",
+    eSpriteType_Object, "object",
+    eSpriteType_Ped, "ped",
+    eSpriteType_Speedo, "speedo",
+    eSpriteType_Tank, "tank",
+    eSpriteType_TrafficLight, "traffic_light",
+    eSpriteType_Train, "train",
+    eSpriteType_TrDoor, "trdoor",
+    eSpriteType_Bike, "bike",
+    eSpriteType_Tram, "tram",
+    eSpriteType_WCar, "wcar",
+    eSpriteType_WBus, "wbus",
+    eSpriteType_Ex, "ex",
+    eSpriteType_TumCar, "tumcar",
+    eSpriteType_TumTruck, "tumtruck",
+    eSpriteType_Ferry, "ferry",
+};
 
 // tile ground type
 enum eGroundType : unsigned short
@@ -127,20 +112,15 @@ enum eGroundType : unsigned short
     eGroundType_COUNT,
 };
 
-inline const char* ToString(eGroundType value)
+define_enum_strings(eGroundType)
 {
-    switch (value)
-    {
-        case eGroundType_Air: return "air";
-        case eGroundType_Water: return "water";
-        case eGroundType_Road: return "road";
-        case eGroundType_Pawement: return "pawement";
-        case eGroundType_Field: return "field";
-        case eGroundType_Building: return "building";
-    }
-    debug_assert(false);
-    return "";
-}
+    eGroundType_Air, "air",
+    eGroundType_Water, "water",
+    eGroundType_Road, "road",
+    eGroundType_Pawement, "pawement",
+    eGroundType_Field, "field",
+    eGroundType_Building, "building",
+};
 
 // map block face direction
 enum eBlockFace : unsigned short
@@ -153,19 +133,30 @@ enum eBlockFace : unsigned short
     eBlockFace_COUNT,
 };
 
-inline const char* ToString(eBlockFace value)
+define_enum_strings(eBlockFace)
 {
-    switch (value)
+    eBlockFace_W, "w",
+    eBlockFace_E, "e",
+    eBlockFace_N, "n",
+    eBlockFace_S, "s",
+    eBlockFace_Lid, "lid",
+};
+
+// defines part of city mesh
+struct CityMeshData
+{
+public:
+    CityMeshData() = default;
+
+    inline void SetNull()
     {
-        case eBlockFace_W: return "w";
-        case eBlockFace_E: return "e";
-        case eBlockFace_N: return "n";
-        case eBlockFace_S: return "s";
-        case eBlockFace_Lid: return "lid";
+        mMeshVertices.clear();
+        mMeshIndices.clear();
     }
-    debug_assert(false);
-    return "";
-}
+public:
+    std::vector<Vertex3D> mMeshVertices;
+    std::vector<DrawIndex_t> mMeshIndices;
+};
 
 // define sprite HLS remap information
 struct HLSRemap
@@ -309,23 +300,4 @@ public:
         int mOffset;
     };
     DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
-};
-
-// defines mesh data for city area
-struct CityMeshData
-{
-public:
-    CityMeshData() = default;
-
-    // reset mesh data
-    inline void SetNull()
-    {
-        mMeshVertices.clear();
-        mMeshIndices.clear();
-    }
-
-public:
-    std::vector<Vertex3D> mMeshVertices;
-    std::vector<DrawIndex_t> mMeshIndices;
-    cxx::aabbox_t mMeshBounds;
 };

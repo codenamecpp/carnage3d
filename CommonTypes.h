@@ -230,18 +230,13 @@ enum eLogMessage
     eLogMessage_COUNT
 };
 
-inline const char* ToString(eLogMessage messageType)
+define_enum_strings(eLogMessage)
 {
-    switch (messageType)
-    {
-        case eLogMessage_Debug: return "debug";
-        case eLogMessage_Info: return "info";
-        case eLogMessage_Warning: return "warning";
-        case eLogMessage_Error: return "error";
-    }
-    debug_assert(false);
-    return "";
-}
+    eLogMessage_Debug, "debug",
+    eLogMessage_Info, "info",
+    eLogMessage_Warning, "warning",
+    eLogMessage_Error, "error",
+};
 
 namespace SceneAxes
 {
@@ -256,16 +251,11 @@ enum eSceneCameraMode
     eSceneCameraMode_Orthographic,
 };
 
-inline const char* ToString(eSceneCameraMode cameraMode)
+define_enum_strings(eSceneCameraMode)
 {
-    switch (cameraMode)
-    {
-        case eSceneCameraMode_Perspective: return "perspective";
-        case eSceneCameraMode_Orthographic: return "orthographic";
-    }
-    debug_assert(false);
-    return "";
-}
+    eSceneCameraMode_Perspective, "perspective",
+    eSceneCameraMode_Orthographic, "orthographic",
+};
 
 // defines rgba palette with 256 colors
 struct Palette256

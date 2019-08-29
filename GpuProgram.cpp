@@ -260,7 +260,7 @@ bool GpuProgram::CompileSourceCode(const char* shaderSource)
     for (int iattribute = 0; iattribute < eVertexAttribute_COUNT; ++iattribute)
     {
         eVertexAttribute vertexAttribute = (eVertexAttribute) iattribute;
-        mAttributes[iattribute] = ::glGetAttribLocation(mResourceHandle, ToString(vertexAttribute));
+        mAttributes[iattribute] = ::glGetAttribLocation(mResourceHandle, cxx::enum_to_string(vertexAttribute));
         glCheckError();
         if (mAttributes[iattribute] != GpuVariableNULL)
         {
@@ -271,14 +271,14 @@ bool GpuProgram::CompileSourceCode(const char* shaderSource)
     // query standard constants
     for (int iconst = 0; iconst < eRenderUniform_COUNT; ++iconst)
     { 
-        mConstants[iconst] = ::glGetUniformLocation(mResourceHandle, ToString((eRenderUniform) iconst));
+        mConstants[iconst] = ::glGetUniformLocation(mResourceHandle, cxx::enum_to_string((eRenderUniform) iconst));
         glCheckError();
     }
 
     // query samplers
     for (int isampler = 0; isampler < eTextureUnit_COUNT; ++isampler)
     {
-        GLint ilocation = ::glGetUniformLocation(mResourceHandle, ToString((eTextureUnit) isampler));
+        GLint ilocation = ::glGetUniformLocation(mResourceHandle, cxx::enum_to_string((eTextureUnit) isampler));
         glCheckError();
         if (ilocation != GpuVariableNULL)
         {

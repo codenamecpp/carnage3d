@@ -95,6 +95,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/glm.hpp>
 
 // lib
+#include "enum_utils.h"
 #include "aux_math.h"
 #include "geometries.h"
 #include "frustum.h"

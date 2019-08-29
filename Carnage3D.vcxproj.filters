@@ -217,6 +217,9 @@
     <ClInclude Include="TopDownCameraController.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="enum_utils.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
