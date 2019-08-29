@@ -82,9 +82,6 @@
     <ClInclude Include="Console.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="GpuTexture2D.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Inputs.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -220,6 +217,9 @@
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="GpuTexture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -236,9 +236,6 @@
     </ClCompile>
     <ClCompile Include="Console.cpp">
       <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="GpuTexture2D.cpp">
-      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Inputs.cpp">
       <Filter>Application</Filter>
@@ -315,6 +312,9 @@
     </ClCompile>
     <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuTexture.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

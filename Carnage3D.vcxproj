@@ -170,7 +170,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="frustum.h" />
     <ClInclude Include="GpuBuffer.h" />
     <ClInclude Include="GpuProgram.h" />
-    <ClInclude Include="GpuTexture2D.h" />
+    <ClInclude Include="GpuTexture.h" />
     <ClInclude Include="GraphicsContext.h" />
     <ClInclude Include="GraphicsDefs.h" />
     <ClInclude Include="GraphicsDevice.h" />
@@ -230,7 +230,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="GpuBuffer.cpp" />
     <ClCompile Include="GpuProgram.cpp" />
-    <ClCompile Include="GpuTexture2D.cpp" />
+    <ClCompile Include="GpuTexture.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="RenderProgram.cpp" />

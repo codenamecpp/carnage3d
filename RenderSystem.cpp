@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "RenderSystem.h"
-#include "GpuTexture2D.h"
+#include "GpuTexture.h"
 #include "GpuProgram.h"
 
 RenderSystem gRenderSystem;

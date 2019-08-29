@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "GpuTexture2D.h"
+#include "GpuTexture.h"
 #include "OpenGLDefs.h"
 #include "GraphicsContext.h"
 
 //////////////////////////////////////////////////////////////////////////
 
-class ScopedTexture2DBinder
+class ScopedTextureBinder
 {
 public:
-    ScopedTexture2DBinder(GraphicsContext& renderContext, GpuTexture2D* gpuTexture)
+    ScopedTextureBinder(GraphicsContext& renderContext, GpuTexture* gpuTexture)
         : mRenderContext(renderContext)
-        , mPreviousTexture(renderContext.mCurrentTextures2D[renderContext.mCurrentTextureUnit])
+        , mPreviousTexture(renderContext.mCurrentTextures[renderContext.mCurrentTextureUnit])
         , mTexture(gpuTexture)
     {
         debug_assert(gpuTexture);
@@ -20,7 +20,7 @@ public:
             glCheckError();
         }
     }
-    ~ScopedTexture2DBinder()
+    ~ScopedTextureBinder()
     {
         if (mTexture != mPreviousTexture)
         {
@@ -30,13 +30,13 @@ public:
     }
 private:
     GraphicsContext& mRenderContext;
-    GpuTexture2D* mPreviousTexture;
-    GpuTexture2D* mTexture;
+    GpuTexture* mPreviousTexture;
+    GpuTexture* mTexture;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-GpuTexture2D::GpuTexture2D(GraphicsContext& renderContext)
+GpuTexture::GpuTexture(GraphicsContext& renderContext)
     : mGraphicsContext(renderContext)
     , mResourceHandle()
     , mFiltering()
@@ -48,7 +48,7 @@ GpuTexture2D::GpuTexture2D(GraphicsContext& renderContext)
     glCheckError();
 }
 
-GpuTexture2D::~GpuTexture2D()
+GpuTexture::~GpuTexture()
 {
     SetUnbound();
 
@@ -56,7 +56,7 @@ GpuTexture2D::~GpuTexture2D()
     glCheckError();
 }
 
-bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+bool GpuTexture::Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
 {
     GLuint formatGL = 0;
     GLint internalFormatGL = 0;
@@ -90,7 +90,7 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     mSize.x = sizex;
     mSize.y = sizey;
     
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
+    ScopedTextureBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
     glCheckError();
 
@@ -99,7 +99,7 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     return true;
 }
 
-void GpuTexture2D::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMode repeating)
+void GpuTexture::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMode repeating)
 {
     if (!IsTextureInited())
     {
@@ -111,35 +111,35 @@ void GpuTexture2D::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMod
     if (mFiltering == filtering && mRepeating == repeating)
         return;
 
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
+    ScopedTextureBinder scopedBind(mGraphicsContext, this);
 
     SetSamplerStateImpl(filtering, repeating);
 }
 
-bool GpuTexture2D::IsTextureBound(eTextureUnit textureUnit) const
+bool GpuTexture::IsTextureBound(eTextureUnit textureUnit) const
 {
     if (!IsTextureInited())
         return false;
 
     debug_assert(textureUnit < eTextureUnit_COUNT);
-    return this == mGraphicsContext.mCurrentTextures2D[textureUnit];
+    return this == mGraphicsContext.mCurrentTextures[textureUnit];
 }
 
-bool GpuTexture2D::IsTextureBound() const
+bool GpuTexture::IsTextureBound() const
 {
     if (!IsTextureInited())
         return false;
 
     for (int itexunit = 0; itexunit < eTextureUnit_COUNT; ++itexunit)
     {
-        if (this == mGraphicsContext.mCurrentTextures2D[itexunit])
+        if (this == mGraphicsContext.mCurrentTextures[itexunit])
             return true;
     }
 
     return false;
 }
 
-void GpuTexture2D::Invalidate()
+void GpuTexture::Invalidate()
 {
     if (!IsTextureInited())
         return;
@@ -165,12 +165,12 @@ void GpuTexture2D::Invalidate()
             internalFormatGL = GL_RGBA8;
         break;
     }
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
+    ScopedTextureBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, nullptr);
     glCheckError();
 }
 
-bool GpuTexture2D::Upload(const void* sourceData)
+bool GpuTexture::Upload(const void* sourceData)
 {
     if (!IsTextureInited())
         return false;
@@ -198,18 +198,18 @@ bool GpuTexture2D::Upload(const void* sourceData)
             internalFormatGL = GL_RGBA8;
         break;
     }
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
+    ScopedTextureBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
     glCheckError();
     return true;
 }
 
-bool GpuTexture2D::IsTextureInited() const
+bool GpuTexture::IsTextureInited() const
 {
     return mFormat != eTextureFormat_Null;
 }
 
-void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
+void GpuTexture::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
 {
     mFiltering = filtering;
     mRepeating = repeating;
@@ -267,13 +267,13 @@ void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWra
     glCheckError();
 }
 
-void GpuTexture2D::SetUnbound()
+void GpuTexture::SetUnbound()
 {
     for (int iTextureUnit = 0; iTextureUnit < eTextureUnit_COUNT; ++iTextureUnit)
     {
-        if (this == mGraphicsContext.mCurrentTextures2D[iTextureUnit])
+        if (this == mGraphicsContext.mCurrentTextures[iTextureUnit])
         {
-            mGraphicsContext.mCurrentTextures2D[iTextureUnit] = nullptr;
+            mGraphicsContext.mCurrentTextures[iTextureUnit] = nullptr;
         }
     }
 }

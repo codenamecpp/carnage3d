@@ -11,7 +11,7 @@ public:
     GraphicsContext() 
         : mCurrentBuffers()
         , mCurrentTextureUnit(eTextureUnit_0)
-        , mCurrentTextures2D()
+        , mCurrentTextures()
         , mCurrentProgram()
         , mVaoHandle()
     {
@@ -21,5 +21,5 @@ public:
     GpuBuffer* mCurrentBuffers[eBufferContent_COUNT];
     GpuProgram* mCurrentProgram;
     eTextureUnit mCurrentTextureUnit;
-    GpuTexture2D* mCurrentTextures2D[eTextureUnit_COUNT];
+    GpuTexture* mCurrentTextures[eTextureUnit_COUNT];
 };

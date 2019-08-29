@@ -3,7 +3,7 @@
 #include "OpenGLDefs.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
-#include "GpuTexture2D.h"
+#include "GpuTexture.h"
 
 #define WINDOW_TITLE "Carnage3D"
 
@@ -219,7 +219,7 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     (void) fullscreenEnabled;
 }
 
-GpuTexture2D* GraphicsDevice::CreateTexture2D()
+GpuTexture* GraphicsDevice::CreateTexture()
 {
     if (!IsDeviceInited())
     {
@@ -227,11 +227,11 @@ GpuTexture2D* GraphicsDevice::CreateTexture2D()
         return nullptr;
     }
 
-    GpuTexture2D* texture2D = new GpuTexture2D(mGraphicsContext);
-    return texture2D;
+    GpuTexture* texture = new GpuTexture(mGraphicsContext);
+    return texture;
 }
 
-GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+GpuTexture* GraphicsDevice::CreateTexture(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
 {
     if (!IsDeviceInited())
     {
@@ -239,13 +239,13 @@ GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int 
         return nullptr;
     }
 
-    GpuTexture2D* texture2D = new GpuTexture2D(mGraphicsContext);
-    if (!texture2D->Setup(textureFormat, sizex, sizey, sourceData))
+    GpuTexture* texture = new GpuTexture(mGraphicsContext);
+    if (!texture->Setup(textureFormat, sizex, sizey, sourceData))
     {
-        DestroyTexture2D(texture2D);
+        DestroyTexture(texture);
         return nullptr;
     }
-    return texture2D;
+    return texture;
 }
 
 GpuProgram* GraphicsDevice::CreateRenderProgram()
@@ -355,7 +355,7 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* texture2D)
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture* texture)
 {
     if (!IsDeviceInited())
     {
@@ -364,7 +364,7 @@ void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* textu
     }
 
     debug_assert(textureUnit < eTextureUnit_COUNT);
-    if (mGraphicsContext.mCurrentTextures2D[textureUnit] == texture2D)
+    if (mGraphicsContext.mCurrentTextures[textureUnit] == texture)
         return;
 
     // activate texture unit
@@ -375,8 +375,8 @@ void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* textu
         glCheckError();
     }
 
-    mGraphicsContext.mCurrentTextures2D[textureUnit] = texture2D;
-    ::glBindTexture(GL_TEXTURE_2D, texture2D ? texture2D->mResourceHandle : 0);
+    mGraphicsContext.mCurrentTextures[textureUnit] = texture;
+    ::glBindTexture(GL_TEXTURE_2D, texture ? texture->mResourceHandle : 0);
     glCheckError();
 }
 
@@ -430,7 +430,7 @@ void GraphicsDevice::BindRenderProgram(GpuProgram* program)
     mGraphicsContext.mCurrentProgram = program;
 }
 
-void GraphicsDevice::DestroyTexture2D(GpuTexture2D* textureResource)
+void GraphicsDevice::DestroyTexture(GpuTexture* textureResource)
 {
     if (!IsDeviceInited())
     {

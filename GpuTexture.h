@@ -3,7 +3,7 @@
 #include "GraphicsDefs.h"
 
 // defines hardware 2d texture object
-class GpuTexture2D final: public cxx::noncopyable
+class GpuTexture final: public cxx::noncopyable
 {
 public:
     // public for convenience, don't change these fields directly
@@ -14,8 +14,8 @@ public:
     eTextureFormat mFormat;
 
 public:
-    GpuTexture2D(GraphicsContext& graphicsContext);
-    ~GpuTexture2D();
+    GpuTexture(GraphicsContext& graphicsContext);
+    ~GpuTexture();
 
     // Create texture of specified format and upload pixels data, no mipmaps
     // @param textureFormat: Format
