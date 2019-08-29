@@ -81,6 +81,11 @@ public:
         , y(posy)
     {
     }
+    inline void SetNull()
+    {
+        x = 0; 
+        y = 0;
+    }
     inline Point2D& operator += (const Point2D& point)
     {
         x += point.x;
@@ -114,6 +119,12 @@ public:
         , y(posy)
         , z(posz)
     {
+    }
+    inline void SetNull()
+    {
+        x = 0; 
+        y = 0;
+        z = 0;
     }
     inline Point3D& operator += (const Point3D& point)
     {
@@ -150,6 +161,11 @@ public:
         , y(sizey)
     {
     }
+    inline void SetNull()
+    {
+        x = 0; 
+        y = 0;
+    }
     inline Size2D& operator += (const Size2D& point)
     {
         x += point.x;
@@ -184,6 +200,11 @@ public:
         , w(sizex)
         , h(sizey)
     {
+    }
+    inline void SetNull()
+    {
+        x = 0; y = 0;
+        w = 0; h = 0;
     }
 public:
     int x, y;

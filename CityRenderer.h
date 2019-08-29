@@ -1,26 +1,26 @@
 #pragma once
 
+#include "CityMeshBuilder.h"
+
 // renders static city mesh
 class CityRenderer final: public cxx::noncopyable
 {
 public:
-    // first time renderer initialization
-    // Return false on error
     bool Initialize();
-
-    // renderer finalization
     void Deinit();
-
-    // render game frame routine
     void RenderFrame();
 
-    // upload city layers mesh data to gpu
-    void CommitVertexData();
+private:
+    // internals
+    void BuildCityMeshData();
+    void UploadVertexData();
 
-public:
-    CityMeshData mCityLayersMeshData[MAP_LAYERS_COUNT];
+private:
+    Rect2D mCityMeshArea;
+    CityMeshData mCityMeshData[MAP_LAYERS_COUNT];
+    CityMeshBuilder mCityMeshBuilder;
 
     // vertex buffers
-    GpuBuffer* mCityVertexBuffer;
-    GpuBuffer* mCityIndexBuffer;
+    GpuBuffer* mCityMeshBufferV;
+    GpuBuffer* mCityMeshBufferI;
 };

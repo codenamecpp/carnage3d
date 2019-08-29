@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "CarnageGame.h"
 #include "RenderSystem.h"
-#include "CityMeshBuilder.h"
 
 CarnageGame gCarnageGame;
 
@@ -9,15 +8,6 @@ bool CarnageGame::Initialize()
 {
     mTopDownCameraController.SetupInitial();
     mCityScape.LoadFromFile("NYC.CMP");
-
-    CityMeshBuilder meshCityBuilder;
-    for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
-    {
-        Rect2D rc(0, 0, MAP_DIMENSIONS, MAP_DIMENSIONS);
-        meshCityBuilder.Build(mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityLayersMeshData[i]);
-    }
-
-    gRenderSystem.mCityRenderer.CommitVertexData();
 
     return true;
 }

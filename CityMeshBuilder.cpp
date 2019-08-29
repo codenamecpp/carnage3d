@@ -10,7 +10,6 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int la
         (area.y + area.h <= MAP_DIMENSIONS));
 
     meshData.SetNull();
-    meshData.mMapRect = area;
 
     // todo: compute bounds
 
@@ -45,7 +44,6 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, CityMe
         (area.y + area.h < MAP_DIMENSIONS));
 
     meshData.SetNull();
-    meshData.mMapRect = area;
 
     // todo: compute bounds
 
@@ -160,8 +158,7 @@ void CityMeshBuilder::PutBlockFace(CityMeshData& meshData, int posx, int posy, i
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {uv1.x, uv1.y};
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {uv0.x, uv1.y};
 
-    // todo
-    unsigned char color = static_cast<unsigned char>(((posz * 1.0f) / MAP_LAYERS_COUNT) * 255);
+    unsigned char color = 50 + static_cast<unsigned char>(((posz * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
     // color
     meshData.mMeshVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
