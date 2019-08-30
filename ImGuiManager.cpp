@@ -55,7 +55,7 @@ bool ImGuiManager::Initialize()
     io.Fonts->Build();
     io.Fonts->GetTexDataAsRGBA32(&pcPixels, &iWidth, &iHeight);
 
-    GpuTexture* fontTexture = gGraphicsDevice.CreateTexture(eTextureFormat_RGBA8, iWidth, iHeight, pcPixels);
+    GpuTexture2D* fontTexture = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, iWidth, iHeight, pcPixels);
     debug_assert(fontTexture);
 
     io.Fonts->TexID = fontTexture;
@@ -73,7 +73,7 @@ void ImGuiManager::Deinit()
     ImGuiIO& io = ImGui::GetIO();
 
     // destroy font texture
-    GpuTexture* fontTexture = static_cast<GpuTexture*>(io.Fonts->TexID);
+    GpuTexture2D* fontTexture = static_cast<GpuTexture2D*>(io.Fonts->TexID);
     if (fontTexture)
     {
         gGraphicsDevice.DestroyTexture(fontTexture);
@@ -147,7 +147,7 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
                 static_cast<int>(clip_rect_h - clip_rect_y)
             };
 
-            GpuTexture* bindTexture = static_cast<GpuTexture*>(pcmd->TextureId);
+            GpuTexture2D* bindTexture = static_cast<GpuTexture2D*>(pcmd->TextureId);
             gGraphicsDevice.BindTexture(eTextureUnit_0, bindTexture);
 
             gGraphicsDevice.SetScissorRect(rcClip);

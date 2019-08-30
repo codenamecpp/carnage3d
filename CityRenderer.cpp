@@ -6,10 +6,10 @@
 
 bool CityRenderer::Initialize()
 {
-    mCityMeshBufferV = gGraphicsDevice.CreateBuffer();
+    mCityMeshBufferV = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices);
     debug_assert(mCityMeshBufferV);
 
-    mCityMeshBufferI = gGraphicsDevice.CreateBuffer();
+    mCityMeshBufferI = gGraphicsDevice.CreateBuffer(eBufferContent_Indices);
     debug_assert(mCityMeshBufferI);
 
     if (mCityMeshBufferV == nullptr || mCityMeshBufferI == nullptr)
@@ -97,7 +97,7 @@ void CityRenderer::UploadVertexData()
     int totalVertexDataBytes = totalVertexCount * Sizeof_Vertex3D;
 
     // upload vertex data
-    mCityMeshBufferV->Setup(eBufferContent_Vertices, eBufferUsage_Static, totalVertexDataBytes, nullptr);
+    mCityMeshBufferV->Setup(eBufferUsage_Static, totalVertexDataBytes, nullptr);
     if (void* pdata = mCityMeshBufferV->Lock(BufferAccess_Write))
     {
         char* pcursor = static_cast<char*>(pdata);
@@ -113,7 +113,7 @@ void CityRenderer::UploadVertexData()
     }
 
     // upload index data
-    mCityMeshBufferI->Setup(eBufferContent_Indices, eBufferUsage_Static, totalIndexDataBytes, nullptr);
+    mCityMeshBufferI->Setup(eBufferUsage_Static, totalIndexDataBytes, nullptr);
     if (void* pdata = mCityMeshBufferI->Lock(BufferAccess_Write))
     {
         char* pcursor = static_cast<char*>(pdata);

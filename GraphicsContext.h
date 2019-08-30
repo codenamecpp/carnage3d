@@ -21,5 +21,5 @@ public:
     GpuBuffer* mCurrentBuffers[eBufferContent_COUNT];
     GpuProgram* mCurrentProgram;
     eTextureUnit mCurrentTextureUnit;
-    GpuTexture* mCurrentTextures[eTextureUnit_COUNT];
+    GpuTexture2D* mCurrentTextures[eTextureUnit_COUNT];
 };

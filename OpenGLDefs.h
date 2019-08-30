@@ -76,14 +76,3 @@ inline GLenum EnumToGL(ePrimitiveType primitiveType)
     debug_assert(false);
     return GL_TRIANGLES;
 }
-
-inline GLenum EnumToGL(eTextureType textureType)
-{
-    switch (textureType)
-    {
-        case eTextureType_Texture2D: return GL_TEXTURE_2D;
-        case eTextureType_ArrayTexture2D: return GL_TEXTURE_2D_ARRAY;
-    }
-    debug_assert(false);
-    return GL_TEXTURE_2D;
-}

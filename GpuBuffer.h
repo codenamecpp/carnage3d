@@ -14,16 +14,16 @@ public:
     unsigned int mBufferCapacity; // actually allocated length, bytes
 
 public:
-    GpuBuffer(GraphicsContext& graphicsContext);
+    // @param bufferContent: Content type stored in buffer, cannot be changed 
+    GpuBuffer(GraphicsContext& graphicsContext, eBufferContent bufferContent);
     ~GpuBuffer();
 
     // Will drop buffer data and allocate new chunk of gpu memory
-    // @param bufferContent: Content type stored in buffer
     // @param bufferUsage: Usage hint of buffer
     // @param theLength: Data length
     // @param dataBuffer: Initial data, optional
     // @returns false if out of memory
-    bool Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
+    bool Setup(eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer);
 
     // Upload source data to buffer replacing old content
     // @param dataOffset: Offset within buffer to write in bytes

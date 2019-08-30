@@ -3,7 +3,7 @@
 #include "OpenGLDefs.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
-#include "GpuTexture.h"
+#include "GpuTexture2D.h"
 
 #define WINDOW_TITLE "Carnage3D"
 
@@ -219,7 +219,7 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     (void) fullscreenEnabled;
 }
 
-GpuTexture* GraphicsDevice::CreateTexture()
+GpuTexture2D* GraphicsDevice::CreateTexture2D()
 {
     if (!IsDeviceInited())
     {
@@ -227,11 +227,11 @@ GpuTexture* GraphicsDevice::CreateTexture()
         return nullptr;
     }
 
-    GpuTexture* texture = new GpuTexture(mGraphicsContext);
+    GpuTexture2D* texture = new GpuTexture2D(mGraphicsContext);
     return texture;
 }
 
-GpuTexture* GraphicsDevice::CreateTexture(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
 {
     if (!IsDeviceInited())
     {
@@ -239,7 +239,7 @@ GpuTexture* GraphicsDevice::CreateTexture(eTextureFormat textureFormat, int size
         return nullptr;
     }
 
-    GpuTexture* texture = new GpuTexture(mGraphicsContext);
+    GpuTexture2D* texture = new GpuTexture2D(mGraphicsContext);
     if (!texture->Setup(textureFormat, sizex, sizey, sourceData))
     {
         DestroyTexture(texture);
@@ -277,15 +277,15 @@ GpuProgram* GraphicsDevice::CreateRenderProgram(const char* shaderSource)
     return program;
 }
 
-GpuBuffer* GraphicsDevice::CreateBuffer()
+GpuBuffer* GraphicsDevice::CreateBuffer(eBufferContent bufferContent)
 {
     if (!IsDeviceInited())
     {
         debug_assert(false);
         return nullptr;
     }
-
-    GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext);
+    debug_assert(bufferContent < eBufferContent_COUNT);
+    GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext, bufferContent);
     return bufferObject;
 }
 
@@ -296,9 +296,9 @@ GpuBuffer* GraphicsDevice::CreateBuffer(eBufferContent bufferContent, eBufferUsa
         debug_assert(false);
         return nullptr;
     }
-
-    GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext);
-    if (!bufferObject->Setup(bufferContent, bufferUsage, bufferLength, dataBuffer))
+    debug_assert(bufferContent < eBufferContent_COUNT);
+    GpuBuffer* bufferObject = new GpuBuffer(mGraphicsContext, bufferContent);
+    if (!bufferObject->Setup(bufferUsage, bufferLength, dataBuffer))
     {
         DestroyBuffer(bufferObject);
         return nullptr;
@@ -355,7 +355,7 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture* texture)
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture)
 {
     if (!IsDeviceInited())
     {
@@ -430,7 +430,7 @@ void GraphicsDevice::BindRenderProgram(GpuProgram* program)
     mGraphicsContext.mCurrentProgram = program;
 }
 
-void GraphicsDevice::DestroyTexture(GpuTexture* textureResource)
+void GraphicsDevice::DestroyTexture(GpuTexture2D* textureResource)
 {
     if (!IsDeviceInited())
     {

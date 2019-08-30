@@ -217,7 +217,7 @@
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="GpuTexture.h">
+    <ClInclude Include="GpuTexture2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
@@ -313,7 +313,7 @@
     <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="GpuTexture.cpp">
+    <ClCompile Include="GpuTexture2D.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>

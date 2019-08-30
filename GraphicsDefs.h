@@ -4,7 +4,7 @@
 class GraphicsDevice;
 class GpuBuffer;
 class GpuProgram;
-class GpuTexture;
+class GpuTexture2D;
 class GraphicsContext;
 
 // internal types
@@ -261,19 +261,6 @@ define_enum_strings(eTextureFormat)
     eTextureFormat_R8_G8, "r8_g8",
     eTextureFormat_RGB8, "rgb8",
     eTextureFormat_RGBA8, "rgba8",
-};
-
-enum eTextureType
-{
-    eTextureType_Texture2D,
-    eTextureType_ArrayTexture2D,
-    eTextureType_COUNT,
-};
-
-define_enum_strings(eTextureType)
-{
-    eTextureType_Texture2D, "2d",
-    eTextureType_ArrayTexture2D, "array2d",
 };
 
 // Get number of bytes per pixel for specific texture format

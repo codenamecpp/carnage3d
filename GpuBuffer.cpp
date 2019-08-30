@@ -40,10 +40,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-GpuBuffer::GpuBuffer(GraphicsContext& graphicsContext)
+GpuBuffer::GpuBuffer(GraphicsContext& graphicsContext, eBufferContent bufferContent)
     : mGraphicsContext(graphicsContext)
     , mResourceHandle()
-    , mContent()
+    , mContent(bufferContent)
     , mUsageHint()
     , mBufferLength()
     , mBufferCapacity()
@@ -68,16 +68,12 @@ void GpuBuffer::SetUnbound()
     }
 }
 
-bool GpuBuffer::Setup(eBufferContent bufferContent, eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
+bool GpuBuffer::Setup(eBufferUsage bufferUsage, unsigned int bufferLength, const void* dataBuffer)
 {
     unsigned int paddedContentLength = (bufferLength + 15U) & (~15U);
 
     mBufferLength = bufferLength;
     mBufferCapacity = paddedContentLength;
-
-    debug_assert(mContent < eBufferContent_COUNT);
-    mContent = bufferContent;
-
     mUsageHint = bufferUsage;
     debug_assert(mUsageHint < eBufferUsage_COUNT);
 
