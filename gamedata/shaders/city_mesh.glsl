@@ -50,7 +50,7 @@ void main()
     {
         pixelColor = texture(tex_0, Texcoord);
 
-        if (pixelColor.a < 1.0f) // old school alpha test
+        if (FragColor.a < 1.0f && pixelColor.a < 1.0f) // old school alpha test
             discard;
     }
     else

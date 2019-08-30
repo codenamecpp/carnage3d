@@ -31,17 +31,21 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 {
-    if (!inputEvent.mConsumed)
+    if (inputEvent.mConsumed)
+        return;
+
+    if (inputEvent.mKeycode == KEYCODE_TILDE && inputEvent.mPressed) // show debug console
     {
-        if (inputEvent.mKeycode == KEYCODE_TILDE) // show debug console
-        {
-            gDebugConsoleWindow.mWindowShown = true;
-        }
-        else
-        {
-            mTopDownCameraController.InputEvent(inputEvent);
-        }
+        gDebugConsoleWindow.mWindowShown = true;
+        return;
     }
+    if (inputEvent.mKeycode == KEYCODE_F3 && inputEvent.mPressed)
+    {
+        gRenderSystem.ReloadRenderPrograms();
+        return;
+    }
+
+    mTopDownCameraController.InputEvent(inputEvent);
 }
 
 void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)

@@ -77,6 +77,8 @@ bool RenderSystem::InitRenderPrograms()
 
 void RenderSystem::ReloadRenderPrograms()
 {
+    gConsole.LogMessage(eLogMessage_Info, "Reloading render programs...");
+
     mDefaultTexColorProgram.Reinitialize();
     mGuiTexColorProgram.Reinitialize();
     mCityMeshProgram.Reinitialize();
