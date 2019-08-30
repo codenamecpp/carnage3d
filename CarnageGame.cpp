@@ -2,6 +2,7 @@
 #include "CarnageGame.h"
 #include "RenderSystem.h"
 #include "SpriteCache.h"
+#include "ConsoleWindow.h"
 
 CarnageGame gCarnageGame;
 
@@ -34,7 +35,7 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
     {
         if (inputEvent.mKeycode == KEYCODE_TILDE) // show debug console
         {
-            gGuiSystem.SetShowDebugConsole(true);
+            gDebugConsoleWindow.mWindowShown = true;
         }
         else
         {

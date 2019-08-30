@@ -158,6 +158,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="CityRenderer.h" />
     <ClInclude Include="CityScapeData.h" />
     <ClInclude Include="CityStyleData.h" />
+    <ClInclude Include="DebugWindow.h" />
     <ClInclude Include="enum_utils.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="CarnageGame.h" />
@@ -181,7 +182,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="heap.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
-    <ClInclude Include="ImGuiConsole.h" />
+    <ClInclude Include="ConsoleWindow.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="imstb_rectpack.h" />
@@ -215,6 +216,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="CityScapeData.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
     <ClCompile Include="CityRenderer.cpp" />
+    <ClCompile Include="DebugWindow.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />
@@ -223,7 +225,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GuiRenderContext.cpp" />
     <ClCompile Include="GuiSystem.cpp" />
     <ClCompile Include="imgui.cpp" />
-    <ClCompile Include="ImGuiConsole.cpp" />
+    <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />

@@ -1,9 +1,5 @@
 
 1 iteration
-    - Load standard render programs in render system
-    - Top Down Camera controller
-    - Init Scene Camera
-    - Draw something in 3D
     - add debug console - imgui
 
 2 iteration

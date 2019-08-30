@@ -1,17 +1,12 @@
 #pragma once
 
 #include "imgui.h"
-#include "ImGuiConsole.h"
 
 class GuiRenderContext;
+class DebugWindow;
 
 class ImGuiManager final: public cxx::noncopyable
 {
-public:
-    ImGuiConsole mConsoleWindow;
-
-    bool mShowDebugInfoWindow = true;
-
 public:
     // setup internal resources
     bool Initialize();
@@ -36,11 +31,10 @@ public:
 
     bool IsInitialized() const;
 
-public:
+private:
     // internals
     bool AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize);
     void SetupStyle(ImGuiIO& imguiIO);
-    void DrawDebugInfoWindow();
 };
 
 extern ImGuiManager gImGuiManager;

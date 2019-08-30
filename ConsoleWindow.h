@@ -1,24 +1,23 @@
 #pragma once
 
+#include "DebugWindow.h"
+
 struct ImGuiInputTextCallbackData;
 
 // defines debug console window as part of imgui system
-class ImGuiConsole final: public cxx::noncopyable
+class ConsoleWindow final: public DebugWindow
 {
 public:
-    bool mShown = false;
     bool AutoScroll = true;
     bool ScrollToBottom = false;
 
 public:
-    ImGuiConsole();
-    ~ImGuiConsole();
+    ConsoleWindow();
 
     // process logic
     // @param deltaTime: Time passed since previous update
-    void UpdateFrame(Timespan deltaTime);
+    void DoUI(Timespan deltaTime) override;
 
-    void ClearLog();
     void AddLog(const char* fmt, ...);
     void ExecCommand(const char* command_line);
 
@@ -32,3 +31,5 @@ private:
     std::vector<std::string> mHistory;
     int mHistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
 };
+
+extern ConsoleWindow gDebugConsoleWindow;

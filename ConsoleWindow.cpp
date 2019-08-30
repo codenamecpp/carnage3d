@@ -1,31 +1,25 @@
 #include "stdafx.h"
-#include "ImGuiConsole.h"
+#include "ConsoleWindow.h"
 #include "imgui.h"
 
-ImGuiConsole::ImGuiConsole()
+ConsoleWindow gDebugConsoleWindow;
+
+ConsoleWindow::ConsoleWindow() : DebugWindow("Debug Console")
 {
-    ClearLog();
     mCommands.push_back("HELP");
     mCommands.push_back("CLEAR");
 }
 
-ImGuiConsole::~ImGuiConsole()
-{
-    ClearLog();
-}
-
-void ImGuiConsole::UpdateFrame(Timespan deltaTime)
+void ConsoleWindow::DoUI(Timespan deltaTime)
 {
     ImGui::SetNextWindowSize(ImVec2(520,600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Debug Console", &mShown))
+    if (!ImGui::Begin(mWindowName, &mWindowShown))
     {
         ImGui::End();
         return;
     }
 
     ImGui::TextWrapped("Enter 'HELP' for help, press TAB to use text completion.");
-
-    if (ImGui::SmallButton("Clear")) { ClearLog(); } ImGui::SameLine();
 
     ImGui::Separator();
 
@@ -72,7 +66,7 @@ void ImGuiConsole::UpdateFrame(Timespan deltaTime)
 
     auto TextEditCallbackStub = [](ImGuiInputTextCallbackData* data) -> int
         {
-            ImGuiConsole* this_ = (ImGuiConsole*) data->UserData;
+            ConsoleWindow* this_ = (ConsoleWindow*) data->UserData;
             debug_assert(this_);
             return this_->TextEditCallback(data);
         };
@@ -100,12 +94,7 @@ void ImGuiConsole::UpdateFrame(Timespan deltaTime)
     ImGui::End();
 }
 
-void ImGuiConsole::ClearLog()
-{
-    mItems.clear();
-}
-
-void ImGuiConsole::AddLog(const char* fmt, ...)
+void ConsoleWindow::AddLog(const char* fmt, ...)
 {
     // FIXME-OPT
     char buf[1024];
@@ -117,7 +106,7 @@ void ImGuiConsole::AddLog(const char* fmt, ...)
     mItems.push_back(buf);
 }
 
-void ImGuiConsole::ExecCommand(const char* command_line)
+void ConsoleWindow::ExecCommand(const char* command_line)
 {
     AddLog("# %s\n", command_line);
 
@@ -138,7 +127,7 @@ void ImGuiConsole::ExecCommand(const char* command_line)
     ScrollToBottom = true;
 }
 
-int ImGuiConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
+int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
     switch (data->EventFlag)
     {

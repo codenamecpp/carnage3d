@@ -35,9 +35,6 @@
     <Filter Include="Game\GUI">
       <UniqueIdentifier>{2012cf28-2f74-4790-abf5-66d9b339079b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\GUI\DebugUI">
-      <UniqueIdentifier>{3de37338-6295-41c3-93df-a00af8fdd4d7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Third_Party">
       <UniqueIdentifier>{1f1ffaf5-f87b-44d2-b090-043999b5fdca}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,9 @@
     </Filter>
     <Filter Include="Game\Resources">
       <UniqueIdentifier>{b18b2f49-fc5f-4c8d-babf-b439ae8b1be3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GUI\DebugWindows">
+      <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -190,17 +190,11 @@
     <ClInclude Include="GuiSystem.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiManager.h">
-      <Filter>Game\GUI\DebugUI</Filter>
-    </ClInclude>
     <ClInclude Include="GuiRenderContext.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
     <ClInclude Include="StreamingVertexCache.h">
       <Filter>Game\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiConsole.h">
-      <Filter>Game\GUI\DebugUI</Filter>
     </ClInclude>
     <ClInclude Include="CityMeshBuilder.h">
       <Filter>Game</Filter>
@@ -225,6 +219,15 @@
     </ClInclude>
     <ClInclude Include="SpriteCache.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugWindow.h">
+      <Filter>Game\GUI\DebugWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleWindow.h">
+      <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -295,17 +298,11 @@
     <ClCompile Include="GuiSystem.cpp">
       <Filter>Game\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiManager.cpp">
-      <Filter>Game\GUI\DebugUI</Filter>
-    </ClCompile>
     <ClCompile Include="GuiRenderContext.cpp">
       <Filter>Game\GUI</Filter>
     </ClCompile>
     <ClCompile Include="StreamingVertexCache.cpp">
       <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiConsole.cpp">
-      <Filter>Game\GUI\DebugUI</Filter>
     </ClCompile>
     <ClCompile Include="CityMeshBuilder.cpp">
       <Filter>Game</Filter>
@@ -327,6 +324,15 @@
     </ClCompile>
     <ClCompile Include="SpriteCache.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiManager.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugWindow.cpp">
+      <Filter>Game\GUI\DebugWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleWindow.cpp">
+      <Filter>Game\GUI\DebugWindows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
