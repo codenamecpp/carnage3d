@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CityMeshBuilder.h"
+#include "SpriteCache.h"
 
 bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int layerIndex, CityMeshData& meshData)
 {
@@ -10,8 +11,6 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int la
         (area.y + area.h <= MAP_DIMENSIONS));
 
     meshData.SetNull();
-
-    // todo: compute bounds
 
     // preallocate
     meshData.mMeshIndices.reserve(1 * 1024 * 1024);
@@ -45,8 +44,6 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, CityMe
 
     meshData.SetNull();
 
-    // todo: compute bounds
-
     // preallocate
     meshData.mMeshIndices.reserve(1 * 1024 * 1024);
     meshData.mMeshVertices.reserve(1 * 1024 * 1024);
@@ -76,9 +73,9 @@ void CityMeshBuilder::PutBlockFace(CityMeshData& meshData, int posx, int posy, i
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;
 
-    // todo: texcoord
-    glm::vec2 uv0 { 0.0f, 0.0f };
-    glm::vec2 uv1 { 1.0f, 1.0f };
+    SpritesheetEntry blockRecord;
+    if (!gSpriteCache.GetBlockSpritesheetEntry(blockType, blockInfo->mFaces[face], blockRecord))
+        return;
 
     // setup base cube vertices
     glm::vec3 cubePoints[] =
@@ -153,10 +150,10 @@ void CityMeshBuilder::PutBlockFace(CityMeshData& meshData, int posx, int posy, i
     const int rotateLid = (face == eBlockFace_Lid) ? blockInfo->mLidRotation : 0;
     const int baseVertexIndex = meshData.mMeshVertices.size();
     meshData.mMeshVertices.resize(baseVertexIndex + 4);
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = {uv0.x, uv0.y};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = {uv1.x, uv0.y};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {uv1.x, uv1.y};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {uv0.x, uv1.y};
+    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = {blockRecord.mU0, blockRecord.mV0, blockRecord.mTcZ};
+    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = {blockRecord.mU1, blockRecord.mV0, blockRecord.mTcZ};
+    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {blockRecord.mU1, blockRecord.mV1, blockRecord.mTcZ};
+    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {blockRecord.mU0, blockRecord.mV1, blockRecord.mTcZ};
 
     unsigned char color = 50 + static_cast<unsigned char>(((posz * 1.0f) / MAP_LAYERS_COUNT) * 180);
 

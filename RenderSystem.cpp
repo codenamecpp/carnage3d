@@ -2,6 +2,7 @@
 #include "RenderSystem.h"
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
+#include "SpriteCache.h"
 
 RenderSystem gRenderSystem;
 
@@ -34,6 +35,7 @@ void RenderSystem::Deinit()
     mCityRenderer.Deinit();
     mGuiVertexCache.Deinit();
 
+    gSpriteCache.Cleanup();
     FreeRenderPrograms();
 }
 

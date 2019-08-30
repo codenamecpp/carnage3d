@@ -142,6 +142,93 @@ define_enum_strings(eBlockFace)
     eBlockFace_Lid, "lid",
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+// defines draw vertex of city mesh
+struct CityVertex3D
+{
+public:
+    CityVertex3D() = default;
+
+    // setup vertex
+    // @param posx, posy, posz: Coordinate in 3d space
+    // @param tcu, tcv: Texture coordinate normalized [0, 1]
+    // @param tcz: Texture layer in texture array
+    // @param normx, normy, normz: Normal unit vector
+    // @param color: Color RGBA
+    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz, float normx, float normy, float normz, unsigned int color)
+    {
+        mPosition.x = posx;
+        mPosition.y = posy;
+        mPosition.z = posz;
+        mNormal.x = normx;
+        mNormal.y = normy;
+        mNormal.z = normz;
+        mTexcoord.x = tcu;
+        mTexcoord.y = tcv;
+        mTexcoord.z = tcz;
+        mColor = color;
+    }
+    // setup vertex
+    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz, unsigned int color)
+    {
+        mPosition.x = posx;
+        mPosition.y = posy;
+        mPosition.z = posz;
+        mTexcoord.x = tcu;
+        mTexcoord.y = tcv;
+        mTexcoord.z = tcz;
+        mColor = color;
+    }
+    // setup vertex
+    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz)
+    {
+        mPosition.x = posx;
+        mPosition.y = posy;
+        mPosition.z = posz;
+        mTexcoord.x = tcu;
+        mTexcoord.y = tcv;
+        mTexcoord.z = tcz;
+        mColor = COLOR_WHITE;
+    }
+public:
+    glm::vec3 mPosition; // 12 bytes
+    glm::vec3 mNormal; // 12 bytes
+    glm::vec3 mTexcoord; // 12 bytes
+    unsigned int mColor; // 4 bytes
+};
+
+const unsigned int Sizeof_CityVertex3D = sizeof(CityVertex3D);
+
+// defines draw vertex format of city mesh
+struct CityVertex3D_Format: public VertexFormat
+{
+public:
+    CityVertex3D_Format()
+    {
+        Setup();
+    }
+    // get format definition
+    static const CityVertex3D_Format& Get() 
+    { 
+        static const CityVertex3D_Format sDefinition; 
+        return sDefinition; 
+    }
+    using TVertexType = CityVertex3D;
+    // initialzie definition
+    inline void Setup()
+    {
+        this->mDataStride = Sizeof_CityVertex3D;
+        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Normal0, offsetof(TVertexType, mNormal));
+        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        // force semantics for texcoord0 attribute - expect 3 floats per vertex
+        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeSemantics_Texcoord3d, offsetof(TVertexType, mTexcoord));
+    }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // defines part of city mesh
 struct CityMeshData
 {
@@ -154,9 +241,38 @@ public:
         mMeshIndices.clear();
     }
 public:
-    std::vector<Vertex3D> mMeshVertices;
+    std::vector<CityVertex3D> mMeshVertices;
     std::vector<DrawIndex_t> mMeshIndices;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+// defines single picture within sprite atlas
+struct SpritesheetEntry
+{
+public:
+    SpritesheetEntry() = default;
+
+public:
+    Rect2D mRectangle;
+
+    float mU0, mV0; // texture coords
+    float mU1, mV1; // texture coords
+    float mTcZ; // texture array layer
+};
+
+// defines sprite atlas texture with entries
+class Spritesheet final: public cxx::noncopyable
+{
+public:
+    Spritesheet() = default;
+
+public:
+    GpuTextureArray2D* mSpritesheetTexture = nullptr;
+    std::vector<SpritesheetEntry> mEtries;
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 // define sprite HLS remap information
 struct HLSRemap
@@ -172,6 +288,8 @@ public:
 public:
     short mH, mL, mS;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // define map block information
 struct BlockStyleData

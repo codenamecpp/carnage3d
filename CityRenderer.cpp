@@ -3,6 +3,7 @@
 #include "RenderSystem.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
+#include "SpriteCache.h"
 
 bool CityRenderer::Initialize()
 {
@@ -50,12 +51,15 @@ void CityRenderer::RenderFrame()
 
     gRenderSystem.mCityMeshProgram.Activate();
     gRenderSystem.mCityMeshProgram.UploadCameraTransformMatrices();
-    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(false);
+
+    Spritesheet* blocksSpritesheet = gSpriteCache.mBlocksSpritesheet;
+    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksSpritesheet != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
-        gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, Vertex3D_Format::Get());
+        gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
         gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
+        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksSpritesheet->mSpritesheetTexture);
 
         int currBaseVertex = 0;
         int currIndexOffset = 0;
@@ -94,7 +98,7 @@ void CityRenderer::UploadVertexData()
         return;
 
     int totalIndexDataBytes = totalIndexCount * Sizeof_DrawIndex_t;
-    int totalVertexDataBytes = totalVertexCount * Sizeof_Vertex3D;
+    int totalVertexDataBytes = totalVertexCount * Sizeof_CityVertex3D;
 
     // upload vertex data
     mCityMeshBufferV->Setup(eBufferUsage_Static, totalVertexDataBytes, nullptr);
@@ -103,7 +107,7 @@ void CityRenderer::UploadVertexData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mMeshVertices.size() * Sizeof_Vertex3D;
+            int dataLength = mCityMeshData[iLayer].mMeshVertices.size() * Sizeof_CityVertex3D;
             if (mCityMeshData[iLayer].mMeshVertices.empty())
                 continue;
             memcpy(pcursor, mCityMeshData[iLayer].mMeshVertices.data(), dataLength);

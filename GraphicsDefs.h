@@ -370,6 +370,7 @@ enum eVertexAttributeSemantics
     eVertexAttributeSemantics_Color,        // 4 unsigned bytes
     eVertexAttributeSemantics_Texcoord,     // 2 floats
     eVertexAttributeSemantics_Position2d,   // 2 floats
+    eVertexAttributeSemantics_Texcoord3d,   // 3 floats
     eVertexAttributeSemantics_Unknown
 };
 
@@ -380,6 +381,7 @@ define_enum_strings(eVertexAttributeSemantics)
     eVertexAttributeSemantics_Color, "color",
     eVertexAttributeSemantics_Texcoord, "texcoord",
     eVertexAttributeSemantics_Position2d, "position2d",
+    eVertexAttributeSemantics_Texcoord3d, "texcoord3d",
     eVertexAttributeSemantics_Unknown, "unknown",
 };
 
@@ -446,6 +448,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeSemantics attribu
         case eVertexAttributeSemantics_Color: return 4;
         case eVertexAttributeSemantics_Texcoord: return 2;
         case eVertexAttributeSemantics_Position2d: return 2;
+        case eVertexAttributeSemantics_Texcoord3d: return 3;
     }
     debug_assert(false);
     return 0;
@@ -462,6 +465,7 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeSemantics attributeSem
         case eVertexAttributeSemantics_Color: return sizeof(unsigned int);
         case eVertexAttributeSemantics_Texcoord: return sizeof(float) * 2;
         case eVertexAttributeSemantics_Position2d: return sizeof(float) * 2;
+        case eVertexAttributeSemantics_Texcoord3d: return sizeof(float) * 3;
     }
     debug_assert(false);
     return 0;

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CarnageGame.h"
 #include "RenderSystem.h"
+#include "SpriteCache.h"
 
 CarnageGame gCarnageGame;
 
@@ -8,6 +9,11 @@ bool CarnageGame::Initialize()
 {
     mTopDownCameraController.SetupInitial();
     mCityScape.LoadFromFile("NYC.CMP");
+
+    if (!gSpriteCache.CreateBlocksSpritesheet())
+    {
+        debug_assert(false);
+    }
 
     return true;
 }

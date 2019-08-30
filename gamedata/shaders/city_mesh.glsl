@@ -7,11 +7,11 @@ uniform mat4 view_projection_matrix;
 
 // attributes
 in vec3 in_pos0;
-in vec2 in_texcoord0;
+in vec3 in_texcoord0;
 in vec4 in_color0;
 
 // pass to fragment shader
-out vec2 Texcoord;
+out vec3 Texcoord;
 out vec4 FragColor;
 out vec3 Position;
 
@@ -31,11 +31,11 @@ void main()
 //////////////////////////////////////////////////////////////////////////
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D tex_0;
+uniform sampler2DArray tex_0;
 uniform bool enable_texture_mapping;
 
 // passed from vertex shader
-in vec2 Texcoord;
+in vec3 Texcoord;
 in vec4 FragColor;
 in vec3 Position;
 
@@ -49,6 +49,9 @@ void main()
     if (enable_texture_mapping)
     {
         pixelColor = texture(tex_0, Texcoord);
+
+        if (pixelColor.a < 1.0f) // old school alpha test
+            discard;
     }
     else
     {

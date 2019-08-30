@@ -32,9 +32,6 @@
     <Filter Include="Game\Rendering">
       <UniqueIdentifier>{3c3cf768-b65d-4114-8aa7-4d10f76371ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Resources">
-      <UniqueIdentifier>{b8cc8a27-b473-4e3b-94c8-8f95ce955c03}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\GUI">
       <UniqueIdentifier>{2012cf28-2f74-4790-abf5-66d9b339079b}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,9 @@
     </Filter>
     <Filter Include="Third_Party\stb">
       <UniqueIdentifier>{4cca613e-8979-4fd2-8976-bef3ea433c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Resources">
+      <UniqueIdentifier>{b18b2f49-fc5f-4c8d-babf-b439ae8b1be3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -96,9 +96,6 @@
     </ClInclude>
     <ClInclude Include="RenderSystem.h">
       <Filter>Game\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelsArray.h">
-      <Filter>Game\Resources</Filter>
     </ClInclude>
     <ClInclude Include="GameCamera.h">
       <Filter>Game</Filter>
@@ -223,6 +220,12 @@
     <ClInclude Include="GpuTextureArray2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="PixelsArray.h">
+      <Filter>Game\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteCache.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -255,9 +258,6 @@
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="PixelsArray.cpp">
-      <Filter>Game\Resources</Filter>
     </ClCompile>
     <ClCompile Include="GameCamera.cpp">
       <Filter>Game</Filter>
@@ -321,6 +321,12 @@
     </ClCompile>
     <ClCompile Include="GpuTextureArray2D.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelsArray.cpp">
+      <Filter>Game\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteCache.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

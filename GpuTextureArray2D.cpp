@@ -90,6 +90,15 @@ bool GpuTextureArray2D::Setup(eTextureFormat textureFormat, int sizex, int sizey
     mFormat = textureFormat;
     mSize.x = sizex;
     mSize.y = sizey;
+    mLayersCount = layersCount;
+
+    int MaxLayers = gGraphicsDevice.mCaps.mMaxArrayTextureLayers;
+    debug_assert(MaxLayers >= mLayersCount);
+    if (MaxLayers < mLayersCount)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Exceeded number of texture array layers (%d, max is %d)", mLayersCount, MaxLayers);
+        mLayersCount = MaxLayers;
+    }
     
     ScopedTextureArray2DBinder scopedBind(mGraphicsContext, this);
 
@@ -113,6 +122,7 @@ bool GpuTextureArray2D::Upload(int startLayerIndex, int layersCount, const void*
         return false;
 
     debug_assert(sourceData);
+    debug_assert(mLayersCount >= (startLayerIndex + layersCount));
 
     GLuint formatGL = 0;
     GLint internalFormatGL = 0;
