@@ -5,6 +5,7 @@ class GraphicsDevice;
 class GpuBuffer;
 class GpuProgram;
 class GpuTexture2D;
+class GpuTextureArray2D;
 class GraphicsContext;
 
 // internal types

@@ -4,6 +4,7 @@
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
 #include "GpuTexture2D.h"
+#include "GpuTextureArray2D.h"
 
 #define WINDOW_TITLE "Carnage3D"
 
@@ -248,6 +249,35 @@ GpuTexture2D* GraphicsDevice::CreateTexture2D(eTextureFormat textureFormat, int 
     return texture;
 }
 
+GpuTextureArray2D* GraphicsDevice::CreateTextureArray2D()
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuTextureArray2D* texture = new GpuTextureArray2D(mGraphicsContext);
+    return texture;   
+}
+
+GpuTextureArray2D* GraphicsDevice::CreateTextureArray2D(eTextureFormat textureFormat, int sizex, int sizey, int layersCount, const void* sourceData)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuTextureArray2D* texture = new GpuTextureArray2D(mGraphicsContext);
+    if (!texture->Setup(textureFormat, sizex, sizey, layersCount, sourceData))
+    {
+        DestroyTexture(texture);
+        return nullptr;
+    }
+    return texture;
+}
+
 GpuProgram* GraphicsDevice::CreateRenderProgram()
 {
     if (!IsDeviceInited())
@@ -355,7 +385,7 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture)
+void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* texture)
 {
     if (!IsDeviceInited())
     {
@@ -364,19 +394,32 @@ void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture
     }
 
     debug_assert(textureUnit < eTextureUnit_COUNT);
-    if (mGraphicsContext.mCurrentTextures[textureUnit] == texture)
+    if (mGraphicsContext.mCurrentTextures[textureUnit].mTexture2D == texture)
         return;
 
-    // activate texture unit
-    if (mGraphicsContext.mCurrentTextureUnit != textureUnit)
+    ActivateTextureUnit(textureUnit);
+
+    mGraphicsContext.mCurrentTextures[textureUnit].mTexture2D = texture;
+    ::glBindTexture(GL_TEXTURE_2D, texture ? texture->mResourceHandle : 0);
+    glCheckError();
+}
+
+void GraphicsDevice::BindTextureArray2D(eTextureUnit textureUnit, GpuTextureArray2D* texture)
+{
+    if (!IsDeviceInited())
     {
-        mGraphicsContext.mCurrentTextureUnit = textureUnit;
-        ::glActiveTexture(GL_TEXTURE0 + textureUnit);
-        glCheckError();
+        debug_assert(false);
+        return;
     }
 
-    mGraphicsContext.mCurrentTextures[textureUnit] = texture;
-    ::glBindTexture(GL_TEXTURE_2D, texture ? texture->mResourceHandle : 0);
+    debug_assert(textureUnit < eTextureUnit_COUNT);
+    if (mGraphicsContext.mCurrentTextures[textureUnit].mTextureArray2D == texture)
+        return;
+
+    ActivateTextureUnit(textureUnit);
+
+    mGraphicsContext.mCurrentTextures[textureUnit].mTextureArray2D = texture;
+    ::glBindTexture(GL_TEXTURE_2D_ARRAY, texture ? texture->mResourceHandle : 0);
     glCheckError();
 }
 
@@ -439,6 +482,17 @@ void GraphicsDevice::DestroyTexture(GpuTexture2D* textureResource)
     }
 
     SafeDelete(textureResource);
+}
+
+void GraphicsDevice::DestroyTexture(GpuTextureArray2D* textureResource)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    SafeDelete(textureResource); 
 }
 
 void GraphicsDevice::DestroyProgram(GpuProgram* programResource)
@@ -833,3 +887,13 @@ void GraphicsDevice::QueryGraphicsDeviceCaps()
     glCheckError();
 }
 
+void GraphicsDevice::ActivateTextureUnit(eTextureUnit textureUnit)
+{
+    if (mGraphicsContext.mCurrentTextureUnit == textureUnit)
+        return;
+
+    mGraphicsContext.mCurrentTextureUnit = textureUnit;
+
+    ::glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glCheckError();
+}

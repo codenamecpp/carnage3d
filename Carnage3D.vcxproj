@@ -171,6 +171,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="GpuBuffer.h" />
     <ClInclude Include="GpuProgram.h" />
     <ClInclude Include="GpuTexture2D.h" />
+    <ClInclude Include="GpuTextureArray2D.h" />
     <ClInclude Include="GraphicsContext.h" />
     <ClInclude Include="GraphicsDefs.h" />
     <ClInclude Include="GraphicsDevice.h" />
@@ -217,6 +218,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />
     <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="GpuTextureArray2D.cpp" />
     <ClCompile Include="GuiRenderContext.cpp" />
     <ClCompile Include="GuiSystem.cpp" />
     <ClCompile Include="imgui.cpp" />

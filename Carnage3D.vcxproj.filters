@@ -220,6 +220,9 @@
     <ClInclude Include="GpuTexture2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GpuTextureArray2D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -314,6 +317,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="GpuTexture2D.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuTextureArray2D.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>

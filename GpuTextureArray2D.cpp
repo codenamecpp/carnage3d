@@ -1,54 +1,55 @@
 #include "stdafx.h"
-#include "GpuTexture2D.h"
+#include "GpuTextureArray2D.h"
 #include "OpenGLDefs.h"
 #include "GraphicsContext.h"
 
 //////////////////////////////////////////////////////////////////////////
 
-class ScopedTexture2DBinder
+class ScopedTextureArray2DBinder
 {
 public:
-    ScopedTexture2DBinder(GraphicsContext& renderContext, GpuTexture2D* gpuTexture)
+    ScopedTextureArray2DBinder(GraphicsContext& renderContext, GpuTextureArray2D* gpuTexture)
         : mRenderContext(renderContext)
-        , mPreviousTexture(renderContext.mCurrentTextures[renderContext.mCurrentTextureUnit].mTexture2D)
+        , mPreviousTexture(renderContext.mCurrentTextures[renderContext.mCurrentTextureUnit].mTextureArray2D)
         , mTexture(gpuTexture)
     {
         debug_assert(gpuTexture);
         if (mTexture != mPreviousTexture)
         {
-            ::glBindTexture(GL_TEXTURE_2D, mTexture->mResourceHandle);
+            ::glBindTexture(GL_TEXTURE_2D_ARRAY, mTexture->mResourceHandle);
             glCheckError();
         }
     }
-    ~ScopedTexture2DBinder()
+    ~ScopedTextureArray2DBinder()
     {
         if (mTexture != mPreviousTexture)
         {
-            ::glBindTexture(GL_TEXTURE_2D, mPreviousTexture ? mPreviousTexture->mResourceHandle : 0);
+            ::glBindTexture(GL_TEXTURE_2D_ARRAY, mPreviousTexture ? mPreviousTexture->mResourceHandle : 0);
             glCheckError();
         }
     }
 private:
     GraphicsContext& mRenderContext;
-    GpuTexture2D* mPreviousTexture;
-    GpuTexture2D* mTexture;
+    GpuTextureArray2D* mPreviousTexture;
+    GpuTextureArray2D* mTexture;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-GpuTexture2D::GpuTexture2D(GraphicsContext& renderContext)
-    : mGraphicsContext(renderContext)
+GpuTextureArray2D::GpuTextureArray2D(GraphicsContext& graphicsContext)
+    : mGraphicsContext(graphicsContext)
     , mResourceHandle()
     , mFiltering()
     , mRepeating()
     , mSize()
     , mFormat()
+    , mLayersCount()
 {
     ::glGenTextures(1, &mResourceHandle);
     glCheckError();
 }
 
-GpuTexture2D::~GpuTexture2D()
+GpuTextureArray2D::~GpuTextureArray2D()
 {
     SetUnbound();
 
@@ -56,7 +57,7 @@ GpuTexture2D::~GpuTexture2D()
     glCheckError();
 }
 
-bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
+bool GpuTextureArray2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, int layersCount, const void* sourceData)
 {
     GLuint formatGL = 0;
     GLint internalFormatGL = 0;
@@ -90,56 +91,23 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     mSize.x = sizex;
     mSize.y = sizey;
     
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
+    ScopedTextureArray2DBinder scopedBind(mGraphicsContext, this);
+
+    ::glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormatGL, mSize.x, mSize.y, layersCount);
     glCheckError();
+
+    if (sourceData)
+    {
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, mSize.x, mSize.y, layersCount, formatGL, GL_UNSIGNED_BYTE, sourceData);
+        glCheckError();
+    }
 
     // set default filter and repeat mode for texture
     SetSamplerStateImpl(gGraphicsDevice.mDefaultTextureFilter, gGraphicsDevice.mDefaultTextureWrap);
     return true;
 }
 
-void GpuTexture2D::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMode repeating)
-{
-    if (!IsTextureInited())
-    {
-        debug_assert(false);
-        return;
-    }
-
-    // already set
-    if (mFiltering == filtering && mRepeating == repeating)
-        return;
-
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-
-    SetSamplerStateImpl(filtering, repeating);
-}
-
-bool GpuTexture2D::IsTextureBound(eTextureUnit textureUnit) const
-{
-    if (!IsTextureInited())
-        return false;
-
-    debug_assert(textureUnit < eTextureUnit_COUNT);
-    return this == mGraphicsContext.mCurrentTextures[textureUnit].mTexture2D;
-}
-
-bool GpuTexture2D::IsTextureBound() const
-{
-    if (!IsTextureInited())
-        return false;
-
-    for (int itexunit = 0; itexunit < eTextureUnit_COUNT; ++itexunit)
-    {
-        if (this == mGraphicsContext.mCurrentTextures[itexunit].mTexture2D)
-            return true;
-    }
-
-    return false;
-}
-
-bool GpuTexture2D::Upload(const void* sourceData)
+bool GpuTextureArray2D::Upload(int startLayerIndex, int layersCount, const void* sourceData)
 {
     if (!IsTextureInited())
         return false;
@@ -167,18 +135,59 @@ bool GpuTexture2D::Upload(const void* sourceData)
             internalFormatGL = GL_RGBA8;
         break;
     }
-    ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
+    ScopedTextureArray2DBinder scopedBind(mGraphicsContext, this);
+
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, startLayerIndex, mSize.x, mSize.y, layersCount, formatGL, GL_UNSIGNED_BYTE, sourceData);
     glCheckError();
     return true;
 }
 
-bool GpuTexture2D::IsTextureInited() const
+void GpuTextureArray2D::SetSamplerState(eTextureFilterMode filtering, eTextureWrapMode repeating)
+{
+    if (!IsTextureInited())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    // already set
+    if (mFiltering == filtering && mRepeating == repeating)
+        return;
+
+    ScopedTextureArray2DBinder scopedBind(mGraphicsContext, this);
+
+    SetSamplerStateImpl(filtering, repeating);
+}
+
+bool GpuTextureArray2D::IsTextureBound(eTextureUnit textureUnit) const
+{
+    if (!IsTextureInited())
+        return false;
+
+    debug_assert(textureUnit < eTextureUnit_COUNT);
+    return this == mGraphicsContext.mCurrentTextures[textureUnit].mTextureArray2D;
+}
+
+bool GpuTextureArray2D::IsTextureBound() const
+{
+    if (!IsTextureInited())
+        return false;
+
+    for (int itexunit = 0; itexunit < eTextureUnit_COUNT; ++itexunit)
+    {
+        if (this == mGraphicsContext.mCurrentTextures[itexunit].mTextureArray2D)
+            return true;
+    }
+
+    return false;
+}
+
+bool GpuTextureArray2D::IsTextureInited() const
 {
     return mFormat != eTextureFormat_Null;
 }
 
-void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
+void GpuTextureArray2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWrapMode repeating)
 {
     mFiltering = filtering;
     mRepeating = repeating;
@@ -205,10 +214,10 @@ void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWra
         break;
     }
 
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterGL);
+    ::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, magFilterGL);
     glCheckError();
 
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterGL);
+    ::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, minFilterGL);
     glCheckError();
 
     // set repeating
@@ -229,20 +238,20 @@ void GpuTexture2D::SetSamplerStateImpl(eTextureFilterMode filtering, eTextureWra
         break;
     }
 
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSGL);
+    ::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, wrapSGL);
     glCheckError();
 
-    ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTGL);
+    ::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, wrapTGL);
     glCheckError();
 }
 
-void GpuTexture2D::SetUnbound()
+void GpuTextureArray2D::SetUnbound()
 {
     for (int iTextureUnit = 0; iTextureUnit < eTextureUnit_COUNT; ++iTextureUnit)
     {
-        if (this == mGraphicsContext.mCurrentTextures[iTextureUnit].mTexture2D)
+        if (this == mGraphicsContext.mCurrentTextures[iTextureUnit].mTextureArray2D)
         {
-            mGraphicsContext.mCurrentTextures[iTextureUnit].mTexture2D = nullptr;
+            mGraphicsContext.mCurrentTextures[iTextureUnit].mTextureArray2D = nullptr;
         }
     }
 }

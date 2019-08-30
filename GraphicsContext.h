@@ -17,9 +17,17 @@ public:
     {
     }
 public:
+
+    struct TextureUnitState
+    {
+        // note: mutual exclusion is used for different texture types
+        GpuTexture2D* mTexture2D = nullptr;
+        GpuTextureArray2D* mTextureArray2D = nullptr;
+    };
+
     GpuVertexArrayHandle mVaoHandle;
     GpuBuffer* mCurrentBuffers[eBufferContent_COUNT];
     GpuProgram* mCurrentProgram;
     eTextureUnit mCurrentTextureUnit;
-    GpuTexture2D* mCurrentTextures[eTextureUnit_COUNT];
+    TextureUnitState mCurrentTextures[eTextureUnit_COUNT];
 };

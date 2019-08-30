@@ -46,6 +46,14 @@ public:
     GpuTexture2D* CreateTexture2D();
     GpuTexture2D* CreateTexture2D(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData);
 
+    // Create texture array 2D, client is responsible for destroying resource
+    // @param textureFormat: Format
+    // @param sizex, sizey: Texture dimensions, must be POT!
+    // @param layersCount: Number of textures in array
+    // @param sourceData: Source data buffer, all layers must be specified if not null
+    GpuTextureArray2D* CreateTextureArray2D();
+    GpuTextureArray2D* CreateTextureArray2D(eTextureFormat textureFormat, int sizex, int sizey, int layersCount, const void* sourceData);
+
     // Create render program, client is responsible for destroying resource
     // @param shaderSource: Source code
     GpuProgram* CreateRenderProgram();
@@ -72,7 +80,12 @@ public:
     // Set source texture on specified texture unit
     // @param textureUnit: Target unit
     // @param texture: Texture
-    void BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture);
+    void BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* texture);
+
+    // Set source texture on specified texture unit
+    // @param textureUnit: Target unit
+    // @param texture: Texture
+    void BindTextureArray2D(eTextureUnit textureUnit, GpuTextureArray2D* texture);
 
     // Set source render program to render with
     // @param program: Target program
@@ -81,6 +94,10 @@ public:
     // Free hardware resource
     // @param textureResource: Target texture, pointer becomes invalid
     void DestroyTexture(GpuTexture2D* textureResource);
+
+    // Free hardware resource
+    // @param textureResource: Target texture, pointer becomes invalid
+    void DestroyTexture(GpuTextureArray2D* textureResource);
 
     // Free hardware resource
     // @param programResource: Target render program, pointer becomes invalid
@@ -139,6 +156,7 @@ private:
     void InternalSetRenderStates(const RenderStates& renderStates, bool forceState);
     bool InitializeOGLExtensions();
     void QueryGraphicsDeviceCaps();
+    void ActivateTextureUnit(eTextureUnit textureUnit);
 
     void SetupVertexAttributes(const VertexFormat& streamDefinition);
 
