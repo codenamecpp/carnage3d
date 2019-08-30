@@ -20,6 +20,9 @@ public:
 
     // Clear all console text messages
     void Flush();
+
+public:
+    std::deque<ConsoleLine> mLines;
 };
 
 extern Console gConsole;

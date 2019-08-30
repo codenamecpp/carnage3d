@@ -238,6 +238,31 @@ define_enum_strings(eLogMessage)
     eLogMessage_Error, "error",
 };
 
+enum eConsoleLineType
+{
+    eConsoleLineType_Message,
+    eConsoleLineType_Command,
+    eConsoleLineType_COUNT
+};
+
+define_enum_strings(eConsoleLineType)
+{
+    eConsoleLineType_Message, "message",
+    eConsoleLineType_Command, "command",
+};
+
+// defines single record in console
+struct ConsoleLine
+{
+public:
+    ConsoleLine() = default;
+
+public:
+    eConsoleLineType mLineType = eConsoleLineType_Message;
+    eLogMessage mMessageCategory; // only valid if linetype is message
+    std::string mString;
+};
+
 namespace SceneAxes
 {
     static const glm::vec3 X {1.0f, 0.0f, 0.0f};

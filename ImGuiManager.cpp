@@ -59,9 +59,6 @@ bool ImGuiManager::Initialize()
     debug_assert(fontTexture);
 
     io.Fonts->TexID = fontTexture;
-    io.MouseDrawCursor = true;
-
-    //mConsoleWindow.mShown = true;
     return true;
 }
 
@@ -177,13 +174,18 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
     //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
 
+    bool anyWindowShown = false;
+
     for (DebugWindow* currWindow: DebugWindow::AllDebugWindows)
     {
         if (!currWindow->mWindowShown)
             continue;
 
         currWindow->DoUI(deltaTime);
+        anyWindowShown = true;
     }
+
+    io.MouseDrawCursor = anyWindowShown;
 }
 
 void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)

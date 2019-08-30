@@ -115,6 +115,7 @@ Spritesheet* SpriteCache::CreateSpritesheet(int picSizex, int picSizey, int pics
     Spritesheet* spritesheet = new Spritesheet;
     spritesheet->mSpritesheetTexture = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_RGBA8, picSizex, picSizey, picsCount, nullptr);
     debug_assert(spritesheet->mSpritesheetTexture);
+
     if (spritesheet->mSpritesheetTexture == nullptr)
     {
         SafeDelete(spritesheet);
@@ -136,5 +137,14 @@ void SpriteCache::FreeSpritesheet(Spritesheet* spritesheet)
             spritesheet->mSpritesheetTexture = nullptr;
         }
         SafeDelete(spritesheet);
+    }
+}
+
+void SpriteCache::FreeBlocksSpritesheet()
+{
+    if (mBlocksSpritesheet)
+    {
+        FreeSpritesheet(mBlocksSpritesheet);
+        mBlocksSpritesheet = nullptr;
     }
 }

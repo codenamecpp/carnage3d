@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "ConsoleWindow.h"
 #include "imgui.h"
+#include "Console.h"
 
 ConsoleWindow gDebugConsoleWindow;
 
 ConsoleWindow::ConsoleWindow() : DebugWindow("Debug Console")
 {
-    mCommands.push_back("HELP");
-    mCommands.push_back("CLEAR");
+    mCommands.push_back("clear");
+    mCommands.push_back("quit");
 }
 
 void ConsoleWindow::DoUI(Timespan deltaTime)
@@ -18,8 +19,6 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
         ImGui::End();
         return;
     }
-
-    ImGui::TextWrapped("Enter 'HELP' for help, press TAB to use text completion.");
 
     ImGui::Separator();
 
@@ -39,14 +38,28 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
     // If your items are of variable size you may want to implement code similar to what ImGuiListClipper does. Or split your data into fixed height items to allow random-seeking into your list.
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
 
-    for (int i = 0; i < mItems.size(); i++)
+    for (unsigned int i = 0; i < gConsole.mLines.size(); i++)
     {
-        const char* item = mItems[i].c_str();
+        const ConsoleLine& currentLine = gConsole.mLines[i];
+        const char* item = currentLine.mString.c_str();
 
         // Normally you would store more information in your item (e.g. make Items[] an array of structure, store color/type etc.)
         bool pop_color = false;
-        if (strstr(item, "[error]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); pop_color = true; }
-        else if (strncmp(item, "# ", 2) == 0)   { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.8f, 0.6f, 1.0f)); pop_color = true; }
+        if (currentLine.mMessageCategory == eLogMessage_Error) 
+        { 
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); 
+            pop_color = true; 
+        }
+        if (currentLine.mMessageCategory == eLogMessage_Error) 
+        { 
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f)); 
+            pop_color = true; 
+        }
+        else if (currentLine.mMessageCategory == eLogMessage_Debug)
+        { 
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f)); 
+            pop_color = true; 
+        }
         ImGui::TextUnformatted(item);
         if (pop_color)
         {
@@ -71,7 +84,7 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
             return this_->TextEditCallback(data);
         };
 
-    // Command-line
+    // command-line
     bool reclaim_focus = false;
     if (ImGui::InputText("Input", mInputBuffer.c_str(), mInputBuffer.get_capacity() + 1, 
         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | 
@@ -89,26 +102,15 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();
     if (reclaim_focus)
+    {
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
-
+    }
     ImGui::End();
-}
-
-void ConsoleWindow::AddLog(const char* fmt, ...)
-{
-    // FIXME-OPT
-    char buf[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-    buf[IM_ARRAYSIZE(buf)-1] = 0;
-    va_end(args);
-    mItems.push_back(buf);
 }
 
 void ConsoleWindow::ExecCommand(const char* command_line)
 {
-    AddLog("# %s\n", command_line);
+    gConsole.LogMessage(eLogMessage_Debug, "# %s\n", command_line);
 
     int historySize = mHistory.size();
     // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
@@ -133,8 +135,6 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
     {
     case ImGuiInputTextFlags_CallbackCompletion:
         {
-            // Example of TEXT COMPLETION
-
             // Locate beginning of current word
             const char* word_end = data->Buf + data->CursorPos;
             const char* word_start = word_end;
@@ -158,7 +158,7 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
             if (candidatesCount == 0)
             {
                 // No match
-                AddLog("No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
+                gConsole.LogMessage(eLogMessage_Debug, "No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
             }
             else if (candidatesCount == 1)
             {
@@ -192,10 +192,10 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
                 }
 
                 // List matches
-                AddLog("Possible matches:\n");
+                gConsole.LogMessage(eLogMessage_Debug, "Possible matches:\n");
                 for (int i = 0; i < candidatesCount; i++)
                 {
-                    AddLog("- %s\n", candidates[i]);
+                    gConsole.LogMessage(eLogMessage_Debug, "- %s\n", candidates[i]);
                 }
             }
 

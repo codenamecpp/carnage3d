@@ -17,6 +17,7 @@ public:
 
     // create city blocks spritesheets, style data must be loaded at this point
     bool CreateBlocksSpritesheet();
+    void FreeBlocksSpritesheet();
 
     // Get block spritesheet entry along with rectangle area where tile is located
     // @param blockType: Block type

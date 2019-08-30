@@ -44,11 +44,11 @@ bool RenderProgram::Reinitialize()
     if (isCompiled)
     {
         InitUniformParameters();
-        gConsole.LogMessage(eLogMessage_Debug, "Render program loaded %s", mSourceFileName);
+        gConsole.LogMessage(eLogMessage_Info, "Render program loaded %s", mSourceFileName);
     }
     else
     {
-        gConsole.LogMessage(eLogMessage_Debug, "Cannot load render program %s", mSourceFileName);
+        gConsole.LogMessage(eLogMessage_Info, "Cannot load render program %s", mSourceFileName);
     }
     return isCompiled;
 }

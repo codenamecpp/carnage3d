@@ -31,15 +31,16 @@ void Console::LogMessage(eLogMessage messageCat, const char* format, ...)
 
     if (messageCat > eLogMessage_Debug)
     {
-        const char* logLevelString = cxx::enum_to_string(messageCat);
-        printf("%s: %s\n", logLevelString, ConsoleMessageBuffer);
-    }
-    else
-    {
         printf("%s\n", ConsoleMessageBuffer);
     }
+    ConsoleLine consoleLine;
+    consoleLine.mLineType = eConsoleLineType_Message;
+    consoleLine.mMessageCategory = messageCat;
+    consoleLine.mString = ConsoleMessageBuffer;
+    mLines.push_back(std::move(consoleLine));
 }
 
 void Console::Flush()
 {
+    mLines.clear();
 }
