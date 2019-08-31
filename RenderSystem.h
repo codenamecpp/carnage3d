@@ -3,8 +3,7 @@
 #include "GraphicsDefs.h"
 #include "RenderProgram.h"
 #include "StreamingVertexCache.h"
-#include "CityMapRenderer.h"
-#include "PedestrianRenderer.h"
+#include "CityRenderer.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderSystem final: public cxx::noncopyable
@@ -14,10 +13,7 @@ public:
     RenderProgram mCityMeshProgram;
     RenderProgram mGuiTexColorProgram;
 
-    StreamingVertexCache mMapObjectsVertexCache; // peds, cars and map objects
-
-    CityMapRenderer mCityMapRenderer;
-    PedestrianRenderer mPedestrianRenderer;
+    CityRenderer mCityRenderer;
 
 public:
     RenderSystem();

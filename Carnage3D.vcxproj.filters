@@ -229,10 +229,7 @@
     <ClInclude Include="Pedestrian.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="PedestrianRenderer.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="CityMapRenderer.h">
+    <ClInclude Include="CityRenderer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
@@ -340,10 +337,7 @@
     <ClCompile Include="Pedestrian.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="PedestrianRenderer.cpp">
-      <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="CityMapRenderer.cpp">
+    <ClCompile Include="CityRenderer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>

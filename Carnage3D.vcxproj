@@ -155,7 +155,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CityMeshBuilder.h" />
-    <ClInclude Include="CityMapRenderer.h" />
+    <ClInclude Include="CityRenderer.h" />
     <ClInclude Include="CityScapeData.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="DebugWindow.h" />
@@ -196,7 +196,6 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="OpenGLDefs.h" />
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="Pedestrian.h" />
-    <ClInclude Include="PedestrianRenderer.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="RenderProgram.h" />
@@ -217,7 +216,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="CityMeshBuilder.cpp" />
     <ClCompile Include="CityScapeData.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
-    <ClCompile Include="CityMapRenderer.cpp" />
+    <ClCompile Include="CityRenderer.cpp" />
     <ClCompile Include="DebugWindow.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
@@ -241,7 +240,6 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Pedestrian.cpp" />
-    <ClCompile Include="PedestrianRenderer.cpp" />
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="SpriteCache.cpp" />

@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "CityMapRenderer.h"
+#include "CityRenderer.h"
 #include "RenderSystem.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
 #include "SpriteCache.h"
 
-bool CityMapRenderer::Initialize()
+bool CityRenderer::Initialize()
 {
     mCityMeshBufferV = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices);
     debug_assert(mCityMeshBufferV);
@@ -16,12 +16,19 @@ bool CityMapRenderer::Initialize()
     if (mCityMeshBufferV == nullptr || mCityMeshBufferI == nullptr)
         return false;
 
+    if (!mSpritesVertexCache.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize sprites vertex cache");
+        return false;
+    }
+
     mCityMeshArea.SetNull();
     return true;
 }
 
-void CityMapRenderer::Deinit()
+void CityRenderer::Deinit()
 {
+    mSpritesVertexCache.Deinit();
     if (mCityMeshBufferV)
     {
         gGraphicsDevice.DestroyBuffer(mCityMeshBufferV);
@@ -41,46 +48,20 @@ void CityMapRenderer::Deinit()
     mCityMeshArea.SetNull();
 }
 
-void CityMapRenderer::RenderFrame()
+void CityRenderer::RenderFrame()
 {
     BuildCityMeshData();
 
-    RenderStates cityMeshRenderStates;
-
-    gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
-
-    gRenderSystem.mCityMeshProgram.Activate();
-    gRenderSystem.mCityMeshProgram.UploadCameraTransformMatrices();
-
-    Spritesheet* blocksSpritesheet = gSpriteCache.mBlocksSpritesheet;
-    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksSpritesheet != nullptr);
-
-    if (mCityMeshBufferV && mCityMeshBufferI)
-    {
-        gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
-        gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
-        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksSpritesheet->mSpritesheetTexture);
-
-        int currBaseVertex = 0;
-        int currIndexOffset = 0;
-        
-        for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
-        {
-            int numIndices = mCityMeshData[i].mMeshIndices.size();
-            int numVertices = mCityMeshData[i].mMeshVertices.size();
-            int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
-
-            gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, currIndexOffsetBytes, numIndices, currBaseVertex);
-
-            currIndexOffset += numIndices;
-            currBaseVertex += numVertices;
-        }
-    }
-
-    gRenderSystem.mCityMeshProgram.Deactivate();
+    RenderFrameBegin();
+    RenderCityMesh();
+    RenderPeds();
+    RenderMapObjects();
+    RenderCars();
+    RenderProjectiles();
+    RenderFrameEnd();
 }
 
-void CityMapRenderer::UploadVertexData()
+void CityRenderer::CommitCityMeshData()
 {
     int totalIndexCount = 0;
     int totalVertexCount = 0;
@@ -133,7 +114,7 @@ void CityMapRenderer::UploadVertexData()
     }
 }
 
-void CityMapRenderer::BuildCityMeshData()
+void CityRenderer::BuildCityMeshData()
 {
     static bool isBuilt = false; // temporary!
     if (isBuilt)
@@ -149,8 +130,70 @@ void CityMapRenderer::BuildCityMeshData()
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
         Rect2D rc(0, 0, 64, 64);
-        mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityMapRenderer.mCityMeshData[i]);
+        mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
     }
 
-    gRenderSystem.mCityMapRenderer.UploadVertexData();
+    gRenderSystem.mCityRenderer.CommitCityMeshData();
+}
+
+void CityRenderer::RenderFrameBegin()
+{
+}
+
+void CityRenderer::RenderFrameEnd()
+{
+    mSpritesVertexCache.FlushCache();
+}
+
+void CityRenderer::RenderCityMesh()
+{
+    RenderStates cityMeshRenderStates;
+
+    gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
+
+    gRenderSystem.mCityMeshProgram.Activate();
+    gRenderSystem.mCityMeshProgram.UploadCameraTransformMatrices();
+
+    Spritesheet* blocksSpritesheet = gSpriteCache.mBlocksSpritesheet;
+    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksSpritesheet != nullptr);
+
+    if (mCityMeshBufferV && mCityMeshBufferI)
+    {
+        gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
+        gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
+        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksSpritesheet->mSpritesheetTexture);
+
+        int currBaseVertex = 0;
+        int currIndexOffset = 0;
+        
+        for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
+        {
+            int numIndices = mCityMeshData[i].mMeshIndices.size();
+            int numVertices = mCityMeshData[i].mMeshVertices.size();
+            int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
+
+            gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, currIndexOffsetBytes, numIndices, currBaseVertex);
+
+            currIndexOffset += numIndices;
+            currBaseVertex += numVertices;
+        }
+    }
+
+    gRenderSystem.mCityMeshProgram.Deactivate();
+}
+
+void CityRenderer::RenderPeds()
+{
+}
+
+void CityRenderer::RenderCars()
+{
+}
+
+void CityRenderer::RenderMapObjects()
+{
+}
+
+void CityRenderer::RenderProjectiles()
+{
 }
