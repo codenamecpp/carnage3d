@@ -1,12 +1,15 @@
 #pragma once
 
 #include "GraphicsDefs.h"
+#include "StreamingVertexCache.h"
 
 // defines gui render context
 class GuiRenderContext final: public cxx::noncopyable
 {
 public:
     Rect2D mScreenViewport;
+
+    StreamingVertexCache mGuiVertexCache;
 
 public:
     // setup render context internal state and allocate resources

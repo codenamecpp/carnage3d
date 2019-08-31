@@ -14,7 +14,6 @@ public:
     RenderProgram mCityMeshProgram;
     RenderProgram mGuiTexColorProgram;
 
-    StreamingVertexCache mGuiVertexCache;
     StreamingVertexCache mMapObjectsVertexCache; // peds, cars and map objects
 
     CityMapRenderer mCityMapRenderer;

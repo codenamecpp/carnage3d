@@ -21,8 +21,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    if (!mCityMapRenderer.Initialize() || !mGuiVertexCache.Initialize() || 
-        !mPedestrianRenderer.Initialize() || !mMapObjectsVertexCache.Initialize())
+    if (!mCityMapRenderer.Initialize() || !mPedestrianRenderer.Initialize() || !mMapObjectsVertexCache.Initialize())
     {
         Deinit();
         return false;
@@ -35,7 +34,6 @@ void RenderSystem::Deinit()
 {
     mCityMapRenderer.Deinit();
     mPedestrianRenderer.Deinit();
-    mGuiVertexCache.Deinit();
     mMapObjectsVertexCache.Deinit();
 
     gSpriteCache.Cleanup();
@@ -55,7 +53,6 @@ void RenderSystem::RenderFrame()
 
     gGuiSystem.RenderFrame();
 
-    mGuiVertexCache.FlushCache();
     mMapObjectsVertexCache.FlushCache();
     gGraphicsDevice.Present();
 }

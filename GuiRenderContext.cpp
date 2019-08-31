@@ -6,11 +6,19 @@
 bool GuiRenderContext::Initialize(const Rect2D& screenViewport)
 {
     SetScreenViewport(screenViewport);
+
+    if (!mGuiVertexCache.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot init gui vertex cache");
+        return false;
+    }
+
     return true;
 }
 
 void GuiRenderContext::Deinit()
 {
+    mGuiVertexCache.Deinit();
 }
 
 void GuiRenderContext::SetScreenViewport(const Rect2D& screenViewport)
@@ -44,5 +52,5 @@ void GuiRenderContext::RenderFrameBegin()
 
 void GuiRenderContext::RenderFrameEnd()
 {
-
+    mGuiVertexCache.FlushCache();
 }
