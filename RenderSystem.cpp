@@ -21,7 +21,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    if (!mCityRenderer.Initialize() || !mGuiVertexCache.Initialize())
+    if (!mCityMapRenderer.Initialize() || !mGuiVertexCache.Initialize() || !mPedestrianRenderer.Initialize())
     {
         Deinit();
         return false;
@@ -32,7 +32,8 @@ bool RenderSystem::Initialize()
 
 void RenderSystem::Deinit()
 {
-    mCityRenderer.Deinit();
+    mCityMapRenderer.Deinit();
+    mPedestrianRenderer.Deinit();
     mGuiVertexCache.Deinit();
 
     gSpriteCache.Cleanup();
@@ -47,7 +48,8 @@ void RenderSystem::RenderFrame()
     //mDefaultTexColorProgram.Activate();
     //mDefaultTexColorProgram.UploadCameraTransformMatrices();
 
-    mCityRenderer.RenderFrame();
+    mCityMapRenderer.RenderFrame();
+    mPedestrianRenderer.RenderFrame();
 
     gGuiSystem.RenderFrame();
 

@@ -199,9 +199,6 @@
     <ClInclude Include="CityMeshBuilder.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="CityRenderer.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="TopDownCameraController.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -228,6 +225,15 @@
     </ClInclude>
     <ClInclude Include="ConsoleWindow.h">
       <Filter>Game\GUI\DebugWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Pedestrian.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PedestrianRenderer.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="CityMapRenderer.h">
+      <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -307,9 +313,6 @@
     <ClCompile Include="CityMeshBuilder.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="CityRenderer.cpp">
-      <Filter>Game\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -333,6 +336,15 @@
     </ClCompile>
     <ClCompile Include="ConsoleWindow.cpp">
       <Filter>Game\GUI\DebugWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Pedestrian.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PedestrianRenderer.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CityMapRenderer.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

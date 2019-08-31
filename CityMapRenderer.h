@@ -3,7 +3,7 @@
 #include "CityMeshBuilder.h"
 
 // renders static city mesh
-class CityRenderer final: public cxx::noncopyable
+class CityMapRenderer final: public cxx::noncopyable
 {
 public:
     bool Initialize();

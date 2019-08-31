@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "CityRenderer.h"
+#include "CityMapRenderer.h"
 #include "RenderSystem.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
 #include "SpriteCache.h"
 
-bool CityRenderer::Initialize()
+bool CityMapRenderer::Initialize()
 {
     mCityMeshBufferV = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices);
     debug_assert(mCityMeshBufferV);
@@ -20,7 +20,7 @@ bool CityRenderer::Initialize()
     return true;
 }
 
-void CityRenderer::Deinit()
+void CityMapRenderer::Deinit()
 {
     if (mCityMeshBufferV)
     {
@@ -41,7 +41,7 @@ void CityRenderer::Deinit()
     mCityMeshArea.SetNull();
 }
 
-void CityRenderer::RenderFrame()
+void CityMapRenderer::RenderFrame()
 {
     BuildCityMeshData();
 
@@ -80,7 +80,7 @@ void CityRenderer::RenderFrame()
     gRenderSystem.mCityMeshProgram.Deactivate();
 }
 
-void CityRenderer::UploadVertexData()
+void CityMapRenderer::UploadVertexData()
 {
     int totalIndexCount = 0;
     int totalVertexCount = 0;
@@ -133,7 +133,7 @@ void CityRenderer::UploadVertexData()
     }
 }
 
-void CityRenderer::BuildCityMeshData()
+void CityMapRenderer::BuildCityMeshData()
 {
     static bool isBuilt = false; // temporary!
     if (isBuilt)
@@ -149,8 +149,8 @@ void CityRenderer::BuildCityMeshData()
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
         Rect2D rc(0, 0, 64, 64);
-        mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
+        mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityMapRenderer.mCityMeshData[i]);
     }
 
-    gRenderSystem.mCityRenderer.UploadVertexData();
+    gRenderSystem.mCityMapRenderer.UploadVertexData();
 }
