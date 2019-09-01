@@ -19,22 +19,23 @@ private:
     void RenderFrameBegin();
     void RenderFrameEnd();
 
-    void RenderCityMesh();
-    void RenderPeds();
-    void RenderCars();
-    void RenderMapObjects();
-    void RenderProjectiles();
+    void DrawCityMesh();
+    void DrawPeds();
+    void DrawCars();
+    void DrawMapObjects();
+    void DrawProjectiles();
+
+    void DrawSprite3D();
+    void DrawSprite2D();
 
 private:
-    // objects data
     StreamingVertexCache mSpritesVertexCache; 
 
-    // map mesh data
-    Rect2D mCityMeshArea;
+    Rect2D mCityMeshMapRect; // cached map area in tiles
+
     CityMeshData mCityMeshData[MAP_LAYERS_COUNT];
     CityMeshBuilder mCityMeshBuilder;
 
-    // map mesh vertex buffers
     GpuBuffer* mCityMeshBufferV;
     GpuBuffer* mCityMeshBufferI;
 };

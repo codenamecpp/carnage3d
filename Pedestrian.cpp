@@ -24,6 +24,20 @@ bool PedestrianManager::Initialize()
 
 void PedestrianManager::Deinit()
 {
+    for (Pedestrian* currPedestrian: mActivePedsList)
+    {
+        if (currPedestrian)
+        {
+            mPedsPool.destroy(currPedestrian);
+        }
+    }
+    for (Pedestrian* currPedestrian: mDestroyPedsList)
+    {
+        if (currPedestrian)
+        {
+            mPedsPool.destroy(currPedestrian);
+        }
+    }
 }
 
 void PedestrianManager::UpdateFrame(Timespan deltaTime)
@@ -39,7 +53,6 @@ void PedestrianManager::UpdateFrame(Timespan deltaTime)
     }
 
     RemoveOffscreenPeds();
-    //AddRandomPed(); // todo
 
     // update physics
 }
@@ -56,32 +69,54 @@ void PedestrianManager::DestroyPendingPeds()
     mDestroyPedsList.clear();
 }
 
-void PedestrianManager::DestroyPedestrian(Pedestrian* pedestrian)
+void PedestrianManager::RemovePedestrian(Pedestrian* pedestrian)
 {
     debug_assert(pedestrian);
-    if (pedestrian)
+    if (pedestrian == nullptr)
+        return;
+
+    auto found_iter = std::find(mActivePedsList.begin(), mActivePedsList.end(), pedestrian);
+    if (found_iter != mActivePedsList.end())
     {
-        auto found_iter = std::find(mActivePedsList.begin(), mActivePedsList.end(), pedestrian);
-        if (found_iter != mActivePedsList.end())
-        {
-            *found_iter = nullptr;
-        }
-
-        found_iter = std::find(mDestroyPedsList.begin(), mDestroyPedsList.end(), pedestrian);
-        if (found_iter != mDestroyPedsList.end())
-        {
-            debug_assert(false);
-            return;
-        }
-
-        mDestroyPedsList.push_back(pedestrian);
+        *found_iter = nullptr;
     }
+
+    found_iter = std::find(mDestroyPedsList.begin(), mDestroyPedsList.end(), pedestrian);
+    if (found_iter != mDestroyPedsList.end())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    mDestroyPedsList.push_back(pedestrian);
 }
 
 void PedestrianManager::RemoveOffscreenPeds()
 {
 }
 
-void PedestrianManager::AddRandomPed()
+Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
 {
+    Pedestrian* instance = mPedsPool.create();
+    debug_assert(instance);
+
+    AddToActiveList(instance);
+
+    // init
+    instance->mPosition = position;
+    instance->mPrevPosition = position;
+    return instance;
+}
+
+void PedestrianManager::AddToActiveList(Pedestrian* ped)
+{
+    for (Pedestrian*& curr: mActivePedsList)
+    {
+        if (curr == nullptr)
+        {
+            curr = ped;
+            return;
+        }
+    }
+    mActivePedsList.push_back(ped);
 }

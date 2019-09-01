@@ -9,30 +9,22 @@
 class SpriteCache final: public cxx::noncopyable
 {
 public:
-    Spritesheet* mBlocksSpritesheet = nullptr;
-    Spritesheet* mObjectsSpritesheet = nullptr;
+    // all blocks are packed into single texture array, where each level is single 64x64 bitmap
+    GpuTextureArray2D* mBlocksTextureArray2D = nullptr;
+
+    // all default objects bitmaps (with no deltas applied) are stored in single 2d texture
+    Spritesheet mObjectsSpritesheet;
 
 public:
+    // preload sprite textures for current level
+    bool InitLevelSprites(CityStyleData& cityStyle);
+
     // flush all currently cached sprites
     void Cleanup();
 
-    // create city blocks spritesheet, style data must be loaded at this point
-    bool CreateBlocksSpritesheet();
-    void FreeBlocksSpritesheet();
-
-    // create objects spritesheet, style data must be loaded at this point
-    bool CreateObjectsSpritesheet();
-    void FreeObjectsSpritesheet();
-
-    // Get block spritesheet entry along with rectangle area where tile is located
-    // @param blockType: Block type
-    // @param blockIndex: Block index
-    // @param spritesheetEntry: Output tile info
-    bool GetBlockSpritesheetEntry(eBlockType blockType, int blockIndex, SpritesheetEntry& spritesheetEntry) const;
-
 private:
-    Spritesheet* CreateSpritesheet(int picSizex, int picSizey, int picsCount);
-    void FreeSpritesheet(Spritesheet* spritesheet);
+    bool InitBlocksTexture(CityStyleData& cityStyle);
+    bool InitObjectsSpritesheet(CityStyleData& cityStyle);
 };
 
 extern SpriteCache gSpriteCache;

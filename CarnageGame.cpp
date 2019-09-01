@@ -11,22 +11,28 @@ bool CarnageGame::Initialize()
     mTopDownCameraController.SetupInitial();
     mCityScape.LoadFromFile("NYC.CMP");
 
-    if (!gSpriteCache.CreateBlocksSpritesheet() || !gSpriteCache.CreateObjectsSpritesheet())
+    if (!gSpriteCache.InitLevelSprites(mCityScape.mStyleData))
     {
         debug_assert(false);
     }
+    mPedsManager.Initialize();
 
+    // temporary
+    glm::vec3 pos { 2.0f, 2.0f, 2.0f };
+    Pedestrian* randomPed = mPedsManager.CreateRandomPed(pos);
     return true;
 }
 
 void CarnageGame::Deinit()
 {
+    mPedsManager.Deinit();
     mCityScape.Cleanup();
 }
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
     mTopDownCameraController.UpdateFrame(deltaTime);
+    mPedsManager.UpdateFrame(deltaTime);
 }
 
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)

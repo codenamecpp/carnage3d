@@ -22,7 +22,7 @@ bool CityRenderer::Initialize()
         return false;
     }
 
-    mCityMeshArea.SetNull();
+    mCityMeshMapRect.SetNull();
     return true;
 }
 
@@ -45,7 +45,7 @@ void CityRenderer::Deinit()
     {
         mCityMeshData[iLayer].SetNull();
     }
-    mCityMeshArea.SetNull();
+    mCityMeshMapRect.SetNull();
 }
 
 void CityRenderer::RenderFrame()
@@ -53,11 +53,11 @@ void CityRenderer::RenderFrame()
     BuildCityMeshData();
 
     RenderFrameBegin();
-    RenderCityMesh();
-    RenderPeds();
-    RenderMapObjects();
-    RenderCars();
-    RenderProjectiles();
+    DrawCityMesh();
+    DrawPeds();
+    DrawMapObjects();
+    DrawCars();
+    DrawProjectiles();
     RenderFrameEnd();
 }
 
@@ -122,14 +122,14 @@ void CityRenderer::BuildCityMeshData()
 
     isBuilt = true;
 
-    int numBlocks = 32;
+    int numBlocks = 30;
 
     int tilex = static_cast<int>(gCamera.mPosition.x / MAP_BLOCK_DIMS);
     int tiley = static_cast<int>(gCamera.mPosition.z / MAP_BLOCK_DIMS);
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        Rect2D rc(0, 0, 64, 64);
+        Rect2D rc(0, 0, numBlocks, numBlocks);
         mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
     }
 
@@ -145,7 +145,7 @@ void CityRenderer::RenderFrameEnd()
     mSpritesVertexCache.FlushCache();
 }
 
-void CityRenderer::RenderCityMesh()
+void CityRenderer::DrawCityMesh()
 {
     RenderStates cityMeshRenderStates;
 
@@ -154,14 +154,14 @@ void CityRenderer::RenderCityMesh()
     gRenderSystem.mCityMeshProgram.Activate();
     gRenderSystem.mCityMeshProgram.UploadCameraTransformMatrices();
 
-    Spritesheet* blocksSpritesheet = gSpriteCache.mBlocksSpritesheet;
-    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksSpritesheet != nullptr);
+    GpuTextureArray2D* blocksTextureArray = gSpriteCache.mBlocksTextureArray2D;
+    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
         gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
         gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
-        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksSpritesheet->mSpritesheetTexture);
+        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksTextureArray);
 
         int currBaseVertex = 0;
         int currIndexOffset = 0;
@@ -182,18 +182,25 @@ void CityRenderer::RenderCityMesh()
     gRenderSystem.mCityMeshProgram.Deactivate();
 }
 
-void CityRenderer::RenderPeds()
+void CityRenderer::DrawPeds()
+{
+    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
+    {
+        if (currPedestrian == nullptr)
+            continue;
+
+
+    }
+}
+
+void CityRenderer::DrawCars()
 {
 }
 
-void CityRenderer::RenderCars()
+void CityRenderer::DrawMapObjects()
 {
 }
 
-void CityRenderer::RenderMapObjects()
-{
-}
-
-void CityRenderer::RenderProjectiles()
+void CityRenderer::DrawProjectiles()
 {
 }

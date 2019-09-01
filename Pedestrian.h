@@ -13,6 +13,8 @@ public:
     float mPrevRotation;
     float mSphereRadius; // bounding sphere info
 
+    int mSprite = 0;
+
     bool mDead;
 
 public:
@@ -20,7 +22,6 @@ public:
 
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
-
 };
 
 // defines peds manager class
@@ -37,14 +38,18 @@ public:
 
     void UpdateFrame(Timespan deltaTime);
 
+    // add random pedestrian to map at specific location
+    // @param position: Real world position
+    Pedestrian* CreateRandomPed(const glm::vec3& position);
+
     // will remove ped from active list and put it to destroy list, does not destroy immediately
     // @param ped: Pedestrian instance
-    void DestroyPedestrian(Pedestrian* ped);
+    void RemovePedestrian(Pedestrian* ped);
 
 private:
     void DestroyPendingPeds();
     void RemoveOffscreenPeds();
-    void AddRandomPed();
+    void AddToActiveList(Pedestrian* ped);
 
 private:
     cxx::object_pool<Pedestrian> mPedsPool;

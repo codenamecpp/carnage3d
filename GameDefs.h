@@ -258,17 +258,16 @@ public:
 
     float mU0, mV0; // texture coords
     float mU1, mV1; // texture coords
-    float mTcZ; // texture array layer
 };
 
 // defines sprite atlas texture with entries
-class Spritesheet final: public cxx::noncopyable
+class Spritesheet
 {
 public:
     Spritesheet() = default;
 
 public:
-    GpuTextureArray2D* mSpritesheetTexture = nullptr;
+    GpuTexture2D* mSpritesheetTexture = nullptr;
     std::vector<SpritesheetEntry> mEtries;
 };
 

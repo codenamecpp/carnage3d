@@ -14,5 +14,5 @@ public:
 
 private:
     // internals
-    void PutBlockFace(CityMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo);
+    void PutBlockFace(CityScapeData& cityScape, CityMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo);
 };

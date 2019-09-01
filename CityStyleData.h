@@ -62,6 +62,10 @@ public:
     // @para spriteId: Sprite id
     int GetSpriteIndex(eSpriteType spriteType, int spriteId) const;
 
+    // Get number of sprites for specific type 
+    // @param spriteType: Sprite type
+    int GetNumSprites(eSpriteType spriteType) const;
+
 private:
     // Reading style data internals
     // @param file: Source stream

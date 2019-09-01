@@ -667,3 +667,9 @@ bool CityStyleData::ReadSpriteNumbers(std::ifstream& file, int dataLength)
 
     return true;
 }
+
+int CityStyleData::GetNumSprites(eSpriteType spriteType) const
+{
+    debug_assert(spriteType < eSpriteType_COUNT);
+    return mSpriteNumbers[spriteType];
+}
