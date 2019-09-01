@@ -252,48 +252,6 @@ bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, 
     return false;
 }
 
-bool CityStyleData::GetCarClassInfo(int index, CarStyleData* carInfo)
-{
-    debug_assert(carInfo);
-
-    const int NumArrayEntries = mCars.size();
-    if (index < NumArrayEntries)
-    {
-        *carInfo = mCars[index];
-        return true;
-    }
-    // not an error
-    return false;
-}
-
-bool CityStyleData::GetObjectInfo(int index, MapObjectStyleData* objectInfo)
-{
-    debug_assert(objectInfo);
-
-    const int NumArrayEntries = mObjects.size();
-    if (index < NumArrayEntries)
-    {
-        *objectInfo = mObjects[index];
-        return true;
-    }
-    // not an error
-    return false;
-}
-
-bool CityStyleData::GetSpriteInfo(int index, SpriteStyleData* spriteInfo)
-{
-    debug_assert(spriteInfo);
-
-    const int NumArrayEntries = mSprites.size();
-    if (index < NumArrayEntries)
-    {
-        *spriteInfo = mSprites[index];
-        return true;
-    }
-    // not an error
-    return false;
-}
-
 bool CityStyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target bitmap must be allocated otherwise operation makes no sence

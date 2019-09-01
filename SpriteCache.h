@@ -10,14 +10,19 @@ class SpriteCache final: public cxx::noncopyable
 {
 public:
     Spritesheet* mBlocksSpritesheet = nullptr;
+    Spritesheet* mObjectsSpritesheet = nullptr;
 
 public:
     // flush all currently cached sprites
     void Cleanup();
 
-    // create city blocks spritesheets, style data must be loaded at this point
+    // create city blocks spritesheet, style data must be loaded at this point
     bool CreateBlocksSpritesheet();
     void FreeBlocksSpritesheet();
+
+    // create objects spritesheet, style data must be loaded at this point
+    bool CreateObjectsSpritesheet();
+    void FreeObjectsSpritesheet();
 
     // Get block spritesheet entry along with rectangle area where tile is located
     // @param blockType: Block type

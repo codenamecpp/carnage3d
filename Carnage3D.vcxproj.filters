@@ -340,6 +340,9 @@
     <ClCompile Include="CityRenderer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="stb_rect_pack.cpp">
+      <Filter>Third_Party\stb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt">

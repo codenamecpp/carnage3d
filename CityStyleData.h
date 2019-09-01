@@ -7,6 +7,12 @@ class PixelsArray;
 // this class holds gta style data which get loaded from G24-files
 class CityStyleData final
 {
+public:
+    // public for convenience, should not be modified directly
+    std::vector<MapObjectStyleData> mObjects;
+    std::vector<SpriteStyleData> mSprites;
+    std::vector<CarStyleData> mCars;
+
 public: 
     CityStyleData();
     ~CityStyleData();
@@ -45,21 +51,6 @@ public:
     // @param animationInfo: Output info
     bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyleData* animationInfo);
 
-    // Read gta car info
-    // @param index: Index of car, using to enumerate all available entries
-    // @param carInfo: Output info
-    bool GetCarClassInfo(int index, CarStyleData* carInfo);
-
-    // Read gta object info
-    // @param index: Index of object, using to enumerate all available entries
-    // @param objectInfo: Output info
-    bool GetObjectInfo(int index, MapObjectStyleData* objectInfo);
-
-    // Read gta sprite info, actual bitmap does not included
-    // @param index: Index of object, using to enumerate all available entries
-    // @param spriteInfo: Output info
-    bool GetSpriteInfo(int index, SpriteStyleData* spriteInfo);
-
     // Read sprite bitmap to specific location at target texture
     // @param spriteIndex: Sprite index
     // @param pixelsArray: Target bitmap, must be created
@@ -90,9 +81,7 @@ private:
     std::vector<unsigned short> mPaletteIndices;
     std::vector<Palette256> mPalettes;
     std::vector<BlockAnimationStyleData> mBlocksAnimations;
-    std::vector<CarStyleData> mCars;
-    std::vector<MapObjectStyleData> mObjects;
-    std::vector<SpriteStyleData> mSprites;
+
     int mTileClutSize, mSpriteClutSize, mRemapClutSize, mFontClutSize;
     int mSideBlocksCount, mLidBlocksCount, mAuxBlocksCount;
     int mSpriteNumbers[eSpriteType_COUNT];

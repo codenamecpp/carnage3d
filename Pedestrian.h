@@ -6,5 +6,46 @@
 class Pedestrian final: public cxx::noncopyable
 {
 public:
+    // public for convenience, should not be modified directly
+    glm::vec3 mPosition; // real position in space
+    glm::vec3 mPrevPosition;
+    float mRotation;
+    float mPrevRotation;
+    float mSphereRadius; // bounding sphere info
 
+    bool mDead;
+
+public:
+    Pedestrian();
+
+    // process current animation and logic
+    void UpdateFrame(Timespan deltaTime);
+
+};
+
+// defines peds manager class
+class PedestrianManager final: public cxx::noncopyable
+{
+public:
+    // public for convenience, should not be modified directly
+    std::vector<Pedestrian*> mActivePedsList;
+    std::vector<Pedestrian*> mDestroyPedsList;
+
+public:
+    bool Initialize();
+    void Deinit();
+
+    void UpdateFrame(Timespan deltaTime);
+
+    // will remove ped from active list and put it to destroy list, does not destroy immediately
+    // @param ped: Pedestrian instance
+    void DestroyPedestrian(Pedestrian* ped);
+
+private:
+    void DestroyPendingPeds();
+    void RemoveOffscreenPeds();
+    void AddRandomPed();
+
+private:
+    cxx::object_pool<Pedestrian> mPedsPool;
 };

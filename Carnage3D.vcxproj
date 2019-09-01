@@ -243,6 +243,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="SpriteCache.cpp" />
+    <ClCompile Include="stb_rect_pack.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

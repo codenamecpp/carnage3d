@@ -2,10 +2,16 @@
 
 #include "CityScapeData.h"
 #include "TopDownCameraController.h"
+#include "Pedestrian.h"
 
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
 {
+public:
+    CityScapeData mCityScape;
+    PedestrianManager mPedsManager;
+    TopDownCameraController mTopDownCameraController;
+
 public:
     // Setup resources and switch to initial game state
     bool Initialize();
@@ -20,10 +26,6 @@ public:
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
-
-public:
-    CityScapeData mCityScape;
-    TopDownCameraController mTopDownCameraController;
 };
 
 extern CarnageGame gCarnageGame;

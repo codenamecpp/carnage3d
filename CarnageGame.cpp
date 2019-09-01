@@ -11,7 +11,7 @@ bool CarnageGame::Initialize()
     mTopDownCameraController.SetupInitial();
     mCityScape.LoadFromFile("NYC.CMP");
 
-    if (!gSpriteCache.CreateBlocksSpritesheet())
+    if (!gSpriteCache.CreateBlocksSpritesheet() || !gSpriteCache.CreateObjectsSpritesheet())
     {
         debug_assert(false);
     }
