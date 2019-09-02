@@ -547,7 +547,23 @@ bool CityStyleData::ReadCars(std::ifstream& file, int dataLength)
         if (!file.seekg(MAX_CAR_REMAPS, std::ios::cur))
             return false;
 
-        READ_I8(file, carInfo.mVType);
+        unsigned char vtype = 0;
+        READ_I8(file, vtype);
+        switch(vtype)
+        {
+            case 0: carInfo.mVType = eCarVType_Bus; break;
+            case 1: carInfo.mVType = eCarVType_FrontOfJuggernaut; break;
+            case 2: carInfo.mVType = eCarVType_BackOfJuggernaut; break;
+            case 3: carInfo.mVType = eCarVType_Motorcycle; break; 
+            case 4: carInfo.mVType = eCarVType_StandardCar; break;
+            case 8: carInfo.mVType = eCarVType_Train; break;
+            case 9: carInfo.mVType = eCarVType_Tram; break;
+            case 13: carInfo.mVType = eCarVType_Boat; break;
+            case 14: carInfo.mVType = eCarVType_Tank; break;
+            default: debug_assert(false);
+                break;
+        };
+
         READ_I8(file, carInfo.mModel);
         READ_I8(file, carInfo.mTurning);
         READ_I8(file, carInfo.mDamagable);

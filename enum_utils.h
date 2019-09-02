@@ -51,4 +51,19 @@ namespace cxx
         return false;
     }
 
+    template<typename TEnum>
+    inline bool parse_enum_int(int int_value, TEnum& enum_value)
+    {
+        for (const enum_string_elem<TEnum>& curr: enum_strings<TEnum>::mEnumValueStrings)
+        {
+            if (curr.mEnumValue == int_value)
+            {
+                enum_value = curr.mEnumValue;
+                return true;
+            }
+        }
+        debug_assert(false);
+        return false;
+    }
+
 } // namespace cxx

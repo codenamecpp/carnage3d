@@ -17,6 +17,8 @@
 #define MAP_DIMENSIONS 256
 #define MAP_LAYERS_COUNT 6
 
+#define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
+
 enum eLidRotation : unsigned short
 {
     eLidRotation_0,
@@ -142,8 +144,6 @@ define_enum_strings(eBlockFace)
     eBlockFace_Lid, "lid",
 };
 
-//////////////////////////////////////////////////////////////////////////
-
 // defines draw vertex of city mesh
 struct CityVertex3D
 {
@@ -227,8 +227,6 @@ public:
     }
 };
 
-//////////////////////////////////////////////////////////////////////////
-
 // defines part of city mesh
 struct CityMeshData
 {
@@ -244,8 +242,6 @@ public:
     std::vector<CityVertex3D> mMeshVertices;
     std::vector<DrawIndex_t> mMeshIndices;
 };
-
-//////////////////////////////////////////////////////////////////////////
 
 // defines single picture within sprite atlas
 struct SpritesheetEntry
@@ -271,8 +267,6 @@ public:
     std::vector<SpritesheetEntry> mEtries;
 };
 
-//////////////////////////////////////////////////////////////////////////
-
 // define sprite HLS remap information
 struct HLSRemap
 {
@@ -287,8 +281,6 @@ public:
 public:
     short mH, mL, mS;
 };
-
-//////////////////////////////////////////////////////////////////////////
 
 // define map block information
 struct BlockStyleData
@@ -358,6 +350,30 @@ public:
 	int mDelta;
 };
 
+enum eCarVType
+{
+    eCarVType_Bus,
+    eCarVType_FrontOfJuggernaut,
+    eCarVType_BackOfJuggernaut,
+    eCarVType_Motorcycle,
+    eCarVType_StandardCar,
+    eCarVType_Train,
+    eCarVType_Tram,
+    eCarVType_Boat,
+    eCarVType_Tank,
+    eCarVType_COUNT
+};
+
+define_enum_strings(eCarVType)
+{
+    eCarVType_Bus, "bus",
+    eCarVType_FrontOfJuggernaut, "front_of_juggernaut",
+    eCarVType_BackOfJuggernaut, "back_of_juggernaut",
+    eCarVType_Motorcycle, "motorcycle",
+    eCarVType_StandardCar, "standard_car",
+    eCarVType_Train, "standard_train",
+};
+
 // define car class information
 struct CarStyleData
 {
@@ -370,7 +386,7 @@ public:
     int mAcceleration, mBraking;
     int mGrip, mHandling;
     HLSRemap mRemap[MAX_CAR_REMAPS];
-    int mVType; // is a descriptor of the type of car / vehicle
+    eCarVType mVType; // is a descriptor of the type of car / vehicle
     int mModel; // sub-type within vtype for cars which holds an identifier for the model of car
     int mTurning;
     int mDamagable;
