@@ -12,6 +12,7 @@ public:
     RenderProgram mDefaultTexColorProgram;
     RenderProgram mCityMeshProgram;
     RenderProgram mGuiTexColorProgram;
+    RenderProgram mSpritesProgram;
 
     CityRenderer mCityRenderer;
 

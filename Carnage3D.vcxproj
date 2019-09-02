@@ -264,6 +264,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <None Include="gamedata\config\sys_config.json" />
     <None Include="gamedata\shaders\city_mesh.glsl" />
     <None Include="gamedata\shaders\gui.glsl" />
+    <None Include="gamedata\shaders\sprites.glsl" />
     <None Include="gamedata\shaders\texture_color.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -10,6 +10,7 @@ RenderSystem::RenderSystem()
     : mDefaultTexColorProgram("shaders/texture_color.glsl")
     , mGuiTexColorProgram("shaders/gui.glsl")
     , mCityMeshProgram("shaders/city_mesh.glsl")
+    , mSpritesProgram("shaders/sprites.glsl")
 {
 }
 
@@ -54,13 +55,13 @@ void RenderSystem::FreeRenderPrograms()
     mDefaultTexColorProgram.Deinit();
     mCityMeshProgram.Deinit();
     mGuiTexColorProgram.Deinit();
+    mSpritesProgram.Deinit();
 }
 
 bool RenderSystem::InitRenderPrograms()
 {
-    if (!mDefaultTexColorProgram.Initialize() ||
-        !mGuiTexColorProgram.Initialize() ||
-        !mCityMeshProgram.Initialize())
+    if (!mDefaultTexColorProgram.Initialize() || !mGuiTexColorProgram.Initialize() ||
+        !mCityMeshProgram.Initialize() || !mSpritesProgram.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize render programs");
         return false;
@@ -75,5 +76,6 @@ void RenderSystem::ReloadRenderPrograms()
 
     mDefaultTexColorProgram.Reinitialize();
     mGuiTexColorProgram.Reinitialize();
+    mSpritesProgram.Reinitialize();
     mCityMeshProgram.Reinitialize();
 }

@@ -365,5 +365,8 @@
     <None Include="gamedata\shaders\city_mesh.glsl">
       <Filter>Data\shaders</Filter>
     </None>
+    <None Include="gamedata\shaders\sprites.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
