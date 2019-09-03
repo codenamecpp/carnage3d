@@ -9,6 +9,7 @@ Pedestrian::Pedestrian()
     , mSphereRadius(1.0f)
     , mDead()
     , mVelocity()
+    , mCurrentAnimID(eSpriteAnimationID_Null)
 {
 }
 
@@ -16,23 +17,30 @@ void Pedestrian::EnterTheGame()
 {
     mDead = false;
     mVelocity = {0.0f, 0.0f, 0.0f};
-
+    mCurrentAnimID = eSpriteAnimationID_Null;
     // set initial state and animation
-
-    
-    mAnimation.SetNull();
-    if (!gCarnageGame.mCityScape.mStyleData.GetSpriteAnimation(eSpriteAnimationID_Ped_StandingStill, mAnimation.mAnimData)) // todo
-    {
-        debug_assert(false);
-    }
-
-    mAnimation.PlayAnimation(eSpriteAnimLoop_FromStart, 1);
+    SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
     mAnimation.UpdateFrame(deltaTime);
 }
+
+void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
+{
+    if (mCurrentAnimID != animation)
+    {
+        mAnimation.SetNull();
+        if (!gCarnageGame.mCityScape.mStyleData.GetSpriteAnimation(animation, mAnimation.mAnimData)) // todo
+        {
+            debug_assert(false);
+        }
+        mCurrentAnimID = animation;
+    }
+    mAnimation.PlayAnimation(loopMode);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 bool PedestrianManager::Initialize()

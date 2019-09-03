@@ -501,6 +501,7 @@ public:
 // various sprites animations
 enum eSpriteAnimationID
 {
+    eSpriteAnimationID_Null, // dummy animation
     // pedestrians
     eSpriteAnimationID_Ped_Walk,
     eSpriteAnimationID_Ped_Run,
@@ -516,6 +517,7 @@ enum eSpriteAnimationID
 
 define_enum_strings(eSpriteAnimationID)
 {
+    eSpriteAnimationID_Null, "null",
     eSpriteAnimationID_Ped_Walk, "ped_walk",
     eSpriteAnimationID_Ped_Run, "ped_run",
     eSpriteAnimationID_Ped_ExitCar, "ped_exit_car",

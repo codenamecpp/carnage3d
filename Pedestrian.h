@@ -6,6 +6,20 @@
 class Pedestrian final: public cxx::noncopyable
 {
 public:
+    Pedestrian();
+
+    // setup initial state when spawned on level
+    void EnterTheGame();
+
+    // process current animation and logic
+    void UpdateFrame(Timespan deltaTime);
+
+    // set current animation
+    // @param animation: Id
+    // @param loopMode: Loop mode
+    void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
+
+public:
     // public for convenience, should not be modified directly
     glm::vec3 mPosition; // real position in space
     glm::vec3 mPrevPosition;
@@ -15,17 +29,9 @@ public:
     float mSphereRadius; // bounding sphere info
 
     SpriteAnimation mAnimation;
+    eSpriteAnimationID mCurrentAnimID;
 
     bool mDead;
-
-public:
-    Pedestrian();
-
-    // setup initial state when spawned on level
-    void EnterTheGame();
-
-    // process current animation and logic
-    void UpdateFrame(Timespan deltaTime);
 };
 
 //////////////////////////////////////////////////////////////////////////
