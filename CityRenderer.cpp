@@ -161,8 +161,8 @@ void CityRenderer::BuildCityMeshData()
 
     int numBlocks = 30;
 
-    int tilex = static_cast<int>(gCamera.mPosition.x / MAP_BLOCK_DIMS);
-    int tiley = static_cast<int>(gCamera.mPosition.z / MAP_BLOCK_DIMS);
+    int tilex = static_cast<int>(gCamera.mPosition.x / MAP_BLOCK_LENGTH);
+    int tiley = static_cast<int>(gCamera.mPosition.z / MAP_BLOCK_LENGTH);
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {

@@ -79,15 +79,15 @@ void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData&
     glm::vec3 cubePoints[] =
     {
         // front face, cw
-        { 0.0f,             0.0f,               MAP_BLOCK_DIMS }, 
-        { MAP_BLOCK_DIMS,   0.0f,               MAP_BLOCK_DIMS }, 
-        { MAP_BLOCK_DIMS,   -MAP_BLOCK_DIMS,    MAP_BLOCK_DIMS }, 
-        { 0.0f,             -MAP_BLOCK_DIMS,    MAP_BLOCK_DIMS },
+        { 0.0f,             0.0f,               MAP_BLOCK_LENGTH }, 
+        { MAP_BLOCK_LENGTH,   0.0f,               MAP_BLOCK_LENGTH }, 
+        { MAP_BLOCK_LENGTH,   -MAP_BLOCK_LENGTH,    MAP_BLOCK_LENGTH }, 
+        { 0.0f,             -MAP_BLOCK_LENGTH,    MAP_BLOCK_LENGTH },
         // back face, cw
         { 0.0f,             0.0f,               0.0f }, 
-        { MAP_BLOCK_DIMS,   0.0f,               0.0f }, 
-        { MAP_BLOCK_DIMS,   -MAP_BLOCK_DIMS,    0.0f }, 
-        { 0.0f,             -MAP_BLOCK_DIMS,    0.0f },
+        { MAP_BLOCK_LENGTH,   0.0f,               0.0f }, 
+        { MAP_BLOCK_LENGTH,   -MAP_BLOCK_LENGTH,    0.0f }, 
+        { 0.0f,             -MAP_BLOCK_LENGTH,    0.0f },
     };
 
     // process slope
@@ -96,53 +96,53 @@ void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData&
     {
         // N, 26 low, high
         case 1: case 2:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f) - MAP_BLOCK_DIMS;
-            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f) - MAP_BLOCK_DIMS;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f) - MAP_BLOCK_LENGTH;
         break;
         // S, 26 low, high
         case 3: case 4:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f) - MAP_BLOCK_DIMS;
-            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f) - MAP_BLOCK_DIMS;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f) - MAP_BLOCK_LENGTH;
         break;
         // W, 26 low, high
         case 5: case 6:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f) - MAP_BLOCK_DIMS;
-            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f) - MAP_BLOCK_DIMS;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f) - MAP_BLOCK_LENGTH;
         break;
         // E, 26 low, high
         case 7: case 8:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f) - MAP_BLOCK_DIMS;
-            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f) - MAP_BLOCK_DIMS;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f) - MAP_BLOCK_LENGTH;
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f) - MAP_BLOCK_DIMS;
-            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f) - MAP_BLOCK_DIMS;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f) - MAP_BLOCK_LENGTH;
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f) - MAP_BLOCK_DIMS;
-            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f) - MAP_BLOCK_DIMS;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f) - MAP_BLOCK_LENGTH;
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f) - MAP_BLOCK_DIMS;
-            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f) - MAP_BLOCK_DIMS;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f) - MAP_BLOCK_LENGTH;
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f) - MAP_BLOCK_DIMS;
-            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f) - MAP_BLOCK_DIMS;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f) - MAP_BLOCK_LENGTH;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f) - MAP_BLOCK_LENGTH;
         break;
         // 41 - 44 = 45 N,S,W,E
-        case 41: cubePoints[0].y = cubePoints[1].y = - MAP_BLOCK_DIMS; break;
-        case 42: cubePoints[4].y = cubePoints[5].y = - MAP_BLOCK_DIMS; break;
-        case 43: cubePoints[1].y = cubePoints[5].y = - MAP_BLOCK_DIMS; break;
-        case 44: cubePoints[0].y = cubePoints[4].y = - MAP_BLOCK_DIMS; break;
+        case 41: cubePoints[0].y = cubePoints[1].y = - MAP_BLOCK_LENGTH; break;
+        case 42: cubePoints[4].y = cubePoints[5].y = - MAP_BLOCK_LENGTH; break;
+        case 43: cubePoints[1].y = cubePoints[5].y = - MAP_BLOCK_LENGTH; break;
+        case 44: cubePoints[0].y = cubePoints[4].y = - MAP_BLOCK_LENGTH; break;
     }
 
     const int rotateLid = (face == eBlockFace_Lid) ? blockInfo->mLidRotation : 0;
@@ -162,7 +162,7 @@ void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData&
     meshData.mMeshVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { posx * MAP_BLOCK_DIMS, posz * MAP_BLOCK_DIMS, posy * MAP_BLOCK_DIMS };
+    const glm::vec3 cubeOffset { posx * MAP_BLOCK_LENGTH, posz * MAP_BLOCK_LENGTH, posy * MAP_BLOCK_LENGTH };
     if (face == eBlockFace_Lid)
     {
         meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;

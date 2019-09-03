@@ -244,6 +244,9 @@
     <ClInclude Include="CameraController.h">
       <Filter>Game\CameraControllers</Filter>
     </ClInclude>
+    <ClInclude Include="GameRules.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -360,6 +363,9 @@
     </ClCompile>
     <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game\CameraControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="GameRules.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

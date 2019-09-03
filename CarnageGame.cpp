@@ -8,6 +8,7 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
+    gGameRules.LoadDefaults();
     mCityScape.LoadFromFile("NYC.CMP");
 
     if (!gSpriteCache.InitLevelSprites(mCityScape.mStyleData))
