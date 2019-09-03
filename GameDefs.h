@@ -508,7 +508,19 @@ enum eSpriteAnimationID
     eSpriteAnimationID_Ped_EnterCar,
     eSpriteAnimationID_Ped_Falling,
     eSpriteAnimationID_Ped_SlideUnderTheCar,
+    eSpriteAnimationID_Ped_StandingStill, // no weapons
     // cops
 
     eSpriteAnimation_COUNT
+};
+
+define_enum_strings(eSpriteAnimationID)
+{
+    eSpriteAnimationID_Ped_Walk, "ped_walk",
+    eSpriteAnimationID_Ped_Run, "ped_run",
+    eSpriteAnimationID_Ped_ExitCar, "ped_exit_car",
+    eSpriteAnimationID_Ped_EnterCar, "ped_enter_car",
+    eSpriteAnimationID_Ped_Falling, "ped_falling",
+    eSpriteAnimationID_Ped_SlideUnderTheCar, "ped_slide_under_the_car",
+    eSpriteAnimationID_Ped_StandingStill, "ped_standing_still",
 };

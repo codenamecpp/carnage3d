@@ -9,6 +9,7 @@ public:
     // public for convenience, should not be modified directly
     glm::vec3 mPosition; // real position in space
     glm::vec3 mPrevPosition;
+    glm::vec3 mVelocity;
     float mRotation;
     float mPrevRotation;
     float mSphereRadius; // bounding sphere info
@@ -19,6 +20,9 @@ public:
 
 public:
     Pedestrian();
+
+    // setup initial state when spawned on level
+    void EnterTheGame();
 
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);

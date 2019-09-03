@@ -716,4 +716,5 @@ void CityStyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].Setup(24, 10);
     mSpriteAnimations[eSpriteAnimationID_Ped_Falling].Setup(38, 3);
     mSpriteAnimations[eSpriteAnimationID_Ped_SlideUnderTheCar].Setup(41, 1);
+    mSpriteAnimations[eSpriteAnimationID_Ped_StandingStill].Setup(98, 1);
 }

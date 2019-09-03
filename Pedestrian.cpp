@@ -8,14 +8,31 @@ Pedestrian::Pedestrian()
     , mPrevRotation()
     , mSphereRadius(1.0f)
     , mDead()
+    , mVelocity()
 {
+}
+
+void Pedestrian::EnterTheGame()
+{
+    mDead = false;
+    mVelocity = {0.0f, 0.0f, 0.0f};
+
+    // set initial state and animation
+
+    
+    mAnimation.SetNull();
+    if (!gCarnageGame.mCityScape.mStyleData.GetSpriteAnimation(eSpriteAnimationID_Ped_StandingStill, mAnimation.mAnimData)) // todo
+    {
+        debug_assert(false);
+    }
+
+    mAnimation.PlayAnimation(eSpriteAnimLoop_FromStart, 1);
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
     mAnimation.UpdateFrame(deltaTime);
 }
-
 //////////////////////////////////////////////////////////////////////////
 
 bool PedestrianManager::Initialize()
@@ -106,6 +123,7 @@ Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
     // init
     instance->mPosition = position;
     instance->mPrevPosition = position;
+    instance->EnterTheGame();
     return instance;
 }
 
