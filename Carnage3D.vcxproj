@@ -154,12 +154,14 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   <ItemGroup>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="CityMeshBuilder.h" />
     <ClInclude Include="CityRenderer.h" />
     <ClInclude Include="CityScapeData.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="DebugWindow.h" />
     <ClInclude Include="enum_utils.h" />
+    <ClInclude Include="FollowCameraController.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="CarnageGame.h" />
     <ClInclude Include="CommonTypes.h" />
@@ -219,6 +221,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="CityStyleData.cpp" />
     <ClCompile Include="CityRenderer.cpp" />
     <ClCompile Include="DebugWindow.cpp" />
+    <ClCompile Include="FollowCameraController.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />

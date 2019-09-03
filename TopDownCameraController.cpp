@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "TopDownCameraController.h"
 
-TopDownCameraController::TopDownCameraController()
-{
-}
-
 void TopDownCameraController::SetupInitial()
 {
     gCamera.SetIdentity();

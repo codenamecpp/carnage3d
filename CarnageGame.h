@@ -2,6 +2,7 @@
 
 #include "CityScapeData.h"
 #include "TopDownCameraController.h"
+#include "FollowCameraController.h"
 #include "Pedestrian.h"
 
 // top level game application controller
@@ -11,6 +12,10 @@ public:
     CityScapeData mCityScape;
     PedestrianManager mPedsManager;
     TopDownCameraController mTopDownCameraController;
+    FollowCameraController mFollowCameraController;
+    // gamestate
+    Pedestrian* mPlayerPedestrian = nullptr;
+    CameraController* mCameraController = nullptr;
 
 public:
     // Setup resources and switch to initial game state
@@ -26,6 +31,9 @@ public:
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
+
+private:
+    void SetCameraController(CameraController* controller);
 };
 
 extern CarnageGame gCarnageGame;

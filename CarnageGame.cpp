@@ -8,7 +8,6 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
-    mTopDownCameraController.SetupInitial();
     mCityScape.LoadFromFile("NYC.CMP");
 
     if (!gSpriteCache.InitLevelSprites(mCityScape.mStyleData))
@@ -19,7 +18,9 @@ bool CarnageGame::Initialize()
 
     // temporary
     glm::vec3 pos { 2.4f, 5.8f, 1.0f };
-    Pedestrian* randomPed = mPedsManager.CreateRandomPed(pos);
+    mPlayerPedestrian = mPedsManager.CreateRandomPed(pos);
+
+    SetCameraController(&mFollowCameraController);
     return true;
 }
 
@@ -31,8 +32,11 @@ void CarnageGame::Deinit()
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
-    mTopDownCameraController.UpdateFrame(deltaTime);
     mPedsManager.UpdateFrame(deltaTime);
+    if (mCameraController)
+    {
+        mCameraController->UpdateFrame(deltaTime);
+    }
 }
 
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
@@ -51,24 +55,48 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         return;
     }
 
-    mTopDownCameraController.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)
 {
-    mTopDownCameraController.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::InputEvent(MouseMovedInputEvent& inputEvent)
 {
-    mTopDownCameraController.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    mTopDownCameraController.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::InputEvent(KeyCharEvent& inputEvent)
 {
+}
+
+void CarnageGame::SetCameraController(CameraController* controller)
+{
+    if (mCameraController == controller)
+        return;
+
+    mCameraController = controller;
+    if (mCameraController)
+    {
+        mCameraController->SetupInitial();
+    }
 }

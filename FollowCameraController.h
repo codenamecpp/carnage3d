@@ -2,9 +2,10 @@
 
 #include "CameraController.h"
 
-class TopDownCameraController final: public CameraController
+class FollowCameraController final: public CameraController
 {
 public:
+    FollowCameraController();
     // reset scene camera to defaults
     void SetupInitial() override;
 
@@ -17,8 +18,14 @@ public:
     void InputEvent(KeyInputEvent& inputEvent) override;
     void InputEvent(MouseButtonInputEvent& inputEvent) override;
     void InputEvent(MouseMovedInputEvent& inputEvent) override;
-    void InputEvent(MouseScrollInputEvent& inputEvent) override;
+    void InputEvent(MouseScrollInputEvent& inputEvent) override;    
 
 private:
+    // parameters
+    float mStartupCameraHeight;
+    float mFollowPedCameraHeight;
+    float mFollowPedZoomCameraSpeed;
+
+    // controller state
     glm::vec3 mMoveDirection;
 };

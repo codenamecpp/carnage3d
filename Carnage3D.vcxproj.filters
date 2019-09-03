@@ -53,6 +53,9 @@
     <Filter Include="Game\GUI\DebugWindows">
       <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\CameraControllers">
+      <UniqueIdentifier>{c70a32c1-dd66-4cff-bb02-7ea7b9fc1c0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -199,9 +202,6 @@
     <ClInclude Include="CityMeshBuilder.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="TopDownCameraController.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -234,6 +234,15 @@
     </ClInclude>
     <ClInclude Include="SpriteAnimation.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="FollowCameraController.h">
+      <Filter>Game\CameraControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="TopDownCameraController.h">
+      <Filter>Game\CameraControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Game\CameraControllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -313,9 +322,6 @@
     <ClCompile Include="CityMeshBuilder.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="TopDownCameraController.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="GpuTexture2D.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -348,6 +354,12 @@
     </ClCompile>
     <ClCompile Include="SpriteAnimation.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="FollowCameraController.cpp">
+      <Filter>Game\CameraControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="TopDownCameraController.cpp">
+      <Filter>Game\CameraControllers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
