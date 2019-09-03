@@ -33,7 +33,7 @@ struct SpriteAnimationData
 {
 public:
     SpriteAnimationData() = default;
-    inline void Setup(int startFrame, int numFrames, int fps = 25)
+    inline void Setup(int startFrame, int numFrames, int fps = 24)
     {
         mFrameStart = startFrame;
         mFramesCount = numFrames;
@@ -70,8 +70,11 @@ public:
     // animation control
     void StopAnimation();
     void PlayAnimation(eSpriteAnimLoop animLoop);
+    void PlayAnimation(eSpriteAnimLoop animLoop, int fps);
     void RewindToStart();
     void RewindToEnd();
+
+    void NextFrame(bool moveForward);
 
     // test whether animation in progress
     bool IsAnimationActive() const;
@@ -82,9 +85,10 @@ public:
     eSpriteAnimStatus mStatus;
     eSpriteAnimLoop mLoopMode;
 
-    Timespan mFrameStartTimestamp;
-    Timespan mAnimStartTimestamp;
+    Timespan mTicksFromFrameStart;
+    Timespan mTicksFromAnimStart;
     
+    int mCyclesCounter;
     // frame index is relative to sprite type start offset
     int mCurrentFrame;
 };

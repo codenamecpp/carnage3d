@@ -20,6 +20,9 @@ bool CarnageGame::Initialize()
     // temporary
     glm::vec3 pos { 0.0f, 0.0f, 5.0f };
     Pedestrian* randomPed = mPedsManager.CreateRandomPed(pos);
+
+    mCityScape.mStyleData.GetSpriteAnimation(eSpriteAnimationID_Ped_Run, randomPed->mAnimation.mAnimData);
+    randomPed->mAnimation.PlayAnimation(eSpriteAnimLoop_FromStart, 8);
     return true;
 }
 

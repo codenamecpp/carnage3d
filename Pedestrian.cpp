@@ -13,10 +13,7 @@ Pedestrian::Pedestrian()
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
-    if (mAnimation.IsAnimationActive())
-    {
-        mAnimation.UpdateFrame(deltaTime);
-    }
+    mAnimation.UpdateFrame(deltaTime);
 }
 
 //////////////////////////////////////////////////////////////////////////
