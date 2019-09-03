@@ -2,7 +2,7 @@
 #include "CityMeshBuilder.h"
 #include "SpriteCache.h"
 
-bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int layerIndex, CityMeshData& meshData)
+bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int layerIndex, CityBlocksMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
     debug_assert((area.x > -1 && area.y > -1) && 
@@ -35,7 +35,7 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int la
     return true;
 }
 
-bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, CityMeshData& meshData)
+bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, CityBlocksMeshData& meshData)
 {
     debug_assert((area.x > -1 && area.y > -1) && 
         (area.w > 0 && area.h > 0) &&
@@ -68,7 +68,7 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, CityMe
     return true;
 }
 
-void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo)
+void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;

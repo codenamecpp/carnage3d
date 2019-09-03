@@ -69,7 +69,7 @@ private:
 
     Rect2D mCityMapRectangle; // cached map area in tiles
 
-    CityMeshData mCityMeshData[MAP_LAYERS_COUNT];
+    CityBlocksMeshData mCityMeshData[MAP_LAYERS_COUNT];
     CityMeshBuilder mCityMeshBuilder;
 
     GpuBuffer* mCityMeshBufferV;

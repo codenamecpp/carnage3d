@@ -16,6 +16,7 @@ Pedestrian::Pedestrian()
 void Pedestrian::EnterTheGame()
 {
     mDead = false;
+    mLiveTicks = 0;
     mVelocity = {0.0f, 0.0f, 0.0f};
     mCurrentAnimID = eSpriteAnimationID_Null;
     // set initial state and animation
@@ -25,6 +26,8 @@ void Pedestrian::EnterTheGame()
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
     mAnimation.UpdateFrame(deltaTime);
+
+    mLiveTicks += deltaTime;
 }
 
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)

@@ -289,23 +289,6 @@ public:
     }
 };
 
-
-// defines part of city mesh
-struct CityMeshData
-{
-public:
-    CityMeshData() = default;
-
-    inline void SetNull()
-    {
-        mMeshVertices.clear();
-        mMeshIndices.clear();
-    }
-public:
-    std::vector<CityVertex3D> mMeshVertices;
-    std::vector<DrawIndex_t> mMeshIndices;
-};
-
 // defines single picture within sprite atlas
 struct SpritesheetEntry
 {
