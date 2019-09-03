@@ -205,6 +205,7 @@ bool CityStyleData::LoadFromFile(const char* stylesName)
         return false;
     }
 
+    InitSpriteAnimations();
     return true;
 }
 
@@ -229,6 +230,11 @@ void CityStyleData::Cleanup()
     for (int isprite = 0; isprite < CountOf(mSpriteNumbers); ++isprite)
     {
         mSpriteNumbers[isprite] = 0;
+    }
+    // reset all sprite animations
+    for (int ianim = 0; ianim < CountOf(mSpriteAnimations); ++ianim)
+    {
+        mSpriteAnimations[ianim].SetNull();
     }
 }
 
@@ -688,4 +694,26 @@ int CityStyleData::GetNumSprites(eSpriteType spriteType) const
 {
     debug_assert(spriteType < eSpriteType_COUNT);
     return mSpriteNumbers[spriteType];
+}
+
+bool CityStyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const
+{
+    debug_assert(animationID < eSpriteAnimation_COUNT);
+    if (animationID < eSpriteAnimation_COUNT)
+    {
+        animationData = mSpriteAnimations[animationID];
+        debug_assert(animationData.NonNull());
+        return true;
+    }
+    return false;
+}
+
+void CityStyleData::InitSpriteAnimations()
+{
+    mSpriteAnimations[eSpriteAnimationID_Ped_Walk].Setup(0, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_Run].Setup(8, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ExitCar].Setup(16, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].Setup(24, 10);
+    mSpriteAnimations[eSpriteAnimationID_Ped_Falling].Setup(38, 3);
+    mSpriteAnimations[eSpriteAnimationID_Ped_SlideUnderTheCar].Setup(41, 1);
 }

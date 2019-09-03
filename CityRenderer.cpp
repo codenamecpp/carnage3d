@@ -278,7 +278,7 @@ void CityRenderer::DrawPeds()
         if (currPedestrian == nullptr)
             continue;
 
-        int spriteLinearIndex = style.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mSprite);
+        int spriteLinearIndex = style.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, currPedestrian->mRotation);
     }

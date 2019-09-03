@@ -232,6 +232,9 @@
     <ClInclude Include="CityRenderer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteAnimation.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -342,6 +345,9 @@
     </ClCompile>
     <ClCompile Include="stb_rect_pack.cpp">
       <Filter>Third_Party\stb</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteAnimation.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

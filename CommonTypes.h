@@ -364,6 +364,11 @@ public:
         return (long long)(intime * MillisecondsPerSecond);
     }
 
+    inline void SetNull()
+    {
+        mMilliseconds = 0;
+    }
+
     // convert timespan to specific time values
     inline float ToMinutes() const { return (mMilliseconds * 1.0f) / (MillisecondsPerMinute * 1.0f); }
     inline float ToSeconds() const { return (mMilliseconds * 1.0f) / (MillisecondsPerSecond * 1.0f); }

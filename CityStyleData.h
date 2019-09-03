@@ -66,6 +66,11 @@ public:
     // @param spriteType: Sprite type
     int GetNumSprites(eSpriteType spriteType) const;
 
+    // Read speicic sprite animation data
+    // @param animationID: Animation identifier
+    // @param animationData: Output data
+    bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
+
 private:
     // Reading style data internals
     // @param file: Source stream
@@ -79,12 +84,15 @@ private:
     bool ReadSpriteGraphics(std::ifstream& file, int dataLength);
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
+    void InitSpriteAnimations();
+
 private:
     std::vector<unsigned char> mBlockTexturesRaw;
     std::vector<unsigned char> mSpriteGraphicsRaw;
     std::vector<unsigned short> mPaletteIndices;
     std::vector<Palette256> mPalettes;
     std::vector<BlockAnimationStyleData> mBlocksAnimations;
+    SpriteAnimationData mSpriteAnimations[eSpriteAnimation_COUNT];
 
     int mTileClutSize, mSpriteClutSize, mRemapClutSize, mFontClutSize;
     int mSideBlocksCount, mLidBlocksCount, mAuxBlocksCount;

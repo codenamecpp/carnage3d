@@ -13,9 +13,10 @@ Pedestrian::Pedestrian()
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
-    // temporary!
-    mRotation += deltaTime.ToSeconds() * 5.0f;
-    mRotation = cxx::normalize_angle_180(mRotation);
+    if (mAnimation.IsAnimationActive())
+    {
+        mAnimation.UpdateFrame(deltaTime);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

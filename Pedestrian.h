@@ -13,7 +13,7 @@ public:
     float mPrevRotation;
     float mSphereRadius; // bounding sphere info
 
-    int mSprite = 0;
+    SpriteAnimation mAnimation;
 
     bool mDead;
 
@@ -23,6 +23,8 @@ public:
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // defines peds manager class
 class PedestrianManager final: public cxx::noncopyable

@@ -497,3 +497,18 @@ public:
     };
     DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
 };
+
+// various sprites animations
+enum eSpriteAnimationID
+{
+    // pedestrians
+    eSpriteAnimationID_Ped_Walk,
+    eSpriteAnimationID_Ped_Run,
+    eSpriteAnimationID_Ped_ExitCar,
+    eSpriteAnimationID_Ped_EnterCar,
+    eSpriteAnimationID_Ped_Falling,
+    eSpriteAnimationID_Ped_SlideUnderTheCar,
+    // cops
+
+    eSpriteAnimation_COUNT
+};
