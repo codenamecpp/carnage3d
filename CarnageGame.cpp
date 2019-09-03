@@ -18,7 +18,7 @@ bool CarnageGame::Initialize()
     mPedsManager.Initialize();
 
     // temporary
-    glm::vec3 pos { 0.0f, 0.0f, 5.0f };
+    glm::vec3 pos { 2.4f, 5.8f, 1.0f };
     Pedestrian* randomPed = mPedsManager.CreateRandomPed(pos);
     return true;
 }

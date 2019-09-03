@@ -8,7 +8,7 @@ TopDownCameraController::TopDownCameraController()
 void TopDownCameraController::SetupInitial()
 {
     gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 45.0f, 1.0f, 1000.0f);
+    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 100.0f);
     //gCamera.SetPosition({92.8068237f, 24.3673191f, 122.715485f});
     gCamera.SetPosition({0.0f, 24.0f, 0.0f});
     gCamera.SetTopDownOrientation();
