@@ -134,23 +134,33 @@ void CityRenderer::CommitCityMeshData()
 
 void CityRenderer::BuildCityMeshData()
 {
-    static bool isBuilt = false; // temporary!
-    if (isBuilt)
-        return;
-
-    isBuilt = true;
-
-    int numBlocks = 30;
+    int viewBlocks = 14;
 
     int tilex = static_cast<int>(gCamera.mPosition.x / MAP_BLOCK_LENGTH);
     int tiley = static_cast<int>(gCamera.mPosition.z / MAP_BLOCK_LENGTH);
 
+    Rect2D rcMapView { -viewBlocks / 2 + tilex, -viewBlocks / 2 + tiley, viewBlocks, viewBlocks };
+
+    bool invalidateCache = mCityMapRectangle.w == 0 || mCityMapRectangle.h == 0 || 
+        rcMapView.x < mCityMapRectangle.x || rcMapView.y < mCityMapRectangle.y ||
+        rcMapView.x + rcMapView.w > mCityMapRectangle.x + mCityMapRectangle.w ||
+        rcMapView.y + rcMapView.h > mCityMapRectangle.y + mCityMapRectangle.h;
+
+    if (!invalidateCache)
+        return;
+
+    gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated");
+
+    int cacheNumBlocks = 32;
+    mCityMapRectangle.x = (-cacheNumBlocks / 2) + tilex;
+    mCityMapRectangle.y = (-cacheNumBlocks / 2) + tiley;
+    mCityMapRectangle.w = cacheNumBlocks;
+    mCityMapRectangle.h = cacheNumBlocks;
+
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        Rect2D rc(-numBlocks/2, -numBlocks/2, numBlocks, numBlocks);
-        mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
+        mCityMeshBuilder.Build(gCarnageGame.mCityScape, mCityMapRectangle, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
     }
-
     gRenderSystem.mCityRenderer.CommitCityMeshData();
 }
 
