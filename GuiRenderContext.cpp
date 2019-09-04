@@ -52,5 +52,6 @@ void GuiRenderContext::RenderFrameBegin()
 
 void GuiRenderContext::RenderFrameEnd()
 {
+    gGraphicsDevice.SetScissorRect(mScreenViewport);
     mGuiVertexCache.FlushCache();
 }
