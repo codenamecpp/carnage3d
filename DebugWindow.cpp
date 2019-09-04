@@ -2,8 +2,6 @@
 #include "DebugWindow.h"
 #include "ImGuiManager.h"
 
-cxx::intrusive_list<DebugWindow> DebugWindow::AllDebugWindows;
-
 DebugWindow::DebugWindow(const char* windowName)
     : mWindowName(windowName)
     , mWindowShown()
@@ -11,17 +9,17 @@ DebugWindow::DebugWindow(const char* windowName)
 {
     // check name
 #ifdef _DEBUG
-    for (DebugWindow* currWindow: AllDebugWindows)
+    for (DebugWindow* currWindow: GetDebugWindowsList())
     {
         debug_assert(strcmp(currWindow->mWindowName, mWindowName) != 0);
     }
 #endif
-    AllDebugWindows.insert(&mDebugWindowsListNode);
+    GetDebugWindowsList().insert(&mDebugWindowsListNode);
 }
 
 DebugWindow::~DebugWindow()
 {
-    AllDebugWindows.remove(&mDebugWindowsListNode);
+    GetDebugWindowsList().remove(&mDebugWindowsListNode);
 }
 
 void DebugWindow::DoUI(Timespan deltaTime)

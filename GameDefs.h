@@ -511,3 +511,23 @@ define_enum_strings(eSpriteAnimationID)
     eSpriteAnimationID_Ped_SlideUnderTheCar, "ped_slide_under_the_car",
     eSpriteAnimationID_Ped_StandingStill, "ped_standing_still",
 };
+
+// pedestrian weapon
+enum eWeaponType
+{
+    eWeaponType_Fists,
+    eWeaponType_Pistol,
+    eWeaponType_Machinegun,
+    eWeaponType_Flamethrower,
+    eWeaponType_RocketLauncher,
+    eWeaponType_COUNT
+};
+
+define_enum_strings(eWeaponType)
+{
+    eWeaponType_Fists, "fists",
+    eWeaponType_Pistol, "pistol",
+    eWeaponType_Machinegun, "machinegun",
+    eWeaponType_Flamethrower, "flamethrower",
+    eWeaponType_RocketLauncher, "rocket_launcher",
+};

@@ -241,6 +241,9 @@
     <ClInclude Include="PixelsArray.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="GameStatsDebugWindow.h">
+      <Filter>Game\GUI\DebugWindows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -360,6 +363,9 @@
     </ClCompile>
     <ClCompile Include="PixelsArray.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStatsDebugWindow.cpp">
+      <Filter>Game\GUI\DebugWindows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

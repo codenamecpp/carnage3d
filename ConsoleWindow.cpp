@@ -13,7 +13,7 @@ ConsoleWindow::ConsoleWindow() : DebugWindow("Debug Console")
 
 void ConsoleWindow::DoUI(Timespan deltaTime)
 {
-    ImGui::SetNextWindowSize(ImVec2(520,600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(620,360), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin(mWindowName, &mWindowShown))
     {
         ImGui::End();

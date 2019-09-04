@@ -4,7 +4,12 @@
 class DebugWindow: public cxx::noncopyable
 {
     friend class ImGuiManager;
-    static cxx::intrusive_list<DebugWindow> AllDebugWindows;
+
+    static cxx::intrusive_list<DebugWindow>& GetDebugWindowsList()
+    {
+        static cxx::intrusive_list<DebugWindow> AllDebugWindows;
+        return AllDebugWindows;
+    }
 
     // linked list of all debug windows exists in program
     cxx::intrusive_node<DebugWindow> mDebugWindowsListNode;

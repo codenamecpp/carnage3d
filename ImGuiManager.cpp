@@ -184,7 +184,7 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
 
     bool anyWindowShown = false;
 
-    for (DebugWindow* currWindow: DebugWindow::AllDebugWindows)
+    for (DebugWindow* currWindow: DebugWindow::GetDebugWindowsList())
     {
         if (!currWindow->mWindowShown)
             continue;

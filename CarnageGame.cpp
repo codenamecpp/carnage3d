@@ -3,6 +3,7 @@
 #include "RenderSystem.h"
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
+#include "GameStatsDebugWindow.h"
 
 CarnageGame gCarnageGame;
 
@@ -92,6 +93,11 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
     if (inputEvent.mKeycode == KEYCODE_ESCAPE && inputEvent.mPressed)
     {
         gSystem.QuitRequest();
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_C && inputEvent.mPressed)
+    {
+        gGameStatsDebugWindow.mWindowShown = !gGameStatsDebugWindow.mWindowShown;
     }
 
     if (mCameraController)
