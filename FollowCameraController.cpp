@@ -33,7 +33,7 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
         float targetHeight = (player->mPosition.z + mFollowPedCameraHeight);
-        if (fabs(targetHeight) > 1.0f)
+        if (fabs(targetHeight - gCamera.mPosition.y) > 0.1f)
         {
             mMoveDirection.y = (targetHeight - gCamera.mPosition.y) * deltaTime.ToSeconds();
         }
