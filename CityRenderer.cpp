@@ -9,25 +9,6 @@
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
 
-inline glm::vec2 rotate_around_center(glm::vec2 point, const glm::vec2& center, float angleRadians) 
-{
-    // substract center to use simplyfied rotation
-    point -= center;
-        
-    float cos_a = std::cos(angleRadians);
-    float sin_a = std::sin(angleRadians);
-        
-    float tmp_x = cos_a*point.x - sin_a*point.y;
-    float tmp_y = sin_a*point.x + cos_a*point.y;
-        
-    point.x = tmp_x;
-    point.y = tmp_y;
-        
-    // add center to move point to its original center position
-    point += center;
-    return point;
-}
-
 CityRenderer::CityRenderer()
 {
     mDrawSpritesList.reserve(2048);
@@ -279,8 +260,10 @@ void CityRenderer::DrawPeds()
             continue;
 
         int spriteLinearIndex = style.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
+
+        float rotationAngle = glm::radians(currPedestrian->mHeading);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, currPedestrian->mRotation);
+            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, rotationAngle);
     }
 }
 
@@ -380,7 +363,7 @@ void CityRenderer::SetDrawSpritesBatches()
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = rotate_around_center(positions[i], sprite.mPosition, sprite.mHeading);
+                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mHeading);
 
                 vertexData[vertexOffset + i].mPosition.x = currPos.x;
                 vertexData[vertexOffset + i].mPosition.z = currPos.y;

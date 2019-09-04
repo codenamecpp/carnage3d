@@ -56,6 +56,38 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         return;
     }
 
+    if (inputEvent.mKeycode == KEYCODE_LEFT)
+    {
+        if (mPlayerPedestrian)
+        {
+            mPlayerPedestrian->mControl.SetTurnLeft(inputEvent.mPressed);
+        }
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_RIGHT)
+    {
+        if (mPlayerPedestrian)
+        {
+            mPlayerPedestrian->mControl.SetTurnRight(inputEvent.mPressed);
+        }
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_UP)
+    {
+        if (mPlayerPedestrian)
+        {
+            mPlayerPedestrian->mControl.SetRunForward(inputEvent.mPressed);
+        }
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_DOWN)
+    {
+        if (mPlayerPedestrian)
+        {
+            mPlayerPedestrian->mControl.SetWalkBackward(inputEvent.mPressed);
+        }
+    }
+
     if (mCameraController)
     {
         mCameraController->InputEvent(inputEvent);

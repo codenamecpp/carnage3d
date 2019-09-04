@@ -276,8 +276,8 @@ namespace cxx
 		    {
 			    float x = aabox.mMin[j] * tmat[j][i];
 			    float y = aabox.mMax[j] * tmat[j][i];
-			    transformedAabb.mMin[i] += std::fminf(x, y);
-			    transformedAabb.mMax[i] += std::fmaxf(x, y);
+			    transformedAabb.mMin[i] += fminf(x, y);
+			    transformedAabb.mMax[i] += fmaxf(x, y);
 		    }
 	    }
         return transformedAabb;

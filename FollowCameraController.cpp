@@ -3,7 +3,7 @@
 
 FollowCameraController::FollowCameraController()
     : mStartupCameraHeight(12.0f)
-    , mFollowPedCameraHeight(4.0f)
+    , mFollowPedCameraHeight(5.0f)
     , mFollowPedZoomCameraSpeed(1.0f)
 {
 }
@@ -37,8 +37,9 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
         {
             mMoveDirection.y = (targetHeight - gCamera.mPosition.y) * deltaTime.ToSeconds();
         }
+        gCamera.SetPosition({player->mPosition.x, mFollowPedCameraHeight, player->mPosition.y}); 
     }
-    gCamera.Translate(mMoveDirection); 
+    
 }
 
 void FollowCameraController::InputEvent(KeyInputEvent& inputEvent)

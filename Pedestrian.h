@@ -2,33 +2,72 @@
 
 #include "GameDefs.h"
 
+// forwards
+class Pedestrian;
+
+// defines pedestrian control interface
+class PedestrianControl final
+{
+public:
+    PedestrianControl(Pedestrian& pedestrian);
+    void ResetControl();
+    void SetTurnLeft(bool turnEnabled);
+    void SetTurnRight(bool turnEnabled);
+    void SetTurnAngle(float turnAngle);
+    bool IsTurnAround() const;
+    void SetWalkForward(bool walkEnabled);
+    void SetWalkBackward(bool walkEnabled);
+    void SetRunForward(bool runEnabled);
+    bool IsMoves() const;
+public:
+    Pedestrian& mPedestrian;
+    float mTurnAngle; // specified in degrees
+    bool mTurnLeft;
+    bool mTurnRight;
+    bool mWalkForward;
+    bool mWalkBackward;
+    bool mRunForward;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // defines generic city pedestrian
 class Pedestrian final: public cxx::noncopyable
 {
+public:
+    PedestrianControl mControl; // control pedestrian actions
+
+    // public for convenience, should not be modified directly
+    glm::vec3 mPosition; // real position in space
+    glm::vec3 mPrevPosition;
+    glm::vec3 mVelocity;
+    float mHeading; // angle specified in degrees
+    float mPrevHeading;
+
+    float mSphereRadius; // bounding sphere info
+
+    bool mDead;
+
+    Timespan mLiveTicks; // time since spawn
+
+    eSpriteAnimationID mCurrentAnimID;
+    SpriteAnimation mAnimation;
+
 public:
     Pedestrian();
 
     // setup initial state when spawned on level
     void EnterTheGame();
 
+    // state control
+    void SetHeading(float rotationDegrees);
+    void SetPosition(float posx, float posy, float posz);
+
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
 
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
-
-public:
-    // public for convenience, should not be modified directly
-    glm::vec3 mPosition; // real position in space
-    glm::vec3 mPrevPosition;
-    glm::vec3 mVelocity;
-    float mRotation;
-    float mPrevRotation;
-    float mSphereRadius; // bounding sphere info
-    bool mDead;
-    eSpriteAnimationID mCurrentAnimID;
-    SpriteAnimation mAnimation;
-    Timespan mLiveTicks; // time since spawn
 };
 
 //////////////////////////////////////////////////////////////////////////

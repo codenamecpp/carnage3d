@@ -1,15 +1,78 @@
 #include "stdafx.h"
 #include "Pedestrian.h"
 
+PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
+    : mPedestrian(pedestrian)
+{
+    ResetControl();
+}
+
+void PedestrianControl::ResetControl()
+{
+    mTurnAngle = 0.0f;
+    mTurnLeft = false;
+    mTurnRight = false;
+    mWalkBackward = false;
+    mWalkForward = false;
+    mRunForward = false;
+}
+
+void PedestrianControl::SetTurnLeft(bool turnEnabled)
+{
+    mTurnLeft = turnEnabled;
+    mTurnAngle = 0.0f;
+}
+
+void PedestrianControl::SetTurnRight(bool turnEnabled)
+{
+    mTurnRight = turnEnabled;
+    mTurnAngle = 0.0f;
+}
+
+void PedestrianControl::SetTurnAngle(float turnAngle)
+{
+    mTurnAngle = turnAngle;
+    mTurnLeft = false;
+    mTurnRight = false;
+}
+
+void PedestrianControl::SetWalkForward(bool walkEnabled)
+{
+    mWalkForward = walkEnabled;
+}
+
+void PedestrianControl::SetWalkBackward(bool walkEnabled)
+{
+    mWalkBackward = walkEnabled;
+}
+
+bool PedestrianControl::IsTurnAround() const
+{
+    return mTurnLeft || mTurnRight || fabs(mTurnAngle) > 0.01f;
+}
+
+bool PedestrianControl::IsMoves() const
+{
+    return mWalkBackward || mWalkForward || mRunForward;
+}
+
+void PedestrianControl::SetRunForward(bool runEnabled)
+{
+    mRunForward = runEnabled;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 Pedestrian::Pedestrian()
     : mPosition()
     , mPrevPosition()
-    , mRotation()
-    , mPrevRotation()
+    , mHeading()
+    , mPrevHeading()
     , mSphereRadius(1.0f)
     , mDead()
     , mVelocity()
     , mCurrentAnimID(eSpriteAnimationID_Null)
+    , mControl(*this)
 {
 }
 
@@ -28,6 +91,46 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     mAnimation.UpdateFrame(deltaTime);
 
     mLiveTicks += deltaTime;
+
+    // try to turn around
+    if (mControl.IsTurnAround())
+    {
+        float anglePerFrame = 0.0f;
+        if (mControl.mTurnLeft || mControl.mTurnRight)
+        {
+            anglePerFrame = (mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds();
+        }
+        else // specific angle
+        {
+            anglePerFrame = (mControl.mTurnAngle * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds());
+            mControl.mTurnAngle -= anglePerFrame;
+        }
+        mHeading = cxx::normalize_angle_180(mHeading + anglePerFrame);
+    }
+    // try walk
+    if (mControl.IsMoves())
+    {
+        float moveSpeed = 0.0f;
+        if (mControl.mRunForward)
+        {
+            moveSpeed = gGameRules.mPedestrianRunSpeed;
+        }
+        else if (mControl.mWalkForward)
+        {
+            moveSpeed = gGameRules.mPedestrianWalkSpeed;
+        }
+        else if (mControl.mWalkBackward)
+        {
+            moveSpeed = -gGameRules.mPedestrianBackWalkSpeed;
+        }
+        // get current direction
+        glm::vec2 signVector;
+        cxx::vector_from_angle(glm::radians(mHeading + 90.0f), signVector);
+
+        glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
+        mPosition.x += walkDistance.x;
+        mPosition.y += walkDistance.y;
+    }
 }
 
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
@@ -42,6 +145,20 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
         mCurrentAnimID = animation;
     }
     mAnimation.PlayAnimation(loopMode);
+}
+
+void Pedestrian::SetHeading(float rotationDegrees)
+{
+    mHeading = rotationDegrees;
+    mPrevHeading = rotationDegrees;
+}
+
+void Pedestrian::SetPosition(float posx, float posy, float posz)
+{
+    mPosition.x = posx;
+    mPosition.y = posy;
+    mPosition.z = posz;
+    mPrevPosition = mPosition;
 }
 
 //////////////////////////////////////////////////////////////////////////

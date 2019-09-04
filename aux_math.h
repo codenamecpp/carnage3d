@@ -29,7 +29,7 @@ namespace cxx
     // @param angleDegrees: Angle in degrees
     inline float normalize_angle_180(float angleDegrees)
     {
-        angleDegrees = std::fmod(angleDegrees + 180.0f, 360.0f);
+        angleDegrees = fmod(angleDegrees + 180.0f, 360.0f);
         if (angleDegrees < 0.0f)
         {
             angleDegrees += 360.0f;
@@ -46,6 +46,33 @@ namespace cxx
             return value + value_to_add;
         }
         return value;
+    }
+
+    template<typename TVector2D>
+    inline void vector_from_angle(float angleRadians, TVector2D& outVector) 
+    {
+	    outVector.x = cos(angleRadians);
+        outVector.y = sin(angleRadians);
+    }
+
+    template<typename TVector2D>
+    inline TVector2D rotate_around_center(TVector2D point, const TVector2D& center, float angleRadians) 
+    {
+        // substract center to use simplyfied rotation
+        point -= center;
+        
+        float cos_a = cos(angleRadians);
+        float sin_a = sin(angleRadians);
+        
+        float tmp_x = cos_a*point.x - sin_a*point.y;
+        float tmp_y = sin_a*point.x + cos_a*point.y;
+        
+        point.x = tmp_x;
+        point.y = tmp_y;
+        
+        // add center to move point to its original center position
+        point += center;
+        return point;
     }
 
 } // namespace cxx

@@ -27,6 +27,7 @@ private:
     void DrawMapObjects();
     void DrawProjectiles();
 
+    // @param sprRotate: Angle in radians
     void DrawSprite3D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
     void DrawSprite2D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec2& position, bool centerOrigin, float sprScale, float sprRotate);
 
@@ -44,7 +45,7 @@ private:
         glm::vec2 mCenterOffset;
         glm::vec2 mTcUv0;
         glm::vec2 mTcUv1;
-        float mHeading; // rotate
+        float mHeading; // rotate in radians
         float mDepth; // z coord
         GpuTexture2D* mSpriteTexture;
     };
