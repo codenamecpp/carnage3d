@@ -76,7 +76,8 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
     {
         if (mPlayerPedestrian)
         {
-            mPlayerPedestrian->mControl.SetRunForward(inputEvent.mPressed);
+            mPlayerPedestrian->mControl.SetWalkForward(inputEvent.mPressed);
+            mPlayerPedestrian->mControl.SetRunning(inputEvent.mPressed);
         }
     }
 

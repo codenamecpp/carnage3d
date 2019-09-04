@@ -17,7 +17,7 @@ public:
     bool IsTurnAround() const;
     void SetWalkForward(bool walkEnabled);
     void SetWalkBackward(bool walkEnabled);
-    void SetRunForward(bool runEnabled);
+    void SetRunning(bool runEnabled);
     bool IsMoves() const;
 public:
     Pedestrian& mPedestrian;
@@ -26,7 +26,7 @@ public:
     bool mTurnRight;
     bool mWalkForward;
     bool mWalkBackward;
-    bool mRunForward;
+    bool mRunning;
 };
 
 //////////////////////////////////////////////////////////////////////////

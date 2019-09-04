@@ -14,7 +14,7 @@ void PedestrianControl::ResetControl()
     mTurnRight = false;
     mWalkBackward = false;
     mWalkForward = false;
-    mRunForward = false;
+    mRunning = false;
 }
 
 void PedestrianControl::SetTurnLeft(bool turnEnabled)
@@ -53,12 +53,12 @@ bool PedestrianControl::IsTurnAround() const
 
 bool PedestrianControl::IsMoves() const
 {
-    return mWalkBackward || mWalkForward || mRunForward;
+    return mWalkBackward || mWalkForward;
 }
 
-void PedestrianControl::SetRunForward(bool runEnabled)
+void PedestrianControl::SetRunning(bool runEnabled)
 {
-    mRunForward = runEnabled;
+    mRunning = runEnabled;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,15 +111,18 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     if (mControl.IsMoves())
     {
         float moveSpeed = 0.0f;
-        if (mControl.mRunForward)
+        if (mControl.mWalkForward)
         {
-            moveSpeed = gGameRules.mPedestrianRunSpeed;
-            SwitchToAnimation(eSpriteAnimationID_Ped_Run, eSpriteAnimLoop_FromStart);
-        }
-        else if (mControl.mWalkForward)
-        {
-            moveSpeed = gGameRules.mPedestrianWalkSpeed;
-            SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart);
+            if (mControl.mRunning)
+            {
+                moveSpeed = gGameRules.mPedestrianRunSpeed;
+                SwitchToAnimation(eSpriteAnimationID_Ped_Run, eSpriteAnimLoop_FromStart);
+            }
+            else
+            {
+                moveSpeed = gGameRules.mPedestrianWalkSpeed;
+                SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart);
+            }
         }
         else if (mControl.mWalkBackward)
         {
