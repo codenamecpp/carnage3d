@@ -70,9 +70,6 @@ public:
 
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
-
-    // get sign direction vector of unit length
-    glm::vec2 GetSingDirection() const;
 };
 
 //////////////////////////////////////////////////////////////////////////
