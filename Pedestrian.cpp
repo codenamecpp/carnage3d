@@ -114,14 +114,17 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         if (mControl.mRunForward)
         {
             moveSpeed = gGameRules.mPedestrianRunSpeed;
+            SwitchToAnimation(eSpriteAnimationID_Ped_Run, eSpriteAnimLoop_FromStart);
         }
         else if (mControl.mWalkForward)
         {
             moveSpeed = gGameRules.mPedestrianWalkSpeed;
+            SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart);
         }
         else if (mControl.mWalkBackward)
         {
             moveSpeed = -gGameRules.mPedestrianBackWalkSpeed;
+            SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction
         glm::vec2 signVector;
@@ -130,6 +133,10 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
         mPosition.x += walkDistance.x;
         mPosition.y += walkDistance.y;
+    }
+    else
+    {
+        SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
     }
 }
 

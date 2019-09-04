@@ -33,7 +33,7 @@ struct SpriteAnimationData
 {
 public:
     SpriteAnimationData() = default;
-    inline void Setup(int startFrame, int numFrames, int fps = 24)
+    inline void Setup(int startFrame, int numFrames, int fps = 12)
     {
         mFrameStart = startFrame;
         mFramesCount = numFrames;
