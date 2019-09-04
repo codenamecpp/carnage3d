@@ -127,8 +127,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
             SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction
-        glm::vec2 signVector;
-        cxx::vector_from_angle(glm::radians(mHeading + 90.0f), signVector);
+        glm::vec2 signVector = GetSingDirection();
 
         glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
         mPosition.x += walkDistance.x;
@@ -166,6 +165,16 @@ void Pedestrian::SetPosition(float posx, float posy, float posz)
     mPosition.y = posy;
     mPosition.z = posz;
     mPrevPosition = mPosition;
+}
+
+glm::vec2 Pedestrian::GetSingDirection() const
+{
+    float angleRadians = glm::radians(mHeading + 90.0f);
+    glm::vec2 singVector 
+    {
+        cos(angleRadians), sin(angleRadians)
+    };
+    return singVector;
 }
 
 //////////////////////////////////////////////////////////////////////////

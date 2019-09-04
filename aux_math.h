@@ -49,13 +49,6 @@ namespace cxx
     }
 
     template<typename TVector2D>
-    inline void vector_from_angle(float angleRadians, TVector2D& outVector) 
-    {
-	    outVector.x = cos(angleRadians);
-        outVector.y = sin(angleRadians);
-    }
-
-    template<typename TVector2D>
     inline TVector2D rotate_around_center(TVector2D point, const TVector2D& center, float angleRadians) 
     {
         // substract center to use simplyfied rotation

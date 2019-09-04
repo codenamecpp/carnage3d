@@ -88,6 +88,11 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         }
     }
 
+    if (inputEvent.mKeycode == KEYCODE_ESCAPE && inputEvent.mPressed)
+    {
+        gSystem.QuitRequest();
+    }
+
     if (mCameraController)
     {
         mCameraController->InputEvent(inputEvent);
