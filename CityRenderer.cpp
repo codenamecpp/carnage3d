@@ -230,7 +230,7 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv0.y = rc.y * tinvy;
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
-        rec.mHeading = heading;
+        rec.mRotate = heading;
         rec.mDepth = position.z;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
@@ -253,7 +253,7 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv0.y = rc.y * tinvy;
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
-        rec.mHeading = heading;
+        rec.mRotate = heading;
         rec.mDepth = 0.0f;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
@@ -369,11 +369,11 @@ void CityRenderer::SetDrawSpritesBatches()
             {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.y + sprite.mSize.y + sprite.mCenterOffset.y},
         };
 
-        if (fabs(sprite.mHeading) > 0.01f) // has rotation
+        if (fabs(sprite.mRotate) > 0.01f) // has rotation
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mHeading);
+                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotate);
 
                 vertexData[vertexOffset + i].mPosition.x = currPos.x;
                 vertexData[vertexOffset + i].mPosition.z = currPos.y;

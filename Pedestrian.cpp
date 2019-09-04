@@ -63,7 +63,7 @@ void PedestrianControl::SetRunning(bool runEnabled)
 
 //////////////////////////////////////////////////////////////////////////
 
-Pedestrian::Pedestrian()
+Pedestrian::Pedestrian(unsigned int id)
     : mPosition()
     , mPrevPosition()
     , mHeading()
@@ -73,6 +73,7 @@ Pedestrian::Pedestrian()
     , mVelocity()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
+    , mID(id)
 {
 }
 
@@ -184,6 +185,7 @@ glm::vec2 Pedestrian::GetSingDirection() const
 
 bool PedestrianManager::Initialize()
 {
+    mIDsCounter = 0;
     return true;
 }
 
@@ -262,7 +264,9 @@ void PedestrianManager::RemoveOffscreenPeds()
 
 Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
 {
-    Pedestrian* instance = mPedsPool.create();
+    unsigned int pedestrianID = GenerateUniqueID();
+
+    Pedestrian* instance = mPedsPool.create(pedestrianID);
     debug_assert(instance);
 
     AddToActiveList(instance);
@@ -285,4 +289,14 @@ void PedestrianManager::AddToActiveList(Pedestrian* ped)
         }
     }
     mActivePedsList.push_back(ped);
+}
+
+unsigned int PedestrianManager::GenerateUniqueID()
+{
+    unsigned int newID = ++mIDsCounter;
+    if (newID == 0) // overflow
+    {
+        debug_assert(false);
+    }
+    return newID;
 }

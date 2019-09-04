@@ -38,6 +38,8 @@ public:
     PedestrianControl mControl; // control pedestrian actions
 
     // public for convenience, should not be modified directly
+    const unsigned int mID; // unique identifier
+
     glm::vec3 mPosition; // real position in space
     glm::vec3 mPrevPosition;
     glm::vec3 mVelocity;
@@ -54,7 +56,7 @@ public:
     SpriteAnimation mAnimation;
 
 public:
-    Pedestrian();
+    Pedestrian(unsigned int id);
 
     // setup initial state when spawned on level
     void EnterTheGame();
@@ -102,6 +104,9 @@ private:
     void RemoveOffscreenPeds();
     void AddToActiveList(Pedestrian* ped);
 
+    unsigned int GenerateUniqueID();
+
 private:
     cxx::object_pool<Pedestrian> mPedsPool;
+    unsigned int mIDsCounter;
 };

@@ -45,7 +45,7 @@ private:
         glm::vec2 mCenterOffset;
         glm::vec2 mTcUv0;
         glm::vec2 mTcUv1;
-        float mHeading; // rotate in radians
+        float mRotate; // rotate in radians
         float mDepth; // z coord
         GpuTexture2D* mSpriteTexture;
     };
