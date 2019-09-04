@@ -271,7 +271,7 @@ void CityRenderer::DrawPeds()
 
         int spriteLinearIndex = style.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
 
-        float rotationAngle = glm::radians(currPedestrian->mHeading);
+        float rotationAngle = glm::radians(currPedestrian->mHeading - SPRITE_ZERO_ANGLE);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, rotationAngle);
     }

@@ -19,6 +19,8 @@
 
 #define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
 
+#define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
+
 enum eLidRotation : unsigned short
 {
     eLidRotation_0,

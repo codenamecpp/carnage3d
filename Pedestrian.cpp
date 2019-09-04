@@ -173,7 +173,7 @@ void Pedestrian::SetPosition(float posx, float posy, float posz)
 
 glm::vec2 Pedestrian::GetSingDirection() const
 {
-    float angleRadians = glm::radians(mHeading + 90.0f);
+    float angleRadians = glm::radians(mHeading);
     glm::vec2 singVector 
     {
         cos(angleRadians), sin(angleRadians)
