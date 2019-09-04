@@ -147,7 +147,7 @@ void CityRenderer::BuildCityMeshData()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        Rect2D rc(0, 0, numBlocks, numBlocks);
+        Rect2D rc(-numBlocks/2, -numBlocks/2, numBlocks, numBlocks);
         mCityMeshBuilder.Build(gCarnageGame.mCityScape, rc, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
     }
 

@@ -47,14 +47,8 @@
     <Filter Include="Third_Party\stb">
       <UniqueIdentifier>{4cca613e-8979-4fd2-8976-bef3ea433c70}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Resources">
-      <UniqueIdentifier>{b18b2f49-fc5f-4c8d-babf-b439ae8b1be3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\GUI\DebugWindows">
       <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\CameraControllers">
-      <UniqueIdentifier>{c70a32c1-dd66-4cff-bb02-7ea7b9fc1c0a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -211,9 +205,6 @@
     <ClInclude Include="GpuTextureArray2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PixelsArray.h">
-      <Filter>Game\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="SpriteCache.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -235,16 +226,19 @@
     <ClInclude Include="SpriteAnimation.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="FollowCameraController.h">
-      <Filter>Game\CameraControllers</Filter>
+    <ClInclude Include="GameRules.h">
+      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="TopDownCameraController.h">
-      <Filter>Game\CameraControllers</Filter>
+      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="CameraController.h">
-      <Filter>Game\CameraControllers</Filter>
+      <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="GameRules.h">
+    <ClInclude Include="FollowCameraController.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelsArray.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
@@ -331,9 +325,6 @@
     <ClCompile Include="GpuTextureArray2D.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="PixelsArray.cpp">
-      <Filter>Game\Resources</Filter>
-    </ClCompile>
     <ClCompile Include="SpriteCache.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -358,13 +349,16 @@
     <ClCompile Include="SpriteAnimation.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="GameRules.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
     <ClCompile Include="FollowCameraController.cpp">
-      <Filter>Game\CameraControllers</Filter>
+      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="TopDownCameraController.cpp">
-      <Filter>Game\CameraControllers</Filter>
+      <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="GameRules.cpp">
+    <ClCompile Include="PixelsArray.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

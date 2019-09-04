@@ -56,4 +56,5 @@ void FollowCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
 void FollowCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
+    mFollowPedCameraHeight -= inputEvent.mScrollY;
 }

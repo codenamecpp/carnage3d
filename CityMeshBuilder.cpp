@@ -5,10 +5,6 @@
 bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int layerIndex, CityBlocksMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
-    debug_assert((area.x > -1 && area.y > -1) && 
-        (area.w > 0 && area.h > 0) &&
-        (area.x + area.w <= MAP_DIMENSIONS) && 
-        (area.y + area.h <= MAP_DIMENSIONS));
 
     meshData.SetNull();
 
@@ -20,7 +16,10 @@ bool CityMeshBuilder::Build(CityScapeData& cityScape, const Rect2D& area, int la
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyleData* blockInfo = cityScape.GetBlock(tilex + area.x, tiley + area.y, layerIndex))
+        int iblockx = glm::clamp(tilex + area.x, 0, MAP_DIMENSIONS - 1);
+        int iblocky = glm::clamp(tiley + area.y, 0, MAP_DIMENSIONS - 1);
+
+        if (BlockStyleData* blockInfo = cityScape.GetBlock(iblockx, iblocky, layerIndex))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -80,14 +79,14 @@ void CityMeshBuilder::PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData&
     {
         // front face, cw
         { 0.0f,             0.0f,               MAP_BLOCK_LENGTH }, 
-        { MAP_BLOCK_LENGTH,   0.0f,               MAP_BLOCK_LENGTH }, 
-        { MAP_BLOCK_LENGTH,   -MAP_BLOCK_LENGTH,    MAP_BLOCK_LENGTH }, 
-        { 0.0f,             -MAP_BLOCK_LENGTH,    MAP_BLOCK_LENGTH },
+        { MAP_BLOCK_LENGTH, 0.0f,               MAP_BLOCK_LENGTH }, 
+        { MAP_BLOCK_LENGTH, -MAP_BLOCK_LENGTH,  MAP_BLOCK_LENGTH }, 
+        { 0.0f,             -MAP_BLOCK_LENGTH,  MAP_BLOCK_LENGTH },
         // back face, cw
         { 0.0f,             0.0f,               0.0f }, 
-        { MAP_BLOCK_LENGTH,   0.0f,               0.0f }, 
-        { MAP_BLOCK_LENGTH,   -MAP_BLOCK_LENGTH,    0.0f }, 
-        { 0.0f,             -MAP_BLOCK_LENGTH,    0.0f },
+        { MAP_BLOCK_LENGTH, 0.0f,               0.0f }, 
+        { MAP_BLOCK_LENGTH, -MAP_BLOCK_LENGTH,  0.0f }, 
+        { 0.0f,             -MAP_BLOCK_LENGTH,  0.0f },
     };
 
     // process slope
