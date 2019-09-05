@@ -16,10 +16,7 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, in
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        int iblockx = glm::clamp(tilex + area.x, 0, MAP_DIMENSIONS - 1);
-        int iblocky = glm::clamp(tiley + area.y, 0, MAP_DIMENSIONS - 1);
-
-        if (BlockStyleData* blockInfo = cityScape.GetBlock(iblockx, iblocky, layerIndex))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockWithClamp(tilex + area.x, tiley + area.y, layerIndex))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -36,11 +33,6 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, in
 
 bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, CityMapMeshData& meshData)
 {
-    debug_assert((area.x > -1 && area.y > -1) && 
-        (area.w > 0 && area.h > 0) &&
-        (area.x + area.w < MAP_DIMENSIONS) && 
-        (area.y + area.h < MAP_DIMENSIONS));
-
     meshData.SetNull();
 
     // preallocate
@@ -52,7 +44,7 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, Ci
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyleData* blockInfo = cityScape.GetBlock(tilex + area.x, tiley + area.y, tilez))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockWithClamp(tilex + area.x, tiley + area.y, tilez))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {

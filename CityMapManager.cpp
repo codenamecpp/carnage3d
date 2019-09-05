@@ -194,12 +194,16 @@ BlockStyleData* CityMapManager::GetBlock(int tilex, int tiley, int tilez)
     int tileindex = mMapTiles[tilez][tiley][tilex];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
 
-    return &mBlocksData[tileindex];     
+    return &mBlocksData[tileindex];
 }
 
-BlockStyleData* CityMapManager::GetBlock(const Point3D& point)
+BlockStyleData* CityMapManager::GetBlockWithClamp(int tilex, int tiley, int tilez)
 {
-    int tileindex = mMapTiles[point.z][point.y][point.x];
+    tilex = glm::clamp(tilex, 0, MAP_DIMENSIONS - 1);
+    tiley = glm::clamp(tiley, 0, MAP_DIMENSIONS - 1);
+    tilez = glm::clamp(tilez, 0, MAP_LAYERS_COUNT - 1);
+
+    int tileindex = mMapTiles[tilez][tiley][tilex];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
 
     return &mBlocksData[tileindex];
