@@ -25,7 +25,7 @@ public:
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for z
     // point, tilex, tiley, tilez: Location
     BlockStyleData* GetBlock(int tilex, int tiley, int tilez);
-    BlockStyleData* GetBlockWithClamp(int tilex, int tiley, int tilez);
+    BlockStyleData* GetBlockClamp(int tilex, int tiley, int tilez);
 
 private:
     // Reading map data internals

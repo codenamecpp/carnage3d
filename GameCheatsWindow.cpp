@@ -35,11 +35,21 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
     ImGui::Separator();
 
-    for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
+    if (ImGui::CollapsingHeader("Map layers"))
     {
-        cxx::string_buffer_16 cbtext;
-        cbtext.printf("map Layer %d", ilayer);
-        ImGui::Checkbox(cbtext.c_str(), &mDrawMapLayers[ilayer]);
+        for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
+        {
+            cxx::string_buffer_16 cbtext;
+            cbtext.printf("layer %d", ilayer);
+            ImGui::Checkbox(cbtext.c_str(), &mDrawMapLayers[ilayer]);
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Ped"))
+    {
+        ImGui::SliderFloat("Turn speed", &gGameRules.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
+        ImGui::SliderFloat("Run speed", &gGameRules.mPedestrianRunSpeed, 0.1f, 16.0f, "%.2f");
+        ImGui::SliderFloat("Walk speed", &gGameRules.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
     }
 
     ImGui::End();

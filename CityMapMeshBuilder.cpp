@@ -16,7 +16,7 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, in
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyleData* blockInfo = cityScape.GetBlockWithClamp(tilex + area.x, tiley + area.y, layerIndex))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, layerIndex))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -44,7 +44,7 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, Ci
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyleData* blockInfo = cityScape.GetBlockWithClamp(tilex + area.x, tiley + area.y, tilez))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, tilez))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {

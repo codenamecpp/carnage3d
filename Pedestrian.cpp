@@ -79,6 +79,7 @@ Pedestrian::Pedestrian(unsigned int id)
 void Pedestrian::EnterTheGame()
 {
     mDead = false;
+    mFalling = false;
     mLiveTicks = 0;
     mVelocity = {0.0f, 0.0f};
     mCurrentAnimID = eSpriteAnimationID_Null;
@@ -126,7 +127,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         }
         else if (mControl.mWalkBackward)
         {
-            moveSpeed = -gGameRules.mPedestrianBackWalkSpeed;
+            moveSpeed = -gGameRules.mPedestrianWalkSpeed;
             SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction

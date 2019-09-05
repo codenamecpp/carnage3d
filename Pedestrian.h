@@ -48,6 +48,7 @@ public:
     float mSphereRadius; // bounding sphere info
 
     bool mDead;
+    bool mFalling;
 
     Timespan mLiveTicks; // time since spawn
 

@@ -197,7 +197,7 @@ BlockStyleData* CityMapManager::GetBlock(int tilex, int tiley, int tilez)
     return &mBlocksData[tileindex];
 }
 
-BlockStyleData* CityMapManager::GetBlockWithClamp(int tilex, int tiley, int tilez)
+BlockStyleData* CityMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
 {
     tilex = glm::clamp(tilex, 0, MAP_DIMENSIONS - 1);
     tiley = glm::clamp(tiley, 0, MAP_DIMENSIONS - 1);
