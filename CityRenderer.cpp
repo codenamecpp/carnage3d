@@ -5,6 +5,7 @@
 #include "CarnageGame.h"
 #include "SpriteCache.h"
 #include "GpuTexture2D.h"
+#include "GameCheatsWindow.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -202,10 +203,11 @@ void CityRenderer::DrawCityMesh()
         {
             int numIndices = mCityMeshData[i].mMeshIndices.size();
             int numVertices = mCityMeshData[i].mMeshVertices.size();
-
-            int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
-            gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, currIndexOffsetBytes, numIndices, currBaseVertex);
-
+            if (gGameCheatsWindow.mDrawMapLayers[i])
+            {
+                int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
+                gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, currIndexOffsetBytes, numIndices, currBaseVertex);
+            }
             currIndexOffset += numIndices;
             currBaseVertex += numVertices;
         }

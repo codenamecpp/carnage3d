@@ -1,15 +1,19 @@
 #include "stdafx.h"
-#include "GameStatsDebugWindow.h"
+#include "GameCheatsWindow.h"
 #include "imgui.h"
 
-GameStatsDebugWindow gGameStatsDebugWindow;
+GameCheatsWindow gGameCheatsWindow;
 
-GameStatsDebugWindow::GameStatsDebugWindow()
-    : DebugWindow("Game Stats")
+GameCheatsWindow::GameCheatsWindow()
+    : DebugWindow("Game Cheats")
 {
+    for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
+    {
+        mDrawMapLayers[ilayer] = true;
+    }
 }
 
-void GameStatsDebugWindow::DoUI(Timespan deltaTime)
+void GameCheatsWindow::DoUI(Timespan deltaTime)
 {
     ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | 
         ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize;
@@ -20,13 +24,22 @@ void GameStatsDebugWindow::DoUI(Timespan deltaTime)
         ImGui::End();
         return;
     }
-    ImGui::Separator();
-
+    
     // pedestrian stats
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
     {
+        ImGui::Separator();
         ImGui::Text("pos: %f, %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y, pedestrian->mPosition.z);
         ImGui::Text("heading: %f", pedestrian->mHeading);
+    }
+
+    ImGui::Separator();
+
+    for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
+    {
+        cxx::string_buffer_16 cbtext;
+        cbtext.printf("map Layer %d", ilayer);
+        ImGui::Checkbox(cbtext.c_str(), &mDrawMapLayers[ilayer]);
     }
 
     ImGui::End();

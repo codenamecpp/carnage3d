@@ -3,7 +3,7 @@
 #include "RenderSystem.h"
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
-#include "GameStatsDebugWindow.h"
+#include "GameCheatsWindow.h"
 
 CarnageGame gCarnageGame;
 
@@ -97,7 +97,7 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_C && inputEvent.mPressed)
     {
-        gGameStatsDebugWindow.mWindowShown = !gGameStatsDebugWindow.mWindowShown;
+        gGameCheatsWindow.mWindowShown = !gGameCheatsWindow.mWindowShown;
     }
 
     if (mCameraController)

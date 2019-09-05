@@ -2,14 +2,17 @@
 
 #include "DebugWindow.h"
 
-class GameStatsDebugWindow: public DebugWindow
+class GameCheatsWindow: public DebugWindow
 {
 public:
-    GameStatsDebugWindow();
+    bool mDrawMapLayers[MAP_LAYERS_COUNT];
+
+public:
+    GameCheatsWindow();
     // process window state
     // @param deltaTime: Time since last frame
     void DoUI(Timespan deltaTime) override;
 private:
 };
 
-extern GameStatsDebugWindow gGameStatsDebugWindow;
+extern GameCheatsWindow gGameCheatsWindow;

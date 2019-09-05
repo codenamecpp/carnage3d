@@ -235,14 +235,14 @@
     <ClInclude Include="PixelsArray.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="GameStatsDebugWindow.h">
-      <Filter>Game\GUI\DebugWindows</Filter>
-    </ClInclude>
     <ClInclude Include="CityMapManager.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="CityMapMeshBuilder.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCheatsWindow.h">
+      <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -358,14 +358,14 @@
     <ClCompile Include="PixelsArray.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="GameStatsDebugWindow.cpp">
-      <Filter>Game\GUI\DebugWindows</Filter>
-    </ClCompile>
     <ClCompile Include="CityMapManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="CityMapMeshBuilder.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCheatsWindow.cpp">
+      <Filter>Game\GUI\DebugWindows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
