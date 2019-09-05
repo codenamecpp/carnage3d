@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CarnageGame.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"
@@ -53,7 +53,7 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
     }
     if (inputEvent.mKeycode == KEYCODE_F3 && inputEvent.mPressed)
     {
-        gRenderSystem.ReloadRenderPrograms();
+        gRenderManager.ReloadRenderPrograms();
         return;
     }
 

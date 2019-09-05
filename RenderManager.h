@@ -6,7 +6,7 @@
 #include "CityRenderer.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
-class RenderSystem final: public cxx::noncopyable
+class RenderManager final: public cxx::noncopyable
 {
 public:
     RenderProgram mDefaultTexColorProgram;
@@ -17,7 +17,7 @@ public:
     CityRenderer mCityRenderer;
 
 public:
-    RenderSystem();
+    RenderManager();
 
     // First time render system initialization
     // All shaders, buffers and other graphics resources might be loaded here
@@ -39,4 +39,4 @@ private:
     void FreeRenderPrograms();
 };
 
-extern RenderSystem gRenderSystem;
+extern RenderManager gRenderManager;

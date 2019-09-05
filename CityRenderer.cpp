@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CityRenderer.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
 #include "SpriteCache.h"
@@ -160,9 +160,9 @@ void CityRenderer::BuildCityMeshData()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        mCityMeshBuilder.Build(gMapManager, mCityMapRectangle, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
+        mCityMeshBuilder.Build(gMapManager, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
     }
-    gRenderSystem.mCityRenderer.CommitCityMeshData();
+    gRenderManager.mCityRenderer.CommitCityMeshData();
 }
 
 void CityRenderer::RenderFrameBegin()
@@ -184,11 +184,11 @@ void CityRenderer::DrawCityMesh()
 
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
-    gRenderSystem.mCityMeshProgram.Activate();
-    gRenderSystem.mCityMeshProgram.UploadCameraTransformMatrices();
+    gRenderManager.mCityMeshProgram.Activate();
+    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices();
 
     GpuTextureArray2D* blocksTextureArray = gSpriteCache.mBlocksTextureArray2D;
-    gRenderSystem.mCityMeshProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
+    gRenderManager.mCityMeshProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
@@ -212,7 +212,7 @@ void CityRenderer::DrawCityMesh()
             currBaseVertex += numVertices;
         }
     }
-    gRenderSystem.mCityMeshProgram.Deactivate();
+    gRenderManager.mCityMeshProgram.Deactivate();
 }
 
 void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const glm::vec3& position, bool centerOrigin, float sprScale, float heading)
@@ -405,11 +405,11 @@ void CityRenderer::RenderDrawSpritesBatches()
     cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
-    gRenderSystem.mSpritesProgram.Activate();
-    gRenderSystem.mSpritesProgram.UploadCameraTransformMatrices();
+    gRenderManager.mSpritesProgram.Activate();
+    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices();
 
     GpuTextureArray2D* blocksTextureArray = gSpriteCache.mBlocksTextureArray2D;
-    gRenderSystem.mSpritesProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
+    gRenderManager.mSpritesProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
 
     TransientBuffer vBuffer;
     TransientBuffer iBuffer;
@@ -439,5 +439,5 @@ void CityRenderer::RenderDrawSpritesBatches()
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);
     }
 
-    gRenderSystem.mSpritesProgram.Deactivate();
+    gRenderManager.mSpritesProgram.Deactivate();
 }

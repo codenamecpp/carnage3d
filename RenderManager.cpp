@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
 #include "SpriteCache.h"
 
-RenderSystem gRenderSystem;
+RenderManager gRenderManager;
 
-RenderSystem::RenderSystem()
+RenderManager::RenderManager()
     : mDefaultTexColorProgram("shaders/texture_color.glsl")
     , mGuiTexColorProgram("shaders/gui.glsl")
     , mCityMeshProgram("shaders/city_mesh.glsl")
@@ -14,7 +14,7 @@ RenderSystem::RenderSystem()
 {
 }
 
-bool RenderSystem::Initialize()
+bool RenderManager::Initialize()
 {
     if (!InitRenderPrograms())
     {
@@ -31,14 +31,14 @@ bool RenderSystem::Initialize()
     return true;
 }
 
-void RenderSystem::Deinit()
+void RenderManager::Deinit()
 {
     mCityRenderer.Deinit();
     gSpriteCache.Cleanup();
     FreeRenderPrograms();
 }
 
-void RenderSystem::RenderFrame()
+void RenderManager::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
@@ -50,7 +50,7 @@ void RenderSystem::RenderFrame()
     gGraphicsDevice.Present();
 }
 
-void RenderSystem::FreeRenderPrograms()
+void RenderManager::FreeRenderPrograms()
 {
     mDefaultTexColorProgram.Deinit();
     mCityMeshProgram.Deinit();
@@ -58,7 +58,7 @@ void RenderSystem::FreeRenderPrograms()
     mSpritesProgram.Deinit();
 }
 
-bool RenderSystem::InitRenderPrograms()
+bool RenderManager::InitRenderPrograms()
 {
     if (!mDefaultTexColorProgram.Initialize() || !mGuiTexColorProgram.Initialize() ||
         !mCityMeshProgram.Initialize() || !mSpritesProgram.Initialize())
@@ -70,7 +70,7 @@ bool RenderSystem::InitRenderPrograms()
     return true;
 }
 
-void RenderSystem::ReloadRenderPrograms()
+void RenderManager::ReloadRenderPrograms()
 {
     gConsole.LogMessage(eLogMessage_Info, "Reloading render programs...");
 

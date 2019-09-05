@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "System.h"
 #include "GraphicsDevice.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include <mmsystem.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ void System::Execute()
         // order in which subsystems gets updated is significant
         gGuiSystem.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
-        gRenderSystem.RenderFrame();
+        gRenderManager.RenderFrame();
         mPreviousFrameTimestamp = mCurrentTimestamp;
     }
 
@@ -104,7 +104,7 @@ void System::Initialize()
         Terminate();
     }
 
-    if (!gRenderSystem.Initialize())
+    if (!gRenderManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize render system");
         Terminate();
@@ -132,7 +132,7 @@ void System::Deinit()
 
     gCarnageGame.Deinit();
     gGuiSystem.Deinit();
-    gRenderSystem.Deinit();
+    gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
     gFiles.Deinit();
     gConsole.Deinit();

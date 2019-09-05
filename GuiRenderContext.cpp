@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GuiRenderContext.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include "GpuProgram.h"
 
 bool GuiRenderContext::Initialize(const Rect2D& screenViewport)
@@ -37,8 +37,8 @@ void GuiRenderContext::SetScreenViewport(const Rect2D& screenViewport)
 void GuiRenderContext::RenderFrameBegin()
 {
     // setup gui specific render program
-    gRenderSystem.mGuiTexColorProgram.Activate();
-    gRenderSystem.mGuiTexColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, mOrthoProjectionMatrix);
+    gRenderManager.mGuiTexColorProgram.Activate();
+    gRenderManager.mGuiTexColorProgram.mGpuProgram->SetUniform(eRenderUniform_ViewProjectionMatrix, mOrthoProjectionMatrix);
     
     // setup render states
     RenderStates guiRenderStates = RenderStates()

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ImGuiManager.h"
-#include "RenderSystem.h"
+#include "RenderManager.h"
 #include "DebugWindow.h"
 
 ImGuiManager gImGuiManager;

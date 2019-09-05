@@ -91,9 +91,6 @@
     <ClInclude Include="FileSystem.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="RenderSystem.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="GameCamera.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -238,11 +235,14 @@
     <ClInclude Include="CityMapManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="GameCheatsWindow.h">
+      <Filter>Game\GUI\DebugWindows</Filter>
+    </ClInclude>
     <ClInclude Include="CityMapMeshBuilder.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="GameCheatsWindow.h">
-      <Filter>Game\GUI\DebugWindows</Filter>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -273,9 +273,6 @@
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderSystem.cpp">
-      <Filter>Game\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="GameCamera.cpp">
       <Filter>Game</Filter>
@@ -361,11 +358,14 @@
     <ClCompile Include="CityMapManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="GameCheatsWindow.cpp">
+      <Filter>Game\GUI\DebugWindows</Filter>
+    </ClCompile>
     <ClCompile Include="CityMapMeshBuilder.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="GameCheatsWindow.cpp">
-      <Filter>Game\GUI\DebugWindows</Filter>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
