@@ -1,5 +1,9 @@
 #include "stdafx.h"
-#include "CityScapeData.h"
+#include "CityMapManager.h"
+
+CityMapManager gMapManager;
+
+//////////////////////////////////////////////////////////////////////////
 
 template<typename TValue>
 inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
@@ -58,7 +62,7 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool CityScapeData::LoadFromFile(const char* filename)
+bool CityMapManager::LoadFromFile(const char* filename)
 {
     Cleanup();
 
@@ -94,7 +98,7 @@ bool CityScapeData::LoadFromFile(const char* filename)
     return true;
 }
 
-void CityScapeData::Cleanup()
+void CityMapManager::Cleanup()
 {
     mStyleData.Cleanup();
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
@@ -107,12 +111,12 @@ void CityScapeData::Cleanup()
     }
 }
 
-bool CityScapeData::IsLoaded() const
+bool CityMapManager::IsLoaded() const
 {
     return mStyleData.IsLoaded();
 }
 
-bool CityScapeData::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool CityMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -185,7 +189,7 @@ bool CityScapeData::ReadCompressedMapData(std::ifstream& file, int columnLength,
     return true;
 }
 
-BlockStyleData* CityScapeData::GetBlock(int tilex, int tiley, int tilez)
+BlockStyleData* CityMapManager::GetBlock(int tilex, int tiley, int tilez)
 {
     int tileindex = mMapTiles[tilez][tiley][tilex];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
@@ -193,7 +197,7 @@ BlockStyleData* CityScapeData::GetBlock(int tilex, int tiley, int tilez)
     return &mBlocksData[tileindex];     
 }
 
-BlockStyleData* CityScapeData::GetBlock(const Point3D& point)
+BlockStyleData* CityMapManager::GetBlock(const Point3D& point)
 {
     int tileindex = mMapTiles[point.z][point.y][point.x];
     debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));

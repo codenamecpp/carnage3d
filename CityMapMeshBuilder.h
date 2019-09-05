@@ -3,10 +3,10 @@
 #include "GameDefs.h"
 
 // defines part of city mesh
-struct CityBlocksMeshData
+struct CityMapMeshData
 {
 public:
-    CityBlocksMeshData() = default;
+    CityMapMeshData() = default;
     inline void SetNull()
     {
         mMeshVertices.clear();
@@ -17,8 +17,10 @@ public:
     std::vector<DrawIndex_t> mMeshIndices;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 // defines city mesh builder class
-class CityMeshBuilder final
+class CityMapMeshBuilder final
 {
 public:
     // construct mesh for specified city area and layer
@@ -26,10 +28,10 @@ public:
     // @param area: Target map rect
     // @param layerIndex: Target map layer, see MAP_LAYERS_COUNT
     // @param meshData: Output mesh data
-    bool Build(CityScapeData& cityScape, const Rect2D& area, int layerIndex, CityBlocksMeshData& meshData);
-    bool Build(CityScapeData& cityScape, const Rect2D& area, CityBlocksMeshData& meshData);
+    bool Build(CityMapManager& cityScape, const Rect2D& area, int layerIndex, CityMapMeshData& meshData);
+    bool Build(CityMapManager& cityScape, const Rect2D& area, CityMapMeshData& meshData);
 
 private:
     // internals
-    void PutBlockFace(CityScapeData& cityScape, CityBlocksMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo);
+    void PutBlockFace(CityMapManager& cityScape, CityMapMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo);
 };

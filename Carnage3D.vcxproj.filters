@@ -106,9 +106,6 @@
     <ClInclude Include="CityStyleData.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="CityScapeData.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="cJSON.h">
       <Filter>Third_Party\cjson</Filter>
     </ClInclude>
@@ -193,9 +190,6 @@
     <ClInclude Include="StreamingVertexCache.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="CityMeshBuilder.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -244,6 +238,12 @@
     <ClInclude Include="GameStatsDebugWindow.h">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
+    <ClInclude Include="CityMapManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CityMapMeshBuilder.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -286,9 +286,6 @@
     <ClCompile Include="CityStyleData.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="CityScapeData.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>Third_Party\imgui</Filter>
     </ClCompile>
@@ -318,9 +315,6 @@
     </ClCompile>
     <ClCompile Include="StreamingVertexCache.cpp">
       <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="CityMeshBuilder.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="GpuTexture2D.cpp">
       <Filter>Graphics</Filter>
@@ -366,6 +360,12 @@
     </ClCompile>
     <ClCompile Include="GameStatsDebugWindow.cpp">
       <Filter>Game\GUI\DebugWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="CityMapManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CityMapMeshBuilder.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

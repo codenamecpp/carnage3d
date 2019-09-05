@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CityMeshBuilder.h"
+#include "CityMapMeshBuilder.h"
 
 // renders map mesh, peds, cars and map objects
 class CityRenderer final: public cxx::noncopyable
@@ -70,8 +70,8 @@ private:
 
     Rect2D mCityMapRectangle; // cached map area in tiles
 
-    CityBlocksMeshData mCityMeshData[MAP_LAYERS_COUNT];
-    CityMeshBuilder mCityMeshBuilder;
+    CityMapMeshData mCityMeshData[MAP_LAYERS_COUNT];
+    CityMapMeshBuilder mCityMeshBuilder;
 
     GpuBuffer* mCityMeshBufferV;
     GpuBuffer* mCityMeshBufferI;

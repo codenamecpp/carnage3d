@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CityScapeData.h"
+#include "CityMapManager.h"
 #include "TopDownCameraController.h"
 #include "FollowCameraController.h"
 #include "Pedestrian.h"
@@ -9,7 +9,6 @@
 class CarnageGame final: public cxx::noncopyable
 {
 public:
-    CityScapeData mCityScape;
     PedestrianManager mPedsManager;
     TopDownCameraController mTopDownCameraController;
     FollowCameraController mFollowCameraController;

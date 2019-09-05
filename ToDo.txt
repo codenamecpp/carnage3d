@@ -4,10 +4,8 @@ ToDo:
     - debug console commands
     - remaps city tiles/sprites in shader
     - Simple cars loading and draw
-    - Top Down Camera controller for ped/car mode
     - peds collision and physics
     - cars collision and physics
-
 
     ======================= sprites =====================
 

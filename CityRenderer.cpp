@@ -159,7 +159,7 @@ void CityRenderer::BuildCityMeshData()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        mCityMeshBuilder.Build(gCarnageGame.mCityScape, mCityMapRectangle, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
+        mCityMeshBuilder.Build(gMapManager, mCityMapRectangle, i, gRenderSystem.mCityRenderer.mCityMeshData[i]);
     }
     gRenderSystem.mCityRenderer.CommitCityMeshData();
 }
@@ -261,15 +261,13 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
 
 void CityRenderer::DrawPeds()
 {
-    CityStyleData& style = gCarnageGame.mCityScape.mStyleData; // todo
-
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
     {
         if (currPedestrian == nullptr)
             continue;
 
-        int spriteLinearIndex = style.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
+        int spriteLinearIndex = gMapManager.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
 
         float rotationAngle = glm::radians(currPedestrian->mHeading - SPRITE_ZERO_ANGLE);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 

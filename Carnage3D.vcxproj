@@ -155,9 +155,9 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
-    <ClInclude Include="CityMeshBuilder.h" />
+    <ClInclude Include="CityMapMeshBuilder.h" />
     <ClInclude Include="CityRenderer.h" />
-    <ClInclude Include="CityScapeData.h" />
+    <ClInclude Include="CityMapManager.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="GameStatsDebugWindow.h" />
     <ClInclude Include="DebugWindow.h" />
@@ -218,8 +218,8 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="TopDownCameraController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CityMeshBuilder.cpp" />
-    <ClCompile Include="CityScapeData.cpp" />
+    <ClCompile Include="CityMapMeshBuilder.cpp" />
+    <ClCompile Include="CityMapManager.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
     <ClCompile Include="CityRenderer.cpp" />
     <ClCompile Include="GameStatsDebugWindow.cpp" />
