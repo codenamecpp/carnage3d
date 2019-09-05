@@ -40,7 +40,7 @@ public:
     // public for convenience, should not be modified directly
     const unsigned int mID; // unique identifier
 
-    glm::vec3 mPosition; // real position in space
+    glm::vec3 mPosition; // position on map, note that x/y coords is for x/z, and z is for y
     glm::vec3 mPrevPosition;
     glm::vec2 mVelocity; // constant walking velocity
     float mHeading; // angle specified in degrees

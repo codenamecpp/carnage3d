@@ -4,20 +4,23 @@
 #include "RenderProgram.h"
 #include "StreamingVertexCache.h"
 #include "CityRenderer.h"
+#include "DebugRenderer.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
-class RenderManager final: public cxx::noncopyable
+class RenderingManager final: public cxx::noncopyable
 {
 public:
     RenderProgram mDefaultTexColorProgram;
     RenderProgram mCityMeshProgram;
     RenderProgram mGuiTexColorProgram;
     RenderProgram mSpritesProgram;
+    RenderProgram mDebugProgram;
 
     CityRenderer mCityRenderer;
+    DebugRenderer mDebugRenderer;
 
 public:
-    RenderManager();
+    RenderingManager();
 
     // First time render system initialization
     // All shaders, buffers and other graphics resources might be loaded here
@@ -39,4 +42,4 @@ private:
     void FreeRenderPrograms();
 };
 
-extern RenderManager gRenderManager;
+extern RenderingManager gRenderManager;

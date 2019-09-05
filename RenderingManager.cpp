@@ -1,20 +1,21 @@
 #include "stdafx.h"
-#include "RenderManager.h"
+#include "RenderingManager.h"
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
 #include "SpriteCache.h"
 
-RenderManager gRenderManager;
+RenderingManager gRenderManager;
 
-RenderManager::RenderManager()
+RenderingManager::RenderingManager()
     : mDefaultTexColorProgram("shaders/texture_color.glsl")
     , mGuiTexColorProgram("shaders/gui.glsl")
     , mCityMeshProgram("shaders/city_mesh.glsl")
     , mSpritesProgram("shaders/sprites.glsl")
+    , mDebugProgram("shaders/debug.glsl")
 {
 }
 
-bool RenderManager::Initialize()
+bool RenderingManager::Initialize()
 {
     if (!InitRenderPrograms())
     {
@@ -28,37 +29,42 @@ bool RenderManager::Initialize()
         return false;
     }
 
+    if (!mDebugRenderer.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug renderer");
+    }
+
     return true;
 }
 
-void RenderManager::Deinit()
+void RenderingManager::Deinit()
 {
+    mDebugRenderer.Deinit();
     mCityRenderer.Deinit();
     gSpriteCache.Cleanup();
     FreeRenderPrograms();
 }
 
-void RenderManager::RenderFrame()
+void RenderingManager::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
-
-    //mDefaultTexColorProgram.Activate();
-    //mDefaultTexColorProgram.UploadCameraTransformMatrices();
     mCityRenderer.RenderFrame();
+    mDebugRenderer.RenderFrame();
     gGuiSystem.RenderFrame();
     gGraphicsDevice.Present();
 }
 
-void RenderManager::FreeRenderPrograms()
+void RenderingManager::FreeRenderPrograms()
 {
     mDefaultTexColorProgram.Deinit();
     mCityMeshProgram.Deinit();
     mGuiTexColorProgram.Deinit();
     mSpritesProgram.Deinit();
+    mDebugProgram.Deinit();
 }
 
-bool RenderManager::InitRenderPrograms()
+bool RenderingManager::InitRenderPrograms()
 {
     if (!mDefaultTexColorProgram.Initialize() || !mGuiTexColorProgram.Initialize() ||
         !mCityMeshProgram.Initialize() || !mSpritesProgram.Initialize())
@@ -67,15 +73,21 @@ bool RenderManager::InitRenderPrograms()
         return false;
     }
 
+    if (!mDebugProgram.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize render programs");
+    }
+
     return true;
 }
 
-void RenderManager::ReloadRenderPrograms()
+void RenderingManager::ReloadRenderPrograms()
 {
     gConsole.LogMessage(eLogMessage_Info, "Reloading render programs...");
 
     mDefaultTexColorProgram.Reinitialize();
     mGuiTexColorProgram.Reinitialize();
+    mDebugProgram.Reinitialize();
     mSpritesProgram.Reinitialize();
     mCityMeshProgram.Reinitialize();
 }

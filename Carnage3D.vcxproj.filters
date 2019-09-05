@@ -241,7 +241,10 @@
     <ClInclude Include="CityMapMeshBuilder.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="RenderManager.h">
+    <ClInclude Include="DebugRenderer.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingManager.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
@@ -364,7 +367,10 @@
     <ClCompile Include="CityMapMeshBuilder.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
+    <ClCompile Include="DebugRenderer.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingManager.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
@@ -390,6 +396,9 @@
       <Filter>Data\shaders</Filter>
     </None>
     <None Include="gamedata\shaders\sprites.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="gamedata\shaders\debug.glsl">
       <Filter>Data\shaders</Filter>
     </None>
   </ItemGroup>

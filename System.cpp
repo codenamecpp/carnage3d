@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "System.h"
 #include "GraphicsDevice.h"
-#include "RenderManager.h"
+#include "RenderingManager.h"
 #include <mmsystem.h>
 
 //////////////////////////////////////////////////////////////////////////

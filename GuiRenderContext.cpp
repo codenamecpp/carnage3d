@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GuiRenderContext.h"
-#include "RenderManager.h"
+#include "RenderingManager.h"
 #include "GpuProgram.h"
 
 bool GuiRenderContext::Initialize(const Rect2D& screenViewport)

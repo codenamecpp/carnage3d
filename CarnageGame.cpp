@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CarnageGame.h"
-#include "RenderManager.h"
+#include "RenderingManager.h"
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"

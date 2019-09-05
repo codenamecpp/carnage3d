@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CityRenderer.h"
-#include "RenderManager.h"
+#include "RenderingManager.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
 #include "SpriteCache.h"
