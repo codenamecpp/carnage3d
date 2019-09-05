@@ -11,7 +11,8 @@ GameStatsDebugWindow::GameStatsDebugWindow()
 
 void GameStatsDebugWindow::DoUI(Timespan deltaTime)
 {
-    ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNav;
+    ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | 
+        ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize;
 
     ImGuiIO& io = ImGui::GetIO();
     if (!ImGui::Begin(mWindowName, &mWindowShown, wndFlags))

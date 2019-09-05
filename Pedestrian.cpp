@@ -67,7 +67,6 @@ Pedestrian::Pedestrian(unsigned int id)
     : mPosition()
     , mPrevPosition()
     , mHeading()
-    , mPrevHeading()
     , mSphereRadius(1.0f)
     , mDead()
     , mVelocity()
@@ -81,7 +80,7 @@ void Pedestrian::EnterTheGame()
 {
     mDead = false;
     mLiveTicks = 0;
-    mVelocity = {0.0f, 0.0f, 0.0f};
+    mVelocity = {0.0f, 0.0f};
     mCurrentAnimID = eSpriteAnimationID_Null;
     // set initial state and animation
     SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
@@ -162,8 +161,7 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
 
 void Pedestrian::SetHeading(float rotationDegrees)
 {
-    mHeading = rotationDegrees;
-    mPrevHeading = rotationDegrees;
+    mHeading = cxx::normalize_angle_180(rotationDegrees);
 }
 
 void Pedestrian::SetPosition(float posx, float posy, float posz)
@@ -171,7 +169,6 @@ void Pedestrian::SetPosition(float posx, float posy, float posz)
     mPosition.x = posx;
     mPosition.y = posy;
     mPosition.z = posz;
-    mPrevPosition = mPosition;
 }
 
 //////////////////////////////////////////////////////////////////////////

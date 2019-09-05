@@ -42,9 +42,8 @@ public:
 
     glm::vec3 mPosition; // real position in space
     glm::vec3 mPrevPosition;
-    glm::vec3 mVelocity;
+    glm::vec2 mVelocity; // constant walking velocity
     float mHeading; // angle specified in degrees
-    float mPrevHeading;
 
     float mSphereRadius; // bounding sphere info
 
