@@ -160,7 +160,7 @@ void CityRenderer::BuildCityMeshData()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        mCityMeshBuilder.Build(gMapManager, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
+        GameMapHelpers::BuildMapMesh(gMapManager, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
     }
     gRenderManager.mCityRenderer.CommitCityMeshData();
 }

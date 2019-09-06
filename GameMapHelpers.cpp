@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "CityMapMeshBuilder.h"
+#include "GameMapHelpers.h"
 #include "SpriteCache.h"
 
-bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, int layerIndex, CityMapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
@@ -24,14 +24,14 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, in
                     continue;
 
                 eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, layerIndex, faceid, blockInfo);
+                PutBlockFace(cityScape, meshData, { tilex + area.x, tiley + area.y, layerIndex }, faceid, blockInfo);
             }
         }
     }
     return true;
 }
 
-bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, CityMapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, MapMeshData& meshData)
 {
     meshData.SetNull();
 
@@ -52,14 +52,14 @@ bool CityMapMeshBuilder::Build(CityMapManager& cityScape, const Rect2D& area, Ci
                     continue;
 
                 eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, tilez, faceid, blockInfo);
+                PutBlockFace(cityScape, meshData, { tilex + area.x, tiley + area.y, tilez }, faceid, blockInfo);
             }
         }
     }
     return true;
 }
 
-void CityMapMeshBuilder::PutBlockFace(CityMapManager& cityScape, CityMapMeshData& meshData, int posx, int posy, int posz, eBlockFace face, BlockStyleData* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, const Point3D& positin, eBlockFace face, BlockStyleData* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;
@@ -144,7 +144,7 @@ void CityMapMeshBuilder::PutBlockFace(CityMapManager& cityScape, CityMapMeshData
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
 
-    unsigned char color = 50 + static_cast<unsigned char>(((posz * 1.0f) / MAP_LAYERS_COUNT) * 180);
+    unsigned char color = 50 + static_cast<unsigned char>(((positin.z * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
     // color
     meshData.mMeshVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
@@ -153,7 +153,7 @@ void CityMapMeshBuilder::PutBlockFace(CityMapManager& cityScape, CityMapMeshData
     meshData.mMeshVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { posx * MAP_BLOCK_LENGTH, posz * MAP_BLOCK_LENGTH, posy * MAP_BLOCK_LENGTH };
+    const glm::vec3 cubeOffset { positin.x * MAP_BLOCK_LENGTH, positin.z * MAP_BLOCK_LENGTH, positin.y * MAP_BLOCK_LENGTH };
     if (face == eBlockFace_Lid)
     {
         meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
@@ -261,4 +261,12 @@ void CityMapMeshBuilder::PutBlockFace(CityMapManager& cityScape, CityMapMeshData
     meshData.mMeshIndices[baseIndex + 3] = baseVertexIndex + 3;
     meshData.mMeshIndices[baseIndex + 4] = baseVertexIndex + 2;
     meshData.mMeshIndices[baseIndex + 5] = baseVertexIndex + 1;
+}
+
+float GameMapHelpers::GetSlopeHeight(int slope, float posx, float posy)
+{
+    debug_assert(posx >= 0.0f && posx <= MAP_BLOCK_LENGTH);
+    debug_assert(posy >= 0.0f && posy <= MAP_BLOCK_LENGTH);
+
+    return 0.0f;
 }

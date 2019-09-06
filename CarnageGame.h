@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CityMapManager.h"
+#include "GameMapManager.h"
 #include "TopDownCameraController.h"
 #include "FollowCameraController.h"
 #include "Pedestrian.h"

@@ -291,6 +291,24 @@ public:
     }
 };
 
+// defines map mesh data
+struct MapMeshData
+{
+public:
+    using TVertexType = CityVertex3D;
+    MapMeshData() = default;
+
+    inline void SetNull()
+    {
+        mMeshVertices.clear();
+        mMeshIndices.clear();
+    }
+
+public:
+    std::vector<TVertexType> mMeshVertices;
+    std::vector<DrawIndex_t> mMeshIndices;
+};
+
 // defines single picture within sprite atlas
 struct SpritesheetEntry
 {

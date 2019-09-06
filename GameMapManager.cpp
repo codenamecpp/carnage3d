@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "CityMapManager.h"
+#include "GameMapManager.h"
 
-CityMapManager gMapManager;
+GameMapManager gMapManager;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool CityMapManager::LoadFromFile(const char* filename)
+bool GameMapManager::LoadFromFile(const char* filename)
 {
     Cleanup();
 
@@ -98,7 +98,7 @@ bool CityMapManager::LoadFromFile(const char* filename)
     return true;
 }
 
-void CityMapManager::Cleanup()
+void GameMapManager::Cleanup()
 {
     mStyleData.Cleanup();
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
@@ -111,12 +111,12 @@ void CityMapManager::Cleanup()
     }
 }
 
-bool CityMapManager::IsLoaded() const
+bool GameMapManager::IsLoaded() const
 {
     return mStyleData.IsLoaded();
 }
 
-bool CityMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -192,12 +192,12 @@ bool CityMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
     return true;
 }
 
-BlockStyleData* CityMapManager::GetBlock(int tilex, int tiley, int tilez)
+BlockStyleData* GameMapManager::GetBlock(int tilex, int tiley, int tilez)
 {
     return &mMapTiles[tilez][tiley][tilex];
 }
 
-BlockStyleData* CityMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
+BlockStyleData* GameMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
 {
     tilex = glm::clamp(tilex, 0, MAP_DIMENSIONS - 1);
     tiley = glm::clamp(tiley, 0, MAP_DIMENSIONS - 1);
@@ -206,7 +206,7 @@ BlockStyleData* CityMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
     return &mMapTiles[tilez][tiley][tilex];
 }
 
-void CityMapManager::FixShiftedBits()
+void GameMapManager::FixShiftedBits()
 {
     // as CityScape Data Structure document says:
 
@@ -215,6 +215,9 @@ void CityMapManager::FixShiftedBits()
     // cannot be used for road, water, pavement, etc.
 
     // so we have fix that
+
+    // one thing to keep in mind -
+    // slopes are still stored in block above since they used for mesh generation
 
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
     for (int tilex = 0; tilex < MAP_DIMENSIONS; ++tilex)

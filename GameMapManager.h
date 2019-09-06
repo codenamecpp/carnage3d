@@ -4,7 +4,7 @@
 #include "CityStyleData.h"
 
 // this class manages GTA map and style data which get loaded from CMP/G24-files
-class CityMapManager final: public cxx::noncopyable
+class GameMapManager final: public cxx::noncopyable
 {
 public:
     // public for convenience
@@ -38,4 +38,4 @@ private:
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
 };
 
-extern CityMapManager gMapManager;
+extern GameMapManager gMapManager;
