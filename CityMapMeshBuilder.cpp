@@ -209,6 +209,21 @@ void CityMapMeshBuilder::PutBlockFace(CityMapManager& cityScape, CityMapMeshData
             meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
         }
     }
+
+    if (face != eBlockFace_Lid && !blockInfo->mIsFlat)
+    {
+        if (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_E || face == eBlockFace_W))
+        {
+            std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+        }
+        if (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_N || face == eBlockFace_S))
+        {
+            std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+        }
+    }
+
     // add indices
     int baseIndex = meshData.mMeshIndices.size();
     meshData.mMeshIndices.resize(baseIndex + 6);
