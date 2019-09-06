@@ -31,6 +31,7 @@ private:
     // Reading map data internals
     // @param file: Source stream
     bool ReadCompressedMapData(std::ifstream& file, int columnLength, int blockLength);
+    void FixShiftedBits();
 
 private:
     int mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
