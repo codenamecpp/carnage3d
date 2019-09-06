@@ -340,7 +340,10 @@ public:
     short mRemap;
     short mTrafficLight;
 
-    short mSlopeType; // 0 = none
+    short mFaces[eBlockFace_COUNT]; // stores a value which indicates the correct graphic square to use for that face
+        // A value of zero indicates no face - hidden faces must be set to zero
+
+    char mSlopeType; // 0 = none
         // 1 - 2 = up 26 low, high
         // 3 - 4 = down 26 low, high
         // 5 - 6 = left 26 low, high
@@ -350,9 +353,6 @@ public:
         // 25 - 32 = left 7 low - high
         // 33 - 40 = right 7 low - high
         // 41 - 44 = 45 up,down,left,right 
-
-    short mFaces[eBlockFace_COUNT]; // stores a value which indicates the correct graphic square to use for that face
-        // A value of zero indicates no face - hidden faces must be set to zero
 
     bool mUpDirection : 1;
     bool mDownDirection : 1;
