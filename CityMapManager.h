@@ -34,9 +34,8 @@ private:
     void FixShiftedBits();
 
 private:
-    int mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
+    BlockStyleData mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
-    std::vector<BlockStyleData> mBlocksData;
 };
 
 extern CityMapManager gMapManager;

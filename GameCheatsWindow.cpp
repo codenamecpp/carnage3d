@@ -36,7 +36,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
         int curr_bloc_x = (int) pedestrian->mPosition.x;
         int curr_bloc_y = (int) pedestrian->mPosition.y;
-        int curr_bloc_z = (int) pedestrian->mPosition.z + 2;
+        int curr_bloc_z = (int) pedestrian->mPosition.z;
 
         BlockStyleData* currBlock = gMapManager.GetBlockClamp(curr_bloc_x, curr_bloc_y, curr_bloc_z);
         debug_assert(currBlock);

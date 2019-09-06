@@ -106,7 +106,7 @@ void CityMapManager::Cleanup()
     {
         for (int tilez = 0; tilez < MAP_LAYERS_COUNT; ++tilez)
         {
-            mMapTiles[tilez][tiley][tilex] = 0;
+            memset(&mMapTiles[tilez][tiley][tilex], 0, Sizeof_BlockStyleData);
         }
     }
 }
@@ -134,13 +134,15 @@ bool CityMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
             return false;
     }
 
+    std::vector<BlockStyleData> blocksData;
+
     const int blockSize = sizeof(unsigned short) + sizeof(unsigned char) * 6;
     if (blocksLength)
     {
         assert((blocksLength % blockSize) == 0);
-        mBlocksData.resize(blocksLength / blockSize);
+        blocksData.resize(blocksLength / blockSize);
 
-        for (BlockStyleData& blockInfo: mBlocksData)
+        for (BlockStyleData& blockInfo: blocksData)
         {
             unsigned short type_map;
             READ_I16(file, type_map);
@@ -183,18 +185,16 @@ bool CityMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
         for (int tilez = 0; tilez < columnHeight; ++tilez)
         {
             int srcBlock = columnData[columnElement + columnHeight - tilez];
-            mMapTiles[tilez][tiley][tilex] = srcBlock;
+            mMapTiles[tilez][tiley][tilex] = blocksData[srcBlock];
         }
     }
+    FixShiftedBits();
     return true;
 }
 
 BlockStyleData* CityMapManager::GetBlock(int tilex, int tiley, int tilez)
 {
-    int tileindex = mMapTiles[tilez][tiley][tilex];
-    debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
-
-    return &mBlocksData[tileindex];
+    return &mMapTiles[tilez][tiley][tilex];
 }
 
 BlockStyleData* CityMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
@@ -203,8 +203,42 @@ BlockStyleData* CityMapManager::GetBlockClamp(int tilex, int tiley, int tilez)
     tiley = glm::clamp(tiley, 0, MAP_DIMENSIONS - 1);
     tilez = glm::clamp(tilez, 0, MAP_LAYERS_COUNT - 1);
 
-    int tileindex = mMapTiles[tilez][tiley][tilex];
-    debug_assert(tileindex >= 0 && tileindex < static_cast<int>(mBlocksData.size()));
+    return &mMapTiles[tilez][tiley][tilex];
+}
 
-    return &mBlocksData[tileindex];
+void CityMapManager::FixShiftedBits()
+{
+    // as CityScape Data Structure document says:
+
+    // The road, water, field, pavement, direction, railway & traffic light bits are set in the
+    // block above the one which actually stores the graphic for the feature. This means that the very top layer
+    // cannot be used for road, water, pavement, etc.
+
+    // so we have fix that
+
+    for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
+    for (int tilex = 0; tilex < MAP_DIMENSIONS; ++tilex)
+    {
+        for (int tilez = 0; tilez < MAP_LAYERS_COUNT - 2; ++tilez)
+        {
+            BlockStyleData& currBlock = mMapTiles[tilez][tiley][tilex];
+            BlockStyleData& aboveBlock = mMapTiles[tilez + 1][tiley][tilex];
+
+            currBlock.mLeftDirection = aboveBlock.mLeftDirection;
+            currBlock.mRightDirection = aboveBlock.mRightDirection;
+            currBlock.mDownDirection = aboveBlock.mDownDirection;
+            currBlock.mUpDirection = aboveBlock.mUpDirection;
+            currBlock.mGroundType = aboveBlock.mGroundType;
+            currBlock.mTrafficLight = aboveBlock.mTrafficLight;
+        }
+
+        // top most block set to air
+        BlockStyleData& topBlock = mMapTiles[MAP_LAYERS_COUNT - 1][tiley][tilex];
+        topBlock.mLeftDirection = 0;
+        topBlock.mRightDirection = 0;
+        topBlock.mDownDirection = 0;
+        topBlock.mUpDirection = 0;
+        topBlock.mGroundType = eGroundType_Air;
+        topBlock.mTrafficLight = 0;
+    }
 }

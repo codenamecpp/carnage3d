@@ -21,7 +21,7 @@
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 
-enum eLidRotation : unsigned short
+enum eLidRotation : unsigned char
 {
     eLidRotation_0,
     eLidRotation_90,
@@ -105,7 +105,7 @@ define_enum_strings(eSpriteType)
 };
 
 // tile ground type
-enum eGroundType : unsigned short
+enum eGroundType : unsigned char
 {
     eGroundType_Air,
     eGroundType_Water,
@@ -334,16 +334,17 @@ public:
 struct BlockStyleData
 {
 public:
-    eLidRotation mLidRotation;
+    unsigned char mRemap;
+
     eGroundType mGroundType;
 
-    short mRemap;
-    short mTrafficLight;
+    eLidRotation mLidRotation;
 
-    short mFaces[eBlockFace_COUNT]; // stores a value which indicates the correct graphic square to use for that face
+    unsigned char mTrafficLight;
+    unsigned char mFaces[eBlockFace_COUNT]; // stores a value which indicates the correct graphic square to use for that face
         // A value of zero indicates no face - hidden faces must be set to zero
 
-    char mSlopeType; // 0 = none
+    unsigned char mSlopeType; // 0 = none
         // 1 - 2 = up 26 low, high
         // 3 - 4 = down 26 low, high
         // 5 - 6 = left 26 low, high
@@ -364,6 +365,8 @@ public:
     bool mFlipLeftRightFaces : 1;
     bool mIsRailway : 1;
 };
+
+const unsigned int Sizeof_BlockStyleData = sizeof(BlockStyleData);
 
 // define map block anim information
 struct BlockAnimationStyleData
