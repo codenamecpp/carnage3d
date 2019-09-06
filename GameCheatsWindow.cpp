@@ -30,8 +30,9 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
     {
         ImGui::Separator();
-        ImGui::Text("pos: %f, %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y, pedestrian->mPosition.z);
+        ImGui::Text("pos: %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y);
         ImGui::Text("heading: %f", pedestrian->mHeading);
+        ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.1f");
         ImGui::Separator();
 
         int curr_bloc_x = (int) pedestrian->mPosition.x;
@@ -46,8 +47,6 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Text("b directions: %d, %d, %d, %d", currBlock->mUpDirection, currBlock->mRightDirection, 
             currBlock->mDownDirection, currBlock->mLeftDirection);
         ImGui::Text("b flat: %d", currBlock->mIsFlat);
-        ImGui::Text("b flip top-bottom: %d", currBlock->mFlipTopBottomFaces);
-        ImGui::Text("b flip left-right: %d", currBlock->mFlipLeftRightFaces);
 
         // draw debug block
 
