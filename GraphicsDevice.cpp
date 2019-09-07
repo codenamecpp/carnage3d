@@ -883,6 +883,10 @@ void GraphicsDevice::QueryGraphicsDeviceCaps()
     mCaps.mFeatures[eGraphicsFeature_NPOT_Textures] = (GLEW_ARB_texture_non_power_of_two == GL_TRUE);
     mCaps.mFeatures[eGraphicsFeature_ABGR] = (GLEW_EXT_abgr == GL_TRUE);
 
+    mCaps.mMaxAnisotropy = 1.0f;
+    ::glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mCaps.mMaxAnisotropy);
+    glCheckError();
+
     ::glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &mCaps.mMaxArrayTextureLayers);
     glCheckError();
 }
