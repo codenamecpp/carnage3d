@@ -35,11 +35,9 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.2f");
         ImGui::Separator();
 
-        int curr_bloc_x = (int) pedestrian->mPosition.x;
-        int curr_bloc_y = (int) pedestrian->mPosition.y;
-        int curr_bloc_z = (int) pedestrian->mPosition.z;
+        MapCoord curr_block = pedestrian->mPosition;
 
-        BlockStyleData* currBlock = gMapManager.GetBlockClamp(curr_bloc_x, curr_bloc_y, curr_bloc_z);
+        BlockStyleData* currBlock = gMapManager.GetBlockClamp(curr_block);
         debug_assert(currBlock);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
@@ -51,9 +49,9 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         // draw debug block
 
         glm::vec3 cube_center { 
-            MAP_BLOCK_LENGTH * curr_bloc_x + MAP_BLOCK_LENGTH * 0.5f,
-            MAP_BLOCK_LENGTH * curr_bloc_z + MAP_BLOCK_LENGTH * 0.5f + 0.05f,
-            MAP_BLOCK_LENGTH * curr_bloc_y + MAP_BLOCK_LENGTH * 0.5f,
+            MAP_BLOCK_LENGTH * curr_block.x + MAP_BLOCK_LENGTH * 0.5f,
+            MAP_BLOCK_LENGTH * curr_block.z + MAP_BLOCK_LENGTH * 0.5f + 0.05f,
+            MAP_BLOCK_LENGTH * curr_block.y + MAP_BLOCK_LENGTH * 0.5f,
         };
         glm::vec3 cube_dims {
             MAP_BLOCK_LENGTH - 0.1f,

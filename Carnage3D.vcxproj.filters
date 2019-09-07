@@ -50,6 +50,9 @@
     <Filter Include="Game\GUI\DebugWindows">
       <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Camera">
+      <UniqueIdentifier>{444d99fb-9da8-4789-b558-8ba75631c583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -90,9 +93,6 @@
     </ClInclude>
     <ClInclude Include="FileSystem.h">
       <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="GameCamera.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="RenderProgram.h">
       <Filter>Game\Rendering</Filter>
@@ -220,15 +220,6 @@
     <ClInclude Include="GameRules.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="TopDownCameraController.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraController.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="FollowCameraController.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="PixelsArray.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -246,6 +237,21 @@
     </ClInclude>
     <ClInclude Include="GameMapHelpers.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="FollowCameraController.h">
+      <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="FPSCameraController.h">
+      <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="TopDownCameraController.h">
+      <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCamera.h">
+      <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Game\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -276,9 +282,6 @@
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="GameCamera.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="RenderProgram.cpp">
       <Filter>Game\Rendering</Filter>
@@ -349,12 +352,6 @@
     <ClCompile Include="GameRules.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="FollowCameraController.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="TopDownCameraController.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="PixelsArray.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -372,6 +369,18 @@
     </ClCompile>
     <ClCompile Include="GameMapHelpers.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="FollowCameraController.cpp">
+      <Filter>Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="FPSCameraController.cpp">
+      <Filter>Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TopDownCameraController.cpp">
+      <Filter>Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCamera.cpp">
+      <Filter>Game\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
