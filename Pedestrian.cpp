@@ -139,6 +139,19 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
         mPosition.x += walkDistance.x;
         mPosition.y += walkDistance.y;
+
+        // get slope from above
+        int bx = static_cast<int>(mPosition.x);
+        int by = static_cast<int>(mPosition.y);
+        int bz = static_cast<int>(mPosition.z);
+        BlockStyleData* blockInfo = gMapManager.GetBlockClamp(bx, by, bz + 1);
+        if (blockInfo->mSlopeType)
+        {
+            // apply slope
+            float zvalue = GameMapHelpers::GetSlopeHeight(blockInfo->mSlopeType, mPosition.x - bx, mPosition.y - by);
+            mPosition.z = bz + zvalue;
+        }
+
     }
     else
     {

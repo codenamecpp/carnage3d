@@ -32,7 +32,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Separator();
         ImGui::Text("pos: %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y);
         ImGui::Text("heading: %f", pedestrian->mHeading);
-        ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.1f");
+        ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.2f");
         ImGui::Separator();
 
         int curr_bloc_x = (int) pedestrian->mPosition.x;

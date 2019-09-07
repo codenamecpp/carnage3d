@@ -2,7 +2,7 @@
 
 // most of game constants is mapped to GTA files format so don't change
 
-// side length of block cube
+// side length of block cube, do not change
 #define MAP_BLOCK_LENGTH 1.0f
 
 #define MAP_BLOCK_TEXTURE_DIMS 64

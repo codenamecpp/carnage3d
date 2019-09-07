@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GameMapHelpers.h"
-
 // renders map mesh, peds, cars and map objects
 class CityRenderer final: public cxx::noncopyable
 {

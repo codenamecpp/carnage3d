@@ -251,7 +251,6 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
         }  
     }
 
-
     // add indices
     int baseIndex = meshData.mMeshIndices.size();
     meshData.mMeshIndices.resize(baseIndex + 6);
@@ -268,5 +267,93 @@ float GameMapHelpers::GetSlopeHeight(int slope, float posx, float posy)
     debug_assert(posx >= 0.0f && posx <= MAP_BLOCK_LENGTH);
     debug_assert(posy >= 0.0f && posy <= MAP_BLOCK_LENGTH);
 
-    return 0.0f;
+    float slopeMin = 0.0f;
+    float slopeMax = 0.0f;
+    float t = 0.0f;
+
+    switch (slope)
+    {
+        case 0: return 0.0f;
+        // N, 26 low, high
+        case 1: case 2:
+            slopeMin = ((slope - 1 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 1 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        // S, 26 low, high
+        case 3: case 4:
+            slopeMin = ((slope - 3 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 3 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        // W, 26 low, high
+        case 5: case 6:
+            slopeMin = ((slope - 5 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 5 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+        // E, 26 low, high
+        case 7: case 8:
+            slopeMin = ((slope - 7 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 7 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+        // N, 7 low - high
+        case 9: case 10: case 11: case 12:
+        case 13: case 14: case 15: case 16:
+            slopeMin = ((slope - 9 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 9 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        // S, 7 low - high
+        case 17: case 18: case 19: case 20:
+        case 21: case 22: case 23: case 24:
+            slopeMin = ((slope - 17 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 17 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        // W, 7 low - high
+        case 25: case 26: case 27: case 28:
+        case 29: case 30: case 31: case 32:
+            slopeMin = ((slope - 25 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 25 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+        // E, 7 low - high
+        case 33: case 34: case 35: case 36:
+        case 37: case 38: case 39: case 40:
+            slopeMin = ((slope - 33 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
+            slopeMax = ((slope - 33 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+        // 41 - 44 = 45 N,S,W,E
+        case 41: 
+            slopeMin = MAP_BLOCK_LENGTH;
+            slopeMax = 0.0f;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        case 42: 
+            slopeMin = 0.0f;
+            slopeMax = MAP_BLOCK_LENGTH;
+            t = posy / MAP_BLOCK_LENGTH;
+        break;
+        case 43: 
+            slopeMin = MAP_BLOCK_LENGTH;
+            slopeMax = 0.0f;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+        case 44: 
+            slopeMin = 0.0f;
+            slopeMax = MAP_BLOCK_LENGTH;
+            t = posx / MAP_BLOCK_LENGTH;
+        break;
+
+        default:
+        {
+            debug_assert(false);
+            return 0.0f;
+        }
+    }
+    // linear interpolate point
+    return glm::lerp(slopeMin, slopeMax, t);
 }
