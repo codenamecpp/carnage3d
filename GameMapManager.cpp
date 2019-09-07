@@ -192,7 +192,7 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
     return true;
 }
 
-BlockStyleData* GameMapManager::GetBlock(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlockData(const MapCoord& coord)
 {
     debug_assert(coord.z > -1 && coord.z < MAP_LAYERS_COUNT);
     debug_assert(coord.x > -1 && coord.x < MAP_DIMENSIONS);
@@ -200,7 +200,7 @@ BlockStyleData* GameMapManager::GetBlock(const MapCoord& coord)
     return &mMapTiles[coord.z][coord.y][coord.x];
 }
 
-BlockStyleData* GameMapManager::GetBlockClamp(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlockDataClamp(const MapCoord& coord)
 {
     int tilex = glm::clamp(coord.x, 0, MAP_DIMENSIONS - 1);
     int tiley = glm::clamp(coord.y, 0, MAP_DIMENSIONS - 1);

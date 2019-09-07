@@ -37,7 +37,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
         MapCoord curr_block = pedestrian->mPosition;
 
-        BlockStyleData* currBlock = gMapManager.GetBlockClamp(curr_block);
+        BlockStyleData* currBlock = gMapManager.GetBlockDataClamp(curr_block);
         debug_assert(currBlock);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));

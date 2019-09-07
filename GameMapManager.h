@@ -24,8 +24,8 @@ public:
     // get map block info at specific location
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for z
     // @param coord: Block location
-    BlockStyleData* GetBlock(const MapCoord& coord);
-    BlockStyleData* GetBlockClamp(const MapCoord& coord);
+    BlockStyleData* GetBlockData(const MapCoord& coord);
+    BlockStyleData* GetBlockDataClamp(const MapCoord& coord);
 
 private:
     // Reading map data internals

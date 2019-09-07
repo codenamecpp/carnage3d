@@ -17,7 +17,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
         MapCoord mapCoord { tilex + area.x, tiley + area.y, layerIndex };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockDataClamp(mapCoord))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -46,7 +46,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
         MapCoord mapCoord { tilex + area.x, tiley + area.y, tilez };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockDataClamp(mapCoord))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
