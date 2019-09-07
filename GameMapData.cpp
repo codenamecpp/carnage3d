@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "GameMapManager.h"
+#include "GameMapData.h"
 
-GameMapManager gMapManager;
+GameMapData gGameMap;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool GameMapManager::LoadFromFile(const char* filename)
+bool GameMapData::LoadFromFile(const char* filename)
 {
     Cleanup();
 
@@ -98,7 +98,7 @@ bool GameMapManager::LoadFromFile(const char* filename)
     return true;
 }
 
-void GameMapManager::Cleanup()
+void GameMapData::Cleanup()
 {
     mStyleData.Cleanup();
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
@@ -111,12 +111,12 @@ void GameMapManager::Cleanup()
     }
 }
 
-bool GameMapManager::IsLoaded() const
+bool GameMapData::IsLoaded() const
 {
     return mStyleData.IsLoaded();
 }
 
-bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool GameMapData::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -192,7 +192,7 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
     return true;
 }
 
-BlockStyleData* GameMapManager::GetBlockData(const MapCoord& coord)
+BlockStyleData* GameMapData::GetBlock(const MapCoord& coord)
 {
     debug_assert(coord.z > -1 && coord.z < MAP_LAYERS_COUNT);
     debug_assert(coord.x > -1 && coord.x < MAP_DIMENSIONS);
@@ -200,7 +200,7 @@ BlockStyleData* GameMapManager::GetBlockData(const MapCoord& coord)
     return &mMapTiles[coord.z][coord.y][coord.x];
 }
 
-BlockStyleData* GameMapManager::GetBlockDataClamp(const MapCoord& coord)
+BlockStyleData* GameMapData::GetBlockClamp(const MapCoord& coord)
 {
     int tilex = glm::clamp(coord.x, 0, MAP_DIMENSIONS - 1);
     int tiley = glm::clamp(coord.y, 0, MAP_DIMENSIONS - 1);
@@ -209,7 +209,7 @@ BlockStyleData* GameMapManager::GetBlockDataClamp(const MapCoord& coord)
     return &mMapTiles[tilez][tiley][tilex];
 }
 
-void GameMapManager::FixShiftedBits()
+void GameMapData::FixShiftedBits()
 {
     // as CityScape Data Structure document says:
 

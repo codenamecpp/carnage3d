@@ -4,7 +4,7 @@
 #include "CityStyleData.h"
 
 // this class manages GTA map and style data which get loaded from CMP/G24-files
-class GameMapManager final: public cxx::noncopyable
+class GameMapData final: public cxx::noncopyable
 {
 public:
     // public for convenience
@@ -24,8 +24,8 @@ public:
     // get map block info at specific location
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for z
     // @param coord: Block location
-    BlockStyleData* GetBlockData(const MapCoord& coord);
-    BlockStyleData* GetBlockDataClamp(const MapCoord& coord);
+    BlockStyleData* GetBlock(const MapCoord& coord);
+    BlockStyleData* GetBlockClamp(const MapCoord& coord);
 
 private:
     // Reading map data internals
@@ -38,4 +38,4 @@ private:
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
 };
 
-extern GameMapManager gMapManager;
+extern GameMapData gGameMap;

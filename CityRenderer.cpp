@@ -160,7 +160,7 @@ void CityRenderer::BuildCityMeshData()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        GameMapHelpers::BuildMapMesh(gMapManager, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
+        GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
     }
     gRenderManager.mCityRenderer.CommitCityMeshData();
 }
@@ -269,7 +269,7 @@ void CityRenderer::DrawPeds()
         if (currPedestrian == nullptr)
             continue;
 
-        int spriteLinearIndex = gMapManager.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
+        int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
 
         float rotationAngle = glm::radians(currPedestrian->mHeading - SPRITE_ZERO_ANGLE);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 

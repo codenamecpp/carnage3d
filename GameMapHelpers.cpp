@@ -2,7 +2,7 @@
 #include "GameMapHelpers.h"
 #include "SpriteCache.h"
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
@@ -17,7 +17,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
         MapCoord mapCoord { tilex + area.x, tiley + area.y, layerIndex };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockDataClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -32,7 +32,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     return true;
 }
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, MapMeshData& meshData)
 {
     meshData.SetNull();
 
@@ -46,7 +46,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
         MapCoord mapCoord { tilex + area.x, tiley + area.y, tilez };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockDataClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -61,7 +61,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapData& cityScape, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;

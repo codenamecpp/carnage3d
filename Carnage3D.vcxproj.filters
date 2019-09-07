@@ -232,9 +232,6 @@
     <ClInclude Include="RenderingManager.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameMapManager.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="GameMapHelpers.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -252,6 +249,9 @@
     </ClInclude>
     <ClInclude Include="CameraController.h">
       <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMapData.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -364,9 +364,6 @@
     <ClCompile Include="RenderingManager.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameMapManager.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="GameMapHelpers.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -381,6 +378,9 @@
     </ClCompile>
     <ClCompile Include="GameCamera.cpp">
       <Filter>Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMapData.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

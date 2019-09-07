@@ -151,7 +151,7 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
     if (mCurrentAnimID != animation)
     {
         mAnimation.SetNull();
-        if (!gMapManager.mStyleData.GetSpriteAnimation(animation, mAnimation.mAnimData)) // todo
+        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mAnimation.mAnimData)) // todo
         {
             debug_assert(false);
         }

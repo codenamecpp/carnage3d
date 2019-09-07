@@ -10,9 +10,9 @@ CarnageGame gCarnageGame;
 bool CarnageGame::Initialize()
 {
     gGameRules.LoadDefaults();
-    gMapManager.LoadFromFile("NYC.CMP");
+    gGameMap.LoadFromFile("NYC.CMP");
 
-    if (!gSpriteCache.InitLevelSprites(gMapManager.mStyleData))
+    if (!gSpriteCache.InitLevelSprites(gGameMap.mStyleData))
     {
         debug_assert(false);
     }
@@ -30,7 +30,7 @@ bool CarnageGame::Initialize()
 void CarnageGame::Deinit()
 {
     mPedsManager.Deinit();
-    gMapManager.Cleanup();
+    gGameMap.Cleanup();
 }
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
