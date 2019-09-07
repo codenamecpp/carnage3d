@@ -17,6 +17,8 @@ public:
     // @param slope: Index
     // @param posx, posy: Position within block in range [0, 1]
     static float GetSlopeHeight(int slope, float posx, float posy);
+    static float GetSlopeHeightMin(int slope);
+    static float GetSlopeHeightMax(int slope);
 
 private:
     GameMapHelpers();

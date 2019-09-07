@@ -262,6 +262,20 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mMeshIndices[baseIndex + 5] = baseVertexIndex + 1;
 }
 
+float GameMapHelpers::GetSlopeHeightMin(int slope)
+{
+    float a = GetSlopeHeight(slope, 0.0f, 0.0f);
+    float b = GetSlopeHeight(slope, 1.0f, 1.0f);
+    return std::min(a, b);
+}
+
+float GameMapHelpers::GetSlopeHeightMax(int slope)
+{
+    float a = GetSlopeHeight(slope, 0.0f, 0.0f);
+    float b = GetSlopeHeight(slope, 1.0f, 1.0f);
+    return std::max(a, b);
+}
+
 float GameMapHelpers::GetSlopeHeight(int slope, float posx, float posy)
 {
     debug_assert(posx >= 0.0f && posx <= 1.0f);
