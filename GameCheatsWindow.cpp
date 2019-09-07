@@ -30,7 +30,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
     {
         ImGui::Separator();
-        ImGui::Text("pos: %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y);
+        ImGui::Text("pos: %f, %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y, pedestrian->mPosition.z);
         ImGui::Text("heading: %f", pedestrian->mHeading);
         ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.2f");
         ImGui::Separator();

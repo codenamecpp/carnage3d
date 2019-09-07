@@ -15,11 +15,11 @@ public:
 
     // compute height for specific block slope type
     // @param slope: Index
-    // @param posx, posy: Position within block in range [0, MAP_BLOCK_LENGTH]
+    // @param posx, posy: Position within block in range [0, 1]
     static float GetSlopeHeight(int slope, float posx, float posy);
 
 private:
     GameMapHelpers();
     // internals
-    static void PutBlockFace(GameMapManager& city, MapMeshData& meshData, const Point3D& positin, eBlockFace face, BlockStyleData* blockInfo);
+    static void PutBlockFace(GameMapManager& city, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo);
 };

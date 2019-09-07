@@ -59,7 +59,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, const Point3D& positin, eBlockFace face, BlockStyleData* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;
@@ -144,7 +144,7 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
 
-    unsigned char color = 50 + static_cast<unsigned char>(((positin.z * 1.0f) / MAP_LAYERS_COUNT) * 180);
+    unsigned char color = 50 + static_cast<unsigned char>(((coord.z * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
     // color
     meshData.mMeshVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
@@ -153,7 +153,7 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mMeshVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { positin.x * MAP_BLOCK_LENGTH, positin.z * MAP_BLOCK_LENGTH, positin.y * MAP_BLOCK_LENGTH };
+    const glm::vec3 cubeOffset { coord.x * MAP_BLOCK_LENGTH, coord.z * MAP_BLOCK_LENGTH, coord.y * MAP_BLOCK_LENGTH };
     if (face == eBlockFace_Lid)
     {
         meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
@@ -264,8 +264,8 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
 
 float GameMapHelpers::GetSlopeHeight(int slope, float posx, float posy)
 {
-    debug_assert(posx >= 0.0f && posx <= MAP_BLOCK_LENGTH);
-    debug_assert(posy >= 0.0f && posy <= MAP_BLOCK_LENGTH);
+    debug_assert(posx >= 0.0f && posx <= 1.0f);
+    debug_assert(posy >= 0.0f && posy <= 1.0f);
 
     float slopeMin = 0.0f;
     float slopeMax = 0.0f;
@@ -278,74 +278,74 @@ float GameMapHelpers::GetSlopeHeight(int slope, float posx, float posy)
         case 1: case 2:
             slopeMin = ((slope - 1 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 1 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         // S, 26 low, high
         case 3: case 4:
             slopeMin = ((slope - 3 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 3 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         // W, 26 low, high
         case 5: case 6:
             slopeMin = ((slope - 5 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 5 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
         // E, 26 low, high
         case 7: case 8:
             slopeMin = ((slope - 7 + 0) / 2.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 7 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
             slopeMin = ((slope - 9 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 9 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
             slopeMin = ((slope - 17 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 17 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
             slopeMin = ((slope - 25 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 25 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
             slopeMin = ((slope - 33 + 0) / 8.0f) * MAP_BLOCK_LENGTH;
             slopeMax = ((slope - 33 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
         // 41 - 44 = 45 N,S,W,E
         case 41: 
             slopeMin = MAP_BLOCK_LENGTH;
             slopeMax = 0.0f;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         case 42: 
             slopeMin = 0.0f;
             slopeMax = MAP_BLOCK_LENGTH;
-            t = posy / MAP_BLOCK_LENGTH;
+            t = posy;
         break;
         case 43: 
             slopeMin = MAP_BLOCK_LENGTH;
             slopeMax = 0.0f;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
         case 44: 
             slopeMin = 0.0f;
             slopeMax = MAP_BLOCK_LENGTH;
-            t = posx / MAP_BLOCK_LENGTH;
+            t = posx;
         break;
 
         default:
