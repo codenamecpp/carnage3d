@@ -113,6 +113,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     if (mControl.IsMoves())
     {
         float moveSpeed = 0.0f;
+        bool moveBackward = false;
         if (mControl.mWalkForward)
         {
             if (mControl.mRunning)
@@ -128,24 +129,28 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         }
         else if (mControl.mWalkBackward)
         {
-            moveSpeed = -gGameRules.mPedestrianWalkSpeed;
+            moveSpeed = gGameRules.mPedestrianWalkSpeed;
+            moveBackward = true;
             SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction
         float angleRadians = glm::radians(mHeading);
-        glm::vec2 signVector {
-            cos(angleRadians), sin(angleRadians)
+        glm::vec3 signVector 
+        {
+            cos(angleRadians), sin(angleRadians), 0.0f
         };
 
-        glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
-        glm::vec3 newPosition = mPosition;
-        newPosition.x += walkDistance.x;
-        newPosition.y += walkDistance.y;
-
-        glm::vec3 hitPoint;
-        if (gCollisionManager.RaycastMapWall(mPosition, newPosition, hitPoint))
+        if (moveBackward)
         {
-            newPosition = hitPoint;
+            signVector = -signVector;
+        }
+
+        glm::vec3 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
+        glm::vec3 newPosition = mPosition + walkDistance;
+        glm::vec3 hitPoint;
+        if (gCollisionManager.RaycastMapWall(mPosition, newPosition + signVector * mSphereRadius, hitPoint))
+        {
+            newPosition = hitPoint - signVector * mSphereRadius;
         }
         mPosition = newPosition;
     }
