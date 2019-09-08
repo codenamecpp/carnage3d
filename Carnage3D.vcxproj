@@ -155,6 +155,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="FPSCameraController.h" />
     <ClInclude Include="GameMapHelpers.h" />
     <ClInclude Include="CityRenderer.h" />
@@ -220,6 +221,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="TopDownCameraController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="FPSCameraController.cpp" />
     <ClCompile Include="GameMapHelpers.cpp" />
     <ClCompile Include="GameMapData.cpp" />

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Pedestrian.h"
+#include "CollisionManager.h"
 
 PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
     : mPedestrian(pedestrian)
@@ -67,7 +68,7 @@ Pedestrian::Pedestrian(unsigned int id)
     : mPosition()
     , mPrevPosition()
     , mHeading()
-    , mSphereRadius(1.0f)
+    , mSphereRadius(0.1f)
     , mDead()
     , mVelocity()
     , mCurrentAnimID(eSpriteAnimationID_Null)
@@ -137,8 +138,16 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         };
 
         glm::vec2 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
-        mPosition.x += walkDistance.x;
-        mPosition.y += walkDistance.y;
+        glm::vec3 newPosition = mPosition;
+        newPosition.x += walkDistance.x;
+        newPosition.y += walkDistance.y;
+
+        glm::vec3 hitPoint;
+        if (gCollisionManager.RaycastMapWall(mPosition, newPosition, hitPoint))
+        {
+            newPosition = hitPoint;
+        }
+        mPosition = newPosition;
     }
     else
     {

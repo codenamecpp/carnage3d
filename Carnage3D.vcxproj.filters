@@ -253,6 +253,9 @@
     <ClInclude Include="GameMapData.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="CollisionManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -380,6 +383,9 @@
       <Filter>Game\Camera</Filter>
     </ClCompile>
     <ClCompile Include="GameMapData.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
