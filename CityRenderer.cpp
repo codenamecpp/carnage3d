@@ -135,6 +135,22 @@ void CityRenderer::CommitCityMeshData()
 
 void CityRenderer::BuildCityMeshData()
 {
+    if (gGameCheatsWindow.mGenerateFullMeshForMap && mCityMapRectangle.h == 0 && mCityMapRectangle.w == 0)
+    {
+        mCityMapRectangle.x = 0;
+        mCityMapRectangle.y = 0;
+        mCityMapRectangle.w = MAP_DIMENSIONS;
+        mCityMapRectangle.h = MAP_DIMENSIONS;  
+
+        gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated [full]");
+        for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
+        {
+            GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
+        }
+        gRenderManager.mCityRenderer.CommitCityMeshData();
+        return;
+    }
+
     int viewBlocks = 14;
 
     int tilex = static_cast<int>(gCamera.mPosition.x / MAP_BLOCK_LENGTH);
@@ -150,7 +166,7 @@ void CityRenderer::BuildCityMeshData()
     if (!invalidateCache)
         return;
 
-    gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated");
+    gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated [partial]");
 
     int cacheNumBlocks = 32;
     mCityMapRectangle.x = (-cacheNumBlocks / 2) + tilex;
@@ -440,4 +456,9 @@ void CityRenderer::RenderDrawSpritesBatches()
     }
 
     gRenderManager.mSpritesProgram.Deactivate();
+}
+
+void CityRenderer::InvalidateMapMesh()
+{
+    mCityMapRectangle.SetNull();
 }

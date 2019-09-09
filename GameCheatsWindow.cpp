@@ -7,6 +7,7 @@ GameCheatsWindow gGameCheatsWindow;
 
 GameCheatsWindow::GameCheatsWindow()
     : DebugWindow("Game Cheats")
+    , mGenerateFullMeshForMap()
 {
     for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
     {
@@ -60,6 +61,12 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         };  
 
         gRenderManager.mDebugRenderer.DrawCube(cube_center, cube_dims, COLOR_GREEN);
+        ImGui::Separator();
+    }
+
+    if (ImGui::Checkbox("Generate full mesh for map", &mGenerateFullMeshForMap))
+    {
+        gRenderManager.mCityRenderer.InvalidateMapMesh();
     }
 
     ImGui::Separator();

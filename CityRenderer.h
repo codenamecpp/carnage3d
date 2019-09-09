@@ -10,6 +10,7 @@ public:
     void Deinit();
 
     void RenderFrame();
+    void InvalidateMapMesh();
 
 private:
     // internals

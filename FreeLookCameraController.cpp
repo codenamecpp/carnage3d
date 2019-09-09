@@ -50,6 +50,9 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
 
 void FreeLookCameraController::InputEvent(KeyInputEvent& inputEvent)
 {
+    if (inputEvent.mConsumed)
+        return;
+
     if (inputEvent.mKeycode == KEYCODE_W)
     {
         mMoveForward = inputEvent.mPressed;
@@ -73,6 +76,9 @@ void FreeLookCameraController::InputEvent(KeyInputEvent& inputEvent)
 
 void FreeLookCameraController::InputEvent(MouseButtonInputEvent& inputEvent) 
 {
+    if (inputEvent.mConsumed)
+        return;
+
     if (inputEvent.mButton == MBUTTON_LEFT)
     {
         mMouseDragCamera = inputEvent.mPressed;
@@ -86,6 +92,9 @@ void FreeLookCameraController::InputEvent(MouseButtonInputEvent& inputEvent)
 
 void FreeLookCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 {
+    if (inputEvent.mConsumed)
+        return;
+
     if (!mMouseDragCamera)
         return;
 
@@ -94,7 +103,7 @@ void FreeLookCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
     if (deltay)
     {
-        float angleRads = -glm::radians(glm::sign(deltay) * 0.4f);
+        float angleRads = -glm::radians(glm::sign(deltay) * 0.45f);
         glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, gCamera.mRightDirection);
         glm::vec3 updir = glm::normalize(glm::cross(gCamera.mRightDirection, frontdir)); 
         gCamera.SetOrientation(frontdir, gCamera.mRightDirection, updir);
@@ -102,7 +111,7 @@ void FreeLookCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
     if (deltax)
     {
-        float angleRads = -glm::radians(glm::sign(deltax) * 0.4f);
+        float angleRads = -glm::radians(glm::sign(deltax) * 0.45f);
         glm::vec3 rightdir = glm::rotate(gCamera.mRightDirection, angleRads, SceneAxes::Y);
         glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, SceneAxes::Y);
         glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 
@@ -115,5 +124,8 @@ void FreeLookCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
 void FreeLookCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
+    if (inputEvent.mConsumed)
+        return;
+
     gCamera.Translate({ 0.0f, MAP_BLOCK_LENGTH * 0.5f * -inputEvent.mScrollY, 0.0f});
 }
