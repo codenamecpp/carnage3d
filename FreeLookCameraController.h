@@ -2,7 +2,7 @@
 
 #include "CameraController.h"
 
-class FPSCameraController final: public CameraController
+class FreeLookCameraController final: public CameraController
 {
 public:
     // reset scene camera to defaults
@@ -18,4 +18,13 @@ public:
     void InputEvent(MouseButtonInputEvent& inputEvent) override;
     void InputEvent(MouseMovedInputEvent& inputEvent) override;
     void InputEvent(MouseScrollInputEvent& inputEvent) override;
+
+private:
+    bool mMoveLeft;
+    bool mMoveRight;
+    bool mMoveForward;
+    bool mMoveBackward;
+    int mLastMouseX;
+    int mLastMouseY;
+    bool mMouseDragCamera;
 };

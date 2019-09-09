@@ -238,9 +238,6 @@
     <ClInclude Include="FollowCameraController.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="FPSCameraController.h">
-      <Filter>Game\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="TopDownCameraController.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
@@ -255,6 +252,9 @@
     </ClInclude>
     <ClInclude Include="CollisionManager.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeLookCameraController.h">
+      <Filter>Game\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -373,9 +373,6 @@
     <ClCompile Include="FollowCameraController.cpp">
       <Filter>Game\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="FPSCameraController.cpp">
-      <Filter>Game\Camera</Filter>
-    </ClCompile>
     <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game\Camera</Filter>
     </ClCompile>
@@ -387,6 +384,9 @@
     </ClCompile>
     <ClCompile Include="CollisionManager.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeLookCameraController.cpp">
+      <Filter>Game\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

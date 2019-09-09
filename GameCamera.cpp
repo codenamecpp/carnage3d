@@ -148,3 +148,11 @@ void GameCamera::SetTopDownOrientation()
     mRightDirection = SceneAxes::X;
     mViewMatrixDirty = true;
 }
+
+void GameCamera::SetOrientation(const glm::vec3& dirForward, const glm::vec3& dirRight, const glm::vec3& dirUp)
+{
+    mFrontDirection = dirForward;
+    mUpDirection = dirUp;
+    mRightDirection = dirRight;
+    mViewMatrixDirty = true;
+}

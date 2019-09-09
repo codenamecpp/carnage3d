@@ -41,6 +41,10 @@ public:
     // Reset camera to initial state
     void SetIdentity();
 
+    // Set camera orientation vectors
+    // @param dirForward, dirRight, dirUp: Axes, should be normalized 
+    void SetOrientation(const glm::vec3& dirForward, const glm::vec3& dirRight, const glm::vec3& dirUp);
+
     // Setup camera orientation, look at specified point
     // @param point: Point world
     // @param upward: Up vector, should be normalized
