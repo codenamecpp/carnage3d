@@ -12,7 +12,7 @@ void FollowCameraController::SetupInitial()
 {
     // set camera defaults
     gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 100.0f);
+    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 1000.0f);
     
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {

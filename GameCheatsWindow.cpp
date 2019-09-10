@@ -71,6 +71,40 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
     ImGui::Separator();
 
+    const char* modeStrings[] = { "Follow", "Free Look" };
+    CameraController* modeControllers[] =
+    {
+        &gCarnageGame.mFollowCameraController, 
+        &gCarnageGame.mFreeLookCameraController,
+    }; 
+    int currentCameraMode = 0;
+    for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
+    {
+        if (gCarnageGame.mCameraController == modeControllers[i])
+        {
+            currentCameraMode = i;
+            break;
+        }
+    }
+    const char* item_current = modeStrings[currentCameraMode];
+    if (ImGui::BeginCombo("Camera mode", item_current))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(modeStrings); n++)
+        {
+            bool is_selected = (item_current == modeStrings[n]);
+            if (ImGui::Selectable(modeStrings[n], is_selected))
+            {
+                item_current = modeStrings[n];
+                gCarnageGame.SetCameraController(modeControllers[n]);
+            }
+            if (is_selected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
     if (ImGui::CollapsingHeader("Map layers"))
     {
         for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)

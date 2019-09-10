@@ -238,9 +238,6 @@
     <ClInclude Include="FollowCameraController.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="TopDownCameraController.h">
-      <Filter>Game\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="GameCamera.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
@@ -371,9 +368,6 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="FollowCameraController.cpp">
-      <Filter>Game\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="TopDownCameraController.cpp">
       <Filter>Game\Camera</Filter>
     </ClCompile>
     <ClCompile Include="GameCamera.cpp">

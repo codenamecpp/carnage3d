@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameMapData.h"
-#include "TopDownCameraController.h"
 #include "FollowCameraController.h"
 #include "Pedestrian.h"
 #include "FreeLookCameraController.h"
@@ -11,7 +10,6 @@ class CarnageGame final: public cxx::noncopyable
 {
 public:
     PedestrianManager mPedsManager;
-    TopDownCameraController mTopDownCameraController;
     FollowCameraController mFollowCameraController;
     FreeLookCameraController mFreeLookCameraController;
     // gamestate
@@ -33,8 +31,11 @@ public:
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
 
-private:
+    // public for debug purposes
     void SetCameraController(CameraController* controller);
+
+private:
+
 };
 
 extern CarnageGame gCarnageGame;

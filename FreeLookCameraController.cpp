@@ -3,13 +3,12 @@
 
 void FreeLookCameraController::SetupInitial()
 {
+    glm::vec3 cameraPosition = gCamera.mPosition;
     // set camera defaults
     gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 100.0f);
-    gCamera.SetPosition({ MAP_DIMENSIONS * MAP_BLOCK_LENGTH * 0.5f, 
-        MAP_LAYERS_COUNT * MAP_BLOCK_LENGTH + 2.0f, 
-        MAP_DIMENSIONS * MAP_BLOCK_LENGTH * 0.5f });
+    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 1000.0f);
     gCamera.SetTopDownOrientation();
+    gCamera.SetPosition(cameraPosition);
 
     // reset controls flags
     mMoveLeft = false;
