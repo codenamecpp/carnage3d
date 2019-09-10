@@ -34,6 +34,8 @@ bool RenderingManager::Initialize()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug renderer");
     }
 
+    gGraphicsDevice.SetClearColor(COLOR_SKYBLUE);
+
     return true;
 }
 
