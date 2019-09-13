@@ -256,6 +256,9 @@
     <ClInclude Include="PhysicsManager.h">
       <Filter>Game\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsDebugDraw.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -383,6 +386,9 @@
       <Filter>Game\Camera</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsDebugDraw.cpp">
       <Filter>Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>

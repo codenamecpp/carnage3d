@@ -4,6 +4,7 @@
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"
+#include "PhysicsManager.h"
 
 CarnageGame gCarnageGame;
 
@@ -16,6 +17,8 @@ bool CarnageGame::Initialize()
     {
         debug_assert(false);
     }
+    gPhysics.Initialize();
+
     mPedsManager.Initialize();
 
     // temporary
@@ -30,11 +33,13 @@ bool CarnageGame::Initialize()
 void CarnageGame::Deinit()
 {
     mPedsManager.Deinit();
+    gPhysics.Deinit();
     gGameMap.Cleanup();
 }
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
+    gPhysics.UpdateFrame(deltaTime);
     mPedsManager.UpdateFrame(deltaTime);
     if (mCameraController)
     {

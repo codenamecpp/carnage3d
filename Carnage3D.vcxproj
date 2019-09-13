@@ -87,7 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,7 +120,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +155,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="PhysicsDebugDraw.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="FreeLookCameraController.h" />
     <ClInclude Include="GameMapHelpers.h" />
@@ -220,6 +221,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="StreamingVertexCache.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PhysicsDebugDraw.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="FreeLookCameraController.cpp" />
     <ClCompile Include="GameMapHelpers.cpp" />

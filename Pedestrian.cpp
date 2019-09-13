@@ -147,11 +147,6 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
         glm::vec3 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
         glm::vec3 newPosition = mPosition + walkDistance;
-        glm::vec3 hitPoint;
-        if (gPhysics.RaycastMapWall(mPosition, newPosition + signVector * mSphereRadius, hitPoint))
-        {
-            newPosition = hitPoint - signVector * mSphereRadius;
-        }
         mPosition = newPosition;
     }
     else

@@ -76,7 +76,9 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <fstream>
 #include <stdint.h>
 #include <cctype>
-#include <unordered_map>
+
+// physics
+#include <Box2D.h>
 
 // opengl
 #include <gl/glew.h>
@@ -90,7 +92,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/euler_angles.hpp>
-#include <glm/gtc/epsilon.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/glm.hpp>
 

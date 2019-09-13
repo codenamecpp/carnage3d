@@ -1,15 +1,21 @@
 #pragma once
 
 #include "GameDefs.h"
+#include "PhysicsDebugDraw.h"
 
 // this class manages physics and collision detections for map and objects
 class PhysicsManager final: public cxx::noncopyable
 {
 public:
-    // works in single dimension
-    bool RaycastMapWall(const glm::vec3& fromPoint, const glm::vec3& toPoint, glm::vec3& outPoint);
+    PhysicsManager();
+    bool Initialize();
+    void Deinit();
+    void UpdateFrame(Timespan deltaTime);
 
 private:
+    PhysicsDebugDraw mDebugDraw;
+    b2World* mPhysicsWorld;
+    Timespan mTimeSinceLastSimulation;
 };
 
 extern PhysicsManager gPhysics;
