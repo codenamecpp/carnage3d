@@ -53,6 +53,9 @@
     <Filter Include="Game\Camera">
       <UniqueIdentifier>{444d99fb-9da8-4789-b558-8ba75631c583}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Physics">
+      <UniqueIdentifier>{5b292061-e0c2-4bbc-a3f3-15c6c8d32cfd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -247,11 +250,11 @@
     <ClInclude Include="GameMapData.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionManager.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="FreeLookCameraController.h">
       <Filter>Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Game\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -376,11 +379,11 @@
     <ClCompile Include="GameMapData.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionManager.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="FreeLookCameraController.cpp">
       <Filter>Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

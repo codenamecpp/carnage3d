@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "CollisionManager.h"
+#include "PhysicsManager.h"
 #include "GameMapData.h"
 
-CollisionManager gCollisionManager;
+PhysicsManager gPhysics;
 
-bool CollisionManager::RaycastMapWall(const glm::vec3& startPoint, const glm::vec3& endPoint, glm::vec3& outPoint)
+bool PhysicsManager::RaycastMapWall(const glm::vec3& startPoint, const glm::vec3& endPoint, glm::vec3& outPoint)
 {
     MapCoord startMapPos = startPoint;
     MapCoord endMapPos = endPoint;

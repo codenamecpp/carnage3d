@@ -2,8 +2,8 @@
 
 #include "GameDefs.h"
 
-// collision detections for map and objects
-class CollisionManager final: public cxx::noncopyable
+// this class manages physics and collision detections for map and objects
+class PhysicsManager final: public cxx::noncopyable
 {
 public:
     // works in single dimension
@@ -12,4 +12,4 @@ public:
 private:
 };
 
-extern CollisionManager gCollisionManager;
+extern PhysicsManager gPhysics;
