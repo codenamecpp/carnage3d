@@ -2,13 +2,14 @@
 ToDo:
 
     - debug console commands
-    - remaps city tiles/sprites in shader
     - Simple cars loading and draw
-    - peds collision and physics
-    - cars collision and physics
+    - peds/cars collision and physics
 
     *minor*
+    - select level
     - city minimap
+    - blocks animations
+    - remaps city tiles/sprites in shader
 
     ======================= sprites =====================
 
