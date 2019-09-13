@@ -20,11 +20,9 @@ public:
     void InputEvent(MouseScrollInputEvent& inputEvent) override;
 
 private:
-    bool mMoveLeft;
-    bool mMoveRight;
-    bool mMoveForward;
-    bool mMoveBackward;
-    int mLastMouseX;
-    int mLastMouseY;
+    bool mMoveLeft, mMoveRight;
+    bool mMoveForward, mMoveBackward;
+    int mLastMouseX, mLastMouseY;
+    int mRotateDeltaX, mRotateDeltaY;
     bool mMouseDragCamera;
 };
