@@ -259,6 +259,12 @@
     <ClInclude Include="PhysicsDebugDraw.h">
       <Filter>Game\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsDefs.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsObject.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -389,6 +395,9 @@
       <Filter>Game\Physics</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsDebugDraw.cpp">
+      <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsObject.cpp">
       <Filter>Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>

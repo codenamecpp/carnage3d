@@ -156,6 +156,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="PhysicsDebugDraw.h" />
+    <ClInclude Include="PhysicsDefs.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="FreeLookCameraController.h" />
     <ClInclude Include="GameMapHelpers.h" />
@@ -204,6 +205,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="OpenGLDefs.h" />
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="Pedestrian.h" />
+    <ClInclude Include="PhysicsObject.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="RenderProgram.h" />
@@ -255,6 +257,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Pedestrian.cpp" />
+    <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="SpriteAnimation.cpp" />

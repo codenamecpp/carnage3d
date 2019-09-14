@@ -21,6 +21,9 @@
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 
+// forwards
+class Pedestrian;
+
 // location of map block in 3d array
 using MapCoord = glm::ivec3;
 

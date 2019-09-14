@@ -33,12 +33,14 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
     {
         ImGui::Separator();
-        ImGui::Text("pos: %f, %f, %f", pedestrian->mPosition.x, pedestrian->mPosition.y, pedestrian->mPosition.z);
-        ImGui::Text("heading: %f", pedestrian->mHeading);
-        ImGui::SliderFloat("pos z", &pedestrian->mPosition.z, 0.0f, 5.0f, "%.2f");
+        glm::vec3 pedPosition = pedestrian->mPhysicalBody->GetPosition();
+        ImGui::Text("pos: %f, %f, %f", pedPosition.x, pedPosition.y, pedPosition.z);
+
+        float pedHeading = pedestrian->mPhysicalBody->GetAngleDegrees();
+        ImGui::Text("heading: %f", pedHeading);
         ImGui::Separator();
 
-        MapCoord curr_block = pedestrian->mPosition;
+        MapCoord curr_block = pedPosition;
 
         BlockStyleData* currBlock = gGameMap.GetBlockClamp(curr_block);
         debug_assert(currBlock);

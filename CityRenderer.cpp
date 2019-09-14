@@ -6,6 +6,7 @@
 #include "SpriteCache.h"
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
+#include "PhysicsObject.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -287,9 +288,9 @@ void CityRenderer::DrawPeds()
 
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
 
-        float rotationAngle = glm::radians(currPedestrian->mHeading - SPRITE_ZERO_ANGLE);
-        DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, rotationAngle);
+        float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+        DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, 
+            currPedestrian->mPhysicalBody->GetPosition(), true, spriteScale, rotationAngle);
     }
 }
 

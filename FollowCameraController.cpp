@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FollowCameraController.h"
+#include "PhysicsObject.h"
 
 FollowCameraController::FollowCameraController()
     : mStartupCameraHeight(12.0f)
@@ -16,7 +17,8 @@ void FollowCameraController::SetupInitial()
     
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        gCamera.SetPosition({player->mPosition.x, mStartupCameraHeight, player->mPosition.y}); 
+        glm::vec3 position = player->mPhysicalBody->GetPosition();
+        gCamera.SetPosition({position.x, mStartupCameraHeight, position.y}); 
     }
     else
     {
@@ -32,12 +34,13 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
     // correct zoom
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        float targetHeight = (player->mPosition.z + mFollowPedCameraHeight);
+        glm::vec3 position = player->mPhysicalBody->GetPosition();
+        float targetHeight = (position.z + mFollowPedCameraHeight);
         if (fabs(targetHeight - gCamera.mPosition.y) > 0.1f)
         {
             mMoveDirection.y = (targetHeight - gCamera.mPosition.y) * deltaTime.ToSeconds();
         }
-        gCamera.SetPosition({player->mPosition.x, mFollowPedCameraHeight, player->mPosition.y}); 
+        gCamera.SetPosition({position.x, mFollowPedCameraHeight, position.y}); 
     }
     
 }
