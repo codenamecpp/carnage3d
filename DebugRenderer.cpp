@@ -47,7 +47,8 @@ static struct DebugSpherePrecomp
 
 DebugRenderer::DebugRenderer()
 {
-    mDebugVertices.reserve(2048);
+    mLineVertices.reserve(2048);
+    mTrisVertices.reserve(2048);
 }
 
 bool DebugRenderer::Initialize()
@@ -68,20 +69,30 @@ void DebugRenderer::Deinit()
 
 void DebugRenderer::RenderFrame()
 {
-    int numVertices = mDebugVertices.size();
+    if (mLineVertices.empty() && mTrisVertices.empty())
+        return;
+
+    gRenderManager.mDebugProgram.Activate();
+    gRenderManager.mDebugProgram.UploadCameraTransformMatrices();
+    FlushLines();
+    FlushTriangles();
+    mDebugVertexCache.FlushCache();
+    gRenderManager.mDebugProgram.Deactivate();
+}
+
+void DebugRenderer::FlushLines()
+{
+    int numVertices = mLineVertices.size();
 
     if (numVertices == 0)
         return;
 
     TransientBuffer vBuffer;
-    if (!mDebugVertexCache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mDebugVertices.data(), vBuffer))
+    if (!mDebugVertexCache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mLineVertices.data(), vBuffer))
     {
         debug_assert(false);
         return;
     }
-
-    gRenderManager.mDebugProgram.Activate();
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices();
 
     Vertex3D_Debug_Format vFormat;
     vFormat.mBaseOffset = vBuffer.mBufferDataOffset;
@@ -90,15 +101,41 @@ void DebugRenderer::RenderFrame()
     gGraphicsDevice.BindVertexBuffer(vBuffer.mGraphicsBuffer, vFormat);
     gGraphicsDevice.RenderPrimitives(ePrimitiveType_Lines, 0, numVertices);
 
-    mDebugVertexCache.FlushCache();
+    mLineVertices.clear();
+}
 
-    mDebugVertices.clear();
-    gRenderManager.mDebugProgram.Deactivate();
+void DebugRenderer::FlushTriangles()
+{
+    int numVertices = mTrisVertices.size();
+
+    if (numVertices == 0)
+        return;
+
+    TransientBuffer vBuffer;
+    if (!mDebugVertexCache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mTrisVertices.data(), vBuffer))
+    {
+        debug_assert(false);
+        return;
+    }
+
+    Vertex3D_Debug_Format vFormat;
+    vFormat.mBaseOffset = vBuffer.mBufferDataOffset;
+
+    gGraphicsDevice.BindIndexBuffer(nullptr);
+    gGraphicsDevice.BindVertexBuffer(vBuffer.mGraphicsBuffer, vFormat);
+    gGraphicsDevice.RenderPrimitives(ePrimitiveType_Triangles, 0, numVertices);
+
+    mTrisVertices.clear();
 }
 
 void DebugRenderer::DrawLine(const glm::vec3& point_a, const glm::vec3& point_b, unsigned int line_color)
 {
     push_line_verts(point_a, point_b, line_color);
+}
+
+void DebugRenderer::FillTriangle(const glm::vec3& point_a, const glm::vec3& point_b, const glm::vec3& point_c, unsigned int tri_color)
+{
+    push_tri_verts(point_a, point_b, point_c, tri_color);
 }
 
 void DebugRenderer::DrawCube(const glm::vec3& point_center, const glm::vec3& cube_dimensions, unsigned int line_color)
