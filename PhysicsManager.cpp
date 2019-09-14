@@ -76,7 +76,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     bodyDef.type = b2_dynamicBody;
     bodyDef.position = {position.x, position.y};
     bodyDef.angle = glm::radians(angleDegrees);
-    //bodyDef.fixedRotation = true;
+    bodyDef.fixedRotation = true;
     bodyDef.userData = physicsObject;
 
     physicsObject->mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
