@@ -16,6 +16,7 @@ bool PhysicsManager::Initialize()
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetDebugDraw(&mDebugDraw);
+    mPhysicsWorld->SetContactFilter(this);
 
     // create collsition body for map
     mMapPhysicsBody = CreateMapBody();
@@ -72,7 +73,7 @@ void PhysicsManager::EnableDebugDraw(bool isEnabled)
 
 bool PhysicsManager::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
-    return false;
+    return true;
 }
 
 PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, float angleDegrees)

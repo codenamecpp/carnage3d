@@ -3,4 +3,4 @@
 // forwards
 class PhysicsObject;
 
-#define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.15f
+#define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.10f
