@@ -42,6 +42,8 @@ System gSystem;
 
 void System::Execute()
 {
+    mIgnoreInputs = true; // don't dispatch input events until initialization completed
+
     Initialize();
 
     // main loop
@@ -62,6 +64,10 @@ void System::Execute()
         gCarnageGame.UpdateFrame(deltaTime);
         gRenderManager.RenderFrame();
         mPreviousFrameTimestamp = mCurrentTimestamp;
+        if (mIgnoreInputs) // ingore inputs at very first frame
+        {
+            mIgnoreInputs = false;
+        }
     }
 
     Deinit();
@@ -69,7 +75,6 @@ void System::Execute()
 
 void System::Initialize()
 {
-    mQuitRequested = false;
     if (!gConsole.Initialize())
     {
         debug_assert(false);
@@ -151,6 +156,9 @@ void System::QuitRequest()
 
 void System::HandleEvent(MouseButtonInputEvent& inputEvent)
 {
+    if (mIgnoreInputs)
+        return;
+
     gInputs.HandleEvent(inputEvent);
     gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
@@ -158,6 +166,9 @@ void System::HandleEvent(MouseButtonInputEvent& inputEvent)
 
 void System::HandleEvent(MouseMovedInputEvent& inputEvent)
 {
+    if (mIgnoreInputs)
+        return;
+
     gInputs.HandleEvent(inputEvent);
     gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
@@ -165,6 +176,9 @@ void System::HandleEvent(MouseMovedInputEvent& inputEvent)
 
 void System::HandleEvent(MouseScrollInputEvent& inputEvent)
 {
+    if (mIgnoreInputs)
+        return;
+
     gInputs.HandleEvent(inputEvent);
     gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
@@ -172,6 +186,9 @@ void System::HandleEvent(MouseScrollInputEvent& inputEvent)
 
 void System::HandleEvent(KeyInputEvent& inputEvent)
 {
+    if (mIgnoreInputs)
+        return;
+
     gInputs.HandleEvent(inputEvent);
     gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
@@ -179,6 +196,9 @@ void System::HandleEvent(KeyInputEvent& inputEvent)
 
 void System::HandleEvent(KeyCharEvent& inputEvent)
 {
+    if (mIgnoreInputs)
+        return;
+
     gInputs.HandleEvent(inputEvent);
     gGuiSystem.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
