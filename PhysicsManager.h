@@ -12,6 +12,8 @@ public:
     void Deinit();
     void UpdateFrame(Timespan deltaTime);
 
+    void EnableDebugDraw(bool isEnabled);
+
 private:
     PhysicsDebugDraw mDebugDraw;
     b2World* mPhysicsWorld;

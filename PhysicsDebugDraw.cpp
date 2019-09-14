@@ -2,6 +2,13 @@
 #include "PhysicsDebugDraw.h"
 #include "RenderingManager.h"
 
+inline unsigned int b2ColorToUnsignedInt(const b2Color& color)
+{
+    Color32 engineColor;
+    engineColor.SetComponentsF(color.r, color.g, color.b, color.a);
+    return engineColor.mRGBA;
+}
+
 void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
  //   b2Vec2 p1 = vertices[vertexCount - 1];
@@ -37,6 +44,8 @@ void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCoun
 
 void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color)
 {
+    glm::vec3 circleCenter { center.x, 1.0f, center.y };
+    gRenderManager.mDebugRenderer.DrawSphere(circleCenter, radius, b2ColorToUnsignedInt(color));
 	//const float32 k_segments = 16.0f;
 	//const float32 k_increment = 2.0f * b2_pi / k_segments;
  //   float32 sinInc = sinf(k_increment);
@@ -59,6 +68,9 @@ void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2
 	
 void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color)
 {
+    glm::vec3 circleCenter { center.x, 1.0f, center.y };
+    gRenderManager.mDebugRenderer.DrawSphere(circleCenter, radius, b2ColorToUnsignedInt(color));
+
 	//const float32 k_segments = 16.0f;
 	//const float32 k_increment = 2.0f * b2_pi / k_segments;
  //   float32 sinInc = sinf(k_increment);

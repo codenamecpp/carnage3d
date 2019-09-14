@@ -2,12 +2,14 @@
 #include "GameCheatsWindow.h"
 #include "imgui.h"
 #include "RenderingManager.h"
+#include "PhysicsManager.h"
 
 GameCheatsWindow gGameCheatsWindow;
 
 GameCheatsWindow::GameCheatsWindow()
     : DebugWindow("Game Cheats")
     , mGenerateFullMeshForMap()
+    , mDrawPhysicsDebugShapes()
 {
     for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
     {
@@ -68,7 +70,12 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     {
         gRenderManager.mCityRenderer.InvalidateMapMesh();
     }
+    ImGui::Separator();
 
+    if (ImGui::Checkbox("Draw physics debug shapes", &mDrawPhysicsDebugShapes))
+    {
+        gPhysics.EnableDebugDraw(mDrawPhysicsDebugShapes);
+    }
     ImGui::Separator();
 
     const char* modeStrings[] = { "Follow", "Free Look" };

@@ -7,6 +7,7 @@ class GameCheatsWindow: public DebugWindow
 public:
     bool mDrawMapLayers[MAP_LAYERS_COUNT];
     bool mGenerateFullMeshForMap;
+    bool mDrawPhysicsDebugShapes;
 
 public:
     GameCheatsWindow();
