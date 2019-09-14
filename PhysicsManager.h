@@ -29,12 +29,16 @@ public:
     void EnableDebugDraw(bool isEnabled);
 
 private:
+    // create level map body, used internally
+    PhysicsObject* CreateMapBody();
+
     // override b2ContactFilter
 	bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override; 
 
 private:
     PhysicsDebugDraw mDebugDraw;
     b2World* mPhysicsWorld;
+    PhysicsObject* mMapPhysicsBody;
     float mSimulationTimeAccumulator;
     cxx::object_pool<PhysicsObject> mObjectsPool;
 };

@@ -6,6 +6,7 @@ PhysicsManager gPhysics;
 
 PhysicsManager::PhysicsManager()
     : mPhysicsWorld()
+    , mMapPhysicsBody()
 {
     mDebugDraw.SetFlags(0);
 }
@@ -13,15 +14,23 @@ PhysicsManager::PhysicsManager()
 bool PhysicsManager::Initialize()
 {
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
-
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetDebugDraw(&mDebugDraw);
+
+    // create collsition body for map
+    mMapPhysicsBody = CreateMapBody();
+    debug_assert(mMapPhysicsBody);
 
     return true;
 }
 
 void PhysicsManager::Deinit()
 {
+    if (mMapPhysicsBody)
+    {
+        DestroyPhysicsObject(mMapPhysicsBody);
+        mMapPhysicsBody = nullptr;
+    }
     SafeDelete(mPhysicsWorld);
 }
 
@@ -87,13 +96,49 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     b2CircleShape shapeDef;
     shapeDef.m_radius = PHYSICS_PED_BOUNDING_SPHERE_RADIUS;
 
-    b2FixtureDef b2fixtureDef;
-    b2fixtureDef.shape = &shapeDef;
-    b2fixtureDef.density = 10.0f;
-
-    b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2fixtureDef);
+    b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&shapeDef, 10.0f);
     debug_assert(b2fixture);
 
+    return physicsObject;
+}
+
+PhysicsObject* PhysicsManager::CreateMapBody()
+{
+    // build object for layer 1
+
+    PhysicsObject* physicsObject = mObjectsPool.create();
+    physicsObject->mPhysicsWorld = mPhysicsWorld;
+
+    // create body
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_staticBody;
+    bodyDef.userData = physicsObject;
+
+    physicsObject->mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
+    debug_assert(physicsObject->mPhysicsBody);
+    physicsObject->mDepth = 1.0f;
+    physicsObject->mZCoord = 1.0f;
+
+    // for each block create fixture
+    for (int x = 0; x < MAP_DIMENSIONS; ++x)
+    for (int y = 0; y < MAP_DIMENSIONS; ++y)
+    {
+        MapCoord currentMapCoord { x, y, 1 };
+        BlockStyleData* blockData = gGameMap.GetBlock(currentMapCoord);
+        debug_assert(blockData);
+
+        if (blockData->mGroundType != eGroundType_Building)
+            continue;
+
+        b2PolygonShape b2shapeDef;
+        b2Vec2 center { 
+            (x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f), 
+            (y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)
+        };
+        b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f, MAP_BLOCK_LENGTH * 0.5f, center, 0.0f);
+        b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2shapeDef, 1.0f);
+        debug_assert(b2fixture);
+    }
     return physicsObject;
 }
 
