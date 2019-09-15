@@ -35,6 +35,8 @@ private:
     // override b2ContactFilter
 	bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override; 
 
+    bool ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const;
+
 private:
     PhysicsDebugDraw mDebugDraw;
     b2World* mPhysicsWorld;
