@@ -9,7 +9,7 @@ GameCheatsWindow gGameCheatsWindow;
 GameCheatsWindow::GameCheatsWindow()
     : DebugWindow("Game Cheats")
     , mGenerateFullMeshForMap()
-    , mDrawPhysicsDebugShapes()
+    , mEnableMapCollisions(true)
 {
     for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
     {
@@ -111,10 +111,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
     if (ImGui::CollapsingHeader("Physics"))
     {
-        if (ImGui::Checkbox("Draw physics debug shapes", &mDrawPhysicsDebugShapes))
-        {
-            gPhysics.EnableDebugDraw(mDrawPhysicsDebugShapes);
-        }
+        ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
         ImGui::Separator();
     }
 

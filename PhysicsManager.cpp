@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PhysicsManager.h"
 #include "GameMapData.h"
+#include "GameCheatsWindow.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -75,21 +76,10 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
         }
         mSimulationTimeAccumulator -= simulationStepF;
         mPhysicsWorld->Step(simulationStepF, velocityIterations, positionIterations);
+        UpdatePedsGravity(deltaTime);
     }
 
     mPhysicsWorld->DrawDebugData();
-}
-
-void PhysicsManager::EnableDebugDraw(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        mDebugDraw.SetFlags(b2Draw::e_shapeBit);
-    }
-    else
-    {
-        mDebugDraw.SetFlags(0);
-    }
 }
 
 PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, float angleDegrees)
@@ -216,6 +206,9 @@ bool PhysicsManager::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
     bool ped_vs_map = (filterA.categoryBits | filterB.categoryBits) == (PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_MAP);
     if (ped_vs_map)
     {
+        if (!gGameCheatsWindow.mEnableMapCollisions)
+            return false;
+
         return ShouldCollide_Ped_vs_Map((filterA.categoryBits & PHYSICS_OBJCAT_PED) ? fixtureA : fixtureB, 
             (filterA.categoryBits & PHYSICS_OBJCAT_MAP) ? fixtureA : fixtureB);
     }
@@ -224,20 +217,69 @@ bool PhysicsManager::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
 
 bool PhysicsManager::ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const
 {
-    b2FixtureData_map blockData (fixtureMap->GetUserData());
+    b2FixtureData_map fixtureMapData (fixtureMap->GetUserData());
     PhysicsObject* pedObject = (PhysicsObject*) fixturePed->GetBody()->GetUserData();
+    int zcoord = static_cast<int>(pedObject->mZCoord);
+    if (pedObject->mZCoord - zcoord)
+    {
+        ++zcoord; // todo: this is rather hacky solution
+    }
 
-    int z0 = static_cast<int>(pedObject->mZCoord + MAP_BLOCK_LENGTH * 0.5f);
-    
-    BlockStyleData* block0 = gGameMap.GetBlockClamp(MapCoord { blockData.mX, blockData.mY, z0 });
-    if (block0->mGroundType == eGroundType_Building)
-        return true;
-
-    int z1 = static_cast<int>(pedObject->mZCoord - MAP_BLOCK_LENGTH * 0.5f);
-
-    BlockStyleData* block1 = gGameMap.GetBlockClamp(MapCoord { blockData.mX, blockData.mY, z1 });
-    if (block1->mGroundType == eGroundType_Building)
+    BlockStyleData* mapBlock = gGameMap.GetBlockClamp(MapCoord { fixtureMapData.mX, fixtureMapData.mY, zcoord });
+    if (mapBlock->mGroundType == eGroundType_Building)
         return true;
 
     return false;
+}
+
+void PhysicsManager::UpdatePedsGravity(Timespan deltaTime)
+{
+    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
+    {
+        // correct z coord on slopes
+        glm::vec3 pedestrianPos = currPedestrian->mPhysicalBody->GetPosition();
+
+        float zcoord = GetHeightAtPosition(pedestrianPos);
+        if (zcoord != pedestrianPos.z)
+        {
+            currPedestrian->SetPosition(pedestrianPos.x, pedestrianPos.y, zcoord);
+        }
+    }
+}
+
+float PhysicsManager::GetHeightAtPosition(const glm::vec3& position) const
+{
+    float roundz = round(position.z);
+
+    MapCoord mapcoord = { position.x, position.y, roundz };
+
+    float height = mapcoord.z * 1.0f; // reset height to ground 
+    for (;height > -MAP_BLOCK_LENGTH;)
+    {
+        BlockStyleData* blockData = gGameMap.GetBlockClamp(mapcoord);
+        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
+        {
+            height -= MAP_BLOCK_LENGTH;
+            --mapcoord.z;
+            continue;
+        }
+        
+        // get block above
+        BlockStyleData* aboveBlockData = gGameMap.GetBlockClamp(mapcoord + MapCoord { 0, 0, 1 });
+        int slope = aboveBlockData->mSlopeType;
+        if (slope == 0)
+        {
+            slope = blockData->mSlopeType;
+        }
+
+        if (slope) // compute slope height
+        {
+            float cx = position.x - mapcoord.x;
+            float cy = position.y - mapcoord.y;
+            height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+        }
+
+        break;
+    }
+    return height;
 }

@@ -20,22 +20,26 @@ public:
     // @param angleDegrees: Direction angle in degrees
     PhysicsObject* CreatePedestrianBody(const glm::vec3& position, float angleDegrees);
 
+    // create level map body, used internally
+    PhysicsObject* CreateMapBody();
+
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid
     void DestroyPhysicsObject(PhysicsObject* object);
 
-    // show or hide debug draw information on screen
-    // param isEnabled: Flag
-    void EnableDebugDraw(bool isEnabled);
+    // get real height at specified map point
+    // @param position: Current position on map
+    float GetHeightAtPosition(const glm::vec3& position) const;
 
 private:
-    // create level map body, used internally
-    PhysicsObject* CreateMapBody();
+    // apply gravity forces and correct z coord for pedestrians
+    void UpdatePedsGravity(Timespan deltaTime);
+
+    // test whether ped should collide with map
+    bool ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const;
 
     // override b2ContactFilter
 	bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override; 
-
-    bool ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const;
 
 private:
     PhysicsDebugDraw mDebugDraw;
