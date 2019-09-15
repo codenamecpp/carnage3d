@@ -7,7 +7,7 @@
 
 // this class manages physics and collision detections for map and objects
 class PhysicsManager final: public cxx::noncopyable
-    , private b2ContactFilter
+    , private b2ContactListener
 {
 public:
     PhysicsManager();
@@ -35,11 +35,11 @@ private:
     // apply gravity forces and correct z coord for pedestrians
     void UpdatePedsGravity(Timespan deltaTime);
 
-    // test whether ped should collide with map
-    bool ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const;
-
     // override b2ContactFilter
-	bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override; 
+	void BeginContact(b2Contact* contact) override;
+	void EndContact(b2Contact* contact) override;
+	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
+	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
 private:
     PhysicsDebugDraw mDebugDraw;

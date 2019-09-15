@@ -10,6 +10,7 @@ GameCheatsWindow::GameCheatsWindow()
     : DebugWindow("Game Cheats")
     , mGenerateFullMeshForMap()
     , mEnableMapCollisions(true)
+    , mEnableGravity(true)
 {
     for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
     {
@@ -112,6 +113,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (ImGui::CollapsingHeader("Physics"))
     {
         ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
+        ImGui::Checkbox("Enable gravity", &mEnableGravity);
         ImGui::Separator();
     }
 

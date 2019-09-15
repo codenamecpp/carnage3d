@@ -10,29 +10,33 @@ public:
 
     bool mFalling;
     bool mGhost; // ignore collisions
+    bool mInCollidingWithWall;
 
 public:
     PhysicsObject();
     ~PhysicsObject();
 
-    // set object's world position and rotation angle
+    // set/get object's world position and rotation angle
     // @param position: Coordinate
     // @param angleDegrees: Rotation, optional
     void SetPosition(const glm::vec3& position);
     void SetPosition(const glm::vec3& position, float angleDegrees);
+    glm::vec3 GetPosition() const;
 
     // set object's heading angle in degrees or radians
     // @param angleDegrees, angleRadians: Angle
     void SetAngleDegrees(float angleDegrees);
     void SetAngleRadians(float angleRadians);
 
-    // set current angular velocity
+    // set/get current angular velocity
     // @param velocity: new angular velocity in degrees/second
     void SetAngularVelocity(float angularVelocity);
+    float GetAngularVelocity() const;
 
-	/// set the linear velocity of the center of mass
+	/// set/get the linear velocity of the center of mass
 	/// @param velocity: new linear velocity of the center of mass
     void SetLinearVelocity(const glm::vec3& velocity);
+    glm::vec3 GetLinearVelocity() const;
 
 	// apply a force to the center of mass
     // @param force: Force, the world force vector, usually in Newtons (N)
@@ -46,22 +50,13 @@ public:
 	// @param impulse the angular impulse in units of kg*m*m/s
     void ApplyAngularImpulse(float impulse);
 
-    // get current world position
-    glm::vec3 GetPosition() const;
-
-    // get current linear velocity
-    glm::vec3 GetLinearVelocity() const;
-
     // get current rotation angle in degrees or radians
     float GetAngleDegrees() const;
     float GetAngleRadians() const;
 
-    // get current angular velocity in degrees/second.
-    float GetAngularVelocity() const;
-
 private:
     friend class PhysicsManager;
-    // internal stuff that should be accessible only by physics manager
+    // internal stuff that should be touched only by physics manager
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
 };

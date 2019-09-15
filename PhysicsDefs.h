@@ -8,8 +8,9 @@ class PhysicsObject;
 // physics objects categories
 enum
 {
-    PHYSICS_OBJCAT_MAP = (1 << 0),
-    PHYSICS_OBJCAT_PED = (1 << 1),
-    PHYSICS_OBJCAT_CAR = (1 << 2),
-    PHYSICS_OBJCAT_MAPOBJECT = (1 << 3),
+    PHYSICS_OBJCAT_BUILDING = (1 << 0), // solid map block
+    PHYSICS_OBJCAT_WALL = (1 << 1), // thin fence
+    PHYSICS_OBJCAT_PED = (1 << 2),
+    PHYSICS_OBJCAT_CAR = (1 << 3),
+    PHYSICS_OBJCAT_MAPOBJECT = (1 << 4),
 };

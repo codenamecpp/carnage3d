@@ -38,7 +38,7 @@ bool PhysicsManager::Initialize()
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetDebugDraw(&mDebugDraw);
-    mPhysicsWorld->SetContactFilter(this);
+    mPhysicsWorld->SetContactListener(this);
 
     // create collsition body for map
     mMapPhysicsBody = CreateMapBody();
@@ -176,7 +176,7 @@ PhysicsObject* PhysicsManager::CreateMapBody()
             b2fixtureDef.density = 1.0f;
             b2fixtureDef.shape = &b2shapeDef;
             b2fixtureDef.userData = fixtureData.mAsPointer;
-            b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP;
+            b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_BUILDING;
 
             b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2fixtureDef);
             debug_assert(b2fixture);
@@ -195,41 +195,20 @@ void PhysicsManager::DestroyPhysicsObject(PhysicsObject* object)
     mObjectsPool.destroy(object);
 }
 
-bool PhysicsManager::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
+void PhysicsManager::BeginContact(b2Contact* contact)
 {
-    if (fixtureA == nullptr || fixtureB == nullptr)
-        return false;
-
-    const b2Filter& filterA = fixtureA->GetFilterData();
-    const b2Filter& filterB = fixtureB->GetFilterData();
-
-    bool ped_vs_map = (filterA.categoryBits | filterB.categoryBits) == (PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_MAP);
-    if (ped_vs_map)
-    {
-        if (!gGameCheatsWindow.mEnableMapCollisions)
-            return false;
-
-        return ShouldCollide_Ped_vs_Map((filterA.categoryBits & PHYSICS_OBJCAT_PED) ? fixtureA : fixtureB, 
-            (filterA.categoryBits & PHYSICS_OBJCAT_MAP) ? fixtureA : fixtureB);
-    }
-    return false;
 }
 
-bool PhysicsManager::ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const
+void PhysicsManager::EndContact(b2Contact* contact)
 {
-    b2FixtureData_map fixtureMapData (fixtureMap->GetUserData());
-    PhysicsObject* pedObject = (PhysicsObject*) fixturePed->GetBody()->GetUserData();
-    int zcoord = static_cast<int>(pedObject->mZCoord);
-    if (pedObject->mZCoord - zcoord)
-    {
-        ++zcoord; // todo: this is rather hacky solution
-    }
+}
 
-    BlockStyleData* mapBlock = gGameMap.GetBlockClamp(MapCoord { fixtureMapData.mX, fixtureMapData.mY, zcoord });
-    if (mapBlock->mGroundType == eGroundType_Building)
-        return true;
+void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+{
+}
 
-    return false;
+void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+{
 }
 
 void PhysicsManager::UpdatePedsGravity(Timespan deltaTime)

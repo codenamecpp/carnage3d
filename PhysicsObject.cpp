@@ -8,6 +8,7 @@ PhysicsObject::PhysicsObject()
     , mPhysicsBody()
     , mPhysicsWorld()
     , mDepth()
+    , mInCollidingWithWall()
 {
 }
 
