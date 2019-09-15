@@ -13,7 +13,7 @@ union b2FixtureData_map
 
     struct
     {
-        unsigned char mZ;
+        unsigned char mX, mY;
     };
 
     void* mAsPointer;
@@ -141,36 +141,59 @@ PhysicsObject* PhysicsManager::CreateMapBody()
     physicsObject->mDepth = 1.0f;
     physicsObject->mZCoord = 1.0f;
 
+    int numFixtures = 0;
     // for each block create fixture
     for (int x = 0; x < MAP_DIMENSIONS; ++x)
     for (int y = 0; y < MAP_DIMENSIONS; ++y)
-    for (int z = 1; z < MAP_LAYERS_COUNT; ++z)
     {
-        MapCoord currentMapCoord { x, y, z };
-        BlockStyleData* blockData = gGameMap.GetBlock(currentMapCoord);
-        debug_assert(blockData);
+        for (int z = 1; z < MAP_LAYERS_COUNT; ++z)
+        {
+            MapCoord currentMapCoord { x, y, z };
+            BlockStyleData* blockData = gGameMap.GetBlock(currentMapCoord);
+            debug_assert(blockData);
 
-        if (blockData->mGroundType != eGroundType_Building)
-            continue;
+            if (blockData->mGroundType != eGroundType_Building)
+                continue;
 
-        b2PolygonShape b2shapeDef;
-        b2Vec2 center { 
-            (x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f), 
-            (y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)
-        };
-        b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f, MAP_BLOCK_LENGTH * 0.5f, center, 0.0f);
+            // checek blox is inner
+            {
+                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(currentMapCoord + MapCoord { 1, 0, 0 }); 
+                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(currentMapCoord - MapCoord { 1, 0, 0 }); 
+                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(currentMapCoord - MapCoord { 0, 1, 0 }); 
+                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(currentMapCoord + MapCoord { 0, 1, 0 });
 
-        b2FixtureData_map fixtureData;
-        fixtureData.mZ = z;
+                if ((neighbourE->mGroundType == eGroundType_Building) &&
+                    (neighbourW->mGroundType == eGroundType_Building) &&
+                    (neighbourN->mGroundType == eGroundType_Building) &&
+                    (neighbourS->mGroundType == eGroundType_Building))
+                {
+                    continue; // just ignore this block 
+                }
+            }
 
-        b2FixtureDef b2fixtureDef;
-        b2fixtureDef.density = 1.0f;
-        b2fixtureDef.shape = &b2shapeDef;
-        b2fixtureDef.userData = fixtureData.mAsPointer;
-        b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP;
+            b2PolygonShape b2shapeDef;
+            b2Vec2 center { 
+                (x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f), 
+                (y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)
+            };
+            b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f, MAP_BLOCK_LENGTH * 0.5f, center, 0.0f);
 
-        b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2fixtureDef);
-        debug_assert(b2fixture);
+            b2FixtureData_map fixtureData;
+            fixtureData.mX = x;
+            fixtureData.mY = y;
+
+            b2FixtureDef b2fixtureDef;
+            b2fixtureDef.density = 1.0f;
+            b2fixtureDef.shape = &b2shapeDef;
+            b2fixtureDef.userData = fixtureData.mAsPointer;
+            b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP;
+
+            b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2fixtureDef);
+            debug_assert(b2fixture);
+
+            ++numFixtures;
+            break; // single fixture per block column
+        }
     }
     return physicsObject;
 }
@@ -202,7 +225,19 @@ bool PhysicsManager::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
 bool PhysicsManager::ShouldCollide_Ped_vs_Map(b2Fixture* fixturePed, b2Fixture* fixtureMap) const
 {
     b2FixtureData_map blockData (fixtureMap->GetUserData());
-
     PhysicsObject* pedObject = (PhysicsObject*) fixturePed->GetBody()->GetUserData();
-    return abs(pedObject->mZCoord - (blockData.mZ * MAP_BLOCK_LENGTH)) < MAP_BLOCK_LENGTH;
+
+    int z0 = static_cast<int>(pedObject->mZCoord + MAP_BLOCK_LENGTH * 0.5f);
+    
+    BlockStyleData* block0 = gGameMap.GetBlockClamp(MapCoord { blockData.mX, blockData.mY, z0 });
+    if (block0->mGroundType == eGroundType_Building)
+        return true;
+
+    int z1 = static_cast<int>(pedObject->mZCoord - MAP_BLOCK_LENGTH * 0.5f);
+
+    BlockStyleData* block1 = gGameMap.GetBlockClamp(MapCoord { blockData.mX, blockData.mY, z1 });
+    if (block1->mGroundType == eGroundType_Building)
+        return true;
+
+    return false;
 }

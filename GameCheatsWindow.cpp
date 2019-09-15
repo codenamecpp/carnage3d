@@ -72,12 +72,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     {
         gRenderManager.mCityRenderer.InvalidateMapMesh();
     }
-    ImGui::Separator();
 
-    if (ImGui::Checkbox("Draw physics debug shapes", &mDrawPhysicsDebugShapes))
-    {
-        gPhysics.EnableDebugDraw(mDrawPhysicsDebugShapes);
-    }
     ImGui::Separator();
 
     const char* modeStrings[] = { "Follow", "Free Look" };
@@ -112,6 +107,15 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
             }
         }
         ImGui::EndCombo();
+    }
+
+    if (ImGui::CollapsingHeader("Physics"))
+    {
+        if (ImGui::Checkbox("Draw physics debug shapes", &mDrawPhysicsDebugShapes))
+        {
+            gPhysics.EnableDebugDraw(mDrawPhysicsDebugShapes);
+        }
+        ImGui::Separator();
     }
 
     if (ImGui::CollapsingHeader("Map layers"))

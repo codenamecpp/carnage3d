@@ -161,6 +161,9 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         mPhysicalBody->SetLinearVelocity({}); // force stop
         SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
     }
+
+    // update z coord
+    // todo
 }
 
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)

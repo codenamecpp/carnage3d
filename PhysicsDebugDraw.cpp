@@ -23,23 +23,26 @@ void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, co
 
 void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
-	//b2Color fillColor(0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f);
+	b2Color fillColor(0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f);
 
- //   for (int32 i = 1; i < vertexCount - 1; ++i)
- //   {
- //       m_triangles->Vertex(vertices[0], fillColor);
- //       m_triangles->Vertex(vertices[i], fillColor);
- //       m_triangles->Vertex(vertices[i+1], fillColor);
- //   }
+    for (int32 i = 1; i < vertexCount - 1; ++i)
+    {
+        gRenderManager.mDebugRenderer.FillTriangle(
+            glm::vec3(vertices[0].x, 1.0f, vertices[0].y),
+            glm::vec3(vertices[i].x, 1.0f, vertices[i].y),
+            glm::vec3(vertices[i + 1].x, 1.0f, vertices[i + 1].y), b2ColorToUnsignedInt(fillColor));
+    }
 
- //   b2Vec2 p1 = vertices[vertexCount - 1];
-	//for (int32 i = 0; i < vertexCount; ++i)
-	//{
- //       b2Vec2 p2 = vertices[i];
-	//	m_lines->Vertex(p1, color);
-	//	m_lines->Vertex(p2, color);
- //       p1 = p2;
-	//}
+    b2Vec2 p1 = vertices[vertexCount - 1];
+	for (int32 i = 0; i < vertexCount; ++i)
+	{
+        b2Vec2 p2 = vertices[i];
+        gRenderManager.mDebugRenderer.DrawLine(
+            glm::vec3(p1.x, 1.0f, p1.y),
+            glm::vec3(p2.x, 1.0f, p2.y), b2ColorToUnsignedInt(color));
+
+        p1 = p2;
+	}
 }
 
 void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color)
