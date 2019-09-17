@@ -11,6 +11,9 @@ ToDo:
     - blocks animations
     - remaps city tiles/sprites in shader
 
+Render layers:  
+    - mapobjects, peds, cars, blocks
+
     ======================= sprites =====================
 
     style001.gry

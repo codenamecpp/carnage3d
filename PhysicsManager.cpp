@@ -136,7 +136,7 @@ PhysicsObject* PhysicsManager::CreateMapBody()
     for (int x = 0; x < MAP_DIMENSIONS; ++x)
     for (int y = 0; y < MAP_DIMENSIONS; ++y)
     {
-        for (int z = 1; z < MAP_LAYERS_COUNT; ++z)
+        for (int z = 0; z < MAP_LAYERS_COUNT; ++z)
         {
             MapCoord currentMapCoord { x, y, z };
             BlockStyleData* blockData = gGameMap.GetBlock(currentMapCoord);
@@ -152,10 +152,13 @@ PhysicsObject* PhysicsManager::CreateMapBody()
                 BlockStyleData* neighbourN = gGameMap.GetBlockClamp(currentMapCoord - MapCoord { 0, 1, 0 }); 
                 BlockStyleData* neighbourS = gGameMap.GetBlockClamp(currentMapCoord + MapCoord { 0, 1, 0 });
 
-                if ((neighbourE->mGroundType == eGroundType_Building) &&
-                    (neighbourW->mGroundType == eGroundType_Building) &&
-                    (neighbourN->mGroundType == eGroundType_Building) &&
-                    (neighbourS->mGroundType == eGroundType_Building))
+                auto is_walkable = [](eGroundType gtype)
+                {
+                    return gtype == eGroundType_Field || gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
+                };
+
+                if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&
+                    !is_walkable(neighbourN->mGroundType) && !is_walkable(neighbourS->mGroundType))
                 {
                     continue; // just ignore this block 
                 }
