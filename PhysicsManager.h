@@ -20,9 +20,6 @@ public:
     // @param angleDegrees: Direction angle in degrees
     PhysicsObject* CreatePedestrianBody(const glm::vec3& position, float angleDegrees);
 
-    // create level map body, used internally
-    PhysicsObject* CreateMapBody();
-
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid
     void DestroyPhysicsObject(PhysicsObject* object);
@@ -32,8 +29,11 @@ public:
     float GetHeightAtPosition(const glm::vec3& position) const;
 
 private:
+    // create level map body, used internally
+    void CreateMapCollisionBody();
+
     // apply gravity forces and correct z coord for pedestrians
-    void UpdatePedsGravity(Timespan deltaTime);
+    void UpdatePedsGravity();
 
     // override b2ContactFilter
 	void BeginContact(b2Contact* contact) override;
@@ -44,7 +44,7 @@ private:
 private:
     PhysicsDebugDraw mDebugDraw;
     b2World* mPhysicsWorld;
-    PhysicsObject* mMapPhysicsBody;
+    PhysicsObject* mMapCollisionBody;
     float mSimulationTimeAccumulator;
     cxx::object_pool<PhysicsObject> mObjectsPool;
 };

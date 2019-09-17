@@ -289,7 +289,7 @@ void CityRenderer::DrawPeds()
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
         
         glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
-        position.z += 0.2f; // bump it up
+        position.z += 0.1f; // bump it up
 
         float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 

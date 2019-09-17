@@ -4,6 +4,7 @@
 class PhysicsObject;
 
 #define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.10f
+#define PHYSICS_SIMULATION_STEP (1.0f / 60.0f)
 
 // physics objects categories
 enum

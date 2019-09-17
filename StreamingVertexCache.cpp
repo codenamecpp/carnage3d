@@ -101,14 +101,6 @@ void StreamingVertexCache::SetFreeBuffers(FrameCacheBuffer& cacheBuffer)
             cacheBuffer.mFullBuffers.end());
         cacheBuffer.mFullBuffers.clear();
     }
-    const int FullnessThreshold = static_cast<int>((cacheBuffer.mUsedLength * 1.0f / cacheBuffer.mGraphicsBuffer->mBufferLength) * 100.0f);
-    // invalidate current buffer if it almost full
-    if (FullnessThreshold > 99)
-    {
-        cacheBuffer.mGraphicsBuffer->Invalidate();
-        cacheBuffer.mFreeLength += cacheBuffer.mUsedLength;
-        cacheBuffer.mUsedLength = 0;
-    }
 }
 
 bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)

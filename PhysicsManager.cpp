@@ -28,7 +28,7 @@ PhysicsManager gPhysics;
 
 PhysicsManager::PhysicsManager()
     : mPhysicsWorld()
-    , mMapPhysicsBody()
+    , mMapCollisionBody()
 {
     mDebugDraw.SetFlags(0);
 }
@@ -41,44 +41,40 @@ bool PhysicsManager::Initialize()
     mPhysicsWorld->SetContactListener(this);
 
     // create collsition body for map
-    mMapPhysicsBody = CreateMapBody();
-    debug_assert(mMapPhysicsBody);
-
+    CreateMapCollisionBody();
     return true;
 }
 
 void PhysicsManager::Deinit()
 {
-    if (mMapPhysicsBody)
+    if (mMapCollisionBody)
     {
-        DestroyPhysicsObject(mMapPhysicsBody);
-        mMapPhysicsBody = nullptr;
+        DestroyPhysicsObject(mMapCollisionBody);
+        mMapCollisionBody = nullptr;
     }
     SafeDelete(mPhysicsWorld);
 }
 
 void PhysicsManager::UpdateFrame(Timespan deltaTime)
 {
-    int maxSimulationStepsPerFrame = 3;
+    int maxSimulationStepsPerFrame = 5;
     int numSimulations = 0;
 
-    const float simulationStepF = 1.0f / 60.0f;
     const int velocityIterations = 3; // recommended 8
-    const int positionIterations = 3; // recommended 3
+    const int positionIterations = 2; // recommended 3
 
     mSimulationTimeAccumulator += deltaTime.ToSeconds();
-    while (mSimulationTimeAccumulator > simulationStepF)
+
+    while (mSimulationTimeAccumulator >= PHYSICS_SIMULATION_STEP)
     {
-        if (++numSimulations > maxSimulationStepsPerFrame)
+        mSimulationTimeAccumulator -= PHYSICS_SIMULATION_STEP;
+        mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
+        if (++numSimulations == maxSimulationStepsPerFrame)
         {
-            mSimulationTimeAccumulator = 0.0f;
             break;
         }
-        mSimulationTimeAccumulator -= simulationStepF;
-        mPhysicsWorld->Step(simulationStepF, velocityIterations, positionIterations);
-        UpdatePedsGravity(deltaTime);
+        UpdatePedsGravity();
     }
-
     mPhysicsWorld->DrawDebugData();
 }
 
@@ -114,7 +110,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     return physicsObject;
 }
 
-PhysicsObject* PhysicsManager::CreateMapBody()
+void PhysicsManager::CreateMapCollisionBody()
 {
     // build object for layer 1
 
@@ -188,7 +184,8 @@ PhysicsObject* PhysicsManager::CreateMapBody()
             break; // single fixture per block column
         }
     }
-    return physicsObject;
+
+    mMapCollisionBody = physicsObject;
 }
 
 void PhysicsManager::DestroyPhysicsObject(PhysicsObject* object)
@@ -214,7 +211,7 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 {
 }
 
-void PhysicsManager::UpdatePedsGravity(Timespan deltaTime)
+void PhysicsManager::UpdatePedsGravity()
 {
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
     {
