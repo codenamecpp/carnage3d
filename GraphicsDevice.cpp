@@ -216,8 +216,16 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     if (!IsDeviceInited())
         return;
 
-    // todo
-    (void) fullscreenEnabled;
+    if (mGraphicsMonitor == nullptr && fullscreenEnabled)
+    {
+        mGraphicsMonitor = ::glfwGetPrimaryMonitor();
+        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+    }
+    else
+    {
+        mGraphicsMonitor = nullptr;
+        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+    }
 }
 
 GpuTexture2D* GraphicsDevice::CreateTexture2D()
