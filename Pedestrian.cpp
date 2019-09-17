@@ -2,6 +2,8 @@
 #include "Pedestrian.h"
 #include "PhysicsManager.h"
 
+cxx::object_pool<Pedestrian> Pedestrian::ObjectsPool;
+
 PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
     : mPedestrian(pedestrian)
 {
@@ -208,14 +210,14 @@ void PedestrianManager::Deinit()
     {
         if (currPedestrian)
         {
-            mPedsPool.destroy(currPedestrian);
+            Pedestrian::ObjectsPool.destroy(currPedestrian);
         }
     }
     for (Pedestrian* currPedestrian: mDestroyPedsList)
     {
         if (currPedestrian)
         {
-            mPedsPool.destroy(currPedestrian);
+            Pedestrian::ObjectsPool.destroy(currPedestrian);
         }
     }
 }
@@ -244,7 +246,7 @@ void PedestrianManager::DestroyPendingPeds()
         if (currentPed == nullptr)
             continue;
 
-        mPedsPool.destroy(currentPed);
+        Pedestrian::ObjectsPool.destroy(currentPed);
     }
     mDestroyPedsList.clear();
 }
@@ -279,7 +281,7 @@ Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
 {
     unsigned int pedestrianID = GenerateUniqueID();
 
-    Pedestrian* instance = mPedsPool.create(pedestrianID);
+    Pedestrian* instance = Pedestrian::ObjectsPool.create(pedestrianID);
     debug_assert(instance);
 
     AddToActiveList(instance);

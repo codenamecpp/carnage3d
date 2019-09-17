@@ -56,6 +56,7 @@ public:
 
 private:
     friend class PhysicsManager;
+    static cxx::object_pool<PhysicsObject> ObjectsPool;
     // internal stuff that should be touched only by physics manager
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;

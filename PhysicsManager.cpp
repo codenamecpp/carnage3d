@@ -80,7 +80,7 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
 
 PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, float angleDegrees)
 {
-    PhysicsObject* physicsObject = mObjectsPool.create();
+    PhysicsObject* physicsObject = PhysicsObject::ObjectsPool.create();
     physicsObject->mPhysicsWorld = mPhysicsWorld;
 
     // create body
@@ -114,7 +114,7 @@ void PhysicsManager::CreateMapCollisionBody()
 {
     // build object for layer 1
 
-    PhysicsObject* physicsObject = mObjectsPool.create();
+    PhysicsObject* physicsObject = PhysicsObject::ObjectsPool.create();
     physicsObject->mPhysicsWorld = mPhysicsWorld;
 
     // create body
@@ -192,7 +192,7 @@ void PhysicsManager::DestroyPhysicsObject(PhysicsObject* object)
 {
     debug_assert(object);
 
-    mObjectsPool.destroy(object);
+    PhysicsObject::ObjectsPool.destroy(object);
 }
 
 void PhysicsManager::BeginContact(b2Contact* contact)

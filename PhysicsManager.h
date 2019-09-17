@@ -46,7 +46,6 @@ private:
     b2World* mPhysicsWorld;
     PhysicsObject* mMapCollisionBody;
     float mSimulationTimeAccumulator;
-    cxx::object_pool<PhysicsObject> mObjectsPool;
 };
 
 extern PhysicsManager gPhysics;

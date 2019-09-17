@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PhysicsObject.h"
 
+cxx::object_pool<PhysicsObject> PhysicsObject::ObjectsPool;
+
 PhysicsObject::PhysicsObject()
     : mZCoord()
     , mFalling()

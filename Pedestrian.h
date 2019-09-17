@@ -61,6 +61,10 @@ public:
 
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
+
+private:
+    friend class PedestrianManager;
+    static cxx::object_pool<Pedestrian> ObjectsPool;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,6 +99,5 @@ private:
     unsigned int GenerateUniqueID();
 
 private:
-    cxx::object_pool<Pedestrian> mPedsPool;
     unsigned int mIDsCounter;
 };
