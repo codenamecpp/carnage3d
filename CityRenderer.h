@@ -14,24 +14,24 @@ public:
 
 private:
     // internals
-    void BuildCityMeshData();
+    void BuildMapMesh();
     void CommitCityMeshData();
 
     void RenderFrameBegin();
     void RenderFrameEnd();
 
     void DrawCityMesh();
-    void DrawPeds();
-    void DrawCars();
-    void DrawMapObjects();
-    void DrawProjectiles();
+    void IssuePedsSprites();
+    void IssueCarsSprites();
+    void IssueMapObjectsSprites();
+    void IssueProjectilesSprites();
 
     // @param sprRotate: Angle in radians
     void DrawSprite3D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
     void DrawSprite2D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec2& position, bool centerOrigin, float sprScale, float sprRotate);
 
     void SortDrawSpritesList();
-    void SetDrawSpritesBatches();
+    void GenerateDrawSpritesBatches();
     void RenderDrawSpritesBatches();
 
 private:

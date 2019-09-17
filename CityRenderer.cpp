@@ -61,23 +61,23 @@ void CityRenderer::Deinit()
 
 void CityRenderer::RenderFrame()
 {
-    BuildCityMeshData();
+    BuildMapMesh();
 
     RenderFrameBegin();
 
-    DrawCityMesh();
-    DrawPeds();
-    DrawMapObjects();
-    DrawCars();
-    DrawProjectiles();
+    IssuePedsSprites();
+    IssueMapObjectsSprites();
+    IssueCarsSprites();
+    IssueProjectilesSprites();
 
     if (!mDrawSpritesList.empty())
     {
         SortDrawSpritesList();
-        SetDrawSpritesBatches();
+        GenerateDrawSpritesBatches();
         RenderDrawSpritesBatches();
     }
 
+    DrawCityMesh();
     RenderFrameEnd();
 }
 
@@ -134,7 +134,7 @@ void CityRenderer::CommitCityMeshData()
     }
 }
 
-void CityRenderer::BuildCityMeshData()
+void CityRenderer::BuildMapMesh()
 {
     if (gGameCheatsWindow.mGenerateFullMeshForMap && mCityMapRectangle.h == 0 && mCityMapRectangle.w == 0)
     {
@@ -278,7 +278,7 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
     mDrawSpritesList.push_back(rec);
 }
 
-void CityRenderer::DrawPeds()
+void CityRenderer::IssuePedsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
@@ -297,15 +297,15 @@ void CityRenderer::DrawPeds()
     }
 }
 
-void CityRenderer::DrawCars()
+void CityRenderer::IssueCarsSprites()
 {
 }
 
-void CityRenderer::DrawMapObjects()
+void CityRenderer::IssueMapObjectsSprites()
 {
 }
 
-void CityRenderer::DrawProjectiles()
+void CityRenderer::IssueProjectilesSprites()
 {
 }
 
@@ -317,7 +317,7 @@ void CityRenderer::SortDrawSpritesList()
         });
 }
 
-void CityRenderer::SetDrawSpritesBatches()
+void CityRenderer::GenerateDrawSpritesBatches()
 {
     int numSprites = mDrawSpritesList.size();
 

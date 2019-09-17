@@ -134,5 +134,17 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::SliderFloat("Walk speed", &gGameRules.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
     }
 
+    if (ImGui::CollapsingHeader("Graphics"))
+    {
+        if (ImGui::Checkbox("Enable vsync", &gSystem.mConfig.mEnableVSync))
+        {
+            gGraphicsDevice.EnableVSync(gSystem.mConfig.mEnableVSync);
+        }
+        if (ImGui::Checkbox("Fullscreen", &gSystem.mConfig.mFullscreen))
+        {
+            gGraphicsDevice.EnableFullscreen(gSystem.mConfig.mFullscreen);
+        }
+    }
+
     ImGui::End();
 }
