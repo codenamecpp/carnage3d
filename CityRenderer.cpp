@@ -7,6 +7,7 @@
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
 #include "PhysicsObject.h"
+#include "PhysicsManager.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -288,10 +289,11 @@ void CityRenderer::IssuePedsSprites()
 
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
         
-        glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
-        position.z += 0.1f; // bump it up
-
         float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+
+        glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
+        position.z = ComputeDrawZ(currPedestrian, position, rotationAngle);
+
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
     }
@@ -465,4 +467,39 @@ void CityRenderer::RenderDrawSpritesBatches()
 void CityRenderer::InvalidateMapMesh()
 {
     mCityMapRectangle.SetNull();
+}
+
+float CityRenderer::ComputeDrawZ(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians)
+{
+    float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
+
+    glm::vec3 points[4] = {
+        { 0.0f, position.z + 0.01f, -halfBox },
+        { halfBox, position.z + 0.01f, 0.0f },
+        { 0.0f, position.z + 0.01f, halfBox },
+        { -halfBox, position.z + 0.01f, 0.0f },
+    };
+
+    float maxHeight = position.z;
+    for (glm::vec3& currPoint: points)
+    {
+        currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f));
+        currPoint.x += position.x;
+        currPoint.z += position.y;
+
+        // get height
+        float height = gGameMap.GetHeightAtPosition(glm::vec3(currPoint.x, currPoint.z, currPoint.y));
+        if (height > maxHeight)
+        {
+            maxHeight = height;
+        }
+    }
+#if 0
+    // debug
+    for (int i = 0; i < 4; ++i)
+    {
+        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+    }
+#endif
+    return maxHeight + 0.01f;
 }

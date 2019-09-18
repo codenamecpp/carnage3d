@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PhysicsManager.h"
-#include "GameMapData.h"
+#include "GameMapManager.h"
 #include "GameCheatsWindow.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
 
 PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, float angleDegrees)
 {
-    PhysicsObject* physicsObject = PhysicsObject::ObjectsPool.create();
+    PhysicsObject* physicsObject = mObjectsPool.create();
     physicsObject->mPhysicsWorld = mPhysicsWorld;
 
     // create body
@@ -114,7 +114,7 @@ void PhysicsManager::CreateMapCollisionBody()
 {
     // build object for layer 1
 
-    PhysicsObject* physicsObject = PhysicsObject::ObjectsPool.create();
+    PhysicsObject* physicsObject = mObjectsPool.create();
     physicsObject->mPhysicsWorld = mPhysicsWorld;
 
     // create body
@@ -134,8 +134,7 @@ void PhysicsManager::CreateMapCollisionBody()
     {
         for (int z = 0; z < MAP_LAYERS_COUNT; ++z)
         {
-            MapCoord currentMapCoord { x, y, z };
-            BlockStyleData* blockData = gGameMap.GetBlock(currentMapCoord);
+            BlockStyleData* blockData = gGameMap.GetBlock(x, y, z);
             debug_assert(blockData);
 
             if (blockData->mGroundType != eGroundType_Building)
@@ -143,10 +142,10 @@ void PhysicsManager::CreateMapCollisionBody()
 
             // checek blox is inner
             {
-                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(currentMapCoord + MapCoord { 1, 0, 0 }); 
-                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(currentMapCoord - MapCoord { 1, 0, 0 }); 
-                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(currentMapCoord - MapCoord { 0, 1, 0 }); 
-                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(currentMapCoord + MapCoord { 0, 1, 0 });
+                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(x + 1, y, z); 
+                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(x - 1, y, z); 
+                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(x, y - 1, z); 
+                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(x, y + 1, z);
 
                 auto is_walkable = [](eGroundType gtype)
                 {
@@ -192,7 +191,7 @@ void PhysicsManager::DestroyPhysicsObject(PhysicsObject* object)
 {
     debug_assert(object);
 
-    PhysicsObject::ObjectsPool.destroy(object);
+    mObjectsPool.destroy(object);
 }
 
 void PhysicsManager::BeginContact(b2Contact* contact)
@@ -218,47 +217,10 @@ void PhysicsManager::UpdatePedsGravity()
         // correct z coord on slopes
         glm::vec3 pedestrianPos = currPedestrian->mPhysicalBody->GetPosition();
 
-        float zcoord = GetHeightAtPosition(pedestrianPos);
+        float zcoord = gGameMap.GetHeightAtPosition(pedestrianPos);
         if (zcoord != pedestrianPos.z)
         {
             currPedestrian->SetPosition(pedestrianPos.x, pedestrianPos.y, zcoord);
         }
     }
-}
-
-float PhysicsManager::GetHeightAtPosition(const glm::vec3& position) const
-{
-    float roundz = round(position.z);
-
-    MapCoord mapcoord = { position.x, position.y, roundz };
-
-    float height = mapcoord.z * 1.0f; // reset height to ground 
-    for (;height > -MAP_BLOCK_LENGTH;)
-    {
-        BlockStyleData* blockData = gGameMap.GetBlockClamp(mapcoord);
-        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
-        {
-            height -= MAP_BLOCK_LENGTH;
-            --mapcoord.z;
-            continue;
-        }
-        
-        // get block above
-        BlockStyleData* aboveBlockData = gGameMap.GetBlockClamp(mapcoord + MapCoord { 0, 0, 1 });
-        int slope = aboveBlockData->mSlopeType;
-        if (slope == 0)
-        {
-            slope = blockData->mSlopeType;
-        }
-
-        if (slope) // compute slope height
-        {
-            float cx = position.x - mapcoord.x;
-            float cy = position.y - mapcoord.y;
-            height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
-        }
-
-        break;
-    }
-    return height;
 }

@@ -41,10 +41,12 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Text("heading: %f", pedHeading);
         ImGui::Separator();
 
-        MapCoord curr_block = pedPosition;
+        // get block location
+        int mapcoordx = (int) pedPosition.x;
+        int mapcoordy = (int) pedPosition.y;
+        int mapcoordz = (int) pedPosition.z;
 
-        BlockStyleData* currBlock = gGameMap.GetBlockClamp(curr_block);
-        debug_assert(currBlock);
+        BlockStyleData* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, mapcoordz);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
         ImGui::Text("b slope: %d", currBlock->mSlopeType);
@@ -59,9 +61,9 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         // draw debug block
 
         glm::vec3 cube_center { 
-            MAP_BLOCK_LENGTH * curr_block.x + MAP_BLOCK_LENGTH * 0.5f,
-            MAP_BLOCK_LENGTH * curr_block.z + MAP_BLOCK_LENGTH * 0.5f + 0.05f,
-            MAP_BLOCK_LENGTH * curr_block.y + MAP_BLOCK_LENGTH * 0.5f,
+            MAP_BLOCK_LENGTH * mapcoordx + MAP_BLOCK_LENGTH * 0.5f,
+            MAP_BLOCK_LENGTH * mapcoordz + MAP_BLOCK_LENGTH * 0.5f + 0.05f,
+            MAP_BLOCK_LENGTH * mapcoordy + MAP_BLOCK_LENGTH * 0.5f,
         };
         glm::vec3 cube_dims {
             MAP_BLOCK_LENGTH - 0.1f,

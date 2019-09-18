@@ -26,6 +26,8 @@ private:
     void IssueMapObjectsSprites();
     void IssueProjectilesSprites();
 
+    float ComputeDrawZ(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians);
+
     // @param sprRotate: Angle in radians
     void DrawSprite3D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
     void DrawSprite2D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec2& position, bool centerOrigin, float sprScale, float sprRotate);

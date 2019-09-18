@@ -2,7 +2,7 @@
 #include "GameMapHelpers.h"
 #include "SpriteCache.h"
 
-bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
@@ -16,8 +16,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, in
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        MapCoord mapCoord { tilex + area.x, tiley + area.y, layerIndex };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, layerIndex))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -25,14 +24,14 @@ bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, in
                     continue;
 
                 eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, { tilex + area.x, tiley + area.y, layerIndex }, faceid, blockInfo);
+                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, layerIndex, faceid, blockInfo);
             }
         }
     }
     return true;
 }
 
-bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, MapMeshData& meshData)
 {
     meshData.SetNull();
 
@@ -45,8 +44,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, Ma
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        MapCoord mapCoord { tilex + area.x, tiley + area.y, tilez };
-        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(mapCoord))
+        if (BlockStyleData* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, tilez))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -54,14 +52,14 @@ bool GameMapHelpers::BuildMapMesh(GameMapData& cityScape, const Rect2D& area, Ma
                     continue;
 
                 eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, { tilex + area.x, tiley + area.y, tilez }, faceid, blockInfo);
+                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, tilez, faceid, blockInfo);
             }
         }
     }
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapData& cityScape, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, int x, int y, int z, eBlockFace face, BlockStyleData* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;
@@ -146,7 +144,7 @@ void GameMapHelpers::PutBlockFace(GameMapData& cityScape, MapMeshData& meshData,
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
     meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
 
-    unsigned char color = 50 + static_cast<unsigned char>(((coord.z * 1.0f) / MAP_LAYERS_COUNT) * 180);
+    unsigned char color = 50 + static_cast<unsigned char>(((z * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
     // color
     meshData.mMeshVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
@@ -155,7 +153,7 @@ void GameMapHelpers::PutBlockFace(GameMapData& cityScape, MapMeshData& meshData,
     meshData.mMeshVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { coord.x * MAP_BLOCK_LENGTH, coord.z * MAP_BLOCK_LENGTH, coord.y * MAP_BLOCK_LENGTH };
+    const glm::vec3 cubeOffset { x * MAP_BLOCK_LENGTH, z * MAP_BLOCK_LENGTH, y * MAP_BLOCK_LENGTH };
     if (face == eBlockFace_Lid)
     {
         meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;

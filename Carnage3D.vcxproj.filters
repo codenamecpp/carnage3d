@@ -247,9 +247,6 @@
     <ClInclude Include="CameraController.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="GameMapData.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="FreeLookCameraController.h">
       <Filter>Game\Camera</Filter>
     </ClInclude>
@@ -264,6 +261,9 @@
     </ClInclude>
     <ClInclude Include="PhysicsObject.h">
       <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMapManager.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -385,9 +385,6 @@
     <ClCompile Include="GameCamera.cpp">
       <Filter>Game\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="GameMapData.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="FreeLookCameraController.cpp">
       <Filter>Game\Camera</Filter>
     </ClCompile>
@@ -399,6 +396,9 @@
     </ClCompile>
     <ClCompile Include="PhysicsObject.cpp">
       <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMapManager.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

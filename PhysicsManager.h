@@ -24,10 +24,6 @@ public:
     // @param object: Object to destroy, pointer becomes invalid
     void DestroyPhysicsObject(PhysicsObject* object);
 
-    // get real height at specified map point
-    // @param position: Current position on map
-    float GetHeightAtPosition(const glm::vec3& position) const;
-
 private:
     // create level map body, used internally
     void CreateMapCollisionBody();
@@ -46,6 +42,8 @@ private:
     b2World* mPhysicsWorld;
     PhysicsObject* mMapCollisionBody;
     float mSimulationTimeAccumulator;
+
+    cxx::object_pool<PhysicsObject> mObjectsPool;
 };
 
 extern PhysicsManager gPhysics;

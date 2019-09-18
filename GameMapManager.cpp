@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "GameMapData.h"
+#include "GameMapManager.h"
 
-GameMapData gGameMap;
+GameMapManager gGameMap;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool GameMapData::LoadFromFile(const char* filename)
+bool GameMapManager::LoadFromFile(const char* filename)
 {
     Cleanup();
 
@@ -98,7 +98,7 @@ bool GameMapData::LoadFromFile(const char* filename)
     return true;
 }
 
-void GameMapData::Cleanup()
+void GameMapManager::Cleanup()
 {
     mStyleData.Cleanup();
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
@@ -111,12 +111,12 @@ void GameMapData::Cleanup()
     }
 }
 
-bool GameMapData::IsLoaded() const
+bool GameMapManager::IsLoaded() const
 {
     return mStyleData.IsLoaded();
 }
 
-bool GameMapData::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -192,24 +192,25 @@ bool GameMapData::ReadCompressedMapData(std::ifstream& file, int columnLength, i
     return true;
 }
 
-BlockStyleData* GameMapData::GetBlock(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlock(int coordx, int coordy, int layer) const
 {
-    debug_assert(coord.z > -1 && coord.z < MAP_LAYERS_COUNT);
-    debug_assert(coord.x > -1 && coord.x < MAP_DIMENSIONS);
-    debug_assert(coord.y > -1 && coord.y < MAP_DIMENSIONS);
-    return &mMapTiles[coord.z][coord.y][coord.x];
+    debug_assert(layer > -1 && layer < MAP_LAYERS_COUNT);
+    debug_assert(coordx > -1 && coordx < MAP_DIMENSIONS);
+    debug_assert(coordy > -1 && coordy < MAP_DIMENSIONS);
+    // remember kids, don't try this at home!
+    return const_cast<BlockStyleData*> (&mMapTiles[layer][coordy][coordx]);
 }
 
-BlockStyleData* GameMapData::GetBlockClamp(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlockClamp(int coordx, int coordy, int layer) const
 {
-    int tilex = glm::clamp(coord.x, 0, MAP_DIMENSIONS - 1);
-    int tiley = glm::clamp(coord.y, 0, MAP_DIMENSIONS - 1);
-    int tilez = glm::clamp(coord.z, 0, MAP_LAYERS_COUNT - 1);
-
-    return &mMapTiles[tilez][tiley][tilex];
+    layer = glm::clamp(layer, 0, MAP_LAYERS_COUNT - 1);
+    coordx = glm::clamp(coordx, 0, MAP_DIMENSIONS - 1);
+    coordy = glm::clamp(coordy, 0, MAP_DIMENSIONS - 1);
+    // remember kids, don't try this at home!
+    return const_cast<BlockStyleData*> (&mMapTiles[layer][coordy][coordx]);
 }
 
-void GameMapData::FixShiftedBits()
+void GameMapManager::FixShiftedBits()
 {
     // as CityScape Data Structure document says:
 
@@ -247,4 +248,41 @@ void GameMapData::FixShiftedBits()
         topBlock.mGroundType = eGroundType_Air;
         topBlock.mTrafficLight = 0;
     }
+}
+
+float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
+{
+    int mapcoordx = (int) position.x;
+    int mapcoordy = (int) position.y;
+    int mapcoordz = (int) round(position.z);
+
+    float height = mapcoordz * 1.0f; // reset height to ground 
+    for (;height > -MAP_BLOCK_LENGTH;)
+    {
+        BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, mapcoordz);
+        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
+        {
+            height -= MAP_BLOCK_LENGTH;
+            --mapcoordz;
+            continue;
+        }
+        
+        // get block above
+        BlockStyleData* aboveBlockData = GetBlockClamp(mapcoordx, mapcoordy, mapcoordz + 1);
+        int slope = aboveBlockData->mSlopeType;
+        if (slope == 0)
+        {
+            slope = blockData->mSlopeType;
+        }
+
+        if (slope) // compute slope height
+        {
+            float cx = position.x - mapcoordx;
+            float cy = position.y - mapcoordy;
+            height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+        }
+
+        break;
+    }
+    return height;
 }
