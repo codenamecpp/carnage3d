@@ -31,12 +31,13 @@ public:
     // @param position: Current position on map
     float GetHeightAtPosition(const glm::vec3& position) const;
 
-    // get intersection with solid blocks
+    // get intersection with solid blocks on specific map layer
     // @param origin: Start position
-    // @param destination: End position, height should be the same as origin
+    // @param destination: End position
+    // @param height: Z coord which is map layer
     // @param outPoint: Intersection point
     // @returns true if intersection found or false otherwise
-    bool TraceSegment(const glm::vec3& origin, const glm::vec3& destination, glm::vec3& outPoint);
+    bool TraceSegment2D(const glm::vec2& origin, const glm::vec2& destination, float height, glm::vec2& outPoint);
 
 private:
     // Reading map data internals

@@ -287,24 +287,21 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
     return height;
 }
 
-bool GameMapManager::TraceSegment(const glm::vec3& origin, const glm::vec3& destination, glm::vec3& outPoint)
+bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& destination, float height, glm::vec2& outPoint)
 {
-    glm::ivec3 mapcoord_start = origin;
-    glm::ivec3 mapcoord_end = destination;
+    glm::ivec2 mapcoord_start = origin;
+    glm::ivec2 mapcoord_end = destination;
 
-    if (mapcoord_start.z != mapcoord_end.z) // silently ignore
-    {
-        //debug_assert(false);
-    }
+    int mapcoord_z = (int) height;
 
-    glm::vec3 direction = glm::normalize(destination - origin);
+    glm::vec2 direction = glm::normalize(destination - origin);
 
     // find all cells intersecting with line
 
     float posX = origin.x;
     float posY = origin.y;
 
-    glm::ivec3 mapcoord_curr = mapcoord_start;
+    glm::ivec2 mapcoord_curr = mapcoord_start;
 
     float sideDistX;
     float sideDistY;
@@ -364,7 +361,7 @@ bool GameMapManager::TraceSegment(const glm::vec3& origin, const glm::vec3& dest
         }
 
         // detect hit
-        BlockStyleData* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_curr.z);
+        BlockStyleData* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
         if (blockData->mGroundType == eGroundType_Building)
         {
             float perpWallDist;

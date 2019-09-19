@@ -29,6 +29,8 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::End();
         return;
     }
+
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Frame Time: %.3f ms (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     
     // pedestrian stats
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
@@ -74,13 +76,6 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         gRenderManager.mDebugRenderer.DrawCube(cube_center, cube_dims, COLOR_GREEN);
         ImGui::Separator();
     }
-
-    if (ImGui::Checkbox("Generate full mesh for map", &mGenerateFullMeshForMap))
-    {
-        gRenderManager.mCityRenderer.InvalidateMapMesh();
-    }
-
-    ImGui::Separator();
 
     const char* modeStrings[] = { "Follow", "Free Look" };
     CameraController* modeControllers[] =
@@ -130,6 +125,11 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
             cxx::string_buffer_16 cbtext;
             cbtext.printf("layer %d", ilayer);
             ImGui::Checkbox(cbtext.c_str(), &mDrawMapLayers[ilayer]);
+        }
+        ImGui::Separator();
+        if (ImGui::Checkbox("Generate full mesh for map", &mGenerateFullMeshForMap))
+        {
+            gRenderManager.mCityRenderer.InvalidateMapMesh();
         }
     }
 
