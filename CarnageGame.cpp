@@ -12,7 +12,8 @@ bool CarnageGame::Initialize()
 {
     gGameRules.LoadDefaults();
     gGameMap.LoadFromFile("NYC.CMP");
-
+    gSpriteCache.Cleanup();
+    gRenderManager.mCityRenderer.InvalidateMapMesh();
     if (!gSpriteCache.InitLevelSprites(gGameMap.mStyleData))
     {
         debug_assert(false);

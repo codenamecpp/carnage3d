@@ -11,6 +11,7 @@ class PhysicsManager final: public cxx::noncopyable
 {
 public:
     PhysicsManager();
+
     bool Initialize();
     void Deinit();
     void UpdateFrame(Timespan deltaTime);
