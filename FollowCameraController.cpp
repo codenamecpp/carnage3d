@@ -18,7 +18,7 @@ void FollowCameraController::SetupInitial()
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
         glm::vec3 position = player->mPhysicalBody->GetPosition();
-        gCamera.SetPosition({position.x, mStartupCameraHeight, position.y}); 
+        gCamera.SetPosition({position.x, mStartupCameraHeight, position.z}); 
     }
     else
     {
@@ -35,12 +35,12 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
         glm::vec3 position = player->mPhysicalBody->GetPosition();
-        float targetHeight = (position.z + mFollowPedCameraHeight);
+        float targetHeight = (position.y + mFollowPedCameraHeight);
         if (fabs(targetHeight - gCamera.mPosition.y) > 0.1f)
         {
             mMoveDirection.y = (targetHeight - gCamera.mPosition.y) * deltaTime.ToSeconds();
         }
-        gCamera.SetPosition({position.x, mFollowPedCameraHeight, position.y}); 
+        gCamera.SetPosition({position.x, mFollowPedCameraHeight, position.z}); 
     }
     
 }

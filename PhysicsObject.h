@@ -5,8 +5,8 @@ class PhysicsObject final: public cxx::noncopyable
 {
 public:    
     // public for convenience, should not be modified directly
-    float mZCoord;
-    float mDepth; // height in z
+    float mHeight;
+    float mDepth; // height in y
 
     bool mFalling;
     bool mGhost; // ignore collisions

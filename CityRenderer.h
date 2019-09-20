@@ -26,7 +26,7 @@ private:
     void IssueMapObjectsSprites();
     void IssueProjectilesSprites();
 
-    float ComputeDrawZ(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians);
+    float ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians);
 
     // @param sprRotate: Angle in radians
     void DrawSprite3D(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
@@ -41,13 +41,12 @@ private:
     // drawing operation for single sprite
     struct DrawSpriteRec
     {
-        glm::vec2 mPosition;
+        glm::vec3 mPosition;
         glm::vec2 mSize;
         glm::vec2 mCenterOffset;
         glm::vec2 mTcUv0;
         glm::vec2 mTcUv1;
         float mRotate; // rotate in radians
-        float mDepth; // z coord
         GpuTexture2D* mSpriteTexture;
     };
 

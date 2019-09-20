@@ -147,7 +147,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         float angleRadians = mPhysicalBody->GetAngleRadians();
         glm::vec3 signVector 
         {
-            cos(angleRadians), sin(angleRadians), 0.0f
+            cos(angleRadians), 0.0f, sin(angleRadians)
         };
 
         if (moveBackward)
@@ -186,11 +186,10 @@ void Pedestrian::SetHeading(float rotationDegrees)
     mPhysicalBody->SetAngleDegrees(rotationDegrees);
 }
 
-void Pedestrian::SetPosition(float posx, float posy, float posz)
+void Pedestrian::SetPosition(const glm::vec3& position)
 {
     debug_assert(mPhysicalBody);
 
-    glm::vec3 position { posx, posy, posz };
     mPhysicalBody->SetPosition(position);
 }
 

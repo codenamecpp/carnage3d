@@ -240,8 +240,7 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
 
     // setup draw sprite record
     DrawSpriteRec rec;
-        rec.mPosition.x = position.x;
-        rec.mPosition.y = position.y;
+        rec.mPosition = position;
         rec.mSize.x = rc.w * sprScale;
         rec.mSize.y = rc.h * sprScale;
         rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
@@ -251,7 +250,6 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
         rec.mRotate = heading;
-        rec.mDepth = position.z;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
 }
@@ -264,7 +262,8 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
     // setup draw sprite record
     DrawSpriteRec rec;
         rec.mPosition.x = position.x;
-        rec.mPosition.y = position.y;
+        rec.mPosition.y = 1.0f;
+        rec.mPosition.z = position.y;
         rec.mSize.x = rc.w * sprScale;
         rec.mSize.y = rc.h * sprScale;
         rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
@@ -274,7 +273,6 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
         rec.mRotate = heading;
-        rec.mDepth = 0.0f;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
 }
@@ -292,7 +290,7 @@ void CityRenderer::IssuePedsSprites()
         float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 
         glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
-        position.z = ComputeDrawZ(currPedestrian, position, rotationAngle);
+        position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
 
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
@@ -369,33 +367,33 @@ void CityRenderer::GenerateDrawSpritesBatches()
 
         vertexData[vertexOffset + 0].mTexcoord.x = sprite.mTcUv0.x;
         vertexData[vertexOffset + 0].mTexcoord.y = sprite.mTcUv0.y;
-        vertexData[vertexOffset + 0].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 0].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 1].mTexcoord.x = sprite.mTcUv1.x;
         vertexData[vertexOffset + 1].mTexcoord.y = sprite.mTcUv0.y;
-        vertexData[vertexOffset + 1].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 1].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 2].mTexcoord.x = sprite.mTcUv0.x;
         vertexData[vertexOffset + 2].mTexcoord.y = sprite.mTcUv1.y;
-        vertexData[vertexOffset + 2].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 2].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 3].mTexcoord.x = sprite.mTcUv1.x;
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTcUv1.y;
-        vertexData[vertexOffset + 3].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 3].mPosition.y = sprite.mPosition.y;
 
         const glm::vec2 positions[4] = 
         {
-            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.y + sprite.mSize.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.y + sprite.mSize.y + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.z + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.z + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.z + sprite.mSize.y + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.z + sprite.mSize.y + sprite.mCenterOffset.y},
         };
-
+        glm::vec2 rotateCenter { sprite.mPosition.x, sprite.mPosition.z };
         if (fabs(sprite.mRotate) > 0.01f) // has rotation
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotate);
+                glm::vec2 currPos = cxx::rotate_around_center(positions[i], rotateCenter, sprite.mRotate);
 
                 vertexData[vertexOffset + i].mPosition.x = currPos.x;
                 vertexData[vertexOffset + i].mPosition.z = currPos.y;
@@ -469,26 +467,26 @@ void CityRenderer::InvalidateMapMesh()
     mCityMapRectangle.SetNull();
 }
 
-float CityRenderer::ComputeDrawZ(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians)
+float CityRenderer::ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians)
 {
     float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
 
     glm::vec3 points[4] = {
-        { 0.0f, position.z + 0.01f, -halfBox },
-        { halfBox, position.z + 0.01f, 0.0f },
-        { 0.0f, position.z + 0.01f, halfBox },
-        { -halfBox, position.z + 0.01f, 0.0f },
+        { 0.0f, position.y + 0.01f, -halfBox },
+        { halfBox, position.y + 0.01f, 0.0f },
+        { 0.0f, position.y + 0.01f, halfBox },
+        { -halfBox, position.y + 0.01f, 0.0f },
     };
 
-    float maxHeight = position.z;
+    float maxHeight = position.y;
     for (glm::vec3& currPoint: points)
     {
         currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f));
         currPoint.x += position.x;
-        currPoint.z += position.y;
+        currPoint.z += position.z;
 
         // get height
-        float height = gGameMap.GetHeightAtPosition(glm::vec3(currPoint.x, currPoint.z, currPoint.y));
+        float height = gGameMap.GetHeightAtPosition(currPoint);
         if (height > maxHeight)
         {
             maxHeight = height;

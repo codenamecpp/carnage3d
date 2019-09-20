@@ -45,10 +45,10 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
         // get block location
         int mapcoordx = (int) pedPosition.x;
-        int mapcoordy = (int) pedPosition.y;
-        int mapcoordz = (int) pedPosition.z;
+        int mapcoordy = (int) pedPosition.z;
+        int maplayer = (int) pedPosition.y;
 
-        BlockStyleData* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, mapcoordz);
+        BlockStyleData* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, maplayer);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
         ImGui::Text("b slope: %d", currBlock->mSlopeType);
@@ -59,22 +59,6 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         {
             ImGui::Text("b face %s : %d", cxx::enum_to_string((eBlockFace) iface), currBlock->mFaces[iface]);
         }
-
-        // draw debug block
-
-        glm::vec3 cube_center { 
-            MAP_BLOCK_LENGTH * mapcoordx + MAP_BLOCK_LENGTH * 0.5f,
-            MAP_BLOCK_LENGTH * mapcoordz + MAP_BLOCK_LENGTH * 0.5f + 0.05f,
-            MAP_BLOCK_LENGTH * mapcoordy + MAP_BLOCK_LENGTH * 0.5f,
-        };
-        glm::vec3 cube_dims {
-            MAP_BLOCK_LENGTH - 0.1f,
-            MAP_BLOCK_LENGTH - 0.1f,
-            MAP_BLOCK_LENGTH - 0.1f
-        };  
-
-        gRenderManager.mDebugRenderer.DrawCube(cube_center, cube_dims, COLOR_GREEN);
-        ImGui::Separator();
     }
 
     const char* modeStrings[] = { "Follow", "Free Look" };

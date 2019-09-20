@@ -54,7 +54,7 @@ public:
 
     // state control
     void SetHeading(float rotationDegrees);
-    void SetPosition(float posx, float posy, float posz);
+    void SetPosition(const glm::vec3& position);
 
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);

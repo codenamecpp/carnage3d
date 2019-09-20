@@ -253,22 +253,22 @@ void GameMapManager::FixShiftedBits()
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
 {
     int mapcoordx = (int) position.x;
-    int mapcoordy = (int) position.y;
-    int mapcoordz = (int) position.z;
+    int mapcoordy = (int) position.z;
+    int maplayer = (int) position.y;
 
-    float height = mapcoordz * 1.0f; // reset height to ground 
+    float height = maplayer * 1.0f; // reset height to ground 
     for (;height > -MAP_BLOCK_LENGTH;)
     {
-        BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, mapcoordz);
+        BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);
         if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
         {
             height -= MAP_BLOCK_LENGTH;
-            --mapcoordz;
+            --maplayer;
             continue;
         }
         
         // get block above
-        BlockStyleData* aboveBlockData = GetBlockClamp(mapcoordx, mapcoordy, mapcoordz + 1);
+        BlockStyleData* aboveBlockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer + 1);
         int slope = aboveBlockData->mSlopeType;
         if (slope == 0)
         {
@@ -278,7 +278,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
         if (slope) // compute slope height
         {
             float cx = position.x - mapcoordx;
-            float cy = position.y - mapcoordy;
+            float cy = position.z - mapcoordy;
             height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
         }
 

@@ -14,7 +14,7 @@ union b2FixtureData_map
 
     struct
     {
-        unsigned char mX, mY;
+        unsigned char mX, mZ;
     };
 
     void* mAsPointer;
@@ -86,7 +86,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     // create body
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = {position.x, position.y};
+    bodyDef.position = {position.x, position.z};
     bodyDef.angle = glm::radians(angleDegrees);
     bodyDef.fixedRotation = true;
     bodyDef.userData = physicsObject;
@@ -94,7 +94,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     physicsObject->mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
     debug_assert(physicsObject->mPhysicsBody);
     physicsObject->mDepth = 0.5f;
-    physicsObject->mZCoord = position.z;
+    physicsObject->mHeight = position.y;
     
     b2CircleShape shapeDef;
     shapeDef.m_radius = PHYSICS_PED_BOUNDING_SPHERE_RADIUS;
@@ -124,17 +124,17 @@ void PhysicsManager::CreateMapCollisionBody()
 
     physicsObject->mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
     debug_assert(physicsObject->mPhysicsBody);
-    physicsObject->mDepth = 1.0f;
-    physicsObject->mZCoord = 1.0f;
+    physicsObject->mDepth = MAP_LAYERS_COUNT * MAP_BLOCK_LENGTH;
+    physicsObject->mHeight = 0.0f;
 
     int numFixtures = 0;
     // for each block create fixture
     for (int x = 0; x < MAP_DIMENSIONS; ++x)
     for (int y = 0; y < MAP_DIMENSIONS; ++y)
     {
-        for (int z = 0; z < MAP_LAYERS_COUNT; ++z)
+        for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
         {
-            BlockStyleData* blockData = gGameMap.GetBlock(x, y, z);
+            BlockStyleData* blockData = gGameMap.GetBlock(x, y, layer);
             debug_assert(blockData);
 
             if (blockData->mGroundType != eGroundType_Building)
@@ -142,10 +142,10 @@ void PhysicsManager::CreateMapCollisionBody()
 
             // checek blox is inner
             {
-                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(x + 1, y, z); 
-                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(x - 1, y, z); 
-                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(x, y - 1, z); 
-                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(x, y + 1, z);
+                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
+                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
+                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
+                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
 
                 auto is_walkable = [](eGroundType gtype)
                 {
@@ -168,7 +168,7 @@ void PhysicsManager::CreateMapCollisionBody()
 
             b2FixtureData_map fixtureData;
             fixtureData.mX = x;
-            fixtureData.mY = y;
+            fixtureData.mZ = y;
 
             b2FixtureDef b2fixtureDef;
             b2fixtureDef.density = 1.0f;
@@ -214,13 +214,9 @@ void PhysicsManager::UpdatePedsGravity()
 {
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
     {
-        // correct z coord on slopes
+        // correct y coord on slopes
         glm::vec3 pedestrianPos = currPedestrian->mPhysicalBody->GetPosition();
-
-        float zcoord = gGameMap.GetHeightAtPosition(pedestrianPos);
-        if (zcoord != pedestrianPos.z)
-        {
-            currPedestrian->SetPosition(pedestrianPos.x, pedestrianPos.y, zcoord);
-        }
+        pedestrianPos.y = gGameMap.GetHeightAtPosition(pedestrianPos);
+        currPedestrian->SetPosition(pedestrianPos);
     }
 }
