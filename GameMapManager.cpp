@@ -254,7 +254,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
 {
     int mapcoordx = (int) position.x;
     int mapcoordy = (int) position.y;
-    int mapcoordz = (int) round(position.z);
+    int mapcoordz = (int) position.z;
 
     float height = mapcoordz * 1.0f; // reset height to ground 
     for (;height > -MAP_BLOCK_LENGTH;)
