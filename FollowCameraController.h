@@ -24,8 +24,6 @@ private:
     // parameters
     float mStartupCameraHeight;
     float mFollowPedCameraHeight;
+    float mScrollHeightOffset;
     float mFollowPedZoomCameraSpeed;
-
-    // controller state
-    glm::vec3 mMoveDirection;
 };
