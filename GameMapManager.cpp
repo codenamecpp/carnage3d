@@ -188,7 +188,7 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
             mMapTiles[tilez][tiley][tilex] = blocksData[srcBlock];
         }
     }
-    FixShiftedBits();
+    //FixShiftedBits();
     return true;
 }
 
@@ -257,7 +257,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
     int maplayer = (int) position.y;
 
     float height = maplayer * 1.0f; // reset height to ground 
-    for (;height > -MAP_BLOCK_LENGTH;)
+    for (;height > 0.0f;)
     {
         BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);
         if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
