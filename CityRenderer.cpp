@@ -472,16 +472,16 @@ float CityRenderer::ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& p
     float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
 
     glm::vec3 points[4] = {
-        { 0.0f, position.y + 0.01f, -halfBox },
-        { halfBox, position.y + 0.01f, 0.0f },
-        { 0.0f, position.y + 0.01f, halfBox },
+        { 0.0f,     position.y + 0.01f, -halfBox },
+        { halfBox,  position.y + 0.01f, 0.0f },
+        { 0.0f,     position.y + 0.01f, halfBox },
         { -halfBox, position.y + 0.01f, 0.0f },
     };
 
     float maxHeight = position.y;
     for (glm::vec3& currPoint: points)
     {
-        currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f));
+        //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
         currPoint.x += position.x;
         currPoint.z += position.z;
 
@@ -492,7 +492,7 @@ float CityRenderer::ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& p
             maxHeight = height;
         }
     }
-#if 0
+#if 1
     // debug
     for (int i = 0; i < 4; ++i)
     {
