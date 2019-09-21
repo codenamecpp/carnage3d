@@ -254,9 +254,10 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
 {
     int mapcoordx = (int) position.x;
     int mapcoordy = (int) position.z;
-    int maplayer = (int) position.y;
+    int maplayer = (int) (position.y + 0.5f);
 
-    float height = maplayer * 1.0f; // reset height to ground 
+    float height = maplayer * 1.0f; // reset height to ground
+
     for (;height > 0.0f;)
     {
         BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);

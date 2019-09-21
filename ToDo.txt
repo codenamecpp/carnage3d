@@ -8,11 +8,7 @@ ToDo:
     *minor*
     - select level
     - city minimap
-    - blocks animations
     - remaps city tiles/sprites in shader
-
-Render layers:  
-    - mapobjects, peds, cars, blocks
 
     ======================= sprites =====================
 
