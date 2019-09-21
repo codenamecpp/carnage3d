@@ -13,8 +13,10 @@ ConsoleWindow::ConsoleWindow() : DebugWindow("Debug Console")
 
 void ConsoleWindow::DoUI(Timespan deltaTime)
 {
-    ImGui::SetNextWindowSize(ImVec2(620,360), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin(mWindowName, &mWindowShown))
+    ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+    ImGui::SetNextWindowSize(ImVec2(620,360));
+    if (!ImGui::Begin(mWindowName, &mWindowShown, wndFlags))
     {
         ImGui::End();
         return;
@@ -50,7 +52,7 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); 
             pop_color = true; 
         }
-        if (currentLine.mMessageCategory == eLogMessage_Error) 
+        if (currentLine.mMessageCategory == eLogMessage_Warning) 
         { 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f)); 
             pop_color = true; 

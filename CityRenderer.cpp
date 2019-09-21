@@ -144,7 +144,7 @@ void CityRenderer::BuildMapMesh()
         mCityMapRectangle.w = MAP_DIMENSIONS;
         mCityMapRectangle.h = MAP_DIMENSIONS;  
 
-        gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated [full]");
+        gConsole.LogMessage(eLogMessage_Debug, "City mesh invalidated [full]");
         for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
         {
             GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
@@ -168,7 +168,7 @@ void CityRenderer::BuildMapMesh()
     if (!invalidateCache)
         return;
 
-    gConsole.LogMessage(eLogMessage_Info, "City mesh invalidated [partial]");
+    gConsole.LogMessage(eLogMessage_Debug, "City mesh invalidated [partial]");
 
     int cacheNumBlocks = 32;
     mCityMapRectangle.x = (-cacheNumBlocks / 2) + tilex;
