@@ -6,6 +6,7 @@
 #include "CarnageGame.h"
 #include "stb_rect_pack.h"
 #include "GpuTexture1D.h"
+#include "GameCheatsWindow.h"
 
 const int ObjectsTextureSizeX = 2048;
 const int ObjectsTextureSizeY = 1024;
@@ -318,6 +319,9 @@ bool SpriteManager::ProcessBlocksAnimations()
 {
     const int TicksPerCycle = 1000 / 60;
 
+    if (!gGameCheatsWindow.mEnableBlocksAnimation)
+        return false;
+
     bool isModified = false;
     while (mBlocksAnimTime > TicksPerCycle)
     {
@@ -342,5 +346,8 @@ bool SpriteManager::ProcessBlocksAnimations()
 
 void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
 {
+    if (!gGameCheatsWindow.mEnableBlocksAnimation)
+        return;
+
     mBlocksAnimTime += deltaTime;
 }

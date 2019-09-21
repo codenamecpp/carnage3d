@@ -12,6 +12,7 @@ GameCheatsWindow::GameCheatsWindow()
     , mGenerateFullMeshForMap()
     , mEnableMapCollisions(true)
     , mEnableGravity(true)
+    , mEnableBlocksAnimation(true)
 {
     for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
     {
@@ -116,6 +117,8 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         {
             gRenderManager.mCityRenderer.InvalidateMapMesh();
         }
+        ImGui::Separator();
+        ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);
     }
 
     if (ImGui::CollapsingHeader("Ped"))

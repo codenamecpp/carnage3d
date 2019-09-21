@@ -9,6 +9,7 @@ public:
     bool mGenerateFullMeshForMap;
     bool mEnableMapCollisions;
     bool mEnableGravity;
+    bool mEnableBlocksAnimation;
 
 public:
     GameCheatsWindow();
