@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "GameMapData.h"
+#include "GameMapManager.h"
 
-GameMapData gGameMap;
+GameMapManager gGameMap;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool GameMapData::LoadFromFile(const char* filename)
+bool GameMapManager::LoadFromFile(const char* filename)
 {
     Cleanup();
 
@@ -98,7 +98,7 @@ bool GameMapData::LoadFromFile(const char* filename)
     return true;
 }
 
-void GameMapData::Cleanup()
+void GameMapManager::Cleanup()
 {
     mStyleData.Cleanup();
     for (int tiley = 0; tiley < MAP_DIMENSIONS; ++tiley)
@@ -111,12 +111,12 @@ void GameMapData::Cleanup()
     }
 }
 
-bool GameMapData::IsLoaded() const
+bool GameMapManager::IsLoaded() const
 {
     return mStyleData.IsLoaded();
 }
 
-bool GameMapData::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -188,28 +188,29 @@ bool GameMapData::ReadCompressedMapData(std::ifstream& file, int columnLength, i
             mMapTiles[tilez][tiley][tilex] = blocksData[srcBlock];
         }
     }
-    FixShiftedBits();
+    //FixShiftedBits();
     return true;
 }
 
-BlockStyleData* GameMapData::GetBlock(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlock(int coordx, int coordy, int layer) const
 {
-    debug_assert(coord.z > -1 && coord.z < MAP_LAYERS_COUNT);
-    debug_assert(coord.x > -1 && coord.x < MAP_DIMENSIONS);
-    debug_assert(coord.y > -1 && coord.y < MAP_DIMENSIONS);
-    return &mMapTiles[coord.z][coord.y][coord.x];
+    debug_assert(layer > -1 && layer < MAP_LAYERS_COUNT);
+    debug_assert(coordx > -1 && coordx < MAP_DIMENSIONS);
+    debug_assert(coordy > -1 && coordy < MAP_DIMENSIONS);
+    // remember kids, don't try this at home!
+    return const_cast<BlockStyleData*> (&mMapTiles[layer][coordy][coordx]);
 }
 
-BlockStyleData* GameMapData::GetBlockClamp(const MapCoord& coord)
+BlockStyleData* GameMapManager::GetBlockClamp(int coordx, int coordy, int layer) const
 {
-    int tilex = glm::clamp(coord.x, 0, MAP_DIMENSIONS - 1);
-    int tiley = glm::clamp(coord.y, 0, MAP_DIMENSIONS - 1);
-    int tilez = glm::clamp(coord.z, 0, MAP_LAYERS_COUNT - 1);
-
-    return &mMapTiles[tilez][tiley][tilex];
+    layer = glm::clamp(layer, 0, MAP_LAYERS_COUNT - 1);
+    coordx = glm::clamp(coordx, 0, MAP_DIMENSIONS - 1);
+    coordy = glm::clamp(coordy, 0, MAP_DIMENSIONS - 1);
+    // remember kids, don't try this at home!
+    return const_cast<BlockStyleData*> (&mMapTiles[layer][coordy][coordx]);
 }
 
-void GameMapData::FixShiftedBits()
+void GameMapManager::FixShiftedBits()
 {
     // as CityScape Data Structure document says:
 
@@ -247,4 +248,133 @@ void GameMapData::FixShiftedBits()
         topBlock.mGroundType = eGroundType_Air;
         topBlock.mTrafficLight = 0;
     }
+}
+
+float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
+{
+    int mapcoordx = (int) position.x;
+    int mapcoordy = (int) position.z;
+    int maplayer = (int) position.y;
+
+    float height = maplayer * 1.0f; // reset height to ground 
+    for (;height > 0.0f;)
+    {
+        BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);
+        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
+        {
+            height -= MAP_BLOCK_LENGTH;
+            --maplayer;
+            continue;
+        }
+        
+        // get block above
+        BlockStyleData* aboveBlockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer + 1);
+        int slope = aboveBlockData->mSlopeType;
+        if (slope == 0)
+        {
+            slope = blockData->mSlopeType;
+        }
+
+        if (slope) // compute slope height
+        {
+            float cx = position.x - mapcoordx;
+            float cy = position.z - mapcoordy;
+            height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+        }
+
+        break;
+    }
+    return height;
+}
+
+bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& destination, float height, glm::vec2& outPoint)
+{
+    glm::ivec2 mapcoord_start = origin;
+    glm::ivec2 mapcoord_end = destination;
+
+    int mapcoord_z = (int) height;
+
+    glm::vec2 direction = glm::normalize(destination - origin);
+
+    // find all cells intersecting with line
+
+    float posX = origin.x;
+    float posY = origin.y;
+
+    glm::ivec2 mapcoord_curr = mapcoord_start;
+
+    float sideDistX;
+    float sideDistY;
+
+    //length of ray from one x or y-side to next x or y-side
+    float deltaDistX = std::abs(1.0f / direction.x);
+    float deltaDistY = std::abs(1.0f / direction.y);
+
+    //what direction to step in x or y-direction (either +1 or -1)
+    int stepX;
+    int stepY;
+
+    int side; //was a NS or a EW wall hit?
+
+    //calculate step and initial sideDist
+    if (direction.x < 0.0f)
+    {
+        stepX = -1;
+        sideDistX = (posX - mapcoord_curr.x) * deltaDistX;
+    }
+    else
+    {
+        stepX = 1;
+        sideDistX = (mapcoord_curr.x + 1.0f - posX) * deltaDistX;
+    }
+
+    if (direction.y < 0.0f)
+    {
+        stepY = -1;
+        sideDistY = (posY - mapcoord_curr.y) * deltaDistY;
+    }
+    else
+    {
+        stepY = 1;
+        sideDistY = (mapcoord_curr.y + 1.0f - posY) * deltaDistY;
+    }
+
+    //perform DDA
+    const int MaxSteps = 16;
+    for (int istep = 0; ; ++istep)
+    {
+        if (istep == MaxSteps)
+            return false;
+
+        //jump to next map square, OR in x-direction, OR in y-direction
+        if (sideDistX < sideDistY)
+        {
+            sideDistX += deltaDistX;
+            mapcoord_curr.x += stepX;
+            side = 0;
+        }
+        else
+        {
+            sideDistY += deltaDistY;
+            mapcoord_curr.y += stepY;
+            side = 1;
+        }
+
+        // detect hit
+        BlockStyleData* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
+        if (blockData->mGroundType == eGroundType_Building)
+        {
+            float perpWallDist;
+            if (side == 0) perpWallDist = (mapcoord_curr.x - posX + (1 - stepX) / 2) / direction.x;
+            else           perpWallDist = (mapcoord_curr.y - posY + (1 - stepY) / 2) / direction.y;
+
+            outPoint = (origin + direction * perpWallDist);
+            return true;
+        }
+
+        if (mapcoord_curr == mapcoord_end)
+            break;
+    }
+
+    return false;
 }

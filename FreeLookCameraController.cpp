@@ -20,31 +20,53 @@ void FreeLookCameraController::SetupInitial()
 
 void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
 {
-    if (!mMoveBackward && !mMoveForward && !mMoveLeft && !mMoveRight)
-        return;
+    if (mMoveBackward || mMoveForward || mMoveLeft || mMoveRight)
+    {
+        glm::vec3 moveDirection {0.0f};
+        if (mMoveForward)
+        {
+            moveDirection -= glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
+        }
+        else if (mMoveBackward)
+        {
+            moveDirection += glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
+        }
 
-    glm::vec3 moveDirection {0.0f};
-   
-    if (mMoveForward)
-    {
-        moveDirection -= glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
-    }
-    else if (mMoveBackward)
-    {
-        moveDirection += glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
-    }
-
-    if (mMoveRight)
-    {
-        moveDirection += gCamera.mRightDirection;
-    }
-    else if (mMoveLeft)
-    {
-        moveDirection -= gCamera.mRightDirection;
+        if (mMoveRight)
+        {
+            moveDirection += gCamera.mRightDirection;
+        }
+        else if (mMoveLeft)
+        {
+            moveDirection -= gCamera.mRightDirection;
+        }
+        moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime.ToSeconds();
+        gCamera.Translate(moveDirection);
     }
 
-    moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime.ToSeconds();
-    gCamera.Translate(moveDirection);
+    if (mMouseDragCamera)
+    {
+        const float rotationAngle = 90.0f;
+        if (mRotateDeltaY)
+        {
+            float angleRads = -glm::radians(glm::sign(mRotateDeltaY) * rotationAngle * deltaTime.ToSeconds());
+            glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, gCamera.mRightDirection);
+            glm::vec3 updir = glm::normalize(glm::cross(gCamera.mRightDirection, frontdir)); 
+            gCamera.SetOrientation(frontdir, gCamera.mRightDirection, updir);
+        }
+
+        if (mRotateDeltaX)
+        {
+            float angleRads = -glm::radians(glm::sign(mRotateDeltaX) * rotationAngle * deltaTime.ToSeconds());
+            glm::vec3 rightdir = glm::rotate(gCamera.mRightDirection, angleRads, SceneAxes::Y);
+            glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, SceneAxes::Y);
+            glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 
+            gCamera.SetOrientation(frontdir, rightdir, updir);
+        }   
+
+        mRotateDeltaX = 0;
+        mRotateDeltaY = 0;
+    }
 }
 
 void FreeLookCameraController::InputEvent(KeyInputEvent& inputEvent)
@@ -85,6 +107,8 @@ void FreeLookCameraController::InputEvent(MouseButtonInputEvent& inputEvent)
         {
             mLastMouseX = gInputs.mCursorPositionX;
             mLastMouseY = gInputs.mCursorPositionY;
+            mRotateDeltaX = 0;
+            mRotateDeltaY = 0;
         }
     }
 }
@@ -97,25 +121,8 @@ void FreeLookCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
     if (!mMouseDragCamera)
         return;
 
-    int deltax = inputEvent.mCursorPositionX - mLastMouseX;
-    int deltay = inputEvent.mCursorPositionY - mLastMouseY;
-
-    if (deltay)
-    {
-        float angleRads = -glm::radians(glm::sign(deltay) * 0.45f);
-        glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, gCamera.mRightDirection);
-        glm::vec3 updir = glm::normalize(glm::cross(gCamera.mRightDirection, frontdir)); 
-        gCamera.SetOrientation(frontdir, gCamera.mRightDirection, updir);
-    }
-
-    if (deltax)
-    {
-        float angleRads = -glm::radians(glm::sign(deltax) * 0.45f);
-        glm::vec3 rightdir = glm::rotate(gCamera.mRightDirection, angleRads, SceneAxes::Y);
-        glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, SceneAxes::Y);
-        glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 
-        gCamera.SetOrientation(frontdir, rightdir, updir);
-    }    
+    mRotateDeltaX = inputEvent.mCursorPositionX - mLastMouseX;
+    mRotateDeltaY = inputEvent.mCursorPositionY - mLastMouseY;
 
     mLastMouseX = inputEvent.mCursorPositionX;
     mLastMouseY = inputEvent.mCursorPositionY;

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Pedestrian.h"
-#include "CollisionManager.h"
+#include "PhysicsManager.h"
+#include "GameMapManager.h"
 
 PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
     : mPedestrian(pedestrian)
@@ -65,24 +66,31 @@ void PedestrianControl::SetRunning(bool runEnabled)
 //////////////////////////////////////////////////////////////////////////
 
 Pedestrian::Pedestrian(unsigned int id)
-    : mPosition()
-    , mPrevPosition()
-    , mHeading()
-    , mSphereRadius(0.1f)
+    : mPhysicalBody()
     , mDead()
-    , mVelocity()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
     , mID(id)
 {
 }
 
+Pedestrian::~Pedestrian()
+{
+    if (mPhysicalBody)
+    {
+        gPhysics.DestroyPhysicsObject(mPhysicalBody);
+    }
+}
+
 void Pedestrian::EnterTheGame()
 {
+    glm::vec3 startPosition;
+    
+    mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);
+    debug_assert(mPhysicalBody);
+
     mDead = false;
-    mFalling = false;
     mLiveTicks = 0;
-    mVelocity = {0.0f, 0.0f};
     mCurrentAnimID = eSpriteAnimationID_Null;
     // set initial state and animation
     SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
@@ -97,17 +105,20 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     // try to turn around
     if (mControl.IsTurnAround())
     {
-        float anglePerFrame = 0.0f;
         if (mControl.mTurnLeft || mControl.mTurnRight)
         {
-            anglePerFrame = (mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds();
+            mPhysicalBody->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
         }
         else // specific angle
         {
-            anglePerFrame = (mControl.mTurnAngle * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds());
-            mControl.mTurnAngle -= anglePerFrame;
-        }
-        mHeading = cxx::normalize_angle_180(mHeading + anglePerFrame);
+            float anglePerFrame = anglePerFrame = (mControl.mTurnAngle * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds());
+            mControl.mTurnAngle -= anglePerFrame; // todo
+        }        
+    }
+    else
+    {
+        // stop rotation
+        mPhysicalBody->SetAngularVelocity(0.0f);
     }
     // try walk
     if (mControl.IsMoves())
@@ -134,30 +145,26 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
             SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction
-        float angleRadians = glm::radians(mHeading);
+        float angleRadians = mPhysicalBody->GetAngleRadians();
         glm::vec3 signVector 
         {
-            cos(angleRadians), sin(angleRadians), 0.0f
+            cos(angleRadians), 0.0f, sin(angleRadians)
         };
 
         if (moveBackward)
         {
             signVector = -signVector;
         }
-
-        glm::vec3 walkDistance = signVector * moveSpeed * deltaTime.ToSeconds();
-        glm::vec3 newPosition = mPosition + walkDistance;
-        glm::vec3 hitPoint;
-        if (gCollisionManager.RaycastMapWall(mPosition, newPosition + signVector * mSphereRadius, hitPoint))
-        {
-            newPosition = hitPoint - signVector * mSphereRadius;
-        }
-        mPosition = newPosition;
+        mPhysicalBody->SetLinearVelocity(signVector * moveSpeed);
     }
     else
     {
+        mPhysicalBody->SetLinearVelocity({}); // force stop
         SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
     }
+
+    // update z coord
+    // todo
 }
 
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
@@ -176,14 +183,15 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
 
 void Pedestrian::SetHeading(float rotationDegrees)
 {
-    mHeading = cxx::normalize_angle_180(rotationDegrees);
+    debug_assert(mPhysicalBody);
+    mPhysicalBody->SetAngleDegrees(rotationDegrees);
 }
 
-void Pedestrian::SetPosition(float posx, float posy, float posz)
+void Pedestrian::SetPosition(const glm::vec3& position)
 {
-    mPosition.x = posx;
-    mPosition.y = posy;
-    mPosition.z = posz;
+    debug_assert(mPhysicalBody);
+
+    mPhysicalBody->SetPosition(position);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -277,9 +285,8 @@ Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
     AddToActiveList(instance);
 
     // init
-    instance->mPosition = position;
-    instance->mPrevPosition = position;
     instance->EnterTheGame();
+    instance->mPhysicalBody->SetPosition(position);
     return instance;
 }
 

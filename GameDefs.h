@@ -21,8 +21,11 @@
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 
-// location of map block in 3d array
-using MapCoord = glm::ivec3;
+#define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
+#define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)
+
+// forwards
+class Pedestrian;
 
 // map block lid rotation
 enum eLidRotation : unsigned char
@@ -304,13 +307,19 @@ public:
 
     inline void SetNull()
     {
-        mMeshVertices.clear();
-        mMeshIndices.clear();
+        mBlocksVertices.clear();
+        mBlocksIndices.clear();
+        mAnimBlocksVertices.clear();
+        mAnimBlocksIndices.clear();
     }
 
 public:
-    std::vector<TVertexType> mMeshVertices;
-    std::vector<DrawIndex_t> mMeshIndices;
+    // non-animated blocks
+    std::vector<TVertexType> mBlocksVertices;
+    std::vector<DrawIndex_t> mBlocksIndices;
+    // animated blocks
+    std::vector<TVertexType> mAnimBlocksVertices;
+    std::vector<DrawIndex_t> mAnimBlocksIndices;
 };
 
 // defines single picture within sprite atlas

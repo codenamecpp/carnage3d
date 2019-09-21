@@ -258,6 +258,16 @@ bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, 
     return false;
 }
 
+bool CityStyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) const
+{
+    for (const BlockAnimationStyleData& currAnim: mBlocksAnimations)
+    {
+        if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
+            return true;
+    }
+    return false;
+}
+
 bool CityStyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target bitmap must be allocated otherwise operation makes no sence

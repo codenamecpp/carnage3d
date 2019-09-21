@@ -62,6 +62,7 @@ private:
 private:
     long mStartTimestamp;
     bool mQuitRequested;
+    bool mIgnoreInputs;
 };
 
 extern System gSystem;

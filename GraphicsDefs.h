@@ -4,6 +4,7 @@
 class GraphicsDevice;
 class GpuBuffer;
 class GpuProgram;
+class GpuTexture1D;
 class GpuTexture2D;
 class GpuTextureArray2D;
 class GraphicsContext;

@@ -17,14 +17,16 @@ public:
 
 public:
     // preload sprite textures for current level
-    bool InitLevelSprites(CityStyleData& cityStyle);
+    bool InitLevelSprites();
 
     // flush all currently cached sprites
     void Cleanup();
 
+    void DumpBlocksTexture(const char* outputLocation);
+
 private:
-    bool InitBlocksTexture(CityStyleData& cityStyle);
-    bool InitObjectsSpritesheet(CityStyleData& cityStyle);
+    bool InitBlocksTexture();
+    bool InitObjectsSpritesheet();
 };
 
 extern SpriteCache gSpriteCache;

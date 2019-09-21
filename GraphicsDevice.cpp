@@ -3,6 +3,7 @@
 #include "OpenGLDefs.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
+#include "GpuTexture1D.h"
 #include "GpuTexture2D.h"
 #include "GpuTextureArray2D.h"
 
@@ -216,8 +217,45 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     if (!IsDeviceInited())
         return;
 
-    // todo
-    (void) fullscreenEnabled;
+    if (mGraphicsMonitor == nullptr && fullscreenEnabled)
+    {
+        mGraphicsMonitor = ::glfwGetPrimaryMonitor();
+        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+    }
+    else
+    {
+        mGraphicsMonitor = nullptr;
+        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+    }
+}
+
+GpuTexture1D* GraphicsDevice::CreateTexture1D()
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuTexture1D* texture = new GpuTexture1D(mGraphicsContext);
+    return texture;
+}
+
+GpuTexture1D* GraphicsDevice::CreateTexture1D(eTextureFormat textureFormat, int sizex, const void* sourceData)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    GpuTexture1D* texture = new GpuTexture1D(mGraphicsContext);
+    if (!texture->Setup(textureFormat, sizex, sourceData))
+    {
+        DestroyTexture(texture);
+        return nullptr;
+    }
+    return texture;
 }
 
 GpuTexture2D* GraphicsDevice::CreateTexture2D()
@@ -385,7 +423,26 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* texture)
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture1D* texture)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    debug_assert(textureUnit < eTextureUnit_COUNT);
+    if (mGraphicsContext.mCurrentTextures[textureUnit].mTexture1D == texture)
+        return;
+
+    ActivateTextureUnit(textureUnit);
+
+    mGraphicsContext.mCurrentTextures[textureUnit].mTexture1D = texture;
+    ::glBindTexture(GL_TEXTURE_1D, texture ? texture->mResourceHandle : 0);
+    glCheckError();
+}
+
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture)
 {
     if (!IsDeviceInited())
     {
@@ -404,7 +461,7 @@ void GraphicsDevice::BindTexture2D(eTextureUnit textureUnit, GpuTexture2D* textu
     glCheckError();
 }
 
-void GraphicsDevice::BindTextureArray2D(eTextureUnit textureUnit, GpuTextureArray2D* texture)
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTextureArray2D* texture)
 {
     if (!IsDeviceInited())
     {
@@ -471,6 +528,17 @@ void GraphicsDevice::BindRenderProgram(GpuProgram* program)
         }
     }
     mGraphicsContext.mCurrentProgram = program;
+}
+
+void GraphicsDevice::DestroyTexture(GpuTexture1D* textureResource)
+{
+    if (!IsDeviceInited())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    SafeDelete(textureResource);
 }
 
 void GraphicsDevice::DestroyTexture(GpuTexture2D* textureResource)

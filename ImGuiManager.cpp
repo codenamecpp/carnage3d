@@ -153,7 +153,7 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
             };
 
             GpuTexture2D* bindTexture = static_cast<GpuTexture2D*>(pcmd->TextureId);
-            gGraphicsDevice.BindTexture2D(eTextureUnit_0, bindTexture);
+            gGraphicsDevice.BindTexture(eTextureUnit_0, bindTexture);
 
             gGraphicsDevice.SetScissorRect(rcClip);
             unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_ImGuiIndex * pcmd->IdxOffset;

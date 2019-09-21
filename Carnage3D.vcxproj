@@ -87,13 +87,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;$(SDKDIR)/Box2D/Build/bin/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
@@ -120,15 +120,15 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLFW\include;$(SDKDIR)\GLM\include;$(SDKDIR)\boost_1_59_0;$(SDKDIR)\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDKDIR)/GLFW/lib-vc2015;$(SDKDIR)/glew/lib/x86;$(SDKDIR)/Box2D/Build/bin/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;opengl32.lib;glfw3dll.lib;glew32.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"
@@ -155,11 +155,14 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
-    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="GpuTexture1D.h" />
+    <ClInclude Include="PhysicsDebugDraw.h" />
+    <ClInclude Include="PhysicsDefs.h" />
+    <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="FreeLookCameraController.h" />
     <ClInclude Include="GameMapHelpers.h" />
     <ClInclude Include="CityRenderer.h" />
-    <ClInclude Include="GameMapData.h" />
+    <ClInclude Include="GameMapManager.h" />
     <ClInclude Include="CityStyleData.h" />
     <ClInclude Include="DebugRenderer.h" />
     <ClInclude Include="GameCheatsWindow.h" />
@@ -203,6 +206,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="OpenGLDefs.h" />
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="Pedestrian.h" />
+    <ClInclude Include="PhysicsObject.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="RenderProgram.h" />
@@ -220,10 +224,12 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="StreamingVertexCache.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="GpuTexture1D.cpp" />
+    <ClCompile Include="PhysicsDebugDraw.cpp" />
+    <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="FreeLookCameraController.cpp" />
     <ClCompile Include="GameMapHelpers.cpp" />
-    <ClCompile Include="GameMapData.cpp" />
+    <ClCompile Include="GameMapManager.cpp" />
     <ClCompile Include="CityStyleData.cpp" />
     <ClCompile Include="CityRenderer.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
@@ -253,6 +259,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Pedestrian.cpp" />
+    <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="SpriteAnimation.cpp" />

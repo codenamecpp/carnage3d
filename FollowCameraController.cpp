@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "FollowCameraController.h"
+#include "PhysicsObject.h"
+#include "CarnageGame.h"
 
 FollowCameraController::FollowCameraController()
-    : mStartupCameraHeight(12.0f)
+    : mStartupCameraHeight(8.0f)
     , mFollowPedCameraHeight(5.0f)
-    , mFollowPedZoomCameraSpeed(1.0f)
+    , mFollowPedZoomCameraSpeed(5.0f)
+    , mScrollHeightOffset()
 {
 }
 
@@ -16,7 +19,8 @@ void FollowCameraController::SetupInitial()
     
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        gCamera.SetPosition({player->mPosition.x, mStartupCameraHeight, player->mPosition.y}); 
+        glm::vec3 position = player->mPhysicalBody->GetPosition();
+        gCamera.SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
     }
     else
     {
@@ -27,19 +31,23 @@ void FollowCameraController::SetupInitial()
 
 void FollowCameraController::UpdateFrame(Timespan deltaTime)
 {
-    mMoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
-
     // correct zoom
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        float targetHeight = (player->mPosition.z + mFollowPedCameraHeight);
-        if (fabs(targetHeight - gCamera.mPosition.y) > 0.1f)
+        glm::vec3 position = player->mPhysicalBody->GetPosition();
+
+        float targetHeight = (position.y + mFollowPedCameraHeight + mScrollHeightOffset);
+        float delta = targetHeight - gCamera.mPosition.y;
+        if (fabs(delta) > 0.005f)
         {
-            mMoveDirection.y = (targetHeight - gCamera.mPosition.y) * deltaTime.ToSeconds();
+            position.y = gCamera.mPosition.y + (targetHeight - gCamera.mPosition.y) * mFollowPedZoomCameraSpeed * deltaTime.ToSeconds();
         }
-        gCamera.SetPosition({player->mPosition.x, mFollowPedCameraHeight, player->mPosition.y}); 
+        else
+        {
+            position.y = targetHeight;
+        }
+        gCamera.SetPosition(position); 
     }
-    
 }
 
 void FollowCameraController::InputEvent(KeyInputEvent& inputEvent)
@@ -56,5 +64,5 @@ void FollowCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
 void FollowCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    mFollowPedCameraHeight -= inputEvent.mScrollY;
+    mScrollHeightOffset -= inputEvent.mScrollY;
 }

@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 
+class GameMapManager;
 class GameMapHelpers final
 {
 public:
@@ -10,8 +11,8 @@ public:
     // @param area: Target map rect
     // @param layerIndex: Target map layer, see MAP_LAYERS_COUNT
     // @param meshData: Output mesh data
-    static bool BuildMapMesh(GameMapData& city, const Rect2D& area, int layerIndex, MapMeshData& meshData);
-    static bool BuildMapMesh(GameMapData& city, const Rect2D& area, MapMeshData& meshData);
+    static bool BuildMapMesh(GameMapManager& city, const Rect2D& area, int layerIndex, MapMeshData& meshData);
+    static bool BuildMapMesh(GameMapManager& city, const Rect2D& area, MapMeshData& meshData);
 
     // compute height for specific block slope type
     // @param slope: Index
@@ -23,5 +24,5 @@ public:
 private:
     GameMapHelpers();
     // internals
-    static void PutBlockFace(GameMapData& city, MapMeshData& meshData, const MapCoord& coord, eBlockFace face, BlockStyleData* blockInfo);
+    static void PutBlockFace(GameMapManager& city, MapMeshData& meshData, int x, int y, int z, eBlockFace face, BlockStyleData* blockInfo);
 };

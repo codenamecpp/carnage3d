@@ -6,6 +6,8 @@
 #include "SpriteCache.h"
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
+#include "PhysicsObject.h"
+#include "PhysicsManager.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -60,23 +62,23 @@ void CityRenderer::Deinit()
 
 void CityRenderer::RenderFrame()
 {
-    BuildCityMeshData();
+    BuildMapMesh();
 
     RenderFrameBegin();
 
-    DrawCityMesh();
-    DrawPeds();
-    DrawMapObjects();
-    DrawCars();
-    DrawProjectiles();
+    IssuePedsSprites();
+    IssueMapObjectsSprites();
+    IssueCarsSprites();
+    IssueProjectilesSprites();
 
     if (!mDrawSpritesList.empty())
     {
         SortDrawSpritesList();
-        SetDrawSpritesBatches();
+        GenerateDrawSpritesBatches();
         RenderDrawSpritesBatches();
     }
 
+    DrawCityMesh();
     RenderFrameEnd();
 }
 
@@ -87,10 +89,10 @@ void CityRenderer::CommitCityMeshData()
 
     for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
     {
-        int numVertices = mCityMeshData[iLayer].mMeshVertices.size();
+        int numVertices = mCityMeshData[iLayer].mBlocksVertices.size();
         totalVertexCount += numVertices;
 
-        int numIndices = mCityMeshData[iLayer].mMeshIndices.size();
+        int numIndices = mCityMeshData[iLayer].mBlocksIndices.size();
         totalIndexCount += numIndices;
     }
 
@@ -107,10 +109,10 @@ void CityRenderer::CommitCityMeshData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mMeshVertices.size() * Sizeof_CityVertex3D;
-            if (mCityMeshData[iLayer].mMeshVertices.empty())
+            int dataLength = mCityMeshData[iLayer].mBlocksVertices.size() * Sizeof_CityVertex3D;
+            if (mCityMeshData[iLayer].mBlocksVertices.empty())
                 continue;
-            memcpy(pcursor, mCityMeshData[iLayer].mMeshVertices.data(), dataLength);
+            memcpy(pcursor, mCityMeshData[iLayer].mBlocksVertices.data(), dataLength);
             pcursor += dataLength;
         }
         mCityMeshBufferV->Unlock();
@@ -123,17 +125,17 @@ void CityRenderer::CommitCityMeshData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mMeshIndices.size() * Sizeof_DrawIndex_t;
-            if (mCityMeshData[iLayer].mMeshIndices.empty())
+            int dataLength = mCityMeshData[iLayer].mBlocksIndices.size() * Sizeof_DrawIndex_t;
+            if (mCityMeshData[iLayer].mBlocksIndices.empty())
                 continue;
-            memcpy(pcursor, mCityMeshData[iLayer].mMeshIndices.data(), dataLength);
+            memcpy(pcursor, mCityMeshData[iLayer].mBlocksIndices.data(), dataLength);
             pcursor += dataLength;
         }
         mCityMeshBufferI->Unlock();
     }
 }
 
-void CityRenderer::BuildCityMeshData()
+void CityRenderer::BuildMapMesh()
 {
     if (gGameCheatsWindow.mGenerateFullMeshForMap && mCityMapRectangle.h == 0 && mCityMapRectangle.w == 0)
     {
@@ -210,15 +212,15 @@ void CityRenderer::DrawCityMesh()
     {
         gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
         gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
-        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksTextureArray);
+        gGraphicsDevice.BindTexture(eTextureUnit_0, blocksTextureArray);
 
         int currBaseVertex = 0;
         int currIndexOffset = 0;
         
         for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
         {
-            int numIndices = mCityMeshData[i].mMeshIndices.size();
-            int numVertices = mCityMeshData[i].mMeshVertices.size();
+            int numIndices = mCityMeshData[i].mBlocksIndices.size();
+            int numVertices = mCityMeshData[i].mBlocksVertices.size();
             if (gGameCheatsWindow.mDrawMapLayers[i])
             {
                 int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
@@ -238,8 +240,7 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
 
     // setup draw sprite record
     DrawSpriteRec rec;
-        rec.mPosition.x = position.x;
-        rec.mPosition.y = position.y;
+        rec.mPosition = position;
         rec.mSize.x = rc.w * sprScale;
         rec.mSize.y = rc.h * sprScale;
         rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
@@ -249,7 +250,6 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
         rec.mRotate = heading;
-        rec.mDepth = position.z;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
 }
@@ -262,7 +262,8 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
     // setup draw sprite record
     DrawSpriteRec rec;
         rec.mPosition.x = position.x;
-        rec.mPosition.y = position.y;
+        rec.mPosition.y = 1.0f;
+        rec.mPosition.z = position.y;
         rec.mSize.x = rc.w * sprScale;
         rec.mSize.y = rc.h * sprScale;
         rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
@@ -272,12 +273,11 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
         rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
         rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
         rec.mRotate = heading;
-        rec.mDepth = 0.0f;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
 }
 
-void CityRenderer::DrawPeds()
+void CityRenderer::IssuePedsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
@@ -286,22 +286,26 @@ void CityRenderer::DrawPeds()
             continue;
 
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
+        
+        float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 
-        float rotationAngle = glm::radians(currPedestrian->mHeading - SPRITE_ZERO_ANGLE);
+        glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
+        position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
+
         DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, currPedestrian->mPosition, true, spriteScale, rotationAngle);
+            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
     }
 }
 
-void CityRenderer::DrawCars()
+void CityRenderer::IssueCarsSprites()
 {
 }
 
-void CityRenderer::DrawMapObjects()
+void CityRenderer::IssueMapObjectsSprites()
 {
 }
 
-void CityRenderer::DrawProjectiles()
+void CityRenderer::IssueProjectilesSprites()
 {
 }
 
@@ -313,7 +317,7 @@ void CityRenderer::SortDrawSpritesList()
         });
 }
 
-void CityRenderer::SetDrawSpritesBatches()
+void CityRenderer::GenerateDrawSpritesBatches()
 {
     int numSprites = mDrawSpritesList.size();
 
@@ -363,33 +367,33 @@ void CityRenderer::SetDrawSpritesBatches()
 
         vertexData[vertexOffset + 0].mTexcoord.x = sprite.mTcUv0.x;
         vertexData[vertexOffset + 0].mTexcoord.y = sprite.mTcUv0.y;
-        vertexData[vertexOffset + 0].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 0].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 1].mTexcoord.x = sprite.mTcUv1.x;
         vertexData[vertexOffset + 1].mTexcoord.y = sprite.mTcUv0.y;
-        vertexData[vertexOffset + 1].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 1].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 2].mTexcoord.x = sprite.mTcUv0.x;
         vertexData[vertexOffset + 2].mTexcoord.y = sprite.mTcUv1.y;
-        vertexData[vertexOffset + 2].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 2].mPosition.y = sprite.mPosition.y;
 
         vertexData[vertexOffset + 3].mTexcoord.x = sprite.mTcUv1.x;
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTcUv1.y;
-        vertexData[vertexOffset + 3].mPosition.y = sprite.mDepth;
+        vertexData[vertexOffset + 3].mPosition.y = sprite.mPosition.y;
 
         const glm::vec2 positions[4] = 
         {
-            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.y + sprite.mSize.y + sprite.mCenterOffset.y},
-            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.y + sprite.mSize.y + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.z + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.z + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mCenterOffset.x,                   sprite.mPosition.z + sprite.mSize.y + sprite.mCenterOffset.y},
+            {sprite.mPosition.x + sprite.mSize.x + sprite.mCenterOffset.x,  sprite.mPosition.z + sprite.mSize.y + sprite.mCenterOffset.y},
         };
-
+        glm::vec2 rotateCenter { sprite.mPosition.x, sprite.mPosition.z };
         if (fabs(sprite.mRotate) > 0.01f) // has rotation
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotate);
+                glm::vec2 currPos = cxx::rotate_around_center(positions[i], rotateCenter, sprite.mRotate);
 
                 vertexData[vertexOffset + i].mPosition.x = currPos.x;
                 vertexData[vertexOffset + i].mPosition.z = currPos.y;
@@ -449,7 +453,7 @@ void CityRenderer::RenderDrawSpritesBatches()
 
     for (const DrawSpriteBatch& currBatch: mDrawSpritesBatchesList)
     {
-        gGraphicsDevice.BindTexture2D(eTextureUnit_0, currBatch.mSpriteTexture);
+        gGraphicsDevice.BindTexture(eTextureUnit_0, currBatch.mSpriteTexture);
 
         unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_DrawIndex_t * currBatch.mFirstIndex;
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);
@@ -461,4 +465,46 @@ void CityRenderer::RenderDrawSpritesBatches()
 void CityRenderer::InvalidateMapMesh()
 {
     mCityMapRectangle.SetNull();
+}
+
+float CityRenderer::ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians)
+{
+    float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
+
+    //glm::vec3 points[4] = {
+    //    { 0.0f,     position.y + 0.01f, -halfBox },
+    //    { halfBox,  position.y + 0.01f, 0.0f },
+    //    { 0.0f,     position.y + 0.01f, halfBox },
+    //    { -halfBox, position.y + 0.01f, 0.0f },
+    //};
+
+    glm::vec3 points[4] = {
+        { -halfBox, position.y + 0.01f, -halfBox },
+        { halfBox,  position.y + 0.01f, -halfBox },
+        { halfBox,  position.y + 0.01f, halfBox },
+        { -halfBox, position.y + 0.01f, halfBox },
+    };
+
+    float maxHeight = position.y;
+    for (glm::vec3& currPoint: points)
+    {
+        //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
+        currPoint.x += position.x;
+        currPoint.z += position.z;
+
+        // get height
+        float height = gGameMap.GetHeightAtPosition(currPoint);
+        if (height > maxHeight)
+        {
+            maxHeight = height;
+        }
+    }
+#if 1
+    // debug
+    for (int i = 0; i < 4; ++i)
+    {
+        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+    }
+#endif
+    return maxHeight + 0.01f;
 }

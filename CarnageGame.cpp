@@ -4,6 +4,7 @@
 #include "SpriteCache.h"
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"
+#include "PhysicsManager.h"
 
 CarnageGame gCarnageGame;
 
@@ -11,16 +12,21 @@ bool CarnageGame::Initialize()
 {
     gGameRules.LoadDefaults();
     gGameMap.LoadFromFile("NYC.CMP");
-
-    if (!gSpriteCache.InitLevelSprites(gGameMap.mStyleData))
+    gSpriteCache.Cleanup();
+    gRenderManager.mCityRenderer.InvalidateMapMesh();
+    if (!gSpriteCache.InitLevelSprites())
     {
         debug_assert(false);
     }
+    //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
+    gPhysics.Initialize();
+
     mPedsManager.Initialize();
 
     // temporary
     //glm::vec3 pos { 2.4f, 5.8f, 1.0f };
-    glm::vec3 pos { 91.0f, 236.0f, 1.0f };
+    //glm::vec3 pos { 91.0f, 236.0f, 1.0f };
+    glm::vec3 pos { 120.0f, 2.0f, 198.0f };
     mPlayerPedestrian = mPedsManager.CreateRandomPed(pos);
 
     SetCameraController(&mFollowCameraController);
@@ -30,11 +36,13 @@ bool CarnageGame::Initialize()
 void CarnageGame::Deinit()
 {
     mPedsManager.Deinit();
+    gPhysics.Deinit();
     gGameMap.Cleanup();
 }
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
+    gPhysics.UpdateFrame(deltaTime);
     mPedsManager.UpdateFrame(deltaTime);
     if (mCameraController)
     {

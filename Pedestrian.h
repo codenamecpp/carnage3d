@@ -1,9 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
-
-// forwards
-class Pedestrian;
+#include "PhysicsDefs.h"
 
 // defines pedestrian control interface
 class PedestrianControl final
@@ -40,16 +38,8 @@ public:
     // public for convenience, should not be modified directly
     const unsigned int mID; // unique identifier
 
-    glm::vec3 mPosition; // position on map, note that x/y coords is for x/z, and z is for y
-    glm::vec3 mPrevPosition;
-    glm::vec2 mVelocity; // constant walking velocity
-    float mHeading; // angle specified in degrees
-
-    float mSphereRadius; // bounding sphere info
-
+    PhysicsObject* mPhysicalBody;
     bool mDead;
-    bool mFalling;
-
     Timespan mLiveTicks; // time since spawn
 
     eSpriteAnimationID mCurrentAnimID;
@@ -57,13 +47,14 @@ public:
 
 public:
     Pedestrian(unsigned int id);
+    ~Pedestrian();
 
     // setup initial state when spawned on level
     void EnterTheGame();
 
     // state control
     void SetHeading(float rotationDegrees);
-    void SetPosition(float posx, float posy, float posz);
+    void SetPosition(const glm::vec3& position);
 
     // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
@@ -104,6 +95,7 @@ private:
     unsigned int GenerateUniqueID();
 
 private:
-    cxx::object_pool<Pedestrian> mPedsPool;
     unsigned int mIDsCounter;
+
+    cxx::object_pool<Pedestrian> mPedsPool;
 };
