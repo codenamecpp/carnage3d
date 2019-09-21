@@ -260,26 +260,23 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
     for (;height > 0.0f;)
     {
         BlockStyleData* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);
-        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fallthrough
-        {
-            height -= MAP_BLOCK_LENGTH;
-            --maplayer;
-            continue;
-        }
-        
-        // get block above
-        BlockStyleData* aboveBlockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer + 1);
-        int slope = aboveBlockData->mSlopeType;
-        if (slope == 0)
-        {
-            slope = blockData->mSlopeType;
-        }
+
+        // slope
+        int slope = blockData->mSlopeType;
 
         if (slope) // compute slope height
         {
             float cx = position.x - mapcoordx;
             float cy = position.z - mapcoordy;
             height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+            break;
+        }
+
+        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fall through non solid block
+        {
+            height -= MAP_BLOCK_LENGTH;
+            --maplayer;
+            continue;
         }
 
         break;
