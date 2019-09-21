@@ -30,6 +30,8 @@ bool CarnageGame::Initialize()
     mPlayerPedestrian = mPedsManager.CreateRandomPed(pos);
 
     SetCameraController(&mFollowCameraController);
+
+    mGameTime = 0;
     return true;
 }
 
@@ -42,6 +44,9 @@ void CarnageGame::Deinit()
 
 void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
+    // advance game time
+    mGameTime += deltaTime;
+    gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame(deltaTime);
     mPedsManager.UpdateFrame(deltaTime);
     if (mCameraController)

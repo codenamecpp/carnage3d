@@ -5,13 +5,13 @@
 #include "GraphicsDevice.h"
 #include "CarnageGame.h"
 #include "stb_rect_pack.h"
+#include "GpuTexture1D.h"
 
 const int ObjectsTextureSizeX = 2048;
 const int ObjectsTextureSizeY = 1024;
 const int SpritesSpacing = 4;
 
 SpriteManager gSpriteManager;
-
 
 bool SpriteManager::InitLevelSprites()
 {
@@ -35,11 +35,13 @@ bool SpriteManager::InitLevelSprites()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot create objects spritesheet");
         return false;
     }
+    InitBlocksAnimations();
     return true;
 }
 
 void SpriteManager::Cleanup()
 {
+    mBlocksAnimTime = 0;
     if (mBlocksTextureArray)
     {
         gGraphicsDevice.DestroyTexture(mBlocksTextureArray);
@@ -58,6 +60,8 @@ void SpriteManager::Cleanup()
         mObjectsSpritesheet.mSpritesheetTexture = nullptr;
     }
 
+    mBlocksIndices.clear();
+    mBlocksAnimations.clear();
     mObjectsSpritesheet.mEtries.clear();
 }
 
@@ -259,23 +263,84 @@ bool SpriteManager::InitBlocksIndicesTable()
 
     int textureSize = cxx::get_next_pot(totalTextures);
 
-    // allocate temporary bitmap
-    PixelsArray blockBitmap;
-    if (!blockBitmap.Create(eTextureFormat_RU16, textureSize, 1))
-    {
-        debug_assert(false);
-        return false;
-    }
+    mBlocksIndices.resize(textureSize);
 
     // reset to default order
-    unsigned short* pixels_data = (unsigned short*) blockBitmap.mData;
     for (int i = 0; i < totalTextures; ++i)
     {
-        pixels_data[i] = i;        
+        mBlocksIndices[i] = i;        
     }
 
-    mBlocksIndicesTable = gGraphicsDevice.CreateTexture1D(eTextureFormat_RU16, textureSize, blockBitmap.mData);
+    mBlocksIndicesTable = gGraphicsDevice.CreateTexture1D(eTextureFormat_RU16, textureSize, mBlocksIndices.data());
     debug_assert(mBlocksIndicesTable);
 
     return true;
+}
+
+void SpriteManager::RenderFrameBegin()
+{
+
+}
+
+void SpriteManager::RenderFrameEnd()
+{
+    if (ProcessBlocksAnimations())
+    {
+        // upload indices table
+        debug_assert(mBlocksIndicesTable);
+        mBlocksIndicesTable->Upload(mBlocksIndices.data());
+    }
+}
+
+void SpriteManager::InitBlocksAnimations()
+{
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
+    mBlocksAnimations.clear();
+    for (const BlockAnimationStyleData& currAnim: cityStyle.mBlocksAnimations)
+    {
+        BlockAnimation animData;
+        animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
+        animData.mSpeed = currAnim.mSpeed;
+        animData.mFrameCount = currAnim.mFrameCount;
+        for (int iframe = 0; iframe < currAnim.mFrameCount; ++iframe)
+        {   
+            // convert to linear indices
+            animData.mFrames[iframe] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
+        }
+        animData.mCyclesCount = 0;
+        animData.mCurrentFrame = 0;
+        mBlocksAnimations.push_back(animData);
+    }
+}
+
+bool SpriteManager::ProcessBlocksAnimations()
+{
+    const int TicksPerCycle = 1000 / 60;
+
+    bool isModified = false;
+    while (mBlocksAnimTime > TicksPerCycle)
+    {
+        mBlocksAnimTime -= TicksPerCycle;
+        // advance cycles
+        for (BlockAnimation& currAnim: mBlocksAnimations)
+        {
+            ++currAnim.mCyclesCount;
+            if (currAnim.mCyclesCount < currAnim.mSpeed)
+                continue;
+
+            currAnim.mCurrentFrame = (currAnim.mCurrentFrame + 1) % (currAnim.mFrameCount + 1);
+            currAnim.mCyclesCount = 0;
+            // patch table
+            mBlocksIndices[currAnim.mBlockIndex] = (currAnim.mCurrentFrame == 0) ? 
+                currAnim.mBlockIndex : currAnim.mFrames[currAnim.mCurrentFrame - 1];
+            isModified = true;
+        }
+    }
+    return isModified;
+}
+
+void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
+{
+    mBlocksAnimTime += deltaTime;
 }

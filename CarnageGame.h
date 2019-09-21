@@ -16,6 +16,8 @@ public:
     Pedestrian* mPlayerPedestrian = nullptr;
     CameraController* mCameraController = nullptr;
 
+    Timespan mGameTime;
+
 public:
     // Setup resources and switch to initial game state
     bool Initialize();

@@ -25,12 +25,38 @@ public:
     // flush all currently cached sprites
     void Cleanup();
 
+    void RenderFrameBegin();
+    void RenderFrameEnd();
+
+    void UpdateBlocksAnimations(Timespan deltaTime);
+
+    // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);
 
 private:
     bool InitBlocksIndicesTable();
     bool InitBlocksTexture();
     bool InitObjectsSpritesheet();
+    void InitBlocksAnimations();
+    bool ProcessBlocksAnimations();
+
+private:
+    
+    // animation state for blocks sharing specific texture
+    struct BlockAnimation
+    {
+    public:
+        int mBlockIndex; // linear
+        int mSpeed; // the number of game cycles to display each frame
+        int mFrameCount = 0;
+        int mFrames[MAX_MAP_BLOCK_ANIM_FRAMES]; // an array of block numbers, linear
+        int mCyclesCount;
+        int mCurrentFrame = 0;
+    };
+
+    std::vector<BlockAnimation> mBlocksAnimations;
+    std::vector<unsigned short> mBlocksIndices;
+    Timespan mBlocksAnimTime;
 };
 
 extern SpriteManager gSpriteManager;

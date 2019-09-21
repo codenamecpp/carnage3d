@@ -489,6 +489,11 @@ bool CityStyleData::ReadAnimations(std::ifstream& file, int dataLength)
         READ_I8(file, animation.mSpeed);
         READ_I8(file, animation.mFrameCount);
 
+        for (int iframe = 0; iframe < MAX_MAP_BLOCK_ANIM_FRAMES; ++iframe)
+        {
+            animation.mFrames[iframe] = -1;
+        }
+
         debug_assert(animation.mFrameCount <= MAX_MAP_BLOCK_ANIM_FRAMES);
         for (int iframe = 0; iframe < animation.mFrameCount; ++iframe)
         {

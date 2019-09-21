@@ -51,9 +51,11 @@ void RenderingManager::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
+    gSpriteManager.RenderFrameBegin();
     mCityRenderer.RenderFrame();
     mDebugRenderer.RenderFrame();
     gGuiSystem.RenderFrame();
+    gSpriteManager.RenderFrameEnd();
     gGraphicsDevice.Present();
 }
 

@@ -12,6 +12,7 @@ public:
     std::vector<MapObjectStyleData> mObjects;
     std::vector<SpriteStyleData> mSprites;
     std::vector<CarStyleData> mCars;
+    std::vector<BlockAnimationStyleData> mBlocksAnimations;
 
 public: 
     CityStyleData();
@@ -92,7 +93,6 @@ private:
     std::vector<unsigned char> mSpriteGraphicsRaw;
     std::vector<unsigned short> mPaletteIndices;
     std::vector<Palette256> mPalettes;
-    std::vector<BlockAnimationStyleData> mBlocksAnimations;
     SpriteAnimationData mSpriteAnimations[eSpriteAnimation_COUNT];
 
     int mTileClutSize, mSpriteClutSize, mRemapClutSize, mFontClutSize;

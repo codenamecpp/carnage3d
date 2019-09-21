@@ -182,7 +182,7 @@ bool GpuTexture1D::Upload(const void* sourceData)
     GLenum dataType = (mFormat == eTextureFormat_RU16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 
     ScopedTexture1DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage1D(GL_TEXTURE_1D, 0, internalFormatGL, mSize.x, 0, formatGL, dataType, sourceData);
+    ::glTexSubImage1D(GL_TEXTURE_1D, 0, 0, mSize.x, formatGL, dataType, sourceData);
     glCheckError();
     return true;
 }
