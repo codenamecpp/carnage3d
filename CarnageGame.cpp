@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CarnageGame.h"
 #include "RenderingManager.h"
-#include "SpriteCache.h"
+#include "SpriteManager.h"
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"
 #include "PhysicsManager.h"
@@ -12,9 +12,9 @@ bool CarnageGame::Initialize()
 {
     gGameRules.LoadDefaults();
     gGameMap.LoadFromFile("NYC.CMP");
-    gSpriteCache.Cleanup();
+    gSpriteManager.Cleanup();
     gRenderManager.mCityRenderer.InvalidateMapMesh();
-    if (!gSpriteCache.InitLevelSprites())
+    if (!gSpriteManager.InitLevelSprites())
     {
         debug_assert(false);
     }

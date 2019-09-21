@@ -2,7 +2,7 @@
 #include "RenderingManager.h"
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
-#include "SpriteCache.h"
+#include "SpriteManager.h"
 
 RenderingManager gRenderManager;
 
@@ -43,7 +43,7 @@ void RenderingManager::Deinit()
 {
     mDebugRenderer.Deinit();
     mCityRenderer.Deinit();
-    gSpriteCache.Cleanup();
+    gSpriteManager.Cleanup();
     FreeRenderPrograms();
 }
 

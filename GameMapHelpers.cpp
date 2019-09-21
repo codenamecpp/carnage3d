@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GameMapHelpers.h"
-#include "SpriteCache.h"
+#include "SpriteManager.h"
 #include "GameMapManager.h"
 
 bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)

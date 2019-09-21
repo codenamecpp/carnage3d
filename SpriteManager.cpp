@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SpriteCache.h"
+#include "SpriteManager.h"
 #include "GpuTextureArray2D.h"
 #include "GpuTexture2D.h"
 #include "GraphicsDevice.h"
@@ -10,10 +10,10 @@ const int ObjectsTextureSizeX = 2048;
 const int ObjectsTextureSizeY = 1024;
 const int SpritesSpacing = 4;
 
-SpriteCache gSpriteCache;
+SpriteManager gSpriteManager;
 
 
-bool SpriteCache::InitLevelSprites()
+bool SpriteManager::InitLevelSprites()
 {
     Cleanup();
     debug_assert(gGameMap.mStyleData.IsLoaded());
@@ -32,12 +32,12 @@ bool SpriteCache::InitLevelSprites()
     return true;
 }
 
-void SpriteCache::Cleanup()
+void SpriteManager::Cleanup()
 {
-    if (mBlocksTextureArray2D)
+    if (mBlocksTextureArray)
     {
-        gGraphicsDevice.DestroyTexture(mBlocksTextureArray2D);
-        mBlocksTextureArray2D = nullptr;
+        gGraphicsDevice.DestroyTexture(mBlocksTextureArray);
+        mBlocksTextureArray = nullptr;
     }
 
     if (mObjectsSpritesheet.mSpritesheetTexture)
@@ -48,7 +48,7 @@ void SpriteCache::Cleanup()
     mObjectsSpritesheet.mEtries.clear();
 }
 
-bool SpriteCache::InitObjectsSpritesheet()
+bool SpriteManager::InitObjectsSpritesheet()
 {
     CityStyleData& cityStyle = gGameMap.mStyleData;
 
@@ -146,7 +146,7 @@ bool SpriteCache::InitObjectsSpritesheet()
     return all_done;
 }
 
-bool SpriteCache::InitBlocksTexture()
+bool SpriteManager::InitBlocksTexture()
 {
     CityStyleData& cityStyle = gGameMap.mStyleData;
 
@@ -167,8 +167,8 @@ bool SpriteCache::InitBlocksTexture()
         return true;
     }
 
-    mBlocksTextureArray2D = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_RGBA8, blockBitmap.mSizex, blockBitmap.mSizey, totalTextures, nullptr);
-    debug_assert(mBlocksTextureArray2D);
+    mBlocksTextureArray = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_RGBA8, blockBitmap.mSizex, blockBitmap.mSizey, totalTextures, nullptr);
+    debug_assert(mBlocksTextureArray);
     
     int currentLayerIndex = 0;
     for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
@@ -183,7 +183,7 @@ bool SpriteCache::InitBlocksTexture()
             }
 
             // upload bitmap to gpu
-            if (!mBlocksTextureArray2D->Upload(currentLayerIndex, 1, blockBitmap.mData))
+            if (!mBlocksTextureArray->Upload(currentLayerIndex, 1, blockBitmap.mData))
             {
                 debug_assert(false);
             }
@@ -194,7 +194,7 @@ bool SpriteCache::InitBlocksTexture()
     return true;
 }
 
-void SpriteCache::DumpBlocksTexture(const char* outputLocation)
+void SpriteManager::DumpBlocksTexture(const char* outputLocation)
 {
     CityStyleData& cityStyle = gGameMap.mStyleData;
 

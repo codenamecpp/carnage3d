@@ -3,7 +3,7 @@
 #include "RenderingManager.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
-#include "SpriteCache.h"
+#include "SpriteManager.h"
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
 #include "PhysicsObject.h"
@@ -205,7 +205,7 @@ void CityRenderer::DrawCityMesh()
     gRenderManager.mCityMeshProgram.Activate();
     gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices();
 
-    GpuTextureArray2D* blocksTextureArray = gSpriteCache.mBlocksTextureArray2D;
+    GpuTextureArray2D* blocksTextureArray = gSpriteManager.mBlocksTextureArray;
     gRenderManager.mCityMeshProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
@@ -292,8 +292,8 @@ void CityRenderer::IssuePedsSprites()
         glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
         position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
 
-        DrawSprite3D(gSpriteCache.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteCache.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
+        DrawSprite3D(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
+            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
     }
 }
 
@@ -428,7 +428,7 @@ void CityRenderer::RenderDrawSpritesBatches()
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices();
 
-    GpuTextureArray2D* blocksTextureArray = gSpriteCache.mBlocksTextureArray2D;
+    GpuTextureArray2D* blocksTextureArray = gSpriteManager.mBlocksTextureArray;
     gRenderManager.mSpritesProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
 
     TransientBuffer vBuffer;

@@ -199,9 +199,6 @@
     <ClInclude Include="GpuTextureArray2D.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteCache.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
@@ -267,6 +264,9 @@
     </ClInclude>
     <ClInclude Include="GpuTexture1D.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteManager.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -340,9 +340,6 @@
     <ClCompile Include="GpuTextureArray2D.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SpriteCache.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>Game\GUI</Filter>
     </ClCompile>
@@ -405,6 +402,9 @@
     </ClCompile>
     <ClCompile Include="GpuTexture1D.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteManager.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -6,11 +6,11 @@
 
 // Since engine uses original GTA assets, cache requires styledata to be provided
 // Some textures, such as block tiles, may be combined into huge atlases for performance reasons 
-class SpriteCache final: public cxx::noncopyable
+class SpriteManager final: public cxx::noncopyable
 {
 public:
     // all blocks are packed into single texture array, where each level is single 64x64 bitmap
-    GpuTextureArray2D* mBlocksTextureArray2D = nullptr;
+    GpuTextureArray2D* mBlocksTextureArray = nullptr;
 
     // all default objects bitmaps (with no deltas applied) are stored in single 2d texture
     Spritesheet mObjectsSpritesheet;
@@ -29,4 +29,4 @@ private:
     bool InitObjectsSpritesheet();
 };
 
-extern SpriteCache gSpriteCache;
+extern SpriteManager gSpriteManager;
