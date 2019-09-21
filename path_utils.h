@@ -84,4 +84,11 @@ namespace cxx
         return os::is_directory(pathto);
     }
 
+    // create directories in path
+    inline bool ensure_path_exists(std::string pathto)
+    {
+        filesystem::path sourcePath {pathto};
+        return filesystem::create_directories(sourcePath);
+    }
+
 } // namespace cxx

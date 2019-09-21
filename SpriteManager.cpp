@@ -212,43 +212,6 @@ bool SpriteManager::InitBlocksTexture()
     return true;
 }
 
-void SpriteManager::DumpBlocksTexture(const char* outputLocation)
-{
-    CityStyleData& cityStyle = gGameMap.mStyleData;
-
-    debug_assert(cityStyle.IsLoaded());
-
-    // allocate temporary bitmap
-    PixelsArray blockBitmap;
-    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
-    {
-        debug_assert(false);
-        return;
-    }
-    cxx::string_buffer_1024 pathBuffer;
-    for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
-    {
-        eBlockType currentBlockType = (eBlockType) iblockType;
-
-        int numTextures = cityStyle.GetBlockTexturesCount(currentBlockType);
-        for (int itexture = 0; itexture < numTextures; ++itexture)
-        {
-            if (!cityStyle.GetBlockTexture(currentBlockType, itexture, &blockBitmap, 0, 0))
-            {
-                gConsole.LogMessage(eLogMessage_Warning, "Cannot read block texture: %d %d", iblockType, itexture);
-                continue;
-            }
-            
-            // dump to file
-            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
-            if (!blockBitmap.SaveToFile(pathBuffer.c_str()))
-            {
-                debug_assert(false);
-            }
-        }
-    } // for
-}
-
 bool SpriteManager::InitBlocksIndicesTable()
 {
     CityStyleData& cityStyle = gGameMap.mStyleData;
@@ -350,4 +313,71 @@ void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
         return;
 
     mBlocksAnimTime += deltaTime;
+}
+
+void SpriteManager::DumpBlocksTexture(const char* outputLocation)
+{
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+    cxx::ensure_path_exists(outputLocation);
+    // allocate temporary bitmap
+    PixelsArray blockBitmap;
+    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
+    {
+        debug_assert(false);
+        return;
+    }
+    cxx::string_buffer_1024 pathBuffer;
+    for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
+    {
+        eBlockType currentBlockType = (eBlockType) iblockType;
+
+        int numTextures = cityStyle.GetBlockTexturesCount(currentBlockType);
+        for (int itexture = 0; itexture < numTextures; ++itexture)
+        {
+            if (!cityStyle.GetBlockTexture(currentBlockType, itexture, &blockBitmap, 0, 0))
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot read block texture: %d %d", iblockType, itexture);
+                continue;
+            }
+            
+            // dump to file
+            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
+            if (!blockBitmap.SaveToFile(pathBuffer.c_str()))
+            {
+                debug_assert(false);
+            }
+        }
+    } // for
+}
+
+void SpriteManager::DumpSpriteTextures(const char* outputLocation)
+{
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+    cxx::ensure_path_exists(outputLocation);
+    cxx::string_buffer_1024 pathBuffer;
+    for (int iSpriteType = 0; iSpriteType < eSpriteType_COUNT; ++iSpriteType)
+    {
+        eSpriteType sprite_type = (eSpriteType) iSpriteType;
+        for (int iSpriteId = 0; iSpriteId < cityStyle.GetNumSprites(sprite_type); ++iSpriteId)
+        {
+            int sprite_index = cityStyle.GetSpriteIndex(sprite_type, iSpriteId);
+
+            PixelsArray spriteBitmap;
+            spriteBitmap.Create(eTextureFormat_RGBA8, 
+                cityStyle.mSprites[sprite_index].mWidth, 
+                cityStyle.mSprites[sprite_index].mHeight);
+            cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
+            
+            // dump to file
+            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(sprite_type), iSpriteId);
+            if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+            {
+                debug_assert(false);
+            }
+        }
+    } // for
 }
