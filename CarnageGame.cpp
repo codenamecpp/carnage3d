@@ -10,6 +10,8 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
+    gGameCheatsWindow.mWindowShown = true; // show by default
+
     gGameRules.LoadDefaults();
     gGameMap.LoadFromFile("NYC.CMP");
     gSpriteManager.Cleanup();
