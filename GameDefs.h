@@ -454,6 +454,9 @@ define_enum_strings(eCarVType)
     eCarVType_Motorcycle, "motorcycle",
     eCarVType_StandardCar, "standard_car",
     eCarVType_Train, "standard_train",
+    eCarVType_Tram, "tram",
+    eCarVType_Boat, "boat",
+    eCarVType_Tank, "tank",
 };
 
 // define car class information
