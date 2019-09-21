@@ -204,15 +204,14 @@ void CityRenderer::DrawCityMesh()
 
     gRenderManager.mCityMeshProgram.Activate();
     gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices();
-
-    GpuTextureArray2D* blocksTextureArray = gSpriteManager.mBlocksTextureArray;
-    gRenderManager.mCityMeshProgram.SetTextureMappingEnabled(blocksTextureArray != nullptr);
+    gRenderManager.mCityMeshProgram.SetTextureMappingEnabled(gSpriteManager.mBlocksTextureArray != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
         gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
         gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
-        gGraphicsDevice.BindTexture(eTextureUnit_0, blocksTextureArray);
+        gGraphicsDevice.BindTexture(eTextureUnit_0, gSpriteManager.mBlocksTextureArray);
+        gGraphicsDevice.BindTexture(eTextureUnit_1, gSpriteManager.mBlocksIndicesTable);
 
         int currBaseVertex = 0;
         int currIndexOffset = 0;

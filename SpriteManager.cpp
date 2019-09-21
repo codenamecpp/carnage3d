@@ -24,6 +24,12 @@ bool SpriteManager::InitLevelSprites()
         return false;
     }
 
+    if (!InitBlocksIndicesTable())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize blocks indices table texture");
+        return false;
+    }
+
     if (!InitObjectsSpritesheet())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot create objects spritesheet");
@@ -40,11 +46,18 @@ void SpriteManager::Cleanup()
         mBlocksTextureArray = nullptr;
     }
 
+    if (mBlocksIndicesTable)
+    {
+        gGraphicsDevice.DestroyTexture(mBlocksIndicesTable);
+        mBlocksIndicesTable = nullptr;
+    }
+
     if (mObjectsSpritesheet.mSpritesheetTexture)
     {
         gGraphicsDevice.DestroyTexture(mObjectsSpritesheet.mSpritesheetTexture);
         mObjectsSpritesheet.mSpritesheetTexture = nullptr;
     }
+
     mObjectsSpritesheet.mEtries.clear();
 }
 
@@ -76,7 +89,7 @@ bool SpriteManager::InitObjectsSpritesheet()
     if (!spritesBitmap.Create(eTextureFormat_RGBA8, ObjectsTextureSizeX, ObjectsTextureSizeY))
     {
         debug_assert(false);
-        return true;
+        return false;
     }
 
     spritesBitmap.FillWithColor(MAKE_RGBA(255, 255, 255, 0));
@@ -164,7 +177,7 @@ bool SpriteManager::InitBlocksTexture()
     if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
     {
         debug_assert(false);
-        return true;
+        return false;
     }
 
     mBlocksTextureArray = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_RGBA8, blockBitmap.mSizex, blockBitmap.mSizey, totalTextures, nullptr);
@@ -229,4 +242,40 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
             }
         }
     } // for
+}
+
+bool SpriteManager::InitBlocksIndicesTable()
+{
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
+    // count textures
+    const int totalTextures = cityStyle.GetBlockTexturesCount();
+    assert(totalTextures > 0);
+    if (totalTextures == 0)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Skip building blocks indices table");
+        return true;
+    }
+
+    int textureSize = cxx::get_next_pot(totalTextures);
+
+    // allocate temporary bitmap
+    PixelsArray blockBitmap;
+    if (!blockBitmap.Create(eTextureFormat_RU16, textureSize, 1))
+    {
+        debug_assert(false);
+        return false;
+    }
+
+    // reset to default order
+    unsigned short* pixels_data = (unsigned short*) blockBitmap.mData;
+    for (int i = 0; i < totalTextures; ++i)
+    {
+        pixels_data[i] = i;        
+    }
+
+    mBlocksIndicesTable = gGraphicsDevice.CreateTexture1D(eTextureFormat_RU16, textureSize, blockBitmap.mData);
+    debug_assert(mBlocksIndicesTable);
+
+    return true;
 }

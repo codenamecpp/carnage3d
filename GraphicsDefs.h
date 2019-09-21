@@ -253,6 +253,9 @@ enum eTextureFormat
     eTextureFormat_R8_G8,
     eTextureFormat_RGB8,
     eTextureFormat_RGBA8,
+
+    // ext formats 
+    eTextureFormat_RU16, // single channel, unsigned short
     eTextureFormat_COUNT,
 };
 
@@ -263,6 +266,9 @@ define_enum_strings(eTextureFormat)
     eTextureFormat_R8_G8, "r8_g8",
     eTextureFormat_RGB8, "rgb8",
     eTextureFormat_RGBA8, "rgba8",
+
+    // ext formats
+    eTextureFormat_RU16, "ru16",
 };
 
 // Get number of bytes per pixel for specific texture format
@@ -276,6 +282,7 @@ inline int NumBytesPerPixel(eTextureFormat format)
         case eTextureFormat_RGB8 : return 3;
         case eTextureFormat_R8_G8 : return 2;
         case eTextureFormat_R8 : return 1;
+        case eTextureFormat_RU16: return 2;
     }
     return 0;
 }

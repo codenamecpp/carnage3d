@@ -62,6 +62,10 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     GLint internalFormatGL = 0;
     switch (textureFormat)
     {
+        case eTextureFormat_RU16:
+            formatGL = GL_RED_INTEGER;
+            internalFormatGL = GL_R16UI;
+        break;
         case eTextureFormat_R8: 
             formatGL = GL_RED;
             internalFormatGL = GL_R8;
@@ -89,9 +93,11 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     mFormat = textureFormat;
     mSize.x = sizex;
     mSize.y = sizey;
+
+    GLenum dataType = (mFormat == eTextureFormat_RU16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
     
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
+    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);
     glCheckError();
 
     // set default filter and repeat mode for texture
@@ -150,6 +156,10 @@ bool GpuTexture2D::Upload(const void* sourceData)
     GLint internalFormatGL = 0;
     switch (mFormat)
     {
+        case eTextureFormat_RU16:
+            formatGL = GL_RED_INTEGER;
+            internalFormatGL = GL_R16UI;
+        break;
         case eTextureFormat_R8: 
             formatGL = GL_RED;
             internalFormatGL = GL_R8;
@@ -167,8 +177,11 @@ bool GpuTexture2D::Upload(const void* sourceData)
             internalFormatGL = GL_RGBA8;
         break;
     }
+
+    GLenum dataType = (mFormat == eTextureFormat_RU16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, GL_UNSIGNED_BYTE, sourceData);
+    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);
     glCheckError();
     return true;
 }

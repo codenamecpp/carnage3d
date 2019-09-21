@@ -32,6 +32,8 @@ void main()
 #ifdef FRAGMENT_SHADER
 
 uniform sampler2DArray tex_0;
+uniform usampler1D tex_1;
+
 uniform bool enable_texture_mapping;
 
 // passed from vertex shader
@@ -48,7 +50,10 @@ void main()
     vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
     if (enable_texture_mapping)
     {
-        pixelColor = texture(tex_0, Texcoord);
+        uvec4 block_texture_index_v = texelFetch(tex_1, int(Texcoord.z), 0);
+        float block_texture_index = float(block_texture_index_v.r);
+
+        pixelColor = texture(tex_0, vec3(Texcoord.x, Texcoord.y, block_texture_index));
 
         if (FragColor.a < 1.0f && pixelColor.a < 1.0f) // old school alpha test
             discard;
