@@ -14,10 +14,11 @@ bool CarnageGame::Initialize()
     gGameMap.LoadFromFile("NYC.CMP");
     gSpriteCache.Cleanup();
     gRenderManager.mCityRenderer.InvalidateMapMesh();
-    if (!gSpriteCache.InitLevelSprites(gGameMap.mStyleData))
+    if (!gSpriteCache.InitLevelSprites())
     {
         debug_assert(false);
     }
+    //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
     gPhysics.Initialize();
 
     mPedsManager.Initialize();

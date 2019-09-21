@@ -13,19 +13,18 @@ const int SpritesSpacing = 4;
 SpriteCache gSpriteCache;
 
 
-bool SpriteCache::InitLevelSprites(CityStyleData& cityStyle)
+bool SpriteCache::InitLevelSprites()
 {
     Cleanup();
+    debug_assert(gGameMap.mStyleData.IsLoaded());
 
-    debug_assert(cityStyle.IsLoaded());
-
-    if (!InitBlocksTexture(cityStyle))
+    if (!InitBlocksTexture())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot create blocks texture");
         return false;
     }
 
-    if (!InitObjectsSpritesheet(cityStyle))
+    if (!InitObjectsSpritesheet())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot create objects spritesheet");
         return false;
@@ -49,8 +48,10 @@ void SpriteCache::Cleanup()
     mObjectsSpritesheet.mEtries.clear();
 }
 
-bool SpriteCache::InitObjectsSpritesheet(CityStyleData& cityStyle)
+bool SpriteCache::InitObjectsSpritesheet()
 {
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
     int totalSprites = cityStyle.mSprites.size();
     debug_assert(totalSprites > 0);
     if (totalSprites == 0)
@@ -145,8 +146,10 @@ bool SpriteCache::InitObjectsSpritesheet(CityStyleData& cityStyle)
     return all_done;
 }
 
-bool SpriteCache::InitBlocksTexture(CityStyleData& cityStyle)
+bool SpriteCache::InitBlocksTexture()
 {
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
     // count textures
     const int totalTextures = cityStyle.GetBlockTexturesCount();
     assert(totalTextures > 0);
@@ -168,7 +171,7 @@ bool SpriteCache::InitBlocksTexture(CityStyleData& cityStyle)
     debug_assert(mBlocksTextureArray2D);
     
     int currentLayerIndex = 0;
-    for (int recordIndex = 0, iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
+    for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
     {
         int numTextures = cityStyle.GetBlockTexturesCount((eBlockType) iblockType);
         for (int itexture = 0; itexture < numTextures; ++itexture)
@@ -189,4 +192,41 @@ bool SpriteCache::InitBlocksTexture(CityStyleData& cityStyle)
         }
     }
     return true;
+}
+
+void SpriteCache::DumpBlocksTexture(const char* outputLocation)
+{
+    CityStyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+
+    // allocate temporary bitmap
+    PixelsArray blockBitmap;
+    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
+    {
+        debug_assert(false);
+        return;
+    }
+    cxx::string_buffer_1024 pathBuffer;
+    for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
+    {
+        eBlockType currentBlockType = (eBlockType) iblockType;
+
+        int numTextures = cityStyle.GetBlockTexturesCount(currentBlockType);
+        for (int itexture = 0; itexture < numTextures; ++itexture)
+        {
+            if (!cityStyle.GetBlockTexture(currentBlockType, itexture, &blockBitmap, 0, 0))
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot read block texture: %d %d", iblockType, itexture);
+                continue;
+            }
+            
+            // dump to file
+            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
+            if (!blockBitmap.SaveToFile(pathBuffer.c_str()))
+            {
+                debug_assert(false);
+            }
+        }
+    } // for
 }
