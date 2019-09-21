@@ -265,6 +265,9 @@
     <ClInclude Include="GameMapManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="GpuTexture1D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -399,6 +402,9 @@
     </ClCompile>
     <ClCompile Include="GameMapManager.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuTexture1D.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

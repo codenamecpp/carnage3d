@@ -212,7 +212,7 @@ void CityRenderer::DrawCityMesh()
     {
         gGraphicsDevice.BindVertexBuffer(mCityMeshBufferV, CityVertex3D_Format::Get());
         gGraphicsDevice.BindIndexBuffer(mCityMeshBufferI);
-        gGraphicsDevice.BindTextureArray2D(eTextureUnit_0, blocksTextureArray);
+        gGraphicsDevice.BindTexture(eTextureUnit_0, blocksTextureArray);
 
         int currBaseVertex = 0;
         int currIndexOffset = 0;
@@ -453,7 +453,7 @@ void CityRenderer::RenderDrawSpritesBatches()
 
     for (const DrawSpriteBatch& currBatch: mDrawSpritesBatchesList)
     {
-        gGraphicsDevice.BindTexture2D(eTextureUnit_0, currBatch.mSpriteTexture);
+        gGraphicsDevice.BindTexture(eTextureUnit_0, currBatch.mSpriteTexture);
 
         unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_DrawIndex_t * currBatch.mFirstIndex;
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);

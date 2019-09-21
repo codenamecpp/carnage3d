@@ -103,7 +103,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Separator();
     }
 
-    if (ImGui::CollapsingHeader("Map layers"))
+    if (ImGui::CollapsingHeader("Map Draw"))
     {
         for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
         {
