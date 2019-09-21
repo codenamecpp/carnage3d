@@ -61,6 +61,8 @@ public:
 
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
+
+    bool IsFalling() const;
 };
 
 //////////////////////////////////////////////////////////////////////////

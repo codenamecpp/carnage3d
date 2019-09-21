@@ -74,7 +74,7 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
         {
             break;
         }
-        UpdatePedsGravity();
+        FixedStepPedsGravity();
     }
     mPhysicsWorld->DrawDebugData();
 }
@@ -211,13 +211,38 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 {
 }
 
-void PhysicsManager::UpdatePedsGravity()
+void PhysicsManager::FixedStepPedsGravity()
 {
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
     {
-        // correct y coord on slopes
         glm::vec3 pedestrianPos = currPedestrian->mPhysicalBody->GetPosition();
-        pedestrianPos.y = gGameMap.GetHeightAtPosition(pedestrianPos);
+
+        // process falling
+        float newHeight = gGameMap.GetHeightAtPosition(pedestrianPos);
+        if (currPedestrian->IsFalling())
+        {
+            if (abs(newHeight - pedestrianPos.y) < 0.1f)
+            {
+                currPedestrian->mPhysicalBody->StopFalling();
+            }
+        }
+        else
+        {
+            if ((pedestrianPos.y - newHeight) >= MAP_BLOCK_LENGTH)
+            {
+                currPedestrian->mPhysicalBody->StartFalling();
+            }
+        }
+
+        if (currPedestrian->IsFalling())
+        {
+            pedestrianPos.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
+        }
+        else
+        {
+            pedestrianPos.y = newHeight;
+        }
+
         currPedestrian->SetPosition(pedestrianPos);
     }
 }

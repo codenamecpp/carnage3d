@@ -20,6 +20,35 @@ PhysicsObject::~PhysicsObject()
     mPhysicsWorld->DestroyBody(mPhysicsBody);
 }
 
+void PhysicsObject::StartFalling()
+{
+    debug_assert(mPhysicsBody);
+    if (mFalling)
+        return;
+
+    mFalling = true;
+
+    b2Vec2 moveVector = mPhysicsBody->GetLinearVelocity();
+    b2Vec2 nullVector {0.0f, 0.0f};
+    mPhysicsBody->SetLinearVelocity(nullVector);
+
+    moveVector *= 3.0f; // speedup a bit
+    mPhysicsBody->ApplyForceToCenter(moveVector, true);
+    mPhysicsBody->SetAngularVelocity(0.0f);
+}
+
+void PhysicsObject::StopFalling()
+{
+    if (!mFalling)
+        return;
+
+    mFalling = false;
+
+    b2Vec2 nullVector { 0.0f, 0.0f };
+    mPhysicsBody->SetLinearVelocity(nullVector);
+    mPhysicsBody->SetAngularVelocity(0.0f);
+}
+
 void PhysicsObject::SetPosition(const glm::vec3& position)
 {
     debug_assert(mPhysicsBody);

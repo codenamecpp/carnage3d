@@ -102,6 +102,13 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
     mLiveTicks += deltaTime;
 
+    // ignore inputs when falling
+    if (IsFalling())
+    {
+        SwitchToAnimation(eSpriteAnimationID_Ped_Falling, eSpriteAnimLoop_FromStart);
+        return;
+    }
+
     // try to turn around
     if (mControl.IsTurnAround())
     {
@@ -162,9 +169,6 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
         mPhysicalBody->SetLinearVelocity({}); // force stop
         SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
     }
-
-    // update z coord
-    // todo
 }
 
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
@@ -192,6 +196,13 @@ void Pedestrian::SetPosition(const glm::vec3& position)
     debug_assert(mPhysicalBody);
 
     mPhysicalBody->SetPosition(position);
+}
+
+bool Pedestrian::IsFalling() const
+{
+    debug_assert(mPhysicalBody);
+
+    return mPhysicalBody->mFalling;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,8 +244,6 @@ void PedestrianManager::UpdateFrame(Timespan deltaTime)
     }
 
     RemoveOffscreenPeds();
-
-    // update physics
 }
 
 void PedestrianManager::DestroyPendingPeds()

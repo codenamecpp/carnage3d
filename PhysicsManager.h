@@ -30,7 +30,7 @@ private:
     void CreateMapCollisionBody();
 
     // apply gravity forces and correct z coord for pedestrians
-    void UpdatePedsGravity();
+    void FixedStepPedsGravity();
 
     // override b2ContactFilter
 	void BeginContact(b2Contact* contact) override;

@@ -16,6 +16,9 @@ public:
     PhysicsObject();
     ~PhysicsObject();
 
+    void StartFalling();
+    void StopFalling();
+
     // set/get object's world position and rotation angle
     // @param position: Coordinate
     // @param angleDegrees: Rotation, optional
