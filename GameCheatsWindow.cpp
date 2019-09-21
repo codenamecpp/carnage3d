@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "RenderingManager.h"
 #include "PhysicsManager.h"
+#include "CarnageGame.h"
 
 GameCheatsWindow gGameCheatsWindow;
 

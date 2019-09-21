@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Pedestrian.h"
 #include "PhysicsManager.h"
+#include "GameMapManager.h"
 
 PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
     : mPedestrian(pedestrian)

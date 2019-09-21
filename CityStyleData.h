@@ -50,6 +50,7 @@ public:
     // @param blockIndex: Target block index
     // @param animationInfo: Output info
     bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyleData* animationInfo);
+    bool HasBlockAnimation(eBlockType blockType, int blockIndex) const;
 
     // Read sprite bitmap to specific location at target texture
     // @param spriteIndex: Sprite index

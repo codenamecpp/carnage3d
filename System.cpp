@@ -4,6 +4,8 @@
 #include "RenderingManager.h"
 #include <mmsystem.h>
 
+#include "CarnageGame.h"
+
 //////////////////////////////////////////////////////////////////////////
 
 static const char* SysConfigPath = "config/sys_config.json";
@@ -51,13 +53,14 @@ void System::Execute()
     for (; !mQuitRequested; )
     {
         long mCurrentTimestamp = GetSysMilliseconds();
-        if (mCurrentTimestamp - mPreviousFrameTimestamp < 1)
+
+        Timespan deltaTime ( mCurrentTimestamp - mPreviousFrameTimestamp );
+        if (deltaTime < 1)
         {
             ::Sleep(1);
             mCurrentTimestamp = GetSysMilliseconds();
+            deltaTime = 1;
         }
-
-        Timespan deltaTime ( mCurrentTimestamp - mPreviousFrameTimestamp );
 
         // order in which subsystems gets updated is significant
         gGuiSystem.UpdateFrame(deltaTime);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameMapHelpers.h"
 #include "SpriteCache.h"
+#include "GameMapManager.h"
 
 bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, int layerIndex, MapMeshData& meshData)
 {
@@ -9,8 +10,8 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     meshData.SetNull();
 
     // preallocate
-    meshData.mMeshIndices.reserve(1 * 1024 * 1024);
-    meshData.mMeshVertices.reserve(1 * 1024 * 1024);
+    meshData.mBlocksIndices.reserve(1 * 1024 * 1024);
+    meshData.mBlocksVertices.reserve(1 * 1024 * 1024);
 
     // prepare
     for (int tiley = 0; tiley < area.h; ++tiley)
@@ -36,8 +37,8 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
     meshData.SetNull();
 
     // preallocate
-    meshData.mMeshIndices.reserve(1 * 1024 * 1024);
-    meshData.mMeshVertices.reserve(1 * 1024 * 1024);
+    meshData.mBlocksIndices.reserve(1 * 1024 * 1024);
+    meshData.mBlocksVertices.reserve(1 * 1024 * 1024);
 
     // prepare
     for (int tilez = 0; tilez < MAP_LAYERS_COUNT; ++tilez)
@@ -137,57 +138,57 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     }
 
     const int rotateLid = (face == eBlockFace_Lid) ? blockInfo->mLidRotation : 0;
-    const int baseVertexIndex = meshData.mMeshVertices.size();
-    meshData.mMeshVertices.resize(baseVertexIndex + 4);
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = {0.0f, 0.0f, blockTexIndex * 1.0f};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = {1.0f, 0.0f, blockTexIndex * 1.0f};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
-    meshData.mMeshVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
+    const int baseVertexIndex = meshData.mBlocksVertices.size();
+    meshData.mBlocksVertices.resize(baseVertexIndex + 4);
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = {0.0f, 0.0f, blockTexIndex * 1.0f};
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = {1.0f, 0.0f, blockTexIndex * 1.0f};
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
 
     unsigned char color = 50 + static_cast<unsigned char>(((z * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
     // color
-    meshData.mMeshVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
-    meshData.mMeshVertices[baseVertexIndex + 1].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
-    meshData.mMeshVertices[baseVertexIndex + 2].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
-    meshData.mMeshVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
+    meshData.mBlocksVertices[baseVertexIndex + 0].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
+    meshData.mBlocksVertices[baseVertexIndex + 1].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
+    meshData.mBlocksVertices[baseVertexIndex + 2].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
+    meshData.mBlocksVertices[baseVertexIndex + 3].mColor = MAKE_RGBA(color, color, color, blockInfo->mIsFlat ? 0 : 255);
 
     // setup face vertices
     const glm::vec3 cubeOffset { x * MAP_BLOCK_LENGTH, z * MAP_BLOCK_LENGTH, y * MAP_BLOCK_LENGTH };
     if (face == eBlockFace_Lid)
     {
-        meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[1] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[0] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[1] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[0] + cubeOffset;
     }
     if (face == eBlockFace_S)
     {
-        meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[0] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[1] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[2] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[3] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[0] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[1] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[2] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[3] + cubeOffset;
     }
     if (face == eBlockFace_N)
     {
-        meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[5] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[4] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[7] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[6] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[5] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[4] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[7] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[6] + cubeOffset;
     }
     if (face == eBlockFace_W)
     {
-        meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[0] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[3] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[0] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[3] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
     }
     if (face == eBlockFace_E)
     {
-        meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[1] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[6] + cubeOffset;
-        meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[2] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[1] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[6] + cubeOffset;
+        meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[2] + cubeOffset;
     }
 
     if (blockInfo->mIsFlat)
@@ -195,18 +196,18 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
         // should draw at W position
         if (face == eBlockFace_E)
         {
-            meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[0] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[4] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[7] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[3] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[0] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[4] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[7] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[3] + cubeOffset;
         }
         // should draw at N position
         if (face == eBlockFace_S)
         {
-            meshData.mMeshVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 2].mPosition = cubePoints[6] + cubeOffset;
-            meshData.mMeshVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 1].mPosition = cubePoints[5] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[6] + cubeOffset;
+            meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
         }
     }
 
@@ -216,50 +217,50 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
         {
             if (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_E))
             {
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
             }
             if (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_S))
             {
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
             }
         }
         else
         {
             if (!blockInfo->mFlipLeftRightFaces && (face == eBlockFace_E))
             {
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
             }
             if (!blockInfo->mFlipTopBottomFaces && (face == eBlockFace_S))
             {
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
             }  
         }
 
         if (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_W))
         {
-            std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-            std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
         }
         if (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_N))
         {
-            std::swap(meshData.mMeshVertices[baseVertexIndex + 0].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 1].mTexcoord);
-            std::swap(meshData.mMeshVertices[baseVertexIndex + 2].mTexcoord, meshData.mMeshVertices[baseVertexIndex + 3].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
         }  
     }
 
     // add indices
-    int baseIndex = meshData.mMeshIndices.size();
-    meshData.mMeshIndices.resize(baseIndex + 6);
-    meshData.mMeshIndices[baseIndex + 0] = baseVertexIndex + 3;
-    meshData.mMeshIndices[baseIndex + 1] = baseVertexIndex + 1;
-    meshData.mMeshIndices[baseIndex + 2] = baseVertexIndex + 0;
-    meshData.mMeshIndices[baseIndex + 3] = baseVertexIndex + 3;
-    meshData.mMeshIndices[baseIndex + 4] = baseVertexIndex + 2;
-    meshData.mMeshIndices[baseIndex + 5] = baseVertexIndex + 1;
+    int baseIndex = meshData.mBlocksIndices.size();
+    meshData.mBlocksIndices.resize(baseIndex + 6);
+    meshData.mBlocksIndices[baseIndex + 0] = baseVertexIndex + 3;
+    meshData.mBlocksIndices[baseIndex + 1] = baseVertexIndex + 1;
+    meshData.mBlocksIndices[baseIndex + 2] = baseVertexIndex + 0;
+    meshData.mBlocksIndices[baseIndex + 3] = baseVertexIndex + 3;
+    meshData.mBlocksIndices[baseIndex + 4] = baseVertexIndex + 2;
+    meshData.mBlocksIndices[baseIndex + 5] = baseVertexIndex + 1;
 }
 
 float GameMapHelpers::GetSlopeHeightMin(int slope)

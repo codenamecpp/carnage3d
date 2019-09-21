@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 
+class GameMapManager;
 class GameMapHelpers final
 {
 public:

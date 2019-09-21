@@ -307,13 +307,19 @@ public:
 
     inline void SetNull()
     {
-        mMeshVertices.clear();
-        mMeshIndices.clear();
+        mBlocksVertices.clear();
+        mBlocksIndices.clear();
+        mAnimBlocksVertices.clear();
+        mAnimBlocksIndices.clear();
     }
 
 public:
-    std::vector<TVertexType> mMeshVertices;
-    std::vector<DrawIndex_t> mMeshIndices;
+    // non-animated blocks
+    std::vector<TVertexType> mBlocksVertices;
+    std::vector<DrawIndex_t> mBlocksIndices;
+    // animated blocks
+    std::vector<TVertexType> mAnimBlocksVertices;
+    std::vector<DrawIndex_t> mAnimBlocksIndices;
 };
 
 // defines single picture within sprite atlas

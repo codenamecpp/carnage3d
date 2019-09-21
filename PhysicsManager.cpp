@@ -2,6 +2,7 @@
 #include "PhysicsManager.h"
 #include "GameMapManager.h"
 #include "GameCheatsWindow.h"
+#include "CarnageGame.h"
 
 //////////////////////////////////////////////////////////////////////////
 

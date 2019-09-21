@@ -89,10 +89,10 @@ void CityRenderer::CommitCityMeshData()
 
     for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
     {
-        int numVertices = mCityMeshData[iLayer].mMeshVertices.size();
+        int numVertices = mCityMeshData[iLayer].mBlocksVertices.size();
         totalVertexCount += numVertices;
 
-        int numIndices = mCityMeshData[iLayer].mMeshIndices.size();
+        int numIndices = mCityMeshData[iLayer].mBlocksIndices.size();
         totalIndexCount += numIndices;
     }
 
@@ -109,10 +109,10 @@ void CityRenderer::CommitCityMeshData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mMeshVertices.size() * Sizeof_CityVertex3D;
-            if (mCityMeshData[iLayer].mMeshVertices.empty())
+            int dataLength = mCityMeshData[iLayer].mBlocksVertices.size() * Sizeof_CityVertex3D;
+            if (mCityMeshData[iLayer].mBlocksVertices.empty())
                 continue;
-            memcpy(pcursor, mCityMeshData[iLayer].mMeshVertices.data(), dataLength);
+            memcpy(pcursor, mCityMeshData[iLayer].mBlocksVertices.data(), dataLength);
             pcursor += dataLength;
         }
         mCityMeshBufferV->Unlock();
@@ -125,10 +125,10 @@ void CityRenderer::CommitCityMeshData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mMeshIndices.size() * Sizeof_DrawIndex_t;
-            if (mCityMeshData[iLayer].mMeshIndices.empty())
+            int dataLength = mCityMeshData[iLayer].mBlocksIndices.size() * Sizeof_DrawIndex_t;
+            if (mCityMeshData[iLayer].mBlocksIndices.empty())
                 continue;
-            memcpy(pcursor, mCityMeshData[iLayer].mMeshIndices.data(), dataLength);
+            memcpy(pcursor, mCityMeshData[iLayer].mBlocksIndices.data(), dataLength);
             pcursor += dataLength;
         }
         mCityMeshBufferI->Unlock();
@@ -219,8 +219,8 @@ void CityRenderer::DrawCityMesh()
         
         for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
         {
-            int numIndices = mCityMeshData[i].mMeshIndices.size();
-            int numVertices = mCityMeshData[i].mMeshVertices.size();
+            int numIndices = mCityMeshData[i].mBlocksIndices.size();
+            int numVertices = mCityMeshData[i].mBlocksVertices.size();
             if (gGameCheatsWindow.mDrawMapLayers[i])
             {
                 int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;

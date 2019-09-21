@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FollowCameraController.h"
 #include "PhysicsObject.h"
+#include "CarnageGame.h"
 
 FollowCameraController::FollowCameraController()
     : mStartupCameraHeight(8.0f)
