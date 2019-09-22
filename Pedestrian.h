@@ -36,10 +36,14 @@ public:
     PedestrianControl mControl; // control pedestrian actions
 
     // public for convenience, should not be modified directly
+    cxx::intrusive_node<Pedestrian> mActivePedsNode;
+    cxx::intrusive_node<Pedestrian> mDeletePedsNode;
+
     const unsigned int mID; // unique identifier
 
     PhysicsObject* mPhysicalBody;
     bool mDead;
+    bool mMarkForDeletion;
     Timespan mLiveTicks; // time since spawn
 
     eSpriteAnimationID mCurrentAnimID;
@@ -72,27 +76,27 @@ class PedestrianManager final: public cxx::noncopyable
 {
 public:
     // public for convenience, should not be modified directly
-    std::vector<Pedestrian*> mActivePedsList;
-    std::vector<Pedestrian*> mDestroyPedsList;
+    cxx::intrusive_list<Pedestrian> mActivePedestriansList;
+    cxx::intrusive_list<Pedestrian> mDeletePedestriansList;
 
 public:
     bool Initialize();
     void Deinit();
-
     void UpdateFrame(Timespan deltaTime);
 
     // add random pedestrian to map at specific location
     // @param position: Real world position
     Pedestrian* CreateRandomPed(const glm::vec3& position);
 
-    // will remove ped from active list and put it to destroy list, does not destroy immediately
-    // @param ped: Pedestrian instance
-    void RemovePedestrian(Pedestrian* ped);
+    // will immediately destroy pedestrian object, make sure it is not in use at this moment
+    // @param ped: Pedestrian
+    void DestroyPedestrian(Pedestrian* ped);
 
 private:
+    void DestroyPedsInList(cxx::intrusive_list<Pedestrian>& pedsList);
     void DestroyPendingPeds();
-    void RemoveOffscreenPeds();
     void AddToActiveList(Pedestrian* ped);
+    void RemoveFromActiveList(Pedestrian* ped);
 
     unsigned int GenerateUniqueID();
 

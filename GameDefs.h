@@ -26,6 +26,7 @@
 
 // forwards
 class Pedestrian;
+class Vehicle;
 
 // map block lid rotation
 enum eLidRotation : unsigned char

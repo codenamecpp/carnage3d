@@ -28,6 +28,7 @@ bool CarnageGame::Initialize()
     gPhysics.Initialize();
 
     mPedsManager.Initialize();
+    mCarsManager.Initialize();
 
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
@@ -45,6 +46,7 @@ bool CarnageGame::Initialize()
 void CarnageGame::Deinit()
 {
     mPedsManager.Deinit();
+    mCarsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();
 }
@@ -53,8 +55,10 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 {
     // advance game time
     mGameTime += deltaTime;
+
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame(deltaTime);
+    mCarsManager.UpdateFrame(deltaTime);
     mPedsManager.UpdateFrame(deltaTime);
     if (mCameraController)
     {

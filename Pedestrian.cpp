@@ -71,6 +71,9 @@ Pedestrian::Pedestrian(unsigned int id)
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
     , mID(id)
+    , mMarkForDeletion()
+    , mActivePedsNode(this)
+    , mDeletePedsNode(this)
 {
 }
 
@@ -89,6 +92,7 @@ void Pedestrian::EnterTheGame()
     mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);
     debug_assert(mPhysicalBody);
 
+    mMarkForDeletion = false;
     mDead = false;
     mLiveTicks = 0;
     mCurrentAnimID = eSpriteAnimationID_Null;
@@ -215,73 +219,62 @@ bool PedestrianManager::Initialize()
 
 void PedestrianManager::Deinit()
 {
-    for (Pedestrian* currPedestrian: mActivePedsList)
-    {
-        if (currPedestrian)
-        {
-            mPedsPool.destroy(currPedestrian);
-        }
-    }
-    for (Pedestrian* currPedestrian: mDestroyPedsList)
-    {
-        if (currPedestrian)
-        {
-            mPedsPool.destroy(currPedestrian);
-        }
-    }
+    DestroyPedsInList(mActivePedestriansList);
+    DestroyPedsInList(mDeletePedestriansList);
 }
 
 void PedestrianManager::UpdateFrame(Timespan deltaTime)
 {
     DestroyPendingPeds();
     
-    for (Pedestrian* currentPed: mActivePedsList) // warning: dont add new peds during this loop
+    bool hasDeletePeds = false;
+    for (Pedestrian* currentPed: mActivePedestriansList) // warning: dont add or remove peds during this loop
     {
-        if (currentPed == nullptr)
-            continue;
+        if (!currentPed->mMarkForDeletion)
+        {
+            debug_assert(!mDeletePedestriansList.contains(&currentPed->mDeletePedsNode));
+            currentPed->UpdateFrame(deltaTime);
+        }
 
-        currentPed->UpdateFrame(deltaTime);
+        if (currentPed->mMarkForDeletion)
+        {
+            mDeletePedestriansList.insert(&currentPed->mDeletePedsNode);
+            hasDeletePeds = true;
+        }
     }
 
-    RemoveOffscreenPeds();
+    if (!hasDeletePeds)
+        return;
+
+    // deactivate all peds marked for deletion
+    for (Pedestrian* deletePed: mDeletePedestriansList)
+    {
+        RemoveFromActiveList(deletePed);
+    }
 }
 
 void PedestrianManager::DestroyPendingPeds()
 {
-    for (Pedestrian* currentPed: mDestroyPedsList)
-    {
-        if (currentPed == nullptr)
-            continue;
-
-        mPedsPool.destroy(currentPed);
-    }
-    mDestroyPedsList.clear();
+    DestroyPedsInList(mDeletePedestriansList);
 }
 
-void PedestrianManager::RemovePedestrian(Pedestrian* pedestrian)
+void PedestrianManager::DestroyPedestrian(Pedestrian* pedestrian)
 {
     debug_assert(pedestrian);
     if (pedestrian == nullptr)
         return;
 
-    auto found_iter = std::find(mActivePedsList.begin(), mActivePedsList.end(), pedestrian);
-    if (found_iter != mActivePedsList.end())
+    if (mDeletePedestriansList.contains(&pedestrian->mDeletePedsNode))
     {
-        *found_iter = nullptr;
+        mDeletePedestriansList.remove(&pedestrian->mDeletePedsNode);
     }
 
-    found_iter = std::find(mDestroyPedsList.begin(), mDestroyPedsList.end(), pedestrian);
-    if (found_iter != mDestroyPedsList.end())
+    if (mActivePedestriansList.contains(&pedestrian->mActivePedsNode))
     {
-        debug_assert(false);
-        return;
+        mActivePedestriansList.remove(&pedestrian->mActivePedsNode);
     }
 
-    mDestroyPedsList.push_back(pedestrian);
-}
-
-void PedestrianManager::RemoveOffscreenPeds()
-{
+    mPedsPool.destroy(pedestrian);
 }
 
 Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
@@ -299,17 +292,24 @@ Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
     return instance;
 }
 
-void PedestrianManager::AddToActiveList(Pedestrian* ped)
+void PedestrianManager::AddToActiveList(Pedestrian* pedestrian)
 {
-    for (Pedestrian*& curr: mActivePedsList)
+    debug_assert(pedestrian);
+    if (pedestrian == nullptr)
+        return;
+
+    debug_assert(!mActivePedestriansList.contains(&pedestrian->mActivePedsNode));
+    debug_assert(!mDeletePedestriansList.contains(&pedestrian->mDeletePedsNode));
+    mActivePedestriansList.insert(&pedestrian->mActivePedsNode);
+}
+
+void PedestrianManager::RemoveFromActiveList(Pedestrian* pedestrian)
+{
+    debug_assert(pedestrian);
+    if (pedestrian && mActivePedestriansList.contains(&pedestrian->mActivePedsNode))
     {
-        if (curr == nullptr)
-        {
-            curr = ped;
-            return;
-        }
+        mActivePedestriansList.remove(&pedestrian->mActivePedsNode);
     }
-    mActivePedsList.push_back(ped);
 }
 
 unsigned int PedestrianManager::GenerateUniqueID()
@@ -320,4 +320,16 @@ unsigned int PedestrianManager::GenerateUniqueID()
         debug_assert(false);
     }
     return newID;
+}
+
+void PedestrianManager::DestroyPedsInList(cxx::intrusive_list<Pedestrian>& pedsList)
+{
+    while (pedsList.has_elements())
+    {
+        cxx::intrusive_node<Pedestrian>* pedestrianNode = pedsList.get_head_node();
+        pedsList.remove(pedestrianNode);
+
+        Pedestrian* pedestrian = pedestrianNode->get_element();
+        mPedsPool.destroy(pedestrian);
+    }
 }

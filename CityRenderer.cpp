@@ -279,7 +279,7 @@ void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const g
 void CityRenderer::IssuePedsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
-    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedsList)
+    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedestriansList)
     {
         if (currPedestrian == nullptr)
             continue;

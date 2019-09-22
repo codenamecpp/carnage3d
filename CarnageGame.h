@@ -4,12 +4,14 @@
 #include "FollowCameraController.h"
 #include "Pedestrian.h"
 #include "FreeLookCameraController.h"
+#include "Vehicle.h"
 
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
 {
 public:
     PedestrianManager mPedsManager;
+    CarsManager mCarsManager;
     FollowCameraController mFollowCameraController;
     FreeLookCameraController mFreeLookCameraController;
     // gamestate

@@ -268,6 +268,9 @@
     <ClInclude Include="SpriteManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Vehicle.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -404,6 +407,9 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="SpriteManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Vehicle.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
