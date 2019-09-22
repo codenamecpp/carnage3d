@@ -35,7 +35,7 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-    mPlayerPedestrian = mPedsManager.CreateRandomPed(pos);
+    mPlayerPedestrian = mPedsManager.CreatePedestrian(pos);
 
     SetCameraController(&mFollowCameraController);
 

@@ -9,6 +9,7 @@ Vehicle::Vehicle(unsigned int id)
     , mID(id)
     , mPhysicalBody()
     , mDead()
+    , mCarStyle()
 {
 }
 
@@ -22,6 +23,8 @@ Vehicle::~Vehicle()
 
 void Vehicle::EnterTheGame()
 {
+    debug_assert(mCarStyle);
+
     glm::vec3 startPosition;
     
     //mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);

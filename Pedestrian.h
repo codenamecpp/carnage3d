@@ -17,6 +17,7 @@ public:
     void SetWalkBackward(bool walkEnabled);
     void SetRunning(bool runEnabled);
     bool IsMoves() const;
+
 public:
     Pedestrian& mPedestrian;
     float mTurnAngle; // specified in degrees
@@ -91,7 +92,7 @@ public:
 
     // add random pedestrian to map at specific location
     // @param position: Real world position
-    Pedestrian* CreateRandomPed(const glm::vec3& position);
+    Pedestrian* CreatePedestrian(const glm::vec3& position);
 
     // will immediately destroy pedestrian object, make sure it is not in use at this moment
     // @param ped: Pedestrian

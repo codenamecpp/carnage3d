@@ -14,6 +14,8 @@ public:
     bool mDead;
     bool mMarkForDeletion;
 
+    CarStyleData* mCarStyle;
+
 public:
     // @param id: Unique object identifier, constant
     Vehicle(unsigned int id);
@@ -23,8 +25,6 @@ public:
     void EnterTheGame();
 
     void UpdateFrame(Timespan deltaTime);
-
-public:
 
 private:
     friend class CarsManager;

@@ -277,7 +277,7 @@ void PedestrianManager::DestroyPedestrian(Pedestrian* pedestrian)
     mPedsPool.destroy(pedestrian);
 }
 
-Pedestrian* PedestrianManager::CreateRandomPed(const glm::vec3& position)
+Pedestrian* PedestrianManager::CreatePedestrian(const glm::vec3& position)
 {
     unsigned int pedestrianID = GenerateUniqueID();
 
