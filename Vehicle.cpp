@@ -2,6 +2,7 @@
 #include "Vehicle.h"
 #include "PhysicsManager.h"
 #include "PhysicsObject.h"
+#include "GameMapManager.h"
 
 Vehicle::Vehicle(unsigned int id)
     : mActiveCarsNode(this)
@@ -10,6 +11,7 @@ Vehicle::Vehicle(unsigned int id)
     , mPhysicalBody()
     , mDead()
     , mCarStyle()
+    , mMarkForDeletion()
 {
 }
 
@@ -27,11 +29,11 @@ void Vehicle::EnterTheGame()
 
     glm::vec3 startPosition;
     
-    //mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);
-    //debug_assert(mPhysicalBody);
+    mPhysicalBody = gPhysics.CreateVehicleBody(startPosition, 0.0f, mCarStyle);
+    debug_assert(mPhysicalBody);
 
-    //mMarkForDeletion = false;
-    //mDead = false;
+    mMarkForDeletion = false;
+    mDead = false;
 }
 
 void Vehicle::UpdateFrame(Timespan deltaTime)
@@ -82,9 +84,25 @@ void CarsManager::UpdateFrame(Timespan deltaTime)
     }
 }
 
-Vehicle* CarsManager::CreateCar(const glm::vec3& position)
+Vehicle* CarsManager::CreateCar(const glm::vec3& position, int carTypeId)
 {
-    return nullptr;
+    CityStyleData& styleData = gGameMap.mStyleData;
+
+    debug_assert(styleData.IsLoaded());
+    debug_assert(carTypeId < (int)styleData.mCars.size());
+
+    unsigned int carID = GenerateUniqueID();
+
+    Vehicle* instance = mCarsPool.create(carID);
+    debug_assert(instance);
+
+    AddToActiveList(instance);
+
+    // init
+    instance->mCarStyle = &gGameMap.mStyleData.mCars[carTypeId];
+    instance->EnterTheGame();
+    instance->mPhysicalBody->SetPosition(position);
+    return instance;
 }
 
 void CarsManager::DestroyCar(Vehicle* car)

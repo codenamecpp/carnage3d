@@ -232,7 +232,7 @@ void CityRenderer::DrawCityMesh()
     gRenderManager.mCityMeshProgram.Deactivate();
 }
 
-void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const glm::vec3& position, bool centerOrigin, float sprScale, float heading)
+void CityRenderer::DrawSprite(GpuTexture2D* texture, const Rect2D& rc, const glm::vec3& position, bool centerOrigin, float sprScale, float heading)
 {
     float tinvx = 1.0f / texture->mSize.x;
     float tinvy = 1.0f / texture->mSize.y;
@@ -253,37 +253,11 @@ void CityRenderer::DrawSprite3D(GpuTexture2D* texture, const Rect2D& rc, const g
     mDrawSpritesList.push_back(rec);
 }
 
-void CityRenderer::DrawSprite2D(GpuTexture2D* texture, const Rect2D& rc, const glm::vec2& position, bool centerOrigin, float sprScale, float heading)
-{
-    float tinvx = 1.0f / texture->mSize.x;
-    float tinvy = 1.0f / texture->mSize.y;
-
-    // setup draw sprite record
-    DrawSpriteRec rec;
-        rec.mPosition.x = position.x;
-        rec.mPosition.y = 1.0f;
-        rec.mPosition.z = position.y;
-        rec.mSize.x = rc.w * sprScale;
-        rec.mSize.y = rc.h * sprScale;
-        rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
-        rec.mCenterOffset.y = centerOrigin ? (-rec.mSize.y * 0.5f) : 0.0f;
-        rec.mTcUv0.x = rc.x * tinvx;
-        rec.mTcUv0.y = rc.y * tinvy;
-        rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
-        rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
-        rec.mRotate = heading;
-        rec.mSpriteTexture = texture;
-    mDrawSpritesList.push_back(rec);
-}
-
 void CityRenderer::IssuePedsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedestriansList)
     {
-        if (currPedestrian == nullptr)
-            continue;
-
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
         
         float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
@@ -291,13 +265,27 @@ void CityRenderer::IssuePedsSprites()
         glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
         position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
 
-        DrawSprite3D(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
+        DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
     }
 }
 
 void CityRenderer::IssueCarsSprites()
 {
+    float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
+    for (Vehicle* currVehicle: gCarnageGame.mCarsManager.mActiveCarsList)
+    {
+        int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(currVehicle->mCarStyle->mVType, 
+            currVehicle->mCarStyle->mModel, 
+            currVehicle->mCarStyle->mSprNum);
+        
+        float rotationAngle = glm::radians(currVehicle->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+
+        glm::vec3 position = currVehicle->mPhysicalBody->GetPosition();
+        position.y += 0.5f;//= ComputeDrawHeight(currPedestrian, position, rotationAngle);
+        DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
+            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
+    }
 }
 
 void CityRenderer::IssueMapObjectsSprites()

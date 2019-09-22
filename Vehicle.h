@@ -14,7 +14,7 @@ public:
     bool mDead;
     bool mMarkForDeletion;
 
-    CarStyleData* mCarStyle;
+    CarStyleData* mCarStyle; // cannot be null
 
 public:
     // @param id: Unique object identifier, constant
@@ -51,7 +51,8 @@ public:
 
     // add car instance to map at specific location
     // @param position: Real world position
-    Vehicle* CreateCar(const glm::vec3& position);
+    // @param carTypeId: Index of car type in citystyle
+    Vehicle* CreateCar(const glm::vec3& position, int carTypeId);
 
     // will immediately destroy car object, make sure it is not in use at this moment
     // @param car: Car instance

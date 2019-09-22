@@ -403,6 +403,46 @@ int CityStyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
     return offset + spriteId;
 }
 
+int CityStyleData::GetCarSpriteIndex(eCarVType carVType, int modelId, int spriteId) const
+{
+    debug_assert(carVType < eCarVType_COUNT);
+
+    eSpriteType spriteType = eSpriteType_Car;
+    switch (carVType)
+    {
+        case eCarVType_Bus: 
+                spriteType = eSpriteType_Bus;
+            break;
+        case eCarVType_FrontOfJuggernaut:
+        case eCarVType_BackOfJuggernaut:
+                spriteType = eSpriteType_Car;
+            break;
+        case eCarVType_Motorcycle:
+                spriteType = eSpriteType_Bike;
+            break;
+        case eCarVType_StandardCar:
+                spriteType = eSpriteType_Car;
+            break;
+        case eCarVType_Train:
+                spriteType = eSpriteType_Train;
+            break;
+        case eCarVType_Tram:
+                spriteType = eSpriteType_Tram;
+            break;
+        case eCarVType_Boat:
+                spriteType = eSpriteType_Boat;
+            break;
+        case eCarVType_Tank:
+                spriteType = eSpriteType_Tank;
+            break;
+        default:
+                debug_assert(false); // unknown vtype!
+            break;
+    }
+
+    return GetSpriteIndex(spriteType, spriteId);
+}
+
 bool CityStyleData::ReadBlockTextures(std::ifstream& file)
 {
     const int totalBlocks = (mSideBlocksCount + mLidBlocksCount + mAuxBlocksCount);

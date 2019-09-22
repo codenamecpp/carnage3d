@@ -102,8 +102,46 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
-    fixtureDef.density = 10.0f;
+    fixtureDef.density = 0.1f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED;
+
+    b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&fixtureDef);
+    debug_assert(b2fixture);
+
+    return physicsObject;
+}
+
+PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyleData* desc)
+{
+    debug_assert(desc);
+
+    PhysicsObject* physicsObject = mObjectsPool.create();
+    physicsObject->mPhysicsWorld = mPhysicsWorld;
+
+    // create body
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position = {position.x, position.z};
+    bodyDef.angle = glm::radians(angleDegrees);
+    bodyDef.userData = physicsObject;
+    bodyDef.linearDamping = 0.15f;
+    bodyDef.angularDamping = 0.3f;
+
+    physicsObject->mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
+    debug_assert(physicsObject->mPhysicsBody);
+    physicsObject->mDepth = (1.0f * desc->mDepth) / MAP_BLOCK_TEXTURE_DIMS;
+    physicsObject->mHeight = position.y;
+    
+    b2PolygonShape shapeDef;
+    shapeDef.SetAsBox(((1.0f * desc->mHeight) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f, 
+        ((1.0f * desc->mWidth) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &shapeDef;
+    fixtureDef.density = 700.0f;
+    fixtureDef.friction = 0.1f;
+    fixtureDef.restitution = 0.0f;
+    fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_CAR;
 
     b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&fixtureDef);
     debug_assert(b2fixture);

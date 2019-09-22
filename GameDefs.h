@@ -464,8 +464,7 @@ define_enum_strings(eCarVType)
 struct CarStyleData
 {
 public:
-    // dimensions of the car with respect to collision checking
-    int mWidth, mHeight, mDepth; // x, y, z
+    int mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
     int mSprNum; // first sprite number offset for this car
     int mWeight;	
     int mMaxSpeed, mMinSpeed;

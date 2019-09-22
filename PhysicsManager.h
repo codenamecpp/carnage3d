@@ -21,6 +21,12 @@ public:
     // @param angleDegrees: Direction angle in degrees
     PhysicsObject* CreatePedestrianBody(const glm::vec3& position, float angleDegrees);
 
+    // create vehicle specific physical body
+    // @param position: Coord in world
+    // @param angleDegrees: Direction angle in degrees
+    // @param desc: Car class description
+    PhysicsObject* CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyleData* desc);
+
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid
     void DestroyPhysicsObject(PhysicsObject* object);
