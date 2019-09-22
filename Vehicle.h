@@ -1,22 +1,44 @@
 #pragma once
 
+#include "GameDefs.h"
+#include "PhysicsDefs.h"
+
 // defines vehicle instance
 class Vehicle final: public cxx::noncopyable
 {
 public:
-    Vehicle();
+    // public for convenience, should not be modified directly
+    const unsigned int mID; // unique identifier
+
+    PhysicsObject* mPhysicalBody;
+    bool mDead;
+    bool mMarkForDeletion;
+
+public:
+    Vehicle(unsigned int id);
+    ~Vehicle();
+
     void UpdateFrame(Timespan deltaTime);
 
 public:
+
+private:
+    friend class CarsManager;
+
+    // internal stuff that can be touched only by CarsManager
+    cxx::intrusive_node<Vehicle> mActiveCarsNode;
+    cxx::intrusive_node<Vehicle> mDeleteCarsNode;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // defines vehicles manager class
 class CarsManager final: public cxx::noncopyable
 {
 public:
     // public for convenience, should not be modified directly
-    std::vector<Vehicle*> mActiveCarsList;
-    std::vector<Vehicle*> mDestroyCarsList;
+    cxx::intrusive_list<Vehicle> mActiveCarsList;
+    cxx::intrusive_list<Vehicle> mDeleteCarsList;
 
 public:
     bool Initialize();
@@ -27,13 +49,15 @@ public:
     // @param position: Real world position
     Vehicle* CreateCar(const glm::vec3& position);
 
-    // will remove car from active list and put it to destroy list, does not destroy immediately
+    // will immediately destroy car object, make sure it is not in use at this moment
     // @param car: Car instance
-    void RemoveCar(Vehicle* car);
+    void DestroyCar(Vehicle* car);
 
 private:
+    void DestroyCarsInList(cxx::intrusive_list<Vehicle>& carsList);
     void DestroyPendingCars();
     void AddToActiveList(Vehicle* car);
+    void RemoveFromActiveList(Vehicle* car);
 
     unsigned int GenerateUniqueID();
 

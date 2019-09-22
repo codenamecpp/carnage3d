@@ -1,10 +1,16 @@
 #include "stdafx.h"
 #include "Vehicle.h"
 
-Vehicle::Vehicle()
+Vehicle::Vehicle(unsigned int id)
+    : mActiveCarsNode(this)
+    , mDeleteCarsNode(this)
+    , mID(id)
 {
 }
 
+Vehicle::~Vehicle()
+{
+}
 void Vehicle::UpdateFrame(Timespan deltaTime)
 {
 }
@@ -19,32 +25,37 @@ bool CarsManager::Initialize()
 
 void CarsManager::Deinit()
 {
-    for (Vehicle* currCar: mActiveCarsList)
-    {
-        if (currCar)
-        {
-            mCarsPool.destroy(currCar);
-        }
-    }
-    for (Vehicle* currCar: mDestroyCarsList)
-    {
-        if (currCar)
-        {
-            mCarsPool.destroy(currCar);
-        }
-    }
+    DestroyCarsInList(mActiveCarsList);
+    DestroyCarsInList(mDeleteCarsList);
 }
 
 void CarsManager::UpdateFrame(Timespan deltaTime)
 {
     DestroyPendingCars();
     
-    for (Vehicle* currentCar: mActiveCarsList) // warning: dont add new cars during this loop
+    bool hasDeleteCars = false;
+    for (Vehicle* currentCar: mActiveCarsList) // warning: dont add or remove cars during this loop
     {
-        if (currentCar == nullptr)
-            continue;
+        if (!currentCar->mMarkForDeletion)
+        {
+            debug_assert(!mDeleteCarsList.contains(&currentCar->mDeleteCarsNode));
+            currentCar->UpdateFrame(deltaTime);
+        }
 
-        currentCar->UpdateFrame(deltaTime);
+        if (currentCar->mMarkForDeletion)
+        {
+            mDeleteCarsList.insert(&currentCar->mDeleteCarsNode);
+            hasDeleteCars = true;
+        }
+    }
+
+    if (!hasDeleteCars)
+        return;
+
+    // deactivate all cars marked for deletion
+    for (Vehicle* deleteCar: mDeleteCarsList)
+    {
+        RemoveFromActiveList(deleteCar);
     }
 }
 
@@ -53,51 +64,39 @@ Vehicle* CarsManager::CreateCar(const glm::vec3& position)
     return nullptr;
 }
 
-void CarsManager::RemoveCar(Vehicle* car)
+void CarsManager::DestroyCar(Vehicle* car)
 {
     debug_assert(car);
     if (car == nullptr)
         return;
 
-    auto found_iter = std::find(mActiveCarsList.begin(), mActiveCarsList.end(), car);
-    if (found_iter != mActiveCarsList.end())
+    if (mDeleteCarsList.contains(&car->mDeleteCarsNode))
     {
-        *found_iter = nullptr;
+        mDeleteCarsList.remove(&car->mDeleteCarsNode);
     }
 
-    found_iter = std::find(mDestroyCarsList.begin(), mDestroyCarsList.end(), car);
-    if (found_iter != mDestroyCarsList.end())
+    if (mActiveCarsList.contains(&car->mActiveCarsNode))
     {
-        debug_assert(false);
-        return;
+        mActiveCarsList.remove(&car->mActiveCarsNode);
     }
 
-    mDestroyCarsList.push_back(car);
+    mCarsPool.destroy(car);
 }
 
 void CarsManager::DestroyPendingCars()
 {
-    for (Vehicle* curr: mDestroyCarsList)
-    {
-        if (curr == nullptr)
-            continue;
-
-        mCarsPool.destroy(curr);
-    }
-    mDestroyCarsList.clear();
+    DestroyCarsInList(mDeleteCarsList);
 }
 
 void CarsManager::AddToActiveList(Vehicle* car)
 {
-    for (Vehicle*& curr: mActiveCarsList)
-    {
-        if (curr == nullptr)
-        {
-            curr = car;
-            return;
-        }
-    }
-    mActiveCarsList.push_back(car);
+    debug_assert(car);
+    if (car == nullptr)
+        return;
+
+    debug_assert(!mActiveCarsList.contains(&car->mActiveCarsNode));
+    debug_assert(!mDeleteCarsList.contains(&car->mDeleteCarsNode));
+    mActiveCarsList.insert(&car->mActiveCarsNode);
 }
 
 unsigned int CarsManager::GenerateUniqueID()
@@ -108,4 +107,25 @@ unsigned int CarsManager::GenerateUniqueID()
         debug_assert(false);
     }
     return newID;
+}
+
+void CarsManager::RemoveFromActiveList(Vehicle* car)
+{
+    debug_assert(car);
+    if (car && mActiveCarsList.contains(&car->mActiveCarsNode))
+    {
+        mActiveCarsList.remove(&car->mActiveCarsNode);
+    }
+}
+
+void CarsManager::DestroyCarsInList(cxx::intrusive_list<Vehicle>& carsList)
+{
+    while (carsList.has_elements())
+    {
+        cxx::intrusive_node<Vehicle>* carNode = carsList.get_head_node();
+        carsList.remove(carNode);
+
+        Vehicle* carInstance = carNode->get_element();
+        mCarsPool.destroy(carInstance);
+    }
 }

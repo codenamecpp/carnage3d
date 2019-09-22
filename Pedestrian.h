@@ -36,9 +36,6 @@ public:
     PedestrianControl mControl; // control pedestrian actions
 
     // public for convenience, should not be modified directly
-    cxx::intrusive_node<Pedestrian> mActivePedsNode;
-    cxx::intrusive_node<Pedestrian> mDeletePedsNode;
-
     const unsigned int mID; // unique identifier
 
     PhysicsObject* mPhysicalBody;
@@ -67,6 +64,13 @@ public:
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
 
     bool IsFalling() const;
+
+private:
+    friend class PedestrianManager;
+
+    // internal stuff that can be touched only by PedestrianManager
+    cxx::intrusive_node<Pedestrian> mActivePedsNode;
+    cxx::intrusive_node<Pedestrian> mDeletePedsNode;
 };
 
 //////////////////////////////////////////////////////////////////////////

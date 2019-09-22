@@ -59,7 +59,8 @@ public:
 
 private:
     friend class PhysicsManager;
-    // internal stuff that should be touched only by physics manager
+
+    // internal stuff that can be touched only by physics manager
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
 };
