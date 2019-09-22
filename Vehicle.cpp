@@ -1,16 +1,36 @@
 #include "stdafx.h"
 #include "Vehicle.h"
+#include "PhysicsManager.h"
+#include "PhysicsObject.h"
 
 Vehicle::Vehicle(unsigned int id)
     : mActiveCarsNode(this)
     , mDeleteCarsNode(this)
     , mID(id)
+    , mPhysicalBody()
+    , mDead()
 {
 }
 
 Vehicle::~Vehicle()
 {
+    if (mPhysicalBody)
+    {
+        gPhysics.DestroyPhysicsObject(mPhysicalBody);
+    }
 }
+
+void Vehicle::EnterTheGame()
+{
+    glm::vec3 startPosition;
+    
+    //mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);
+    //debug_assert(mPhysicalBody);
+
+    //mMarkForDeletion = false;
+    //mDead = false;
+}
+
 void Vehicle::UpdateFrame(Timespan deltaTime)
 {
 }

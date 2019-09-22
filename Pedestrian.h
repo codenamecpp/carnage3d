@@ -47,6 +47,7 @@ public:
     SpriteAnimation mAnimation;
 
 public:
+    // @param id: Unique object identifier, constant
     Pedestrian(unsigned int id);
     ~Pedestrian();
 

@@ -15,8 +15,12 @@ public:
     bool mMarkForDeletion;
 
 public:
+    // @param id: Unique object identifier, constant
     Vehicle(unsigned int id);
     ~Vehicle();
+
+    // setup initial state when spawned on level
+    void EnterTheGame();
 
     void UpdateFrame(Timespan deltaTime);
 
