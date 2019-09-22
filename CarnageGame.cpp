@@ -25,7 +25,6 @@ bool CarnageGame::Initialize()
     //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
     //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
 
-    cxx::ensure_path_exists("D:/Temp/gta1_sprites/1");
     gPhysics.Initialize();
 
     mPedsManager.Initialize();
