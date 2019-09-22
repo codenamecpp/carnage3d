@@ -38,6 +38,8 @@ private:
 	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
+    bool HasCollisionWithMap(int mapx, int mapz, float height) const;
+
 private:
     PhysicsDebugDraw mDebugDraw;
     b2World* mPhysicsWorld;

@@ -175,7 +175,7 @@ void PhysicsManager::CreateMapCollisionBody()
             b2fixtureDef.density = 1.0f;
             b2fixtureDef.shape = &b2shapeDef;
             b2fixtureDef.userData = fixtureData.mAsPointer;
-            b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_BUILDING;
+            b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP_SOLID_BLOCK;
 
             b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&b2fixtureDef);
             debug_assert(b2fixture);
@@ -205,6 +205,42 @@ void PhysicsManager::EndContact(b2Contact* contact)
 
 void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
+    b2Fixture* fixtureA = contact->GetFixtureA();
+    b2Fixture* fixtureB = contact->GetFixtureB();
+
+    b2Fixture* fixtureMapSolidBlock = nullptr;
+    b2Fixture* fixturePed = nullptr;
+    if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_MAP_SOLID_BLOCK)
+    {
+        fixtureMapSolidBlock = fixtureA;
+    }
+    if (fixtureB->GetFilterData().categoryBits == PHYSICS_OBJCAT_MAP_SOLID_BLOCK)
+    {
+        fixtureMapSolidBlock = fixtureB;
+    }
+
+    if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED)
+    {
+        fixturePed = fixtureA;
+    }
+    if (fixtureB->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED)
+    {
+        fixturePed = fixtureB;
+    }
+
+    bool hasCollision = true;
+
+    if (fixtureMapSolidBlock && fixturePed)
+    {
+        b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
+        PhysicsObject* physicsObject = (PhysicsObject*) fixturePed->GetBody()->GetUserData();
+        debug_assert(physicsObject);
+        // detect height
+        float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
+        hasCollision = HasCollisionWithMap(fxdata.mX, fxdata.mZ, height);
+    }
+
+    contact->SetEnabled(hasCollision);
 }
 
 void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
@@ -245,4 +281,13 @@ void PhysicsManager::FixedStepPedsGravity()
 
         currPedestrian->SetPosition(pedestrianPos);
     }
+}
+
+bool PhysicsManager::HasCollisionWithMap(int mapx, int mapz, float height) const
+{
+    int map_layer = (int) (height + 0.5f);
+
+    // todo:
+    BlockStyleData* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    return (blockData->mGroundType == eGroundType_Building);
 }
