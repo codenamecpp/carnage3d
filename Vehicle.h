@@ -24,6 +24,7 @@ public:
     // setup initial state when spawned on level
     void EnterTheGame();
 
+    // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
 
 private:

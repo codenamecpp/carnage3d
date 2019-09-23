@@ -27,6 +27,7 @@ private:
     void IssueProjectilesSprites();
 
     float ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& position, float angleRadians);
+    float ComputeDrawHeight(Vehicle* car, const glm::vec3& position, float angleRadians);
 
     // @param sprRotate: Angle in radians
     void DrawSprite(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);

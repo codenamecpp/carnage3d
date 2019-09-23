@@ -102,7 +102,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
-    fixtureDef.density = 60.0f;
+    fixtureDef.density = 0.3f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED;
 
     b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&fixtureDef);

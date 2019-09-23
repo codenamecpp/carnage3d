@@ -55,16 +55,17 @@ public:
     // setup initial state when spawned on level
     void EnterTheGame();
 
+    // process current animation and logic
+    void UpdateFrame(Timespan deltaTime);
+
     // state control
     void SetHeading(float rotationDegrees);
     void SetPosition(const glm::vec3& position);
 
-    // process current animation and logic
-    void UpdateFrame(Timespan deltaTime);
-
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
 
+    // test whether pedestrian is in air
     bool IsFalling() const;
 
 private:

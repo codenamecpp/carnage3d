@@ -282,7 +282,7 @@ void CityRenderer::IssueCarsSprites()
         float rotationAngle = glm::radians(currVehicle->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 
         glm::vec3 position = currVehicle->mPhysicalBody->GetPosition();
-        position.y += 0.5f;//= ComputeDrawHeight(currPedestrian, position, rotationAngle);
+        position.y = ComputeDrawHeight(currVehicle, position, rotationAngle);
         DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
     }
@@ -494,4 +494,33 @@ float CityRenderer::ComputeDrawHeight(Pedestrian* pedestrian, const glm::vec3& p
     }
 #endif
     return maxHeight + 0.01f;
+}
+
+float CityRenderer::ComputeDrawHeight(Vehicle* car, const glm::vec3& position, float angleRadians)
+{
+    float halfW = (1.0f * car->mCarStyle->mWidth) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
+    float halfH = (1.0f * car->mCarStyle->mHeight) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
+
+    glm::vec3 points[4] = {
+        { -halfW, position.y + 0.01f, -halfH },
+        { halfW,  position.y + 0.01f, -halfH },
+        { halfW,  position.y + 0.01f, halfH },
+        { -halfW, position.y + 0.01f, halfH },
+    };
+
+    float maxHeight = position.y;
+    for (glm::vec3& currPoint: points)
+    {
+        currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f));
+        currPoint.x += position.x;
+        currPoint.z += position.z;
+    }
+#if 1
+    // debug
+    for (int i = 0; i < 4; ++i)
+    {
+        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+    }
+#endif
+    return position.y + 0.02f;
 }
