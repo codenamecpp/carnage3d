@@ -87,7 +87,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     // create body
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = {position.x, position.z};
+    bodyDef.position = {position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE};
     bodyDef.angle = glm::radians(angleDegrees);
     bodyDef.fixedRotation = true;
     bodyDef.userData = physicsObject;
@@ -98,11 +98,11 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     physicsObject->mHeight = position.y;
     
     b2CircleShape shapeDef;
-    shapeDef.m_radius = PHYSICS_PED_BOUNDING_SPHERE_RADIUS;
+    shapeDef.m_radius = PHYSICS_PED_BOUNDING_SPHERE_RADIUS * PHYSICS_SCALE;
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
-    fixtureDef.density = 0.1f;
+    fixtureDef.density = 60.0f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED;
 
     b2Fixture* b2fixture = physicsObject->mPhysicsBody->CreateFixture(&fixtureDef);
@@ -121,7 +121,7 @@ PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, floa
     // create body
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = {position.x, position.z};
+    bodyDef.position = {position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE};
     bodyDef.angle = glm::radians(angleDegrees);
     bodyDef.userData = physicsObject;
     bodyDef.linearDamping = 0.15f;
@@ -133,8 +133,8 @@ PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, floa
     physicsObject->mHeight = position.y;
     
     b2PolygonShape shapeDef;
-    shapeDef.SetAsBox(((1.0f * desc->mHeight) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f, 
-        ((1.0f * desc->mWidth) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f);
+    shapeDef.SetAsBox(((1.0f * desc->mHeight) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f * PHYSICS_SCALE, 
+        ((1.0f * desc->mWidth) / MAP_BLOCK_TEXTURE_DIMS) * 0.5f * PHYSICS_SCALE);
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
@@ -200,17 +200,17 @@ void PhysicsManager::CreateMapCollisionBody()
 
             b2PolygonShape b2shapeDef;
             b2Vec2 center { 
-                (x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f), 
-                (y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)
+                ((x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE, 
+                ((y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE
             };
-            b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f, MAP_BLOCK_LENGTH * 0.5f, center, 0.0f);
+            b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, center, 0.0f);
 
             b2FixtureData_map fixtureData;
             fixtureData.mX = x;
             fixtureData.mZ = y;
 
             b2FixtureDef b2fixtureDef;
-            b2fixtureDef.density = 1.0f;
+            b2fixtureDef.density = 0.0f;
             b2fixtureDef.shape = &b2shapeDef;
             b2fixtureDef.userData = fixtureData.mAsPointer;
             b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP_SOLID_BLOCK;

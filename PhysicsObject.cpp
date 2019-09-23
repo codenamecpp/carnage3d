@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PhysicsObject.h"
+#include "PhysicsDefs.h"
 
 PhysicsObject::PhysicsObject()
     : mHeight()
@@ -55,7 +56,7 @@ void PhysicsObject::SetPosition(const glm::vec3& position)
 
     mHeight = position.y;
 
-    b2Vec2 b2position { position.x, position.z };
+    b2Vec2 b2position { position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE };
     mPhysicsBody->SetTransform(b2position, mPhysicsBody->GetAngle());
 }
 
@@ -65,7 +66,7 @@ void PhysicsObject::SetPosition(const glm::vec3& position, float angleDegrees)
 
     mHeight = position.y;
 
-    b2Vec2 b2position { position.x, position.z };
+    b2Vec2 b2position { position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE };
     mPhysicsBody->SetTransform(b2position, glm::radians(angleDegrees));
 }
 
@@ -87,7 +88,7 @@ void PhysicsObject::ApplyForce(const glm::vec3& force)
 {
     debug_assert(mPhysicsBody);
 
-    b2Vec2 b2Force { force.x, force.z };
+    b2Vec2 b2Force { force.x * PHYSICS_SCALE, force.z * PHYSICS_SCALE };
     mPhysicsBody->ApplyForceToCenter(b2Force, true);
 }
 
@@ -95,7 +96,7 @@ void PhysicsObject::ApplyLinearImpulse(const glm::vec3& impulse)
 {
     debug_assert(mPhysicsBody);
 
-    b2Vec2 b2Impulse { impulse.x, impulse.z };
+    b2Vec2 b2Impulse { impulse.x * PHYSICS_SCALE, impulse.z * PHYSICS_SCALE };
     mPhysicsBody->ApplyLinearImpulseToCenter(b2Impulse, true);
 }
 
@@ -104,7 +105,7 @@ glm::vec3 PhysicsObject::GetPosition() const
     debug_assert(mPhysicsBody);
 
     const b2Vec2& b2position = mPhysicsBody->GetPosition();
-    return { b2position.x, mHeight, b2position.y };
+    return { b2position.x / PHYSICS_SCALE, mHeight, b2position.y / PHYSICS_SCALE };
 }
 
 glm::vec3 PhysicsObject::GetLinearVelocity() const
@@ -112,7 +113,7 @@ glm::vec3 PhysicsObject::GetLinearVelocity() const
     debug_assert(mPhysicsBody);
 
     const b2Vec2& b2position = mPhysicsBody->GetLinearVelocity();
-    return { b2position.x, 0.0f, b2position.y };
+    return { b2position.x / PHYSICS_SCALE, 0.0f, b2position.y / PHYSICS_SCALE };
 }
 
 float PhysicsObject::GetAngleDegrees() const
@@ -156,6 +157,6 @@ void PhysicsObject::SetLinearVelocity(const glm::vec3& velocity)
 {
     debug_assert(mPhysicsBody);
 
-    b2Vec2 b2vec { velocity.x, velocity.z };
+    b2Vec2 b2vec { velocity.x * PHYSICS_SCALE, velocity.z * PHYSICS_SCALE };
     mPhysicsBody->SetLinearVelocity(b2vec);
 }
