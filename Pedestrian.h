@@ -42,7 +42,6 @@ public:
     PhysicsObject* mPhysicalBody;
     bool mDead;
     bool mMarkForDeletion;
-    Timespan mLiveTicks; // time since spawn
 
     eSpriteAnimationID mCurrentAnimID;
     SpriteAnimation mAnimation;
@@ -54,8 +53,6 @@ public:
 
     // setup initial state when spawned on level
     void EnterTheGame();
-
-    // process current animation and logic
     void UpdateFrame(Timespan deltaTime);
 
     // state control

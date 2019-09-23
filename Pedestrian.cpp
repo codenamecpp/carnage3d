@@ -94,7 +94,6 @@ void Pedestrian::EnterTheGame()
 
     mMarkForDeletion = false;
     mDead = false;
-    mLiveTicks = 0;
     mCurrentAnimID = eSpriteAnimationID_Null;
     // set initial state and animation
     SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
@@ -103,8 +102,6 @@ void Pedestrian::EnterTheGame()
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
     mAnimation.UpdateFrame(deltaTime);
-
-    mLiveTicks += deltaTime;
 
     // ignore inputs when falling
     if (IsFalling())
