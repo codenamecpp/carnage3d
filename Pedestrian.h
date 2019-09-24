@@ -11,7 +11,6 @@ public:
     void ResetControl();
     void SetTurnLeft(bool turnEnabled);
     void SetTurnRight(bool turnEnabled);
-    void SetTurnAngle(float turnAngle);
     bool IsTurnAround() const;
     void SetWalkForward(bool walkEnabled);
     void SetWalkBackward(bool walkEnabled);
@@ -20,7 +19,6 @@ public:
 
 public:
     Pedestrian& mPedestrian;
-    float mTurnAngle; // specified in degrees
     bool mTurnLeft;
     bool mTurnRight;
     bool mWalkForward;

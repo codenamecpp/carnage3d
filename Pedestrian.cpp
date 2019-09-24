@@ -11,7 +11,6 @@ PedestrianControl::PedestrianControl(Pedestrian& pedestrian)
 
 void PedestrianControl::ResetControl()
 {
-    mTurnAngle = 0.0f;
     mTurnLeft = false;
     mTurnRight = false;
     mWalkBackward = false;
@@ -22,20 +21,11 @@ void PedestrianControl::ResetControl()
 void PedestrianControl::SetTurnLeft(bool turnEnabled)
 {
     mTurnLeft = turnEnabled;
-    mTurnAngle = 0.0f;
 }
 
 void PedestrianControl::SetTurnRight(bool turnEnabled)
 {
     mTurnRight = turnEnabled;
-    mTurnAngle = 0.0f;
-}
-
-void PedestrianControl::SetTurnAngle(float turnAngle)
-{
-    mTurnAngle = turnAngle;
-    mTurnLeft = false;
-    mTurnRight = false;
 }
 
 void PedestrianControl::SetWalkForward(bool walkEnabled)
@@ -50,7 +40,7 @@ void PedestrianControl::SetWalkBackward(bool walkEnabled)
 
 bool PedestrianControl::IsTurnAround() const
 {
-    return mTurnLeft || mTurnRight || fabs(mTurnAngle) > 0.01f;
+    return mTurnLeft || mTurnRight;
 }
 
 bool PedestrianControl::IsMoves() const
@@ -113,15 +103,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     // try to turn around
     if (mControl.IsTurnAround())
     {
-        if (mControl.mTurnLeft || mControl.mTurnRight)
-        {
-            mPhysicalBody->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
-        }
-        else // specific angle
-        {
-            float anglePerFrame = anglePerFrame = (mControl.mTurnAngle * gGameRules.mPedestrianTurnSpeed * deltaTime.ToSeconds());
-            mControl.mTurnAngle -= anglePerFrame; // todo
-        }        
+        mPhysicalBody->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
     }
     else
     {
