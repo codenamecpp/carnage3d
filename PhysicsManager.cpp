@@ -31,15 +31,14 @@ PhysicsManager::PhysicsManager()
     : mPhysicsWorld()
     , mMapCollisionBody()
 {
-    mDebugDraw.SetFlags(0);
 }
 
 bool PhysicsManager::Initialize()
 {
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
-    mPhysicsWorld->SetDebugDraw(&mDebugDraw);
     mPhysicsWorld->SetContactListener(this);
+    //mPhysicsWorld->SetAutoClearForces(true);
 
     // create collsition body for map
     CreateMapCollisionBody();
@@ -248,6 +247,7 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 
     b2Fixture* fixtureMapSolidBlock = nullptr;
     b2Fixture* fixturePed = nullptr;
+    b2Fixture* fixtureCar = nullptr;
     if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_MAP_SOLID_BLOCK)
     {
         fixtureMapSolidBlock = fixtureA;
@@ -266,6 +266,15 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         fixturePed = fixtureB;
     }
 
+    if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
+    {
+        fixtureCar = fixtureA;
+    }
+    if (fixtureB->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
+    {
+        fixtureCar = fixtureB;
+    }
+
     bool hasCollision = true;
 
     if (fixtureMapSolidBlock && fixturePed)
@@ -275,7 +284,12 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         debug_assert(physicsObject);
         // detect height
         float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
-        hasCollision = HasCollisionWithMap(fxdata.mX, fxdata.mZ, height);
+        hasCollision = HasCollisionPedestrianVsMap(fxdata.mX, fxdata.mZ, height);
+    }
+
+    if (fixtureCar && fixturePed)
+    {
+        hasCollision = HasCollisionPedestrianVsCar(contact, fixturePed, fixtureCar);
     }
 
     contact->SetEnabled(hasCollision);
@@ -321,11 +335,22 @@ void PhysicsManager::FixedStepPedsGravity()
     }
 }
 
-bool PhysicsManager::HasCollisionWithMap(int mapx, int mapz, float height) const
+bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const
 {
     int map_layer = (int) (height + 0.5f);
 
     // todo:
     BlockStyleData* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
     return (blockData->mGroundType == eGroundType_Building);
+}
+
+bool PhysicsManager::HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* pedestrianFixture, b2Fixture* carFixture)
+{
+    PhysicsObject* carPhysicsObject = (PhysicsObject*) carFixture->GetBody()->GetUserData();
+    PhysicsObject* pedPhysicsObject = (PhysicsObject*) pedestrianFixture->GetBody()->GetUserData();
+
+    if (pedPhysicsObject->mSlideOverCars)
+        return false;
+
+    return true;
 }

@@ -9,7 +9,8 @@ PhysicsObject::PhysicsObject()
     , mPhysicsBody()
     , mPhysicsWorld()
     , mDepth()
-    , mInCollidingWithWall()
+    , mTouchingWall()
+    , mSlideOverCars()
 {
 }
 
@@ -28,6 +29,7 @@ void PhysicsObject::StartFalling()
         return;
 
     mFalling = true;
+    StopSlideOverCars();
 
     b2Vec2 moveVector = mPhysicsBody->GetLinearVelocity();
     b2Vec2 nullVector {0.0f, 0.0f};
@@ -44,8 +46,33 @@ void PhysicsObject::StopFalling()
         return;
 
     mFalling = false;
-
     b2Vec2 nullVector { 0.0f, 0.0f };
+    mPhysicsBody->SetLinearVelocity(nullVector);
+    mPhysicsBody->SetAngularVelocity(0.0f);
+}
+
+void PhysicsObject::StartSlideOverCars()
+{
+    debug_assert(mPhysicsBody);
+    if (mSlideOverCars)
+        return;
+
+    mSlideOverCars = true;
+    StopFalling();
+
+    b2Vec2 nullVector {0.0f, 0.0f};
+    mPhysicsBody->SetLinearVelocity(nullVector);
+    mPhysicsBody->SetAngularVelocity(0.0f);
+}
+
+void PhysicsObject::StopSlideOverCars()
+{
+    debug_assert(mPhysicsBody);
+    if (!mSlideOverCars)
+        return;
+
+    mSlideOverCars = false;
+    b2Vec2 nullVector {0.0f, 0.0f};
     mPhysicsBody->SetLinearVelocity(nullVector);
     mPhysicsBody->SetAngularVelocity(0.0f);
 }

@@ -10,7 +10,8 @@ public:
 
     bool mFalling;
     bool mGhost; // ignore collisions
-    bool mInCollidingWithWall;
+    bool mTouchingWall;
+    bool mSlideOverCars;
 
 public:
     PhysicsObject();
@@ -18,6 +19,9 @@ public:
 
     void StartFalling();
     void StopFalling();
+
+    void StartSlideOverCars();
+    void StopSlideOverCars();
 
     // set/get object's world position and rotation angle
     // @param position: Coordinate

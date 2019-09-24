@@ -35,7 +35,7 @@ private:
     // create level map body, used internally
     void CreateMapCollisionBody();
 
-    // apply gravity forces and correct z coord for pedestrians
+    // apply gravity forces and correct y coord for objects
     void FixedStepPedsGravity();
 
     // override b2ContactFilter
@@ -44,7 +44,8 @@ private:
 	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
-    bool HasCollisionWithMap(int mapx, int mapz, float height) const;
+    bool HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const;
+    bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* pedestrianFixture, b2Fixture* carFixture);
 
 private:
     PhysicsDebugDraw mDebugDraw;

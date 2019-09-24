@@ -17,3 +17,12 @@ enum
     PHYSICS_OBJCAT_CAR = (1 << 3),
     PHYSICS_OBJCAT_MAPOBJECT = (1 << 4),
 };
+
+const int MaxPhysicsQueryItems = 64;
+
+struct PhysicsQueryResult
+{
+public:
+    PhysicsObject* mObjects[MaxPhysicsQueryItems];
+    int mNumQueryItems = 0; // real number of items in objects list
+};
