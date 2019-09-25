@@ -39,25 +39,17 @@ private:
     bool InitBlocksTexture();
     bool InitObjectsSpritesheet();
     void InitBlocksAnimations();
-    bool ProcessBlocksAnimations();
 
 private:
-    
     // animation state for blocks sharing specific texture
-    struct BlockAnimation
+    struct BlockAnimation: public SpriteAnimation
     {
     public:
         int mBlockIndex; // linear
-        int mSpeed; // the number of game cycles to display each frame
-        int mFrameCount = 0;
-        int mFrames[MAX_MAP_BLOCK_ANIM_FRAMES]; // an array of block numbers, linear
-        int mCyclesCount;
-        int mCurrentFrame = 0;
     };
-
     std::vector<BlockAnimation> mBlocksAnimations;
     std::vector<unsigned short> mBlocksIndices;
-    Timespan mBlocksAnimTime;
+    bool mIndicesTableChanged;
 };
 
 extern SpriteManager gSpriteManager;

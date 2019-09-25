@@ -91,7 +91,7 @@ void Pedestrian::EnterTheGame()
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
-    mAnimation.UpdateFrame(deltaTime);
+    mAnimation.AdvanceAnimation(deltaTime);
 
     // ignore inputs when falling
     if (IsFalling())

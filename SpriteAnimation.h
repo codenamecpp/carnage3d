@@ -35,7 +35,7 @@ struct SpriteAnimationData
 {
 public:
     SpriteAnimationData() = default;
-    inline void Setup(int startFrame, int numFrames, int fps = 12)
+    inline void Setup(int startFrame, int numFrames, float fps = 12.0f)
     {
         mFramesCount = numFrames;
         for (int iframe = 0; iframe < numFrames; ++iframe)
@@ -47,7 +47,7 @@ public:
     inline void SetNull()
     {
         mFramesCount = 0;
-        mFramesPerSecond = 0;
+        mFramesPerSecond = 0.0f;
     }
     inline bool IsNull() const { return mFramesCount == 0; }
     inline bool NonNull() const { return mFramesCount > 0; }
@@ -55,22 +55,22 @@ public:
 public:
     int mFrames[MaxSpriteAnimationFrames];
     int mFramesCount = 0;
-    int mFramesPerSecond = 0;
+    float mFramesPerSecond = 0.0f;
 };
 
-// defines sprite animation instance
-class SpriteAnimation final
+// defines sprite animation state
+class SpriteAnimation
 {
 public:
     SpriteAnimation();
-    // advance animation state
-    void UpdateFrame(Timespan deltaTime);
+    // advance animation state, returns true on frame changes
+    bool AdvanceAnimation(Timespan deltaTime);
     void SetNull();
 
     // animation control
     void StopAnimation();
     void PlayAnimation(eSpriteAnimLoop animLoop);
-    void PlayAnimation(eSpriteAnimLoop animLoop, int fps);
+    void PlayAnimation(eSpriteAnimLoop animLoop, float fps);
     void RewindToStart();
     void RewindToEnd();
     void NextFrame(bool moveForward);

@@ -26,7 +26,7 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
     if (mStatus != eSpriteAnimStatus_Stop)
         return;
 
-    if (mAnimData.mFramesCount < 1 || mAnimData.mFramesPerSecond < 1)
+    if (mAnimData.mFramesCount < 1 || mAnimData.mFramesPerSecond < 0.001f)
     {
         debug_assert(false);
         return;
@@ -40,7 +40,7 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
     mLoopMode = animLoop;
 }
 
-void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop, int fps)
+void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop, float fps)
 {
     mAnimData.mFramesPerSecond = fps;
 
@@ -66,17 +66,17 @@ void SpriteAnimation::RewindToEnd()
     }
 }
 
-void SpriteAnimation::UpdateFrame(Timespan deltaTime)
+bool SpriteAnimation::AdvanceAnimation(Timespan deltaTime)
 {
     if (mStatus == eSpriteAnimStatus_Stop)
-        return;
+        return false;
 
     mTicksFromAnimStart += deltaTime;
     mTicksFromFrameStart += deltaTime;
 
-    Timespan ticksPerFrame = Timespan::FromSeconds(1.0f / mAnimData.mFramesPerSecond);
-    if (mTicksFromFrameStart < ticksPerFrame)
-        return;
+    float ticksPerFrame = (1.0f / mAnimData.mFramesPerSecond);
+    if (mTicksFromFrameStart.ToSeconds() < ticksPerFrame)
+        return false;
 
     // start next frame
     mTicksFromFrameStart = 0;
@@ -105,11 +105,8 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
         {
             NextFrame(true);
         }
-
-        return;
     }
-
-    if (mStatus == eSpriteAnimStatus_PlayBackward)
+    else if (mStatus == eSpriteAnimStatus_PlayBackward)
     {
         if (mFrameCursor == 0) // end
         {
@@ -133,9 +130,8 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
         {
             NextFrame(false);
         }
-
-        return;
     }        
+    return true;
 }
 
 void SpriteAnimation::NextFrame(bool moveForward)

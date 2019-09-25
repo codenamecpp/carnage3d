@@ -42,7 +42,7 @@ bool SpriteManager::InitLevelSprites()
 
 void SpriteManager::Cleanup()
 {
-    mBlocksAnimTime = 0;
+    mIndicesTableChanged = false;
     if (mBlocksTextureArray)
     {
         gGraphicsDevice.DestroyTexture(mBlocksTextureArray);
@@ -248,10 +248,11 @@ void SpriteManager::RenderFrameBegin()
 
 void SpriteManager::RenderFrameEnd()
 {
-    if (ProcessBlocksAnimations())
+    if (mIndicesTableChanged)
     {
         // upload indices table
         debug_assert(mBlocksIndicesTable);
+        mIndicesTableChanged = false;
         mBlocksIndicesTable->Upload(mBlocksIndices.data());
     }
 }
@@ -265,46 +266,17 @@ void SpriteManager::InitBlocksAnimations()
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
-        animData.mSpeed = currAnim.mSpeed;
-        animData.mFrameCount = currAnim.mFrameCount;
+        animData.mAnimData.mFramesPerSecond = (20.0f / currAnim.mSpeed);
+        animData.mAnimData.mFramesCount = currAnim.mFrameCount + 1;
+        animData.mAnimData.mFrames[0] = animData.mBlockIndex; // initial frame
         for (int iframe = 0; iframe < currAnim.mFrameCount; ++iframe)
         {   
             // convert to linear indices
-            animData.mFrames[iframe] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
+            animData.mAnimData.mFrames[iframe + 1] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
         }
-        animData.mCyclesCount = 0;
-        animData.mCurrentFrame = 0;
+        animData.PlayAnimation(eSpriteAnimLoop_FromStart);
         mBlocksAnimations.push_back(animData);
     }
-}
-
-bool SpriteManager::ProcessBlocksAnimations()
-{
-    const int TicksPerCycle = 1000 / 60;
-
-    if (!gGameCheatsWindow.mEnableBlocksAnimation)
-        return false;
-
-    bool isModified = false;
-    while (mBlocksAnimTime > TicksPerCycle)
-    {
-        mBlocksAnimTime -= TicksPerCycle;
-        // advance cycles
-        for (BlockAnimation& currAnim: mBlocksAnimations)
-        {
-            ++currAnim.mCyclesCount;
-            if (currAnim.mCyclesCount < currAnim.mSpeed)
-                continue;
-
-            currAnim.mCurrentFrame = (currAnim.mCurrentFrame + 1) % (currAnim.mFrameCount + 1);
-            currAnim.mCyclesCount = 0;
-            // patch table
-            mBlocksIndices[currAnim.mBlockIndex] = (currAnim.mCurrentFrame == 0) ? 
-                currAnim.mBlockIndex : currAnim.mFrames[currAnim.mCurrentFrame - 1];
-            isModified = true;
-        }
-    }
-    return isModified;
 }
 
 void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
@@ -312,7 +284,13 @@ void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
     if (!gGameCheatsWindow.mEnableBlocksAnimation)
         return;
 
-    mBlocksAnimTime += deltaTime;
+    for (BlockAnimation& currAnim: mBlocksAnimations)
+    {
+        if (!currAnim.AdvanceAnimation(deltaTime))
+            continue;
+        mBlocksIndices[currAnim.mBlockIndex] = currAnim.GetCurrentFrame(); // patch table
+        mIndicesTableChanged = true;
+    }
 }
 
 void SpriteManager::DumpBlocksTexture(const char* outputLocation)
