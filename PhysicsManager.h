@@ -33,7 +33,7 @@ public:
 
 private:
     // create level map body, used internally
-    void CreateMapCollisionBody();
+    void CreateMapCollisionShape();
 
     // apply gravity forces and correct y coord for objects
     void FixedStepPedsGravity();

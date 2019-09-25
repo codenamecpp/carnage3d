@@ -82,6 +82,14 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
         { 0.0f,             0.0f,               0.0f },
     };
 
+    glm::vec3 texCoords[4] =
+    {
+        {0.0f, 0.0f, blockTexIndex * 1.0f},
+        {1.0f, 0.0f, blockTexIndex * 1.0f},
+        {1.0f, 1.0f, blockTexIndex * 1.0f},
+        {0.0f, 1.0f, blockTexIndex * 1.0f}
+    };
+
     // process slope
     const int slope = blockInfo->mSlopeType;
     switch (slope)
@@ -140,10 +148,31 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     const int rotateLid = (face == eBlockFace_Lid) ? blockInfo->mLidRotation : 0;
     const int baseVertexIndex = meshData.mBlocksVertices.size();
     meshData.mBlocksVertices.resize(baseVertexIndex + 4);
-    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = {0.0f, 0.0f, blockTexIndex * 1.0f};
-    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = {1.0f, 0.0f, blockTexIndex * 1.0f};
-    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = {1.0f, 1.0f, blockTexIndex * 1.0f};
-    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = {0.0f, 1.0f, blockTexIndex * 1.0f};
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 0) % 4)].mTexcoord = texCoords[0];
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 1) % 4)].mTexcoord = texCoords[1];
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 2) % 4)].mTexcoord = texCoords[2];
+    meshData.mBlocksVertices[baseVertexIndex + ((rotateLid + 3) % 4)].mTexcoord = texCoords[3];
+
+    if (face != eBlockFace_Lid)
+    {
+        bool flipLeftRightFaces = ((blockInfo->mIsFlat != blockInfo->mFlipLeftRightFaces) && (face == eBlockFace_E)) ||
+            (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_W));
+
+        if (flipLeftRightFaces)
+        {
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
+        }
+
+        bool flipTopBottomFaces = ((blockInfo->mIsFlat != blockInfo->mFlipTopBottomFaces) && (face == eBlockFace_S)) ||
+            (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_N));
+
+        if (flipTopBottomFaces)
+        {
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
+            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
+        }
+    }
 
     unsigned char color = 50 + static_cast<unsigned char>(((z * 1.0f) / MAP_LAYERS_COUNT) * 180);
 
@@ -209,47 +238,6 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
             meshData.mBlocksVertices[baseVertexIndex + 2].mPosition = cubePoints[6] + cubeOffset;
             meshData.mBlocksVertices[baseVertexIndex + 3].mPosition = cubePoints[7] + cubeOffset;
         }
-    }
-
-    if (face != eBlockFace_Lid)
-    {
-        if (!blockInfo->mIsFlat)
-        {
-            if (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_E))
-            {
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-            }
-            if (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_S))
-            {
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-            }
-        }
-        else
-        {
-            if (!blockInfo->mFlipLeftRightFaces && (face == eBlockFace_E))
-            {
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-            }
-            if (!blockInfo->mFlipTopBottomFaces && (face == eBlockFace_S))
-            {
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-                std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-            }  
-        }
-
-        if (blockInfo->mFlipLeftRightFaces && (face == eBlockFace_W))
-        {
-            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-        }
-        if (blockInfo->mFlipTopBottomFaces && (face == eBlockFace_N))
-        {
-            std::swap(meshData.mBlocksVertices[baseVertexIndex + 0].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 1].mTexcoord);
-            std::swap(meshData.mBlocksVertices[baseVertexIndex + 2].mTexcoord, meshData.mBlocksVertices[baseVertexIndex + 3].mTexcoord);
-        }  
     }
 
     // add indices

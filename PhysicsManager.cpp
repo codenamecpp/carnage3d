@@ -41,7 +41,7 @@ bool PhysicsManager::Initialize()
     //mPhysicsWorld->SetAutoClearForces(true);
 
     // create collsition body for map
-    CreateMapCollisionBody();
+    CreateMapCollisionShape();
     return true;
 }
 
@@ -148,8 +148,9 @@ PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, floa
     return physicsObject;
 }
 
-void PhysicsManager::CreateMapCollisionBody()
+void PhysicsManager::CreateMapCollisionShape()
 {
+    return;
     // build object for layer 1
 
     PhysicsObject* physicsObject = mObjectsPool.create();
