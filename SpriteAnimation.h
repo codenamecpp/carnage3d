@@ -1,5 +1,7 @@
 #pragma once
 
+const int MaxSpriteAnimationFrames = 64;
+
 enum eSpriteAnimStatus
 {
     eSpriteAnimStatus_Stop,
@@ -35,13 +37,15 @@ public:
     SpriteAnimationData() = default;
     inline void Setup(int startFrame, int numFrames, int fps = 12)
     {
-        mFrameStart = startFrame;
         mFramesCount = numFrames;
+        for (int iframe = 0; iframe < numFrames; ++iframe)
+        {
+            mFrames[iframe] = startFrame + iframe;
+        }
         mFramesPerSecond = fps;
     }
     inline void SetNull()
     {
-        mFrameStart = 0;
         mFramesCount = 0;
         mFramesPerSecond = 0;
     }
@@ -49,7 +53,7 @@ public:
     inline bool NonNull() const { return mFramesCount > 0; }
 
 public:
-    int mFrameStart = 0;
+    int mFrames[MaxSpriteAnimationFrames];
     int mFramesCount = 0;
     int mFramesPerSecond = 0;
 };
@@ -59,12 +63,8 @@ class SpriteAnimation final
 {
 public:
     SpriteAnimation();
-
     // advance animation state
-    // @param deltaTime: Time since last frame
     void UpdateFrame(Timespan deltaTime);
-
-    // clear animation
     void SetNull();
 
     // animation control
@@ -73,9 +73,8 @@ public:
     void PlayAnimation(eSpriteAnimLoop animLoop, int fps);
     void RewindToStart();
     void RewindToEnd();
-
     void NextFrame(bool moveForward);
-
+    int GetCurrentFrame() const;
     // test whether animation in progress
     bool IsAnimationActive() const;
     
@@ -89,6 +88,5 @@ public:
     Timespan mTicksFromAnimStart;
     
     int mCyclesCounter;
-    // frame index is relative to sprite type start offset
-    int mCurrentFrame;
+    int mFrameCursor; // current offset in mAnimData.Frames
 };

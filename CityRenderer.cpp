@@ -258,7 +258,7 @@ void CityRenderer::IssuePedsSprites()
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
     for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedestriansList)
     {
-        int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.mCurrentFrame);
+        int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.GetCurrentFrame());
         
         float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 

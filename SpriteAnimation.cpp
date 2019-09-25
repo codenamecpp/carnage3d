@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpriteAnimation.h"
 
-SpriteAnimation::SpriteAnimation(): mCurrentFrame(), mCyclesCounter()
+SpriteAnimation::SpriteAnimation(): mFrameCursor(), mCyclesCounter()
 {
     SetNull();
 }
@@ -10,6 +10,8 @@ void SpriteAnimation::SetNull()
 {
     mStatus = eSpriteAnimStatus_Stop;
     mLoopMode = eSpriteAnimLoop_None;
+    mFrameCursor = 0;
+    mCyclesCounter = 0;
 
     mAnimData.SetNull();
 }
@@ -33,7 +35,7 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
     mTicksFromFrameStart = 0;
     mTicksFromAnimStart = 0;
     mCyclesCounter = 0;
-    mCurrentFrame = mAnimData.mFrameStart;
+    mFrameCursor = 0;
     mStatus = eSpriteAnimStatus_PlayForward;
     mLoopMode = animLoop;
 }
@@ -52,15 +54,15 @@ void SpriteAnimation::StopAnimation()
 
 void SpriteAnimation::RewindToStart()
 {
-    mCurrentFrame = mAnimData.mFrameStart;
+    mFrameCursor = 0;
 }
 
 void SpriteAnimation::RewindToEnd()
 {
-    mCurrentFrame = mAnimData.mFrameStart;
+    mFrameCursor = 0;
     if (mAnimData.mFramesCount > 0)
     {
-        mCurrentFrame += (mAnimData.mFramesCount - 1);
+        mFrameCursor = (mAnimData.mFramesCount - 1);
     }
 }
 
@@ -80,7 +82,7 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
     mTicksFromFrameStart = 0;
     if (mStatus == eSpriteAnimStatus_PlayForward)
     {
-        if (mCurrentFrame == (mAnimData.mFrameStart + mAnimData.mFramesCount - 1)) // end
+        if (mFrameCursor == (mAnimData.mFramesCount - 1)) // end
         {
             switch (mLoopMode)
             {
@@ -89,7 +91,7 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
                 break;
 
                 case eSpriteAnimLoop_FromStart:
-                    mCurrentFrame = mAnimData.mFrameStart;
+                    mFrameCursor = 0;
                 break;
 
                 case eSpriteAnimLoop_PingPong:
@@ -109,7 +111,7 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
 
     if (mStatus == eSpriteAnimStatus_PlayBackward)
     {
-        if (mCurrentFrame == mAnimData.mFrameStart) // end
+        if (mFrameCursor == 0) // end
         {
             switch (mLoopMode)
             {
@@ -118,7 +120,6 @@ void SpriteAnimation::UpdateFrame(Timespan deltaTime)
                 break;
 
                 case eSpriteAnimLoop_FromStart:
-                    mCurrentFrame = mAnimData.mFrameStart;
                 break;
 
                 case eSpriteAnimLoop_PingPong:
@@ -141,16 +142,26 @@ void SpriteAnimation::NextFrame(bool moveForward)
 {
     if (moveForward)
     {
-        if (mCurrentFrame < mAnimData.mFrameStart + mAnimData.mFramesCount - 1)
+        if (mFrameCursor < (mAnimData.mFramesCount - 1))
         {
-            ++mCurrentFrame;
+            ++mFrameCursor;
         }
     }
     else
     {
-        if (mCurrentFrame > mAnimData.mFrameStart)
+        if (mFrameCursor > 0)
         {
-            --mCurrentFrame;
+            --mFrameCursor;
         }
     }
+}
+
+int SpriteAnimation::GetCurrentFrame() const
+{
+    if (mAnimData.mFramesCount > 0)
+    {
+        debug_assert(mAnimData.mFramesCount > mFrameCursor);
+        return mAnimData.mFrames[mFrameCursor];
+    }
+    return 0;
 }
