@@ -18,6 +18,8 @@ public:
     // @param format: Format
     // @param sizex, sizey: Dimensions
     bool Create(eTextureFormat format, int sizex, int sizey);
+    // Free allocated memory
+    void Cleanup();
 
     // Load bitmap from external file
     // Note that filesystem must be initialized otherwise error occurs
@@ -37,9 +39,6 @@ public:
     // Fill bitmap with solid color, does not allocate memory
     // @returns false if bitmap null
     bool FillWithColor(Color32 color);
-
-    // Free allocated memory
-    void Cleanup();
 
     // Test whether bitmap has pixels
     bool HasContent() const;

@@ -150,7 +150,6 @@ PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, floa
 
 void PhysicsManager::CreateMapCollisionShape()
 {
-    return;
     // build object for layer 1
 
     PhysicsObject* physicsObject = mObjectsPool.create();

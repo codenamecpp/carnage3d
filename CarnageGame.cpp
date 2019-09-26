@@ -31,7 +31,8 @@ bool CarnageGame::Initialize()
     mCarsManager.Initialize();
 
     // temporary
-    glm::vec3 pos { 108.0f, 2.0f, 25.0f };
+    //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
+    glm::vec3 pos { 14.0, 2.0f, 38.0f };
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
