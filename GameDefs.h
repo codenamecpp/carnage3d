@@ -310,17 +310,11 @@ public:
     {
         mBlocksVertices.clear();
         mBlocksIndices.clear();
-        mAnimBlocksVertices.clear();
-        mAnimBlocksIndices.clear();
     }
 
 public:
-    // non-animated blocks
     std::vector<TVertexType> mBlocksVertices;
     std::vector<DrawIndex_t> mBlocksIndices;
-    // animated blocks
-    std::vector<TVertexType> mAnimBlocksVertices;
-    std::vector<DrawIndex_t> mAnimBlocksIndices;
 };
 
 // defines single picture within sprite atlas
