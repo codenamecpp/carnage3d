@@ -50,7 +50,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         int mapcoordy = (int) pedPosition.z;
         int maplayer = (int) pedPosition.y;
 
-        BlockStyleData* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, maplayer);
+        BlockStyle* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, maplayer);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
         ImGui::Text("b slope: %d", currBlock->mSlopeType);

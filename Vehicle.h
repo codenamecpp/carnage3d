@@ -14,7 +14,7 @@ public:
     bool mDead;
     bool mMarkForDeletion;
 
-    CarStyleData* mCarStyle; // cannot be null
+    CarStyle* mCarStyle; // cannot be null
 
 public:
     // @param id: Unique object identifier, constant

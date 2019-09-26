@@ -357,7 +357,7 @@ public:
 };
 
 // define map block information
-struct BlockStyleData
+struct BlockStyle
 {
 public:
     unsigned char mRemap;
@@ -392,10 +392,10 @@ public:
     bool mIsRailway : 1;
 };
 
-const unsigned int Sizeof_BlockStyleData = sizeof(BlockStyleData);
+const unsigned int Sizeof_BlockStyle = sizeof(BlockStyle);
 
 // define map block anim information
-struct BlockAnimationStyleData
+struct BlockAnimationStyle
 {
 public:
     int mBlock = 0; // the block number
@@ -406,7 +406,7 @@ public:
 };
 
 // define map object information
-struct MapObjectStyleData
+struct MapObjectStyle
 {
 public:
     int mWidth;
@@ -419,7 +419,7 @@ public:
 };
 
 // define car door information
-struct CarDoorStyleData
+struct CarDoorStyle
 {
 public:
 	int mRpx, mRpy;
@@ -455,7 +455,7 @@ define_enum_strings(eCarVType)
 };
 
 // define car class information
-struct CarStyleData
+struct CarStyle
 {
 public:
     int mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
@@ -490,11 +490,11 @@ public:
     int mSoundFunction;
     int mFastChangeFlag;
     int mDoorsCount;
-    CarDoorStyleData mDoors[MAX_CAR_DOORS];
+    CarDoorStyle mDoors[MAX_CAR_DOORS];
 };
 
 // define sprite information
-struct SpriteStyleData
+struct SpriteStyle
 {
 public:
     int mWidth;

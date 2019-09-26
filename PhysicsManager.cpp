@@ -110,7 +110,7 @@ PhysicsObject* PhysicsManager::CreatePedestrianBody(const glm::vec3& position, f
     return physicsObject;
 }
 
-PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyleData* desc)
+PhysicsObject* PhysicsManager::CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyle* desc)
 {
     debug_assert(desc);
 
@@ -173,7 +173,7 @@ void PhysicsManager::CreateMapCollisionShape()
     {
         for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
         {
-            BlockStyleData* blockData = gGameMap.GetBlock(x, y, layer);
+            BlockStyle* blockData = gGameMap.GetBlock(x, y, layer);
             debug_assert(blockData);
 
             if (blockData->mGroundType != eGroundType_Building)
@@ -181,10 +181,10 @@ void PhysicsManager::CreateMapCollisionShape()
 
             // checek blox is inner
             {
-                BlockStyleData* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
-                BlockStyleData* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
-                BlockStyleData* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
-                BlockStyleData* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
+                BlockStyle* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
+                BlockStyle* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
+                BlockStyle* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
+                BlockStyle* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
 
                 auto is_walkable = [](eGroundType gtype)
                 {
@@ -341,7 +341,7 @@ bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float heigh
     int map_layer = (int) (height + 0.5f);
 
     // todo:
-    BlockStyleData* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 

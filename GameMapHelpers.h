@@ -24,5 +24,5 @@ public:
 private:
     GameMapHelpers();
     // internals
-    static void PutBlockFace(GameMapManager& city, MapMeshData& meshData, int x, int y, int z, eBlockFace face, BlockStyleData* blockInfo);
+    static void PutBlockFace(GameMapManager& city, MapMeshData& meshData, int x, int y, int z, eBlockFace face, BlockStyle* blockInfo);
 };

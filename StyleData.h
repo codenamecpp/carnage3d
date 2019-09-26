@@ -5,27 +5,21 @@
 class PixelsArray;
 
 // this class holds gta style data which get loaded from G24-files
-class CityStyleData final
+class StyleData final
 {
 public:
     // public for convenience, should not be modified directly
-    std::vector<MapObjectStyleData> mObjects;
-    std::vector<SpriteStyleData> mSprites;
-    std::vector<CarStyleData> mCars;
-    std::vector<BlockAnimationStyleData> mBlocksAnimations;
+    std::vector<MapObjectStyle> mObjects;
+    std::vector<SpriteStyle> mSprites;
+    std::vector<CarStyle> mCars;
+    std::vector<BlockAnimationStyle> mBlocksAnimations;
 
 public: 
-    CityStyleData();
-    ~CityStyleData();
-
+    StyleData();
     // Load style data from specific file, returns false on error
     // @param stylesName: Target file name
     bool LoadFromFile(const char* stylesName);
-
-    // Free currently loaded style data
     void Cleanup();
-
-    // Test whether style data was loaded
     bool IsLoaded() const;
 
     // Read block bitmap to specific location at target texture
@@ -50,7 +44,7 @@ public:
     // @param blockType: Source block area type
     // @param blockIndex: Target block index
     // @param animationInfo: Output info
-    bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyleData* animationInfo);
+    bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyle* animationInfo);
     bool HasBlockAnimation(eBlockType blockType, int blockIndex) const;
 
     // Read sprite bitmap to specific location at target texture

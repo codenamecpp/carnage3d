@@ -86,7 +86,7 @@ void CarsManager::UpdateFrame(Timespan deltaTime)
 
 Vehicle* CarsManager::CreateCar(const glm::vec3& position, int carTypeId)
 {
-    CityStyleData& styleData = gGameMap.mStyleData;
+    StyleData& styleData = gGameMap.mStyleData;
 
     debug_assert(styleData.IsLoaded());
     debug_assert(carTypeId < (int)styleData.mCars.size());

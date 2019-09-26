@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CityStyleData.h"
+#include "StyleData.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +75,7 @@ struct GTAFileHeaderG24
 
 //////////////////////////////////////////////////////////////////////////
 
-CityStyleData::CityStyleData(): mBlockTexturesRaw(), mPaletteIndices()
+StyleData::StyleData(): mBlockTexturesRaw(), mPaletteIndices()
     , mLidBlocksCount(), mSideBlocksCount()
     , mAuxBlocksCount(), mTileClutSize()
     , mSpriteClutSize(), mRemapClutSize()
@@ -87,11 +87,7 @@ CityStyleData::CityStyleData(): mBlockTexturesRaw(), mPaletteIndices()
     }
 }
 
-CityStyleData::~CityStyleData()
-{
-}
-
-int CityStyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockIndex) const
+int StyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockIndex) const
 {
     switch (blockType)
     {
@@ -115,7 +111,7 @@ int CityStyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockInd
     return 0;
 }
 
-bool CityStyleData::LoadFromFile(const char* stylesName)
+bool StyleData::LoadFromFile(const char* stylesName)
 {
     Cleanup();
 
@@ -209,7 +205,7 @@ bool CityStyleData::LoadFromFile(const char* stylesName)
     return true;
 }
 
-void CityStyleData::Cleanup()
+void StyleData::Cleanup()
 {
     mBlockTexturesRaw.clear();
     mPaletteIndices.clear();
@@ -238,15 +234,15 @@ void CityStyleData::Cleanup()
     }
 }
 
-bool CityStyleData::IsLoaded() const
+bool StyleData::IsLoaded() const
 {
     return (mLidBlocksCount + mSideBlocksCount + mAuxBlocksCount) > 0;
 }
 
-bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyleData* animationInfo)
+bool StyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyle* animationInfo)
 {
     debug_assert(animationInfo);
-    for (const BlockAnimationStyleData& currAnim: mBlocksAnimations)
+    for (const BlockAnimationStyle& currAnim: mBlocksAnimations)
     {
         if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
         {
@@ -258,9 +254,9 @@ bool CityStyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, 
     return false;
 }
 
-bool CityStyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) const
+bool StyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) const
 {
-    for (const BlockAnimationStyleData& currAnim: mBlocksAnimations)
+    for (const BlockAnimationStyle& currAnim: mBlocksAnimations)
     {
         if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
             return true;
@@ -268,7 +264,7 @@ bool CityStyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) cons
     return false;
 }
 
-bool CityStyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target bitmap must be allocated otherwise operation makes no sence
     if (bitmap == nullptr || !bitmap->HasContent())
@@ -331,7 +327,7 @@ bool CityStyleData::GetBlockTexture(eBlockType blockType, int blockIndex, Pixels
     return true;
 }
 
-int CityStyleData::GetBlockTexturesCount(eBlockType blockType) const
+int StyleData::GetBlockTexturesCount(eBlockType blockType) const
 {
     switch (blockType)
     {
@@ -343,12 +339,12 @@ int CityStyleData::GetBlockTexturesCount(eBlockType blockType) const
     return 0;
 }
 
-int CityStyleData::GetBlockTexturesCount() const
+int StyleData::GetBlockTexturesCount() const
 {
     return mSideBlocksCount + mLidBlocksCount + mAuxBlocksCount;
 }
 
-bool CityStyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     // target texture must be allocated otherwise operation makes no sence
     if (bitmap == nullptr || !bitmap->HasContent())
@@ -364,7 +360,7 @@ bool CityStyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int d
         return false;
     }
 
-    const SpriteStyleData& sprite = mSprites[spriteIndex];
+    const SpriteStyle& sprite = mSprites[spriteIndex];
 
     unsigned char* srcPixels = mSpriteGraphicsRaw.data() + GTA_SPRITE_PAGE_SIZE * sprite.mPageNumber;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
@@ -391,7 +387,7 @@ bool CityStyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int d
     return true;
 }
 
-int CityStyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
+int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
 {
     debug_assert(spriteType < eSpriteType_COUNT);
 
@@ -403,7 +399,7 @@ int CityStyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
     return offset + spriteId;
 }
 
-int CityStyleData::GetCarSpriteIndex(eCarVType carVType, int modelId, int spriteId) const
+int StyleData::GetCarSpriteIndex(eCarVType carVType, int modelId, int spriteId) const
 {
     debug_assert(carVType < eCarVType_COUNT);
 
@@ -443,7 +439,7 @@ int CityStyleData::GetCarSpriteIndex(eCarVType carVType, int modelId, int sprite
     return GetSpriteIndex(spriteType, spriteId);
 }
 
-bool CityStyleData::ReadBlockTextures(std::ifstream& file)
+bool StyleData::ReadBlockTextures(std::ifstream& file)
 {
     const int totalBlocks = (mSideBlocksCount + mLidBlocksCount + mAuxBlocksCount);
 
@@ -465,7 +461,7 @@ bool CityStyleData::ReadBlockTextures(std::ifstream& file)
     return true;
 }
 
-bool CityStyleData::ReadCLUTs(std::ifstream& file, int dataLength)
+bool StyleData::ReadCLUTs(std::ifstream& file, int dataLength)
 {
     const int palCount = dataLength / sizeof(Palette256);
     if (palCount == 0)
@@ -503,7 +499,7 @@ bool CityStyleData::ReadCLUTs(std::ifstream& file, int dataLength)
     return true;
 }
 
-bool CityStyleData::ReadPaletteIndices(std::ifstream& file, int dataLength)
+bool StyleData::ReadPaletteIndices(std::ifstream& file, int dataLength)
 {
     mPaletteIndices.resize(dataLength / sizeof(unsigned short));
     // read bunch of shorts
@@ -513,7 +509,7 @@ bool CityStyleData::ReadPaletteIndices(std::ifstream& file, int dataLength)
     return true;
 }
 
-bool CityStyleData::ReadAnimations(std::ifstream& file, int dataLength)
+bool StyleData::ReadAnimations(std::ifstream& file, int dataLength)
 {
     (void)dataLength;
     unsigned char numAnimationBlocks = 0;
@@ -522,7 +518,7 @@ bool CityStyleData::ReadAnimations(std::ifstream& file, int dataLength)
 
     for (int ianimation = 0; ianimation < numAnimationBlocks; ++ianimation)
     {
-        BlockAnimationStyleData animation;
+        BlockAnimationStyle animation;
 
         READ_I8(file, animation.mBlock);
         READ_I8(file, animation.mWhich);
@@ -545,11 +541,11 @@ bool CityStyleData::ReadAnimations(std::ifstream& file, int dataLength)
     return true;
 }
 
-bool CityStyleData::ReadObjects(std::ifstream& file, int dataLength)
+bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
 {
     for (; dataLength > 0;)
     {
-        MapObjectStyleData objectInfo;
+        MapObjectStyle objectInfo;
 
         READ_I32(file, objectInfo.mWidth);
         READ_I32(file, objectInfo.mHeight);
@@ -578,13 +574,13 @@ bool CityStyleData::ReadObjects(std::ifstream& file, int dataLength)
     return dataLength == 0;
 }
 
-bool CityStyleData::ReadCars(std::ifstream& file, int dataLength)
+bool StyleData::ReadCars(std::ifstream& file, int dataLength)
 {
     for (; dataLength > 0;)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        CarStyleData carInfo;
+        CarStyle carInfo;
         READ_I16(file, carInfo.mWidth);
         READ_I16(file, carInfo.mHeight);
         READ_I16(file, carInfo.mDepth);
@@ -682,13 +678,13 @@ bool CityStyleData::ReadCars(std::ifstream& file, int dataLength)
     return dataLength == 0;
 }
 
-bool CityStyleData::ReadSprites(std::ifstream& file, int dataLength)
+bool StyleData::ReadSprites(std::ifstream& file, int dataLength)
 {
     for (; dataLength > 0;)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        SpriteStyleData spriteInfo;
+        SpriteStyle spriteInfo;
         READ_I8(file, spriteInfo.mWidth);
         READ_I8(file, spriteInfo.mHeight);
         READ_I8(file, spriteInfo.mDeltaCount);
@@ -718,7 +714,7 @@ bool CityStyleData::ReadSprites(std::ifstream& file, int dataLength)
     return dataLength == 0;
 }
 
-bool CityStyleData::ReadSpriteGraphics(std::ifstream& file, int dataLength)
+bool StyleData::ReadSpriteGraphics(std::ifstream& file, int dataLength)
 {
     if (dataLength > 0)
     {
@@ -731,7 +727,7 @@ bool CityStyleData::ReadSpriteGraphics(std::ifstream& file, int dataLength)
     return true;
 }
 
-bool CityStyleData::ReadSpriteNumbers(std::ifstream& file, int dataLength)
+bool StyleData::ReadSpriteNumbers(std::ifstream& file, int dataLength)
 {
     if (dataLength > 0)
     {
@@ -745,13 +741,13 @@ bool CityStyleData::ReadSpriteNumbers(std::ifstream& file, int dataLength)
     return true;
 }
 
-int CityStyleData::GetNumSprites(eSpriteType spriteType) const
+int StyleData::GetNumSprites(eSpriteType spriteType) const
 {
     debug_assert(spriteType < eSpriteType_COUNT);
     return mSpriteNumbers[spriteType];
 }
 
-bool CityStyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const
+bool StyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const
 {
     debug_assert(animationID < eSpriteAnimation_COUNT);
     if (animationID < eSpriteAnimation_COUNT)
@@ -763,7 +759,7 @@ bool CityStyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAni
     return false;
 }
 
-void CityStyleData::InitSpriteAnimations()
+void StyleData::InitSpriteAnimations()
 {
     mSpriteAnimations[eSpriteAnimationID_Ped_Walk].Setup(0, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_Run].Setup(8, 8);

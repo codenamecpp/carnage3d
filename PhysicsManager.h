@@ -25,7 +25,7 @@ public:
     // @param position: Coord in world
     // @param angleDegrees: Direction angle in degrees
     // @param desc: Car class description
-    PhysicsObject* CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyleData* desc);
+    PhysicsObject* CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyle* desc);
 
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid

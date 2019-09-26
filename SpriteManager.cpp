@@ -68,7 +68,7 @@ void SpriteManager::Cleanup()
 
 bool SpriteManager::InitObjectsSpritesheet()
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     int totalSprites = cityStyle.mSprites.size();
     debug_assert(totalSprites > 0);
@@ -166,7 +166,7 @@ bool SpriteManager::InitObjectsSpritesheet()
 
 bool SpriteManager::InitBlocksTexture()
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     // count textures
     const int totalTextures = cityStyle.GetBlockTexturesCount();
@@ -214,7 +214,7 @@ bool SpriteManager::InitBlocksTexture()
 
 bool SpriteManager::InitBlocksIndicesTable()
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     // count textures
     const int totalTextures = cityStyle.GetBlockTexturesCount();
@@ -259,10 +259,10 @@ void SpriteManager::RenderFrameEnd()
 
 void SpriteManager::InitBlocksAnimations()
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     mBlocksAnimations.clear();
-    for (const BlockAnimationStyleData& currAnim: cityStyle.mBlocksAnimations)
+    for (const BlockAnimationStyle& currAnim: cityStyle.mBlocksAnimations)
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
@@ -295,7 +295,7 @@ void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
 
 void SpriteManager::DumpBlocksTexture(const char* outputLocation)
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
@@ -332,7 +332,7 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
 
 void SpriteManager::DumpSpriteTextures(const char* outputLocation)
 {
-    CityStyleData& cityStyle = gGameMap.mStyleData;
+    StyleData& cityStyle = gGameMap.mStyleData;
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
