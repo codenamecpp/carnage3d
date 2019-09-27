@@ -37,7 +37,7 @@ public:
     // public for convenience, should not be modified directly
     const unsigned int mID; // unique identifier
 
-    PhysicsObject* mPhysicalBody;
+    PedPhysicsComponent* mPhysicsComponent;
     bool mDead;
     bool mMarkForDeletion;
 

@@ -217,9 +217,6 @@
     <ClInclude Include="GameRules.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="PixelsArray.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="GameCheatsWindow.h">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
@@ -253,9 +250,6 @@
     <ClInclude Include="PhysicsDefs.h">
       <Filter>Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsObject.h">
-      <Filter>Game\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="GameMapManager.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -270,6 +264,12 @@
     </ClInclude>
     <ClInclude Include="StyleData.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelsArray.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponents.h">
+      <Filter>Game\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -364,9 +364,6 @@
     <ClCompile Include="GameRules.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="PixelsArray.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="GameCheatsWindow.cpp">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClCompile>
@@ -394,9 +391,6 @@
     <ClCompile Include="PhysicsDebugDraw.cpp">
       <Filter>Game\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsObject.cpp">
-      <Filter>Game\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="GameMapManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -411,6 +405,12 @@
     </ClCompile>
     <ClCompile Include="StyleData.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelsArray.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponents.cpp">
+      <Filter>Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

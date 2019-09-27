@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "Vehicle.h"
 #include "PhysicsManager.h"
-#include "PhysicsObject.h"
+#include "PhysicsComponents.h"
 #include "GameMapManager.h"
 
 Vehicle::Vehicle(unsigned int id)
     : mActiveCarsNode(this)
     , mDeleteCarsNode(this)
     , mID(id)
-    , mPhysicalBody()
+    , mPhysicsComponent()
     , mDead()
     , mCarStyle()
     , mMarkForDeletion()
@@ -17,9 +17,9 @@ Vehicle::Vehicle(unsigned int id)
 
 Vehicle::~Vehicle()
 {
-    if (mPhysicalBody)
+    if (mPhysicsComponent)
     {
-        gPhysics.DestroyPhysicsObject(mPhysicalBody);
+        gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
     }
 }
 
@@ -29,8 +29,8 @@ void Vehicle::EnterTheGame()
 
     glm::vec3 startPosition;
     
-    mPhysicalBody = gPhysics.CreateVehicleBody(startPosition, 0.0f, mCarStyle);
-    debug_assert(mPhysicalBody);
+    mPhysicsComponent = gPhysics.CreateCarPhysicsComponent(startPosition, 0.0f, mCarStyle);
+    debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;
     mDead = false;
@@ -101,7 +101,7 @@ Vehicle* CarsManager::CreateCar(const glm::vec3& position, int carTypeId)
     // init
     instance->mCarStyle = &gGameMap.mStyleData.mCars[carTypeId];
     instance->EnterTheGame();
-    instance->mPhysicalBody->SetPosition(position);
+    instance->mPhysicsComponent->SetPosition(position);
     return instance;
 }
 

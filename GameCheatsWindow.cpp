@@ -38,10 +38,10 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
     {
         ImGui::Separator();
-        glm::vec3 pedPosition = pedestrian->mPhysicalBody->GetPosition();
+        glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
         ImGui::Text("pos: %f, %f, %f", pedPosition.x, pedPosition.y, pedPosition.z);
 
-        float pedHeading = pedestrian->mPhysicalBody->GetAngleDegrees();
+        float pedHeading = pedestrian->mPhysicsComponent->GetAngleDegrees();
         ImGui::Text("heading: %f", pedHeading);
         ImGui::Separator();
 

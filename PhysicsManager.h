@@ -3,11 +3,10 @@
 #include "PhysicsDefs.h"
 #include "GameDefs.h"
 #include "PhysicsDebugDraw.h"
-#include "PhysicsObject.h"
+#include "PhysicsComponents.h"
 
 // this class manages physics and collision detections for map and objects
-class PhysicsManager final: public cxx::noncopyable
-    , private b2ContactListener
+class PhysicsManager final: private b2ContactListener
 {
 public:
     PhysicsManager();
@@ -19,17 +18,22 @@ public:
     // create pedestrian specific physical body
     // @param position: Coord in world
     // @param angleDegrees: Direction angle in degrees
-    PhysicsObject* CreatePedestrianBody(const glm::vec3& position, float angleDegrees);
+    PedPhysicsComponent* CreatePedPhysicsComponent(const glm::vec3& position, float angleDegrees);
 
-    // create vehicle specific physical body
+    // create car specific physical body
     // @param position: Coord in world
     // @param angleDegrees: Direction angle in degrees
     // @param desc: Car class description
-    PhysicsObject* CreateVehicleBody(const glm::vec3& position, float angleDegrees, CarStyle* desc);
+    CarPhysicsComponent* CreateCarPhysicsComponent(const glm::vec3& position, float angleDegrees, CarStyle* desc);
+
+    // create car wheel specific physical body
+    WheelPhysicsComponent* CreateWheelPhysicsComponent();
 
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid
-    void DestroyPhysicsObject(PhysicsObject* object);
+    void DestroyPhysicsComponent(PedPhysicsComponent* object);
+    void DestroyPhysicsComponent(CarPhysicsComponent* object);
+    void DestroyPhysicsComponent(WheelPhysicsComponent* object);
 
 private:
     // create level map body, used internally
@@ -49,11 +53,14 @@ private:
 
 private:
     PhysicsDebugDraw mDebugDraw;
+    b2Body* mMapCollisionShape;
     b2World* mPhysicsWorld;
-    PhysicsObject* mMapCollisionBody;
     float mSimulationTimeAccumulator;
 
-    cxx::object_pool<PhysicsObject> mObjectsPool;
+    // physics components pools
+    cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;
+    cxx::object_pool<CarPhysicsComponent> mCarsBodiesPool;
+    cxx::object_pool<WheelPhysicsComponent> mWheelsBodiesPool;
 };
 
 extern PhysicsManager gPhysics;

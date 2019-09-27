@@ -206,7 +206,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="OpenGLDefs.h" />
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="Pedestrian.h" />
-    <ClInclude Include="PhysicsObject.h" />
+    <ClInclude Include="PhysicsComponents.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="refcounted.h" />
     <ClInclude Include="RenderProgram.h" />
@@ -260,7 +260,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Pedestrian.cpp" />
-    <ClCompile Include="PhysicsObject.cpp" />
+    <ClCompile Include="PhysicsComponents.cpp" />
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="SpriteAnimation.cpp" />

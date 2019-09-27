@@ -56,7 +56,7 @@ void PedestrianControl::SetRunning(bool runEnabled)
 //////////////////////////////////////////////////////////////////////////
 
 Pedestrian::Pedestrian(unsigned int id)
-    : mPhysicalBody()
+    : mPhysicsComponent()
     , mDead()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
@@ -69,9 +69,9 @@ Pedestrian::Pedestrian(unsigned int id)
 
 Pedestrian::~Pedestrian()
 {
-    if (mPhysicalBody)
+    if (mPhysicsComponent)
     {
-        gPhysics.DestroyPhysicsObject(mPhysicalBody);
+        gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
     }
 }
 
@@ -79,8 +79,8 @@ void Pedestrian::EnterTheGame()
 {
     glm::vec3 startPosition;
     
-    mPhysicalBody = gPhysics.CreatePedestrianBody(startPosition, 0.0f);
-    debug_assert(mPhysicalBody);
+    mPhysicsComponent = gPhysics.CreatePedPhysicsComponent(startPosition, 0.0f);
+    debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;
     mDead = false;
@@ -103,12 +103,12 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     // try to turn around
     if (mControl.IsTurnAround())
     {
-        mPhysicalBody->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
+        mPhysicsComponent->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
     }
     else
     {
         // stop rotation
-        mPhysicalBody->SetAngularVelocity(0.0f);
+        mPhysicsComponent->SetAngularVelocity(0.0f);
     }
     // try walk
     if (mControl.IsMoves())
@@ -135,21 +135,21 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
             SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
         }
         // get current direction
-        float angleRadians = mPhysicalBody->GetAngleRadians();
-        glm::vec3 signVector 
+        float angleRadians = mPhysicsComponent->GetAngleRadians();
+        glm::vec2 signVector 
         {
-            cos(angleRadians), 0.0f, sin(angleRadians)
+            cos(angleRadians), sin(angleRadians)
         };
 
         if (moveBackward)
         {
             signVector = -signVector;
         }
-        mPhysicalBody->SetLinearVelocity(signVector * moveSpeed);
+        mPhysicsComponent->SetLinearVelocity(signVector * moveSpeed);
     }
     else
     {
-        mPhysicalBody->SetLinearVelocity({}); // force stop
+        mPhysicsComponent->SetLinearVelocity({}); // force stop
         SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
     }
 }
@@ -170,22 +170,22 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
 
 void Pedestrian::SetHeading(float rotationDegrees)
 {
-    debug_assert(mPhysicalBody);
-    mPhysicalBody->SetAngleDegrees(rotationDegrees);
+    debug_assert(mPhysicsComponent);
+    mPhysicsComponent->SetAngleDegrees(rotationDegrees);
 }
 
 void Pedestrian::SetPosition(const glm::vec3& position)
 {
-    debug_assert(mPhysicalBody);
+    debug_assert(mPhysicsComponent);
 
-    mPhysicalBody->SetPosition(position);
+    mPhysicsComponent->SetPosition(position);
 }
 
 bool Pedestrian::IsFalling() const
 {
-    debug_assert(mPhysicalBody);
+    debug_assert(mPhysicsComponent);
 
-    return mPhysicalBody->mFalling;
+    return !mPhysicsComponent->mOnTheGround;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ Pedestrian* PedestrianManager::CreatePedestrian(const glm::vec3& position)
 
     // init
     instance->EnterTheGame();
-    instance->mPhysicalBody->SetPosition(position);
+    instance->mPhysicsComponent->SetPosition(position);
     return instance;
 }
 

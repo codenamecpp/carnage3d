@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FollowCameraController.h"
-#include "PhysicsObject.h"
+#include "PhysicsComponents.h"
 #include "CarnageGame.h"
 
 FollowCameraController::FollowCameraController()
@@ -19,7 +19,7 @@ void FollowCameraController::SetupInitial()
     
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        glm::vec3 position = player->mPhysicalBody->GetPosition();
+        glm::vec3 position = player->mPhysicsComponent->GetPosition();
         gCamera.SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
     }
     else
@@ -34,7 +34,7 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
     // correct zoom
     if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
     {
-        glm::vec3 position = player->mPhysicalBody->GetPosition();
+        glm::vec3 position = player->mPhysicsComponent->GetPosition();
 
         float targetHeight = (position.y + mFollowPedCameraHeight + mScrollHeightOffset);
         float delta = targetHeight - gCamera.mPosition.y;

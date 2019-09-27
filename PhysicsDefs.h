@@ -1,7 +1,9 @@
 #pragma once
 
 // forwards
-class PhysicsObject;
+class PedPhysicsComponent;
+class CarPhysicsComponent;
+class WheelPhysicsComponent;
 
 #define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.10f
 #define PHYSICS_SIMULATION_STEP (1.0f / 60.0f)
@@ -16,13 +18,4 @@ enum
     PHYSICS_OBJCAT_PED = (1 << 2),
     PHYSICS_OBJCAT_CAR = (1 << 3),
     PHYSICS_OBJCAT_MAPOBJECT = (1 << 4),
-};
-
-const int MaxPhysicsQueryItems = 64;
-
-struct PhysicsQueryResult
-{
-public:
-    PhysicsObject* mObjects[MaxPhysicsQueryItems];
-    int mNumQueryItems = 0; // real number of items in objects list
 };

@@ -6,7 +6,7 @@
 #include "SpriteManager.h"
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
-#include "PhysicsObject.h"
+#include "PhysicsComponents.h"
 #include "PhysicsManager.h"
 
 const unsigned int NumVerticesPerSprite = 4;
@@ -260,9 +260,9 @@ void CityRenderer::IssuePedsSprites()
     {
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.GetCurrentFrame());
         
-        float rotationAngle = glm::radians(currPedestrian->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+        float rotationAngle = glm::radians(currPedestrian->mPhysicsComponent->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 
-        glm::vec3 position = currPedestrian->mPhysicalBody->GetPosition();
+        glm::vec3 position = currPedestrian->mPhysicsComponent->GetPosition();
         position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
 
         DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
@@ -279,9 +279,9 @@ void CityRenderer::IssueCarsSprites()
             currVehicle->mCarStyle->mModel, 
             currVehicle->mCarStyle->mSprNum);
         
-        float rotationAngle = glm::radians(currVehicle->mPhysicalBody->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+        float rotationAngle = glm::radians(currVehicle->mPhysicsComponent->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
 
-        glm::vec3 position = currVehicle->mPhysicalBody->GetPosition();
+        glm::vec3 position = currVehicle->mPhysicsComponent->GetPosition();
         position.y = ComputeDrawHeight(currVehicle, position, rotationAngle);
         DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
             gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
