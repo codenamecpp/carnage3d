@@ -3,9 +3,10 @@
 #include "GameDefs.h"
 #include "PhysicsDefs.h"
 #include "PedestrianControl.h"
+#include "GameObject.h"
 
 // defines generic city pedestrian
-class Pedestrian final: public cxx::noncopyable
+class Pedestrian final: public GameObject
 {
     friend class GameObjectsManager;
 
@@ -13,7 +14,6 @@ public:
     PedestrianControl mControl; // control pedestrian actions
 
     // public for convenience, should not be modified directly
-    const unsigned int mID; // unique identifier
 
     PedPhysicsComponent* mPhysicsComponent;
     bool mDead;

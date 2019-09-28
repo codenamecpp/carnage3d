@@ -4,11 +4,11 @@
 #include "GameMapManager.h"
 
 Pedestrian::Pedestrian(unsigned int id)
-    : mPhysicsComponent()
+    : GameObject(id)
+    , mPhysicsComponent()
     , mDead()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
-    , mID(id)
     , mMarkForDeletion()
     , mActivePedsNode(this)
     , mDeletePedsNode(this)

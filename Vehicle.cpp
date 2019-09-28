@@ -5,9 +5,9 @@
 #include "GameMapManager.h"
 
 Vehicle::Vehicle(unsigned int id)
-    : mActiveCarsNode(this)
+    : GameObject(id)
+    , mActiveCarsNode(this)
     , mDeleteCarsNode(this)
-    , mID(id)
     , mPhysicsComponent()
     , mDead()
     , mCarStyle()

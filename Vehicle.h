@@ -2,15 +2,15 @@
 
 #include "GameDefs.h"
 #include "PhysicsDefs.h"
+#include "GameObject.h"
 
 // defines vehicle instance
-class Vehicle final: public cxx::noncopyable
+class Vehicle final: public GameObject
 {
     friend class GameObjectsManager;
 
 public:
     // public for convenience, should not be modified directly
-    const unsigned int mID; // unique identifier
 
     CarPhysicsComponent* mPhysicsComponent;
     bool mDead;

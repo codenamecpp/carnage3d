@@ -28,7 +28,7 @@ bool CarnageGame::Initialize()
 
     gPhysics.Initialize();
 
-    mGameObjectsManager.Initialize();
+    mObjectsManager.Initialize();
 
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
@@ -36,9 +36,9 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-    mPlayerPedestrian = mGameObjectsManager.CreatePedestrian(pos);
+    mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
 
-    Vehicle* dummyCar = mGameObjectsManager.CreateCar(pos + glm::vec3 {2.0f, 0.0f, 2.0f}, 0);
+    Vehicle* dummyCar = mObjectsManager.CreateCar(pos + glm::vec3 {2.0f, 0.0f, 2.0f}, 0);
 
     SetCameraController(&mFollowCameraController);
 
@@ -48,7 +48,7 @@ bool CarnageGame::Initialize()
 
 void CarnageGame::Deinit()
 {
-    mGameObjectsManager.Deinit();
+    mObjectsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();
 }
@@ -60,7 +60,7 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame(deltaTime);
-    mGameObjectsManager.UpdateFrame(deltaTime);
+    mObjectsManager.UpdateFrame(deltaTime);
     if (mCameraController)
     {
         mCameraController->UpdateFrame(deltaTime);

@@ -9,7 +9,7 @@
 class CarnageGame final: public cxx::noncopyable
 {
 public:
-    GameObjectsManager mGameObjectsManager;
+    GameObjectsManager mObjectsManager;
     FollowCameraController mFollowCameraController;
     FreeLookCameraController mFreeLookCameraController;
     // gamestate

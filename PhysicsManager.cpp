@@ -250,7 +250,7 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 
 void PhysicsManager::FixedStepPedsGravity()
 {
-    for (Pedestrian* currPedestrian: gCarnageGame.mGameObjectsManager.mActivePedestriansList)
+    for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
     {
         glm::vec3 pedestrianPos = currPedestrian->mPhysicsComponent->GetPosition();
 

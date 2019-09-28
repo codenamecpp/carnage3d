@@ -4,7 +4,15 @@
 class GameObject: public cxx::noncopyable
 {
 public:
+    GameObject(unsigned int uniqueID)
+        : mID(uniqueID)
+    {
+    }
+
     virtual ~GameObject()
     {
     }
+
+public:
+    const unsigned int mID; // its unique for all game objects
 };
