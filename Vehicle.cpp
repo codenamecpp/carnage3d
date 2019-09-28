@@ -11,7 +11,6 @@ Vehicle::Vehicle(unsigned int id)
     , mPhysicsComponent()
     , mDead()
     , mCarStyle()
-    , mMarkForDeletion()
 {
 }
 

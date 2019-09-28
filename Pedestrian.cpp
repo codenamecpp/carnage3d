@@ -9,7 +9,6 @@ Pedestrian::Pedestrian(unsigned int id)
     , mDead()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mControl(*this)
-    , mMarkForDeletion()
     , mActivePedsNode(this)
     , mDeletePedsNode(this)
 {

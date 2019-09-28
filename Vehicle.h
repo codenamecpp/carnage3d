@@ -14,7 +14,6 @@ public:
 
     CarPhysicsComponent* mPhysicsComponent;
     bool mDead;
-    bool mMarkForDeletion;
 
     CarStyle* mCarStyle; // cannot be null
 

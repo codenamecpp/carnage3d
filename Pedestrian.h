@@ -17,7 +17,6 @@ public:
 
     PedPhysicsComponent* mPhysicsComponent;
     bool mDead;
-    bool mMarkForDeletion;
 
     eSpriteAnimationID mCurrentAnimID;
     SpriteAnimation mAnimation;

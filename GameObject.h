@@ -15,4 +15,6 @@ public:
 
 public:
     const unsigned int mID; // its unique for all game objects
+
+    bool mMarkForDeletion = false; // destroy object at next frame
 };
