@@ -4,6 +4,7 @@
 #include "RenderingManager.h"
 #include "PhysicsManager.h"
 #include "CarnageGame.h"
+#include "Pedestrian.h"
 
 GameCheatsWindow gGameCheatsWindow;
 

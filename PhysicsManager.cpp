@@ -3,6 +3,7 @@
 #include "GameMapManager.h"
 #include "GameCheatsWindow.h"
 #include "CarnageGame.h"
+#include "Pedestrian.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -249,7 +250,7 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 
 void PhysicsManager::FixedStepPedsGravity()
 {
-    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedestriansList)
+    for (Pedestrian* currPedestrian: gCarnageGame.mGameObjectsManager.mActivePedestriansList)
     {
         glm::vec3 pedestrianPos = currPedestrian->mPhysicsComponent->GetPosition();
 

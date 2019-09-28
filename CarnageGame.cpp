@@ -5,6 +5,7 @@
 #include "ConsoleWindow.h"
 #include "GameCheatsWindow.h"
 #include "PhysicsManager.h"
+#include "Pedestrian.h"
 
 CarnageGame gCarnageGame;
 
@@ -27,8 +28,7 @@ bool CarnageGame::Initialize()
 
     gPhysics.Initialize();
 
-    mPedsManager.Initialize();
-    mCarsManager.Initialize();
+    mGameObjectsManager.Initialize();
 
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
@@ -36,9 +36,9 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-    mPlayerPedestrian = mPedsManager.CreatePedestrian(pos);
+    mPlayerPedestrian = mGameObjectsManager.CreatePedestrian(pos);
 
-    Vehicle* dummyCar = mCarsManager.CreateCar(pos + glm::vec3 {2.0f, 0.0f, 2.0f}, 0);
+    Vehicle* dummyCar = mGameObjectsManager.CreateCar(pos + glm::vec3 {2.0f, 0.0f, 2.0f}, 0);
 
     SetCameraController(&mFollowCameraController);
 
@@ -48,8 +48,7 @@ bool CarnageGame::Initialize()
 
 void CarnageGame::Deinit()
 {
-    mPedsManager.Deinit();
-    mCarsManager.Deinit();
+    mGameObjectsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();
 }
@@ -61,8 +60,7 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame(deltaTime);
-    mCarsManager.UpdateFrame(deltaTime);
-    mPedsManager.UpdateFrame(deltaTime);
+    mGameObjectsManager.UpdateFrame(deltaTime);
     if (mCameraController)
     {
         mCameraController->UpdateFrame(deltaTime);

@@ -13,7 +13,6 @@ namespace cxx
     public:
         // declare iterators
 	    using iterator = intrusive_iterator<TClass>;
-	    using const_iterator = intrusive_iterator<const TClass>;
 
         intrusive_list()
             : mHead()
@@ -102,14 +101,12 @@ namespace cxx
         inline intrusive_node<TClass>* get_tail_node() const { return mTail; }
 
         // get iterator starting node
-	    inline iterator begin() { return iterator(mHead); }
-	    inline const_iterator begin() const { return iterator(mHead); }
-	    inline const_iterator cbegin() const { return iterator(mHead); }
+	    inline iterator begin() const { return iterator(mHead); }
+	    inline iterator cbegin() const { return iterator(mHead); }
 
         // get iterator ending node
-	    inline iterator end() { return iterator(); }
-	    inline const_iterator end() const { return iterator(); }
-	    inline const_iterator cend() const { return iterator(); }
+	    inline iterator end() const { return iterator(); }
+	    inline iterator cend() const { return iterator(); }
 
         // get number of elements in list
         inline int size() const { return mElementCount; }

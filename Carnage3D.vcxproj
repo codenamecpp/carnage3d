@@ -155,7 +155,10 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="aux_stl.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjectsManager.h" />
     <ClInclude Include="GpuTexture1D.h" />
+    <ClInclude Include="PedestrianControl.h" />
     <ClInclude Include="PhysicsDebugDraw.h" />
     <ClInclude Include="PhysicsDefs.h" />
     <ClInclude Include="PhysicsManager.h" />
@@ -225,7 +228,9 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="Vehicle.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="GpuTexture1D.cpp" />
+    <ClCompile Include="PedestrianControl.cpp" />
     <ClCompile Include="PhysicsDebugDraw.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="FreeLookCameraController.cpp" />

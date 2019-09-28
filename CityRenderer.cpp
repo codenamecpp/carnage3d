@@ -8,6 +8,8 @@
 #include "GameCheatsWindow.h"
 #include "PhysicsComponents.h"
 #include "PhysicsManager.h"
+#include "Pedestrian.h"
+#include "Vehicle.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -256,7 +258,7 @@ void CityRenderer::DrawSprite(GpuTexture2D* texture, const Rect2D& rc, const glm
 void CityRenderer::IssuePedsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
-    for (Pedestrian* currPedestrian: gCarnageGame.mPedsManager.mActivePedestriansList)
+    for (Pedestrian* currPedestrian: gCarnageGame.mGameObjectsManager.mActivePedestriansList)
     {
         int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, currPedestrian->mAnimation.GetCurrentFrame());
         
@@ -273,7 +275,7 @@ void CityRenderer::IssuePedsSprites()
 void CityRenderer::IssueCarsSprites()
 {
     float spriteScale = (1.0f / MAP_PIXELS_PER_TILE);
-    for (Vehicle* currVehicle: gCarnageGame.mCarsManager.mActiveCarsList)
+    for (Vehicle* currVehicle: gCarnageGame.mGameObjectsManager.mActiveCarsList)
     {
         int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(currVehicle->mCarStyle->mVType, 
             currVehicle->mCarStyle->mModel, 

@@ -2,6 +2,7 @@
 #include "FollowCameraController.h"
 #include "PhysicsComponents.h"
 #include "CarnageGame.h"
+#include "Pedestrian.h"
 
 FollowCameraController::FollowCameraController()
     : mStartupCameraHeight(8.0f)
