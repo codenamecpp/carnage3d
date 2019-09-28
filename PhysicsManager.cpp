@@ -60,8 +60,8 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
     int maxSimulationStepsPerFrame = 5;
     int numSimulations = 0;
 
-    const int velocityIterations = 3; // recommended 8
-    const int positionIterations = 2; // recommended 3
+    const int velocityIterations = 3;
+    const int positionIterations = 2;
 
     mSimulationTimeAccumulator += deltaTime.ToSeconds();
 
@@ -252,26 +252,29 @@ void PhysicsManager::FixedStepPedsGravity()
 {
     for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
     {
-        glm::vec3 pedestrianPos = currPedestrian->mPhysicsComponent->GetPosition();
+        PedPhysicsComponent* pedestrianBody = currPedestrian->mPhysicsComponent;
+        glm::vec3 pedestrianPos = pedestrianBody->GetPosition();
 
         // process falling
         float newHeight = gGameMap.GetHeightAtPosition(pedestrianPos);
-        if (currPedestrian->IsFalling())
+
+        pedestrianBody->mOnTheGround = newHeight > pedestrianPos.y - 0.1f;
+        if (pedestrianBody->mFalling)
         {
-            if (abs(newHeight - pedestrianPos.y) < 0.1f)
+            if (pedestrianBody->mOnTheGround)
             {
-                currPedestrian->mPhysicsComponent->mOnTheGround = true;
+                pedestrianBody->SetFalling(false);
             }
         }
         else
         {
             if ((pedestrianPos.y - newHeight) >= MAP_BLOCK_LENGTH)
             {
-                currPedestrian->mPhysicsComponent->mOnTheGround = false;
+                pedestrianBody->SetFalling(true);
             }
         }
 
-        if (currPedestrian->IsFalling())
+        if (!pedestrianBody->mOnTheGround)
         {
             pedestrianPos.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }

@@ -31,8 +31,8 @@ public:
     void UpdateFrame(Timespan deltaTime);
 
     // state control
-    void SetHeading(float rotationDegrees);
     void SetPosition(const glm::vec3& position);
+    void SetHeading(float angleDegrees);
 
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);

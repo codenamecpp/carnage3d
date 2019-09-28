@@ -67,8 +67,10 @@ class PedPhysicsComponent: public PhysicsComponent
 public:
     PedPhysicsComponent(b2World* physicsWorld);
     ~PedPhysicsComponent();
-
+    void UpdateFrame(Timespan deltaTime);
+    void SetFalling(bool isFalling);
 public:
+    bool mFalling = false; // falling from a height
 };
 
 // car wheel physics component
@@ -77,7 +79,7 @@ class WheelPhysicsComponent: public PhysicsComponent
 public:
     WheelPhysicsComponent(b2World* physicsWorld);
     ~WheelPhysicsComponent();
-
+    void UpdateFrame(Timespan deltaTime);
 public:
 };
 
@@ -87,6 +89,6 @@ class CarPhysicsComponent: public PhysicsComponent
 public:
     CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc);
     ~CarPhysicsComponent();
-
+    void UpdateFrame(Timespan deltaTime);
 public:
 };

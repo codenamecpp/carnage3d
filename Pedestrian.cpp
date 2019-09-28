@@ -115,10 +115,10 @@ void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop
     mAnimation.PlayAnimation(loopMode);
 }
 
-void Pedestrian::SetHeading(float rotationDegrees)
+void Pedestrian::SetHeading(float angleDegrees)
 {
     debug_assert(mPhysicsComponent);
-    mPhysicsComponent->SetAngleDegrees(rotationDegrees);
+    mPhysicsComponent->SetAngleDegrees(angleDegrees);
 }
 
 void Pedestrian::SetPosition(const glm::vec3& position)
@@ -132,5 +132,5 @@ bool Pedestrian::IsFalling() const
 {
     debug_assert(mPhysicsComponent);
 
-    return !mPhysicsComponent->mOnTheGround;
+    return mPhysicsComponent->mFalling;
 }

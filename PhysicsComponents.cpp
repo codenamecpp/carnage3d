@@ -131,6 +131,26 @@ PedPhysicsComponent::~PedPhysicsComponent()
 {
 }
 
+void PedPhysicsComponent::UpdateFrame(Timespan deltaTime)
+{
+
+}
+
+void PedPhysicsComponent::SetFalling(bool isFalling)
+{
+    if (isFalling == mFalling)
+        return;
+
+    mFalling = isFalling;
+    if (mFalling)
+    {
+        b2Vec2 velocity = mPhysicsBody->GetLinearVelocity();
+        ClearForces();
+        velocity *= 0.05f;
+        mPhysicsBody->SetLinearVelocity(velocity);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc)
@@ -167,6 +187,11 @@ CarPhysicsComponent::~CarPhysicsComponent()
 {
 }
 
+void CarPhysicsComponent::UpdateFrame(Timespan deltaTime)
+{
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 WheelPhysicsComponent::WheelPhysicsComponent(b2World* physicsWorld)
@@ -176,4 +201,9 @@ WheelPhysicsComponent::WheelPhysicsComponent(b2World* physicsWorld)
 
 WheelPhysicsComponent::~WheelPhysicsComponent()
 {
+}
+
+void WheelPhysicsComponent::UpdateFrame(Timespan deltaTime)
+{
+
 }
