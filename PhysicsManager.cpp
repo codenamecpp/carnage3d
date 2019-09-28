@@ -40,7 +40,6 @@ bool PhysicsManager::Initialize()
     mPhysicsWorld->SetContactListener(this);
     //mPhysicsWorld->SetAutoClearForces(true);
 
-    // create collsition body for map
     CreateMapCollisionShape();
     return true;
 }

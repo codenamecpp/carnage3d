@@ -16,12 +16,6 @@ public:
     bool mOnTheGround;
 
 public:
-    // fixed frame simulation step
-    virtual void SimulationStep()
-    {
-        // does nothing in base implementation
-    }
-
     // set/get object's world position and rotation angle
     // @param position: Coordinate
     // @param angleDegrees: Rotation, optional
@@ -73,6 +67,8 @@ class PedPhysicsComponent: public PhysicsComponent
 public:
     PedPhysicsComponent(b2World* physicsWorld);
     ~PedPhysicsComponent();
+
+public:
 };
 
 // car wheel physics component
@@ -81,6 +77,8 @@ class WheelPhysicsComponent: public PhysicsComponent
 public:
     WheelPhysicsComponent(b2World* physicsWorld);
     ~WheelPhysicsComponent();
+
+public:
 };
 
 // car chassis physics component
@@ -89,4 +87,6 @@ class CarPhysicsComponent: public PhysicsComponent
 public:
     CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc);
     ~CarPhysicsComponent();
+
+public:
 };
