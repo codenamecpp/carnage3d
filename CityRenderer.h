@@ -30,7 +30,7 @@ private:
     float ComputeDrawHeight(Vehicle* car, const glm::vec3& position, float angleRadians);
 
     // @param sprRotate: Angle in radians
-    void DrawSprite(GpuTexture2D* texture, const Rect2D& rcTexture, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
+    void DrawSprite(GpuTexture2D* texture, const TextureRegion& textureRegion, const glm::vec3& position, bool centerOrigin, float sprScale, float sprRotate);
 
     void SortDrawSpritesList();
     void GenerateDrawSpritesBatches();

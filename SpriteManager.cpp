@@ -137,7 +137,7 @@ bool SpriteManager::InitObjectsSpritesheet()
                 return false;
             }
 
-            SpritesheetEntry& spritesheetRecord = mObjectsSpritesheet.mEtries[curr_rc.id];
+            TextureRegion& spritesheetRecord = mObjectsSpritesheet.mEtries[curr_rc.id];
             spritesheetRecord.mRectangle.x = curr_rc.x;
             spritesheetRecord.mRectangle.y = curr_rc.y;
             spritesheetRecord.mRectangle.w = curr_rc.w - SpritesSpacing;

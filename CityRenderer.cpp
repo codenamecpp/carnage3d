@@ -234,22 +234,19 @@ void CityRenderer::DrawCityMesh()
     gRenderManager.mCityMeshProgram.Deactivate();
 }
 
-void CityRenderer::DrawSprite(GpuTexture2D* texture, const Rect2D& rc, const glm::vec3& position, bool centerOrigin, float sprScale, float heading)
+void CityRenderer::DrawSprite(GpuTexture2D* texture, const TextureRegion& textureRegion, const glm::vec3& position, bool centerOrigin, float sprScale, float heading)
 {
-    float tinvx = 1.0f / texture->mSize.x;
-    float tinvy = 1.0f / texture->mSize.y;
-
     // setup draw sprite record
     DrawSpriteRec rec;
         rec.mPosition = position;
-        rec.mSize.x = rc.w * sprScale;
-        rec.mSize.y = rc.h * sprScale;
+        rec.mSize.x = textureRegion.mRectangle.w * sprScale;
+        rec.mSize.y = textureRegion.mRectangle.h * sprScale;
         rec.mCenterOffset.x = centerOrigin ? (-rec.mSize.x * 0.5f) : 0.0f;
         rec.mCenterOffset.y = centerOrigin ? (-rec.mSize.y * 0.5f) : 0.0f;
-        rec.mTcUv0.x = rc.x * tinvx;
-        rec.mTcUv0.y = rc.y * tinvy;
-        rec.mTcUv1.x = (rc.x + rc.w) * tinvx;
-        rec.mTcUv1.y = (rc.y + rc.h) * tinvy;
+        rec.mTcUv0.x = textureRegion.mU0;
+        rec.mTcUv0.y = textureRegion.mV0;
+        rec.mTcUv1.x = textureRegion.mU1;
+        rec.mTcUv1.y = textureRegion.mV1;
         rec.mRotate = heading;
         rec.mSpriteTexture = texture;
     mDrawSpritesList.push_back(rec);
@@ -268,7 +265,7 @@ void CityRenderer::IssuePedsSprites()
         position.y = ComputeDrawHeight(currPedestrian, position, rotationAngle);
 
         DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
+            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex], position, true, spriteScale, rotationAngle);
     }
 }
 
@@ -286,7 +283,7 @@ void CityRenderer::IssueCarsSprites()
         glm::vec3 position = currVehicle->mPhysicsComponent->GetPosition();
         position.y = ComputeDrawHeight(currVehicle, position, rotationAngle);
         DrawSprite(gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture, 
-            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex].mRectangle, position, true, spriteScale, rotationAngle);
+            gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex], position, true, spriteScale, rotationAngle);
     }
 }
 

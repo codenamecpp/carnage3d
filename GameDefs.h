@@ -317,12 +317,51 @@ public:
     std::vector<DrawIndex_t> mBlocksIndices;
 };
 
-// defines single picture within sprite atlas
-struct SpritesheetEntry
+// defines picture rectanle within sprite atlas
+struct TextureRegion
 {
 public:
-    SpritesheetEntry() = default;
+    TextureRegion() = default;
+    TextureRegion(const Size2D& textureSize)
+    {
+        SetRegion(textureSize);
+    }
+    TextureRegion(const Rect2D& srcRectangle, const Size2D& textureSize)
+    {
+        SetRegion(srcRectangle, textureSize);
+    }
 
+    // init texture region to partial area
+    inline void SetRegion(const Rect2D& srcRectangle, const Size2D& textureSize)
+    {
+        debug_assert(textureSize.x > 0);
+        debug_assert(textureSize.y > 0);
+        float tcx = (1.0f / textureSize.x);
+        float tcy = (1.0f / textureSize.y);
+        // compute texture region coordinates
+        mRectangle = srcRectangle;
+        mU0 = mRectangle.x * tcx;
+        mV0 = mRectangle.y * tcy;
+        mU1 = (mRectangle.x + mRectangle.w) * tcx;
+        mV1 = (mRectangle.y + mRectangle.h) * tcy;
+    }
+    // init texture region to whole texture area
+    inline void SetRegion(const Size2D& textureSize)
+    {
+        mRectangle.x = 0;
+        mRectangle.y = 0;
+        mRectangle.w = textureSize.x;
+        mRectangle.h = textureSize.y;
+        mU0 = 0.0f;
+        mV0 = 0.0f;
+        mU1 = 1.0f;
+        mV1 = 1.0f;
+    }
+    // clear texture region
+    inline void SetNull()
+    {
+        mRectangle.SetNull();
+    }
 public:
     Rect2D mRectangle;
 
@@ -335,10 +374,15 @@ class Spritesheet
 {
 public:
     Spritesheet() = default;
-
+    // clear spritesheet
+    inline void SetNull()
+    {
+        mSpritesheetTexture = nullptr;
+        mEtries.clear();
+    }
 public:
     GpuTexture2D* mSpritesheetTexture = nullptr;
-    std::vector<SpritesheetEntry> mEtries;
+    std::vector<TextureRegion> mEtries;
 };
 
 // define sprite HLS remap information
