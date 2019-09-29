@@ -13,3 +13,5 @@ Tools and technologies used:
 * GLEW
 
 Original GTA1 game resources needed to run.
+
+Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
