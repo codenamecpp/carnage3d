@@ -116,7 +116,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Separator();
         if (ImGui::Checkbox("Generate full mesh for map", &mGenerateFullMeshForMap))
         {
-            gRenderManager.mCityRenderer.InvalidateMapMesh();
+            gRenderManager.mMapRenderer.InvalidateMapMesh();
         }
         ImGui::Separator();
         ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);

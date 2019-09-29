@@ -27,6 +27,7 @@ public:
 
     // setup initial state when spawned on level
     void EnterTheGame();
+
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 

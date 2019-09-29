@@ -18,7 +18,7 @@ bool CarnageGame::Initialize()
     //gGameMap.LoadFromFile("SANB.CMP");
     gGameMap.LoadFromFile("MIAMI.CMP");
     gSpriteManager.Cleanup();
-    gRenderManager.mCityRenderer.InvalidateMapMesh();
+    gRenderManager.mMapRenderer.InvalidateMapMesh();
     if (!gSpriteManager.InitLevelSprites())
     {
         debug_assert(false);

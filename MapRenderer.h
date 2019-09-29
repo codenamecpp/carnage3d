@@ -3,7 +3,7 @@
 #include "SpriteBatch.h"
 
 // renders map mesh, peds, cars and map objects
-class CityRenderer final: public cxx::noncopyable
+class MapRenderer final: public cxx::noncopyable
 {
 public:
     bool Initialize();

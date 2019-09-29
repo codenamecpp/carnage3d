@@ -3,7 +3,7 @@
 #include "GraphicsDefs.h"
 #include "RenderProgram.h"
 #include "StreamingVertexCache.h"
-#include "CityRenderer.h"
+#include "MapRenderer.h"
 #include "DebugRenderer.h"
 
 // master render system, it is intended to manage rendering pipeline of the game
@@ -16,7 +16,7 @@ public:
     RenderProgram mSpritesProgram;
     RenderProgram mDebugProgram;
 
-    CityRenderer mCityRenderer;
+    MapRenderer mMapRenderer;
     DebugRenderer mDebugRenderer;
 
 public:

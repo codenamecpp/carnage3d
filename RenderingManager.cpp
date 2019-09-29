@@ -23,7 +23,7 @@ bool RenderingManager::Initialize()
         return false;
     }
 
-    if (!mCityRenderer.Initialize())
+    if (!mMapRenderer.Initialize())
     {
         Deinit();
         return false;
@@ -42,7 +42,7 @@ bool RenderingManager::Initialize()
 void RenderingManager::Deinit()
 {
     mDebugRenderer.Deinit();
-    mCityRenderer.Deinit();
+    mMapRenderer.Deinit();
     gSpriteManager.Cleanup();
     FreeRenderPrograms();
 }
@@ -52,7 +52,7 @@ void RenderingManager::RenderFrame()
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
     gSpriteManager.RenderFrameBegin();
-    mCityRenderer.RenderFrame();
+    mMapRenderer.RenderFrame();
     mDebugRenderer.RenderFrame();
     gGuiSystem.RenderFrame();
     gSpriteManager.RenderFrameEnd();

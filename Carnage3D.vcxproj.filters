@@ -208,9 +208,6 @@
     <ClInclude Include="ConsoleWindow.h">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
-    <ClInclude Include="CityRenderer.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="SpriteAnimation.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -284,6 +281,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="SpriteBatch.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="MapRenderer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
@@ -364,9 +364,6 @@
     <ClCompile Include="ConsoleWindow.cpp">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClCompile>
-    <ClCompile Include="CityRenderer.cpp">
-      <Filter>Game\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="stb_rect_pack.cpp">
       <Filter>Third_Party\stb</Filter>
     </ClCompile>
@@ -434,6 +431,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="SpriteBatch.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MapRenderer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>

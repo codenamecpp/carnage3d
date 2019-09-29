@@ -31,6 +31,7 @@ public:
 
     // setup initial state when spawned on level
     void EnterTheGame();
+
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 
@@ -41,7 +42,7 @@ public:
     // change current animation
     void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
 
-    // test whether pedestrian is in air
+    // test whether pedestrian is falling from height
     bool IsFalling() const;
 
 private:

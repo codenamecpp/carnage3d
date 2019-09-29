@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CityRenderer.h"
+#include "MapRenderer.h"
 #include "RenderingManager.h"
 #include "GpuBuffer.h"
 #include "CarnageGame.h"
@@ -11,7 +11,7 @@
 #include "Pedestrian.h"
 #include "Vehicle.h"
 
-bool CityRenderer::Initialize()
+bool MapRenderer::Initialize()
 {
     mCityMeshBufferV = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices);
     debug_assert(mCityMeshBufferV);
@@ -32,7 +32,7 @@ bool CityRenderer::Initialize()
     return true;
 }
 
-void CityRenderer::Deinit()
+void MapRenderer::Deinit()
 {
     mSpritesBatch.Deinit();
     if (mCityMeshBufferV)
@@ -54,7 +54,7 @@ void CityRenderer::Deinit()
     mCityMapRectangle.SetNull();
 }
 
-void CityRenderer::RenderFrame()
+void MapRenderer::RenderFrame()
 {
     BuildMapMesh();
     DrawCityMesh();
@@ -71,7 +71,7 @@ void CityRenderer::RenderFrame()
     mSpritesBatch.Flush();
 }
 
-void CityRenderer::CommitCityMeshData()
+void MapRenderer::CommitCityMeshData()
 {
     int totalIndexCount = 0;
     int totalVertexCount = 0;
@@ -124,7 +124,7 @@ void CityRenderer::CommitCityMeshData()
     }
 }
 
-void CityRenderer::BuildMapMesh()
+void MapRenderer::BuildMapMesh()
 {
     if (gGameCheatsWindow.mGenerateFullMeshForMap && mCityMapRectangle.h == 0 && mCityMapRectangle.w == 0)
     {
@@ -136,9 +136,9 @@ void CityRenderer::BuildMapMesh()
         gConsole.LogMessage(eLogMessage_Debug, "City mesh invalidated [full]");
         for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
         {
-            GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
+            GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mMapRenderer.mCityMeshData[i]);
         }
-        gRenderManager.mCityRenderer.CommitCityMeshData();
+        gRenderManager.mMapRenderer.CommitCityMeshData();
         return;
     }
 
@@ -167,12 +167,12 @@ void CityRenderer::BuildMapMesh()
 
     for (int i = 0; i < MAP_LAYERS_COUNT; ++i)
     {
-        GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mCityRenderer.mCityMeshData[i]);
+        GameMapHelpers::BuildMapMesh(gGameMap, mCityMapRectangle, i, gRenderManager.mMapRenderer.mCityMeshData[i]);
     }
-    gRenderManager.mCityRenderer.CommitCityMeshData();
+    gRenderManager.mMapRenderer.CommitCityMeshData();
 }
 
-void CityRenderer::DrawCityMesh()
+void MapRenderer::DrawCityMesh()
 {
     RenderStates cityMeshRenderStates;
 
@@ -208,7 +208,7 @@ void CityRenderer::DrawCityMesh()
     gRenderManager.mCityMeshProgram.Deactivate();
 }
 
-void CityRenderer::InvalidateMapMesh()
+void MapRenderer::InvalidateMapMesh()
 {
     mCityMapRectangle.SetNull();
 }
