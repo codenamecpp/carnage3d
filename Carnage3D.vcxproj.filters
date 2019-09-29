@@ -283,6 +283,9 @@
     <ClInclude Include="GameObjectsManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteBatch.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -429,6 +432,9 @@
     </ClCompile>
     <ClCompile Include="GameObjectsManager.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatch.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

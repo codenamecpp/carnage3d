@@ -20,6 +20,7 @@
 #define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
+#define SPRITE_SCALE (1.0f / MAP_PIXELS_PER_TILE)
 
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
 #define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)
@@ -369,8 +370,49 @@ public:
     float mU1, mV1; // texture coords
 };
 
+// defines simple 2d sprite
+struct Sprite
+{
+public:
+    Sprite() = default;
+
+    // set origin to center of sprite, texture region and scale must be specified
+    inline void SetOriginToCenter()
+    {
+        mOrigin.x = (-mTextureRegion.mRectangle.w * mScale) * 0.5f;
+        mOrigin.y = (-mTextureRegion.mRectangle.h * mScale) * 0.5f;
+    }
+    // clear sprite data
+    inline void SetNull()
+    {
+        mTexture = nullptr;
+        mTextureRegion.SetNull();
+
+        mOrigin.x = 0.0f;
+        mOrigin.y = 0.0f;
+        mPosition.x = 0.0f;
+        mPosition.y = 0.0f;
+
+        mHeight = 0.0f;
+        mScale = 1.0f;
+        mRotateAngleRads = 0.0f;
+    }
+
+public:
+    GpuTexture2D* mTexture = nullptr;
+    TextureRegion mTextureRegion; 
+
+    // origin is relative to sprite position and must be set each time texture region or scale is changes
+    glm::vec2 mOrigin;
+    glm::vec2 mPosition;
+
+    float mHeight = 0.0f; // z order
+    float mScale = 1.0f;
+    float mRotateAngleRads = 0.0f;
+};
+
 // defines sprite atlas texture with entries
-class Spritesheet
+class Spritesheet final
 {
 public:
     Spritesheet() = default;

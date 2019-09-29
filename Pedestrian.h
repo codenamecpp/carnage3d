@@ -5,6 +5,8 @@
 #include "PedestrianControl.h"
 #include "GameObject.h"
 
+class SpriteBatch;
+
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
 {
@@ -16,6 +18,7 @@ public:
     // public for convenience, should not be modified directly
 
     PedPhysicsComponent* mPhysicsComponent;
+    Sprite mDrawSprite;
     bool mDead;
 
     eSpriteAnimationID mCurrentAnimID;
@@ -29,6 +32,7 @@ public:
     // setup initial state when spawned on level
     void EnterTheGame();
     void UpdateFrame(Timespan deltaTime);
+    void DrawFrame(SpriteBatch& spriteBatch);
 
     // state control
     void SetPosition(const glm::vec3& position);
@@ -39,6 +43,9 @@ public:
 
     // test whether pedestrian is in air
     bool IsFalling() const;
+
+private:
+    float ComputeDrawHeight(const glm::vec3& position, float angleRadians);
 
 private:
     // internal stuff that can be touched only by PedestrianManager

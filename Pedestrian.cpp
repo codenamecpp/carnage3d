@@ -2,6 +2,9 @@
 #include "Pedestrian.h"
 #include "PhysicsManager.h"
 #include "GameMapManager.h"
+#include "SpriteBatch.h"
+#include "SpriteManager.h"
+#include "RenderingManager.h"
 
 Pedestrian::Pedestrian(unsigned int id)
     : GameObject(id)
@@ -101,6 +104,24 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     }
 }
 
+void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
+{
+    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mAnimation.GetCurrentFrame());
+        
+    float rotationAngle = glm::radians(mPhysicsComponent->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+
+    glm::vec3 position = mPhysicsComponent->GetPosition();
+
+    mDrawSprite.mTexture = gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture;
+    mDrawSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex];
+    mDrawSprite.mPosition = glm::vec2(position.x, position.z);
+    mDrawSprite.mScale = SPRITE_SCALE;
+    mDrawSprite.mRotateAngleRads = rotationAngle;
+    mDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
+    mDrawSprite.SetOriginToCenter();
+    spriteBatch.DrawSprite(mDrawSprite);
+}
+
 void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
 {
     if (mCurrentAnimID != animation)
@@ -133,4 +154,46 @@ bool Pedestrian::IsFalling() const
     debug_assert(mPhysicsComponent);
 
     return mPhysicsComponent->mFalling;
+}
+
+float Pedestrian::ComputeDrawHeight(const glm::vec3& position, float angleRadians)
+{
+    float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
+
+    //glm::vec3 points[4] = {
+    //    { 0.0f,     position.y + 0.01f, -halfBox },
+    //    { halfBox,  position.y + 0.01f, 0.0f },
+    //    { 0.0f,     position.y + 0.01f, halfBox },
+    //    { -halfBox, position.y + 0.01f, 0.0f },
+    //};
+
+    glm::vec3 points[4] = {
+        { -halfBox, position.y + 0.01f, -halfBox },
+        { halfBox,  position.y + 0.01f, -halfBox },
+        { halfBox,  position.y + 0.01f, halfBox },
+        { -halfBox, position.y + 0.01f, halfBox },
+    };
+
+    float maxHeight = position.y;
+    for (glm::vec3& currPoint: points)
+    {
+        //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
+        currPoint.x += position.x;
+        currPoint.z += position.z;
+
+        // get height
+        float height = gGameMap.GetHeightAtPosition(currPoint);
+        if (height > maxHeight)
+        {
+            maxHeight = height;
+        }
+    }
+#if 1
+    // debug
+    for (int i = 0; i < 4; ++i)
+    {
+        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+    }
+#endif
+    return maxHeight + 0.01f;
 }

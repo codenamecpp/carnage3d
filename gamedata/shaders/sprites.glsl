@@ -32,7 +32,6 @@ void main()
 #ifdef FRAGMENT_SHADER
 
 uniform sampler2D tex_0;
-uniform bool enable_texture_mapping;
 
 // passed from vertex shader
 in vec2 Texcoord;
@@ -46,7 +45,7 @@ out vec4 FinalColor;
 void main()
 {
     vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
-    if (enable_texture_mapping)
+    if (true)
     {
         pixelColor = texture(tex_0, Texcoord);
 
