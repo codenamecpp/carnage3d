@@ -29,6 +29,10 @@ public:
 
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
+    // inventory
+    eWeaponType mCurrentWeapon;
+    int mWeaponsAmmo[eWeaponType_COUNT]; // -1 means infinite, 'fists' is good example
+
 public:
     // @param id: Unique object identifier, constant
     Pedestrian(unsigned int id);
@@ -47,6 +51,9 @@ public:
     // set sign direction for pedestrian, does nothing if sitting in car
     // @param rotationAngle: Angle value
     void SetHeading(cxx::angle_t rotationAngle);
+
+    // set current weapon, does nothing if out of ammo
+    void ChangeWeapon(eWeaponType newWeapon);
 
 private:
     void SetCurrentState(ePedestrianState newStateID, bool isInitial);

@@ -10,14 +10,20 @@ public:
     {
     }
     // @returns next state
-    virtual ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) = 0;
+    virtual ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime);
 
-    virtual void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) = 0;
-    virtual void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) = 0;
+    virtual void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState);
+    virtual void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState);
+    virtual void ProcessStateWeaponChange(Pedestrian* pedestrian, eWeaponType prevWeapon);
 
 protected:
     void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime);
     void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
+
+    // anims helpers
+    eSpriteAnimationID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    eSpriteAnimationID DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    eSpriteAnimationID DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const;
 };
 
 // process states:
@@ -32,6 +38,7 @@ public:
 
     void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
     void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+    void ProcessStateWeaponChange(Pedestrian* pedestrian, eWeaponType prevWeapon) override;
 };
 
 // process states:
@@ -46,6 +53,7 @@ public:
 
     void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
     void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+    void ProcessStateWeaponChange(Pedestrian* pedestrian, eWeaponType prevWeapon) override;
 };
 
 // process states:

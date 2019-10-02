@@ -36,6 +36,14 @@ void Pedestrian::EnterTheGame()
     {
         mCtlActions[iaction] = false;
     }
+
+    // reset weapon ammo
+    for (int iweapon = 0; iweapon < eWeaponType_COUNT; ++iweapon)
+    {
+        mWeaponsAmmo[iweapon] = -1; // temporary
+    }
+    mWeaponsAmmo[eWeaponType_Fists] = -1;
+    mCurrentWeapon = eWeaponType_Fists;
     
     mPhysicsComponent = gPhysics.CreatePedPhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
     debug_assert(mPhysicsComponent);
@@ -168,4 +176,18 @@ void Pedestrian::SetCurrentState(ePedestrianState newStateID, bool isInitial)
         PedestrianBaseState* currState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
         currState->ProcessStateEnter(this, prevStateID);
     }
+}
+
+void Pedestrian::ChangeWeapon(eWeaponType newWeapon)
+{
+    debug_assert(newWeapon < eWeaponType_COUNT);
+    if (mWeaponsAmmo[newWeapon] == 0 || mCurrentWeapon == newWeapon)
+        return;
+
+    eWeaponType prevWeapon = mCurrentWeapon;
+    mCurrentWeapon = newWeapon;
+
+    // notify current state
+    PedestrianBaseState* currState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
+    currState->ProcessStateWeaponChange(this, prevWeapon);
 }

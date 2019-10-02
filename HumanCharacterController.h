@@ -16,6 +16,10 @@ public:
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
+
+private:
+    void SwitchNextWeapon();
+    void SwitchPrevWeapon();
 private:
     Pedestrian* mCharacter = nullptr;
 };

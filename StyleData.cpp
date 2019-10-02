@@ -769,8 +769,27 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_SlideUnderTheCar].Setup(41, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_StandingStill].Setup(98, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_JumpOntoCar].Setup(91, 3);
-    mSpriteAnimations[eSpriteAnimationID_Ped_SlideOnCar].Setup(94, 1);
+    mSpriteAnimations[eSpriteAnimationID_Ped_SlideOnCar].Setup(94, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_DropOffCarSliding].Setup(95, 2);
     mSpriteAnimations[eSpriteAnimationID_Ped_FallShort].Setup(38, 2, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_LiesOnFloor].Setup(42, 1, 1.0f);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_PunchingWhileStanding].Setup(50, 6);
+    mSpriteAnimations[eSpriteAnimationID_Ped_PunchingWhileRunning].Setup(181, 8);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileStanding].Setup(89, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileWalking].Setup(99, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileRunning].Setup(107, 8);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileStanding].Setup(152, 2);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileWalking].Setup(136, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileRunning].Setup(144, 8);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding].Setup(134, 2);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking].Setup(118, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning].Setup(126, 8);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileStanding].Setup(170, 2);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileWalking].Setup(154, 8);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileRunning].Setup(162, 8);
 }

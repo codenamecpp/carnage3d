@@ -618,6 +618,20 @@ enum eSpriteAnimationID
     eSpriteAnimationID_Ped_DropOffCarSliding,
     eSpriteAnimationID_Ped_FallShort,
     eSpriteAnimationID_Ped_LiesOnFloor,
+    eSpriteAnimationID_Ped_PunchingWhileStanding,
+    eSpriteAnimationID_Ped_PunchingWhileRunning,
+    eSpriteAnimationID_Ped_ShootPistolWhileStanding,
+    eSpriteAnimationID_Ped_ShootPistolWhileWalking,
+    eSpriteAnimationID_Ped_ShootPistolWhileRunning,
+    eSpriteAnimationID_Ped_ShootMachinegunWhileStanding,
+    eSpriteAnimationID_Ped_ShootMachinegunWhileWalking,
+    eSpriteAnimationID_Ped_ShootMachinegunWhileRunning,
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding,
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking,
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning,
+    eSpriteAnimationID_Ped_ShootRPGWhileStanding,
+    eSpriteAnimationID_Ped_ShootRPGWhileWalking,
+    eSpriteAnimationID_Ped_ShootRPGWhileRunning,
     // cops
 
     eSpriteAnimation_COUNT
@@ -638,6 +652,20 @@ define_enum_strings(eSpriteAnimationID)
     eSpriteAnimationID_Ped_DropOffCarSliding, "ped_drop_off_car_sliding",
     eSpriteAnimationID_Ped_FallShort, "ped_fall_short",
     eSpriteAnimationID_Ped_LiesOnFloor, "ped_lies_on_floor",
+    eSpriteAnimationID_Ped_PunchingWhileStanding, "ped_punching_while_standing",
+    eSpriteAnimationID_Ped_PunchingWhileRunning, "ped_punching_while_running",
+    eSpriteAnimationID_Ped_ShootPistolWhileStanding, "ped_shoot_pistol_while_standing",
+    eSpriteAnimationID_Ped_ShootPistolWhileWalking, "ped_shoot_pistol_while_walking",
+    eSpriteAnimationID_Ped_ShootPistolWhileRunning, "ped_shoot_pistol_while_running",
+    eSpriteAnimationID_Ped_ShootMachinegunWhileStanding, "ped_shoot_machinegun_while_standing",
+    eSpriteAnimationID_Ped_ShootMachinegunWhileWalking, "ped_shoot_machinegun_while_walking",
+    eSpriteAnimationID_Ped_ShootMachinegunWhileRunning, "ped_shoot_machinegun_while_running",
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding, "ped_shoot_flamethrower_while_standing",
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking, "ped_shoot_flamethrower_while_walking",
+    eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning, "ped_shoot_flamethrower_while_running",
+    eSpriteAnimationID_Ped_ShootRPGWhileStanding, "ped_shoot_rpg_while_standing",
+    eSpriteAnimationID_Ped_ShootRPGWhileWalking, "ped_shoot_rpg_while_walking",
+    eSpriteAnimationID_Ped_ShootRPGWhileRunning, "ped_shoot_rpg_while_running",
 };
 
 // pedestrian weapon
@@ -669,6 +697,7 @@ enum ePedestrianAction
     ePedestrianAction_WalkForward,
     ePedestrianAction_WalkBackward,
     ePedestrianAction_Run, // overrides walk_forward and walk_backward
+    ePedestrianAction_Shoot,
     ePedestrianAction_EnterCar,
     ePedestrianAction_LeaveCar,
     ePedestrianAction_COUNT
@@ -682,6 +711,7 @@ define_enum_strings(ePedestrianAction)
     ePedestrianAction_WalkForward, "walk_forward",
     ePedestrianAction_WalkBackward, "walk_backward",
     ePedestrianAction_Run, "run",
+    ePedestrianAction_Shoot, "shoot",
     ePedestrianAction_EnterCar, "enter_car",
     ePedestrianAction_LeaveCar, "leave_car",
 };
