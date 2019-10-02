@@ -122,7 +122,7 @@ enum eGroundType : unsigned char
     eGroundType_Pawement,
     eGroundType_Field,
     eGroundType_Building,
-    eGroundType_COUNT,
+    eGroundType_COUNT
 };
 
 define_enum_strings(eGroundType)
@@ -143,7 +143,7 @@ enum eBlockFace : unsigned short
     eBlockFace_N, // top
     eBlockFace_S, // botom
     eBlockFace_Lid,
-    eBlockFace_COUNT,
+    eBlockFace_COUNT
 };
 
 define_enum_strings(eBlockFace)
@@ -395,7 +395,7 @@ public:
 
         mHeight = 0.0f;
         mScale = 1.0f;
-        mRotateAngleRads = 0.0f;
+        mRotateAngle = cxx::angle_t::from_degrees(0.0f);
     }
 
 public:
@@ -408,7 +408,8 @@ public:
 
     float mHeight = 0.0f; // z order
     float mScale = 1.0f;
-    float mRotateAngleRads = 0.0f;
+
+    cxx::angle_t mRotateAngle;
 };
 
 // defines sprite atlas texture with entries
@@ -609,9 +610,14 @@ enum eSpriteAnimationID
     eSpriteAnimationID_Ped_Run,
     eSpriteAnimationID_Ped_ExitCar,
     eSpriteAnimationID_Ped_EnterCar,
-    eSpriteAnimationID_Ped_Falling,
+    eSpriteAnimationID_Ped_FallLong,
     eSpriteAnimationID_Ped_SlideUnderTheCar,
     eSpriteAnimationID_Ped_StandingStill, // no weapons
+    eSpriteAnimationID_Ped_JumpOntoCar,
+    eSpriteAnimationID_Ped_SlideOnCar,
+    eSpriteAnimationID_Ped_DropOffCarSliding,
+    eSpriteAnimationID_Ped_FallShort,
+    eSpriteAnimationID_Ped_LiesOnFloor,
     // cops
 
     eSpriteAnimation_COUNT
@@ -624,9 +630,14 @@ define_enum_strings(eSpriteAnimationID)
     eSpriteAnimationID_Ped_Run, "ped_run",
     eSpriteAnimationID_Ped_ExitCar, "ped_exit_car",
     eSpriteAnimationID_Ped_EnterCar, "ped_enter_car",
-    eSpriteAnimationID_Ped_Falling, "ped_falling",
+    eSpriteAnimationID_Ped_FallLong, "ped_fall_long",
     eSpriteAnimationID_Ped_SlideUnderTheCar, "ped_slide_under_the_car",
     eSpriteAnimationID_Ped_StandingStill, "ped_standing_still",
+    eSpriteAnimationID_Ped_JumpOntoCar, "ped_jump_onto_car",
+    eSpriteAnimationID_Ped_SlideOnCar, "ped_slide_on_car",
+    eSpriteAnimationID_Ped_DropOffCarSliding, "ped_drop_off_car_sliding",
+    eSpriteAnimationID_Ped_FallShort, "ped_fall_short",
+    eSpriteAnimationID_Ped_LiesOnFloor, "ped_lies_on_floor",
 };
 
 // pedestrian weapon
@@ -647,4 +658,68 @@ define_enum_strings(eWeaponType)
     eWeaponType_Machinegun, "machinegun",
     eWeaponType_Flamethrower, "flamethrower",
     eWeaponType_RocketLauncher, "rocket_launcher",
+};
+
+// pedestrian basic action
+enum ePedestrianAction
+{
+    ePedestrianAction_TurnLeft,
+    ePedestrianAction_TurnRight,
+    ePedestrianAction_Jump,
+    ePedestrianAction_WalkForward,
+    ePedestrianAction_WalkBackward,
+    ePedestrianAction_Run, // overrides walk_forward and walk_backward
+    ePedestrianAction_EnterCar,
+    ePedestrianAction_LeaveCar,
+    ePedestrianAction_COUNT
+};
+
+define_enum_strings(ePedestrianAction)
+{
+    ePedestrianAction_TurnLeft, "turn_left",
+    ePedestrianAction_TurnRight, "turn_right",
+    ePedestrianAction_Jump, "jump",
+    ePedestrianAction_WalkForward, "walk_forward",
+    ePedestrianAction_WalkBackward, "walk_backward",
+    ePedestrianAction_Run, "run",
+    ePedestrianAction_EnterCar, "enter_car",
+    ePedestrianAction_LeaveCar, "leave_car",
+};
+
+// pedestrian basic state
+enum ePedestrianState
+{
+    ePedestrianState_StandingStill,
+    ePedestrianState_StandsAndShoots,
+    ePedestrianState_Walks,
+    ePedestrianState_Runs,
+    ePedestrianState_WalksAndShoots,
+    ePedestrianState_RunsAndShoots,
+    ePedestrianState_Falling,
+    ePedestrianState_EnteringCar,
+    ePedestrianState_ExitingCar,
+    ePedestrianState_DrivingCar,
+    ePedestrianState_SlideOnCar,
+    ePedestrianState_Dying,
+    ePedestrianState_Dead,
+    ePedestrianState_KnockedDown,
+    ePedestrianState_COUNT
+};
+
+define_enum_strings(ePedestrianState)
+{
+    ePedestrianState_StandingStill, "standing_still",
+    ePedestrianState_StandsAndShoots, "stands_and_shoots",
+    ePedestrianState_Walks, "walks",
+    ePedestrianState_Runs, "runs",
+    ePedestrianState_WalksAndShoots, "walks_and_shoots",
+    ePedestrianState_RunsAndShoots, "runs_and_shoots",
+    ePedestrianState_Falling, "falling",
+    ePedestrianState_EnteringCar, "entering_car",
+    ePedestrianState_ExitingCar, "exiting_car",
+    ePedestrianState_DrivingCar, "driving_car",
+    ePedestrianState_SlideOnCar, "slide_on_car",
+    ePedestrianState_Dying, "dying",
+    ePedestrianState_Dead, "dead",
+    ePedestrianState_KnockedDown, "knocked_down",
 };

@@ -42,8 +42,8 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
         ImGui::Text("pos: %f, %f, %f", pedPosition.x, pedPosition.y, pedPosition.z);
 
-        float pedHeading = pedestrian->mPhysicsComponent->GetAngleDegrees();
-        ImGui::Text("heading: %f", pedHeading);
+        cxx::angle_t pedHeading = pedestrian->mPhysicsComponent->GetRotationAngle();
+        ImGui::Text("heading: %f", pedHeading.mDegrees);
         ImGui::Separator();
 
         // get block location

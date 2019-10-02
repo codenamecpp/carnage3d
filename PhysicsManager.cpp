@@ -78,19 +78,24 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
     mPhysicsWorld->DrawDebugData();
 }
 
-PedPhysicsComponent* PhysicsManager::CreatePedPhysicsComponent(const glm::vec3& position, float angleDegrees)
+PedPhysicsComponent* PhysicsManager::CreatePedPhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
+    debug_assert(pedestrian);
+
     PedPhysicsComponent* physicsObject = mPedsBodiesPool.create(mPhysicsWorld);
-    physicsObject->SetPosition(position, angleDegrees);
+    physicsObject->mReferencePed = pedestrian;
+    physicsObject->SetPosition(position, rotationAngle);
     return physicsObject;
 }
 
-CarPhysicsComponent* PhysicsManager::CreateCarPhysicsComponent(const glm::vec3& position, float angleDegrees, CarStyle* desc)
+CarPhysicsComponent* PhysicsManager::CreateCarPhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc)
 {
     debug_assert(desc);
+    debug_assert(car);
 
     CarPhysicsComponent* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, desc);
-    physicsObject->SetPosition(position, angleDegrees);
+    physicsObject->mReferenceCar = car;
+    physicsObject->SetPosition(position, rotationAngle);
     return physicsObject;
 }
 

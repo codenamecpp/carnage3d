@@ -5,13 +5,13 @@
 #include "SpriteBatch.h"
 #include "SpriteManager.h"
 #include "RenderingManager.h"
+#include "PedestrianStates.h"
 
 Pedestrian::Pedestrian(unsigned int id)
     : GameObject(id)
     , mPhysicsComponent()
-    , mDead()
     , mCurrentAnimID(eSpriteAnimationID_Null)
-    , mControl(*this)
+    , mController()
     , mActivePedsNode(this)
     , mDeletePedsNode(this)
 {
@@ -28,87 +28,47 @@ Pedestrian::~Pedestrian()
 void Pedestrian::EnterTheGame()
 {
     glm::vec3 startPosition;
+
+    mCurrentStateTime = 0;
+
+    // reset actions
+    for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
+    {
+        mCtlActions[iaction] = false;
+    }
     
-    mPhysicsComponent = gPhysics.CreatePedPhysicsComponent(startPosition, 0.0f);
+    mPhysicsComponent = gPhysics.CreatePedPhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
     debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;
-    mDead = false;
     mCurrentAnimID = eSpriteAnimationID_Null;
-    // set initial state and animation
-    SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
+
+    SetCurrentState(ePedestrianState_StandingStill, true);
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
 {
-    mAnimation.AdvanceAnimation(deltaTime);
-
-    // ignore inputs when falling
-    if (IsFalling())
+    // update controller logic if it specified
+    if (mController)
     {
-        SwitchToAnimation(eSpriteAnimationID_Ped_Falling, eSpriteAnimLoop_FromStart);
-        return;
+        mController->UpdateFrame(this, deltaTime);
     }
 
-    // try to turn around
-    if (mControl.IsTurnAround())
-    {
-        mPhysicsComponent->SetAngularVelocity((mControl.mTurnLeft ? -1.0f : 1.0f) * gGameRules.mPedestrianTurnSpeed);
-    }
-    else
-    {
-        // stop rotation
-        mPhysicsComponent->SetAngularVelocity(0.0f);
-    }
-    // try walk
-    if (mControl.IsMoves())
-    {
-        float moveSpeed = 0.0f;
-        bool moveBackward = false;
-        if (mControl.mWalkForward)
-        {
-            if (mControl.mRunning)
-            {
-                moveSpeed = gGameRules.mPedestrianRunSpeed;
-                SwitchToAnimation(eSpriteAnimationID_Ped_Run, eSpriteAnimLoop_FromStart);
-            }
-            else
-            {
-                moveSpeed = gGameRules.mPedestrianWalkSpeed;
-                SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart);
-            }
-        }
-        else if (mControl.mWalkBackward)
-        {
-            moveSpeed = gGameRules.mPedestrianWalkSpeed;
-            moveBackward = true;
-            SwitchToAnimation(eSpriteAnimationID_Ped_Walk, eSpriteAnimLoop_FromStart); // todo:reverse
-        }
-        // get current direction
-        float angleRadians = mPhysicsComponent->GetAngleRadians();
-        glm::vec2 signVector 
-        {
-            cos(angleRadians), sin(angleRadians)
-        };
+    mCurrentAnimState.AdvanceAnimation(deltaTime);
 
-        if (moveBackward)
-        {
-            signVector = -signVector;
-        }
-        mPhysicsComponent->SetLinearVelocity(signVector * moveSpeed);
-    }
-    else
-    {
-        mPhysicsComponent->SetLinearVelocity({}); // force stop
-        SwitchToAnimation(eSpriteAnimationID_Ped_StandingStill, eSpriteAnimLoop_FromStart);
-    }
+    mCurrentStateTime += deltaTime;
+
+    // update current state logic
+    PedestrianBaseState* currentState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
+    ePedestrianState nextState = currentState->ProcessStateFrame(this, deltaTime);
+    SetCurrentState(nextState, false);
 }
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
-    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mAnimation.GetCurrentFrame());
+    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
         
-    float rotationAngle = glm::radians(mPhysicsComponent->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
@@ -116,30 +76,16 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     mDrawSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex];
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
-    mDrawSprite.mRotateAngleRads = rotationAngle;
+    mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
     mDrawSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mDrawSprite);
 }
 
-void Pedestrian::SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
-{
-    if (mCurrentAnimID != animation)
-    {
-        mAnimation.SetNull();
-        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mAnimation.mAnimData)) // todo
-        {
-            debug_assert(false);
-        }
-        mCurrentAnimID = animation;
-    }
-    mAnimation.PlayAnimation(loopMode);
-}
-
-void Pedestrian::SetHeading(float angleDegrees)
+void Pedestrian::SetHeading(cxx::angle_t rotationAngle)
 {
     debug_assert(mPhysicsComponent);
-    mPhysicsComponent->SetAngleDegrees(angleDegrees);
+    mPhysicsComponent->SetRotationAngle(rotationAngle);
 }
 
 void Pedestrian::SetPosition(const glm::vec3& position)
@@ -149,14 +95,7 @@ void Pedestrian::SetPosition(const glm::vec3& position)
     mPhysicsComponent->SetPosition(position);
 }
 
-bool Pedestrian::IsFalling() const
-{
-    debug_assert(mPhysicsComponent);
-
-    return mPhysicsComponent->mFalling;
-}
-
-float Pedestrian::ComputeDrawHeight(const glm::vec3& position, float angleRadians)
+float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
 
@@ -196,4 +135,37 @@ float Pedestrian::ComputeDrawHeight(const glm::vec3& position, float angleRadian
     }
 #endif
     return maxHeight + 0.01f;
+}
+
+void Pedestrian::SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
+{
+    if (mCurrentAnimID != animation)
+    {
+        mCurrentAnimState.SetNull();
+        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mCurrentAnimState.mAnimData)) // todo
+        {
+            debug_assert(false);
+        }
+        mCurrentAnimID = animation;
+    }
+    mCurrentAnimState.PlayAnimation(loopMode);
+}
+
+void Pedestrian::SetCurrentState(ePedestrianState newStateID, bool isInitial)
+{
+    if (isInitial || newStateID != mCurrentStateID)
+    {
+        // exit previous state
+        if (!isInitial)
+        {
+            PedestrianBaseState* prevState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
+            prevState->ProcessStateExit(this, newStateID);
+        }
+        ePedestrianState prevStateID = mCurrentStateID;
+        mCurrentStateID = newStateID;
+        mCurrentStateTime = 0;
+
+        PedestrianBaseState* currState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
+        currState->ProcessStateEnter(this, prevStateID);
+    }
 }

@@ -32,7 +32,7 @@ public:
     void DrawFrame(SpriteBatch& spriteBatch);
 
 private:
-    float ComputeDrawHeight(const glm::vec3& position, float angleRadians);
+    float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
 
 private:
     // internal stuff that can be touched only by CarsManager

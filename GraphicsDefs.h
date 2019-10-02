@@ -256,7 +256,7 @@ enum eTextureFormat
 
     // ext formats 
     eTextureFormat_RU16, // single channel, unsigned short
-    eTextureFormat_COUNT,
+    eTextureFormat_COUNT
 };
 
 define_enum_strings(eTextureFormat)
@@ -303,7 +303,7 @@ enum ePrimitiveType
     ePrimitiveType_Triangles,
     ePrimitiveType_TriangleStrip,
     ePrimitiveType_TriangleFan,
-    ePrimitiveType_COUNT,
+    ePrimitiveType_COUNT
 };
 
 define_enum_strings(ePrimitiveType)
@@ -320,7 +320,7 @@ enum eIndicesType
 {
     eIndicesType_i16, 
     eIndicesType_i32, 
-    eIndicesType_COUNT,
+    eIndicesType_COUNT
 };
 
 define_enum_strings(eIndicesType)

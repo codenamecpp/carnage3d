@@ -16,15 +16,17 @@ public:
     void UpdateFrame(Timespan deltaTime);
 
     // create pedestrian specific physical body
+    // @param pedestrian: Reference ped
     // @param position: Coord in world
-    // @param angleDegrees: Direction angle in degrees
-    PedPhysicsComponent* CreatePedPhysicsComponent(const glm::vec3& position, float angleDegrees);
+    // @param rotationAngle: Heading
+    PedPhysicsComponent* CreatePedPhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // create car specific physical body
+    // @param car: Reference car
     // @param position: Coord in world
-    // @param angleDegrees: Direction angle in degrees
+    // @param rotationAngle: Heading
     // @param desc: Car class description
-    CarPhysicsComponent* CreateCarPhysicsComponent(const glm::vec3& position, float angleDegrees, CarStyle* desc);
+    CarPhysicsComponent* CreateCarPhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc);
 
     // create car wheel specific physical body
     WheelPhysicsComponent* CreateWheelPhysicsComponent();

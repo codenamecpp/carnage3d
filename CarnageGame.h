@@ -4,6 +4,7 @@
 #include "FollowCameraController.h"
 #include "FreeLookCameraController.h"
 #include "GameObjectsManager.h"
+#include "HumanCharacterController.h"
 
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
@@ -15,6 +16,7 @@ public:
     // gamestate
     Pedestrian* mPlayerPedestrian = nullptr;
     CameraController* mCameraController = nullptr;
+    HumanCharacterController mHumanController;
 
     Timespan mGameTime;
 

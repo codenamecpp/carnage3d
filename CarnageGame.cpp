@@ -37,6 +37,7 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
+    mHumanController.SetCharacter(mPlayerPedestrian);
 
     Vehicle* dummyCar = mObjectsManager.CreateCar(pos + glm::vec3 {2.0f, 0.0f, 2.0f}, 0);
 
@@ -83,38 +84,7 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         return;
     }
 
-    if (inputEvent.mKeycode == KEYCODE_LEFT)
-    {
-        if (mPlayerPedestrian)
-        {
-            mPlayerPedestrian->mControl.SetTurnLeft(inputEvent.mPressed);
-        }
-    }
-
-    if (inputEvent.mKeycode == KEYCODE_RIGHT)
-    {
-        if (mPlayerPedestrian)
-        {
-            mPlayerPedestrian->mControl.SetTurnRight(inputEvent.mPressed);
-        }
-    }
-
-    if (inputEvent.mKeycode == KEYCODE_UP)
-    {
-        if (mPlayerPedestrian)
-        {
-            mPlayerPedestrian->mControl.SetWalkForward(inputEvent.mPressed);
-            mPlayerPedestrian->mControl.SetRunning(inputEvent.mPressed);
-        }
-    }
-
-    if (inputEvent.mKeycode == KEYCODE_DOWN)
-    {
-        if (mPlayerPedestrian)
-        {
-            mPlayerPedestrian->mControl.SetWalkBackward(inputEvent.mPressed);
-        }
-    }
+    mHumanController.InputEvent(inputEvent);
 
     if (inputEvent.mKeycode == KEYCODE_ESCAPE && inputEvent.mPressed)
     {

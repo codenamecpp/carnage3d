@@ -1,0 +1,95 @@
+#pragma once
+
+#include "GameDefs.h"
+
+// defines basic pedestrian state
+class PedestrianBaseState: public cxx::noncopyable
+{
+public:
+    virtual ~PedestrianBaseState()
+    {
+    }
+    // @returns next state
+    virtual ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) = 0;
+
+    virtual void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) = 0;
+    virtual void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) = 0;
+
+protected:
+    void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime);
+    void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
+};
+
+// process states:
+//    - ePedestrianState_StandingStill
+//    - ePedestrianState_Walks
+//    - ePedestrianState_Runs
+
+class PedestrianStateIdle: public PedestrianBaseState
+{
+public:
+    ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+
+    void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
+    void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+};
+
+// process states:
+//    - ePedestrianState_StandsAndShoots
+//    - ePedestrianState_WalksAndShoots
+//    - ePedestrianState_RunsAndShoots
+
+class PedestrianStateIdleShoots: public PedestrianBaseState
+{
+public:
+    ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+
+    void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
+    void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+};
+
+// process states:
+//    - ePedestrianState_Falling
+
+class PedestrianStateFalling: public PedestrianBaseState
+{
+public:
+    ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+
+    void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
+    void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+};
+
+// process states:
+//    - ePedestrianState_EnteringCar
+//    - ePedestrianState_ExitingCar
+
+class PedestrianStateEnterOrExitCar: public PedestrianBaseState
+{
+public:
+    ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+
+    void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
+    void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
+};
+
+class PedestrianBaseStatesManager
+{
+public:
+    PedestrianBaseState* GetStateByID(ePedestrianState stateID);
+
+private:
+    PedestrianStateIdle mIdleState;
+    PedestrianStateIdleShoots mIdleShootsState;
+    PedestrianStateFalling mFallingState;
+    PedestrianStateEnterOrExitCar mEnterOrExitCarState;
+};
+
+extern PedestrianBaseStatesManager gPedestrianBaseStatesManager;
+
+// todo:
+    // ePedestrianState_KnockedDown
+    //ePedestrianState_DrivingCar,
+    //ePedestrianState_SlideOnCar,
+    //ePedestrianState_Dying,
+    //ePedestrianState_Dead,

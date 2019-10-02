@@ -2,7 +2,7 @@
 
 #include "GameDefs.h"
 #include "PhysicsDefs.h"
-#include "PedestrianControl.h"
+#include "CharacterController.h"
 #include "GameObject.h"
 
 class SpriteBatch;
@@ -12,17 +12,22 @@ class Pedestrian final: public GameObject
 {
     friend class GameObjectsManager;
 
+    // all base states should have access to private data
+    friend class PedestrianBaseState;
+    friend class PedestrianStateIdle;
+    friend class PedestrianStateIdleShoots;
+    friend class PedestrianStateFalling;
+    friend class PedestrianStateEnterOrExitCar;
+
 public:
-    PedestrianControl mControl; // control pedestrian actions
-
     // public for convenience, should not be modified directly
-
+    CharacterController* mController; // controls pedestrian actions
     PedPhysicsComponent* mPhysicsComponent;
-    Sprite mDrawSprite;
-    bool mDead;
 
-    eSpriteAnimationID mCurrentAnimID;
-    SpriteAnimation mAnimation;
+    ePedestrianState mCurrentStateID;
+    Timespan mCurrentStateTime; // time since current state has started
+
+    bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
 public:
     // @param id: Unique object identifier, constant
@@ -35,20 +40,25 @@ public:
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 
-    // state control
+    // set position for pedestrian, does nothing if sitting in car
+    // @param position: World position
     void SetPosition(const glm::vec3& position);
-    void SetHeading(float angleDegrees);
 
-    // change current animation
-    void SwitchToAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
-
-    // test whether pedestrian is falling from height
-    bool IsFalling() const;
+    // set sign direction for pedestrian, does nothing if sitting in car
+    // @param rotationAngle: Angle value
+    void SetHeading(cxx::angle_t rotationAngle);
 
 private:
-    float ComputeDrawHeight(const glm::vec3& position, float angleRadians);
+    void SetCurrentState(ePedestrianState newStateID, bool isInitial);
+    void SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
+    float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
 
 private:
+    eSpriteAnimationID mCurrentAnimID;
+    SpriteAnimation mCurrentAnimState;
+
+    Sprite mDrawSprite;
+
     // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mActivePedsNode;
     cxx::intrusive_node<Pedestrian> mDeletePedsNode;

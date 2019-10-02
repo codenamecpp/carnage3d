@@ -19,22 +19,24 @@ void PhysicsComponent::SetPosition(const glm::vec3& position)
     mPhysicsBody->SetTransform(b2position, mPhysicsBody->GetAngle());
 }
 
-void PhysicsComponent::SetPosition(const glm::vec3& position, float angleDegrees)
+void PhysicsComponent::SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     mHeight = position.y;
 
     b2Vec2 b2position { position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE };
-    mPhysicsBody->SetTransform(b2position, glm::radians(angleDegrees));
+    mPhysicsBody->SetTransform(b2position, rotationAngle.to_radians());
 }
 
-void PhysicsComponent::SetAngleDegrees(float angleDegrees)
+void PhysicsComponent::SetRotationAngle(cxx::angle_t rotationAngle)
 {
-    mPhysicsBody->SetTransform(mPhysicsBody->GetPosition(), glm::radians(angleDegrees));
+    mPhysicsBody->SetTransform(mPhysicsBody->GetPosition(), rotationAngle.to_radians());
 }
 
-void PhysicsComponent::SetAngleRadians(float angleRadians)
+cxx::angle_t PhysicsComponent::GetRotationAngle() const
 {
-    mPhysicsBody->SetTransform(mPhysicsBody->GetPosition(), angleRadians);
+    cxx::angle_t rotationAngle = cxx::angle_t::from_radians(mPhysicsBody->GetAngle());
+    rotationAngle.normalize_angle_180();
+    return rotationAngle;
 }
 
 void PhysicsComponent::AddForce(const glm::vec2& force)
@@ -61,21 +63,10 @@ glm::vec2 PhysicsComponent::GetLinearVelocity() const
     return { b2position.x / PHYSICS_SCALE, b2position.y / PHYSICS_SCALE };
 }
 
-float PhysicsComponent::GetAngleDegrees() const
-{
-    float angleDegrees = glm::degrees(mPhysicsBody->GetAngle());
-    return cxx::normalize_angle_180(angleDegrees);
-}
-
-float PhysicsComponent::GetAngleRadians() const
-{
-    return mPhysicsBody->GetAngle();
-}
-
 float PhysicsComponent::GetAngularVelocity() const
 {
     float angularVelocity = glm::degrees(mPhysicsBody->GetAngularVelocity());
-    return cxx::normalize_angle_180(angularVelocity);
+    return angularVelocity;
 }
 
 void PhysicsComponent::AddAngularImpulse(float impulse)
@@ -99,6 +90,16 @@ void PhysicsComponent::ClearForces()
     b2Vec2 nullVector { 0.0f, 0.0f };
     mPhysicsBody->SetLinearVelocity(nullVector);
     mPhysicsBody->SetAngularVelocity(0.0f);
+}
+
+glm::vec2 PhysicsComponent::GetSignVector() const
+{
+    float angleRadians = mPhysicsBody->GetAngle();
+    glm::vec2 signVector 
+    {
+        cos(angleRadians), sin(angleRadians)
+    };
+    return signVector;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,7 +147,7 @@ void PedPhysicsComponent::SetFalling(bool isFalling)
     {
         b2Vec2 velocity = mPhysicsBody->GetLinearVelocity();
         ClearForces();
-        velocity *= 0.05f;
+        velocity.Normalize();
         mPhysicsBody->SetLinearVelocity(velocity);
     }
 }

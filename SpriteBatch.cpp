@@ -141,11 +141,11 @@ void SpriteBatch::GenerateSpritesBatches()
                 sprite.mPosition.y + (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
             },
         };
-        if (fabs(sprite.mRotateAngleRads) > 0.01f) // has rotation
+        if (sprite.mRotateAngle.non_zero()) // has rotation
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotateAngleRads);
+                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotateAngle);
 
                 vertexData[vertexOffset + i].mPosition.x = currPos.x;
                 vertexData[vertexOffset + i].mPosition.z = currPos.y;

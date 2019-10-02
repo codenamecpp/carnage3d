@@ -59,6 +59,9 @@
     <Filter Include="Game\GameObjects">
       <UniqueIdentifier>{ae34c99f-5276-4124-8830-00d7d601efca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\CharacterControllers">
+      <UniqueIdentifier>{73f4101e-aaab-49ec-b0d3-a05f5ee7c929}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -274,9 +277,6 @@
     <ClInclude Include="GameObject.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="PedestrianControl.h">
-      <Filter>Game\GameObjects</Filter>
-    </ClInclude>
     <ClInclude Include="GameObjectsManager.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -285,6 +285,18 @@
     </ClInclude>
     <ClInclude Include="MapRenderer.h">
       <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="AiCharacterController.h">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanCharacterController.h">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="PedestrianStates.h">
+      <Filter>Game\GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -424,9 +436,6 @@
     <ClCompile Include="Pedestrian.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="PedestrianControl.cpp">
-      <Filter>Game\GameObjects</Filter>
-    </ClCompile>
     <ClCompile Include="GameObjectsManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -435,6 +444,18 @@
     </ClCompile>
     <ClCompile Include="MapRenderer.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterController.cpp">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="AiCharacterController.cpp">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanCharacterController.cpp">
+      <Filter>Game\CharacterControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="PedestrianStates.cpp">
+      <Filter>Game\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

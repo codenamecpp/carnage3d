@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameDefs.h"
+
 // defines body that exists in physics world and can be collided
 class PhysicsComponent: public cxx::noncopyable
 {
@@ -18,16 +20,14 @@ public:
 public:
     // set/get object's world position and rotation angle
     // @param position: Coordinate
-    // @param angleDegrees: Rotation, optional
+    // @param rotationAngle: Rotation, optional
     void SetPosition(const glm::vec3& position);
-    void SetPosition(const glm::vec3& position, float angleDegrees);
+    void SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle);
     glm::vec3 GetPosition() const;
-    // set/get object's heading angle in degrees or radians
-    // @param angleDegrees, angleRadians: Angle
-    void SetAngleDegrees(float angleDegrees);
-    float GetAngleDegrees() const;
-    void SetAngleRadians(float angleRadians);
-    float GetAngleRadians() const;
+    // set/get object's heading angle 
+    // @param rotationAngle: Angle value
+    void SetRotationAngle(cxx::angle_t rotationAngle);
+    cxx::angle_t GetRotationAngle() const;
     // set/get current angular velocity
     // @param velocity: new angular velocity in degrees/second
     void SetAngularVelocity(float angularVelocity);
@@ -36,6 +36,7 @@ public:
 	/// @param velocity: new linear velocity of the center of mass
     void SetLinearVelocity(const glm::vec2& velocity);
     glm::vec2 GetLinearVelocity() const;
+    glm::vec2 GetSignVector() const;
     // apply an impulse to the center of mass
     // @param impulse: The world impulse vector, usually in N-seconds or kg-m/s
     void AddLinearImpulse(const glm::vec2& impulse);
@@ -70,6 +71,7 @@ public:
     void UpdateFrame(Timespan deltaTime);
     void SetFalling(bool isFalling);
 public:
+    Pedestrian* mReferencePed = nullptr;
     bool mFalling = false; // falling from a height
 };
 
@@ -91,4 +93,5 @@ public:
     ~CarPhysicsComponent();
     void UpdateFrame(Timespan deltaTime);
 public:
+    Vehicle* mReferenceCar = nullptr;
 };

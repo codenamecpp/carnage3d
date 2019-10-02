@@ -31,7 +31,7 @@ void Vehicle::EnterTheGame()
 
     glm::vec3 startPosition;
     
-    mPhysicsComponent = gPhysics.CreateCarPhysicsComponent(startPosition, 0.0f, mCarStyle);
+    mPhysicsComponent = gPhysics.CreateCarPhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f), mCarStyle);
     debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;
@@ -46,7 +46,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 {
     int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
         
-    float rotationAngle = glm::radians(mPhysicsComponent->GetAngleDegrees() - SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     glm::vec3 position = mPhysicsComponent->GetPosition();
     position.y = ComputeDrawHeight(position, rotationAngle);
@@ -55,13 +55,13 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     mChassisSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex];
     mChassisSprite.mPosition = glm::vec2(position.x, position.z);
     mChassisSprite.mScale = SPRITE_SCALE;
-    mChassisSprite.mRotateAngleRads = rotationAngle;
+    mChassisSprite.mRotateAngle = rotationAngle;
     mChassisSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
     mChassisSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mChassisSprite);
 }
 
-float Vehicle::ComputeDrawHeight(const glm::vec3& position, float angleRadians)
+float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     float halfW = (1.0f * mCarStyle->mWidth) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
     float halfH = (1.0f * mCarStyle->mHeight) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
@@ -76,7 +76,7 @@ float Vehicle::ComputeDrawHeight(const glm::vec3& position, float angleRadians)
     float maxHeight = position.y;
     for (glm::vec3& currPoint: points)
     {
-        currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f));
+        currPoint = glm::rotate(currPoint, rotationAngle.to_radians(), glm::vec3(0.0f, -1.0f, 0.0f));
         currPoint.x += position.x;
         currPoint.z += position.z;
     }
