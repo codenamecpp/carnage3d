@@ -81,6 +81,18 @@ public:
     void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override;
 };
 
+// process states:
+//  - ePedestrianState_SlideOnCar
+
+class PedestrianStateSlideOnCar: public PedestrianBaseState
+{
+public:
+    ePedestrianState ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+
+    void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
+    void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override; 
+};
+
 class PedestrianBaseStatesManager
 {
 public:
@@ -91,6 +103,7 @@ private:
     PedestrianStateIdleShoots mIdleShootsState;
     PedestrianStateFalling mFallingState;
     PedestrianStateEnterOrExitCar mEnterOrExitCarState;
+    PedestrianStateSlideOnCar mSlideOnCarState;
 };
 
 extern PedestrianBaseStatesManager gPedestrianBaseStatesManager;
@@ -98,6 +111,5 @@ extern PedestrianBaseStatesManager gPedestrianBaseStatesManager;
 // todo:
     // ePedestrianState_KnockedDown
     //ePedestrianState_DrivingCar,
-    //ePedestrianState_SlideOnCar,
     //ePedestrianState_Dying,
     //ePedestrianState_Dead,

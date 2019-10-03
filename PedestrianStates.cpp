@@ -22,9 +22,9 @@ PedestrianBaseState* PedestrianBaseStatesManager::GetStateByID(ePedestrianState 
         case ePedestrianState_EnteringCar:
         case ePedestrianState_ExitingCar: return &mEnterOrExitCarState;
 
+        case ePedestrianState_SlideOnCar: return &mSlideOnCarState;
         // todo
         case ePedestrianState_DrivingCar:
-        case ePedestrianState_SlideOnCar:
         case ePedestrianState_Dying:
         case ePedestrianState_Dead:
             break;
@@ -167,6 +167,12 @@ ePedestrianState PedestrianStateIdle::ProcessStateFrame(Pedestrian* pedestrian, 
     {
         ProcessMotionActions(pedestrian, deltaTime);
     }
+
+    if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
+    {
+        if (pedestrian->mCtlActions[ePedestrianAction_Jump])
+            return ePedestrianState_SlideOnCar;
+    }
  
     if (pedestrian->mCtlActions[ePedestrianAction_Run])
     {
@@ -270,6 +276,12 @@ ePedestrianState PedestrianStateIdleShoots::ProcessStateFrame(Pedestrian* pedest
     if (currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots)
     {
         ProcessMotionActions(pedestrian, deltaTime);
+    }
+
+    if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
+    {
+        if (pedestrian->mCtlActions[ePedestrianAction_Jump])
+            return ePedestrianState_SlideOnCar;
     }
  
     if (pedestrian->mCtlActions[ePedestrianAction_Run])
@@ -397,5 +409,32 @@ void PedestrianStateEnterOrExitCar::ProcessStateEnter(Pedestrian* pedestrian, eP
 }
 
 void PedestrianStateEnterOrExitCar::ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ePedestrianState PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    ePedestrianState currState = pedestrian->mCurrentStateID;
+
+    // check for falling state
+    if (pedestrian->mPhysicsComponent->mFalling)
+    {
+        return ePedestrianState_Falling;
+    }
+    
+    ProcessRotateActions(pedestrian, deltaTime);
+
+
+    return currState;
+}
+
+void PedestrianStateSlideOnCar::ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState)
+{
+    debug_assert(pedestrian->mCurrentStateID == ePedestrianState_SlideOnCar);
+}
+
+void PedestrianStateSlideOnCar::ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState)
 {
 }
