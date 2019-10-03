@@ -141,7 +141,7 @@ static const char* eat_quoted_string(const char* cursor, string_buffer& outputSt
 
     outputString.clear();
     if (cursor == nullptr || *cursor == 0)
-        return false;
+        return cursor;
 
     if (*cursor != '\"')
         return cursor;

@@ -1,5 +1,20 @@
 #pragma once
 
+// detect operation system
+
+#define OS_WINDOWS  1
+#define OS_LINUX    2
+#define OS_UNIX     3
+#define OS_UNKNOWN  0    
+
+#if defined(_WIN32)
+    #define OS_NAME OS_WINDOWS
+#elif defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
+    #define OS_NAME OS_LINUX
+#else
+    #define OS_NAME OS_UNKNOWN
+#endif
+
 #ifdef _UNICODE
     #error Unicode is unsupported!
 #endif
@@ -19,6 +34,15 @@
 
 #include <stdlib.h>
 #include <crtdbg.h>
+
+#if OS_NAME == OS_WINDOWS
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+#elif OS_NAME == OS_LINUX
+    #include <limits.h>
+    #include <unistd.h>
+#endif
 
 #ifdef _DEBUG
     #define debug_assert(expr) _ASSERTE(expr)
@@ -76,15 +100,17 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <fstream>
 #include <stdint.h>
 #include <cctype>
+#include <chrono>
+#include <thread>
 
 // physics
 #include <Box2D.h>
 
 // opengl
-#include <gl/glew.h>
-#include <gl/wglew.h>
-#include <gl/GL.h>
-#include <glfw/glfw3.h>
+#include <GL/glew.h>
+//#include <GL/wglew.h>
+#include <GL/gl.h>
+#include <GLFW/glfw3.h>
 
 // glm
 #include <glm/gtc/matrix_transform.hpp>
@@ -100,7 +126,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "aux_math.h"
 #include "geometries.h"
 #include "frustum.h"
-#include "heap.h"
 #include "handle.h"
 #include "intrusive_list.h"
 #include "memory_istream.h"

@@ -60,7 +60,6 @@ private:
     bool SaveConfiguration();
 
 private:
-    long mStartTimestamp;
     bool mQuitRequested;
     bool mIgnoreInputs;
 };

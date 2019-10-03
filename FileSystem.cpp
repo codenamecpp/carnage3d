@@ -5,14 +5,7 @@ FileSystem gFiles;
 
 bool FileSystem::Initialize()
 {
-    char buffer[MAX_PATH + 1];
-    if (::GetModuleFileNameA(NULL, buffer, MAX_PATH) == 0)
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "FileSystem::FileSystem(), GetModuleFileNameA Failed");
-        return false;
-    }
-
-    mExecutablePath.assign(buffer);
+    mExecutablePath = cxx::get_executable_path();
     mWorkingDirectoryPath = cxx::get_parent_directory(mExecutablePath);
 
 //#ifdef _DEBUG

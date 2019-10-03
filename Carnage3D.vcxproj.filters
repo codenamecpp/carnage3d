@@ -142,9 +142,6 @@
     <ClInclude Include="handle.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="heap.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
     <ClInclude Include="intrusive_list.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -456,6 +453,9 @@
     </ClCompile>
     <ClCompile Include="PedestrianStates.cpp">
       <Filter>Game\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="path_utils.cpp">
+      <Filter>Lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,6 @@
 #include "System.h"
 #include "GraphicsDevice.h"
 #include "RenderingManager.h"
-#include <mmsystem.h>
 
 #include "CarnageGame.h"
 
@@ -57,7 +56,9 @@ void System::Execute()
         Timespan deltaTime ( mCurrentTimestamp - mPreviousFrameTimestamp );
         if (deltaTime < 1)
         {
-            ::Sleep(1);
+            // small delay
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
             mCurrentTimestamp = GetSysMilliseconds();
             deltaTime = 1;
         }
@@ -85,15 +86,6 @@ void System::Initialize()
 
     gConsole.LogMessage(eLogMessage_Info, "System initialize");
     
-    // startup multimedia timer
-    MMRESULT mmResult = ::timeBeginPeriod(1);
-    if (mmResult != TIMERR_NOERROR)
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Could not initialize multimedia timer");
-    }
-
-    mStartTimestamp = ::timeGetTime();
-
     if (!gFiles.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize filesystem");
@@ -135,8 +127,6 @@ void System::Initialize()
 void System::Deinit()
 {
     gConsole.LogMessage(eLogMessage_Info, "System shutdown");
-
-    ::timeEndPeriod(1);
 
     gCarnageGame.Deinit();
     gGuiSystem.Deinit();
@@ -209,8 +199,8 @@ void System::HandleEvent(KeyCharEvent& inputEvent)
 
 long System::GetSysMilliseconds() const
 {
-    const unsigned long totalMilliseconds = ::timeGetTime();
-    return (long) totalMilliseconds - mStartTimestamp;
+    double totalSeconds = ::glfwGetTime();
+    return static_cast<long>(totalSeconds * 1000.0);
 }
 
 bool System::LoadConfiguration()

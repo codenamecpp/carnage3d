@@ -151,7 +151,7 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
             // Build a list of candidates
             std::vector<const char*> candidates;
             for (int i = 0; i < mCommands.size(); i++)
-                if (::_strnicmp(mCommands[i].c_str(), word_start, (int)(word_end-word_start)) == 0)
+                if (::strncmp(mCommands[i].c_str(), word_start, (int)(word_end-word_start)) == 0)
                 {
                     candidates.push_back(mCommands[i].c_str());
                 }
