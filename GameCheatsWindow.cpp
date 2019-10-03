@@ -44,6 +44,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
         cxx::angle_t pedHeading = pedestrian->mPhysicsComponent->GetRotationAngle();
         ImGui::Text("heading: %f", pedHeading.mDegrees);
+        ImGui::Text("weapon: %s", cxx::enum_to_string(pedestrian->mCurrentWeapon));
         ImGui::Separator();
 
         // get block location
