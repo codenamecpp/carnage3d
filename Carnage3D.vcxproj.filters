@@ -127,9 +127,6 @@
     <ClInclude Include="aux_math.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="aux_stl.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
     <ClInclude Include="config_document.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -155,9 +152,6 @@
       <Filter>Lib</Filter>
     </ClInclude>
     <ClInclude Include="randomizer.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="refcounted.h">
       <Filter>Lib</Filter>
     </ClInclude>
     <ClInclude Include="strings.h">
@@ -294,6 +288,9 @@
     </ClInclude>
     <ClInclude Include="PedestrianStates.h">
       <Filter>Game\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="noncopyable.h">
+      <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
