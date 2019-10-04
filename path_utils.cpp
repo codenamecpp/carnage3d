@@ -12,8 +12,6 @@
 #endif
 
 namespace filesystem = std::experimental::filesystem;
-// details
-namespace os = std::tr2::sys;
 
 namespace cxx
 {
@@ -67,13 +65,13 @@ bool is_absolute_path(std::string pathto)
 bool is_file_exists(std::string pathto)
 {
     filesystem::path sourcePath {pathto};
-    return os::is_regular_file(pathto);
+    return filesystem::is_regular_file(pathto);
 }
 
 bool is_directory_exists(std::string pathto)
 {
     filesystem::path sourcePath {pathto};
-    return os::is_directory(pathto);
+    return filesystem::is_directory(pathto);
 }
 
 bool ensure_path_exists(std::string pathto)
