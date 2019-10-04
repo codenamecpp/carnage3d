@@ -1,0 +1,3 @@
+[submodule "third_party/Box2D"]
+	path = third_party/Box2D
+	url = https://github.com/erincatto/Box2D.git
