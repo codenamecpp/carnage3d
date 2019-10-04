@@ -7,6 +7,7 @@ bool FileSystem::Initialize()
 {
     mExecutablePath = cxx::get_executable_path();
     mWorkingDirectoryPath = cxx::get_parent_directory(mExecutablePath);
+    gConsole.LogMessage(eLogMessage_Info, "Working directory: '%s'", mWorkingDirectoryPath.c_str());
 
 //#ifdef _DEBUG
     std::string debugDataPath = cxx::get_parent_directory(mWorkingDirectoryPath);

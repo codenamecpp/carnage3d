@@ -211,12 +211,15 @@ bool System::LoadConfiguration()
     // read config
     std::string jsonContent;
     if (!gFiles.ReadTextFile(SysConfigPath, jsonContent))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config from '%s'", SysConfigPath);
         return false;
+    }
 
     cxx::config_document configDocument;
     if (!configDocument.parse_document(jsonContent.c_str()))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse configuration file");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse configuration document");
         return false;
     }
 
@@ -247,6 +250,21 @@ bool System::LoadConfiguration()
 
     // gta1 data files location
     const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
+    if (gta_data_root)
+    {
+        if (!cxx::is_directory_exists(gta_data_root))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location directory does not exists");
+        }
+        else
+        {
+            gConsole.LogMessage(eLogMessage_Info, "gta_gamedata_location: '%s'", gta_data_root);
+        }
+    }
+    else
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location param is null");
+    }
     gFiles.AddSearchPlace(gta_data_root);
 
     return true;
