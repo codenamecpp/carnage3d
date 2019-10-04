@@ -66,7 +66,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <thread>
 
 // physics
-#include <Box2D.h>
+#include <Box2D/Box2D.h>
 
 // opengl
 #include <GL/glew.h>
