@@ -292,6 +292,9 @@
     <ClInclude Include="noncopyable.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="macro.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -2,6 +2,15 @@
 #include "path_utils.h"
 #include <experimental/filesystem>
 
+#if OS_NAME == OS_WINDOWS
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+#elif OS_NAME == OS_LINUX
+    #include <limits.h>
+    #include <unistd.h>
+#endif
+
 namespace filesystem = std::experimental::filesystem;
 // details
 namespace os = std::tr2::sys;
