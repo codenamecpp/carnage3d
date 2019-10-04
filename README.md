@@ -7,7 +7,6 @@ Tools and technologies used:
 * cJSON
 * Dear ImGui
 * STBI
-* Boost
 * GLM math library
 * GLFW
 * GLEW
