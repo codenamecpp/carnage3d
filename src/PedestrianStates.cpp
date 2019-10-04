@@ -60,12 +60,7 @@ void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan 
     if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
         pedestrian->mCtlActions[ePedestrianAction_TurnRight])
     {
-        float angularVelocity = gGameRules.mPedestrianTurnSpeed;
-        if (pedestrian->mCurrentStateID == ePedestrianState_SlideOnCar)
-        {
-            angularVelocity = gGameRules.mPedestrianTurnSpeedSlideOnCar;
-        }
-        angularVelocity *= pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f;
+        float angularVelocity = gGameRules.mPedestrianTurnSpeed * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
         pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
     else
@@ -425,7 +420,16 @@ ePedestrianState PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedest
     }
     
     ProcessRotateActions(pedestrian, deltaTime);
+    ProcessMotionActions(pedestrian, deltaTime);
 
+    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_JumpOntoCar)
+    {
+        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+        {
+            // switch to loop animation
+            pedestrian->SetAnimation(eSpriteAnimationID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
+        }
+    }
 
     return currState;
 }
@@ -433,8 +437,29 @@ ePedestrianState PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedest
 void PedestrianStateSlideOnCar::ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState)
 {
     debug_assert(pedestrian->mCurrentStateID == ePedestrianState_SlideOnCar);
+    pedestrian->SetAnimation(eSpriteAnimationID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
 }
 
 void PedestrianStateSlideOnCar::ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState)
 {
+}
+
+void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
+        pedestrian->mCtlActions[ePedestrianAction_TurnRight])
+    {
+        float angularVelocity = gGameRules.mPedestrianTurnSpeedSlideOnCar * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
+        pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
+    }
+    else
+    {
+        pedestrian->mPhysicsComponent->SetAngularVelocity(0.0f);
+    }
+}
+
+void PedestrianStateSlideOnCar::ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    glm::vec2 linearVelocity = gGameRules.mPedestrianSlideOnCarSpeed * pedestrian->mPhysicsComponent->GetSignVector();
+    pedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
 }

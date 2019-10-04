@@ -17,8 +17,8 @@ public:
     virtual void ProcessStateWeaponChange(Pedestrian* pedestrian, eWeaponType prevWeapon);
 
 protected:
-    void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime);
-    void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
+    virtual void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime);
+    virtual void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
 
     // anims helpers
     eSpriteAnimationID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
@@ -91,6 +91,10 @@ public:
 
     void ProcessStateEnter(Pedestrian* pedestrian, ePedestrianState previousState) override;
     void ProcessStateExit(Pedestrian* pedestrian, ePedestrianState nextState) override; 
+
+protected:
+    void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime) override;
+    void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime) override;
 };
 
 class PedestrianBaseStatesManager

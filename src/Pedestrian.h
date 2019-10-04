@@ -18,6 +18,7 @@ class Pedestrian final: public GameObject
     friend class PedestrianStateIdleShoots;
     friend class PedestrianStateFalling;
     friend class PedestrianStateEnterOrExitCar;
+    friend class PedestrianStateSlideOnCar;
 
 public:
     // public for convenience, should not be modified directly
