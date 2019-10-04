@@ -28,28 +28,37 @@
 #pragma warning ( disable : 4351 ) // new behavior: elements of array will be default initialized
 #pragma warning ( disable : 4201 ) // nonstandard extension used: nameless struct/union
 
-#ifdef _DEBUG
-    #define _CRTDBG_MAP_ALLOC
-#endif
-
 #include <stdlib.h>
-#include <crtdbg.h>
 
 #if OS_NAME == OS_WINDOWS
     #define WIN32_LEAN_AND_MEAN
     #define NOMINMAX
     #include <windows.h>
+#ifdef _DEBUG
+    #define _CRTDBG_MAP_ALLOC
+#endif
+    #include <crtdbg.h>
 #elif OS_NAME == OS_LINUX
     #include <limits.h>
     #include <unistd.h>
+    #include <assert.h>
 #endif
 
 #ifdef _DEBUG
-    #define debug_assert(expr) _ASSERTE(expr)
-    #define release_assert(expr) _ASSERTE(expr)
+
+    #if OS_NAME == OS_WINDOWS
+        #define debug_assert(expr) _ASSERTE(expr)
+        #define release_assert(expr)
+    #else
+        #define debug_assert(expr) assert(expr)
+        #define release_assert(expr)
+    #endif
+
 #else
+
     #define debug_assert(expr)
-    #define release_assert(expr) _ASSERTE(expr)
+    #define release_assert(expr)
+
 #endif
 
 // small c++ std templates library extensions
@@ -108,7 +117,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 
 // opengl
 #include <GL/glew.h>
-//#include <GL/wglew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
