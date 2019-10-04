@@ -24,6 +24,8 @@ protected:
     eSpriteAnimationID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
     eSpriteAnimationID DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const;
     eSpriteAnimationID DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+
+    bool CanStartSlideOnCarState(Pedestrian* pedestrian) const;
 };
 
 // process states:

@@ -126,6 +126,16 @@ PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld)
 
     b2Fixture* b2fixture = mPhysicsBody->CreateFixture(&fixtureDef);
     debug_assert(b2fixture);
+
+    // create sensor
+    shapeDef.m_radius = PHYSICS_PED_SENSOR_SPHERE_RADIUS * PHYSICS_SCALE;
+    fixtureDef.shape = &shapeDef;
+    fixtureDef.isSensor = true;
+    fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED_SENSOR;
+    fixtureDef.filter.maskBits = PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_CAR;
+
+    b2Fixture* b2sensorFixture = mPhysicsBody->CreateFixture(&fixtureDef);
+    debug_assert(b2fixture);
 }
 
 PedPhysicsComponent::~PedPhysicsComponent()
@@ -149,6 +159,22 @@ void PedPhysicsComponent::SetFalling(bool isFalling)
         ClearForces();
         velocity.Normalize();
         mPhysicsBody->SetLinearVelocity(velocity);
+    }
+}
+
+void PedPhysicsComponent::HandleCarContactBegin()
+{
+    ++mContactingCars;
+}
+
+void PedPhysicsComponent::HandleCarContactEnd()
+{
+    --mContactingCars;
+
+    if (mContactingCars < 0)
+    {
+        debug_assert(false);
+        mContactingCars = 0;
     }
 }
 

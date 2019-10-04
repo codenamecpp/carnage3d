@@ -70,8 +70,11 @@ public:
     ~PedPhysicsComponent();
     void UpdateFrame(Timespan deltaTime);
     void SetFalling(bool isFalling);
+    void HandleCarContactBegin();
+    void HandleCarContactEnd();
 public:
     Pedestrian* mReferencePed = nullptr;
+    int mContactingCars = 0; // number of contacting cars
     bool mFalling = false; // falling from a height
 };
 

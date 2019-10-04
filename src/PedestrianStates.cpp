@@ -145,6 +145,11 @@ eSpriteAnimationID PedestrianBaseState::DetectRunningAnimWithWeapon(eWeaponType 
     return eSpriteAnimationID_Ped_Run;
 }
 
+bool PedestrianBaseState::CanStartSlideOnCarState(Pedestrian* pedestrian) const
+{
+    return pedestrian->mPhysicsComponent->mContactingCars > 0;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ePedestrianState PedestrianStateIdle::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
@@ -158,14 +163,11 @@ ePedestrianState PedestrianStateIdle::ProcessStateFrame(Pedestrian* pedestrian, 
     }
 
     ProcessRotateActions(pedestrian, deltaTime);
-    if (currState == ePedestrianState_Walks || currState == ePedestrianState_Runs)
-    {
-        ProcessMotionActions(pedestrian, deltaTime);
-    }
+    ProcessMotionActions(pedestrian, deltaTime);
 
     if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
     {
-        if (pedestrian->mCtlActions[ePedestrianAction_Jump])
+        if (pedestrian->mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState(pedestrian))
             return ePedestrianState_SlideOnCar;
     }
  
@@ -275,7 +277,7 @@ ePedestrianState PedestrianStateIdleShoots::ProcessStateFrame(Pedestrian* pedest
 
     if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
     {
-        if (pedestrian->mCtlActions[ePedestrianAction_Jump])
+        if (pedestrian->mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState(pedestrian))
             return ePedestrianState_SlideOnCar;
     }
  
@@ -426,8 +428,22 @@ ePedestrianState PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedest
     {
         if (!pedestrian->mCurrentAnimState.IsAnimationActive())
         {
-            // switch to loop animation
             pedestrian->SetAnimation(eSpriteAnimationID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
+        }
+    }
+    else if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_SlideOnCar)
+    {
+        if (!CanStartSlideOnCarState(pedestrian)) // check if no car to slide over
+        {
+            pedestrian->SetAnimation(eSpriteAnimationID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
+        }
+    }
+    else if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_DropOffCarSliding)
+    {
+        // check can finish current state
+        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+        {
+            currState = ePedestrianState_StandingStill;
         }
     }
 

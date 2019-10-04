@@ -188,10 +188,14 @@ void PhysicsManager::DestroyPhysicsComponent(WheelPhysicsComponent* object)
 
 void PhysicsManager::BeginContact(b2Contact* contact)
 {
+    if (ProcessSensorContact(contact, true))
+        return;
 }
 
 void PhysicsManager::EndContact(b2Contact* contact)
 {
+    if (ProcessSensorContact(contact, false))
+        return;
 }
 
 void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
@@ -301,10 +305,81 @@ bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float heigh
     return (blockData->mGroundType == eGroundType_Building);
 }
 
-bool PhysicsManager::HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* pedestrianFixture, b2Fixture* carFixture)
+bool PhysicsManager::HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar)
 {
-    PhysicsComponent* carPhysicsObject = (PhysicsComponent*) carFixture->GetBody()->GetUserData();
-    PhysicsComponent* pedPhysicsObject = (PhysicsComponent*) pedestrianFixture->GetBody()->GetUserData();
+    CarPhysicsComponent* carPhysicsObject = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
+    PedPhysicsComponent* pedPhysicsObject = (PedPhysicsComponent*) fixturePed->GetBody()->GetUserData();
 
+    // ignore pedestrian that slides on car
+    if (pedPhysicsObject->mReferencePed->mCurrentStateID == ePedestrianState_SlideOnCar)
+        return false;
+
+    return true;
+}
+
+bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
+{
+    b2Fixture* fixtureA = contact->GetFixtureA();
+    b2Fixture* fixtureB = contact->GetFixtureB();
+  
+    // make sure only one of the fixtures was a sensor
+    bool sensorA = fixtureA->IsSensor();
+    bool sensorB = fixtureB->IsSensor();
+    if (!(sensorA ^ sensorB))
+        return false;
+
+    PedPhysicsComponent* pedPhysicsComponent = nullptr;
+    CarPhysicsComponent* carPhysicsComponent = nullptr;
+    if (GetContactComponents(contact, pedPhysicsComponent, carPhysicsComponent))
+    {
+        if (onBegin)
+        {
+            pedPhysicsComponent->HandleCarContactBegin();
+        }
+        else
+        {
+            pedPhysicsComponent->HandleCarContactEnd();
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool PhysicsManager::GetContactComponents(b2Contact* contact, PedPhysicsComponent*& pedPhysicsObject, CarPhysicsComponent*& carPhysicsObject) const
+{
+    b2Fixture* fixtureA = contact->GetFixtureA();
+    b2Fixture* fixtureB = contact->GetFixtureB();
+
+    b2Fixture* fixturePed = nullptr;
+    b2Fixture* fixtureCar = nullptr;
+
+    const b2Filter& filterA = fixtureA->GetFilterData();
+    if ((filterA.categoryBits == PHYSICS_OBJCAT_PED) || (filterA.categoryBits == PHYSICS_OBJCAT_PED_SENSOR))
+    {
+        fixturePed = fixtureA;
+    }
+    else if (filterA.categoryBits == PHYSICS_OBJCAT_CAR)
+    {
+        fixtureCar = fixtureA;
+    }
+
+    const b2Filter& filterB = fixtureB->GetFilterData();
+    if ((filterB.categoryBits == PHYSICS_OBJCAT_PED) || (filterB.categoryBits == PHYSICS_OBJCAT_PED_SENSOR))
+    {
+        fixturePed = fixtureB;
+    }
+    else if (filterB.categoryBits == PHYSICS_OBJCAT_CAR)
+    {
+        fixtureCar = fixtureB;
+    }
+
+    if (fixturePed == nullptr || fixtureCar == nullptr)
+        return false;
+
+    carPhysicsObject = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
+    pedPhysicsObject = (PedPhysicsComponent*) fixturePed->GetBody()->GetUserData();
+
+    debug_assert(carPhysicsObject && pedPhysicsObject);
     return true;
 }

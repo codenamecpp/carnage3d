@@ -142,6 +142,13 @@ float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rota
         gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
     }
 #endif
+
+    // todo: get rid of magic numbers
+    if (mCurrentStateID == ePedestrianState_SlideOnCar)
+    {
+        maxHeight += 0.35f;
+    }
+
     return maxHeight + 0.01f;
 }
 

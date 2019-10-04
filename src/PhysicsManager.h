@@ -51,7 +51,11 @@ private:
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
     bool HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const;
-    bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* pedestrianFixture, b2Fixture* carFixture);
+    bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar);
+
+    bool ProcessSensorContact(b2Contact* contact, bool onBegin);
+
+    bool GetContactComponents(b2Contact* contact, PedPhysicsComponent*& pedPhysicsObject, CarPhysicsComponent*& carPhysicsObject) const;
 
 private:
     PhysicsDebugDraw mDebugDraw;
