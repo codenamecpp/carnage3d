@@ -226,12 +226,7 @@ enum eTextureFilterMode
     eTextureFilterMode_COUNT
 };
 
-define_enum_strings(eTextureFilterMode)
-{
-    eTextureFilterMode_Nearest, "nearest",
-    eTextureFilterMode_Bilinear, "bilinear",
-    eTextureFilterMode_Trilinear, "trilinear",
-};
+decl_enum_strings(eTextureFilterMode);
 
 enum eTextureWrapMode
 {
@@ -240,11 +235,7 @@ enum eTextureWrapMode
     eTextureWrapMode_COUNT
 };
 
-define_enum_strings(eTextureWrapMode)
-{
-    eTextureWrapMode_Repeat, "repeat",
-    eTextureWrapMode_ClampToEdge, "clamp_to_edge",
-};
+decl_enum_strings(eTextureWrapMode);
 
 enum eTextureFormat
 {
@@ -259,17 +250,7 @@ enum eTextureFormat
     eTextureFormat_COUNT
 };
 
-define_enum_strings(eTextureFormat)
-{
-    eTextureFormat_Null, "null",
-    eTextureFormat_R8, "r8",
-    eTextureFormat_R8_G8, "r8_g8",
-    eTextureFormat_RGB8, "rgb8",
-    eTextureFormat_RGBA8, "rgba8",
-
-    // ext formats
-    eTextureFormat_RU16, "ru16",
-};
+decl_enum_strings(eTextureFormat);
 
 // Get number of bytes per pixel for specific texture format
 // @param format: Format identifier
@@ -306,15 +287,7 @@ enum ePrimitiveType
     ePrimitiveType_COUNT
 };
 
-define_enum_strings(ePrimitiveType)
-{
-    ePrimitiveType_Points, "points",
-    ePrimitiveType_Lines, "lines",
-    ePrimitiveType_LineLoop, "line_loop",
-    ePrimitiveType_Triangles, "triangles",
-    ePrimitiveType_TriangleStrip, "triangle_strip",
-    ePrimitiveType_TriangleFan, "triangle_fan",
-};
+decl_enum_strings(ePrimitiveType);
 
 enum eIndicesType
 {
@@ -323,11 +296,7 @@ enum eIndicesType
     eIndicesType_COUNT
 };
 
-define_enum_strings(eIndicesType)
-{
-    eIndicesType_i16, "i16",
-    eIndicesType_i32, "i32",
-};
+decl_enum_strings(eIndicesType);
 
 enum eTextureUnit
 {
@@ -350,25 +319,7 @@ enum eTextureUnit
     eTextureUnit_COUNT = 16, // not valid texture unit
 };
 
-define_enum_strings(eTextureUnit)
-{
-    eTextureUnit_0, "tex_0",
-    eTextureUnit_1, "tex_1",
-    eTextureUnit_2, "tex_2",
-    eTextureUnit_3, "tex_3",
-    eTextureUnit_4, "tex_4",
-    eTextureUnit_5, "tex_5",
-    eTextureUnit_6, "tex_6",
-    eTextureUnit_7, "tex_7",
-    eTextureUnit_8, "tex_8",
-    eTextureUnit_9, "tex_9",
-    eTextureUnit_10, "tex_10",
-    eTextureUnit_11, "tex_11",
-    eTextureUnit_12, "tex_12",
-    eTextureUnit_13, "tex_13",
-    eTextureUnit_14, "tex_14",
-    eTextureUnit_15, "tex_15",
-};
+decl_enum_strings(eTextureUnit);
 
 // standard vertex attributes
 enum eVertexAttributeSemantics
@@ -382,16 +333,7 @@ enum eVertexAttributeSemantics
     eVertexAttributeSemantics_Unknown
 };
 
-define_enum_strings(eVertexAttributeSemantics)
-{
-    eVertexAttributeSemantics_Position, "position",
-    eVertexAttributeSemantics_Normal, "normal",
-    eVertexAttributeSemantics_Color, "color",
-    eVertexAttributeSemantics_Texcoord, "texcoord",
-    eVertexAttributeSemantics_Position2d, "position2d",
-    eVertexAttributeSemantics_Texcoord3d, "texcoord3d",
-    eVertexAttributeSemantics_Unknown, "unknown",
-};
+decl_enum_strings(eVertexAttributeSemantics);
 
 enum eVertexAttribute
 {
@@ -407,17 +349,7 @@ enum eVertexAttribute
     eVertexAttribute_MAX = 16,
 };
 
-define_enum_strings(eVertexAttribute)
-{
-    eVertexAttribute_Position0, "in_pos0",
-    eVertexAttribute_Position1, "in_pos1",
-    eVertexAttribute_Texcoord0, "in_texcoord0",
-    eVertexAttribute_Texcoord1, "in_texcoord1",
-    eVertexAttribute_Normal0, "in_normal0",
-    eVertexAttribute_Normal1, "in_normal1",
-    eVertexAttribute_Color0, "in_color0",
-    eVertexAttribute_Color1, "in_color1",
-};
+decl_enum_strings(eVertexAttribute);
 
 // Get semantics of vertex attribute
 // @param attribute: Attribute identifier
@@ -598,11 +530,7 @@ enum eBufferContent
     eBufferContent_COUNT
 };
 
-define_enum_strings(eBufferContent)
-{
-    eBufferContent_Vertices, "vertices",
-    eBufferContent_Indices, "indices",
-};
+decl_enum_strings(eBufferContent);
 
 enum eBufferUsage
 {
@@ -612,12 +540,7 @@ enum eBufferUsage
     eBufferUsage_COUNT
 };
 
-define_enum_strings(eBufferUsage)
-{
-    eBufferUsage_Static, "static",
-    eBufferUsage_Dynamic, "dynamic",
-    eBufferUsage_Stream, "stream",
-};
+decl_enum_strings(eBufferUsage);
 
 using BufferAccessBits = unsigned int;
 
@@ -642,18 +565,7 @@ enum eRenderUniform
     eRenderUniform_COUNT
 };
 
-define_enum_strings(eRenderUniform)
-{
-    eRenderUniform_ModelMatrix, "model_matrix",
-    eRenderUniform_ViewMatrix, "view_matrix",
-    eRenderUniform_ProjectionMatrix, "projection_matrix",
-    eRenderUniform_ModelViewMatrix, "model_view_matrix",
-    eRenderUniform_ModelViewProjectionMatrix, "model_view_projection_matrix",
-    eRenderUniform_ViewProjectionMatrix, "view_projection_matrix",
-    eRenderUniform_NormalMatrix, "normal_matrix",
-    eRenderUniform_CameraPosition, "camera_position",
-    eRenderUniform_EnableTextureMapping, "enable_texture_mapping",
-};
+decl_enum_strings(eRenderUniform);
 
 enum eBlendMode
 {
@@ -664,14 +576,7 @@ enum eBlendMode
     eBlendMode_Screen
 };
 
-define_enum_strings(eBlendMode)
-{
-    eBlendMode_Alpha, "alpha",
-    eBlendMode_Additive, "additive",
-    eBlendMode_Multiply, "multiply",
-    eBlendMode_Premultiplied, "premultiplied",
-    eBlendMode_Screen, "screen",
-};
+decl_enum_strings(eBlendMode);
 
 enum eDepthTestFunc : unsigned short
 {
@@ -684,16 +589,7 @@ enum eDepthTestFunc : unsigned short
     eDepthTestFunc_GreaterEqual
 };
 
-define_enum_strings(eDepthTestFunc)
-{
-    eDepthTestFunc_Always, "always",
-    eDepthTestFunc_Equal, "equal",
-    eDepthTestFunc_NotEqual, "not_equal",
-    eDepthTestFunc_Less, "less",
-    eDepthTestFunc_Greater, "greater",
-    eDepthTestFunc_LessEqual, "less_equal",
-    eDepthTestFunc_GreaterEqual, "greater_equal",
-};
+decl_enum_strings(eDepthTestFunc);
 
 enum eCullMode : unsigned short
 {
@@ -702,12 +598,7 @@ enum eCullMode : unsigned short
     eCullMode_FrontAndBack,
 };
 
-define_enum_strings(eCullMode)
-{
-    eCullMode_Front, "front",
-    eCullMode_Back, "back",
-    eCullMode_FrontAndBack, "front_and_back",
-};
+decl_enum_strings(eCullMode);
 
 enum eFillMode : unsigned short
 {
@@ -715,11 +606,7 @@ enum eFillMode : unsigned short
     eFillMode_WireFrame,
 };
 
-define_enum_strings(eFillMode)
-{
-    eFillMode_Solid, "solid",
-    eFillMode_WireFrame, "wireframe",
-};
+decl_enum_strings(eFillMode);
 
 using RenderStateFlags = unsigned short;
 

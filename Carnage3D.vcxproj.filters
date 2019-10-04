@@ -457,6 +457,7 @@
     <ClCompile Include="path_utils.cpp">
       <Filter>Lib</Filter>
     </ClCompile>
+    <ClCompile Include="enums_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\CorrectionsToCDS.txt">

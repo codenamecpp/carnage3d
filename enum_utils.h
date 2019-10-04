@@ -17,9 +17,15 @@ struct enum_strings
 
 //////////////////////////////////////////////////////////////////////////
 
-#define define_enum_strings(enum_type)\
+#define decl_enum_strings(enum_type)\
     template<>\
-    const enum_string_elem<enum_type> enum_strings<enum_type>::mEnumValueStrings[] =
+    struct enum_strings<enum_type>\
+    {\
+        static const std::vector<enum_string_elem<enum_type>> mEnumValueStrings; \
+    }
+
+#define impl_enum_strings(enum_type)\
+    const std::vector<enum_string_elem<enum_type>> enum_strings<enum_type>::mEnumValueStrings =
 
 namespace cxx
 {

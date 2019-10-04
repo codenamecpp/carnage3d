@@ -38,13 +38,7 @@ enum eLidRotation : unsigned char
     eLidRotation_270
 };
 
-define_enum_strings(eLidRotation)
-{
-    eLidRotation_0, "0",
-    eLidRotation_90, "90",
-    eLidRotation_180, "180",
-    eLidRotation_270, "270",
-};
+decl_enum_strings(eLidRotation);
 
 // map block type
 enum eBlockType : unsigned short
@@ -55,12 +49,7 @@ enum eBlockType : unsigned short
     eBlockType_COUNT
 };
 
-define_enum_strings(eBlockType)
-{
-    eBlockType_Side, "side",
-    eBlockType_Lid, "lid",
-    eBlockType_Aux, "aux",
-};
+decl_enum_strings(eBlockType);
 
 enum eSpriteType : unsigned short
 {
@@ -88,30 +77,7 @@ enum eSpriteType : unsigned short
     eSpriteType_COUNT
 };
 
-define_enum_strings(eSpriteType)
-{
-    eSpriteType_Arrow, "arrow",
-    eSpriteType_Digit, "digit",
-    eSpriteType_Boat, "boat",
-    eSpriteType_Box, "box",
-    eSpriteType_Bus, "bus",
-    eSpriteType_Car, "car",
-    eSpriteType_Object, "object",
-    eSpriteType_Ped, "ped",
-    eSpriteType_Speedo, "speedo",
-    eSpriteType_Tank, "tank",
-    eSpriteType_TrafficLight, "traffic_light",
-    eSpriteType_Train, "train",
-    eSpriteType_TrDoor, "trdoor",
-    eSpriteType_Bike, "bike",
-    eSpriteType_Tram, "tram",
-    eSpriteType_WCar, "wcar",
-    eSpriteType_WBus, "wbus",
-    eSpriteType_Ex, "ex",
-    eSpriteType_TumCar, "tumcar",
-    eSpriteType_TumTruck, "tumtruck",
-    eSpriteType_Ferry, "ferry",
-};
+decl_enum_strings(eSpriteType);
 
 // tile ground type
 enum eGroundType : unsigned char
@@ -125,15 +91,7 @@ enum eGroundType : unsigned char
     eGroundType_COUNT
 };
 
-define_enum_strings(eGroundType)
-{
-    eGroundType_Air, "air",
-    eGroundType_Water, "water",
-    eGroundType_Road, "road",
-    eGroundType_Pawement, "pawement",
-    eGroundType_Field, "field",
-    eGroundType_Building, "building",
-};
+decl_enum_strings(eGroundType);
 
 // map block face direction
 enum eBlockFace : unsigned short
@@ -146,14 +104,7 @@ enum eBlockFace : unsigned short
     eBlockFace_COUNT
 };
 
-define_enum_strings(eBlockFace)
-{
-    eBlockFace_W, "w",
-    eBlockFace_E, "e",
-    eBlockFace_N, "n",
-    eBlockFace_S, "s",
-    eBlockFace_Lid, "lid",
-};
+decl_enum_strings(eBlockFace);
 
 // defines draw vertex of city mesh
 struct CityVertex3D
@@ -528,18 +479,7 @@ enum eCarVType
     eCarVType_COUNT
 };
 
-define_enum_strings(eCarVType)
-{
-    eCarVType_Bus, "bus",
-    eCarVType_FrontOfJuggernaut, "front_of_juggernaut",
-    eCarVType_BackOfJuggernaut, "back_of_juggernaut",
-    eCarVType_Motorcycle, "motorcycle",
-    eCarVType_StandardCar, "standard_car",
-    eCarVType_Train, "standard_train",
-    eCarVType_Tram, "tram",
-    eCarVType_Boat, "boat",
-    eCarVType_Tank, "tank",
-};
+decl_enum_strings(eCarVType);
 
 // define car class information
 struct CarStyle
@@ -637,36 +577,7 @@ enum eSpriteAnimationID
     eSpriteAnimation_COUNT
 };
 
-define_enum_strings(eSpriteAnimationID)
-{
-    eSpriteAnimationID_Null, "null",
-    eSpriteAnimationID_Ped_Walk, "ped_walk",
-    eSpriteAnimationID_Ped_Run, "ped_run",
-    eSpriteAnimationID_Ped_ExitCar, "ped_exit_car",
-    eSpriteAnimationID_Ped_EnterCar, "ped_enter_car",
-    eSpriteAnimationID_Ped_FallLong, "ped_fall_long",
-    eSpriteAnimationID_Ped_SlideUnderTheCar, "ped_slide_under_the_car",
-    eSpriteAnimationID_Ped_StandingStill, "ped_standing_still",
-    eSpriteAnimationID_Ped_JumpOntoCar, "ped_jump_onto_car",
-    eSpriteAnimationID_Ped_SlideOnCar, "ped_slide_on_car",
-    eSpriteAnimationID_Ped_DropOffCarSliding, "ped_drop_off_car_sliding",
-    eSpriteAnimationID_Ped_FallShort, "ped_fall_short",
-    eSpriteAnimationID_Ped_LiesOnFloor, "ped_lies_on_floor",
-    eSpriteAnimationID_Ped_PunchingWhileStanding, "ped_punching_while_standing",
-    eSpriteAnimationID_Ped_PunchingWhileRunning, "ped_punching_while_running",
-    eSpriteAnimationID_Ped_ShootPistolWhileStanding, "ped_shoot_pistol_while_standing",
-    eSpriteAnimationID_Ped_ShootPistolWhileWalking, "ped_shoot_pistol_while_walking",
-    eSpriteAnimationID_Ped_ShootPistolWhileRunning, "ped_shoot_pistol_while_running",
-    eSpriteAnimationID_Ped_ShootMachinegunWhileStanding, "ped_shoot_machinegun_while_standing",
-    eSpriteAnimationID_Ped_ShootMachinegunWhileWalking, "ped_shoot_machinegun_while_walking",
-    eSpriteAnimationID_Ped_ShootMachinegunWhileRunning, "ped_shoot_machinegun_while_running",
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding, "ped_shoot_flamethrower_while_standing",
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking, "ped_shoot_flamethrower_while_walking",
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning, "ped_shoot_flamethrower_while_running",
-    eSpriteAnimationID_Ped_ShootRPGWhileStanding, "ped_shoot_rpg_while_standing",
-    eSpriteAnimationID_Ped_ShootRPGWhileWalking, "ped_shoot_rpg_while_walking",
-    eSpriteAnimationID_Ped_ShootRPGWhileRunning, "ped_shoot_rpg_while_running",
-};
+decl_enum_strings(eSpriteAnimationID);
 
 // pedestrian weapon
 enum eWeaponType
@@ -679,14 +590,7 @@ enum eWeaponType
     eWeaponType_COUNT
 };
 
-define_enum_strings(eWeaponType)
-{
-    eWeaponType_Fists, "fists",
-    eWeaponType_Pistol, "pistol",
-    eWeaponType_Machinegun, "machinegun",
-    eWeaponType_Flamethrower, "flamethrower",
-    eWeaponType_RocketLauncher, "rocket_launcher",
-};
+decl_enum_strings(eWeaponType);
 
 // pedestrian basic action
 enum ePedestrianAction
@@ -703,18 +607,7 @@ enum ePedestrianAction
     ePedestrianAction_COUNT
 };
 
-define_enum_strings(ePedestrianAction)
-{
-    ePedestrianAction_TurnLeft, "turn_left",
-    ePedestrianAction_TurnRight, "turn_right",
-    ePedestrianAction_Jump, "jump",
-    ePedestrianAction_WalkForward, "walk_forward",
-    ePedestrianAction_WalkBackward, "walk_backward",
-    ePedestrianAction_Run, "run",
-    ePedestrianAction_Shoot, "shoot",
-    ePedestrianAction_EnterCar, "enter_car",
-    ePedestrianAction_LeaveCar, "leave_car",
-};
+decl_enum_strings(ePedestrianAction);
 
 // pedestrian basic state
 enum ePedestrianState
@@ -736,20 +629,4 @@ enum ePedestrianState
     ePedestrianState_COUNT
 };
 
-define_enum_strings(ePedestrianState)
-{
-    ePedestrianState_StandingStill, "standing_still",
-    ePedestrianState_StandsAndShoots, "stands_and_shoots",
-    ePedestrianState_Walks, "walks",
-    ePedestrianState_Runs, "runs",
-    ePedestrianState_WalksAndShoots, "walks_and_shoots",
-    ePedestrianState_RunsAndShoots, "runs_and_shoots",
-    ePedestrianState_Falling, "falling",
-    ePedestrianState_EnteringCar, "entering_car",
-    ePedestrianState_ExitingCar, "exiting_car",
-    ePedestrianState_DrivingCar, "driving_car",
-    ePedestrianState_SlideOnCar, "slide_on_car",
-    ePedestrianState_Dying, "dying",
-    ePedestrianState_Dead, "dead",
-    ePedestrianState_KnockedDown, "knocked_down",
-};
+decl_enum_strings(ePedestrianState);

@@ -9,12 +9,7 @@ enum eSpriteAnimStatus
     eSpriteAnimStatus_PlayBackward,
 };
 
-define_enum_strings(eSpriteAnimStatus)
-{
-    eSpriteAnimStatus_Stop, "stop",
-    eSpriteAnimStatus_PlayForward, "play_forward",
-    eSpriteAnimStatus_PlayBackward, "play_backward",
-};
+decl_enum_strings(eSpriteAnimStatus);
 
 enum eSpriteAnimLoop
 {
@@ -23,12 +18,7 @@ enum eSpriteAnimLoop
     eSpriteAnimLoop_FromStart,
 };
 
-define_enum_strings(eSpriteAnimLoop)
-{
-    eSpriteAnimLoop_None, "none",
-    eSpriteAnimLoop_PingPong, "ping_pong",
-    eSpriteAnimLoop_FromStart, "from_start",
-};
+decl_enum_strings(eSpriteAnimLoop);
 
 // defines sprite animation data
 struct SpriteAnimationData

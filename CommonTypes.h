@@ -119,13 +119,7 @@ enum eLogMessage
     eLogMessage_COUNT
 };
 
-define_enum_strings(eLogMessage)
-{
-    eLogMessage_Debug, "debug",
-    eLogMessage_Info, "info",
-    eLogMessage_Warning, "warning",
-    eLogMessage_Error, "error",
-};
+decl_enum_strings(eLogMessage);
 
 enum eConsoleLineType
 {
@@ -134,11 +128,7 @@ enum eConsoleLineType
     eConsoleLineType_COUNT
 };
 
-define_enum_strings(eConsoleLineType)
-{
-    eConsoleLineType_Message, "message",
-    eConsoleLineType_Command, "command",
-};
+decl_enum_strings(eConsoleLineType);
 
 // defines single record in console
 struct ConsoleLine
@@ -165,11 +155,7 @@ enum eSceneCameraMode
     eSceneCameraMode_Orthographic,
 };
 
-define_enum_strings(eSceneCameraMode)
-{
-    eSceneCameraMode_Perspective, "perspective",
-    eSceneCameraMode_Orthographic, "orthographic",
-};
+decl_enum_strings(eSceneCameraMode);
 
 // defines rgba palette with 256 colors
 struct Palette256
