@@ -39,7 +39,7 @@ bool FileSystem::OpenBinaryFile(const char* objectName, std::ifstream& instream)
     for (const std::string& currPlace: mSearchPlaces)
     {
         pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
-        if (IsFileExists(pathBuffer.c_str()))
+        if (cxx::is_file_exists(pathBuffer.c_str()))
         {
             instream.open(pathBuffer.c_str(), std::ios::in | std::ios::binary);
         }
@@ -62,7 +62,7 @@ bool FileSystem::OpenTextFile(const char* objectName, std::ifstream& instream)
     for (const std::string& currPlace: mSearchPlaces)
     {
         pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
-        if (IsFileExists(pathBuffer.c_str()))
+        if (cxx::is_file_exists(pathBuffer.c_str()))
         {
             instream.open(pathBuffer.c_str(), std::ios::in);
         }
@@ -90,9 +90,8 @@ bool FileSystem::IsDirectoryExists(const char* objectName)
 bool FileSystem::IsFileExists(const char* objectName)
 {
     if (cxx::is_absolute_path(objectName))
-    {
         return cxx::is_file_exists(objectName);
-    }
+
     cxx::string_buffer_512 pathBuffer;
     // search file in search places
     for (const std::string& currPlace: mSearchPlaces)
