@@ -10,7 +10,7 @@ namespace cxx
             if (astring.length() != bstring.length())
                 return false;
 
-            const int iresult = ::_stricmp(astring.c_str(), bstring.c_str());
+            const int iresult = cxx_stricmp(astring.c_str(), bstring.c_str());
             return iresult == 0;
         }
     };
@@ -19,7 +19,7 @@ namespace cxx
     {
         inline bool operator () (const std::string& astring, const std::string& bstring) const 
         {
-            const int iresult = ::_stricmp(astring.c_str(), bstring.c_str());
+            const int iresult = cxx_stricmp(astring.c_str(), bstring.c_str());
             return iresult < 0;
         }
     };

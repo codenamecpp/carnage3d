@@ -118,7 +118,7 @@ void ConsoleWindow::ExecCommand(const char* command_line)
     // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
     mHistoryPos = -1;
     for (int i = historySize - 1; i >= 0; i--)
-        if (::_stricmp(mHistory[i].c_str(), command_line) == 0)
+        if (cxx_stricmp(mHistory[i].c_str(), command_line) == 0)
         {
             mHistory.erase(mHistory.begin() + i);
             break;
