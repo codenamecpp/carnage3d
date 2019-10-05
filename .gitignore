@@ -2,6 +2,6 @@ Debug/
 .vs/
 Release/
 .idea/
-.obj/
+.build/
 third_party/
 src/gamedata/config/*.json
