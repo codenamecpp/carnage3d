@@ -483,5 +483,8 @@
     <None Include="gamedata\shaders\debug.glsl">
       <Filter>Data\shaders</Filter>
     </None>
+    <None Include="gamedata\config\sys_config.json.default">
+      <Filter>Data\config</Filter>
+    </None>
   </ItemGroup>
 </Project>

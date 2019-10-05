@@ -4,3 +4,4 @@ Release/
 .idea/
 .obj/
 third_party/
+src/gamedata/config/*.json
