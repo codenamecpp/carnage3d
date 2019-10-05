@@ -1,4 +1,5 @@
 language: cpp
 compiler: gcc
 script:
+- apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
 - make
