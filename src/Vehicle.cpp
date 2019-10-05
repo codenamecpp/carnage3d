@@ -59,6 +59,17 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     mChassisSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
     mChassisSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mChassisSprite);
+
+#if 1 // debug
+    // draw doors
+    for (int idoor = 0; idoor < mCarStyle->mDoorsCount; ++idoor)
+    {
+        float x = position.x + (1.0f * mCarStyle->mDoors[idoor].mRpx / MAP_PIXELS_PER_TILE);
+        float z = position.z + (1.0f * mCarStyle->mDoors[idoor].mRpy / MAP_PIXELS_PER_TILE);
+        glm::vec2 rotated_pos = cxx::rotate_around_center(glm::vec2(x, z), glm::vec2(position.x, position.z), rotationAngle);
+        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_RED);
+    }
+#endif
 }
 
 float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
@@ -80,8 +91,7 @@ float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotatio
         currPoint.x += position.x;
         currPoint.z += position.z;
     }
-#if 1
-    // debug
+#if 1 // debug
     for (int i = 0; i < 4; ++i)
     {
         gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);

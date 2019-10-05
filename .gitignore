@@ -5,3 +5,4 @@ Release/
 .build/
 third_party/
 gamedata/config/*.json
+bin/
