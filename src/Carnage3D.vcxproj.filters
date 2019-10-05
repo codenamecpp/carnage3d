@@ -460,31 +460,28 @@
     <ClCompile Include="enums_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="docs\CorrectionsToCDS.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="ToDo.txt">
-      <Filter>Docs</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="gamedata\shaders\texture_color.glsl">
-      <Filter>Data\shaders</Filter>
-    </None>
-    <None Include="gamedata\shaders\gui.glsl">
-      <Filter>Data\shaders</Filter>
-    </None>
-    <None Include="gamedata\shaders\city_mesh.glsl">
-      <Filter>Data\shaders</Filter>
-    </None>
-    <None Include="gamedata\shaders\sprites.glsl">
-      <Filter>Data\shaders</Filter>
-    </None>
-    <None Include="gamedata\shaders\debug.glsl">
-      <Filter>Data\shaders</Filter>
-    </None>
-    <None Include="gamedata\config\sys_config.json.default">
+    <None Include="..\gamedata\config\sys_config.json.default">
       <Filter>Data\config</Filter>
     </None>
+    <None Include="..\gamedata\shaders\city_mesh.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="..\gamedata\shaders\debug.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="..\gamedata\shaders\gui.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="..\gamedata\shaders\sprites.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="..\gamedata\shaders\texture_color.glsl">
+      <Filter>Data\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\docs\CorrectionsToCDS.txt">
+      <Filter>Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>
