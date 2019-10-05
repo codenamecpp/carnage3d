@@ -38,3 +38,6 @@ Set screen resolution (optionally) but most importand you must specify path to o
 #### Original GTA1 game resources required in order to play! ####
 
 Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
+
+Tested on Ubuntu Linux:
+![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
