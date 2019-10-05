@@ -483,5 +483,8 @@
     <Text Include="..\docs\CorrectionsToCDS.txt">
       <Filter>Docs</Filter>
     </Text>
+    <Text Include="..\docs\ToDo.txt">
+      <Filter>Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>

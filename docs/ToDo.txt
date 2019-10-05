@@ -1,0 +1,187 @@
+
+ToDo:
+
+    - debug console commands
+    - Simple cars loading and draw
+    - peds/cars collision and physics
+
+    *minor*
+    - select level
+    - city minimap
+    - remaps city tiles/sprites in shader
+
+    ======================= sprites =====================
+
+    style001.gry
+
+604 - 611 : rotating "x"
+612 - 619 : rotating coin
+
+620 - 627 : player, walking
+628 - 635 : player, running?
+658 - 661 : player, falling?
+678 - 689 : player, walking 2?
+738 - 745 : player, flame-thrower, standing
+746 - 753 : player, flame-thrower, walking
+754 - 755 : player, flame-thrower, standing?
+756 - 763 : player, gun, standing
+764 - 771 : player, gun, running?
+772 - 773 : player, gun, standing?
+774 - 781 : player, big-gun, standing
+782 - 789 : player, big-gun, running?
+790 - 791 : player, big-gun, standing?
+792 - 796 : player, electro-death
+
+797 - 800 : player, swimming?
+801 - 808 : player, punching?
+
+
+style002.gry
+
+99  - 105 : cone, tumbling
+106 - 111 : ring?
+112 - 124 : plant?
+125 - 129 : road barrier
+130 - 136 : road barrier, broken
+
+622 - 629 : player, walking
+
+811 - 818 : cop, walking
+819 - 826 : cop, moving?
+827 - 844 : cop, driving?
+845 - 848 : ???
+
+style001.g24
+
+117 - 127 : smoke, circle, small
+128 - 131 : grey bar | dissolving
+132 - 135 : red bar | dissolving
+136 - 140 : small water splash
+141 - 146 : blood dissolving
+147 - 150 : brown bar | dissolving
+151 - 166 : fire
+167 - 173 : big water dissolving
+
+174 : tree
+175 - 176: green/grey blob?
+
+188 : box, top open, cross
+189 : closed box; x?
+190 : box, top open, rockets?
+191 : telephone
+192 : telephone, arrow
+193 : telephone, arrow, highlight
+194 : white circle, pickup package
+
+247 - 257 : smoke, right->left, dissolving
+258 - 265 : small flames
+266 - 273 : water, fire truck
+274 - 281 : water hits fire
+
+282 : fire truck part?
+283 - 294 : grey smoke, cirle, growing, gets darker
+296 - 306 : smoke?, at bottom
+307 - 313 : train door open?
+315 - 326 : big water splash
+
+327 - 330/331? : fire truck parts
+
+332 - 342 : small smoke (again)
+342 - 352 : like above???
+354 - 365 : blood grow + dissolve?
+366 : big blood splash
+
+367 - 377 : smoke, cone from bottom
+393 - 403 : flames, from bottom, flame-thrower?
+404 - 411 : rotating canister
+412 - 419 : rotating gun
+420 - 432 : crate; breaking after first frame
+434 - 441 : race finish flag
+442 - 454 : crate + stuff; breaking
+455 : green blob
+456 : red blob
+457 - 464 : helicopter blades
+465 - 472 : uzi, rotating
+473 - 480 : rocket-launcher rotating
+481 - 488 : flame-thrower rotating
+489 - 496 : red canister rotating
+497 - 504 : red ? rotating
+506 - 513 : info-sign-post rotating
+514 - 521 : blue shield?
+522 - 529 : car speed up
+530 - 537 : jail free
+538 - 545 : extra life
+546 - 553 : multiplier up
+554 - 561 : police bribe
+
+
+ped1
+
+second col: (#frames - 1) 
+
+0|7|walk
+8|7|running forward
+16|0|sitting in car
+17|7|car exit
+25|7|car enter
+33|0|sitting in car
+34|3|unused junk
+38|2|frames, looped while falling
+41|0|frame, sliding UNDER car
+42|1|frames, usual death pose
+44|0|special death pose when shot in back
+45|1|played when you get shot in front
+47|1|swimming, you CAN swim, but just for 1 cube long
+49|0|unknown, most likely not used
+50|5|punching while standing animation
+56|11|unknown, repeating unused animations
+68|9|seems like player strafing? unused.
+80|3|jumping onto motorbike
+84|0|sitting on a motorbike
+85|3|exitting motorbike
+89|0|shooting handgun while standing still
+91|2|played when you jump onto car
+94|0|played while you slide on cars
+95|1|played when you drop off a car sliding
+97|0|repeated sitting in car
+98|0|STANDING COMPLETELY STILL
+99|7|walking shooting handgun
+107|7|running shooting handgun
+115|2|riding a skateboard? unused.
+118|7|walking shooting flamethrower
+126|7|running shooting flamethrower
+134|1|identical standing shooting flamethrower
+136|7|walking shooting UZI
+144|7|running shooting UZI
+152|1|identical standing shooting uzi
+154|7|walking shooting rocket launcher
+162|7|running shooting rocket launcher
+170|1|identical standing shooting rocket launcher
+172|4|electrocution by electrified rail
+177|3|crawling on floor - unused
+181|7|running & punching
+
+police ped
+
+189 - 196 : walking
+197 - 204 : running
+205       : sitting
+206 - 213 : exit car
+214 - 221 : enter car
+222       : sitting
+227 - 228 : falling
+229       : slide under
+230       : shot front?
+231 - 233 : dead? (3 identical frames; lying)
+234       : ???
+235       : same as 230?
+236 - 237 : drowning? different ped colour??
+238       : shot in back
+239 - 243 : arrest?
+269/270? - 272 : enter bike
+273       : sitting on bike
+274 - 277 : exit bike
+278       : standing, gun
+278 - 279 : shoot gun?
+288 - 292 : electro-death
+293 - 294 : shoot uzi
