@@ -5,5 +5,4 @@ before_install:
   - sudo apt-get install -y libxml2-dev
   - sudo apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
 script:
-- apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
 - make
