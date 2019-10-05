@@ -1,7 +1,7 @@
 Debug/
-.vs/
 Release/
+.vs/
 .idea/
 .build/
 third_party/
-src/gamedata/config/*.json
+gamedata/config/*.json
