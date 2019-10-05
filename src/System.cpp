@@ -39,12 +39,19 @@ void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, boo
 
 //////////////////////////////////////////////////////////////////////////
 
+void SysStartupParameters::SetNull()
+{
+    mDebugMapName.clear();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 System gSystem;
 
-void System::Execute()
+void System::Execute(const SysStartupParameters& sysStartupParams)
 {
     mIgnoreInputs = true; // don't dispatch input events until initialization completed
-
+    mStartupParams = sysStartupParams;
     Initialize();
 
     // main loop

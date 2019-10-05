@@ -14,9 +14,15 @@ bool CarnageGame::Initialize()
     gGameCheatsWindow.mWindowShown = true; // show by default
 
     gGameRules.LoadDefaults();
+    if (gSystem.mStartupParams.mDebugMapName.empty())
+    {
+        gSystem.mStartupParams.mDebugMapName.set_content("NYC.CMP");
+    }
+
     //gGameMap.LoadFromFile("NYC.CMP");
     //gGameMap.LoadFromFile("SANB.CMP");
-    gGameMap.LoadFromFile("MIAMI.CMP");
+    //gGameMap.LoadFromFile("MIAMI.CMP");
+    gGameMap.LoadFromFile(gSystem.mStartupParams.mDebugMapName.c_str());
     gSpriteManager.Cleanup();
     gRenderManager.mMapRenderer.InvalidateMapMesh();
     if (!gSpriteManager.InitLevelSprites())
@@ -32,10 +38,12 @@ bool CarnageGame::Initialize()
 
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
-    glm::vec3 pos { 14.0, 2.0f, 38.0f };
+    //glm::vec3 pos { 14.0, 2.0f, 38.0f };
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
+    glm::vec3 pos { 5.0f, 5.0f, 7.0f };
+    pos.y = gGameMap.GetHeightAtPosition(pos);
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
     mHumanController.SetCharacter(mPlayerPedestrian);
 

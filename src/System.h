@@ -23,16 +23,30 @@ public:
     float mScreenAspectRatio = 1.0f;
 };
 
+// defines system startup parameters
+class SysStartupParameters
+{
+public:
+    SysStartupParameters() = default;
+
+    // clear all startup params
+    void SetNull();
+
+public:
+    cxx::string_buffer_16 mDebugMapName; // startup map name
+};
+
 // Common system specific stuff collected in System class
 class System final: public cxx::noncopyable
 {
 public:
     // public just for convenience
     SysConfig mConfig; // current configuration of the system
+    SysStartupParameters mStartupParams;
 
 public:
     // Initialize game subsystems and run main loop
-    void Execute();
+    void Execute(const SysStartupParameters& sysStartupParams);
 
     // Abnormal application shutdown due to critical failure
     void Terminate();
