@@ -16,10 +16,11 @@
 #if OS_NAME == OS_WINDOWS
     #define _CRT_SECURE_NO_WARNINGS
     #define _SCL_SECURE_NO_WARNINGS
+
 #ifdef _DEBUG
     #define _CRTDBG_MAP_ALLOC
-#endif
     #include <crtdbg.h>
+#endif
 
 #elif OS_NAME == OS_LINUX
     #include <assert.h>
@@ -42,6 +43,7 @@
     #define cxx_stricmp _stricmp
     #define cxx_strnicmp _strnicmp
 #else
-    #define cxx_stricmp stricmp
-    #define cxx_strnicmp strnicmp
+    #include <strings.h>
+    #define cxx_stricmp strcasecmp
+    #define cxx_strnicmp strncasecmp
 #endif
