@@ -4,15 +4,15 @@ all: build_debug
 build_debug: box2d premake
 	.build/premake5 gmake --cc=clang
 	make -C .build config=debug_x86_64
-	cp .build/bin/x86_64/Debug/carnage3d src/carnage3d-debug
+	cp .build/bin/x86_64/Debug/carnage3d bin/carnage3d-debug
 
 build_release: box2d premake
 	.build/premake5 gmake --cc=clang
 	make -C .build config=release_x86_64
-	cp .build/bin/x86_64/Release/carnage3d src/carnage3d-release
+	cp .build/bin/x86_64/Release/carnage3d bin/carnage3d-release
 
 run:
-	src/carnage3d-release
+	bin/carnage3d-release
 
 builddir: 
 	test -d .build || mkdir .build
