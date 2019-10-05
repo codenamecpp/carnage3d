@@ -468,9 +468,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="gamedata\config\sys_config.json">
-      <Filter>Data\config</Filter>
-    </None>
     <None Include="gamedata\shaders\texture_color.glsl">
       <Filter>Data\shaders</Filter>
     </None>

@@ -297,7 +297,6 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <Text Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gamedata\config\sys_config.json" />
     <None Include="gamedata\shaders\city_mesh.glsl" />
     <None Include="gamedata\shaders\debug.glsl" />
     <None Include="gamedata\shaders\gui.glsl" />
