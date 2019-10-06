@@ -368,9 +368,11 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
     cxx::ensure_path_exists(outputLocation);
     cxx::string_buffer_1024 pathBuffer;
 
+    SpriteStyle& sprite = cityStyle.mSprites[spriteIndex];
+
     PixelsArray spriteBitmap;
-    spriteBitmap.Create(eTextureFormat_RGBA8, 256, 256);
-    for (int idelta = 0; idelta < cityStyle.mSprites[spriteIndex].mDeltaCount; ++idelta)
+    spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight);
+    for (int idelta = 0; idelta < sprite.mDeltaCount; ++idelta)
     {
         spriteBitmap.FillWithColor(COLOR_WHITE);
         cityStyle.GetSpriteTexture(spriteIndex, idelta, &spriteBitmap, 0, 0);

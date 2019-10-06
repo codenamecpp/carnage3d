@@ -394,63 +394,65 @@ bool StyleData::GetSpriteTexture(int spriteIndex, int deltaIndex, PixelsArray* b
     if (!GetSpriteTexture(spriteIndex, bitmap, destPositionY, destPositionY))
         return false;
 
-    const SpriteStyle& sprite = mSprites[spriteIndex];
+    SpriteStyle& sprite = mSprites[spriteIndex];
     if (deltaIndex >= sprite.mDeltaCount) // delta does not exists
     {
         debug_assert(false);
         return false;
     }
 
-    const SpriteStyle::DeltaInfo& delta = sprite.mDeltas[deltaIndex];
+    SpriteStyle::DeltaInfo& delta = sprite.mDeltas[deltaIndex];
+    ApplySpriteDelta(sprite, delta, bitmap, destPositionX, destPositionY);
+    return false;
+}
 
-    unsigned int page = delta.mOffset / GTA_SPRITE_PAGE_SIZE;
-    unsigned int x = (delta.mOffset % GTA_SPRITE_PAGE_SIZE) / GTA_SPRITE_PAGE_DIMS;
-    unsigned int y = (delta.mOffset % GTA_SPRITE_PAGE_SIZE) % GTA_SPRITE_PAGE_DIMS;
-
-    debug_assert(delta.mOffset < mSpriteGraphicsRaw.size());
-
-    unsigned char* srcData = mSpriteGraphicsRaw.data() + delta.mOffset;
+void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* bitmap, int positionX, int positionY)
+{
+    unsigned char* srcData = mSpriteGraphicsRaw.data() + spriteDelta.mOffset;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
     debug_assert(bpp == 3 || bpp == 4);
 
     const int HeaderSize = 3;
-    unsigned int dstOffset = 0;
-    for (unsigned short curr_pos = 0; curr_pos < delta.mSize; )
+    unsigned int dstPixelOffset = 0;
+
+    for (unsigned short curr_pos = 0; curr_pos < spriteDelta.mSize; )
     {
-        debug_assert(curr_pos + HeaderSize < delta.mSize);
+        debug_assert(curr_pos + HeaderSize < spriteDelta.mSize);
 
         unsigned short destination_offset = ((unsigned short)srcData[curr_pos + 0] | ((unsigned short) srcData[curr_pos + 1] << 8));
         unsigned char source_length = (unsigned char) srcData[curr_pos + 2];
-
         debug_assert(source_length > 0);
         curr_pos += HeaderSize;
-        debug_assert(curr_pos + source_length <= delta.mSize);
-        
-        dstOffset += (destination_offset * bpp);
+        debug_assert(curr_pos + source_length <= spriteDelta.mSize);
 
+        // original offsets are specified with expectation that destination buffer have dimensions GTA_SPRITE_PAGE_DIMS x GTA_SPRITE_PAGE_DIMS
+        // therefore some additional recomputation is required
+        dstPixelOffset += destination_offset;
+        int pagex = dstPixelOffset % GTA_SPRITE_PAGE_DIMS;
+        int pagey = dstPixelOffset / GTA_SPRITE_PAGE_DIMS;
+        debug_assert(pagex < bitmap->mSizex);
+        debug_assert(pagey < bitmap->mSizey);
+        debug_assert(pagex + source_length <= bitmap->mSizex);
+        
         int palindex = mPaletteIndices[sprite.mClut + mTileClutSize / 1024];
         for (int ipixel = 0; ipixel < source_length; ++ipixel)
         {
+            int curr_pixel_offset = (pagey * bitmap->mSizex * bpp) + pagex * bpp;
+
             int palentry = srcData[curr_pos + ipixel];
             const Color32& color = mPalettes[palindex].mColors[palentry];
-            bitmap->mData[dstOffset + 0] = color.mR;
-            bitmap->mData[dstOffset + 1] = color.mG;
-            bitmap->mData[dstOffset + 2] = color.mB;
+            bitmap->mData[curr_pixel_offset + 0] = color.mR;
+            bitmap->mData[curr_pixel_offset + 1] = color.mG;
+            bitmap->mData[curr_pixel_offset + 2] = color.mB;
             if (bpp == 4)
             {
-                bitmap->mData[dstOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+                bitmap->mData[curr_pixel_offset + 3] = (palentry == 0) ? 0x00 : 0xFF;
             }
-            dstOffset += bpp;
+            ++pagex;
         }
+        dstPixelOffset += source_length;
         curr_pos += source_length;
     }
-
-    return false;
-}
-
-void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY)
-{
-
 }
 
 int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
