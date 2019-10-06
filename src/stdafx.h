@@ -79,9 +79,9 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/gtx/norm.hpp>
 #include <glm/glm.hpp>
 
-#if OS_NAME == OS_LINUX
-    #define isfinite(VAL) std::isfinite(VAL)
-#endif
+//#if OS_NAME == OS_LINUX
+//    #define isfinite(VAL) std::isfinite(VAL)
+//#endif
 
 // physics
 #include <Box2D/Box2D.h>
