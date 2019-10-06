@@ -33,7 +33,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
 
     if (::glfwInit() == GL_FALSE)
     {
-        char* errorDescription;
+        const char* errorDescription = "";
         ::glfwGetError(&errorDescription);
 
         gConsole.LogMessage(eLogMessage_Warning, "GLFW initialization failed (%s)", errorDescription ? errorDescription : "unknown reason");
@@ -75,7 +75,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     debug_assert(graphicsWindow);
     if (!graphicsWindow)
     {
-        char* errorDescription;
+        const char* errorDescription = "";
         ::glfwGetError(&errorDescription);
 
         gConsole.LogMessage(eLogMessage_Warning, "glfwCreateWindow failed (%s)", errorDescription ? errorDescription : "unknown reason");
