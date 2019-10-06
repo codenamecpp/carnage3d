@@ -20,6 +20,7 @@ public:
     int mScreenSizey = 0; 
     bool mFullscreen = false; // enable full screen mode
     bool mEnableVSync = false; // enable vertical synchronization
+    bool mOpenGLCoreProfile = true;
     float mScreenAspectRatio = 1.0f;
 };
 

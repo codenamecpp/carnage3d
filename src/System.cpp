@@ -251,6 +251,12 @@ bool System::LoadConfiguration()
 
     mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
 
+    mConfig.mOpenGLCoreProfile = true;
+    if (cxx::config_node dont_request_core_profile = screenConfig.get_child("opengl_dont_request_core_profile"))
+    {
+        mConfig.mOpenGLCoreProfile = !dont_request_core_profile.get_value_boolean();
+    }
+
     // gta1 data files location
     const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
     if (gta_data_root)

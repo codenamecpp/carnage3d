@@ -4,7 +4,8 @@
         "resolution": [1024, 768],
         "fullscreen": false,
         "vsync": false,
-        "hardware_cursor": true
+        "hardware_cursor": true,
+        "opengl_dont_request_core_profile": false
     },
     "gta_gamedata_location": "../../../GTADATA"
 }
