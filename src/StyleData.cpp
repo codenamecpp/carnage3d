@@ -389,9 +389,68 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
     return true;
 }
 
-bool StyleData::GetSpriteDeltaTexture(int spriteIndex, int deltaIndex, PixelsArray* pixelsArray)
+bool StyleData::GetSpriteTexture(int spriteIndex, int deltaIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
+    if (!GetSpriteTexture(spriteIndex, bitmap, destPositionY, destPositionY))
+        return false;
+
+    const SpriteStyle& sprite = mSprites[spriteIndex];
+    if (deltaIndex >= sprite.mDeltaCount) // delta does not exists
+    {
+        debug_assert(false);
+        return false;
+    }
+
+    const SpriteStyle::DeltaInfo& delta = sprite.mDeltas[deltaIndex];
+
+    unsigned int page = delta.mOffset / GTA_SPRITE_PAGE_SIZE;
+    unsigned int x = (delta.mOffset % GTA_SPRITE_PAGE_SIZE) / GTA_SPRITE_PAGE_DIMS;
+    unsigned int y = (delta.mOffset % GTA_SPRITE_PAGE_SIZE) % GTA_SPRITE_PAGE_DIMS;
+
+    debug_assert(delta.mOffset < mSpriteGraphicsRaw.size());
+
+    unsigned char* srcData = mSpriteGraphicsRaw.data() + delta.mOffset;
+    int bpp = NumBytesPerPixel(bitmap->mFormat);
+    debug_assert(bpp == 3 || bpp == 4);
+
+    const int HeaderSize = 3;
+    unsigned int dstOffset = 0;
+    for (unsigned short curr_pos = 0; curr_pos < delta.mSize; )
+    {
+        debug_assert(curr_pos + HeaderSize < delta.mSize);
+
+        unsigned short destination_offset = ((unsigned short)srcData[curr_pos + 0] | ((unsigned short) srcData[curr_pos + 1] << 8));
+        unsigned char source_length = (unsigned char) srcData[curr_pos + 2];
+
+        debug_assert(source_length > 0);
+        curr_pos += HeaderSize;
+        debug_assert(curr_pos + source_length <= delta.mSize);
+        
+        dstOffset += (destination_offset * bpp);
+
+        int palindex = mPaletteIndices[sprite.mClut + mTileClutSize / 1024];
+        for (int ipixel = 0; ipixel < source_length; ++ipixel)
+        {
+            int palentry = srcData[curr_pos + ipixel];
+            const Color32& color = mPalettes[palindex].mColors[palentry];
+            bitmap->mData[dstOffset + 0] = color.mR;
+            bitmap->mData[dstOffset + 1] = color.mG;
+            bitmap->mData[dstOffset + 2] = color.mB;
+            if (bpp == 4)
+            {
+                bitmap->mData[dstOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+            }
+            dstOffset += bpp;
+        }
+        curr_pos += source_length;
+    }
+
     return false;
+}
+
+void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY)
+{
+
 }
 
 int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const

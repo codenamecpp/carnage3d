@@ -53,11 +53,12 @@ public:
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
     bool GetSpriteTexture(int spriteIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
 
-    // Read sprite delta bitmap to specific location at target texture
+    // Read sprite with delta delta bitmap to specific location at target texture
     // @param spriteIndex: Sprite index
     // @param deltaIndex: Delta index
     // @param pixelsArray: Target bitmap, must be created
-    bool GetSpriteDeltaTexture(int spriteIndex, int deltaIndex, PixelsArray* pixelsArray);
+    // @param destPositionX, destPositionY: Location within destination texture where block will be placed
+    bool GetSpriteTexture(int spriteIndex, int deltaIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
 
     // Map sprite type and id pair to sprite index
     // @param spriteType: Sprite type
@@ -80,6 +81,9 @@ public:
     bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
 
 private:
+    // apply single delta on sprite
+    void ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
+
     // Reading style data internals
     // @param file: Source stream
     bool ReadBlockTextures(std::ifstream& file);
