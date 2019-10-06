@@ -957,6 +957,8 @@ void GraphicsDevice::QueryGraphicsDeviceCaps()
 
     ::glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &mCaps.mMaxArrayTextureLayers);
     glCheckError();
+
+    gConsole.LogMessage(eLogMessage_Info, "Graphics Device supports up to the %d array texture layers", mCaps.mMaxArrayTextureLayers);
 }
 
 void GraphicsDevice::ActivateTextureUnit(eTextureUnit textureUnit)
