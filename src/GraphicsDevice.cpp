@@ -44,9 +44,10 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
 
     // dump some information
     gConsole.LogMessage(eLogMessage_Info, "GLFW Information: %s", ::glfwGetVersionString());
-    gConsole.LogMessage(eLogMessage_Info, "Initialize OpenGL %d.%d (Core profile)",
+    gConsole.LogMessage(eLogMessage_Info, "Initialize OpenGL %d.%d %s",
         OPENGL_CONTEXT_MAJOR_VERSION, 
-        OPENGL_CONTEXT_MINOR_VERSION);
+        OPENGL_CONTEXT_MINOR_VERSION,
+        gSystem.mConfig.mOpenGLCoreProfile ? "(Core profile)" : "");
 
     GLFWmonitor* graphicsMonitor = nullptr;
     if (fullscreen)
@@ -60,9 +61,9 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
         screensizey, vsync ? "enabled" : "disabled", fullscreen ? "yes" : "no");
 
     // opengl params
-    ::glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     if (gSystem.mConfig.mOpenGLCoreProfile)
     {
+        ::glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         ::glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     }
 
