@@ -33,7 +33,10 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
 
     if (::glfwInit() == GL_FALSE)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "GLFW initialization failed");
+        const char* errorDescription;
+        ::glfwGetError(&errorDescription);
+
+        gConsole.LogMessage(eLogMessage_Warning, "GLFW initialization failed (%s)", errorDescription ? errorDescription : "unknown reason");
         return false;
     }
 
@@ -65,14 +68,17 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glfwWindowHint(GLFW_GREEN_BITS, 8);
     ::glfwWindowHint(GLFW_BLUE_BITS, 8);
     ::glfwWindowHint(GLFW_ALPHA_BITS, 8);
-    ::glfwWindowHint(GLFW_DEPTH_BITS, 24);
+    ::glfwWindowHint(GLFW_DEPTH_BITS, 32);
 
     // create window and set current context
     GLFWwindow* graphicsWindow = ::glfwCreateWindow(screensizex, screensizey, WINDOW_TITLE, graphicsMonitor, nullptr);
     debug_assert(graphicsWindow);
     if (!graphicsWindow)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "glfwCreateWindow failed");
+        const char* errorDescription;
+        ::glfwGetError(&errorDescription);
+
+        gConsole.LogMessage(eLogMessage_Warning, "glfwCreateWindow failed (%s)", errorDescription ? errorDescription : "unknown reason");
         ::glfwTerminate();
         return false;
     }
