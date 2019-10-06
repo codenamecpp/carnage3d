@@ -403,7 +403,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, int deltaIndex, PixelsArray* b
 
     SpriteStyle::DeltaInfo& delta = sprite.mDeltas[deltaIndex];
     ApplySpriteDelta(sprite, delta, bitmap, destPositionX, destPositionY);
-    return false;
+    return true;
 }
 
 void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* bitmap, int positionX, int positionY)

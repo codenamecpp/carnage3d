@@ -374,8 +374,10 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
     spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight);
     for (int idelta = 0; idelta < sprite.mDeltaCount; ++idelta)
     {
-        spriteBitmap.FillWithColor(COLOR_WHITE);
-        cityStyle.GetSpriteTexture(spriteIndex, idelta, &spriteBitmap, 0, 0);
+        if (!cityStyle.GetSpriteTexture(spriteIndex, idelta, &spriteBitmap, 0, 0))
+        {
+            debug_assert(false);
+        }
 
         // dump to file
         pathBuffer.printf("%s/sprite_%d_delta_%d.png", outputLocation, spriteIndex, idelta);
