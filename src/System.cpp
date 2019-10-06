@@ -251,10 +251,6 @@ bool System::LoadConfiguration()
 
     mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
 
-    gConsole.LogMessage(eLogMessage_Info, "Screen resolution: %dx%d, Vsync: %s", 
-        mConfig.mScreenSizex, 
-        mConfig.mScreenSizey, mConfig.mEnableVSync ? "enabled" : "disabled");
-
     // gta1 data files location
     const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
     if (gta_data_root)

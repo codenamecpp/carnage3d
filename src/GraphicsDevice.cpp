@@ -50,7 +50,9 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
         debug_assert(graphicsMonitor);
     }
 
-    gConsole.LogMessage(eLogMessage_Info, "Screen resolution (%dx%d)", screensizex, screensizey);
+    gConsole.LogMessage(eLogMessage_Info, "Screen resolution: %dx%d, Vsync: %s, Fullscreen: %s", 
+        screensizex, 
+        screensizey, vsync ? "enabled" : "disabled", fullscreen ? "yes" : "no");
 
     // opengl params
     ::glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
