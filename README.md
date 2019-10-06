@@ -35,7 +35,9 @@ Game needs to be configured before launch, there is example config document in _
 
 Set screen resolution (optionally) but most importand you must specify path to original GTA1 game data - __gta_gamedata_location__
 
-#### Original GTA1 game resources required in order to play! ####
+**Original GTA1 game resources required in order to play (Full or DEMO)**. Demo version still available for download https://www.rockstargames.com/gta/extras/demos.html .
+
+To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
 
 Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
 
