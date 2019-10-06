@@ -26,7 +26,7 @@ inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
 
 #define READ_I8(filestream, destination) READ_DATA(filestream, destination, unsigned char)
 #define READ_I16(filestream, destination) READ_DATA(filestream, destination, unsigned short)
-#define READ_I32(filestream, destination) READ_DATA(filestream, destination, int)
+#define READ_SI32(filestream, destination) READ_DATA(filestream, destination, int)
 #define READ_BOOL(filestream, destination) \
     { \
         unsigned char _$data; \

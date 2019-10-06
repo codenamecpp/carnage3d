@@ -359,3 +359,18 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
         }
     } // for
 }
+
+void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex)
+{
+    StyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+    cxx::ensure_path_exists(outputLocation);
+    cxx::string_buffer_1024 pathBuffer;
+
+    for (int idelta = 0; idelta < cityStyle.mSprites[spriteIndex].mDeltaCount; ++idelta)
+    {
+        const SpriteStyle::DeltaInfo& deltaData = cityStyle.mSprites[spriteIndex].mDeltas[idelta];
+
+    } // for
+}

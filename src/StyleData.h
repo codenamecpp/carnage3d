@@ -53,6 +53,12 @@ public:
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
     bool GetSpriteTexture(int spriteIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
 
+    // Read sprite delta bitmap to specific location at target texture
+    // @param spriteIndex: Sprite index
+    // @param deltaIndex: Delta index
+    // @param pixelsArray: Target bitmap, must be created
+    bool GetSpriteDeltaTexture(int spriteIndex, int deltaIndex, PixelsArray* pixelsArray);
+
     // Map sprite type and id pair to sprite index
     // @param spriteType: Sprite type
     // @para spriteId: Sprite id

@@ -33,6 +33,7 @@ public:
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);
     void DumpSpriteTextures(const char* outputLocation);
+    void DumpSpriteDeltas(const char* outputLocation, int spriteIndex);
 
 private:
     bool InitBlocksIndicesTable();

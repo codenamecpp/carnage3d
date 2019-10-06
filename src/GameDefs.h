@@ -460,9 +460,9 @@ public:
 struct CarDoorStyle
 {
 public:
-	int mRpx, mRpy;
-	int mObject;
-	int mDelta;
+	short mRpx, mRpy;
+	short mObject;
+	short mDelta;
 };
 
 enum eCarVType
@@ -485,19 +485,19 @@ decl_enum_strings(eCarVType);
 struct CarStyle
 {
 public:
-    int mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
-    int mSprNum; // first sprite number offset for this car
-    int mWeight;	
-    int mMaxSpeed, mMinSpeed;
-    int mAcceleration, mBraking;
-    int mGrip, mHandling;
+    short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
+    short mSprNum; // first sprite number offset for this car
+    short mWeight;	
+    short mMaxSpeed, mMinSpeed;
+    short mAcceleration, mBraking;
+    short mGrip, mHandling;
     HLSRemap mRemap[MAX_CAR_REMAPS];
     eCarVType mVType; // is a descriptor of the type of car / vehicle
     int mModel; // sub-type within vtype for cars which holds an identifier for the model of car
     int mTurning;
     int mDamagable;
     int mValue[4];
-    int mCx, mCy; // pixel co-ordinates of the centre of mass of the car, relative to the graphical centre
+    char mCx, mCy; // pixel co-ordinates of the centre of mass of the car, relative to the graphical centre
     int mMoment;
     float mRbpMass;
     float mG1Thrust;
@@ -505,9 +505,9 @@ public:
     float mHandbrakeFriction;
     float mFootbrakeFriction;
     float mFrontBrakeBias;
-    int mTurnRatio;
-    int mDriveWheelOffset;
-    int mSteeringWheelOffset;
+    short mTurnRatio;
+    short mDriveWheelOffset;
+    short mSteeringWheelOffset;
     float mBackEndSlideValue;
     float mHandbrakeSlideValue;
     bool mConvertible;
@@ -516,7 +516,7 @@ public:
     int mHorn;
     int mSoundFunction;
     int mFastChangeFlag;
-    int mDoorsCount;
+    short mDoorsCount;
     CarDoorStyle mDoors[MAX_CAR_DOORS];
 };
 

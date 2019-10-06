@@ -23,8 +23,10 @@ inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
     }
 
 #define READ_I8(filestream, destination) READ_DATA(filestream, destination, unsigned char)
+#define READ_SI8(filestream, destination) READ_DATA(filestream, destination, char)
 #define READ_I16(filestream, destination) READ_DATA(filestream, destination, unsigned short)
-#define READ_I32(filestream, destination) READ_DATA(filestream, destination, int)
+#define READ_SI16(filestream, destination) READ_DATA(filestream, destination, short)
+#define READ_SI32(filestream, destination) READ_DATA(filestream, destination, int)
 #define READ_BOOL(filestream, destination) \
     { \
         unsigned char _$data; \
@@ -387,6 +389,11 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
     return true;
 }
 
+bool StyleData::GetSpriteDeltaTexture(int spriteIndex, int deltaIndex, PixelsArray* pixelsArray)
+{
+    return false;
+}
+
 int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
 {
     debug_assert(spriteType < eSpriteType_COUNT);
@@ -547,9 +554,9 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
     {
         MapObjectStyle objectInfo;
 
-        READ_I32(file, objectInfo.mWidth);
-        READ_I32(file, objectInfo.mHeight);
-        READ_I32(file, objectInfo.mDepth);
+        READ_SI32(file, objectInfo.mWidth);
+        READ_SI32(file, objectInfo.mHeight);
+        READ_SI32(file, objectInfo.mDepth);
         READ_I16(file, objectInfo.mSpriteIndex);
         READ_I16(file, objectInfo.mWeight);
         READ_I16(file, objectInfo.mAux);
@@ -581,17 +588,17 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         const std::streampos startStreamPos = file.tellg();
 
         CarStyle carInfo;
-        READ_I16(file, carInfo.mWidth);
-        READ_I16(file, carInfo.mHeight);
-        READ_I16(file, carInfo.mDepth);
-        READ_I16(file, carInfo.mSprNum);
-        READ_I16(file, carInfo.mWeight);
-        READ_I16(file, carInfo.mMaxSpeed);
-        READ_I16(file, carInfo.mMinSpeed);
-        READ_I16(file, carInfo.mAcceleration);
-        READ_I16(file, carInfo.mBraking);
-        READ_I16(file, carInfo.mGrip);
-        READ_I16(file, carInfo.mHandling);
+        READ_SI16(file, carInfo.mWidth);
+        READ_SI16(file, carInfo.mHeight);
+        READ_SI16(file, carInfo.mDepth);
+        READ_SI16(file, carInfo.mSprNum);
+        READ_SI16(file, carInfo.mWeight);
+        READ_SI16(file, carInfo.mMaxSpeed);
+        READ_SI16(file, carInfo.mMinSpeed);
+        READ_SI16(file, carInfo.mAcceleration);
+        READ_SI16(file, carInfo.mBraking);
+        READ_SI16(file, carInfo.mGrip);
+        READ_SI16(file, carInfo.mHandling);
 
         for (int iremap = 0; iremap < MAX_CAR_REMAPS; ++iremap)
         {
@@ -630,9 +637,9 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
             READ_I16(file, carInfo.mValue[ivalue]);
         }
 
-        READ_I8(file, carInfo.mCx);
-        READ_I8(file, carInfo.mCy);
-        READ_I32(file, carInfo.mMoment);
+        READ_SI8(file, carInfo.mCx);
+        READ_SI8(file, carInfo.mCy);
+        READ_SI32(file, carInfo.mMoment);
 
         READ_FIXEDF32(file, carInfo.mRbpMass);
         READ_FIXEDF32(file, carInfo.mG1Thrust);
@@ -642,9 +649,9 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         READ_FIXEDF32(file, carInfo.mFootbrakeFriction);
         READ_FIXEDF32(file, carInfo.mFrontBrakeBias);
 
-        READ_I16(file, carInfo.mTurnRatio);
-        READ_I16(file, carInfo.mDriveWheelOffset);
-        READ_I16(file, carInfo.mSteeringWheelOffset);
+        READ_SI16(file, carInfo.mTurnRatio);
+        READ_SI16(file, carInfo.mDriveWheelOffset);
+        READ_SI16(file, carInfo.mSteeringWheelOffset);
 
         READ_FIXEDF32(file, carInfo.mBackEndSlideValue);
         READ_FIXEDF32(file, carInfo.mHandbrakeSlideValue);
@@ -656,16 +663,16 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
 	    READ_I8(file, carInfo.mHorn);
 	    READ_I8(file, carInfo.mSoundFunction);
 	    READ_I8(file, carInfo.mFastChangeFlag);
-        READ_I16(file, carInfo.mDoorsCount);
+        READ_SI16(file, carInfo.mDoorsCount);
         
         debug_assert(carInfo.mDoorsCount <= MAX_CAR_DOORS);
 
         for (int idoor = 0; idoor < carInfo.mDoorsCount; ++idoor)
         {
-            READ_I16(file, carInfo.mDoors[idoor].mRpy);
-            READ_I16(file, carInfo.mDoors[idoor].mRpx);
-            READ_I16(file, carInfo.mDoors[idoor].mObject);
-            READ_I16(file, carInfo.mDoors[idoor].mDelta);
+            READ_SI16(file, carInfo.mDoors[idoor].mRpy);
+            READ_SI16(file, carInfo.mDoors[idoor].mRpx);
+            READ_SI16(file, carInfo.mDoors[idoor].mObject);
+            READ_SI16(file, carInfo.mDoors[idoor].mDelta);
         }
         mCars.push_back(carInfo);
 
@@ -701,7 +708,7 @@ bool StyleData::ReadSprites(std::ifstream& file, int dataLength)
         for (int idelta = 0; idelta < spriteInfo.mDeltaCount; ++idelta)
         {
             READ_I16(file, spriteInfo.mDeltas[idelta].mSize);
-            READ_I32(file, spriteInfo.mDeltas[idelta].mOffset);
+            READ_SI32(file, spriteInfo.mDeltas[idelta].mOffset);
         }
         mSprites.push_back(spriteInfo);
 
