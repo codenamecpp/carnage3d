@@ -64,13 +64,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <chrono>
 #include <thread>
 
-#if OS_NAME == OS_LINUX
-    #define isfinite(VAL) std::isfinite(VAL)
-#endif
-
-// physics
-#include <Box2D/Box2D.h>
-
 // opengl
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -85,6 +78,13 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/glm.hpp>
+
+#if OS_NAME == OS_LINUX
+    #define isfinite(VAL) std::isfinite(VAL)
+#endif
+
+// physics
+#include <Box2D/Box2D.h>
 
 // lib
 #include "enum_utils.h"
