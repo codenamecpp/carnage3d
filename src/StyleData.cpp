@@ -389,20 +389,25 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
     return true;
 }
 
-bool StyleData::GetSpriteTexture(int spriteIndex, int deltaIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool StyleData::GetSpriteTexture(int spriteIndex, spriteDeltaBits_t deltas, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     if (!GetSpriteTexture(spriteIndex, bitmap, destPositionY, destPositionY))
         return false;
 
     SpriteStyle& sprite = mSprites[spriteIndex];
-    if (deltaIndex >= sprite.mDeltaCount) // delta does not exists
-    {
-        debug_assert(false);
-        return false;
-    }
 
-    SpriteStyle::DeltaInfo& delta = sprite.mDeltas[deltaIndex];
-    ApplySpriteDelta(sprite, delta, bitmap, destPositionX, destPositionY);
+    if (deltas > 0)
+    {
+        for (unsigned int idelta = 0; idelta < MAX_SPRITE_DELTAS; ++idelta)
+        {
+            unsigned int deltaBit = (1U << idelta);
+            if ((deltas & deltaBit) == 0)
+                continue;
+
+            SpriteStyle::DeltaInfo& delta = sprite.mDeltas[idelta];
+            ApplySpriteDelta(sprite, delta, bitmap, destPositionX, destPositionY);
+        }
+    }
     return true;
 }
 
