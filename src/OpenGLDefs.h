@@ -9,15 +9,19 @@
 #define OPENGL_CONTEXT_MINOR_VERSION 2
 
 // checks current opengl error code
-inline void glCheckError()
-{
 #ifdef _DEBUG
-    GLenum errcode = ::glGetError();
-    debug_assert(errcode == GL_NO_ERROR);
+    #define glCheckError()\
+    {\
+        GLenum errcode = ::glGetError();\
+        if (errcode != GL_NO_ERROR)\
+        {\
+            gConsole.LogMessage(eLogMessage_Error, "OpenGL error detected in %s, code 0x%04X", __FUNCTION__, errcode);\
+            debug_assert(false); \
+        }\
+    }
 #else
-    // nothing
+    #define glCheckError()
 #endif
-}
 
 // resets current opengl error code
 inline void glClearError()

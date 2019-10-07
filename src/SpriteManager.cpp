@@ -230,9 +230,9 @@ bool SpriteManager::InitBlocksIndicesTable()
     mBlocksIndices.resize(textureSize);
 
     // reset to default order
-    for (int i = 0; i < totalTextures; ++i)
+    for (int i = 0; i < textureSize; ++i)
     {
-        mBlocksIndices[i] = i;        
+        mBlocksIndices[i] = (i < totalTextures) ? i : 0;
     }
 
     mBlocksIndicesTable = gGraphicsDevice.CreateTexture1D(eTextureFormat_RU16, textureSize, mBlocksIndices.data());

@@ -75,7 +75,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glfwWindowHint(GLFW_GREEN_BITS, 8);
     ::glfwWindowHint(GLFW_BLUE_BITS, 8);
     ::glfwWindowHint(GLFW_ALPHA_BITS, 8);
-    ::glfwWindowHint(GLFW_DEPTH_BITS, 32);
+    ::glfwWindowHint(GLFW_DEPTH_BITS, 16);
 
     // create window and set current context
     GLFWwindow* graphicsWindow = ::glfwCreateWindow(screensizex, screensizey, WINDOW_TITLE, graphicsMonitor, nullptr);
@@ -86,7 +86,6 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
         ::glfwTerminate();
         return false;
     }
-
     // setup current opengl context and register callback handlers
     ::glfwMakeContextCurrent(graphicsWindow);
     ::glfwSetMouseButtonCallback(graphicsWindow, [](GLFWwindow*, int button, int action, int mods)
