@@ -53,7 +53,7 @@ void main()
         uvec4 block_texture_index_v = texelFetch(tex_1, int(Texcoord.z), 0);
         float block_texture_index = float(block_texture_index_v.r);
 
-        pixelColor = texture(tex_0, vec3(Texcoord.x, Texcoord.y, block_texture_index));
+        pixelColor = texture(tex_0, Texcoord); // vec3(Texcoord.x, Texcoord.y, block_texture_index) bug
 
         if (FragColor.a < 1.0f && pixelColor.a < 1.0f) // old school alpha test
             discard;
