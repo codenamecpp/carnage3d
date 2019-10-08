@@ -81,7 +81,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
     mDrawSprite.mTexture = gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture;
-    mDrawSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex];
+    mDrawSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEntries[spriteLinearIndex];
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
     mDrawSprite.mRotateAngle = rotationAngle;

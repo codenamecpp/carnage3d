@@ -63,7 +63,7 @@ void SpriteManager::Cleanup()
 
     mBlocksIndices.clear();
     mBlocksAnimations.clear();
-    mObjectsSpritesheet.mEtries.clear();
+    mObjectsSpritesheet.mEntries.clear();
 }
 
 bool SpriteManager::InitObjectsSpritesheet()
@@ -87,7 +87,7 @@ bool SpriteManager::InitObjectsSpritesheet()
     if (mObjectsSpritesheet.mSpritesheetTexture == nullptr)
         return false;
 
-    mObjectsSpritesheet.mEtries.resize(totalSprites);
+    mObjectsSpritesheet.mEntries.resize(totalSprites);
 
     // allocate temporary bitmap
     PixelsArray spritesBitmap;
@@ -137,7 +137,7 @@ bool SpriteManager::InitObjectsSpritesheet()
                 return false;
             }
 
-            TextureRegion& spritesheetRecord = mObjectsSpritesheet.mEtries[curr_rc.id];
+            TextureRegion& spritesheetRecord = mObjectsSpritesheet.mEntries[curr_rc.id];
             spritesheetRecord.mRectangle.x = curr_rc.x;
             spritesheetRecord.mRectangle.y = curr_rc.y;
             spritesheetRecord.mRectangle.w = curr_rc.w - SpritesSpacing;

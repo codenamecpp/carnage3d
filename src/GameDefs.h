@@ -26,29 +26,29 @@
 #define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)
 
 // car sprite deltas - damage
-#define CAR_DAMAGE_SPRITE_DELTA_FR = 0; // front right
-#define CAR_DAMAGE_SPRITE_DELTA_BL = 1; // back left
-#define CAR_DAMAGE_SPRITE_DELTA_ML = 2; // middle left
-#define CAR_DAMAGE_SPRITE_DELTA_FL = 3; // front left
-#define CAR_DAMAGE_SPRITE_DELTA_BR = 4; // back right
-#define CAR_DAMAGE_SPRITE_DELTA_MR = 5; // middle right
-#define CAR_DAMAGE_SPRITE_DELTA_WS = 10; // windshield broken
+#define CAR_DAMAGE_SPRITE_DELTA_FR 0 // front right
+#define CAR_DAMAGE_SPRITE_DELTA_BL 1 // back left
+#define CAR_DAMAGE_SPRITE_DELTA_ML 2 // middle left
+#define CAR_DAMAGE_SPRITE_DELTA_FL 3 // front left
+#define CAR_DAMAGE_SPRITE_DELTA_BR 4 // back right
+#define CAR_DAMAGE_SPRITE_DELTA_MR 5 // middle right
+#define CAR_DAMAGE_SPRITE_DELTA_WS 10 // windshield broken
 
 // car sprite deltas - door 1
-#define CAR_DOOR1_OPEN_SPRITE_DELTA_0 = 6; // first frame
-#define CAR_DOOR1_OPEN_SPRITE_DELTA_1 = 7;
-#define CAR_DOOR1_OPEN_SPRITE_DELTA_2 = 8;
-#define CAR_DOOR1_OPEN_SPRITE_DELTA_3 = 9; // last frame
+#define CAR_DOOR1_SPRITE_DELTA_0 6 // first frame
+#define CAR_DOOR1_SPRITE_DELTA_1 7
+#define CAR_DOOR1_SPRITE_DELTA_2 8
+#define CAR_DOOR1_SPRITE_DELTA_3 9 // last frame
 
 // car sprite deltas - door 2
-#define CAR_DOOR2_OPEN_SPRITE_DELTA_0 = 11; // first frame
-#define CAR_DOOR2_OPEN_SPRITE_DELTA_1 = 12; 
-#define CAR_DOOR2_OPEN_SPRITE_DELTA_2 = 13;
-#define CAR_DOOR2_OPEN_SPRITE_DELTA_3 = 14; // last frame
+#define CAR_DOOR2_SPRITE_DELTA_0 11 // first frame
+#define CAR_DOOR2_SPRITE_DELTA_1 12 
+#define CAR_DOOR2_SPRITE_DELTA_2 13
+#define CAR_DOOR2_SPRITE_DELTA_3 14 // last frame
 
 // car sprite deltas - lighting (police car and ambulance have those)
-#define CAR_LIGHTING_SPRITE_DELTA_0 = 15;
-#define CAR_LIGHTING_SPRITE_DELTA_1 = 16;
+#define CAR_LIGHTING_SPRITE_DELTA_0 15
+#define CAR_LIGHTING_SPRITE_DELTA_1 16
 
 // forwards
 class Pedestrian;
@@ -376,7 +376,6 @@ public:
         mScale = 1.0f;
         mRotateAngle = cxx::angle_t::from_degrees(0.0f);
     }
-
 public:
     GpuTexture2D* mTexture = nullptr;
     TextureRegion mTextureRegion; 
@@ -400,11 +399,11 @@ public:
     inline void SetNull()
     {
         mSpritesheetTexture = nullptr;
-        mEtries.clear();
+        mEntries.clear();
     }
 public:
     GpuTexture2D* mSpritesheetTexture = nullptr;
-    std::vector<TextureRegion> mEtries;
+    std::vector<TextureRegion> mEntries;
 };
 
 // define sprite HLS remap information

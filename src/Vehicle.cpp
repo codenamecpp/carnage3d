@@ -52,7 +52,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     position.y = ComputeDrawHeight(position, rotationAngle);
 
     mChassisSprite.mTexture = gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture;
-    mChassisSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEtries[spriteLinearIndex];
+    mChassisSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEntries[spriteLinearIndex];
     mChassisSprite.mPosition = glm::vec2(position.x, position.z);
     mChassisSprite.mScale = SPRITE_SCALE;
     mChassisSprite.mRotateAngle = rotationAngle;
