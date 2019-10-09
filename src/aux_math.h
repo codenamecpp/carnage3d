@@ -36,6 +36,29 @@ namespace cxx
         return value;
     }
 
+    inline unsigned int align_up(unsigned int value, unsigned int alignment)
+    {
+        if (alignment > 0)
+        {
+            value = ((value) + (alignment - 1)) & ~(alignment - 1);
+        }
+        return value;
+    }
+
+    inline unsigned int aligh_down(unsigned int value, unsigned int alignment)
+    {
+        if (alignment > 0)
+        {
+            value = value & ~(alignment - 1);
+        }
+        return value;
+    }
+
+    inline bool is_aligned(unsigned int value, unsigned alignment)
+    {
+        return ((value) & (alignment - 1)) == 0;
+    }
+
     // thin float angle wrapper
     struct angle_t final
     {

@@ -11,7 +11,7 @@ public:
     unsigned char* mData = nullptr;
 
 public:
-    PixelsArray() = default;
+    PixelsArray(cxx::memory_allocator* customAllocator = nullptr);
     ~PixelsArray();
 
     // Allocates array of pixels of specified format and dimensions
@@ -49,4 +49,7 @@ public:
     // @param sizex, sizey: Picture dimensions
     // @param pixels: Source data
     static bool SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels);
+
+private:
+    cxx::memory_allocator* mPixelsAllocator = nullptr;
 };

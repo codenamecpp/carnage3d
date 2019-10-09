@@ -100,6 +100,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "strings.h"
 #include "path_utils.h"
 #include "config_document.h"
+#include "mem_allocators.h"
 
 // app
 #include "CommonTypes.h"

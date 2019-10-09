@@ -16,12 +16,15 @@ public:
     void SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
 
 public:
+    // graphics settings
     int mScreenSizex = 0; // screen dimensions
     int mScreenSizey = 0; 
     bool mFullscreen = false; // enable full screen mode
     bool mEnableVSync = false; // enable vertical synchronization
     bool mOpenGLCoreProfile = true;
     float mScreenAspectRatio = 1.0f;
+    // memory settings
+    int mFrameHeapMemorySize = 0; // 0 for disable
 };
 
 // defines system startup parameters

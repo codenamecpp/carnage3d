@@ -6,5 +6,11 @@
         "vsync": false,
         "hardware_cursor": true
     },
+
+    "memory":
+    {
+        "frame_heap_size": 8388612
+    },
+
     "gta_gamedata_location": "../../../GTADATA"
 }

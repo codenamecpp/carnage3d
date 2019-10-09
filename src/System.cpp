@@ -2,7 +2,7 @@
 #include "System.h"
 #include "GraphicsDevice.h"
 #include "RenderingManager.h"
-
+#include "MemoryManager.h"
 #include "CarnageGame.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,6 +70,8 @@ void System::Execute(const SysStartupParameters& sysStartupParams)
             deltaTime = 1;
         }
 
+        gMemoryManager.FlushFrameHeapMemory();
+
         // order in which subsystems gets updated is significant
         gGuiSystem.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
@@ -102,6 +104,12 @@ void System::Initialize()
     if (!LoadConfiguration())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot load configuration");
+        Terminate();
+    }
+
+    if (!gMemoryManager.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Error, "Cannot initialize system memory manager");
         Terminate();
     }
 
@@ -139,6 +147,7 @@ void System::Deinit()
     gGuiSystem.Deinit();
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
+    gMemoryManager.Deinit();
     gFiles.Deinit();
     gConsole.Deinit();
 }
@@ -269,6 +278,16 @@ bool System::LoadConfiguration()
         gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location param is null");
     }
     gFiles.AddSearchPlace(gta_data_root);
+
+    // memory
+    if (cxx::config_node memConfig = configDocument.get_root_node().get_child("memory"))
+    {
+        mConfig.mFrameHeapMemorySize = memConfig.get_child("frame_heap_size").get_value_integer();
+        if (mConfig.mFrameHeapMemorySize < 0)
+        {
+            mConfig.mFrameHeapMemorySize = 0;
+        }
+    }
 
     return true;
 }

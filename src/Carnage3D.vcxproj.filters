@@ -295,6 +295,12 @@
     <ClInclude Include="macro.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryManager.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="mem_allocators.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -458,6 +464,12 @@
       <Filter>Lib</Filter>
     </ClCompile>
     <ClCompile Include="enums_impl.cpp" />
+    <ClCompile Include="MemoryManager.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="mem_allocators.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">

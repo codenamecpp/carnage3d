@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "PixelsArray.h"
+#include "MemoryManager.h"
+
+//////////////////////////////////////////////////////////////////////////
+
 #define STBI_ASSERT(s) debug_assert(s)
 #define STBI_NO_JPEG
 #define STBI_NO_PSD
@@ -7,10 +11,60 @@
 #define STBI_NO_HDR
 #define STBI_NO_PIC
 #define STBI_NO_PNM
+
+static cxx::memory_allocator* gPixelsArrayAllocator = nullptr;
+
+inline void* stbi_malloc_proxy(size_t dataLength)
+{
+    debug_assert(gPixelsArrayAllocator);
+    return gPixelsArrayAllocator->allocate(dataLength);
+}
+
+inline void* stbi_mrealloc_proxy(void* dataPointer, size_t dataLength)
+{
+    debug_assert(gPixelsArrayAllocator);
+    return gPixelsArrayAllocator->reallocate(dataPointer, dataLength);
+}
+
+inline void stbi_mfree_proxy(void *dataPointer)
+{
+    debug_assert(gPixelsArrayAllocator);
+    gPixelsArrayAllocator->deallocate(dataPointer);
+}
+
+#define STBI_MALLOC(s) stbi_malloc_proxy(s)
+#define STBI_REALLOC(p, s) stbi_mrealloc_proxy(p, s)
+#define STBI_FREE(p) stbi_mfree_proxy(p)
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "std_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+
+struct PixelsAllocatorScope
+{
+public:
+    PixelsAllocatorScope(cxx::memory_allocator* memAllocator)
+    {
+        debug_assert(gPixelsArrayAllocator == nullptr);
+        gPixelsArrayAllocator = memAllocator;
+    }
+    ~PixelsAllocatorScope()
+    {
+        gPixelsArrayAllocator = nullptr;
+    }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+PixelsArray::PixelsArray(cxx::memory_allocator* customAllocator)
+    : mPixelsAllocator(customAllocator)
+{
+    if (mPixelsAllocator == nullptr)
+    {
+        mPixelsAllocator = gMemoryManager.mHeapAllocator;
+    }
+}
 
 PixelsArray::~PixelsArray()
 {
@@ -37,6 +91,8 @@ bool PixelsArray::Create(eTextureFormat format, int sizex, int sizey)
     }
 
     Cleanup();
+
+    PixelsAllocatorScope setupAllocator {mPixelsAllocator};
 
     mData = static_cast<unsigned char*>(stbi__malloc(sizex * sizey * bytesPerPixel));
     debug_assert(mData);
@@ -102,7 +158,7 @@ bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat)
             return fs.eof() ? 1 : 0;
         }
     };
-
+    PixelsAllocatorScope setupAllocator {mPixelsAllocator};
     stbi_uc* pImageContent = stbi_load_from_callbacks(&stbi_cb, &fileStream, &mSizex, &mSizey, &imagecomponents, forcecomponents);
     if (pImageContent == nullptr)
         return false;
@@ -214,6 +270,8 @@ void PixelsArray::Cleanup()
     debug_assert(mData);
     if (mData)
     {
+        PixelsAllocatorScope setupAllocator {mPixelsAllocator};
+
         stbi_image_free(mData);
         mData = nullptr;
     }

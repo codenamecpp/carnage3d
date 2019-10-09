@@ -158,6 +158,8 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="macro.h" />
+    <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="mem_allocators.h" />
     <ClInclude Include="noncopyable.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="GameObject.h" />
@@ -239,6 +241,8 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="GpuTexture1D.cpp" />
     <ClCompile Include="CharacterController.cpp" />
+    <ClCompile Include="MemoryManager.cpp" />
+    <ClCompile Include="mem_allocators.cpp" />
     <ClCompile Include="path_utils.cpp" />
     <ClCompile Include="PedestrianStates.cpp" />
     <ClCompile Include="PhysicsDebugDraw.cpp" />
