@@ -53,5 +53,8 @@ public:
     static bool SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels);
 
 private:
+    void SetPixelsAllocator(cxx::memory_allocator* allocator);
+
+private:
     cxx::memory_allocator* mPixelsAllocator = nullptr;
 };

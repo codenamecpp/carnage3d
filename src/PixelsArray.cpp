@@ -83,13 +83,8 @@ bool PixelsArray::Create(eTextureFormat format, int sizex, int sizey, cxx::memor
     }
 
     Cleanup();
+    SetPixelsAllocator(allocator);
 
-    // setup memory allocator
-    if (allocator == nullptr)
-    {
-        allocator = gMemoryManager.mHeapAllocator;
-    }
-    mPixelsAllocator = allocator;
     PixelsAllocatorScope setupAllocator {mPixelsAllocator};
 
     mData = static_cast<unsigned char*>(stbi__malloc(sizex * sizey * bytesPerPixel));
@@ -157,12 +152,7 @@ bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat,
         }
     };
 
-    // setup memory allocator
-    if (allocator == nullptr)
-    {
-        allocator = gMemoryManager.mHeapAllocator;
-    }
-    mPixelsAllocator = allocator;
+    SetPixelsAllocator(allocator);
 
     PixelsAllocatorScope setupAllocator {mPixelsAllocator};
     stbi_uc* pImageContent = stbi_load_from_callbacks(&stbi_cb, &fileStream, &mSizex, &mSizey, &imagecomponents, forcecomponents);
@@ -291,4 +281,14 @@ void PixelsArray::Cleanup()
 bool PixelsArray::HasContent() const
 {
     return mFormat != eTextureFormat_Null;
+}
+
+void PixelsArray::SetPixelsAllocator(cxx::memory_allocator* allocator)
+{
+    debug_assert(mPixelsAllocator == nullptr);
+    if (allocator == nullptr)
+    {
+        allocator = gMemoryManager.mHeapAllocator;
+    }
+    mPixelsAllocator = allocator;
 }
