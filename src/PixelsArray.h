@@ -11,13 +11,14 @@ public:
     unsigned char* mData = nullptr;
 
 public:
-    PixelsArray(cxx::memory_allocator* customAllocator = nullptr);
     ~PixelsArray();
 
     // Allocates array of pixels of specified format and dimensions
     // @param format: Format
     // @param sizex, sizey: Dimensions
-    bool Create(eTextureFormat format, int sizex, int sizey);
+    // @param allocator: Custom memory allocator, optional
+    bool Create(eTextureFormat format, int sizex, int sizey, cxx::memory_allocator* allocator = nullptr);
+
     // Free allocated memory
     void Cleanup();
 
@@ -25,7 +26,8 @@ public:
     // Note that filesystem must be initialized otherwise error occurs
     // @param fileName: File name
     // @param forceFormat: Explicit format conversion, optional
-    bool LoadFromFile(const char* fileName, eTextureFormat forceFormat = eTextureFormat_Null);
+    // @param allocator: Custom memory allocator, optional
+    bool LoadFromFile(const char* fileName, eTextureFormat forceFormat = eTextureFormat_Null, cxx::memory_allocator* allocator = nullptr);
 
     // Save bitmap content to external file
     // Note that filesystem must be initialized otherwise error occurs

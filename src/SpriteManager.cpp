@@ -91,8 +91,8 @@ bool SpriteManager::InitObjectsSpritesheet()
     mObjectsSpritesheet.mEntries.resize(totalSprites);
 
     // allocate temporary bitmap
-    PixelsArray spritesBitmap { gMemoryManager.mFrameHeapAllocator };
-    if (!spritesBitmap.Create(eTextureFormat_RGBA8, ObjectsTextureSizeX, ObjectsTextureSizeY))
+    PixelsArray spritesBitmap;
+    if (!spritesBitmap.Create(eTextureFormat_RGBA8, ObjectsTextureSizeX, ObjectsTextureSizeY, gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
         return false;
@@ -179,8 +179,8 @@ bool SpriteManager::InitBlocksTexture()
     }
 
     // allocate temporary bitmap
-    PixelsArray blockBitmap { gMemoryManager.mFrameHeapAllocator };
-    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
+    PixelsArray blockBitmap;
+    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS, gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
         return false;
@@ -301,8 +301,8 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
     // allocate temporary bitmap
-    PixelsArray blockBitmap { gMemoryManager.mFrameHeapAllocator };
-    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS))
+    PixelsArray blockBitmap;
+    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS, gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
         return;
@@ -345,10 +345,10 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
         {
             int sprite_index = cityStyle.GetSpriteIndex(sprite_type, iSpriteId);
 
-            PixelsArray spriteBitmap { gMemoryManager.mFrameHeapAllocator };
+            PixelsArray spriteBitmap;
             spriteBitmap.Create(eTextureFormat_RGBA8, 
                 cityStyle.mSprites[sprite_index].mWidth, 
-                cityStyle.mSprites[sprite_index].mHeight);
+                cityStyle.mSprites[sprite_index].mHeight, gMemoryManager.mFrameHeapAllocator);
             cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
             // dump to file
@@ -371,8 +371,8 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
 
     SpriteStyle& sprite = cityStyle.mSprites[spriteIndex];
 
-    PixelsArray spriteBitmap { gMemoryManager.mFrameHeapAllocator };
-    spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight);
+    PixelsArray spriteBitmap;
+    spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight, gMemoryManager.mFrameHeapAllocator);
     for (int idelta = 0; idelta < sprite.mDeltaCount; ++idelta)
     {
         if (!cityStyle.GetSpriteTexture(spriteIndex, idelta, &spriteBitmap, 0, 0))
