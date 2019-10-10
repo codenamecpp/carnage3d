@@ -42,13 +42,13 @@ void GameObjectsManager::UpdateFrame(Timespan deltaTime)
         }
     }
 
-    if (!hasDeletePeds)
-        return;
-
-    // deactivate all peds marked for deletion
-    for (Pedestrian* deletePed: mDeletePedestriansList)
+    if (hasDeletePeds)
     {
-        RemoveFromActiveList(deletePed);
+        // deactivate all peds marked for deletion
+        for (Pedestrian* deletePed: mDeletePedestriansList)
+        {
+            RemoveFromActiveList(deletePed);
+        }
     }
 
     // update cars    
@@ -68,13 +68,13 @@ void GameObjectsManager::UpdateFrame(Timespan deltaTime)
         }
     }
 
-    if (!hasDeleteCars)
-        return;
-
-    // deactivate all cars marked for deletion
-    for (Vehicle* deleteCar: mDeleteCarsList)
+    if (hasDeleteCars)
     {
-        RemoveFromActiveList(deleteCar);
+        // deactivate all cars marked for deletion
+        for (Vehicle* deleteCar: mDeleteCarsList)
+        {
+            RemoveFromActiveList(deleteCar);
+        }
     }
 }
 

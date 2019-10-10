@@ -92,8 +92,8 @@ void SpriteBatch::GenerateSpritesBatches()
         if (sprite.mTexture != currentBatch->mSpriteTexture)
         {
             DrawSpriteBatch newBatch;
-            newBatch.mFirstVertex = currentBatch->mVertexCount;
-            newBatch.mFirstIndex = currentBatch->mIndexCount;
+            newBatch.mFirstVertex = currentBatch->mVertexCount + currentBatch->mFirstVertex;
+            newBatch.mFirstIndex = currentBatch->mIndexCount + currentBatch->mFirstIndex;
             newBatch.mVertexCount = 0;
             newBatch.mIndexCount = 0;
             newBatch.mSpriteTexture = sprite.mTexture;

@@ -47,3 +47,5 @@
     #define cxx_stricmp strcasecmp
     #define cxx_strnicmp strncasecmp
 #endif
+
+#define BIT(i) (1U << (i))

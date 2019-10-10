@@ -14,6 +14,7 @@ Vehicle::Vehicle(GameObjectID_t id)
     , mPhysicsComponent()
     , mDead()
     , mCarStyle()
+    , mDamageDeltaBits()
 {
 }
 
@@ -36,10 +37,15 @@ void Vehicle::EnterTheGame()
 
     mMarkForDeletion = false;
     mDead = false;
+    mDamageDeltaBits = 0;
+    mSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
+
+    SetupDeltaAnimations();
 }
 
 void Vehicle::UpdateFrame(Timespan deltaTime)
 {
+    UpdateDeltaAnimations(deltaTime);
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
@@ -49,9 +55,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
     position.y = ComputeDrawHeight(position, rotationAngle);
 
-    int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, GetSpriteDeltas(), mChassisSprite);
-
+    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, GetSpriteDeltas(), mChassisSprite);
     mChassisSprite.mPosition = glm::vec2(position.x, position.z);
     mChassisSprite.mScale = SPRITE_SCALE;
     mChassisSprite.mRotateAngle = rotationAngle;
@@ -101,5 +105,88 @@ float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotatio
 
 SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
 {
-    return 0;
+    SpriteDeltaBits_t deltaBits = mDamageDeltaBits;
+
+    // add doors
+    for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
+    {
+        if (!mDoorsAnims[idoor].IsNull())
+        {
+            unsigned int deltaIndex = mDoorsAnims[idoor].GetCurrentFrame();
+            deltaBits |= BIT(deltaIndex);
+        }
+    }
+
+    // add emergency lights
+    if (!mEmergLightsAnim.IsNull())
+    {
+        unsigned int deltaIndex = mEmergLightsAnim.GetCurrentFrame();
+        deltaBits |= BIT(deltaIndex);
+    }
+
+    return deltaBits;
+}
+
+void Vehicle::SetupDeltaAnimations()
+{
+    SpriteDeltaBits_t deltaBits = gGameMap.mStyleData.mSprites[mSpriteIndex].GetDeltaBits();
+
+    mEmergLightsAnim.SetNull();
+
+    SpriteDeltaBits_t maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
+    if ((deltaBits & maskBits) == maskBits)
+    {
+        // todo
+    }
+    // todo: bike
+    // doors
+    if (mCarStyle->mDoorsCount >= 1)
+    {
+        mDoorsAnims[0].SetNull();
+        mDoorsAnims[0].mAnimData.SetupFrames(
+        {
+            0,
+            CAR_DOOR1_SPRITE_DELTA_0,
+            CAR_DOOR1_SPRITE_DELTA_1,
+            CAR_DOOR1_SPRITE_DELTA_2,
+            CAR_DOOR1_SPRITE_DELTA_3
+        }, 
+        CAR_DOORS_ANIMATION_SPEED);
+
+        // debug only
+        mDoorsAnims[0].PlayAnimation(eSpriteAnimLoop_PingPong);
+    }
+
+    if (mCarStyle->mDoorsCount >= 2)
+    {
+        mDoorsAnims[1].SetNull();
+        mDoorsAnims[1].mAnimData.SetupFrames(
+        {
+            0,
+            CAR_DOOR2_SPRITE_DELTA_0,
+            CAR_DOOR2_SPRITE_DELTA_1,
+            CAR_DOOR2_SPRITE_DELTA_2,
+            CAR_DOOR2_SPRITE_DELTA_3
+        }, 
+        CAR_DOORS_ANIMATION_SPEED);
+
+        // debug only
+        mDoorsAnims[1].PlayAnimation(eSpriteAnimLoop_PingPong);
+    }
+}
+
+void Vehicle::UpdateDeltaAnimations(Timespan deltaTime)
+{
+    for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
+    {
+        if (mDoorsAnims[idoor].IsAnimationActive())
+        {
+            mDoorsAnims[idoor].AdvanceAnimation(deltaTime);
+        }
+    }
+
+    if (mEmergLightsAnim.IsAnimationActive())
+    {
+        mEmergLightsAnim.AdvanceAnimation(deltaTime);
+    }
 }

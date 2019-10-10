@@ -21,6 +21,21 @@ bool SpriteAnimation::IsAnimationActive() const
     return mStatus != eSpriteAnimStatus_Stop;
 }
 
+bool SpriteAnimation::IsFirstFrame() const
+{
+    return mFrameCursor == 0;
+}
+
+bool SpriteAnimation::IsLastFrame() const
+{
+    return (mAnimData.mFramesCount > 0) && mFrameCursor == (mAnimData.mFramesCount - 1);
+}
+
+bool SpriteAnimation::IsNull() const
+{
+    return mAnimData.IsNull();
+}
+
 void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
 {
     if (mStatus != eSpriteAnimStatus_Stop)

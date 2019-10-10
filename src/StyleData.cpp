@@ -399,8 +399,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, SpriteDeltaBits_t deltas, Pixe
     {
         for (int idelta = 0; idelta < MAX_SPRITE_DELTAS && idelta < sprite.mDeltaCount; ++idelta)
         {
-            unsigned int deltaBit = (1U << idelta);
-            if ((deltas & deltaBit) == 0)
+            if ((deltas & BIT(idelta)) == 0)
                 continue;
 
             SpriteStyle::DeltaInfo& delta = sprite.mDeltas[idelta];

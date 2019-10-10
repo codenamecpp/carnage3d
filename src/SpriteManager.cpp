@@ -437,6 +437,16 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
 
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
 
+    // filter out present delta bits
+    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
+    deltaBits &= spriteStyle.GetDeltaBits();
+
+    if (deltaBits == 0)
+    {
+        GetSpriteTexture(objectID, spriteIndex, sourceSprite);
+        return;
+    }
+
     // find sprite with deltas within cache
     for (SpriteCacheElement& currElement: mSpritesCache)
     {
@@ -467,8 +477,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
             return;
         }
     }
-    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
-
+    
     // cache miss
     Size2D dimensions;
     dimensions.x = cxx::get_next_pot(spriteStyle.mWidth);
@@ -486,6 +495,8 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     {
         debug_assert(false);
     }
+
+    pixels.FillWithCheckerBoard();
 
     // combine soruce image with deltas
     if (!gGameMap.mStyleData.GetSpriteTexture(spriteIndex, deltaBits, &pixels, 0, 0))

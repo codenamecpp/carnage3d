@@ -28,9 +28,20 @@ public:
     inline void Setup(int startFrame, int numFrames, float fps = 12.0f)
     {
         mFramesCount = numFrames;
-        for (int iframe = 0; iframe < numFrames; ++iframe)
+        debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
+        for (int iframe = 0; iframe < mFramesCount; ++iframe)
         {
             mFrames[iframe] = startFrame + iframe;
+        }
+        mFramesPerSecond = fps;
+    }
+    inline void SetupFrames(std::initializer_list<int> frames, float fps = 12.0f)
+    {
+        mFramesCount = frames.size();
+        debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
+        for (int iframe = 0; iframe < mFramesCount; ++iframe)
+        {
+            mFrames[iframe] = *(frames.begin() + iframe);
         }
         mFramesPerSecond = fps;
     }
@@ -67,6 +78,10 @@ public:
     int GetCurrentFrame() const;
     // test whether animation in progress
     bool IsAnimationActive() const;
+    bool IsFirstFrame() const;
+    bool IsLastFrame() const;
+
+    bool IsNull() const;
     
 public:
     // public for convenience, should not be modified directly

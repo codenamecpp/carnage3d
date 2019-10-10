@@ -50,6 +50,8 @@
 #define CAR_LIGHTING_SPRITE_DELTA_0 15
 #define CAR_LIGHTING_SPRITE_DELTA_1 16
 
+#define CAR_DOORS_ANIMATION_SPEED 8.0f
+
 // forwards
 class Pedestrian;
 class Vehicle;
@@ -568,6 +570,17 @@ public:
         int mOffset;
     };
     DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
+
+    // get sprite delta bits
+    inline SpriteDeltaBits_t GetDeltaBits() const
+    {
+        SpriteDeltaBits_t deltaBits = 0;
+        for (int idelta = 0; idelta < mDeltaCount; ++idelta)
+        {
+            deltaBits |= BIT(idelta);
+        }
+        return deltaBits;
+    }
 };
 
 // various sprites animations
