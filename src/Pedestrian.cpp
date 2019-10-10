@@ -7,7 +7,7 @@
 #include "RenderingManager.h"
 #include "PedestrianStates.h"
 
-Pedestrian::Pedestrian(unsigned int id)
+Pedestrian::Pedestrian(GameObjectID_t id)
     : GameObject(id)
     , mPhysicsComponent()
     , mCurrentAnimID(eSpriteAnimationID_Null)
@@ -74,14 +74,12 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
-    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
-        
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
-    mDrawSprite.mTexture = gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture;
-    mDrawSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEntries[spriteLinearIndex];
+    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, mDrawSprite);
+
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
     mDrawSprite.mRotateAngle = rotationAngle;

@@ -7,7 +7,7 @@
 #include "RenderingManager.h"
 #include "SpriteManager.h"
 
-Vehicle::Vehicle(unsigned int id)
+Vehicle::Vehicle(GameObjectID_t id)
     : GameObject(id)
     , mActiveCarsNode(this)
     , mDeleteCarsNode(this)
@@ -43,16 +43,15 @@ void Vehicle::UpdateFrame(Timespan deltaTime)
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
-{
-    int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
-        
+{   
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     glm::vec3 position = mPhysicsComponent->GetPosition();
     position.y = ComputeDrawHeight(position, rotationAngle);
 
-    mChassisSprite.mTexture = gSpriteManager.mObjectsSpritesheet.mSpritesheetTexture;
-    mChassisSprite.mTextureRegion = gSpriteManager.mObjectsSpritesheet.mEntries[spriteLinearIndex];
+    int spriteLinearIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, GetSpriteDeltas(), mChassisSprite);
+
     mChassisSprite.mPosition = glm::vec2(position.x, position.z);
     mChassisSprite.mScale = SPRITE_SCALE;
     mChassisSprite.mRotateAngle = rotationAngle;
@@ -98,4 +97,9 @@ float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotatio
     }
 #endif
     return position.y + 0.02f;
+}
+
+SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
+{
+    return 0;
 }

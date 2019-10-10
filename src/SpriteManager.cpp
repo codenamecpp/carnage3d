@@ -43,6 +43,8 @@ bool SpriteManager::InitLevelSprites()
 
 void SpriteManager::Cleanup()
 {
+    FlushSpritesCache();
+    DestroySpriteTextures();
     mIndicesTableChanged = false;
     if (mBlocksTextureArray)
     {
@@ -387,4 +389,153 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
             debug_assert(false);
         }
     } // for
+}
+
+void SpriteManager::FlushSpritesCache()
+{
+    // move all textures to pool
+    for (SpriteCacheElement& currElement: mSpritesCache)
+    {
+        mFreeSpriteTextures.push_back(currElement.mTexture);
+    }
+
+    mSpritesCache.clear();
+}
+
+void SpriteManager::FlushSpritesCache(GameObjectID_t objectID)
+{
+    for (auto icurrent = mSpritesCache.begin(); icurrent != mSpritesCache.end(); )
+    {
+        if (icurrent->mObjectID == objectID)
+        {
+            // move texture to pool
+            mFreeSpriteTextures.push_back(icurrent->mTexture);
+
+            icurrent = mSpritesCache.erase(icurrent);
+            continue;
+        }
+        ++icurrent;
+    }
+}
+
+void SpriteManager::DestroySpriteTextures()
+{
+    for (GpuTexture2D* currTexture: mFreeSpriteTextures)
+    {
+        gGraphicsDevice.DestroyTexture(currTexture);
+    }
+    mFreeSpriteTextures.clear();
+}
+
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite& sourceSprite)
+{
+    if (deltaBits == 0)
+    {
+        GetSpriteTexture(objectID, spriteIndex, sourceSprite);
+        return;
+    }
+
+    debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
+
+    // find sprite with deltas within cache
+    for (SpriteCacheElement& currElement: mSpritesCache)
+    {
+        if (currElement.mObjectID == objectID && currElement.mSpriteIndex == spriteIndex)
+        {
+            if (currElement.mSpriteDeltaBits == deltaBits)
+            {
+                sourceSprite.mTexture = currElement.mTexture;
+                sourceSprite.mTextureRegion = currElement.mTextureRegion;
+                return;
+            }
+            currElement.mSpriteDeltaBits = deltaBits;
+
+            // upload changes
+            PixelsArray pixels;
+            if (!pixels.Create(currElement.mTexture->mFormat, 
+                currElement.mTexture->mSize.x, 
+                currElement.mTexture->mSize.y, gMemoryManager.mFrameHeapAllocator))
+            {
+                debug_assert(false);
+            }
+
+            if (!gGameMap.mStyleData.GetSpriteTexture(spriteIndex, deltaBits, &pixels, 0, 0))
+            {
+                debug_assert(false);
+            }
+            sourceSprite.mTexture->Upload(pixels.mData);
+            return;
+        }
+    }
+    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
+
+    // cache miss
+    Size2D dimensions;
+    dimensions.x = cxx::get_next_pot(spriteStyle.mWidth);
+    dimensions.y = cxx::get_next_pot(spriteStyle.mHeight);
+
+    sourceSprite.mTexture = GetFreeSpriteTexture(dimensions, eTextureFormat_RGBA8);
+    if (sourceSprite.mTexture == nullptr)
+    {
+        debug_assert(false);
+    }
+
+    PixelsArray pixels;
+    if (!pixels.Create(eTextureFormat_RGBA8, dimensions.x, dimensions.y, 
+        gMemoryManager.mFrameHeapAllocator))
+    {
+        debug_assert(false);
+    }
+
+    // combine soruce image with deltas
+    if (!gGameMap.mStyleData.GetSpriteTexture(spriteIndex, deltaBits, &pixels, 0, 0))
+    {
+        debug_assert(false);
+    }
+
+    // upload to texture
+    sourceSprite.mTexture->Upload(pixels.mData);
+
+    Rect2D srcRect;
+    srcRect.x = 0;
+    srcRect.y = 0;
+    srcRect.w = spriteStyle.mWidth;
+    srcRect.h = spriteStyle.mHeight;
+
+    sourceSprite.mTextureRegion.SetRegion(srcRect, dimensions);
+
+    // add to sprites cache
+    SpriteCacheElement spriteCacheElement;
+    spriteCacheElement.mObjectID = objectID;
+    spriteCacheElement.mSpriteIndex = spriteIndex;
+    spriteCacheElement.mSpriteDeltaBits = deltaBits;
+    spriteCacheElement.mTexture = sourceSprite.mTexture;
+    spriteCacheElement.mTextureRegion = sourceSprite.mTextureRegion;
+
+    mSpritesCache.push_back(spriteCacheElement);
+}
+
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite& sourceSprite)
+{
+    debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
+
+    sourceSprite.mTexture = mObjectsSpritesheet.mSpritesheetTexture;
+    sourceSprite.mTextureRegion = mObjectsSpritesheet.mEntries[spriteIndex];
+}
+
+GpuTexture2D* SpriteManager::GetFreeSpriteTexture(const Size2D& dimensions, eTextureFormat format)
+{
+    for (auto icurr = mFreeSpriteTextures.begin(); icurr != mFreeSpriteTextures.end(); )
+    {
+        GpuTexture2D* currTexture = *icurr;
+        if (currTexture->mSize == dimensions && currTexture->mFormat == format)
+        {
+            mFreeSpriteTextures.erase(icurr);
+            return currTexture;
+        }
+        ++icurr;
+    }
+
+    GpuTexture2D* texture = gGraphicsDevice.CreateTexture2D(format, dimensions.x, dimensions.y, nullptr);
+    return texture;
 }

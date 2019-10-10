@@ -26,7 +26,7 @@ public:
 
     // find pedestrian object by its unique identifier
     // @param objectID: Unique identifier
-    Pedestrian* GetPedestrianByID(unsigned objectID) const;
+    Pedestrian* GetPedestrianByID(GameObjectID_t objectID) const;
 
     // add car instance to map at specific location
     // @param position: Real world position
@@ -35,7 +35,7 @@ public:
 
     // find car object by its unique identifier
     // @param objectID: Unique identifier
-    Vehicle* GetCarByID(unsigned objectID) const;
+    Vehicle* GetCarByID(GameObjectID_t objectID) const;
 
     // will immediately destroy game object, make sure it is not in use at this moment
     // @param object: Object to destroy
@@ -53,10 +53,10 @@ private:
     void RemoveFromActiveList(Vehicle* object);
 
     void DestroyPendingObjects();
-    unsigned int GenerateUniqueID();
+    GameObjectID_t GenerateUniqueID();
 
 private:
-    unsigned int mIDsCounter = 0;
+    GameObjectID_t mIDsCounter = 0;
 
     // objects pools
     cxx::object_pool<Pedestrian> mPedestriansPool;

@@ -131,8 +131,10 @@ enum eBlockFace : unsigned short
 
 decl_enum_strings(eBlockFace);
 
-using spriteDeltaBits_t = unsigned int;
-static_assert(sizeof(spriteDeltaBits_t) * 8 >= MAX_SPRITE_DELTAS, "Delta bits underlying type is too small, see MAX_SPRITE_DELTAS");
+using SpriteDeltaBits_t = unsigned int;
+static_assert(sizeof(SpriteDeltaBits_t) * 8 >= MAX_SPRITE_DELTAS, "Delta bits underlying type is too small, see MAX_SPRITE_DELTAS");
+
+using GameObjectID_t = unsigned int;
 
 // defines draw vertex of city mesh
 struct CityVertex3D

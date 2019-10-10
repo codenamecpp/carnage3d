@@ -84,7 +84,7 @@ void GameObjectsManager::DebugDraw()
 
 Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position)
 {
-    unsigned int pedestrianID = GenerateUniqueID();
+    GameObjectID_t pedestrianID = GenerateUniqueID();
 
     Pedestrian* instance = mPedestriansPool.create(pedestrianID);
     debug_assert(instance);
@@ -97,11 +97,11 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position)
     return instance;
 }
 
-Pedestrian* GameObjectsManager::GetPedestrianByID(unsigned objectID) const
+Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID_t objectID) const
 {
     for (const Pedestrian* currVehicle: mActivePedestriansList)
     {
-        if (currVehicle->mID == objectID)
+        if (currVehicle->mObjectID == objectID)
             return const_cast<Pedestrian*>(currVehicle);
     }
     return nullptr;
@@ -114,7 +114,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, int carTypeId)
     debug_assert(styleData.IsLoaded());
     debug_assert(carTypeId < (int)styleData.mCars.size());
 
-    unsigned int carID = GenerateUniqueID();
+    GameObjectID_t carID = GenerateUniqueID();
 
     Vehicle* instance = mCarsPool.create(carID);
     debug_assert(instance);
@@ -128,11 +128,11 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, int carTypeId)
     return instance;
 }
 
-Vehicle* GameObjectsManager::GetCarByID(unsigned objectID) const
+Vehicle* GameObjectsManager::GetCarByID(GameObjectID_t objectID) const
 {
     for (const Vehicle* currVehicle: mActiveCarsList)
     {
-        if (currVehicle->mID == objectID)
+        if (currVehicle->mObjectID == objectID)
             return const_cast<Vehicle*>(currVehicle);
     }
     return nullptr;
@@ -250,9 +250,9 @@ void GameObjectsManager::DestroyPendingObjects()
     DestroyObjectsInList(mDeleteCarsList);
 }
 
-unsigned int GameObjectsManager::GenerateUniqueID()
+GameObjectID_t GameObjectsManager::GenerateUniqueID()
 {
-    unsigned int newID = ++mIDsCounter;
+    GameObjectID_t newID = ++mIDsCounter;
     if (newID == 0) // overflow
     {
         debug_assert(false);

@@ -389,7 +389,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
     return true;
 }
 
-bool StyleData::GetSpriteTexture(int spriteIndex, spriteDeltaBits_t deltas, PixelsArray* bitmap, int destPositionX, int destPositionY)
+bool StyleData::GetSpriteTexture(int spriteIndex, SpriteDeltaBits_t deltas, PixelsArray* bitmap, int destPositionX, int destPositionY)
 {
     if (!GetSpriteTexture(spriteIndex, bitmap, destPositionY, destPositionY))
         return false;

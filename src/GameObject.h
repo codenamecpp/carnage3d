@@ -4,8 +4,8 @@
 class GameObject: public cxx::noncopyable
 {
 public:
-    GameObject(unsigned int uniqueID)
-        : mID(uniqueID)
+    GameObject(GameObjectID_t uniqueID)
+        : mObjectID(uniqueID)
     {
     }
 
@@ -14,7 +14,7 @@ public:
     }
 
 public:
-    const unsigned int mID; // its unique for all game objects
+    const GameObjectID_t mObjectID; // its unique for all game objects
 
     bool mMarkForDeletion = false; // destroy object at next frame
 };

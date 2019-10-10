@@ -30,6 +30,19 @@ public:
 
     void UpdateBlocksAnimations(Timespan deltaTime);
 
+    // force drop cached sprites
+    // @param objectID: Specific object identifier
+    void FlushSpritesCache();
+    void FlushSpritesCache(GameObjectID_t objectID);
+
+    // create sprite texture with deltas specified
+    // @param objectID: Game object that owns sprite
+    // @param spriteIndex: Sprite index, linear
+    // @param deltaBits: Sprite delta bits
+    // @param sourceSprite: Sprite data
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite& sourceSprite);
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite& sourceSprite);
+
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);
     void DumpSpriteTextures(const char* outputLocation);
@@ -41,6 +54,10 @@ private:
     bool InitObjectsSpritesheet();
     void InitBlocksAnimations();
 
+    // find texture with required size and format or create new if nothing found
+    GpuTexture2D* GetFreeSpriteTexture(const Size2D& dimensions, eTextureFormat format);
+    void DestroySpriteTextures();
+
 private:
     // animation state for blocks sharing specific texture
     struct BlockAnimation: public SpriteAnimation
@@ -48,9 +65,25 @@ private:
     public:
         int mBlockIndex; // linear
     };
+
     std::vector<BlockAnimation> mBlocksAnimations;
     std::vector<unsigned short> mBlocksIndices;
     bool mIndicesTableChanged;
+
+    // usused sprite textures
+    std::vector<GpuTexture2D*> mFreeSpriteTextures;
+
+    // cached sprite textures with deltas
+    struct SpriteCacheElement
+    {
+    public:
+        GameObjectID_t mObjectID; // object identifier which this sprite belongs to
+        int mSpriteIndex;
+        SpriteDeltaBits_t mSpriteDeltaBits; // all deltas applied to this sprite
+        GpuTexture2D* mTexture;
+        TextureRegion mTextureRegion;
+    };
+    std::vector<SpriteCacheElement> mSpritesCache;
 };
 
 extern SpriteManager gSpriteManager;
