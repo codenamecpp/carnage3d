@@ -9,7 +9,7 @@
 
     "memory":
     {
-        "frame_heap_size": 8388612
+        "enable_frame_heap_allocator": true
     },
 
     "gta_gamedata_location": "../../../GTADATA"

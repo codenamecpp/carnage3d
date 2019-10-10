@@ -1,5 +1,7 @@
 #pragma once
 
+const int SysMemoryFrameHeapSize = 12 * 1024 * 1024;
+
 // defines system configuration
 class SysConfig
 {
@@ -24,7 +26,7 @@ public:
     bool mOpenGLCoreProfile = true;
     float mScreenAspectRatio = 1.0f;
     // memory settings
-    int mFrameHeapMemorySize = 0; // 0 for disable
+    bool mEnableFrameHeapAllocator = true;
 };
 
 // defines system startup parameters

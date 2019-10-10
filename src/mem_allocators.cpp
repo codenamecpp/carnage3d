@@ -6,7 +6,7 @@ namespace cxx
 
 struct linear_alloc_header
 {
-    size_t mAllocationLength; // header size not included
+    unsigned int mAllocationLength; // header size not included
 };
 
 linear_memory_allocator::~linear_memory_allocator()
@@ -18,7 +18,7 @@ linear_memory_allocator::~linear_memory_allocator()
     }
 }
 
-bool linear_memory_allocator::init_allocator(size_t bufferSizeTotal)
+bool linear_memory_allocator::init_allocator(unsigned int bufferSizeTotal)
 {
     if (mMemoryBuffer)
     {
@@ -37,9 +37,9 @@ bool linear_memory_allocator::init_allocator(size_t bufferSizeTotal)
     return true;
 }
 
-void* linear_memory_allocator::allocate(size_t dataLength)
+void* linear_memory_allocator::allocate(unsigned int dataLength)
 {
-    size_t allocPos = cxx::align_up(mMemorySizeUsed, 16);
+    unsigned int allocPos = cxx::align_up(mMemorySizeUsed, 16);
     if (allocPos + dataLength + sizeof(linear_alloc_header) <= mMemorySizeFree)
     {
         unsigned char* dataPointer = ((unsigned char*) mMemoryBuffer) + allocPos;
@@ -63,7 +63,7 @@ void* linear_memory_allocator::allocate(size_t dataLength)
     return nullptr;
 }
 
-void* linear_memory_allocator::reallocate(void* dataPointer, size_t dataLength)
+void* linear_memory_allocator::reallocate(void* dataPointer, unsigned int dataLength)
 {
     unsigned char* sourcePointer = (unsigned char*) dataPointer;
 
@@ -105,12 +105,12 @@ void linear_memory_allocator::reset()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool heap_memory_allocator::init_allocator(size_t bufferSizeTotal)
+bool heap_memory_allocator::init_allocator(unsigned int bufferSizeTotal)
 {
     return true;
 }
 
-void* heap_memory_allocator::allocate(size_t dataLength)
+void* heap_memory_allocator::allocate(unsigned int dataLength)
 {
     void* dataPoitner = malloc(dataLength);
     if (dataPoitner == nullptr && mOutOfMemoryProc)
@@ -121,7 +121,7 @@ void* heap_memory_allocator::allocate(size_t dataLength)
     return dataPoitner;
 }
 
-void* heap_memory_allocator::reallocate(void* dataPointer, size_t dataLength)
+void* heap_memory_allocator::reallocate(void* dataPointer, unsigned int dataLength)
 {
     void* newPointer = realloc(dataPointer, dataLength);
     if (newPointer == nullptr && mOutOfMemoryProc)

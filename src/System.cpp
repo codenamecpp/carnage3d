@@ -282,13 +282,8 @@ bool System::LoadConfiguration()
     // memory
     if (cxx::config_node memConfig = configDocument.get_root_node().get_child("memory"))
     {
-        mConfig.mFrameHeapMemorySize = memConfig.get_child("frame_heap_size").get_value_integer();
-        if (mConfig.mFrameHeapMemorySize < 0)
-        {
-            mConfig.mFrameHeapMemorySize = 0;
-        }
+        mConfig.mEnableFrameHeapAllocator = memConfig.get_child("enable_frame_heap_allocator").get_value_boolean();
     }
-
     return true;
 }
 
