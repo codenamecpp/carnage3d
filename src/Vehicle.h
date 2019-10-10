@@ -38,13 +38,13 @@ private:
     SpriteDeltaBits_t GetSpriteDeltas() const;
 
 private:
-    Sprite mChassisSprite;
+    Sprite mChassisDrawSprite;
 
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
     SpriteDeltaBits_t mDamageDeltaBits;
 
-    int mSpriteIndex = 0;
+    int mChassisSpriteIndex = 0;
 
     // internal stuff that can be touched only by CarsManager
     cxx::intrusive_node<Vehicle> mActiveCarsNode;

@@ -38,7 +38,7 @@ void Vehicle::EnterTheGame()
     mMarkForDeletion = false;
     mDead = false;
     mDamageDeltaBits = 0;
-    mSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
+    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
 
     SetupDeltaAnimations();
 }
@@ -55,13 +55,13 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
     position.y = ComputeDrawHeight(position, rotationAngle);
 
-    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, GetSpriteDeltas(), mChassisSprite);
-    mChassisSprite.mPosition = glm::vec2(position.x, position.z);
-    mChassisSprite.mScale = SPRITE_SCALE;
-    mChassisSprite.mRotateAngle = rotationAngle;
-    mChassisSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
-    mChassisSprite.SetOriginToCenter();
-    spriteBatch.DrawSprite(mChassisSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, GetSpriteDeltas(), mChassisDrawSprite);
+    mChassisDrawSprite.mPosition = glm::vec2(position.x, position.z);
+    mChassisDrawSprite.mScale = SPRITE_SCALE;
+    mChassisDrawSprite.mRotateAngle = rotationAngle;
+    mChassisDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
+    mChassisDrawSprite.SetOriginToCenter();
+    spriteBatch.DrawSprite(mChassisDrawSprite);
 
 #if 1 // debug
     // draw doors
@@ -112,16 +112,16 @@ SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
     {
         if (!mDoorsAnims[idoor].IsNull())
         {
-            unsigned int deltaIndex = mDoorsAnims[idoor].GetCurrentFrame();
-            deltaBits |= BIT(deltaIndex);
+            unsigned int deltaBit = mDoorsAnims[idoor].GetCurrentFrame();
+            deltaBits |= deltaBit;
         }
     }
 
     // add emergency lights
     if (!mEmergLightsAnim.IsNull())
     {
-        unsigned int deltaIndex = mEmergLightsAnim.GetCurrentFrame();
-        deltaBits |= BIT(deltaIndex);
+        unsigned int deltaBit = mEmergLightsAnim.GetCurrentFrame();
+        deltaBits |= deltaBit;
     }
 
     return deltaBits;
@@ -129,7 +129,7 @@ SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
 
 void Vehicle::SetupDeltaAnimations()
 {
-    SpriteDeltaBits_t deltaBits = gGameMap.mStyleData.mSprites[mSpriteIndex].GetDeltaBits();
+    SpriteDeltaBits_t deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
 
     mEmergLightsAnim.SetNull();
 
@@ -146,10 +146,10 @@ void Vehicle::SetupDeltaAnimations()
         mDoorsAnims[0].mAnimData.SetupFrames(
         {
             0,
-            CAR_DOOR1_SPRITE_DELTA_0,
-            CAR_DOOR1_SPRITE_DELTA_1,
-            CAR_DOOR1_SPRITE_DELTA_2,
-            CAR_DOOR1_SPRITE_DELTA_3
+            BIT(CAR_DOOR1_SPRITE_DELTA_0),
+            BIT(CAR_DOOR1_SPRITE_DELTA_1),
+            BIT(CAR_DOOR1_SPRITE_DELTA_2),
+            BIT(CAR_DOOR1_SPRITE_DELTA_3)
         }, 
         CAR_DOORS_ANIMATION_SPEED);
 
@@ -163,10 +163,10 @@ void Vehicle::SetupDeltaAnimations()
         mDoorsAnims[1].mAnimData.SetupFrames(
         {
             0,
-            CAR_DOOR2_SPRITE_DELTA_0,
-            CAR_DOOR2_SPRITE_DELTA_1,
-            CAR_DOOR2_SPRITE_DELTA_2,
-            CAR_DOOR2_SPRITE_DELTA_3
+            BIT(CAR_DOOR2_SPRITE_DELTA_0),
+            BIT(CAR_DOOR2_SPRITE_DELTA_1),
+            BIT(CAR_DOOR2_SPRITE_DELTA_2),
+            BIT(CAR_DOOR2_SPRITE_DELTA_3)
         }, 
         CAR_DOORS_ANIMATION_SPEED);
 
