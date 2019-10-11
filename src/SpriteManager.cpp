@@ -363,6 +363,37 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
     } // for
 }
 
+void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
+{
+    StyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+    cxx::ensure_path_exists(outputLocation);
+    cxx::string_buffer_1024 pathBuffer;
+
+    for (int isprite = 0, Num = gGameMap.mStyleData.mSprites.size(); isprite < Num; ++isprite)
+    {
+        SpriteStyle& sprite = gGameMap.mStyleData.mSprites[isprite];
+
+        PixelsArray spriteBitmap;
+        spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight, gMemoryManager.mFrameHeapAllocator);
+        for (int idelta = 0; idelta < sprite.mDeltaCount; ++idelta)
+        {
+            if (!cityStyle.GetSpriteTexture(isprite, BIT(idelta), &spriteBitmap, 0, 0))
+            {
+                debug_assert(false);
+            }
+
+            // dump to file
+            pathBuffer.printf("%s/sprite_%d_delta_%d.png", outputLocation, isprite, idelta);
+            if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+            {
+                debug_assert(false);
+            }
+        }
+    } // for
+}
+
 void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
@@ -377,7 +408,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
     spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight, gMemoryManager.mFrameHeapAllocator);
     for (int idelta = 0; idelta < sprite.mDeltaCount; ++idelta)
     {
-        if (!cityStyle.GetSpriteTexture(spriteIndex, idelta, &spriteBitmap, 0, 0))
+        if (!cityStyle.GetSpriteTexture(spriteIndex, BIT(idelta), &spriteBitmap, 0, 0))
         {
             debug_assert(false);
         }

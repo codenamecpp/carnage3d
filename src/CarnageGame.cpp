@@ -19,9 +19,6 @@ bool CarnageGame::Initialize()
         gSystem.mStartupParams.mDebugMapName.set_content("NYC.CMP");
     }
 
-    //gGameMap.LoadFromFile("NYC.CMP");
-    //gGameMap.LoadFromFile("SANB.CMP");
-    //gGameMap.LoadFromFile("MIAMI.CMP");
     gGameMap.LoadFromFile(gSystem.mStartupParams.mDebugMapName.c_str());
     gSpriteManager.Cleanup();
     gRenderManager.mMapRenderer.InvalidateMapMesh();
@@ -29,6 +26,7 @@ bool CarnageGame::Initialize()
     {
         debug_assert(false);
     }
+   // gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
     //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
     //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
 

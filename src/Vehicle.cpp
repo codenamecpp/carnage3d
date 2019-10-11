@@ -24,6 +24,7 @@ Vehicle::~Vehicle()
     {
         gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
     }
+    gSpriteManager.FlushSpritesCache(mObjectID);
 }
 
 void Vehicle::EnterTheGame()
