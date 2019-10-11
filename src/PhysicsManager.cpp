@@ -133,7 +133,7 @@ void PhysicsManager::CreateMapCollisionShape()
 
             auto is_walkable = [](eGroundType gtype)
             {
-                return gtype == eGroundType_Field || gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
+                return gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
             };
 
             if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&

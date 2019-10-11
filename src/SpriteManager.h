@@ -48,6 +48,7 @@ public:
     void DumpSpriteTextures(const char* outputLocation);
     void DumpSpriteDeltas(const char* outputLocation);
     void DumpSpriteDeltas(const char* outputLocation, int spriteIndex);
+    void DumpCarsTextures(const char* outputLocation);
 
 private:
     bool InitBlocksIndicesTable();

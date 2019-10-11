@@ -363,6 +363,32 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
     } // for
 }
 
+void SpriteManager::DumpCarsTextures(const char* outputLocation)
+{
+    StyleData& cityStyle = gGameMap.mStyleData;
+
+    debug_assert(cityStyle.IsLoaded());
+    cxx::ensure_path_exists(outputLocation);
+    cxx::string_buffer_1024 pathBuffer;
+    for (const CarStyle& currCar: cityStyle.mCars)
+    {
+        int sprite_index = cityStyle.GetCarSpriteIndex(currCar.mVType, currCar.mModel, currCar.mSprNum);
+
+        PixelsArray spriteBitmap;
+        spriteBitmap.Create(eTextureFormat_RGBA8, 
+            cityStyle.mSprites[sprite_index].mWidth, 
+            cityStyle.mSprites[sprite_index].mHeight, gMemoryManager.mFrameHeapAllocator);
+        cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
+            
+        // dump to file
+        pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currCar.mVType), currCar.mModel);
+        if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+        {
+            debug_assert(false);
+        }
+    } // for
+}
+
 void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
 {
     StyleData& cityStyle = gGameMap.mStyleData;

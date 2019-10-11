@@ -6,6 +6,7 @@
 #include "GameCheatsWindow.h"
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
+#include "MemoryManager.h"
 
 CarnageGame gCarnageGame;
 
@@ -26,10 +27,10 @@ bool CarnageGame::Initialize()
     {
         debug_assert(false);
     }
-   // gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
+    //gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
     //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
     //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
-
+    //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
     gPhysics.Initialize();
 
     mObjectsManager.Initialize();
@@ -44,6 +45,8 @@ bool CarnageGame::Initialize()
     pos.y = gGameMap.GetHeightAtPosition(pos);
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
     mHumanController.SetCharacter(mPlayerPedestrian);
+
+
 
     for (int icartype = 0; icartype < 6; ++icartype)
     {
