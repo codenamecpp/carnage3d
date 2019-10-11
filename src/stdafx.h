@@ -47,7 +47,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 }
 
 // stdlib
-#include <cmath>
+//#include <cmath>
 #include <stdarg.h>
 #include <memory>
 #include <string>
