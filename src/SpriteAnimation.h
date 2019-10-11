@@ -80,6 +80,8 @@ public:
     bool IsAnimationActive() const;
     bool IsFirstFrame() const;
     bool IsLastFrame() const;
+    bool IsRunsForwards() const;
+    bool IsRunsBackwards() const;
 
     bool IsNull() const;
     

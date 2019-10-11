@@ -30,6 +30,12 @@ public:
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 
+    bool HasDoorAnimation(int doorIndex) const;
+    bool IsDoorOpened(int doorIndex) const;
+    bool IsDoorClosed(int doorIndex) const;
+    bool IsDoorOpening(int doorIndex) const;
+    bool IsDoorClosing(int doorIndex) const;
+
 private:
     float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
     void SetupDeltaAnimations();

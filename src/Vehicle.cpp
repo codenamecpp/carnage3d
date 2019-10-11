@@ -191,3 +191,37 @@ void Vehicle::UpdateDeltaAnimations(Timespan deltaTime)
         mEmergLightsAnim.AdvanceAnimation(deltaTime);
     }
 }
+
+bool Vehicle::HasDoorAnimation(int doorIndex) const
+{
+    debug_assert(doorIndex < MAX_CAR_DOORS);
+    return !mDoorsAnims[doorIndex].IsNull();
+}
+
+bool Vehicle::IsDoorOpened(int doorIndex) const
+{
+    debug_assert(doorIndex < MAX_CAR_DOORS);
+    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsAnimationActive() && 
+        mDoorsAnims[doorIndex].IsLastFrame();
+}
+
+bool Vehicle::IsDoorClosed(int doorIndex) const
+{
+    debug_assert(doorIndex < MAX_CAR_DOORS);
+    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsAnimationActive() && 
+        mDoorsAnims[doorIndex].IsFirstFrame();
+}
+
+bool Vehicle::IsDoorOpening(int doorIndex) const
+{
+    debug_assert(doorIndex < MAX_CAR_DOORS);
+    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsAnimationActive() && 
+        mDoorsAnims[doorIndex].IsRunsForwards();
+}
+
+bool Vehicle::IsDoorClosing(int doorIndex) const
+{
+    debug_assert(doorIndex < MAX_CAR_DOORS);
+    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsAnimationActive() && 
+        mDoorsAnims[doorIndex].IsRunsBackwards();
+}

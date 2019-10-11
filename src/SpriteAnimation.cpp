@@ -36,6 +36,16 @@ bool SpriteAnimation::IsNull() const
     return mAnimData.IsNull();
 }
 
+bool SpriteAnimation::IsRunsForwards() const
+{
+    return mStatus == eSpriteAnimStatus_PlayForward;
+}
+
+bool SpriteAnimation::IsRunsBackwards() const
+{
+    return mStatus == eSpriteAnimStatus_PlayBackward;
+}
+
 void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
 {
     if (mStatus != eSpriteAnimStatus_Stop)
