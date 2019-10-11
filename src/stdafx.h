@@ -47,7 +47,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 }
 
 // stdlib
-//#include <cmath>
+#include <math.h>
 #include <stdarg.h>
 #include <memory>
 #include <string>
@@ -78,10 +78,6 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/glm.hpp>
-
-//#if OS_NAME == OS_LINUX
-//    #define isfinite(VAL) std::isfinite(VAL)
-//#endif
 
 // physics
 #include <Box2D/Box2D.h>

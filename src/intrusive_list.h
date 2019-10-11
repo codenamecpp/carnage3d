@@ -185,10 +185,9 @@ namespace cxx
     {
     public:
 	    friend class intrusive_list<typename std::remove_const<TClass>::type>;
-	    using intrusive_node = intrusive_node<TClass>;
 
 	    intrusive_iterator() = default;
-	    explicit intrusive_iterator(intrusive_node* node)
+	    explicit intrusive_iterator(intrusive_node<TClass>* node)
             : mNode(node)
         {
         }
@@ -239,7 +238,7 @@ namespace cxx
         }
 
         // access to node element pointer
-	    inline intrusive_node* operator -> () const
+	    inline intrusive_node<TClass>* operator -> () const
         {
             debug_assert(mNode);
             return mNode;
@@ -253,7 +252,7 @@ namespace cxx
         }
 
     private:
-	    intrusive_node* mNode = nullptr;
+	    intrusive_node<TClass>* mNode = nullptr;
     };
 
 } // namespace cxx
