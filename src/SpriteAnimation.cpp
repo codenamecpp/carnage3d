@@ -60,7 +60,6 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
     mTicksFromFrameStart = 0;
     mTicksFromAnimStart = 0;
     mCyclesCounter = 0;
-    mFrameCursor = 0;
     mStatus = eSpriteAnimStatus_PlayForward;
     mLoopMode = animLoop;
 }
@@ -70,6 +69,20 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop, float fps)
     mAnimData.mFramesPerSecond = fps;
 
     PlayAnimation(animLoop);
+}
+
+void SpriteAnimation::PlayAnimationBackwards(eSpriteAnimLoop animLoop)
+{
+    PlayAnimation(animLoop);
+
+    mStatus = eSpriteAnimStatus_PlayBackward;
+}
+
+void SpriteAnimation::PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps)
+{
+    PlayAnimation(animLoop, fps);
+
+    mStatus = eSpriteAnimStatus_PlayBackward;
 }
 
 void SpriteAnimation::StopAnimation()

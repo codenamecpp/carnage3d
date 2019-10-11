@@ -30,6 +30,10 @@ public:
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 
+    // doors animations
+    void OpenDoor(int doorIndex);
+    void CloseDoor(int doorIndex);
+
     bool HasDoorAnimation(int doorIndex) const;
     bool IsDoorOpened(int doorIndex) const;
     bool IsDoorClosed(int doorIndex) const;

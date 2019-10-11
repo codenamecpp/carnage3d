@@ -69,15 +69,21 @@ public:
     void SetNull();
 
     // animation control
+
     void StopAnimation();
+
+    // play animation from current position
     void PlayAnimation(eSpriteAnimLoop animLoop);
     void PlayAnimation(eSpriteAnimLoop animLoop, float fps);
+    void PlayAnimationBackwards(eSpriteAnimLoop animLoop);
+    void PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps);
+
     void RewindToStart();
     void RewindToEnd();
     void NextFrame(bool moveForward);
     int GetCurrentFrame() const;
-    // test whether animation in progress
-    bool IsAnimationActive() const;
+    
+    bool IsAnimationActive() const; // test whether animation in progress
     bool IsFirstFrame() const;
     bool IsLastFrame() const;
     bool IsRunsForwards() const;

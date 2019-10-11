@@ -192,6 +192,28 @@ void Vehicle::UpdateDeltaAnimations(Timespan deltaTime)
     }
 }
 
+void Vehicle::OpenDoor(int doorIndex)
+{
+    if (HasDoorAnimation(doorIndex))
+    {
+        if (IsDoorOpening(doorIndex) || IsDoorOpened(doorIndex))
+            return;
+
+        mDoorsAnims[doorIndex].PlayAnimation(eSpriteAnimLoop_None);
+    }
+}
+
+void Vehicle::CloseDoor(int doorIndex)
+{
+    if (HasDoorAnimation(doorIndex))
+    {
+        if (IsDoorClosing(doorIndex) || IsDoorClosed(doorIndex))
+            return;
+
+        mDoorsAnims[doorIndex].PlayAnimationBackwards(eSpriteAnimLoop_None);
+    }
+}
+
 bool Vehicle::HasDoorAnimation(int doorIndex) const
 {
     debug_assert(doorIndex < MAX_CAR_DOORS);
