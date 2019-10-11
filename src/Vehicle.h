@@ -40,6 +40,11 @@ public:
     bool IsDoorOpening(int doorIndex) const;
     bool IsDoorClosing(int doorIndex) const;
 
+    // emergency lights animation
+    bool HasEmergencyLightsAnimation() const;
+    bool IsEmergencyLightsEnabled() const;
+    void EnableEmergencyLights(bool isEnabled);
+
 private:
     float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
     void SetupDeltaAnimations();

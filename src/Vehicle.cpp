@@ -119,7 +119,7 @@ SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
     }
 
     // add emergency lights
-    if (!mEmergLightsAnim.IsNull())
+    if (mEmergLightsAnim.IsAnimationActive())
     {
         unsigned int deltaBit = mEmergLightsAnim.GetCurrentFrame();
         deltaBits |= deltaBit;
@@ -133,17 +133,27 @@ void Vehicle::SetupDeltaAnimations()
     SpriteDeltaBits_t deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
 
     mEmergLightsAnim.SetNull();
+    for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
+    {
+        mDoorsAnims[idoor].SetNull();
+    }
 
     SpriteDeltaBits_t maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
     if ((deltaBits & maskBits) == maskBits)
     {
-        // todo
+        mEmergLightsAnim.SetNull();
+        mEmergLightsAnim.mAnimData.SetupFrames(
+        {
+            BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0),
+            BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1),
+        }, 
+        CAR_DELTA_ANIMS_SPEED);
     }
+
     // todo: bike
     // doors
     if (mCarStyle->mDoorsCount >= 1)
     {
-        mDoorsAnims[0].SetNull();
         mDoorsAnims[0].mAnimData.SetupFrames(
         {
             0,
@@ -152,15 +162,11 @@ void Vehicle::SetupDeltaAnimations()
             BIT(CAR_DOOR1_SPRITE_DELTA_2),
             BIT(CAR_DOOR1_SPRITE_DELTA_3)
         }, 
-        CAR_DOORS_ANIMATION_SPEED);
-
-        // debug only
-        mDoorsAnims[0].PlayAnimation(eSpriteAnimLoop_PingPong);
+        CAR_DELTA_ANIMS_SPEED);
     }
 
     if (mCarStyle->mDoorsCount >= 2)
     {
-        mDoorsAnims[1].SetNull();
         mDoorsAnims[1].mAnimData.SetupFrames(
         {
             0,
@@ -169,10 +175,7 @@ void Vehicle::SetupDeltaAnimations()
             BIT(CAR_DOOR2_SPRITE_DELTA_2),
             BIT(CAR_DOOR2_SPRITE_DELTA_3)
         }, 
-        CAR_DOORS_ANIMATION_SPEED);
-
-        // debug only
-        mDoorsAnims[1].PlayAnimation(eSpriteAnimLoop_PingPong);
+        CAR_DELTA_ANIMS_SPEED);
     }
 }
 
@@ -246,4 +249,33 @@ bool Vehicle::IsDoorClosing(int doorIndex) const
     debug_assert(doorIndex < MAX_CAR_DOORS);
     return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsAnimationActive() && 
         mDoorsAnims[doorIndex].IsRunsBackwards();
+}
+
+bool Vehicle::HasEmergencyLightsAnimation() const
+{
+    return !mEmergLightsAnim.IsNull();
+}
+
+bool Vehicle::IsEmergencyLightsEnabled() const
+{
+    return HasEmergencyLightsAnimation() && mEmergLightsAnim.IsAnimationActive();
+}
+
+void Vehicle::EnableEmergencyLights(bool isEnabled)
+{
+    if (HasEmergencyLightsAnimation())
+    {
+        if (isEnabled == mEmergLightsAnim.IsAnimationActive())
+            return;
+
+        if (isEnabled)
+        {
+            mEmergLightsAnim.PlayAnimation(eSpriteAnimLoop_FromStart);
+        }
+        else
+        {
+            mEmergLightsAnim.StopAnimation();
+            mEmergLightsAnim.RewindToStart();
+        }
+    }
 }

@@ -50,7 +50,7 @@
 #define CAR_LIGHTING_SPRITE_DELTA_0 15
 #define CAR_LIGHTING_SPRITE_DELTA_1 16
 
-#define CAR_DOORS_ANIMATION_SPEED 8.0f
+#define CAR_DELTA_ANIMS_SPEED 10.0f
 
 // forwards
 class Pedestrian;
