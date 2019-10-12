@@ -1,5 +1,8 @@
 # Carnage3D #
 This is grand theft auto 1 remake project, just for fun.
+
+[![Build Status](https://travis-ci.org/codenamecpp/carnage3d.svg?branch=master)](https://travis-ci.org/codenamecpp/carnage3d)
+
 Tools and technologies used:
 * C++11
 * OpenGL 3.2
