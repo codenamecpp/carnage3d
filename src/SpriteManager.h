@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
+#include "Sprite2D.h"
 
 // This class implements caching mechanism for graphic resources
 
@@ -40,8 +41,8 @@ public:
     // @param spriteIndex: Sprite index, linear
     // @param deltaBits: Sprite delta bits
     // @param sourceSprite: Sprite data
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite& sourceSprite);
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite& sourceSprite);
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite);
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite2D& sourceSprite);
 
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);

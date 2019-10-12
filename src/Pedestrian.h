@@ -4,6 +4,7 @@
 #include "PhysicsDefs.h"
 #include "CharacterController.h"
 #include "GameObject.h"
+#include "Sprite2D.h"
 
 class SpriteBatch;
 
@@ -65,7 +66,7 @@ private:
     eSpriteAnimationID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
 
-    Sprite mDrawSprite;
+    Sprite2D mDrawSprite;
 
     // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mActivePedsNode;

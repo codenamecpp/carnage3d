@@ -42,7 +42,7 @@ void SpriteBatch::SortSpritesList()
     //    });
 }
 
-void SpriteBatch::DrawSprite(const Sprite& sourceSprite)
+void SpriteBatch::DrawSprite(const Sprite2D& sourceSprite)
 {
     mSpritesList.push_back(sourceSprite);
 }
@@ -87,7 +87,7 @@ void SpriteBatch::GenerateSpritesBatches()
 
     for (int isprite = 0; isprite < numSprites; ++isprite)
     {
-        const Sprite& sprite = mSpritesList[isprite];
+        const Sprite2D& sprite = mSpritesList[isprite];
         // start new batch
         if (sprite.mTexture != currentBatch->mSpriteTexture)
         {
@@ -122,42 +122,13 @@ void SpriteBatch::GenerateSpritesBatches()
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTextureRegion.mV1;
         vertexData[vertexOffset + 3].mPosition.y = sprite.mHeight;
 
-        const glm::vec2 positions[4] = 
-        {
-            {
-                sprite.mOrigin.x,
-                sprite.mOrigin.y
-            },
-            {
-                (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
-                sprite.mOrigin.y
-            },
-            {
-                sprite.mOrigin.x, 
-                (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
-            },
-            {
-                (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
-                (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
-            },
-        };
-        if (sprite.mRotateAngle.non_zero()) // has rotation
-        {
-            for (int i = 0; i < 4; ++i)
-            {
-                glm::vec2 currPos = glm::rotate(positions[i], sprite.mRotateAngle.to_radians());
+        glm::vec2 positions[4];
+        sprite.GetCorners(positions);
 
-                vertexData[vertexOffset + i].mPosition.x = currPos.x + sprite.mPosition.x;
-                vertexData[vertexOffset + i].mPosition.z = currPos.y + sprite.mPosition.y;
-            }
-        }
-        else // no rotation
+        for (int i = 0; i < 4; ++i)
         {
-            for (int i = 0; i < 4; ++i)
-            {
-                vertexData[vertexOffset + i].mPosition.x = positions[i].x;
-                vertexData[vertexOffset + i].mPosition.z = positions[i].y;
-            }
+            vertexData[vertexOffset + i].mPosition.x = positions[i].x;
+            vertexData[vertexOffset + i].mPosition.z = positions[i].y;
         }
 
         // setup indices

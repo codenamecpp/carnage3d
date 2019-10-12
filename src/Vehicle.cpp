@@ -38,29 +38,62 @@ void Vehicle::EnterTheGame()
 
     mMarkForDeletion = false;
     mDead = false;
+    mIsOnScreen = false;
     mDamageDeltaBits = 0;
-    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum);
+    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
 }
 
 void Vehicle::UpdateFrame(Timespan deltaTime)
 {
-    UpdateDeltaAnimations(deltaTime);
+    UpdateDeltaAnimations(deltaTime);    
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 {   
+    // sync sprite transformation with physical body
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
     gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, GetSpriteDeltas(), mChassisDrawSprite);
-    mChassisDrawSprite.mPosition = glm::vec2(position.x, position.z);
+
+    mChassisDrawSprite.mPosition.x = position.x;
+    mChassisDrawSprite.mPosition.y = position.z;
     mChassisDrawSprite.mScale = SPRITE_SCALE;
     mChassisDrawSprite.mRotateAngle = rotationAngle;
     mChassisDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
     mChassisDrawSprite.SetOriginToCenter();
+
+    // update is on screen
+    glm::vec2 corners[4];
+    mChassisDrawSprite.GetCorners(corners);
+
+    glm::vec2 minpos = corners[0];
+    glm::vec2 maxpos = corners[0];
+
+    for (int icorner = 1; icorner < 4; ++icorner)
+    {
+        minpos = glm::min(minpos, corners[icorner]);
+        maxpos = glm::max(maxpos, corners[icorner]);
+    }
+
+    float halfw = (maxpos.x - minpos.x) * 0.5f;
+    float halfh = (maxpos.y - minpos.y) * 0.5f;
+
+    cxx::aabbox_t aabox;
+    aabox.mMin.x = mChassisDrawSprite.mPosition.x - halfw;
+    aabox.mMin.y = mPhysicsComponent->mHeight - 0.1f;
+    aabox.mMin.z = mChassisDrawSprite.mPosition.y - halfh;
+
+    aabox.mMax.x = mChassisDrawSprite.mPosition.x + halfw;
+    aabox.mMax.y = mPhysicsComponent->mHeight + 0.1f;
+    aabox.mMax.z = mChassisDrawSprite.mPosition.y + halfh;
+
+    mIsOnScreen = gCamera.mFrustum.contains(aabox);
+    if (!mIsOnScreen)
+        return;
+
     spriteBatch.DrawSprite(mChassisDrawSprite);
 
 #if 1 // debug
@@ -72,6 +105,9 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
         glm::vec2 rotated_pos = glm::rotate(glm::vec2(x, z), rotationAngle.to_radians()) + glm::vec2(position.x, position.z);
         gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_RED);
     }
+
+    gRenderManager.mDebugRenderer.DrawCube(glm::vec3(mChassisDrawSprite.mPosition.x, mPhysicsComponent->mHeight, mChassisDrawSprite.mPosition.y), 
+        glm::vec3((maxpos.x - minpos.x), 1.0f, (maxpos.y - minpos.y)), COLOR_GREEN);
 #endif
 }
 

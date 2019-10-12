@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 #include "StreamingVertexCache.h"
+#include "Sprite2D.h"
 
 // defines renderer class for 2d sprites
 class SpriteBatch final: public cxx::noncopyable
@@ -19,7 +20,7 @@ public:
 
     // add sprite to batch but does not draw it immediately
     // @param sourceSprite: Source sprite data
-    void DrawSprite(const Sprite& sourceSprite);
+    void DrawSprite(const Sprite2D& sourceSprite);
 
 private:
     void SortSpritesList();
@@ -39,7 +40,7 @@ private:
 
     StreamingVertexCache mSpritesVertexCache;
     // all sprites stored as is until they needs to be flushed
-    std::vector<Sprite> mSpritesList;
+    std::vector<Sprite2D> mSpritesList;
 
     // draw data buffers
     std::vector<SpriteVertex3D> mDrawVertices;

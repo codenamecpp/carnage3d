@@ -3,6 +3,7 @@
 #include "GameDefs.h"
 #include "PhysicsDefs.h"
 #include "GameObject.h"
+#include "Sprite2D.h"
 
 class SpriteBatch;
 
@@ -16,6 +17,7 @@ public:
     CarPhysicsComponent* mPhysicsComponent;
 
     bool mDead;
+    bool mIsOnScreen;
 
     CarStyle* mCarStyle; // cannot be null
 
@@ -53,7 +55,7 @@ private:
     SpriteDeltaBits_t GetSpriteDeltas() const;
 
 private:
-    Sprite mChassisDrawSprite;
+    Sprite2D mChassisDrawSprite;
 
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;

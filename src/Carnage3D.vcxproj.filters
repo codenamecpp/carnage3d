@@ -301,6 +301,9 @@
     <ClInclude Include="mem_allocators.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="Sprite2D.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -469,6 +472,9 @@
     </ClCompile>
     <ClCompile Include="mem_allocators.cpp">
       <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite2D.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

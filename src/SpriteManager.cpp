@@ -487,7 +487,7 @@ void SpriteManager::DestroySpriteTextures()
     mFreeSpriteTextures.clear();
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite)
 {
     if (deltaBits == 0)
     {
@@ -586,7 +586,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     mSpritesCache.push_back(spriteCacheElement);
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite2D& sourceSprite)
 {
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
 
