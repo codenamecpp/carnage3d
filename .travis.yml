@@ -1,3 +1,4 @@
+dist: bionic
 language: cpp
 compiler: clang
 before_install:
