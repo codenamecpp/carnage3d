@@ -67,9 +67,8 @@ public:
 
     // Map car vtype and model identifier to sprite index
     // @param carVType: Car vtype
-    // @param modelId: Car model identifier
     // @para spriteId: Sprite id
-    int GetCarSpriteIndex(eCarVType carVType, int modelId, int spriteId) const;
+    int GetCarSpriteIndex(eCarVType carVType, int spriteId) const;
 
     // Get number of sprites for specific type 
     // @param spriteType: Sprite type

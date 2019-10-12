@@ -594,7 +594,7 @@ public:
     short mGrip, mHandling;
     HLSRemap mRemap[MAX_CAR_REMAPS];
     eCarVType mVType; // is a descriptor of the type of car / vehicle
-    int mModel; // sub-type within vtype for cars which holds an identifier for the model of car
+    eCarModel mModelId;
     int mTurning;
     int mDamagable;
     int mValue[4];

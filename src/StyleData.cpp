@@ -470,7 +470,7 @@ int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
     return offset + spriteId;
 }
 
-int StyleData::GetCarSpriteIndex(eCarVType carVType, int modelId, int spriteId) const
+int StyleData::GetCarSpriteIndex(eCarVType carVType, int spriteId) const
 {
     debug_assert(carVType < eCarVType_COUNT);
 
@@ -692,7 +692,16 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
                 break;
         };
 
-        READ_I8(file, carInfo.mModel);
+        int modelId;
+        READ_I8(file, modelId);
+
+        // parse model id
+        if (!cxx::parse_enum_int(modelId, carInfo.mModelId))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown car model id: %d", modelId);
+            debug_assert(false);
+        }
+
         READ_I8(file, carInfo.mTurning);
         READ_I8(file, carInfo.mDamagable);
 

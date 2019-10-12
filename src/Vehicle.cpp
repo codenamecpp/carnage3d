@@ -39,7 +39,7 @@ void Vehicle::EnterTheGame()
     mMarkForDeletion = false;
     mDead = false;
     mDamageDeltaBits = 0;
-    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mModel, mCarStyle->mSprNum);
+    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum);
 
     SetupDeltaAnimations();
 }
