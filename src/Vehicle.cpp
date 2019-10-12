@@ -54,7 +54,6 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     glm::vec3 position = mPhysicsComponent->GetPosition();
-    position.y = ComputeDrawHeight(position, rotationAngle);
 
     gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, GetSpriteDeltas(), mChassisDrawSprite);
     mChassisDrawSprite.mPosition = glm::vec2(position.x, position.z);
@@ -68,9 +67,9 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     // draw doors
     for (int idoor = 0; idoor < mCarStyle->mDoorsCount; ++idoor)
     {
-        float x = position.x + (1.0f * mCarStyle->mDoors[idoor].mRpx / MAP_PIXELS_PER_TILE);
-        float z = position.z + (1.0f * mCarStyle->mDoors[idoor].mRpy / MAP_PIXELS_PER_TILE);
-        glm::vec2 rotated_pos = cxx::rotate_around_center(glm::vec2(x, z), glm::vec2(position.x, position.z), rotationAngle);
+        float x = (1.0f * mCarStyle->mDoors[idoor].mRpx / MAP_PIXELS_PER_TILE);
+        float z = (1.0f * mCarStyle->mDoors[idoor].mRpy / MAP_PIXELS_PER_TILE);
+        glm::vec2 rotated_pos = glm::rotate(glm::vec2(x, z), rotationAngle.to_radians()) + glm::vec2(position.x, position.z);
         gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_RED);
     }
 #endif

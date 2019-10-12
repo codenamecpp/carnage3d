@@ -151,26 +151,4 @@ namespace cxx
         float mDegrees = 0.0f;
     };
 
-    template<typename TVector2D>
-    inline TVector2D rotate_around_center(TVector2D point, const TVector2D& center, angle_t rotationAngle) 
-    {
-        // substract center to use simplyfied rotation
-        point -= center;
-        
-        float cos_a;
-        float sin_a;
-        rotationAngle.get_sin_cos(sin_a, cos_a);
-        
-        float tmp_x = cos_a*point.x - sin_a*point.y;
-        float tmp_y = sin_a*point.x + cos_a*point.y;
-        
-        point.x = tmp_x;
-        point.y = tmp_y;
-        
-        // add center to move point to its original center position
-        point += center;
-        return point;
-    }
-
-
 } // namespace cxx

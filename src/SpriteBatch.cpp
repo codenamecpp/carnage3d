@@ -125,30 +125,30 @@ void SpriteBatch::GenerateSpritesBatches()
         const glm::vec2 positions[4] = 
         {
             {
-                sprite.mPosition.x + sprite.mOrigin.x,
-                sprite.mPosition.y + sprite.mOrigin.y
+                sprite.mOrigin.x,
+                sprite.mOrigin.y
             },
             {
-                sprite.mPosition.x + (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
-                sprite.mPosition.y + sprite.mOrigin.y
+                (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
+                sprite.mOrigin.y
             },
             {
-                sprite.mPosition.x + sprite.mOrigin.x, 
-                sprite.mPosition.y + (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
+                sprite.mOrigin.x, 
+                (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
             },
             {
-                sprite.mPosition.x + (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
-                sprite.mPosition.y + (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
+                (sprite.mTextureRegion.mRectangle.w * sprite.mScale) + sprite.mOrigin.x, 
+                (sprite.mTextureRegion.mRectangle.h * sprite.mScale) + sprite.mOrigin.y
             },
         };
         if (sprite.mRotateAngle.non_zero()) // has rotation
         {
             for (int i = 0; i < 4; ++i)
             {
-                glm::vec2 currPos = cxx::rotate_around_center(positions[i], sprite.mPosition, sprite.mRotateAngle);
+                glm::vec2 currPos = glm::rotate(positions[i], sprite.mRotateAngle.to_radians());
 
-                vertexData[vertexOffset + i].mPosition.x = currPos.x;
-                vertexData[vertexOffset + i].mPosition.z = currPos.y;
+                vertexData[vertexOffset + i].mPosition.x = currPos.x + sprite.mPosition.x;
+                vertexData[vertexOffset + i].mPosition.z = currPos.y + sprite.mPosition.y;
             }
         }
         else // no rotation
