@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PhysicsComponents.h"
 #include "PhysicsDefs.h"
+#include "Pedestrian.h"
 
 PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
     : mHeight()
@@ -176,6 +177,35 @@ void PedPhysicsComponent::HandleCarContactEnd()
         debug_assert(false);
         mContactingCars = 0;
     }
+}
+
+bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
+{
+    debug_assert(bits);
+
+    ePedestrianState currState = mReferencePed->mCurrentStateID;
+    if (currState == ePedestrianState_Falling || currState == ePedestrianState_SlideOnCar)
+    {
+        return (bits & (PHYSICS_OBJCAT_MAP_SOLID_BLOCK | PHYSICS_OBJCAT_WALL)) > 0;
+    }
+
+    if (currState == ePedestrianState_EnteringCar || currState == ePedestrianState_ExitingCar || 
+        currState == ePedestrianState_DrivingCar)
+    {
+        return false;
+    }
+
+    if (currState == ePedestrianState_Dying || currState == ePedestrianState_Dead)
+    {
+        return false;
+    }
+
+    if (currState == ePedestrianState_KnockedDown)
+    {
+        return (bits & PHYSICS_OBJCAT_PED) == 0; // collide to all except for other peds
+    }
+
+    return true;    
 }
 
 //////////////////////////////////////////////////////////////////////////

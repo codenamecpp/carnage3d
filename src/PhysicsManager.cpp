@@ -234,20 +234,32 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
     }
 
     bool hasCollision = true;
-
-    if (fixtureMapSolidBlock && fixturePed)
+    for (;;)
     {
-        b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
-        PhysicsComponent* physicsObject = (PhysicsComponent*) fixturePed->GetBody()->GetUserData();
-        debug_assert(physicsObject);
-        // detect height
-        float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
-        hasCollision = HasCollisionPedestrianVsMap(fxdata.mX, fxdata.mZ, height);
-    }
+        if (hasCollision && fixturePed)
+        {
+            PedPhysicsComponent* physicsComponent = (PedPhysicsComponent*) fixturePed->GetBody()->GetUserData();
+            debug_assert(physicsComponent);
 
-    if (fixtureCar && fixturePed)
-    {
-        hasCollision = HasCollisionPedestrianVsCar(contact, fixturePed, fixtureCar);
+            hasCollision = physicsComponent->ShouldCollideWith((fixtureA != fixturePed ? fixtureA : fixtureB)->GetFilterData().categoryBits);
+        }
+ 
+        if (hasCollision && fixtureMapSolidBlock && fixturePed)
+        {
+            b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
+            PhysicsComponent* physicsObject = (PhysicsComponent*) fixturePed->GetBody()->GetUserData();
+            debug_assert(physicsObject);
+            // detect height
+            float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
+            hasCollision = HasCollisionPedestrianVsMap(fxdata.mX, fxdata.mZ, height);
+        }
+
+        if (hasCollision && fixtureCar && fixturePed)
+        {
+            hasCollision = HasCollisionPedestrianVsCar(contact, fixturePed, fixtureCar);
+        }
+
+        break;
     }
 
     contact->SetEnabled(hasCollision);
@@ -309,11 +321,6 @@ bool PhysicsManager::HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* 
 {
     CarPhysicsComponent* carPhysicsObject = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
     PedPhysicsComponent* pedPhysicsObject = (PedPhysicsComponent*) fixturePed->GetBody()->GetUserData();
-
-    // ignore pedestrian that slides on car
-    if (pedPhysicsObject->mReferencePed->mCurrentStateID == ePedestrianState_SlideOnCar)
-        return false;
-
     return true;
 }
 
