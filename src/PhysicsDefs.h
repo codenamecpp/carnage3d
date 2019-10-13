@@ -23,3 +23,50 @@ enum
     // sensors
     PHYSICS_OBJCAT_PED_SENSOR = (1 << 5),
 };
+
+// holds physics world query result
+const int MaxPhysicsQueryElements = 16;
+struct PhysicsQueryResult
+{
+public:
+    PhysicsQueryResult() = default;
+
+    inline bool AddElement(PedPhysicsComponent* component)
+    {
+        debug_assert(component);
+        if (mPedsCount < MaxPhysicsQueryElements)
+        {
+            mPedsList[mPedsCount++] = component;
+            return true;
+        }
+        return false;
+    }
+
+    inline bool AddElement(CarPhysicsComponent* component)
+    {
+        debug_assert(component);
+        if (mCarsCount < MaxPhysicsQueryElements)
+        {
+            mCarsList[mCarsCount++] = component;
+            return true;
+        }
+        return false;
+    }
+
+    inline void SetNull()
+    {
+        mPedsCount = 0;
+        mCarsCount = 0;
+    }
+
+    inline bool IsNull() const
+    {
+        return mPedsCount == 0 && mCarsCount == 0;
+    }
+
+public:
+    int mPedsCount = 0;
+    int mCarsCount = 0;
+    PedPhysicsComponent* mPedsList[MaxPhysicsQueryElements];
+    CarPhysicsComponent* mCarsList[MaxPhysicsQueryElements];
+};

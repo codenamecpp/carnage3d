@@ -49,17 +49,29 @@ public:
     // cancel currently active forces
     void ClearForces();
 
+    // attach or detach physics component to car
+    // @param component: Component to attach
+    // @param localAnchor: Attachment point local coordinate
+    void AttachComponent(PhysicsComponent* component, const glm::vec2& localAnchor);
+    void DetachComponent(PhysicsComponent* component);
+    void DetachAllComponents();
+
 protected:
     // only derived classes could be instantiated
     PhysicsComponent(b2World* physicsWorld);
-    virtual ~PhysicsComponent()
-    {
-    }
+    virtual ~PhysicsComponent();
 
 protected:
     // box2d specific objects is could be accessed only by derived classes and physics manager himself
+    struct PhysicsConnection
+    {
+        b2Joint* mJoint;
+        PhysicsComponent* mPhysicsComponent;
+    };
+
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
+    std::vector<PhysicsConnection> mConnections;
 };
 
 // pedestrian physics component
@@ -96,6 +108,7 @@ class CarPhysicsComponent: public PhysicsComponent
 {
 public:
     Vehicle* mReferenceCar = nullptr;
+
 public:
     CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc);
     ~CarPhysicsComponent();

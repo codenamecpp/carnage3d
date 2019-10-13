@@ -390,3 +390,42 @@ bool PhysicsManager::GetContactComponents(b2Contact* contact, PedPhysicsComponen
     debug_assert(carPhysicsObject && pedPhysicsObject);
     return true;
 }
+
+void PhysicsManager::QueryObjects(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult) const
+{
+    outputResult.SetNull();
+
+    struct _raycast_callback: public b2RayCastCallback
+    {
+    public:
+        _raycast_callback(PhysicsQueryResult& out)
+            : mOutput(out)
+        {
+        }
+	    float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction) override
+        {
+            const b2Filter& filterData = fixture->GetFilterData();
+            if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
+            {
+                CarPhysicsComponent* component = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
+                if (!mOutput.AddElement(component))
+                    return 0.0f;
+                
+            }
+            if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
+            {
+                PedPhysicsComponent* component = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
+                if (!mOutput.AddElement(component))
+                    return 0.0f;
+            }
+            return 1.0f;
+        }
+    public:
+        PhysicsQueryResult& mOutput;
+    };
+
+    _raycast_callback raycast_callback {outputResult};
+    b2Vec2 p1 { pointA.x * PHYSICS_SCALE, pointA.y * PHYSICS_SCALE };
+    b2Vec2 p2 { pointB.x * PHYSICS_SCALE, pointB.y * PHYSICS_SCALE };
+    mPhysicsWorld->RayCast(&raycast_callback, p1, p2);
+}

@@ -108,6 +108,8 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 
     gRenderManager.mDebugRenderer.DrawCube(glm::vec3(mChassisDrawSprite.mPosition.x, mPhysicsComponent->mHeight, mChassisDrawSprite.mPosition.y), 
         glm::vec3((maxpos.x - minpos.x), 1.0f, (maxpos.y - minpos.y)), COLOR_GREEN);
+
+    gRenderManager.mDebugRenderer.DrawCube(mPhysicsComponent->GetPosition(), glm::vec3(0.05, 0.05, 0.05), COLOR_WHITE);
 #endif
 }
 

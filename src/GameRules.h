@@ -16,6 +16,7 @@ public:
     float mPedestrianSlideOnCarSpeed; // in blocks per second
     float mPedestrianWalkSpeed; // in blocks per second
     float mPedestrianRunSpeed; // in blocks per second
+    float mPedestrianSpotTheCarDistance; // max distance to detect the car 
 };
 
 extern GameRules gGameRules;

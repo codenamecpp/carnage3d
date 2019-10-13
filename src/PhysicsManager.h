@@ -37,6 +37,12 @@ public:
     void DestroyPhysicsComponent(CarPhysicsComponent* object);
     void DestroyPhysicsComponent(WheelPhysicsComponent* object);
 
+    // query all physics objects that intersects with line
+    // note that depth is ignored so pointA and pointB has only 2 components
+    // @param pointA, pointB: Line of intersect points
+    // @param outputResult: Output objects
+    void QueryObjects(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult) const;
+
 private:
     // create level map body, used internally
     void CreateMapCollisionShape();

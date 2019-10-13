@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "HumanCharacterController.h"
 #include "Pedestrian.h"
+#include "PhysicsManager.h"
+#include "PhysicsComponents.h"
+#include "PhysicsDefs.h"
+#include "Vehicle.h"
 
 void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
@@ -55,6 +59,12 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     if (inputEvent.mKeycode == KEYCODE_X && inputEvent.mPressed)
     {
         SwitchNextWeapon();
+        inputEvent.SetConsumed();
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_ENTER && inputEvent.mPressed)
+    {
+        EnterOrExitCar();
         inputEvent.SetConsumed();
     }
 }
@@ -114,5 +124,30 @@ void HumanCharacterController::SwitchPrevWeapon()
             return;
         }
         nextWeaponIndex = nextWeaponIndex == 0 ? (eWeaponType_COUNT - 1) : (nextWeaponIndex - 1);
+    }
+}
+
+void HumanCharacterController::EnterOrExitCar()
+{
+    PhysicsQueryResult queryResult;
+
+    glm::vec3 pos = mCharacter->mPhysicsComponent->GetPosition();
+    glm::vec2 posA { pos.x, pos.z };
+    glm::vec2 posB = posA + (mCharacter->mPhysicsComponent->GetSignVector() * gGameRules.mPedestrianSpotTheCarDistance);
+
+    gPhysics.QueryObjects(posA, posB, queryResult);
+
+    // process all cars
+    for (int icar = 0; icar < queryResult.mCarsCount; ++icar)
+    {
+        Vehicle* currCar = queryResult.mCarsList[icar]->mReferenceCar;
+        if (currCar->IsDoorOpened(0))
+        {
+            currCar->CloseDoor(0);
+        }
+        else
+        {
+            currCar->OpenDoor(0);
+        }
     }
 }

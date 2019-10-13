@@ -86,6 +86,11 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     mDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
     mDrawSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mDrawSprite);
+
+#if 1 // debug
+    glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameRules.mPedestrianSpotTheCarDistance;
+    gRenderManager.mDebugRenderer.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), COLOR_WHITE);
+#endif
 }
 
 void Pedestrian::SetHeading(cxx::angle_t rotationAngle)

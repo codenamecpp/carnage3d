@@ -12,6 +12,63 @@ PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
     debug_assert(physicsWorld);
 }
 
+PhysicsComponent::~PhysicsComponent()
+{
+    DetachAllComponents();
+}
+
+void PhysicsComponent::AttachComponent(PhysicsComponent* component, const glm::vec2& localAnchor)
+{
+    if (component == this)
+    {
+        debug_assert(false);
+        return;
+    }
+
+    // test is already attached
+    for (const PhysicsConnection& curr: mConnections)
+    {
+        if (curr.mPhysicsComponent == component)
+        {
+            debug_assert(false);
+            return;
+        }
+    }
+
+    b2WeldJointDef jointDef;
+    b2Vec2 anchorPoint { localAnchor.x * PHYSICS_SCALE, localAnchor.y * PHYSICS_SCALE };
+    jointDef.Initialize(mPhysicsBody, component->mPhysicsBody, anchorPoint);
+
+    PhysicsConnection connectionInfo;
+    connectionInfo.mJoint = mPhysicsWorld->CreateJoint(&jointDef);
+    debug_assert(connectionInfo.mJoint);
+    connectionInfo.mPhysicsComponent = component;
+    mConnections.push_back(connectionInfo);
+}
+
+void PhysicsComponent::DetachComponent(PhysicsComponent* component)
+{
+    b2Joint* connection = nullptr;
+    for (auto itercurr = mConnections.begin(); itercurr != mConnections.end(); ++itercurr)
+    {
+        if (itercurr->mPhysicsComponent == component)
+        {
+            mConnections.erase(itercurr);
+            break;
+        }
+    }
+    mPhysicsWorld->DestroyJoint(connection);
+}
+
+void PhysicsComponent::DetachAllComponents()
+{
+    for (const PhysicsConnection& curr: mConnections)
+    {
+        mPhysicsWorld->DestroyJoint(curr.mJoint);
+    }
+    mConnections.clear();
+}
+
 void PhysicsComponent::SetPosition(const glm::vec3& position)
 {
     mHeight = position.y;

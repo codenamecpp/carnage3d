@@ -20,6 +20,8 @@ public:
 private:
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
+    void EnterOrExitCar();
+
 private:
     Pedestrian* mCharacter = nullptr;
 };
