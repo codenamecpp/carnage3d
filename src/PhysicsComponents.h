@@ -95,9 +95,12 @@ public:
 class CarPhysicsComponent: public PhysicsComponent
 {
 public:
+    Vehicle* mReferenceCar = nullptr;
+public:
     CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc);
     ~CarPhysicsComponent();
     void UpdateFrame(Timespan deltaTime);
-public:
-    Vehicle* mReferenceCar = nullptr;
+    void GetChassisCorners(glm::vec2 corners[4]) const;
+private:
+    b2Fixture* mChassisFixture = nullptr;
 };

@@ -113,24 +113,18 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 
 float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
 {
-    float halfW = (1.0f * mCarStyle->mWidth) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
-    float halfH = (1.0f * mCarStyle->mHeight) / MAP_BLOCK_TEXTURE_DIMS * 0.5f;
-
-    glm::vec3 points[4] = {
-        { -halfW, position.y + 0.01f, -halfH },
-        { halfW,  position.y + 0.01f, -halfH },
-        { halfW,  position.y + 0.01f, halfH },
-        { -halfW, position.y + 0.01f, halfH },
-    };
+    glm::vec2 corners[4];
+    mPhysicsComponent->GetChassisCorners(corners);
 
     float maxHeight = position.y;
-    for (glm::vec3& currPoint: points)
-    {
-        currPoint = glm::rotate(currPoint, rotationAngle.to_radians(), glm::vec3(0.0f, -1.0f, 0.0f));
-        currPoint.x += position.x;
-        currPoint.z += position.z;
-    }
 #if 1 // debug
+    glm::vec3 points[4];
+    for (int i = 0; i < 4; ++i)
+    {
+        points[i].x = corners[i].x;
+        points[i].z = corners[i].y;
+        points[i].y = maxHeight;
+    }
     for (int i = 0; i < 4; ++i)
     {
         gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);

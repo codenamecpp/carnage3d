@@ -236,8 +236,8 @@ CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc)
     fixtureDef.restitution = 0.0f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_CAR;
 
-    b2Fixture* b2fixture = mPhysicsBody->CreateFixture(&fixtureDef);
-    debug_assert(b2fixture);
+    mChassisFixture = mPhysicsBody->CreateFixture(&fixtureDef);
+    debug_assert(mChassisFixture);
 }
 
 CarPhysicsComponent::~CarPhysicsComponent()
@@ -247,6 +247,18 @@ CarPhysicsComponent::~CarPhysicsComponent()
 void CarPhysicsComponent::UpdateFrame(Timespan deltaTime)
 {
 
+}
+
+void CarPhysicsComponent::GetChassisCorners(glm::vec2 corners[4]) const
+{
+    const b2PolygonShape* shape = (const b2PolygonShape*) mChassisFixture->GetShape();
+    debug_assert(shape->m_count == 4);
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        b2Vec2 point = mPhysicsBody->GetWorldPoint(shape->m_vertices[icorner]);
+        corners[icorner].x = point.x / PHYSICS_SCALE;
+        corners[icorner].y = point.y / PHYSICS_SCALE;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
