@@ -34,6 +34,12 @@ bool RenderingManager::Initialize()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug renderer");
     }
 
+    if (!mStreamingVertexCache.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize vertex cache");
+        return false;
+    }
+
     gGraphicsDevice.SetClearColor(COLOR_SKYBLUE);
 
     return true;
@@ -41,14 +47,17 @@ bool RenderingManager::Initialize()
 
 void RenderingManager::Deinit()
 {
+    mStreamingVertexCache.Deinit();
     mDebugRenderer.Deinit();
     mMapRenderer.Deinit();
     gSpriteManager.Cleanup();
+
     FreeRenderPrograms();
 }
 
 void RenderingManager::RenderFrame()
 {
+    mStreamingVertexCache.FlushCache();
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
     gSpriteManager.RenderFrameBegin();

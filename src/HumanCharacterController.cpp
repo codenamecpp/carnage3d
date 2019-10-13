@@ -149,5 +149,7 @@ void HumanCharacterController::EnterOrExitCar()
         {
             currCar->OpenDoor(0);
         }
+
+        currCar->EnableEmergencyLights(!currCar->IsEmergencyLightsEnabled());
     }
 }

@@ -489,6 +489,7 @@ void SpriteManager::DestroySpriteTextures()
 
 void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite)
 {
+    sourceSprite.mTexture = nullptr;
     if (deltaBits == 0)
     {
         GetSpriteTexture(objectID, spriteIndex, sourceSprite);
@@ -533,6 +534,8 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
             {
                 debug_assert(false);
             }
+            sourceSprite.mTextureRegion = currElement.mTextureRegion;
+            sourceSprite.mTexture = currElement.mTexture;
             sourceSprite.mTexture->Upload(pixels.mData);
             return;
         }

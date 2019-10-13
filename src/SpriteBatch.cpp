@@ -9,20 +9,11 @@ const unsigned int NumIndicesPerSprite = 6;
 bool SpriteBatch::Initialize()
 {
     mSpritesList.reserve(1024);
-
-    if (!mSpritesVertexCache.Initialize())
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize sprites vertex cache");
-        return false;
-    }
-
     return true;
 }
 
 void SpriteBatch::Deinit()
 {
-    mSpritesVertexCache.Deinit();
-
     Clear();
 }
 
@@ -144,6 +135,8 @@ void SpriteBatch::GenerateSpritesBatches()
 
 void SpriteBatch::RenderSpritesBatches()
 {
+    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
+
     RenderStates cityMeshRenderStates;
     cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
@@ -153,13 +146,13 @@ void SpriteBatch::RenderSpritesBatches()
 
     TransientBuffer vBuffer;
     TransientBuffer iBuffer;
-    if (!mSpritesVertexCache.AllocVertex(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data(), vBuffer))
+    if (!vertscache.AllocVertex(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data(), vBuffer))
     {
         debug_assert(false);
         return;
     }
 
-    if (!mSpritesVertexCache.AllocIndex(Sizeof_DrawIndex_t * mDrawIndices.size(), mDrawIndices.data(), iBuffer))
+    if (!vertscache.AllocIndex(Sizeof_DrawIndex_t * mDrawIndices.size(), mDrawIndices.data(), iBuffer))
     {
         debug_assert(false);
         return;

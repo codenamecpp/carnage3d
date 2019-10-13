@@ -19,14 +19,14 @@ public:
     // @param pedestrian: Reference ped
     // @param position: Coord in world
     // @param rotationAngle: Heading
-    PedPhysicsComponent* CreatePedPhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle);
+    PedPhysicsComponent* CreatePhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // create car specific physical body
     // @param car: Reference car
     // @param position: Coord in world
     // @param rotationAngle: Heading
     // @param desc: Car class description
-    CarPhysicsComponent* CreateCarPhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc);
+    CarPhysicsComponent* CreatePhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc);
 
     // create car wheel specific physical body
     WheelPhysicsComponent* CreateWheelPhysicsComponent();

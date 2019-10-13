@@ -37,8 +37,6 @@ private:
         unsigned int mIndexCount;
         GpuTexture2D* mSpriteTexture;
     };
-
-    StreamingVertexCache mSpritesVertexCache;
     // all sprites stored as is until they needs to be flushed
     std::vector<Sprite2D> mSpritesList;
 

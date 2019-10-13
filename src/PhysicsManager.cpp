@@ -78,7 +78,7 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
     mPhysicsWorld->DrawDebugData();
 }
 
-PedPhysicsComponent* PhysicsManager::CreatePedPhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle)
+PedPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(pedestrian);
 
@@ -88,7 +88,7 @@ PedPhysicsComponent* PhysicsManager::CreatePedPhysicsComponent(Pedestrian* pedes
     return physicsObject;
 }
 
-CarPhysicsComponent* PhysicsManager::CreateCarPhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc)
+CarPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc)
 {
     debug_assert(desc);
     debug_assert(car);

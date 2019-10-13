@@ -60,8 +60,6 @@ private:
         }
     }
 private:
-    StreamingVertexCache mDebugVertexCache;
-
     std::vector<Vertex3D_Debug> mLineVertices;
     std::vector<Vertex3D_Debug> mTrisVertices;
 };

@@ -33,7 +33,7 @@ void Vehicle::EnterTheGame()
 
     glm::vec3 startPosition;
     
-    mPhysicsComponent = gPhysics.CreateCarPhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f), mCarStyle);
+    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f), mCarStyle);
     debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;

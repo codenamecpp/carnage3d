@@ -53,18 +53,11 @@ DebugRenderer::DebugRenderer()
 
 bool DebugRenderer::Initialize()
 {
-    if (!mDebugVertexCache.Initialize())
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug vertex cache");
-        return false;
-    }
-
     return true;
 }
 
 void DebugRenderer::Deinit()
 {
-    mDebugVertexCache.Deinit();
 }
 
 void DebugRenderer::RenderFrame()
@@ -76,7 +69,6 @@ void DebugRenderer::RenderFrame()
     gRenderManager.mDebugProgram.UploadCameraTransformMatrices();
     FlushLines();
     FlushTriangles();
-    mDebugVertexCache.FlushCache();
     gRenderManager.mDebugProgram.Deactivate();
 }
 
@@ -87,8 +79,9 @@ void DebugRenderer::FlushLines()
     if (numVertices == 0)
         return;
 
+    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
     TransientBuffer vBuffer;
-    if (!mDebugVertexCache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mLineVertices.data(), vBuffer))
+    if (!vertscache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mLineVertices.data(), vBuffer))
     {
         debug_assert(false);
         return;
@@ -111,8 +104,9 @@ void DebugRenderer::FlushTriangles()
     if (numVertices == 0)
         return;
 
+    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
     TransientBuffer vBuffer;
-    if (!mDebugVertexCache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mTrisVertices.data(), vBuffer))
+    if (!vertscache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mTrisVertices.data(), vBuffer))
     {
         debug_assert(false);
         return;

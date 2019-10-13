@@ -45,7 +45,7 @@ void Pedestrian::EnterTheGame()
     mWeaponsAmmo[eWeaponType_Fists] = -1;
     mCurrentWeapon = eWeaponType_Fists;
     
-    mPhysicsComponent = gPhysics.CreatePedPhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
+    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
     debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;

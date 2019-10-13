@@ -107,13 +107,11 @@ Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID_t objectID) const
     return nullptr;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, int carTypeId)
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, CarStyle* carStyle)
 {
     StyleData& styleData = gGameMap.mStyleData;
 
     debug_assert(styleData.IsLoaded());
-    debug_assert(carTypeId < (int)styleData.mCars.size());
-
     GameObjectID_t carID = GenerateUniqueID();
 
     Vehicle* instance = mCarsPool.create(carID);
@@ -122,10 +120,24 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, int carTypeId)
     AddToActiveList(instance);
 
     // init
-    instance->mCarStyle = &gGameMap.mStyleData.mCars[carTypeId];
+    instance->mCarStyle = carStyle;
     instance->EnterTheGame();
     instance->mPhysicsComponent->SetPosition(position);
     return instance;
+}
+
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, eCarModel carModel)
+{
+    StyleData& styleData = gGameMap.mStyleData;
+    debug_assert(styleData.IsLoaded());
+
+    for (CarStyle& currStyle: styleData.mCars)
+    {
+        if (currStyle.mModelId == carModel)
+            return CreateCar(position, &currStyle);
+    }
+    debug_assert(false);
+    return nullptr;
 }
 
 Vehicle* GameObjectsManager::GetCarByID(GameObjectID_t objectID) const

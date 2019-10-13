@@ -30,8 +30,10 @@ public:
 
     // add car instance to map at specific location
     // @param position: Real world position
-    // @param carTypeId: Index of car type in citystyle
-    Vehicle* CreateCar(const glm::vec3& position, int carTypeId);
+    // @param carStyle: Car style
+    // @param carModel: Car model identifier
+    Vehicle* CreateCar(const glm::vec3& position, CarStyle* carStyle);
+    Vehicle* CreateCar(const glm::vec3& position, eCarModel carModel);
 
     // find car object by its unique identifier
     // @param objectID: Unique identifier

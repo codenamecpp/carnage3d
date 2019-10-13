@@ -15,6 +15,7 @@ public:
     RenderProgram mGuiTexColorProgram;
     RenderProgram mSpritesProgram;
     RenderProgram mDebugProgram;
+    StreamingVertexCache mStreamingVertexCache;
 
     MapRenderer mMapRenderer;
     DebugRenderer mDebugRenderer;
