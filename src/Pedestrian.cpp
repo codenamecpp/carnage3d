@@ -93,19 +93,6 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 #endif
 }
 
-void Pedestrian::SetHeading(cxx::angle_t rotationAngle)
-{
-    debug_assert(mPhysicsComponent);
-    mPhysicsComponent->SetRotationAngle(rotationAngle);
-}
-
-void Pedestrian::SetPosition(const glm::vec3& position)
-{
-    debug_assert(mPhysicsComponent);
-
-    mPhysicsComponent->SetPosition(position);
-}
-
 float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;

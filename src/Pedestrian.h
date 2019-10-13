@@ -46,14 +46,6 @@ public:
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
 
-    // set position for pedestrian, does nothing if sitting in car
-    // @param position: World position
-    void SetPosition(const glm::vec3& position);
-
-    // set sign direction for pedestrian, does nothing if sitting in car
-    // @param rotationAngle: Angle value
-    void SetHeading(cxx::angle_t rotationAngle);
-
     // set current weapon, does nothing if out of ammo
     void ChangeWeapon(eWeaponType newWeapon);
 

@@ -304,7 +304,7 @@ void PhysicsManager::FixedStepPedsGravity()
             pedestrianPos.y = newHeight;
         }
 
-        currPedestrian->SetPosition(pedestrianPos);
+        pedestrianBody->SetPosition(pedestrianPos);
     }
 }
 
