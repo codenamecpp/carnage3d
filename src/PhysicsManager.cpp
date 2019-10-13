@@ -429,3 +429,45 @@ void PhysicsManager::QueryObjects(const glm::vec2& pointA, const glm::vec2& poin
     b2Vec2 p2 { pointB.x * PHYSICS_SCALE, pointB.y * PHYSICS_SCALE };
     mPhysicsWorld->RayCast(&raycast_callback, p1, p2);
 }
+
+void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const glm::vec2& aabboxExtents, PhysicsQueryResult& outputResult) const
+{
+    outputResult.SetNull();
+
+    struct _query_callback: public b2QueryCallback
+    {
+    public:
+        _query_callback(PhysicsQueryResult& out)
+            : mOutput(out) 
+        {
+        }
+        bool ReportFixture(b2Fixture* fixture) override
+        {
+            const b2Filter& filterData = fixture->GetFilterData();
+            if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
+            {
+                CarPhysicsComponent* component = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
+                if (!mOutput.AddElement(component))
+                    return false;
+                
+            }
+            if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
+            {
+                PedPhysicsComponent* component = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
+                if (!mOutput.AddElement(component))
+                    return false;
+            }
+            return true;
+        }
+    public:
+        PhysicsQueryResult& mOutput;
+    };
+    _query_callback query_callback {outputResult};
+
+    b2AABB aabb;
+    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x) * PHYSICS_SCALE;
+    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y) * PHYSICS_SCALE;
+    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x) * PHYSICS_SCALE;
+    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y) * PHYSICS_SCALE;
+    mPhysicsWorld->QueryAABB(&query_callback, aabb);
+}
