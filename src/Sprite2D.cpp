@@ -39,4 +39,11 @@ void Sprite2D::GetCorners(glm::vec2 positions[4]) const
             positions[icorner] = mPosition + posTransformed;
         }
     }
+    else
+    {
+        for (int icorner = 0; icorner < 4; ++icorner)
+        {
+            positions[icorner] += mPosition;
+        } 
+    }
 }
