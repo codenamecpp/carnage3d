@@ -387,3 +387,11 @@ impl_enum_strings(eCarModel)
     {eCarModel_Impaler_2, "impaler_2"},
     {eCarModel_Helicopter, "helicopter"},
 };
+
+impl_enum_strings(eCarSeat)
+{
+    {eCarSeat_Driver, "driver"},
+    {eCarSeat_Passenger, "passenger"},
+    {eCarSeat_PassengerExtra, "passenger_extra"},
+    {eCarSeat_Any, "any"},
+};

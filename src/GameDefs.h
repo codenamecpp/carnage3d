@@ -701,3 +701,14 @@ enum ePedestrianState
 };
 
 decl_enum_strings(ePedestrianState);
+
+// cat seat identifier
+enum eCarSeat
+{
+    eCarSeat_Driver,
+    eCarSeat_Passenger,
+    eCarSeat_PassengerExtra,
+    eCarSeat_Any // special seat type
+};
+
+decl_enum_strings(eCarSeat);
