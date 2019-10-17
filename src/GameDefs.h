@@ -541,6 +541,16 @@ enum eCarModel
 
 decl_enum_strings(eCarModel);
 
+// warning - these values are mapped to gta1, so don't change it
+enum eCarConvertible
+{
+    eCarConvertible_HardTop = 0,
+    eCarConvertible_OpenTop = 1,
+    eCarConvertible_HardTopAnimated = 2,
+    eCarConvertible_OpenTopAnimated = 3,
+};
+decl_enum_strings(eCarConvertible);
+
 // define car class information
 struct CarStyle
 {
@@ -570,7 +580,7 @@ public:
     short mSteeringWheelOffset;
     float mBackEndSlideValue;
     float mHandbrakeSlideValue;
-    bool mConvertible;
+    eCarConvertible mConvertible;
     int mEngine;
     int mRadio;
     int mHorn;

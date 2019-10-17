@@ -27,14 +27,6 @@ inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
 #define READ_I16(filestream, destination) READ_DATA(filestream, destination, unsigned short)
 #define READ_SI16(filestream, destination) READ_DATA(filestream, destination, short)
 #define READ_SI32(filestream, destination) READ_DATA(filestream, destination, int)
-#define READ_BOOL(filestream, destination) \
-    { \
-        unsigned char _$data; \
-        if (!read_from_stream(filestream, _$data)) \
-            return false; \
-        \
-        destination = _$data > 0; \
-    }
 #define READ_FIXEDF32(filestream, destination) \
     { \
         int _$data; \
@@ -729,7 +721,14 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         READ_FIXEDF32(file, carInfo.mBackEndSlideValue);
         READ_FIXEDF32(file, carInfo.mHandbrakeSlideValue);
 
-        READ_BOOL(file, carInfo.mConvertible);
+        unsigned char convertible;
+        READ_I8(file, convertible);
+
+        if (!cxx::parse_enum_int(convertible, carInfo.mConvertible))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown convertible type: %d", convertible);
+            debug_assert(false);
+        }
 
         READ_I8(file, carInfo.mEngine);
 	    READ_I8(file, carInfo.mRadio);

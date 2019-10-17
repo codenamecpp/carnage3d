@@ -105,14 +105,23 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
         gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_YELLOW);
     }
 
-    glm::vec2 seatpos;
-    GetSeatPos(eCarSeat_Driver, seatpos);
-    gRenderManager.mDebugRenderer.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
+    if (mCarStyle->mDoorsCount > 0)
+    {
+        glm::vec2 seatpos;
+        GetSeatPos(eCarSeat_Driver, seatpos);
+        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
+    }
+
+    float bboxheight = (1.0f * mCarStyle->mHeight / MAP_PIXELS_PER_TILE);
+
+    int bboxcolor = COLOR_WHITE;
+    if (mCarStyle->mConvertible == eCarConvertible_HardTop || mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+    {
+        bboxcolor = COLOR_GREEN;
+    }
 
     gRenderManager.mDebugRenderer.DrawCube(glm::vec3(mChassisDrawSprite.mPosition.x, mPhysicsComponent->mHeight, mChassisDrawSprite.mPosition.y), 
-        glm::vec3((maxpos.x - minpos.x), 1.0f, (maxpos.y - minpos.y)), COLOR_GREEN);
-
-    gRenderManager.mDebugRenderer.DrawCube(mPhysicsComponent->GetPosition(), glm::vec3(0.05, 0.05, 0.05), COLOR_WHITE);
+        glm::vec3((maxpos.x - minpos.x), bboxheight, (maxpos.y - minpos.y)), bboxcolor);
 #endif
 }
 

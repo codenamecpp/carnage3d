@@ -396,3 +396,11 @@ impl_enum_strings(eCarSeat)
     {eCarSeat_PassengerExtra, "passenger_extra"},
     {eCarSeat_Any, "any"},
 };
+
+impl_enum_strings(eCarConvertible)
+{
+    {eCarConvertible_HardTop, "hard_top"},
+    {eCarConvertible_OpenTop, "open_top"},
+    {eCarConvertible_HardTopAnimated, "hard_top_animated"},
+    {eCarConvertible_OpenTopAnimated, "open_top_animated"},
+};
