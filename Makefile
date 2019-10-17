@@ -3,15 +3,19 @@ all: build_debug
 
 build_debug: box2d premake
 	.build/premake5 gmake --cc=clang
-	make -C .build config=debug_x86_64
+	make -C .build config=debug_x86_64 -j $(($(grep -c ^processor /proc/cpuinfo)/2))
 	test -d bin || mkdir bin
 	cp .build/bin/x86_64/Debug/carnage3d bin/carnage3d-debug
 
 build_release: box2d premake
 	.build/premake5 gmake --cc=clang
-	make -C .build config=release_x86_64
+	make -C .build config=release_x86_64 -j $(($(grep -c ^processor /proc/cpuinfo)/2))
 	test -d bin || mkdir bin
 	cp .build/bin/x86_64/Release/carnage3d bin/carnage3d-release
+
+clean:
+	.build/premake5 gmake --cc=clang
+	make -C .build clean
 
 run:
 	bin/carnage3d-release

@@ -42,6 +42,15 @@ Set screen resolution (optionally) but most importand you must specify path to o
 
 To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
 
+### Other GTA 1/2 re-implementations ###
+* [WebGL-GTA](https://github.com/niklasvh/WebGL-GTA)
+* [OpenGTA](http://ogta.fifengine.de/download.html)
+* [GTA2NET](https://github.com/andrecarlucci/gta2net)
+* [WebGL-GTA2](https://github.com/Kajakklubben/gta2-webgl)
+* [GTA2 level viewer](https://github.com/aalin/gta2-level-viewer)
+* [gta2.js](https://github.com/aalin/gta2.js)
+
+### Status ###
 Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
 
 Tested on Ubuntu Linux:
