@@ -683,6 +683,7 @@ decl_enum_strings(ePedestrianAction);
 // pedestrian basic state
 enum ePedestrianState
 {
+    ePedestrianState_Unspecified, // special error state
     ePedestrianState_StandingStill,
     ePedestrianState_StandsAndShoots,
     ePedestrianState_Walks,

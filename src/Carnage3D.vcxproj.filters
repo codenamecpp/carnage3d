@@ -501,7 +501,7 @@
     <Text Include="..\docs\CorrectionsToCDS.txt">
       <Filter>Docs</Filter>
     </Text>
-    <Text Include="..\docs\ToDo.txt">
+    <Text Include="..\docs\Sprites.txt">
       <Filter>Docs</Filter>
     </Text>
   </ItemGroup>

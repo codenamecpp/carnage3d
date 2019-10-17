@@ -129,6 +129,12 @@ void HumanCharacterController::SwitchPrevWeapon()
 
 void HumanCharacterController::EnterOrExitCar()
 {
+    if (mCharacter->IsDrivingCar())
+    {
+        mCharacter->LeaveCar();
+        return;
+    }
+
     PhysicsQueryResult queryResult;
 
     glm::vec3 pos = mCharacter->mPhysicsComponent->GetPosition();
@@ -141,15 +147,8 @@ void HumanCharacterController::EnterOrExitCar()
     for (int icar = 0; icar < queryResult.mCarsCount; ++icar)
     {
         Vehicle* currCar = queryResult.mCarsList[icar]->mReferenceCar;
-        if (currCar->IsDoorOpened(0))
-        {
-            currCar->CloseDoor(0);
-        }
-        else
-        {
-            currCar->OpenDoor(0);
-        }
 
-        currCar->EnableEmergencyLights(!currCar->IsEmergencyLightsEnabled());
+        mCharacter->TakeSeatInCar(currCar, eCarSeat_Driver);
+        return;
     }
 }

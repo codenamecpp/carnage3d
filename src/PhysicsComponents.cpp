@@ -160,6 +160,22 @@ glm::vec2 PhysicsComponent::GetSignVector() const
     return signVector;
 }
 
+glm::vec2 PhysicsComponent::GetWorldPoint(const glm::vec2& localPosition) const
+{
+    b2Vec2 b2LocalPosition { localPosition.x * PHYSICS_SCALE, localPosition.y * PHYSICS_SCALE };
+    b2Vec2 b2WorldPosition = mPhysicsBody->GetWorldPoint(b2LocalPosition);
+
+    return glm::vec2 { b2WorldPosition.x / PHYSICS_SCALE, b2WorldPosition.y / PHYSICS_SCALE };
+}
+
+glm::vec2 PhysicsComponent::GetLocalPoint(const glm::vec2& worldPosition) const
+{
+    b2Vec2 b2WorldPosition { worldPosition.x * PHYSICS_SCALE, worldPosition.y * PHYSICS_SCALE };
+    b2Vec2 b2LocalPosition = mPhysicsBody->GetWorldPoint(b2WorldPosition);
+
+    return glm::vec2 { b2LocalPosition.x / PHYSICS_SCALE, b2LocalPosition.y / PHYSICS_SCALE };
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld)
@@ -240,7 +256,7 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
 {
     debug_assert(bits);
 
-    ePedestrianState currState = mReferencePed->mCurrentStateID;
+    ePedestrianState currState = mReferencePed->GetCurrentStateID();
     if (currState == ePedestrianState_Falling || currState == ePedestrianState_SlideOnCar)
     {
         return (bits & (PHYSICS_OBJCAT_MAP_SOLID_BLOCK | PHYSICS_OBJCAT_WALL)) > 0;

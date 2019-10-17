@@ -100,11 +100,14 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     // draw doors
     for (int idoor = 0; idoor < mCarStyle->mDoorsCount; ++idoor)
     {
-        float x = (1.0f * mCarStyle->mDoors[idoor].mRpx / MAP_PIXELS_PER_TILE);
-        float z = (1.0f * mCarStyle->mDoors[idoor].mRpy / MAP_PIXELS_PER_TILE);
-        glm::vec2 rotated_pos = glm::rotate(glm::vec2(x, z), rotationAngle.to_radians()) + glm::vec2(position.x, position.z);
-        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_RED);
+        glm::vec2 rotated_pos;
+        GetDoorPos(idoor, rotated_pos);
+        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_YELLOW);
     }
+
+    glm::vec2 seatpos;
+    GetSeatPos(eCarSeat_Driver, seatpos);
+    gRenderManager.mDebugRenderer.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
 
     gRenderManager.mDebugRenderer.DrawCube(glm::vec3(mChassisDrawSprite.mPosition.x, mPhysicsComponent->mHeight, mChassisDrawSprite.mPosition.y), 
         glm::vec3((maxpos.x - minpos.x), 1.0f, (maxpos.y - minpos.y)), COLOR_GREEN);
@@ -309,4 +312,69 @@ void Vehicle::EnableEmergencyLights(bool isEnabled)
             mEmergLightsAnim.RewindToStart();
         }
     }
+}
+
+int Vehicle::GetDoorIndexForSeat(eCarSeat carSeat) const
+{
+    switch (carSeat)
+    {
+        case eCarSeat_Driver: return 0;
+        case eCarSeat_Passenger: return 1;
+        case eCarSeat_PassengerExtra: return 2;
+    }
+    debug_assert(false);
+    return 0;
+}
+
+bool Vehicle::GetDoorPosLocal(int doorIndex, glm::vec2& out) const
+{
+    if (doorIndex > -1 && doorIndex < mCarStyle->mDoorsCount)
+    {
+        out.x = (1.0f * mCarStyle->mDoors[doorIndex].mRpy / MAP_PIXELS_PER_TILE);
+        out.y = -(1.0f * mCarStyle->mDoors[doorIndex].mRpx / MAP_PIXELS_PER_TILE);
+        return true;
+    }
+
+    debug_assert(false);
+    return false;
+}
+
+bool Vehicle::GetDoorPos(int doorIndex, glm::vec2& out) const
+{
+    if (GetDoorPosLocal(doorIndex, out))
+    {
+        out = mPhysicsComponent->GetWorldPoint(out);
+        return true;
+    }
+
+    debug_assert(false);
+    return false;
+}
+
+bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
+{
+    // todo: handle bike
+
+    int doorIndex = GetDoorIndexForSeat(carSeat);
+
+    glm::vec2 doorLocalPos;
+    if (GetDoorPosLocal(doorIndex, doorLocalPos))
+    {
+        out.x = doorLocalPos.x;
+        out.y = -(1.0f * mCarStyle->mWidth / MAP_PIXELS_PER_TILE) * 0.25f;
+        return true;
+    }
+    return false;
+}
+
+bool Vehicle::GetSeatPos(eCarSeat carSeat, glm::vec2& out) const
+{
+    if (GetSeatPosLocal(carSeat, out))
+    {
+        out = mPhysicsComponent->GetWorldPoint(out);
+        return true;
+    }
+
+    debug_assert(false);
+    return false;
 }

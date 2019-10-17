@@ -52,8 +52,8 @@ bool CarnageGame::Initialize()
     //    dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(icartype * 60.0f));
     //}
 
-    Vehicle* dummyCar = mObjectsManager.CreateCar(pos + glm::vec3 {6.0f, 0.0f, 2.0f}, eCarModel_Ambulance);
-    dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(38.0f));
+    Vehicle* dummyCar = mObjectsManager.CreateCar(pos + glm::vec3 {6.0f, 0.0f, 2.0f}, eCarModel_4x4);
+    dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(-90.0f));
 
     SetCameraController(&mFollowCameraController);
 

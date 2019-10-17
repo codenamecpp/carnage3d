@@ -51,7 +51,10 @@ void Pedestrian::EnterTheGame()
     mMarkForDeletion = false;
     mCurrentAnimID = eSpriteAnimationID_Null;
 
-    SetCurrentState(ePedestrianState_StandingStill, true);
+    mCurrentCar = nullptr;
+    mCurrentSeat = eCarSeat_Any;
+
+    ChangeState(&mStateStandingStill, nullptr);
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
@@ -61,15 +64,14 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
     {
         mController->UpdateFrame(this, deltaTime);
     }
-
     mCurrentAnimState.AdvanceAnimation(deltaTime);
 
     mCurrentStateTime += deltaTime;
-
     // update current state logic
-    PedestrianBaseState* currentState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
-    ePedestrianState nextState = currentState->ProcessStateFrame(this, deltaTime);
-    SetCurrentState(nextState, false);
+    if (mCurrentState)
+    {
+        mCurrentState->ProcessStateFrame(this, deltaTime);
+    }
 }
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
@@ -134,7 +136,7 @@ float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rota
 #endif
 
     // todo: get rid of magic numbers
-    if (mCurrentStateID == ePedestrianState_SlideOnCar)
+    if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
     {
         maxHeight += 0.35f;
     }
@@ -156,22 +158,20 @@ void Pedestrian::SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loop
     mCurrentAnimState.PlayAnimation(loopMode);
 }
 
-void Pedestrian::SetCurrentState(ePedestrianState newStateID, bool isInitial)
+void Pedestrian::ChangeState(PedestrianBaseState* nextState, const PedestrianStateEvent* transitionEvent)
 {
-    if (isInitial || newStateID != mCurrentStateID)
-    {
-        // exit previous state
-        if (!isInitial)
-        {
-            PedestrianBaseState* prevState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
-            prevState->ProcessStateExit(this, newStateID);
-        }
-        ePedestrianState prevStateID = mCurrentStateID;
-        mCurrentStateID = newStateID;
-        mCurrentStateTime = 0;
+    if (nextState == mCurrentState && mCurrentState)
+        return;
 
-        PedestrianBaseState* currState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
-        currState->ProcessStateEnter(this, prevStateID);
+    debug_assert(nextState);
+    if (mCurrentState)
+    {
+        mCurrentState->ProcessStateExit(this);
+    }
+    mCurrentState = nextState;
+    if (mCurrentState)
+    {
+        mCurrentState->ProcessStateEnter(this, transitionEvent);
     }
 }
 
@@ -185,6 +185,48 @@ void Pedestrian::ChangeWeapon(eWeaponType newWeapon)
     mCurrentWeapon = newWeapon;
 
     // notify current state
-    PedestrianBaseState* currState = gPedestrianBaseStatesManager.GetStateByID(mCurrentStateID);
-    currState->ProcessStateWeaponChange(this, prevWeapon);
+    if (mCurrentState)
+    {
+        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionWeaponChange(prevWeapon);
+        mCurrentState->ProcessStateEvent(this, evData);
+    }
+}
+
+void Pedestrian::TakeSeatInCar(Vehicle* targetCar, eCarSeat targetSeat)
+{
+    if (targetCar == nullptr || targetSeat == eCarSeat_Any)
+    {
+        debug_assert(false);
+        return;
+    }
+
+    if (mCurrentState)
+    {
+        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionEnterCar(targetCar, targetSeat);
+        mCurrentState->ProcessStateEvent(this, evData);
+    }
+}
+
+void Pedestrian::LeaveCar()
+{
+    if (mCurrentState)
+    {
+        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionLeaveCar();
+        mCurrentState->ProcessStateEvent(this, evData);
+    }
+}
+
+ePedestrianState Pedestrian::GetCurrentStateID() const
+{
+    if (mCurrentState == nullptr)
+        return ePedestrianState_Unspecified;
+
+    return mCurrentState->GetStateID();
+}
+
+bool Pedestrian::IsDrivingCar() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
+        currState == ePedestrianState_ExitingCar;
 }

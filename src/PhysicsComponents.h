@@ -37,6 +37,9 @@ public:
     void SetLinearVelocity(const glm::vec2& velocity);
     glm::vec2 GetLinearVelocity() const;
     glm::vec2 GetSignVector() const;
+    // convert coordinate from local to world space and vice versa
+    glm::vec2 GetWorldPoint(const glm::vec2& localPosition) const;
+    glm::vec2 GetLocalPoint(const glm::vec2& worldPosition) const;
     // apply an impulse to the center of mass
     // @param impulse: The world impulse vector, usually in N-seconds or kg-m/s
     void AddLinearImpulse(const glm::vec2& impulse);

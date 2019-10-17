@@ -47,6 +47,22 @@ public:
     bool IsEmergencyLightsEnabled() const;
     void EnableEmergencyLights(bool isEnabled);
 
+    // get door index for specific seat
+    // @param carSeat: Seat identifier, 'any' treated as driver
+    int GetDoorIndexForSeat(eCarSeat carSeat) const;
+
+    // get position of specific door in local or world coords
+    // local coords is relative to car center
+    // @param doorIndex: Door
+    bool GetDoorPosLocal(int doorIndex, glm::vec2& out) const;
+    bool GetDoorPos(int doorIndex, glm::vec2& out) const;
+
+    // get position of specific seat in local or world coords
+    // local coords is relative to car center
+    // @param carSeat: Seat
+    bool GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const;
+    bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
+
 private:
     float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
     void SetupDeltaAnimations();

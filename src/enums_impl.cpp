@@ -278,7 +278,8 @@ impl_enum_strings(ePedestrianAction)
 };
 
 impl_enum_strings(ePedestrianState)
-{
+{   
+    {ePedestrianState_Unspecified, "unspecified"},
     {ePedestrianState_StandingStill, "standing_still"},
     {ePedestrianState_StandsAndShoots, "stands_and_shoots"},
     {ePedestrianState_Walks, "walks"},
