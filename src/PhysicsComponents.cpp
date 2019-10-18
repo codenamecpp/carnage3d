@@ -53,11 +53,15 @@ void PhysicsComponent::DetachComponent(PhysicsComponent* component)
     {
         if (itercurr->mPhysicsComponent == component)
         {
+            connection = itercurr->mJoint;
             mConnections.erase(itercurr);
             break;
         }
     }
-    mPhysicsWorld->DestroyJoint(connection);
+    if (connection)
+    {
+        mPhysicsWorld->DestroyJoint(connection);
+    }
 }
 
 void PhysicsComponent::DetachAllComponents()
@@ -250,6 +254,16 @@ void PedPhysicsComponent::HandleCarContactEnd()
         debug_assert(false);
         mContactingCars = 0;
     }
+}
+
+void PedPhysicsComponent::HandleCarEnter()
+{
+    mPhysicsBody->SetFixedRotation(false);
+}
+
+void PedPhysicsComponent::HandleCarLeave()
+{
+    mPhysicsBody->SetFixedRotation(true);
 }
 
 bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const

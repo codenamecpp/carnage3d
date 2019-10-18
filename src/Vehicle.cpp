@@ -140,6 +140,17 @@ void Vehicle::ComputeDrawHeight(const glm::vec3& position)
     mPhysicsComponent->GetChassisCorners(corners);
 
     float maxHeight = position.y;
+
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        glm::vec3 cornerPosition { corners[icorner].x, position.y, corners[icorner].y };
+        float cornerHeight = gGameMap.GetHeightAtPosition(cornerPosition);
+        if (cornerHeight > maxHeight)
+        {
+            maxHeight = cornerHeight;
+        }
+    }
+
 #if 1 // debug
     glm::vec3 points[4];
     for (int i = 0; i < 4; ++i)
@@ -153,7 +164,7 @@ void Vehicle::ComputeDrawHeight(const glm::vec3& position)
         gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
     }
 #endif
-    mDrawHeight = position.y + 0.02f; // todo: magic numbers
+    mDrawHeight = maxHeight + 0.02f; // todo: magic numbers
 }
 
 SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
@@ -454,5 +465,23 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
 
 void Vehicle::UpdateDriving(Pedestrian* carDriver, Timespan deltaTime)
 {
-
+    if (carDriver->mCtlActions[ePedestrianAction_HandBrake])
+    {
+    }
+    if (carDriver->mCtlActions[ePedestrianAction_Accelerate])
+    {
+        mPhysicsComponent->SetLinearVelocity(mPhysicsComponent->GetSignVector() * 2.0f);
+    }
+    if (carDriver->mCtlActions[ePedestrianAction_Reverse])
+    {
+        mPhysicsComponent->SetLinearVelocity(mPhysicsComponent->GetSignVector() * -1.5f);
+    }
+    if (carDriver->mCtlActions[ePedestrianAction_SteerLeft])
+    {
+        mPhysicsComponent->SetAngularVelocity(-40.0f);
+    }
+    if (carDriver->mCtlActions[ePedestrianAction_SteerRight])
+    {
+        mPhysicsComponent->SetAngularVelocity(40.0f);
+    }
 }

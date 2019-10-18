@@ -73,7 +73,7 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
         {
             break;
         }
-        FixedStepPedsGravity();
+        FixedStepGravity();
     }
     mPhysicsWorld->DrawDebugData();
 }
@@ -269,42 +269,69 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 {
 }
 
-void PhysicsManager::FixedStepPedsGravity()
+void PhysicsManager::FixedStepGravity()
 {
+    // cars
+    for (Vehicle* currCar: gCarnageGame.mObjectsManager.mActiveCarsList)
+    {
+        CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
+        glm::vec3 position = physicsComponent->GetPosition();
+        // process falling
+        float newHeight = gGameMap.GetHeightAtPosition(position);
+        physicsComponent->mOnTheGround = newHeight > position.y - 0.1f;
+        if (!physicsComponent->mOnTheGround)
+        {
+            position.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
+        }
+        else
+        {
+            position.y = newHeight;
+        }
+        physicsComponent->SetPosition(position);  
+    }
+
+    // pedestrians
     for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
     {
-        PedPhysicsComponent* pedestrianBody = currPedestrian->mPhysicsComponent;
-        glm::vec3 pedestrianPos = pedestrianBody->GetPosition();
+        PedPhysicsComponent* physicsComponent = currPedestrian->mPhysicsComponent;
+        glm::vec3 position = physicsComponent->GetPosition();
+
+        if (currPedestrian->IsDrivingCar())
+        {
+            glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsComponent->GetPosition();
+            position.y = carPosition.y;
+            physicsComponent->SetPosition(position);
+
+            return;
+        }
 
         // process falling
-        float newHeight = gGameMap.GetHeightAtPosition(pedestrianPos);
-
-        pedestrianBody->mOnTheGround = newHeight > pedestrianPos.y - 0.1f;
-        if (pedestrianBody->mFalling)
+        float newHeight = gGameMap.GetHeightAtPosition(position);
+        physicsComponent->mOnTheGround = newHeight > position.y - 0.1f;
+        if (physicsComponent->mFalling)
         {
-            if (pedestrianBody->mOnTheGround)
+            if (physicsComponent->mOnTheGround)
             {
-                pedestrianBody->SetFalling(false);
+                physicsComponent->SetFalling(false);
             }
         }
         else
         {
-            if ((pedestrianPos.y - newHeight) >= MAP_BLOCK_LENGTH)
+            if ((position.y - newHeight) >= MAP_BLOCK_LENGTH)
             {
-                pedestrianBody->SetFalling(true);
+                physicsComponent->SetFalling(true);
             }
         }
 
-        if (!pedestrianBody->mOnTheGround)
+        if (!physicsComponent->mOnTheGround)
         {
-            pedestrianPos.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            position.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }
         else
         {
-            pedestrianPos.y = newHeight;
+            position.y = newHeight;
         }
-
-        pedestrianBody->SetPosition(pedestrianPos);
+        physicsComponent->SetPosition(position);
     }
 }
 

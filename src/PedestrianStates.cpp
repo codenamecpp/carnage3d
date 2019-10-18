@@ -527,11 +527,15 @@ void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const 
 
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_SittingOnBike : eSpriteAnimationID_Ped_SittingInCar, eSpriteAnimLoop_None);
+    pedestrian->mPhysicsComponent->HandleCarEnter();
+    pedestrian->mCurrentCar->mPhysicsComponent->AttachComponent(pedestrian->mPhysicsComponent, pedestrian->mCurrentCar->mPhysicsComponent->GetWorldPoint({}));
 }
 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian)
 {
     pedestrian->mCurrentCar->RemovePassenger(pedestrian);
+    pedestrian->mPhysicsComponent->HandleCarLeave();
+    pedestrian->mCurrentCar->mPhysicsComponent->DetachComponent(pedestrian->mPhysicsComponent);
 }
 
 void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)

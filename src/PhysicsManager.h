@@ -50,7 +50,7 @@ private:
     void CreateMapCollisionShape();
 
     // apply gravity forces and correct y coord for objects
-    void FixedStepPedsGravity();
+    void FixedStepGravity();
 
     // override b2ContactFilter
 	void BeginContact(b2Contact* contact) override;

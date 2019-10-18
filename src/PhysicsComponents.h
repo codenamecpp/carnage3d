@@ -87,6 +87,8 @@ public:
     void SetFalling(bool isFalling);
     void HandleCarContactBegin();
     void HandleCarContactEnd();
+    void HandleCarEnter();
+    void HandleCarLeave();
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;
