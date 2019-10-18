@@ -6,6 +6,7 @@
 #include "SpriteBatch.h"
 #include "RenderingManager.h"
 #include "SpriteManager.h"
+#include "Pedestrian.h"
 
 Vehicle::Vehicle(GameObjectID_t id)
     : GameObject(id)
@@ -21,6 +22,7 @@ Vehicle::Vehicle(GameObjectID_t id)
 
 Vehicle::~Vehicle()
 {
+    debug_assert(mPassengers.empty());
     if (mPhysicsComponent)
     {
         gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
@@ -48,7 +50,12 @@ void Vehicle::EnterTheGame()
 
 void Vehicle::UpdateFrame(Timespan deltaTime)
 {
-    UpdateDeltaAnimations(deltaTime);    
+    UpdateDeltaAnimations(deltaTime);
+
+    if (Pedestrian* carDriver = GetCarDriver())
+    {
+        UpdateDriving(carDriver, deltaTime);
+    }   
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
@@ -388,4 +395,56 @@ bool Vehicle::GetSeatPos(eCarSeat carSeat, glm::vec2& out) const
 
     debug_assert(false);
     return false;
+}
+
+void Vehicle::PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
+{
+    if (pedestrian == nullptr || carSeat == eCarSeat_Any)
+    {
+        debug_assert(false);
+        return;
+    }
+    // check is already added
+    if (std::find(mPassengers.begin(), mPassengers.end(), pedestrian) == mPassengers.end())
+    {
+        mPassengers.push_back(pedestrian);
+    }
+    else
+    {
+        debug_assert(false);
+    }
+}
+
+void Vehicle::RemovePassenger(Pedestrian* pedestrian)
+{
+    auto ifound = std::find(mPassengers.begin(), mPassengers.end(), pedestrian);
+    if (ifound != mPassengers.end())
+    {
+        mPassengers.erase(ifound);
+    }
+}
+
+Pedestrian* Vehicle::GetCarDriver() const
+{
+    for (Pedestrian* currPassenger: mPassengers)
+    {
+        if (currPassenger->mCurrentSeat == eCarSeat_Driver)
+            return currPassenger;
+    }
+    return nullptr;
+}
+
+Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
+{
+    for (Pedestrian* currPassenger: mPassengers)
+    {
+        if (currPassenger->mCurrentSeat == carSeat)
+            return currPassenger;
+    }
+    return nullptr;
+}
+
+void Vehicle::UpdateDriving(Pedestrian* carDriver, Timespan deltaTime)
+{
+
 }

@@ -16,31 +16,79 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     debug_assert(mCharacter);
     if (inputEvent.mKeycode == KEYCODE_LEFT)
     {
-        mCharacter->mCtlActions[ePedestrianAction_TurnLeft] = inputEvent.mPressed;
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_SteerLeft] = inputEvent.mPressed;
+        }
+        else
+        {
+            mCharacter->mCtlActions[ePedestrianAction_TurnLeft] = inputEvent.mPressed;
+        }
         inputEvent.SetConsumed();
     }
 
     if (inputEvent.mKeycode == KEYCODE_RIGHT)
     {
-        mCharacter->mCtlActions[ePedestrianAction_TurnRight] = inputEvent.mPressed;
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_SteerRight] = inputEvent.mPressed;
+        }
+        else
+        {
+            mCharacter->mCtlActions[ePedestrianAction_TurnRight] = inputEvent.mPressed;
+        }
         inputEvent.SetConsumed();
     }
 
     if (inputEvent.mKeycode == KEYCODE_UP)
     {
-        mCharacter->mCtlActions[ePedestrianAction_Run] = inputEvent.mPressed;
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_Accelerate] = inputEvent.mPressed;
+        }
+        else
+        {
+            mCharacter->mCtlActions[ePedestrianAction_Run] = inputEvent.mPressed;
+        }
         inputEvent.SetConsumed();
     }
 
     if (inputEvent.mKeycode == KEYCODE_DOWN)
     {
-        mCharacter->mCtlActions[ePedestrianAction_WalkBackward] = inputEvent.mPressed;
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_Reverse] = inputEvent.mPressed;
+        }
+        else
+        {
+            mCharacter->mCtlActions[ePedestrianAction_WalkBackward] = inputEvent.mPressed;
+        }
         inputEvent.SetConsumed();
     }
 
     if (inputEvent.mKeycode == KEYCODE_SPACE)
     {
-        mCharacter->mCtlActions[ePedestrianAction_Jump] = inputEvent.mPressed;
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_HandBrake] = inputEvent.mPressed;
+        }
+        else
+        {
+            mCharacter->mCtlActions[ePedestrianAction_Jump] = inputEvent.mPressed;
+        }
+        inputEvent.SetConsumed();
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_TAB)
+    {
+        if (mCharacter->IsDrivingCar())
+        {
+            mCharacter->mCtlActions[ePedestrianAction_Horn] = inputEvent.mPressed;
+        }
+        else
+        {
+            // todo
+        }
         inputEvent.SetConsumed();
     }
 

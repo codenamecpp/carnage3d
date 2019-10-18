@@ -527,10 +527,12 @@ void PedestrianStateDrivingCar::ProcessStateFrame(Pedestrian* pedestrian, Timesp
 
 void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
+    pedestrian->mCurrentCar->PutPassenger(pedestrian, pedestrian->mCurrentSeat);
 }
 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian)
 {
+    pedestrian->mCurrentCar->RemovePassenger(pedestrian);
 }
 
 void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)

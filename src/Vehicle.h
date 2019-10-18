@@ -22,6 +22,7 @@ public:
     float mDrawHeight;
 
     CarStyle* mCarStyle; // cannot be null
+    std::vector<Pedestrian*> mPassengers;
 
 public:
     // @param id: Unique object identifier, constant
@@ -33,6 +34,18 @@ public:
 
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
+
+    // adds passenger into the car
+    // @param pedestrian: Pedestrian, cannot be null
+    // @param carSeat: Target seat, does not do check if seat is already occupied, cannot be 'any'
+    void PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat);
+
+    // removes passenger
+    void RemovePassenger(Pedestrian* pedestrian);
+
+    // get car passengers
+    Pedestrian* GetCarDriver() const;
+    Pedestrian* GetFirstPassenger(eCarSeat carSeat) const;
 
     // doors animations
     void OpenDoor(int doorIndex);
@@ -66,6 +79,7 @@ public:
     bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
 
 private:
+    void UpdateDriving(Pedestrian* carDriver, Timespan deltaTime);
     void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations(Timespan deltaTime);

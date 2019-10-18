@@ -676,6 +676,7 @@ decl_enum_strings(eWeaponType);
 // pedestrian basic action
 enum ePedestrianAction
 {
+    
     ePedestrianAction_TurnLeft,
     ePedestrianAction_TurnRight,
     ePedestrianAction_Jump,
@@ -685,6 +686,15 @@ enum ePedestrianAction
     ePedestrianAction_Shoot,
     ePedestrianAction_EnterCar,
     ePedestrianAction_LeaveCar,
+
+    // in car
+    ePedestrianAction_HandBrake,
+    ePedestrianAction_Accelerate,
+    ePedestrianAction_Reverse,
+    ePedestrianAction_SteerLeft,
+    ePedestrianAction_SteerRight,
+    ePedestrianAction_Horn,
+
     ePedestrianAction_COUNT
 };
 
