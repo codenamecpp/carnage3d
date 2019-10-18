@@ -15,6 +15,7 @@ Vehicle::Vehicle(GameObjectID_t id)
     , mDead()
     , mCarStyle()
     , mDamageDeltaBits()
+    , mDrawHeight()
 {
 }
 
@@ -55,6 +56,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     // sync sprite transformation with physical body
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     glm::vec3 position = mPhysicsComponent->GetPosition();
+    ComputeDrawHeight(position);
 
     gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, GetSpriteDeltas(), mChassisDrawSprite);
 
@@ -62,7 +64,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     mChassisDrawSprite.mPosition.y = position.z;
     mChassisDrawSprite.mScale = SPRITE_SCALE;
     mChassisDrawSprite.mRotateAngle = rotationAngle;
-    mChassisDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
+    mChassisDrawSprite.mHeight = mDrawHeight;
     mChassisDrawSprite.SetOriginToCenter();
 
     // update is on screen
@@ -125,7 +127,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 #endif
 }
 
-float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
+void Vehicle::ComputeDrawHeight(const glm::vec3& position)
 {
     glm::vec2 corners[4];
     mPhysicsComponent->GetChassisCorners(corners);
@@ -144,7 +146,7 @@ float Vehicle::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotatio
         gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
     }
 #endif
-    return position.y + 0.02f;
+    mDrawHeight = position.y + 0.02f; // todo: magic numbers
 }
 
 SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const

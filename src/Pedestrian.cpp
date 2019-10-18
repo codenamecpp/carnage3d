@@ -6,12 +6,14 @@
 #include "SpriteManager.h"
 #include "RenderingManager.h"
 #include "PedestrianStates.h"
+#include "Vehicle.h"
 
 Pedestrian::Pedestrian(GameObjectID_t id)
     : GameObject(id)
     , mPhysicsComponent()
     , mCurrentAnimID(eSpriteAnimationID_Null)
     , mController()
+    , mDrawHeight()
     , mActivePedsNode(this)
     , mDeletePedsNode(this)
 {
@@ -76,16 +78,30 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
+    ePedestrianState currState = GetCurrentStateID();
+    if (currState == ePedestrianState_DrivingCar)
+    {
+        debug_assert(mCurrentCar);
+        // dont draw pedestrian if it in car with hard top
+        if (mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
+            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+        {
+            return;
+        }
+    }
+
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
     gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, mDrawSprite);
 
+    ComputeDrawHeight(position);
+
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
     mDrawSprite.mRotateAngle = rotationAngle;
-    mDrawSprite.mHeight = ComputeDrawHeight(position, rotationAngle);
+    mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mDrawSprite);
 
@@ -95,8 +111,23 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 #endif
 }
 
-float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle)
+void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
+    ePedestrianState currState = GetCurrentStateID();
+    if (currState == ePedestrianState_DrivingCar)
+    {
+        debug_assert(mCurrentCar);
+        // dont draw pedestrian if it in car with hard top
+        if (mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
+            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+        {
+            return;
+        }
+
+        mDrawHeight = mCurrentCar->mDrawHeight + 0.1f; // todo: magic numbers
+        return;
+    }
+
     float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
 
     //glm::vec3 points[4] = {
@@ -138,10 +169,10 @@ float Pedestrian::ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rota
     // todo: get rid of magic numbers
     if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
     {
-        maxHeight += 0.35f;
+        maxHeight += 0.35f; // todo: magic numbers
     }
 
-    return maxHeight + 0.01f;
+    mDrawHeight = maxHeight + 0.01f; // todo: magic numbers
 }
 
 void Pedestrian::SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)

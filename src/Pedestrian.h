@@ -20,6 +20,8 @@ public:
     Timespan mCurrentStateTime; // time since current state has started
 
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
+
+    float mDrawHeight;
     
     // in car
     Vehicle* mCurrentCar = nullptr;
@@ -64,7 +66,7 @@ private:
     void ChangeState(PedestrianBaseState* nextState, const PedestrianStateEvent* transitionEvent);
 
     void SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
-    float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
+    void ComputeDrawHeight(const glm::vec3& position);
 
 private:
     friend class GameObjectsManager;

@@ -19,6 +19,8 @@ public:
     bool mDead;
     bool mIsOnScreen;
 
+    float mDrawHeight;
+
     CarStyle* mCarStyle; // cannot be null
 
 public:
@@ -64,7 +66,7 @@ public:
     bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
 
 private:
-    float ComputeDrawHeight(const glm::vec3& position, cxx::angle_t rotationAngle);
+    void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations(Timespan deltaTime);
 
