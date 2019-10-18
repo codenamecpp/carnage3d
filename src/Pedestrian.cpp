@@ -82,9 +82,11 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     if (currState == ePedestrianState_DrivingCar)
     {
         debug_assert(mCurrentCar);
+
+        bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
         // dont draw pedestrian if it in car with hard top
-        if (mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
-            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+        if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
+            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && !isBike)
         {
             return;
         }
@@ -117,9 +119,10 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     if (currState == ePedestrianState_DrivingCar)
     {
         debug_assert(mCurrentCar);
+        bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
         // dont draw pedestrian if it in car with hard top
-        if (mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
-            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+        if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
+            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && !isBike)
         {
             return;
         }

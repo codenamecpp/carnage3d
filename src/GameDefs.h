@@ -631,6 +631,10 @@ enum eSpriteAnimationID
     eSpriteAnimationID_Ped_Run,
     eSpriteAnimationID_Ped_ExitCar,
     eSpriteAnimationID_Ped_EnterCar,
+    eSpriteAnimationID_Ped_SittingInCar,
+    eSpriteAnimationID_Ped_ExitBike,
+    eSpriteAnimationID_Ped_EnterBike,
+    eSpriteAnimationID_Ped_SittingOnBike,
     eSpriteAnimationID_Ped_FallLong,
     eSpriteAnimationID_Ped_SlideUnderTheCar,
     eSpriteAnimationID_Ped_StandingStill, // no weapons

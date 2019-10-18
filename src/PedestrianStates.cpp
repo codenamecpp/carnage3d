@@ -415,24 +415,21 @@ void PedestrianStateEnterCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan
         pedestrian->mCurrentCar->CloseDoor(doorIndex);
     }
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_EnterCar)
+    if (pedestrian->mCurrentAnimState.IsLastFrame())
     {
-        if (pedestrian->mCurrentAnimState.IsLastFrame())
-        {
-            glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
-            glm::vec2 seatPosition;
+        glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
+        glm::vec2 seatPosition;
 
-            pedestrian->mCurrentCar->GetSeatPos(pedestrian->mCurrentSeat, seatPosition);
-            position.x = seatPosition.x;
-            position.z = seatPosition.y;
-            pedestrian->mPhysicsComponent->SetPosition(position, pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle());
-        }
+        pedestrian->mCurrentCar->GetSeatPos(pedestrian->mCurrentSeat, seatPosition);
+        position.x = seatPosition.x;
+        position.z = seatPosition.y;
+        pedestrian->mPhysicsComponent->SetPosition(position, pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle());
+    }
 
-        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
-        {
-            pedestrian->ChangeState(&pedestrian->mStateDrivingCar, nullptr);
-            return;
-        }
+    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+    {
+        pedestrian->ChangeState(&pedestrian->mStateDrivingCar, nullptr);
+        return;
     }
 }
 
@@ -457,7 +454,8 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     pedestrian->mCurrentSeat = transitionEvent->mActionEnterCar.mTargetSeat;
     pedestrian->mPhysicsComponent->ClearForces();
 
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_EnterCar, eSpriteAnimLoop_None);
+    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_EnterBike : eSpriteAnimationID_Ped_EnterCar, eSpriteAnimLoop_None);
 
     glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
     glm::vec2 doorPosition;
@@ -485,19 +483,17 @@ void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan 
         pedestrian->mCurrentCar->CloseDoor(doorIndex);
     }
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_ExitCar)
+    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
-        {
-            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-            return;
-        }
+        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+        return;
     }
 }
 
 void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
+    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
 
     glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
     glm::vec2 doorPosition;
@@ -528,6 +524,9 @@ void PedestrianStateDrivingCar::ProcessStateFrame(Pedestrian* pedestrian, Timesp
 void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->mCurrentCar->PutPassenger(pedestrian, pedestrian->mCurrentSeat);
+
+    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_SittingOnBike : eSpriteAnimationID_Ped_SittingInCar, eSpriteAnimLoop_None);
 }
 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian)

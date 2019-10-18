@@ -842,8 +842,15 @@ void StyleData::InitSpriteAnimations()
 {
     mSpriteAnimations[eSpriteAnimationID_Ped_Walk].Setup(0, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_Run].Setup(8, 8);
+
     mSpriteAnimations[eSpriteAnimationID_Ped_ExitCar].Setup(16, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].Setup(24, 10);
+
+    mSpriteAnimations[eSpriteAnimationID_Ped_SittingInCar].Setup(97, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimationID_Ped_ExitBike].Setup(85, 4);
+    mSpriteAnimations[eSpriteAnimationID_Ped_EnterBike].Setup(80, 4);
+    mSpriteAnimations[eSpriteAnimationID_Ped_SittingOnBike].Setup(84, 1, 1.0f);
+
     mSpriteAnimations[eSpriteAnimationID_Ped_FallLong].Setup(38, 3);
     mSpriteAnimations[eSpriteAnimationID_Ped_SlideUnderTheCar].Setup(41, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_StandingStill].Setup(98, 1, 1.0f);

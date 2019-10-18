@@ -378,8 +378,16 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
     glm::vec2 doorLocalPos;
     if (GetDoorPosLocal(doorIndex, doorLocalPos))
     {
+        bool isBike = (mCarStyle->mVType == eCarVType_Motorcycle);
+        if (isBike)
+        {
+            out.y = 0.0f; // dead center
+        }
+        else
+        {
+            out.y = -(1.0f * mCarStyle->mWidth / MAP_PIXELS_PER_TILE) * 0.25f;
+        }
         out.x = doorLocalPos.x;
-        out.y = -(1.0f * mCarStyle->mWidth / MAP_PIXELS_PER_TILE) * 0.25f;
         return true;
     }
     return false;
