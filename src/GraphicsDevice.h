@@ -39,12 +39,12 @@ public:
     // @param fullscreenEnabled: True to fullscreen or false to windowed
     void EnableFullscreen(bool fullscreenEnabled);
 
-    // Create 1D texture, client is responsible for destroying resource
+    // Create buffer texture, client is responsible for destroying resource
     // @param textureFormat: Format
-    // @param sizex: Texture dimensions, must be POT!
+    // @param dataLength: Data length in bytes
     // @param sourceData: Source data buffer
-    GpuTexture1D* CreateTexture1D();
-    GpuTexture1D* CreateTexture1D(eTextureFormat textureFormat, int sizex, const void* sourceData);
+    GpuBufferTexture* CreateBufferTexture();
+    GpuBufferTexture* CreateBufferTexture(eTextureFormat textureFormat, int dataLength, const void* sourceData);
 
     // Create 2D texture, client is responsible for destroying resource
     // @param textureFormat: Format
@@ -87,7 +87,7 @@ public:
     // Set source texture on specified texture unit
     // @param textureUnit: Target unit
     // @param texture: Texture
-    void BindTexture(eTextureUnit textureUnit, GpuTexture1D* texture);
+    void BindTexture(eTextureUnit textureUnit, GpuBufferTexture* texture);
     void BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture);
     void BindTexture(eTextureUnit textureUnit, GpuTextureArray2D* texture);
 
@@ -97,7 +97,7 @@ public:
 
     // Free hardware resource
     // @param textureResource: Target texture, pointer becomes invalid
-    void DestroyTexture(GpuTexture1D* textureResource);
+    void DestroyTexture(GpuBufferTexture* textureResource);
     void DestroyTexture(GpuTexture2D* textureResource);
     void DestroyTexture(GpuTextureArray2D* textureResource);
 

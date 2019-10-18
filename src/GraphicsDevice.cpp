@@ -3,7 +3,7 @@
 #include "OpenGLDefs.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
-#include "GpuTexture1D.h"
+#include "GpuBufferTexture.h"
 #include "GpuTexture2D.h"
 #include "GpuTextureArray2D.h"
 
@@ -240,7 +240,7 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     }
 }
 
-GpuTexture1D* GraphicsDevice::CreateTexture1D()
+GpuBufferTexture* GraphicsDevice::CreateBufferTexture()
 {
     if (!IsDeviceInited())
     {
@@ -248,11 +248,11 @@ GpuTexture1D* GraphicsDevice::CreateTexture1D()
         return nullptr;
     }
 
-    GpuTexture1D* texture = new GpuTexture1D(mGraphicsContext);
+    GpuBufferTexture* texture = new GpuBufferTexture(mGraphicsContext);
     return texture;
 }
 
-GpuTexture1D* GraphicsDevice::CreateTexture1D(eTextureFormat textureFormat, int sizex, const void* sourceData)
+GpuBufferTexture* GraphicsDevice::CreateBufferTexture(eTextureFormat textureFormat, int dataLength, const void* sourceData)
 {
     if (!IsDeviceInited())
     {
@@ -260,8 +260,8 @@ GpuTexture1D* GraphicsDevice::CreateTexture1D(eTextureFormat textureFormat, int 
         return nullptr;
     }
 
-    GpuTexture1D* texture = new GpuTexture1D(mGraphicsContext);
-    if (!texture->Setup(textureFormat, sizex, sourceData))
+    GpuBufferTexture* texture = new GpuBufferTexture(mGraphicsContext);
+    if (!texture->Setup(textureFormat, dataLength, sourceData))
     {
         DestroyTexture(texture);
         return nullptr;
@@ -434,7 +434,7 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture1D* texture)
+void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuBufferTexture* texture)
 {
     if (!IsDeviceInited())
     {
@@ -443,13 +443,13 @@ void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture1D* texture
     }
 
     debug_assert(textureUnit < eTextureUnit_COUNT);
-    if (mGraphicsContext.mCurrentTextures[textureUnit].mTexture1D == texture)
+    if (mGraphicsContext.mCurrentTextures[textureUnit].mBufferTexture == texture)
         return;
 
     ActivateTextureUnit(textureUnit);
 
-    mGraphicsContext.mCurrentTextures[textureUnit].mTexture1D = texture;
-    ::glBindTexture(GL_TEXTURE_1D, texture ? texture->mResourceHandle : 0);
+    mGraphicsContext.mCurrentTextures[textureUnit].mBufferTexture = texture;
+    ::glBindTexture(GL_TEXTURE_BUFFER, texture ? texture->mResourceHandle : 0);
     glCheckError();
 }
 
@@ -541,7 +541,7 @@ void GraphicsDevice::BindRenderProgram(GpuProgram* program)
     mGraphicsContext.mCurrentProgram = program;
 }
 
-void GraphicsDevice::DestroyTexture(GpuTexture1D* textureResource)
+void GraphicsDevice::DestroyTexture(GpuBufferTexture* textureResource)
 {
     if (!IsDeviceInited())
     {

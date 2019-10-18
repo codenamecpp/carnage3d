@@ -62,7 +62,7 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     GLint internalFormatGL = 0;
     switch (textureFormat)
     {
-        case eTextureFormat_RU16:
+        case eTextureFormat_R16I:
             formatGL = GL_RED_INTEGER;
             internalFormatGL = GL_R16UI;
         break;
@@ -94,7 +94,7 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     mSize.x = sizex;
     mSize.y = sizey;
 
-    GLenum dataType = (mFormat == eTextureFormat_RU16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+    GLenum dataType = (mFormat == eTextureFormat_R16I) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
     
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);
@@ -156,7 +156,7 @@ bool GpuTexture2D::Upload(const void* sourceData)
     GLint internalFormatGL = 0;
     switch (mFormat)
     {
-        case eTextureFormat_RU16:
+        case eTextureFormat_R16I:
             formatGL = GL_RED_INTEGER;
             internalFormatGL = GL_R16UI;
         break;
@@ -178,7 +178,7 @@ bool GpuTexture2D::Upload(const void* sourceData)
         break;
     }
 
-    GLenum dataType = (mFormat == eTextureFormat_RU16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+    GLenum dataType = (mFormat == eTextureFormat_R16I) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);

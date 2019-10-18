@@ -5,7 +5,7 @@
 #include "GraphicsDevice.h"
 #include "CarnageGame.h"
 #include "stb_rect_pack.h"
-#include "GpuTexture1D.h"
+#include "GpuBufferTexture.h"
 #include "GameCheatsWindow.h"
 #include "MemoryManager.h"
 
@@ -228,17 +228,15 @@ bool SpriteManager::InitBlocksIndicesTable()
         return true;
     }
 
-    int textureSize = cxx::get_next_pot(totalTextures);
-
-    mBlocksIndices.resize(textureSize);
+    mBlocksIndices.resize(totalTextures);
 
     // reset to default order
-    for (int i = 0; i < textureSize; ++i)
+    for (int i = 0; i < totalTextures; ++i)
     {
-        mBlocksIndices[i] = (i < totalTextures) ? i : 0;
+        mBlocksIndices[i] = i;
     }
 
-    mBlocksIndicesTable = gGraphicsDevice.CreateTexture1D(eTextureFormat_RU16, textureSize, mBlocksIndices.data());
+    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16I, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
     debug_assert(mBlocksIndicesTable);
 
     return true;
@@ -256,7 +254,7 @@ void SpriteManager::RenderFrameEnd()
         // upload indices table
         debug_assert(mBlocksIndicesTable);
         mIndicesTableChanged = false;
-        mBlocksIndicesTable->Upload(mBlocksIndices.data());
+        mBlocksIndicesTable->Upload(0, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
     }
 }
 

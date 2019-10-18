@@ -4,7 +4,7 @@
 class GraphicsDevice;
 class GpuBuffer;
 class GpuProgram;
-class GpuTexture1D;
+class GpuBufferTexture;
 class GpuTexture2D;
 class GpuTextureArray2D;
 class GraphicsContext;
@@ -246,7 +246,7 @@ enum eTextureFormat
     eTextureFormat_RGBA8,
 
     // ext formats 
-    eTextureFormat_RU16, // single channel, unsigned short
+    eTextureFormat_R16I, // single channel, unsigned short
     eTextureFormat_COUNT
 };
 
@@ -263,7 +263,7 @@ inline int NumBytesPerPixel(eTextureFormat format)
         case eTextureFormat_RGB8 : return 3;
         case eTextureFormat_R8_G8 : return 2;
         case eTextureFormat_R8 : return 1;
-        case eTextureFormat_RU16: return 2;
+        case eTextureFormat_R16I: return 2;
     }
     return 0;
 }

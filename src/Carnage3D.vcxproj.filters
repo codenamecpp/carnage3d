@@ -244,9 +244,6 @@
     <ClInclude Include="GameMapManager.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="GpuTexture1D.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="SpriteManager.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -303,6 +300,9 @@
     </ClInclude>
     <ClInclude Include="Sprite2D.h">
       <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuBufferTexture.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -421,9 +421,6 @@
     <ClCompile Include="GameMapManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="GpuTexture1D.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="SpriteManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -475,6 +472,9 @@
     </ClCompile>
     <ClCompile Include="Sprite2D.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuBufferTexture.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

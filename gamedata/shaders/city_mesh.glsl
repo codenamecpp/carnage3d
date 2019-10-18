@@ -32,7 +32,7 @@ void main()
 #ifdef FRAGMENT_SHADER
 
 uniform sampler2DArray tex_0;
-uniform usampler1D tex_1;
+uniform isamplerBuffer tex_1;
 
 uniform bool enable_texture_mapping;
 
@@ -50,7 +50,7 @@ void main()
     vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
     if (enable_texture_mapping)
     {
-        uvec4 block_texture_index_v = texelFetch(tex_1, int(Texcoord.z + 0.5), 0);
+        vec4 block_texture_index_v = texelFetch(tex_1, int(Texcoord.z + 0.5));
         float block_texture_index = float(block_texture_index_v.r);
 
         pixelColor = texture(tex_0, vec3(Texcoord.x, Texcoord.y, block_texture_index));

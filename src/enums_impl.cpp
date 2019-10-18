@@ -39,7 +39,7 @@ impl_enum_strings(eTextureFormat)
     {eTextureFormat_R8_G8, "r8_g8"},
     {eTextureFormat_RGB8, "rgb8"},
     {eTextureFormat_RGBA8, "rgba8"},
-    {eTextureFormat_RU16, "ru16"},
+    {eTextureFormat_R16I, "r16i"},
 };
 
 impl_enum_strings(ePrimitiveType)

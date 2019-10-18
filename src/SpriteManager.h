@@ -11,7 +11,7 @@ class SpriteManager final: public cxx::noncopyable
 {
 public:
     // animating blocks texture indices table
-    GpuTexture1D* mBlocksIndicesTable = nullptr;
+    GpuBufferTexture* mBlocksIndicesTable = nullptr;
 
     // all blocks are packed into single texture array, where each level is single 64x64 bitmap
     GpuTextureArray2D* mBlocksTextureArray = nullptr;
