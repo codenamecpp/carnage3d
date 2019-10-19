@@ -78,27 +78,19 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
-    ePedestrianState currState = GetCurrentStateID();
-    if (currState == ePedestrianState_DrivingCar)
-    {
-        debug_assert(mCurrentCar);
+    glm::vec3 position = mPhysicsComponent->GetPosition();
+    ComputeDrawHeight(position);
 
-        bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-        // dont draw pedestrian if it in car with hard top
-        if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
-            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && !isBike)
-        {
+    if (ePedestrianState currState = GetCurrentStateID())
+    {
+        if (currState == ePedestrianState_DrivingCar && mDrawHeight < mCurrentCar->mDrawHeight)
             return;
-        }
     }
 
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    glm::vec3 position = mPhysicsComponent->GetPosition();
 
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
     gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, mDrawSprite);
-
-    ComputeDrawHeight(position);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
@@ -115,8 +107,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
-    ePedestrianState currState = GetCurrentStateID();
-    if (currState == ePedestrianState_DrivingCar)
+    if (IsDrivingCar())
     {
         debug_assert(mCurrentCar);
         bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);

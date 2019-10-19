@@ -844,7 +844,12 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_Run].Setup(8, 8);
 
     mSpriteAnimations[eSpriteAnimationID_Ped_ExitCar].Setup(16, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].Setup(24, 10);
+    mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].SetupFrames(
+        {
+            26, 26, 26,
+            25, 25,
+            29, 30, 31, 32, 33
+        });
 
     mSpriteAnimations[eSpriteAnimationID_Ped_SittingInCar].Setup(97, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_ExitBike].Setup(85, 4);
