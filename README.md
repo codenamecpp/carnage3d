@@ -1,5 +1,5 @@
-# Carnage3D #
-This is grand theft auto 1 remake project, just for fun.
+# Carnage3D # ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+This is open source Grand Theft Auto 1 remake project.
 
 [![Build Status](https://travis-ci.org/codenamecpp/carnage3d.svg?branch=master)](https://travis-ci.org/codenamecpp/carnage3d)
 
@@ -17,7 +17,8 @@ Tools and technologies used:
 ### Compiling on Linux ###
 At the moment, makefile configured so project will build with clang compiler.
 
-Before build project make sure to install dependencies: apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
+Before build project make sure to install dependencies: 
+* apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
 
 Run these commands in terminal:
 * git clone --recurse-submodules https://github.com/codenamecpp/carnage3d
@@ -42,6 +43,8 @@ Set screen resolution (optionally) but most importand you must specify path to o
 
 To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
 
+Tested on Ubuntu Linux and Windows 7 64bits.
+
 ### Other GTA 1/2 re-implementations ###
 * [WebGL-GTA](https://github.com/niklasvh/WebGL-GTA)
 * [OpenGTA](http://ogta.fifengine.de/download.html)
@@ -53,5 +56,5 @@ To select specific level to play you can add command line argument **-mapname**,
 ### Status ###
 Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
 
-Tested on Ubuntu Linux:
+### Screenshots ###
 ![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
