@@ -140,6 +140,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         if (ImGui::Checkbox("Fullscreen", &gSystem.mConfig.mFullscreen))
         {
             gGraphicsDevice.EnableFullscreen(gSystem.mConfig.mFullscreen);
+            gGraphicsDevice.EnableVSync(gSystem.mConfig.mEnableVSync); // set vsync param as fullcreen mode changes
         }
     }
 

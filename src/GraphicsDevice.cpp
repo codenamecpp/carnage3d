@@ -181,8 +181,8 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     static const RenderStates defaultRenderStates;
     InternalSetRenderStates(defaultRenderStates, true);
 
-    EnableVSync(vsync);
     EnableFullscreen(fullscreen);
+    EnableVSync(vsync);
     return true;
 }
 
@@ -212,14 +212,7 @@ void GraphicsDevice::EnableVSync(bool vsyncEnabled)
 {
     if (!IsDeviceInited())
         return;
-#if 0
-    // this does work for Intel HD Graphics
-    if (!!::wglSwapIntervalEXT)
-    {
-        ::wglSwapIntervalEXT(vsyncEnabled ? 1 : 0);
-        return;
-    }
-#endif
+
     ::glfwSwapInterval(vsyncEnabled ? 1 : 0);
 }
 
