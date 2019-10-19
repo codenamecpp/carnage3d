@@ -1,4 +1,4 @@
-# Carnage3D # ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+# Carnage3D ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 This is open source Grand Theft Auto 1 remake project.
 
 [![Build Status](https://travis-ci.org/codenamecpp/carnage3d.svg?branch=master)](https://travis-ci.org/codenamecpp/carnage3d)
