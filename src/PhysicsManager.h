@@ -2,7 +2,6 @@
 
 #include "PhysicsDefs.h"
 #include "GameDefs.h"
-#include "PhysicsDebugDraw.h"
 #include "PhysicsComponents.h"
 
 // this class manages physics and collision detections for map and objects
@@ -66,7 +65,6 @@ private:
     bool GetContactComponents(b2Contact* contact, PedPhysicsComponent*& pedPhysicsObject, CarPhysicsComponent*& carPhysicsObject) const;
 
 private:
-    PhysicsDebugDraw mDebugDraw;
     b2Body* mMapCollisionShape;
     b2World* mPhysicsWorld;
     float mSimulationTimeAccumulator;
