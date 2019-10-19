@@ -16,7 +16,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     debug_assert(mCharacter);
     if (inputEvent.mKeycode == KEYCODE_LEFT)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_SteerLeft] = inputEvent.mPressed;
         }
@@ -29,7 +29,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_RIGHT)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_SteerRight] = inputEvent.mPressed;
         }
@@ -42,7 +42,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_UP)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_Accelerate] = inputEvent.mPressed;
         }
@@ -55,7 +55,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_DOWN)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_Reverse] = inputEvent.mPressed;
         }
@@ -68,7 +68,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_SPACE)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_HandBrake] = inputEvent.mPressed;
         }
@@ -81,7 +81,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_TAB)
     {
-        if (mCharacter->IsDrivingCar())
+        if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_Horn] = inputEvent.mPressed;
         }
@@ -177,7 +177,7 @@ void HumanCharacterController::SwitchPrevWeapon()
 
 void HumanCharacterController::EnterOrExitCar()
 {
-    if (mCharacter->IsDrivingCar())
+    if (mCharacter->IsCarPassenger())
     {
         mCharacter->LeaveCar();
         return;

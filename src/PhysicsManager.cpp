@@ -296,7 +296,7 @@ void PhysicsManager::FixedStepGravity()
         PedPhysicsComponent* physicsComponent = currPedestrian->mPhysicsComponent;
         glm::vec3 position = physicsComponent->GetPosition();
 
-        if (currPedestrian->IsDrivingCar())
+        if (currPedestrian->IsCarPassenger())
         {
             glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsComponent->GetPosition();
             position.y = carPosition.y;

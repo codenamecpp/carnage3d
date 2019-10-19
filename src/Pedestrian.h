@@ -53,7 +53,9 @@ public:
     // pedestrian will try exit vehicle, may fail depending on its current state
     void LeaveCar();
 
-    bool IsDrivingCar() const;
+    // check if pedestrian entering/exiting or driving car at this moment
+    bool IsCarPassenger() const;
+    bool IsCarDriver() const;
 
     // detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;

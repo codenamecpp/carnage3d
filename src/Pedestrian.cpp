@@ -109,7 +109,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
-    if (IsDrivingCar())
+    if (IsCarPassenger())
     {
         debug_assert(mCurrentCar);
         bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
@@ -253,11 +253,26 @@ ePedestrianState Pedestrian::GetCurrentStateID() const
     return mCurrentState->GetStateID();
 }
 
-bool Pedestrian::IsDrivingCar() const
+bool Pedestrian::IsCarPassenger() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    return currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
-        currState == ePedestrianState_ExitingCar;
+    if (currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
+        currState == ePedestrianState_ExitingCar)
+    {
+        return true; // includes driver
+    }
+    return false;
+}
+
+bool Pedestrian::IsCarDriver() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    if (currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
+        currState == ePedestrianState_ExitingCar)
+    {
+        return mCurrentSeat == eCarSeat_Driver;
+    }
+    return false;
 }
 
 void Pedestrian::HandleCarEntered()
