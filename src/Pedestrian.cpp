@@ -127,7 +127,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
             return;
         }
 
-        mDrawHeight = mCurrentCar->mDrawHeight + 0.1f; // todo: magic numbers
+        mDrawHeight = mCurrentCar->mDrawHeight + 0.01f; // todo: magic numbers
         return;
     }
 
@@ -263,4 +263,31 @@ bool Pedestrian::IsDrivingCar() const
     ePedestrianState currState = GetCurrentStateID();
     return currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
         currState == ePedestrianState_ExitingCar;
+}
+
+void Pedestrian::HandleCarEntered()
+{
+    debug_assert(mCurrentCar);
+
+    // reset actions
+    mCtlActions[ePedestrianAction_TurnLeft] = false;
+    mCtlActions[ePedestrianAction_TurnRight] = false;
+    mCtlActions[ePedestrianAction_Jump] = false;
+    mCtlActions[ePedestrianAction_WalkForward] = false;
+    mCtlActions[ePedestrianAction_WalkBackward] = false;
+    mCtlActions[ePedestrianAction_Run] = false;
+    mCtlActions[ePedestrianAction_Shoot] = false;
+}
+
+void Pedestrian::HandleCarExited()
+{
+    debug_assert(mCurrentCar);
+
+    // reset actions
+    mCtlActions[ePedestrianAction_HandBrake] = false;
+    mCtlActions[ePedestrianAction_Accelerate] = false;
+    mCtlActions[ePedestrianAction_Reverse] = false;
+    mCtlActions[ePedestrianAction_SteerLeft] = false;
+    mCtlActions[ePedestrianAction_SteerRight] = false;
+    mCtlActions[ePedestrianAction_Horn] = false;
 }

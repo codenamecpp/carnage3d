@@ -730,6 +730,6 @@ public:
 
 public:
     int mMaxArrayTextureLayers;
-    float mMaxAnisotropy; 
+    int mMaxTextureBufferSize;
     bool mFeatures[eGraphicsFeature_COUNT];
 };

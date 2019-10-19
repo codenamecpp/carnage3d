@@ -164,6 +164,7 @@ public:
     PedestrianStateEnterCar() : PedestrianBaseState(ePedestrianState_EnteringCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    void ProcessStateExit(Pedestrian* pedestrian) override;
 };
 
 // process state ePedestrianState_ExitingCar

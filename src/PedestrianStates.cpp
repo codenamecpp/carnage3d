@@ -472,6 +472,14 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     }
 }
 
+void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian)
+{
+    if (pedestrian->mCurrentCar)
+    {
+        pedestrian->HandleCarEntered();
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
@@ -512,7 +520,11 @@ void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const Ped
 
 void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian)
 {
-    pedestrian->mCurrentCar = nullptr;
+    if (pedestrian->mCurrentCar)
+    {
+        pedestrian->HandleCarExited();
+        pedestrian->mCurrentCar = nullptr;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -962,14 +962,15 @@ void GraphicsDevice::QueryGraphicsDeviceCaps()
     mCaps.mFeatures[eGraphicsFeature_NPOT_Textures] = (GLEW_ARB_texture_non_power_of_two == GL_TRUE);
     mCaps.mFeatures[eGraphicsFeature_ABGR] = (GLEW_EXT_abgr == GL_TRUE);
 
-    mCaps.mMaxAnisotropy = 1.0f;
-    ::glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mCaps.mMaxAnisotropy);
+    ::glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &mCaps.mMaxTextureBufferSize);
     glCheckError();
 
     ::glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &mCaps.mMaxArrayTextureLayers);
     glCheckError();
 
-    gConsole.LogMessage(eLogMessage_Info, "Graphics Device supports up to the %d array texture layers", mCaps.mMaxArrayTextureLayers);
+    gConsole.LogMessage(eLogMessage_Info, "Graphics Device caps:");
+    gConsole.LogMessage(eLogMessage_Info, "- max array texture layers: %d", mCaps.mMaxArrayTextureLayers);
+    gConsole.LogMessage(eLogMessage_Info, "- max texture buffer size: %d bytes", mCaps.mMaxTextureBufferSize);
 }
 
 void GraphicsDevice::ActivateTextureUnit(eTextureUnit textureUnit)
