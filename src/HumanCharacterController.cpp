@@ -84,6 +84,10 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         if (mCharacter->IsCarPassenger())
         {
             mCharacter->mCtlActions[ePedestrianAction_Horn] = inputEvent.mPressed;
+            if (inputEvent.mPressed && mCharacter->mCurrentCar->HasEmergencyLightsAnimation())
+            {
+                mCharacter->mCurrentCar->EnableEmergencyLights(!mCharacter->mCurrentCar->IsEmergencyLightsEnabled());
+            }
         }
         else
         {
