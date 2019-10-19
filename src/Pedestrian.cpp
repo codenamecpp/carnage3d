@@ -81,9 +81,11 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
     ComputeDrawHeight(position);
 
-    if (ePedestrianState currState = GetCurrentStateID())
+    ePedestrianState currState = GetCurrentStateID();
+    if (currState == ePedestrianState_DrivingCar)
     {
-        if (currState == ePedestrianState_DrivingCar && mDrawHeight < mCurrentCar->mDrawHeight)
+        // dont draw pedestrian if it in car with hard top
+        if (mDrawHeight < mCurrentCar->mDrawHeight)
             return;
     }
 
@@ -115,10 +117,12 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
         if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
             mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && !isBike)
         {
-            return;
+            mDrawHeight = mCurrentCar->mDrawHeight - 0.01f; // todo: magic numbers
         }
-
-        mDrawHeight = mCurrentCar->mDrawHeight + 0.01f; // todo: magic numbers
+        else
+        {
+            mDrawHeight = mCurrentCar->mDrawHeight + 0.01f; // todo: magic numbers
+        }
         return;
     }
 
