@@ -30,13 +30,11 @@ Vehicle::~Vehicle()
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
 
-void Vehicle::EnterTheGame()
+void Vehicle::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
     debug_assert(mCarStyle);
-
-    glm::vec3 startPosition;
     
-    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f), mCarStyle);
+    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation, mCarStyle);
     debug_assert(mPhysicsComponent);
 
     mMarkForDeletion = false;
@@ -105,7 +103,30 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 
     spriteBatch.DrawSprite(mChassisDrawSprite);
 
-#if 1 // debug
+#if 1
+    DrawDebug();
+#endif
+}
+
+void Vehicle::DrawDebug()
+{
+    glm::vec3 position = mPhysicsComponent->GetPosition();
+
+    glm::vec2 corners[4];
+    mPhysicsComponent->GetChassisCorners(corners);
+
+    glm::vec3 points[4];
+    for (int i = 0; i < 4; ++i)
+    {
+        points[i].x = corners[i].x;
+        points[i].z = corners[i].y;
+        points[i].y = mDrawHeight;
+    }
+    for (int i = 0; i < 4; ++i)
+    {
+        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+    }
+
     // draw doors
     for (int idoor = 0; idoor < mCarStyle->mDoorsCount; ++idoor)
     {
@@ -121,17 +142,35 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
         gRenderManager.mDebugRenderer.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
     }
 
-    float bboxheight = (1.0f * mCarStyle->mHeight / MAP_PIXELS_PER_TILE);
-
-    int bboxcolor = COLOR_WHITE;
-    if (mCarStyle->mConvertible == eCarConvertible_HardTop || mCarStyle->mConvertible == eCarConvertible_HardTopAnimated)
+    // draw wheels
+    for (eCarWheelID currID: {eCarWheelID_Drive, eCarWheelID_Steering})
     {
-        bboxcolor = COLOR_GREEN;
-    }
+        if (!mPhysicsComponent->HasWheel(currID))
+            continue;
 
-    gRenderManager.mDebugRenderer.DrawCube(glm::vec3(mChassisDrawSprite.mPosition.x, mPhysicsComponent->mHeight, mChassisDrawSprite.mPosition.y), 
-        glm::vec3((maxpos.x - minpos.x), bboxheight, (maxpos.y - minpos.y)), bboxcolor);
-#endif
+        mPhysicsComponent->GetWheelCorners(currID, corners);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            points[i].x = corners[i].x;
+            points[i].z = corners[i].y;
+            points[i].y = mDrawHeight;
+        }
+        for (int i = 0; i < 4; ++i)
+        {
+            gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_YELLOW);
+        }
+        glm::vec2 forwardVelocity = mPhysicsComponent->GetWheelForwardVelocity(currID);
+        glm::vec2 lateralVelocity = mPhysicsComponent->GetWheelLateralVelocity(currID);
+        glm::vec2 wheelPosition = mPhysicsComponent->GetWheelPosition(currID);
+
+        gRenderManager.mDebugRenderer.DrawLine(
+            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + forwardVelocity.x, mDrawHeight, wheelPosition.y + forwardVelocity.y}, COLOR_GREEN);
+        gRenderManager.mDebugRenderer.DrawLine(
+            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, COLOR_SKYBLUE);
+    }
 }
 
 void Vehicle::ComputeDrawHeight(const glm::vec3& position)
@@ -151,19 +190,6 @@ void Vehicle::ComputeDrawHeight(const glm::vec3& position)
         }
     }
 
-#if 1 // debug
-    glm::vec3 points[4];
-    for (int i = 0; i < 4; ++i)
-    {
-        points[i].x = corners[i].x;
-        points[i].z = corners[i].y;
-        points[i].y = maxHeight;
-    }
-    for (int i = 0; i < 4; ++i)
-    {
-        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
-    }
-#endif
     mDrawHeight = maxHeight + 0.02f; // todo: magic numbers
 }
 
@@ -470,18 +496,18 @@ void Vehicle::UpdateDriving(Pedestrian* carDriver, Timespan deltaTime)
     }
     if (carDriver->mCtlActions[ePedestrianAction_Accelerate])
     {
-        mPhysicsComponent->SetLinearVelocity(mPhysicsComponent->GetSignVector() * 2.0f);
+
     }
     if (carDriver->mCtlActions[ePedestrianAction_Reverse])
     {
-        mPhysicsComponent->SetLinearVelocity(mPhysicsComponent->GetSignVector() * -1.5f);
+
     }
     if (carDriver->mCtlActions[ePedestrianAction_SteerLeft])
     {
-        mPhysicsComponent->SetAngularVelocity(-40.0f);
+
     }
     if (carDriver->mCtlActions[ePedestrianAction_SteerRight])
     {
-        mPhysicsComponent->SetAngularVelocity(40.0f);
+
     }
 }

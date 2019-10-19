@@ -3,7 +3,6 @@
 // forwards
 class PedPhysicsComponent;
 class CarPhysicsComponent;
-class WheelPhysicsComponent;
 
 #define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.10f
 #define PHYSICS_PED_SENSOR_SPHERE_RADIUS (PHYSICS_PED_BOUNDING_SPHERE_RADIUS)

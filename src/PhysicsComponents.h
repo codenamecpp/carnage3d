@@ -81,8 +81,11 @@ protected:
 class PedPhysicsComponent: public PhysicsComponent
 {
 public:
-    PedPhysicsComponent(b2World* physicsWorld);
+    // @param startPosition: Initial world position
+    // @param startRotation: Initial rotation
+    PedPhysicsComponent(b2World* physicsWorld, const glm::vec3& startPosition, cxx::angle_t startRotation);
     ~PedPhysicsComponent();
+
     void UpdateFrame(Timespan deltaTime);
     void SetFalling(bool isFalling);
     void HandleCarContactBegin();
@@ -92,20 +95,18 @@ public:
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;
+
 public:
     Pedestrian* mReferencePed = nullptr;
     int mContactingCars = 0; // number of contacting cars
     bool mFalling = false; // falling from a height
 };
 
-// car wheel physics component
-class WheelPhysicsComponent: public PhysicsComponent
+enum eCarWheelID
 {
-public:
-    WheelPhysicsComponent(b2World* physicsWorld);
-    ~WheelPhysicsComponent();
-    void UpdateFrame(Timespan deltaTime);
-public:
+    eCarWheelID_Steering,
+    eCarWheelID_Drive,
+    eCarWheelID_COUNT
 };
 
 // car chassis physics component
@@ -115,10 +116,44 @@ public:
     Vehicle* mReferenceCar = nullptr;
 
 public:
-    CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc);
+    // @param desc: Car style description, cannot be null
+    // @param startPosition: Initial world position
+    // @param startRotation: Initial rotation
+    CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, const glm::vec3& startPosition, cxx::angle_t startRotation);
     ~CarPhysicsComponent();
+
     void UpdateFrame(Timespan deltaTime);
     void GetChassisCorners(glm::vec2 corners[4]) const;
+    void GetWheelCorners(eCarWheelID wheelID, glm::vec2 corners[4]) const;
+    // test whether specific wheel exists
+    bool HasWheel(eCarWheelID wheelID) const;
+    
+    glm::vec2 GetWheelLateralVelocity(eCarWheelID wheelID) const;
+    glm::vec2 GetWheelForwardVelocity(eCarWheelID wheelID) const;
+    glm::vec2 GetWheelPosition(eCarWheelID wheelID) const;
+
+private:
+
+    // car internals wheel data
+    struct WheelData
+    {
+    public:
+        WheelData() = default;
+    public:
+        b2Body* mPhysicsBody = nullptr;
+        b2Fixture* mFixture = nullptr;
+    };
+
+    void SetupWheels(CarStyle* desc);
+    void FreeWheels();
+    void CreateWheel(CarStyle* desc, eCarWheelID wheelID);
+
+    b2Vec2 GetWheelLateralVelocity(b2Body* carWheel) const;
+    b2Vec2 GetWheelForwardVelocity(b2Body* carWheel) const;
+
 private:
     b2Fixture* mChassisFixture = nullptr;
+    b2RevoluteJoint* mFrontWheelJoint = nullptr;
+    b2RevoluteJoint* mRearWheelJoint = nullptr;
+    WheelData mCarWheels[eCarWheelID_COUNT];
 };

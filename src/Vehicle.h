@@ -30,10 +30,11 @@ public:
     ~Vehicle();
 
     // setup initial state when spawned on level
-    void EnterTheGame();
+    void EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
+    void DrawDebug();
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null

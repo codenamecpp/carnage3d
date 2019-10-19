@@ -41,15 +41,18 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-    glm::vec3 pos { 5.0f, 5.0f, 7.0f };
+    glm::vec3 pos { 11.0f, 5.0f, 13.0f };
     pos.y = gGameMap.GetHeightAtPosition(pos);
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
     mHumanController.SetCharacter(mPlayerPedestrian);
 
     for (int icartype = 0; icartype < gGameMap.mStyleData.mCars.size(); ++icartype)
     {
-        Vehicle* dummyCar = mObjectsManager.CreateCar(pos + glm::vec3 {4.0f + icartype * 1.3f, 0.0f, 2.0f}, &gGameMap.mStyleData.mCars[icartype]);
-        dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(icartype * 60.0f));
+        cxx::angle_t rotationAngle;
+        glm::vec3 startPosition = pos + glm::vec3 {4.0f + icartype * 1.3f, 0.0f, 2.0f};
+        Vehicle* dummyCar = mObjectsManager.CreateCar(startPosition, rotationAngle, &gGameMap.mStyleData.mCars[icartype]);
+        //dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(icartype * 60.0f));
+        //break;
     }
 
     SetCameraController(&mFollowCameraController);

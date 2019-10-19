@@ -29,11 +29,12 @@ public:
     Pedestrian* GetPedestrianByID(GameObjectID_t objectID) const;
 
     // add car instance to map at specific location
-    // @param position: Real world position
+    // @param startPosition: Initial world position
+    // @param startRotation: Initial rotation
     // @param carStyle: Car style
     // @param carModel: Car model identifier
-    Vehicle* CreateCar(const glm::vec3& position, CarStyle* carStyle);
-    Vehicle* CreateCar(const glm::vec3& position, eCarModel carModel);
+    Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, CarStyle* carStyle);
+    Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, eCarModel carModel);
 
     // find car object by its unique identifier
     // @param objectID: Unique identifier

@@ -27,14 +27,10 @@ public:
     // @param desc: Car class description
     CarPhysicsComponent* CreatePhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc);
 
-    // create car wheel specific physical body
-    WheelPhysicsComponent* CreateWheelPhysicsComponent();
-
     // free physics object
     // @param object: Object to destroy, pointer becomes invalid
     void DestroyPhysicsComponent(PedPhysicsComponent* object);
     void DestroyPhysicsComponent(CarPhysicsComponent* object);
-    void DestroyPhysicsComponent(WheelPhysicsComponent* object);
 
     // query all physics objects that intersects with line
     // note that depth is ignored so pointA and pointB has only 2 components
@@ -67,12 +63,11 @@ private:
 private:
     b2Body* mMapCollisionShape;
     b2World* mPhysicsWorld;
-    float mSimulationTimeAccumulator;
 
+    float mSimulationTimeAccumulator;
     // physics components pools
     cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;
     cxx::object_pool<CarPhysicsComponent> mCarsBodiesPool;
-    cxx::object_pool<WheelPhysicsComponent> mWheelsBodiesPool;
 };
 
 extern PhysicsManager gPhysics;

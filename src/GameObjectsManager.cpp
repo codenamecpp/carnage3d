@@ -107,7 +107,7 @@ Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID_t objectID) const
     return nullptr;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, CarStyle* carStyle)
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t carRotation, CarStyle* carStyle)
 {
     StyleData& styleData = gGameMap.mStyleData;
 
@@ -121,12 +121,11 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, CarStyle* carS
 
     // init
     instance->mCarStyle = carStyle;
-    instance->EnterTheGame();
-    instance->mPhysicsComponent->SetPosition(position);
+    instance->EnterTheGame(position, carRotation);
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, eCarModel carModel)
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t carRotation, eCarModel carModel)
 {
     StyleData& styleData = gGameMap.mStyleData;
     debug_assert(styleData.IsLoaded());
@@ -134,7 +133,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, eCarModel carM
     for (CarStyle& currStyle: styleData.mCars)
     {
         if (currStyle.mModelId == carModel)
-            return CreateCar(position, &currStyle);
+            return CreateCar(position, carRotation, &currStyle);
     }
     debug_assert(false);
     return nullptr;

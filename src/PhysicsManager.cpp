@@ -82,9 +82,8 @@ PedPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Pedestrian* pedestri
 {
     debug_assert(pedestrian);
 
-    PedPhysicsComponent* physicsObject = mPedsBodiesPool.create(mPhysicsWorld);
+    PedPhysicsComponent* physicsObject = mPedsBodiesPool.create(mPhysicsWorld, position, rotationAngle);
     physicsObject->mReferencePed = pedestrian;
-    physicsObject->SetPosition(position, rotationAngle);
     return physicsObject;
 }
 
@@ -93,16 +92,9 @@ CarPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Vehicle* car, const 
     debug_assert(desc);
     debug_assert(car);
 
-    CarPhysicsComponent* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, desc);
+    CarPhysicsComponent* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, desc, position, rotationAngle);
     physicsObject->mReferenceCar = car;
-    physicsObject->SetPosition(position, rotationAngle);
     return physicsObject;
-}
-
-WheelPhysicsComponent* PhysicsManager::CreateWheelPhysicsComponent()
-{
-    debug_assert(false); // todo
-    return nullptr;
 }
 
 void PhysicsManager::CreateMapCollisionShape()
@@ -178,12 +170,6 @@ void PhysicsManager::DestroyPhysicsComponent(CarPhysicsComponent* object)
 {
     debug_assert(object);
     mCarsBodiesPool.destroy(object);
-}
-
-void PhysicsManager::DestroyPhysicsComponent(WheelPhysicsComponent* object)
-{
-    debug_assert(object);
-    mWheelsBodiesPool.destroy(object);
 }
 
 void PhysicsManager::BeginContact(b2Contact* contact)
