@@ -50,9 +50,7 @@ void main()
     vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
     if (enable_texture_mapping)
     {
-        vec4 block_texture_index_v = texelFetch(tex_1, int(Texcoord.z + 0.5));
-        float block_texture_index = float(block_texture_index_v.r);
-
+        float block_texture_index = texelFetch(tex_1, int(Texcoord.z + 0.5)).r;
         pixelColor = texture(tex_0, vec3(Texcoord.x, Texcoord.y, block_texture_index));
 
         if (ceil(FragColor.a) < 1.0f && pixelColor.a < 1.0f) // old school alpha test
