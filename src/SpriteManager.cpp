@@ -170,7 +170,6 @@ bool SpriteManager::InitObjectsSpritesheet()
 bool SpriteManager::InitBlocksTexture()
 {
     StyleData& cityStyle = gGameMap.mStyleData;
-
     // count textures
     const int totalTextures = cityStyle.GetBlockTexturesCount();
     assert(totalTextures > 0);
@@ -197,7 +196,7 @@ bool SpriteManager::InitBlocksTexture()
         int numTextures = cityStyle.GetBlockTexturesCount((eBlockType) iblockType);
         for (int itexture = 0; itexture < numTextures; ++itexture)
         {
-            if (!cityStyle.GetBlockTexture((eBlockType) iblockType, itexture, &blockBitmap, 0, 0))
+            if (!cityStyle.GetBlockTexture((eBlockType) iblockType, itexture, &blockBitmap, 0, 0, 0))
             {
                 gConsole.LogMessage(eLogMessage_Warning, "Cannot read block texture: %d %d", iblockType, itexture);
                 return false;
@@ -315,7 +314,7 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
         int numTextures = cityStyle.GetBlockTexturesCount(currentBlockType);
         for (int itexture = 0; itexture < numTextures; ++itexture)
         {
-            if (!cityStyle.GetBlockTexture(currentBlockType, itexture, &blockBitmap, 0, 0))
+            if (!cityStyle.GetBlockTexture(currentBlockType, itexture, &blockBitmap, 0, 0, 0))
             {
                 gConsole.LogMessage(eLogMessage_Warning, "Cannot read block texture: %d %d", iblockType, itexture);
                 continue;

@@ -258,7 +258,18 @@ bool StyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) const
     return false;
 }
 
-bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY)
+int StyleData::GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex, int remap) const
+{
+    const int blockLinearIndex = GetBlockTextureLinearIndex(blockType, blockIndex);
+    if (remap > 0)
+    {
+        debug_assert(blockType == eBlockType_Lid);
+        debug_assert(remap < 4);
+    }   
+    return mPaletteIndices[4 * blockLinearIndex + remap];
+}
+
+bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY, int remap)
 {
     // target bitmap must be allocated otherwise operation makes no sence
     if (bitmap == nullptr || !bitmap->HasContent())
@@ -297,23 +308,31 @@ bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArra
     unsigned char* srcPixels = mBlockTexturesRaw.data() + srcOffset;
 
     int bpp = NumBytesPerPixel(bitmap->mFormat);
-    debug_assert(bpp == 3 || bpp == 4);
+    debug_assert(bpp == 3 || bpp == 4 || bpp == 1);
+
+    int palindex = GetBlockTexturePaletteIndex(blockType, blockIndex, remap);
 
     for (int iy = 0; iy < MAP_BLOCK_TEXTURE_DIMS; ++iy)
     {
         for (int ix = 0; ix < MAP_BLOCK_TEXTURE_DIMS; ++ix)
         {
             int destOffset = (((destPositionY + iy) * bitmap->mSizex) + (ix + destPositionX)) * bpp;
-            int palindex = mPaletteIndices[4 * blockLinearIndex];
-            int palentry = srcPixels[ix];
+            unsigned char palentry = srcPixels[ix];
 
-            const Color32& color = mPalettes[palindex].mColors[palentry];
-            bitmap->mData[destOffset + 0] = color.mR;
-            bitmap->mData[destOffset + 1] = color.mG;
-            bitmap->mData[destOffset + 2] = color.mB;
-            if (bpp == 4)
+            if (bpp == 1) // color index in palette
             {
-                bitmap->mData[destOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+                bitmap->mData[destOffset + 0] = palentry;
+            }
+            else // rgb(a) color
+            {
+                const Color32& color = mPalettes[palindex].mColors[palentry];
+                bitmap->mData[destOffset + 0] = color.mR;
+                bitmap->mData[destOffset + 1] = color.mG;
+                bitmap->mData[destOffset + 2] = color.mB;
+                if (bpp == 4)
+                {
+                    bitmap->mData[destOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+                }
             }
         }
         srcPixels += 4 * MAP_BLOCK_TEXTURE_DIMS;

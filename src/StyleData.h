@@ -26,9 +26,13 @@ public:
     // Block bitmap has fixed dimensions (GTA_BLOCK_TEXTURE_DIMS x GTA_BLOCK_TEXTURE_DIMS)
     // @param blockType: Source block area type
     // @param blockIndex: Source block index
-    // @param pixelsArray: Target bitmap, must be created
+    // @param bitmap: Target bitmap, must be created
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
-    bool GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
+    bool GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY, int remap);
+
+    // Get palette index for block tile
+    // @param remap: Remap index, remapping applies to lids only, 0 means no remap, 1-3 means look up tile remap index
+    int GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex, int remap) const;
 
     // Get number of textures total or for specific block type only
     // @param blockType: Block type
@@ -49,16 +53,16 @@ public:
 
     // Read sprite bitmap to specific location at target texture
     // @param spriteIndex: Sprite index
-    // @param pixelsArray: Target bitmap, must be created
+    // @param bitmap: Target bitmap, must be created
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
-    bool GetSpriteTexture(int spriteIndex, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
+    bool GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destPositionX, int destPositionY);
 
     // Read sprite with delta delta bitmap to specific location at target texture
     // @param spriteIndex: Sprite index
     // @param deltas: All applied deltas
-    // @param pixelsArray: Target bitmap, must be created
+    // @param bitmap: Target bitmap, must be created
     // @param destPositionX, destPositionY: Location within destination texture where block will be placed
-    bool GetSpriteTexture(int spriteIndex, SpriteDeltaBits_t deltas, PixelsArray* pixelsArray, int destPositionX, int destPositionY);
+    bool GetSpriteTexture(int spriteIndex, SpriteDeltaBits_t deltas, PixelsArray* bitmap, int destPositionX, int destPositionY);
 
     // Map sprite type and id pair to sprite index
     // @param spriteType: Sprite type
