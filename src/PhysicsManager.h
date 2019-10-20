@@ -54,6 +54,7 @@ private:
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
     bool HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const;
+    bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const;
     bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar);
 
     bool ProcessSensorContact(b2Contact* contact, bool onBegin);
