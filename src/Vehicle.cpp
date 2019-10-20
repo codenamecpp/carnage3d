@@ -50,10 +50,7 @@ void Vehicle::UpdateFrame(Timespan deltaTime)
 {
     UpdateDeltaAnimations(deltaTime);
 
-    if (Pedestrian* carDriver = GetCarDriver())
-    {
-        UpdateDriving(carDriver, deltaTime);
-    }   
+    UpdateDriving(deltaTime);
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
@@ -489,25 +486,28 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
     return nullptr;
 }
 
-void Vehicle::UpdateDriving(Pedestrian* carDriver, Timespan deltaTime)
+void Vehicle::UpdateDriving(Timespan deltaTime)
 {
-    if (carDriver->mCtlActions[ePedestrianAction_HandBrake])
+    Pedestrian* carDriver = GetCarDriver();
+    if (carDriver == nullptr)
     {
+        mPhysicsComponent->ResetDriveState();
+        return;
     }
-    if (carDriver->mCtlActions[ePedestrianAction_Accelerate])
-    {
 
-    }
-    if (carDriver->mCtlActions[ePedestrianAction_Reverse])
-    {
+    mPhysicsComponent->SetHandBrake(carDriver->mCtlActions[ePedestrianAction_HandBrake]);
+    mPhysicsComponent->SetAcceleration(carDriver->mCtlActions[ePedestrianAction_Accelerate]);
+    mPhysicsComponent->SetDeceleration(carDriver->mCtlActions[ePedestrianAction_Reverse]);
 
-    }
+    // steering
+    int currentSteering = CarSteeringDirectionNone;
     if (carDriver->mCtlActions[ePedestrianAction_SteerLeft])
     {
-
+        currentSteering = CarSteeringDirectionLeft;
     }
     if (carDriver->mCtlActions[ePedestrianAction_SteerRight])
     {
-
+        currentSteering = CarSteeringDirectionRight;
     }
+    mPhysicsComponent->SetSteering(currentSteering);
 }

@@ -69,11 +69,22 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
     {
         mSimulationTimeAccumulator -= PHYSICS_SIMULATION_STEP;
         mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
-        if (++numSimulations == maxSimulationStepsPerFrame)
+
+        // process cars physics components
+        for (CarPhysicsComponent* currComponent: mCarsBodiesList)
         {
-            break;
+            currComponent->SimulationStep();
         }
+
+        // process peds physics components
+        for (PedPhysicsComponent* currComponent: mPedsBodiesList)
+        {
+            currComponent->SimulationStep();
+        }
+
         FixedStepGravity();
+        if (++numSimulations == maxSimulationStepsPerFrame)
+            break;
     }
     mPhysicsWorld->DrawDebugData();
 }
@@ -84,6 +95,8 @@ PedPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Pedestrian* pedestri
 
     PedPhysicsComponent* physicsObject = mPedsBodiesPool.create(mPhysicsWorld, position, rotationAngle);
     physicsObject->mReferencePed = pedestrian;
+
+    mPedsBodiesList.insert(&physicsObject->mPhysicsComponentsListNode);
     return physicsObject;
 }
 
@@ -94,6 +107,8 @@ CarPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Vehicle* car, const 
 
     CarPhysicsComponent* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, desc, position, rotationAngle);
     physicsObject->mReferenceCar = car;
+
+    mCarsBodiesList.insert(&physicsObject->mPhysicsComponentsListNode);
     return physicsObject;
 }
 
@@ -163,12 +178,28 @@ void PhysicsManager::CreateMapCollisionShape()
 void PhysicsManager::DestroyPhysicsComponent(PedPhysicsComponent* object)
 {
     debug_assert(object);
+    if (mPedsBodiesList.contains(&object->mPhysicsComponentsListNode))
+    {
+        mPedsBodiesList.remove(&object->mPhysicsComponentsListNode);
+    }
+    else
+    {
+        debug_assert(false);
+    }
     mPedsBodiesPool.destroy(object);
 }
 
 void PhysicsManager::DestroyPhysicsComponent(CarPhysicsComponent* object)
 {
     debug_assert(object);
+    if (mCarsBodiesList.contains(&object->mPhysicsComponentsListNode))
+    {
+        mCarsBodiesList.remove(&object->mPhysicsComponentsListNode);
+    }
+    else
+    {
+        debug_assert(false);
+    }
     mCarsBodiesPool.destroy(object);
 }
 

@@ -185,6 +185,7 @@ glm::vec2 PhysicsComponent::GetLocalPoint(const glm::vec2& worldPosition) const
 
 PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3& startPosition, cxx::angle_t startRotation)
     : PhysicsComponent(physicsWorld)
+    , mPhysicsComponentsListNode(this)
 {
     // create body
     b2BodyDef bodyDef;
@@ -223,7 +224,7 @@ PedPhysicsComponent::~PedPhysicsComponent()
 {
 }
 
-void PedPhysicsComponent::UpdateFrame(Timespan deltaTime)
+void PedPhysicsComponent::SimulationStep()
 {
 
 }
@@ -302,6 +303,13 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
 
 CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, const glm::vec3& startPosition, cxx::angle_t startRotation)
     : PhysicsComponent(physicsWorld)
+    , mPhysicsComponentsListNode(this)
+    , mSteeringDirection(CarSteeringDirectionNone)
+    , mCarDesc(desc)
+    , mAccelerationEnabled(false)
+    , mDecelerationEnabled(false)
+    , mCurrentTraction(1.0f)
+    , mHandBrakeEnabled()
 {
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
@@ -322,7 +330,7 @@ CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
     fixtureDef.density = 0.1f;
-    //fixtureDef.friction = 0.0f;
+    //fixtureDef.friction = 1.0f;
     //fixtureDef.restitution = 0.0f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_CAR;
 
@@ -331,7 +339,7 @@ CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, 
 
     SetPosition(startPosition, startRotation);
 
-    SetupWheels(desc);
+    SetupWheels();
 }
 
 CarPhysicsComponent::~CarPhysicsComponent()
@@ -339,9 +347,23 @@ CarPhysicsComponent::~CarPhysicsComponent()
     FreeWheels();
 }
 
-void CarPhysicsComponent::UpdateFrame(Timespan deltaTime)
+void CarPhysicsComponent::ResetDriveState()
 {
+    SetSteering(CarSteeringDirectionNone);
+    SetAcceleration(false);
+    SetDeceleration(false);
+    SetHandBrake(false);
+}
 
+void CarPhysicsComponent::SimulationStep()
+{
+    UpdateWheelFriction(eCarWheelID_Drive);
+    UpdateWheelFriction(eCarWheelID_Steering);
+
+    UpdateWheelDrive(eCarWheelID_Drive);
+    UpdateWheelDrive(eCarWheelID_Steering);
+
+    UpdateSteering();
 }
 
 void CarPhysicsComponent::GetChassisCorners(glm::vec2 corners[4]) const
@@ -382,6 +404,26 @@ bool CarPhysicsComponent::HasWheel(eCarWheelID wheelID) const
     debug_assert(wheelID < eCarWheelID_COUNT);
 
     return mCarWheels[wheelID].mPhysicsBody != nullptr;
+}
+
+void CarPhysicsComponent::SetSteering(int steerDirection)
+{
+    mSteeringDirection = steerDirection;
+}
+
+void CarPhysicsComponent::SetAcceleration(bool isEnabled)
+{
+    mAccelerationEnabled = isEnabled;
+}
+
+void CarPhysicsComponent::SetDeceleration(bool isEnabled)
+{
+    mDecelerationEnabled = isEnabled;
+}
+
+void CarPhysicsComponent::SetHandBrake(bool isEnabled)
+{
+    mHandBrakeEnabled = isEnabled;
 }
 
 glm::vec2 CarPhysicsComponent::GetWheelLateralVelocity(eCarWheelID wheelID) const
@@ -444,10 +486,10 @@ glm::vec2 CarPhysicsComponent::GetWheelPosition(eCarWheelID wheelID) const
     return position;
 }
 
-void CarPhysicsComponent::SetupWheels(CarStyle* desc)
+void CarPhysicsComponent::SetupWheels()
 {
-    CreateWheel(desc, eCarWheelID_Steering);
-    CreateWheel(desc, eCarWheelID_Drive);
+    CreateWheel(eCarWheelID_Steering);
+    CreateWheel(eCarWheelID_Drive);
 
     // setup joints
     b2RevoluteJointDef jointDef;
@@ -455,13 +497,21 @@ void CarPhysicsComponent::SetupWheels(CarStyle* desc)
     jointDef.lowerAngle = 0.0f;
     jointDef.upperAngle = 0.0f;
 
-    // front
-	jointDef.Initialize(mPhysicsBody, mCarWheels[eCarWheelID_Steering].mPhysicsBody, mPhysicsBody->GetPosition());
-	mFrontWheelJoint = (b2RevoluteJoint*)mPhysicsWorld->CreateJoint(&jointDef);
+    // front wheel
+    {
+        WheelData& wheel = mCarWheels[eCarWheelID_Steering];
+	    jointDef.Initialize(mPhysicsBody, wheel.mPhysicsBody, wheel.mPhysicsBody->GetPosition());
+        jointDef.localAnchorB.SetZero();
+	    mFrontWheelJoint = (b2RevoluteJoint*)mPhysicsWorld->CreateJoint(&jointDef);
+    }
 
-    // rear
-	jointDef.Initialize(mPhysicsBody, mCarWheels[eCarWheelID_Drive].mPhysicsBody, mPhysicsBody->GetPosition());
-	mRearWheelJoint = (b2RevoluteJoint*)mPhysicsWorld->CreateJoint(&jointDef);
+    // rear wheel
+    {
+        WheelData& wheel = mCarWheels[eCarWheelID_Drive];
+	    jointDef.Initialize(mPhysicsBody, wheel.mPhysicsBody, wheel.mPhysicsBody->GetPosition());
+        jointDef.localAnchorB.SetZero();
+	    mRearWheelJoint = (b2RevoluteJoint*)mPhysicsWorld->CreateJoint(&jointDef);
+    }
 
     mPhysicsBody->ResetMassData();
 }
@@ -493,7 +543,7 @@ void CarPhysicsComponent::FreeWheels()
     }
 }
 
-void CarPhysicsComponent::CreateWheel(CarStyle* desc, eCarWheelID wheelID)
+void CarPhysicsComponent::CreateWheel(eCarWheelID wheelID)
 {
     WheelData& wheel = mCarWheels[wheelID];
 
@@ -510,11 +560,11 @@ void CarPhysicsComponent::CreateWheel(CarStyle* desc, eCarWheelID wheelID)
     // fix position
     if (wheelID == eCarWheelID_Steering)
     {
-        bodyDef.position.x += ((1.0f * desc->mSteeringWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x += ((1.0f * mCarDesc->mSteeringWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
     }
     else if (wheelID == eCarWheelID_Drive)
     {
-        bodyDef.position.x += ((1.0f * desc->mDriveWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x += ((1.0f * mCarDesc->mDriveWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
     }
     else
     {
@@ -539,14 +589,96 @@ void CarPhysicsComponent::CreateWheel(CarStyle* desc, eCarWheelID wheelID)
     debug_assert(wheel.mFixture);
 }
 
+void CarPhysicsComponent::UpdateSteering()
+{
+    float lockAngle = glm::radians(32.0f);
+    float turnSpeedPerSec = glm::radians(mCarDesc->mTurning * 1.0f);
+    float turnPerTimeStep = (turnSpeedPerSec * PHYSICS_SIMULATION_STEP);
+
+    float desiredAngle = lockAngle * mSteeringDirection;
+
+    float angleNow = mFrontWheelJoint->GetJointAngle();
+    float angleToTurn = desiredAngle - angleNow;
+
+    angleToTurn = b2Clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
+
+    float newAngle = angleNow + angleToTurn;
+    mFrontWheelJoint->SetLimits(newAngle, newAngle);
+}
+
+void CarPhysicsComponent::UpdateWheelFriction(eCarWheelID wheelID)
+{
+    const WheelData& wheel = mCarWheels[wheelID];
+    float maxLateralImpulse = 8.0f; // todo: magic numbers
+
+    //lateral linear velocity
+    b2Vec2 impulse = mPhysicsBody->GetMass() * -GetWheelLateralVelocity(wheel.mPhysicsBody);
+    if (impulse.Length() > maxLateralImpulse)
+    {
+        impulse *= maxLateralImpulse / impulse.Length();
+    }
+    wheel.mPhysicsBody->ApplyLinearImpulse(mCurrentTraction * impulse, wheel.mPhysicsBody->GetWorldCenter(), true);
+
+    //angular velocity
+    wheel.mPhysicsBody->ApplyAngularImpulse(mCurrentTraction * 0.1f * wheel.mPhysicsBody->GetInertia() * -wheel.mPhysicsBody->GetAngularVelocity(), true);
+
+    //forward linear velocity
+    b2Vec2 currentForwardNormal = GetWheelForwardVelocity(wheel.mPhysicsBody);
+    float currentForwardSpeed = currentForwardNormal.Normalize();
+    float dragForceMagnitude = -2.0f * currentForwardSpeed;
+    wheel.mPhysicsBody->ApplyForce(mCurrentTraction * dragForceMagnitude * currentForwardNormal, wheel.mPhysicsBody->GetWorldCenter(), true);
+}
+
+void CarPhysicsComponent::UpdateWheelDrive(eCarWheelID wheelID)
+{
+    const WheelData& wheel = mCarWheels[wheelID];
+
+    float desiredSpeed = 0.0f;
+    if (mAccelerationEnabled)
+    {
+        desiredSpeed += (1.0f * mCarDesc->mMaxSpeed) * PHYSICS_SCALE;
+    }
+    if (mDecelerationEnabled)
+    {
+        desiredSpeed += (1.0f * mCarDesc->mMinSpeed) * PHYSICS_SCALE;
+    }
+    if (mHandBrakeEnabled)
+    {
+        desiredSpeed = 0.0f;
+    }
+
+    float maxDriveForce = mCarDesc->mAcceleration * PHYSICS_SCALE;
+
+    // find current speed in forward direction
+    b2Vec2 currentForwardNormal = wheel.mPhysicsBody->GetWorldVector(b2Vec2(1.0f, 0.0f));
+
+    float currentSpeed = b2Dot(GetWheelForwardVelocity(wheel.mPhysicsBody), currentForwardNormal);
+    float force = 0;
+
+    if (fabs(desiredSpeed - currentSpeed) < 0.001f)
+        return;
+
+    if (desiredSpeed > currentSpeed)
+    {
+        force = maxDriveForce;
+    }
+    else
+    {
+        force = -maxDriveForce;
+    }
+
+    b2Vec2 forceVec = mCurrentTraction * force * currentForwardNormal;
+    wheel.mPhysicsBody->ApplyForce(forceVec, wheel.mPhysicsBody->GetWorldCenter(), true);
+}
+
 b2Vec2 CarPhysicsComponent::GetWheelLateralVelocity(b2Body* carWheel) const
 {
-	const b2Vec2 right_normal = carWheel->GetWorldVector(b2Vec2(1.0f, 0.0f));
+	const b2Vec2 right_normal = carWheel->GetWorldVector(b2Vec2(0.0f, 1.0f));
     return b2Dot(right_normal, carWheel->GetLinearVelocity()) * right_normal;
 }
 
 b2Vec2 CarPhysicsComponent::GetWheelForwardVelocity(b2Body* carWheel) const
 {
-	const b2Vec2 forward_normal = carWheel->GetWorldVector(b2Vec2(0.0f, 1.0f));
+	const b2Vec2 forward_normal = carWheel->GetWorldVector(b2Vec2(1.0f, 0.0f));
     return b2Dot(forward_normal, carWheel->GetLinearVelocity()) * forward_normal;
 }

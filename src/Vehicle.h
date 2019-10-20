@@ -80,7 +80,7 @@ public:
     bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
 
 private:
-    void UpdateDriving(Pedestrian* carDriver, Timespan deltaTime);
+    void UpdateDriving(Timespan deltaTime);
     void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations(Timespan deltaTime);

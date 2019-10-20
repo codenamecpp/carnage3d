@@ -80,13 +80,21 @@ protected:
 // pedestrian physics component
 class PedPhysicsComponent: public PhysicsComponent
 {
+    friend class PhysicsManager;
+
+public:
+    Pedestrian* mReferencePed = nullptr;
+
+    int mContactingCars = 0; // number of contacting cars
+    bool mFalling = false; // falling from a height
+
 public:
     // @param startPosition: Initial world position
     // @param startRotation: Initial rotation
     PedPhysicsComponent(b2World* physicsWorld, const glm::vec3& startPosition, cxx::angle_t startRotation);
     ~PedPhysicsComponent();
 
-    void UpdateFrame(Timespan deltaTime);
+    void SimulationStep();
     void SetFalling(bool isFalling);
     void HandleCarContactBegin();
     void HandleCarContactEnd();
@@ -96,10 +104,9 @@ public:
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;
 
-public:
-    Pedestrian* mReferencePed = nullptr;
-    int mContactingCars = 0; // number of contacting cars
-    bool mFalling = false; // falling from a height
+private:
+    // internal stuff that can be touched only by PhysicsManager
+    cxx::intrusive_node<PedPhysicsComponent> mPhysicsComponentsListNode;
 };
 
 enum eCarWheelID
@@ -109,9 +116,15 @@ enum eCarWheelID
     eCarWheelID_COUNT
 };
 
+const int CarSteeringDirectionLeft = -1; 
+const int CarSteeringDirectionRight = 1; 
+const int CarSteeringDirectionNone = 0; 
+
 // car chassis physics component
 class CarPhysicsComponent: public PhysicsComponent
 {
+    friend class PhysicsManager;
+
 public:
     Vehicle* mReferenceCar = nullptr;
 
@@ -122,18 +135,27 @@ public:
     CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, const glm::vec3& startPosition, cxx::angle_t startRotation);
     ~CarPhysicsComponent();
 
-    void UpdateFrame(Timespan deltaTime);
+    void ResetDriveState();
+
+    void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;
     void GetWheelCorners(eCarWheelID wheelID, glm::vec2 corners[4]) const;
     // test whether specific wheel exists
     bool HasWheel(eCarWheelID wheelID) const;
+
+    // steering
+    // @param steerDirection: see CarSteeringDirection* constants
+    void SetSteering(int steerDirection);
+
+    void SetAcceleration(bool isEnabled);
+    void SetDeceleration(bool isEnabled);
+    void SetHandBrake(bool isEnabled);
     
     glm::vec2 GetWheelLateralVelocity(eCarWheelID wheelID) const;
     glm::vec2 GetWheelForwardVelocity(eCarWheelID wheelID) const;
     glm::vec2 GetWheelPosition(eCarWheelID wheelID) const;
 
 private:
-
     // car internals wheel data
     struct WheelData
     {
@@ -144,16 +166,32 @@ private:
         b2Fixture* mFixture = nullptr;
     };
 
-    void SetupWheels(CarStyle* desc);
+    void SetupWheels();
     void FreeWheels();
-    void CreateWheel(CarStyle* desc, eCarWheelID wheelID);
+    void CreateWheel(eCarWheelID wheelID);
+    void UpdateSteering();
+    void UpdateWheelFriction(eCarWheelID wheelID);
+    void UpdateWheelDrive(eCarWheelID wheelID);
 
     b2Vec2 GetWheelLateralVelocity(b2Body* carWheel) const;
     b2Vec2 GetWheelForwardVelocity(b2Body* carWheel) const;
 
 private:
+    CarStyle* mCarDesc = nullptr;
+
     b2Fixture* mChassisFixture = nullptr;
     b2RevoluteJoint* mFrontWheelJoint = nullptr;
     b2RevoluteJoint* mRearWheelJoint = nullptr;
     WheelData mCarWheels[eCarWheelID_COUNT];
+
+    // current drive state
+    int mSteeringDirection;
+    bool mAccelerationEnabled : 1;
+    bool mDecelerationEnabled : 1;
+    bool mHandBrakeEnabled : 1;
+
+    float mCurrentTraction;
+
+    // internal stuff that can be touched only by PhysicsManager
+    cxx::intrusive_node<CarPhysicsComponent> mPhysicsComponentsListNode;
 };

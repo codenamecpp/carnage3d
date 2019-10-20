@@ -68,6 +68,9 @@ private:
     // physics components pools
     cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;
     cxx::object_pool<CarPhysicsComponent> mCarsBodiesPool;
+
+    cxx::intrusive_list<PedPhysicsComponent> mPedsBodiesList;
+    cxx::intrusive_list<CarPhysicsComponent> mCarsBodiesList;
 };
 
 extern PhysicsManager gPhysics;
