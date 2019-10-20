@@ -275,13 +275,13 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
     debug_assert(bits);
 
     ePedestrianState currState = mReferencePed->GetCurrentStateID();
-    if (currState == ePedestrianState_Falling || currState == ePedestrianState_SlideOnCar)
+    if (currState == ePedestrianState_Falling || currState == ePedestrianState_SlideOnCar ||
+        currState == ePedestrianState_EnteringCar || currState == ePedestrianState_ExitingCar)
     {
         return (bits & (PHYSICS_OBJCAT_MAP_SOLID_BLOCK | PHYSICS_OBJCAT_WALL)) > 0;
     }
 
-    if (currState == ePedestrianState_EnteringCar || currState == ePedestrianState_ExitingCar || 
-        currState == ePedestrianState_DrivingCar)
+    if (currState == ePedestrianState_DrivingCar)
     {
         return false;
     }
