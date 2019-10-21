@@ -370,29 +370,14 @@ bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float heigh
 
 bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const
 {
-    const b2Manifold* contactManifold = contact->GetManifold();
-
-    b2WorldManifold worldManifold;
-    contact->GetWorldManifold(&worldManifold);
+    CarPhysicsComponent* carPhysicsComponent = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
+    debug_assert(carPhysicsComponent);
+    int map_layer = (int) (carPhysicsComponent->mHeight + 0.5f);
 
     // todo: temporary implementation
 
-    CarPhysicsComponent* carPhysicsComponent = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
-    debug_assert(carPhysicsComponent);
-
-    for (int icurr = 0; icurr < contactManifold->pointCount; ++icurr)
-    {
-        int collisionPointX = (int) (worldManifold.points[icurr].x / PHYSICS_SCALE);
-        int collisionPointY = (int) (worldManifold.points[icurr].y / PHYSICS_SCALE);
-        
-        int map_layer = (int) (carPhysicsComponent->mHeight + 0.5f);
-
-
-        BlockStyle* blockData = gGameMap.GetBlockClamp(collisionPointX, collisionPointY, map_layer);
-        if (blockData->mGroundType != eGroundType_Building)
-            return false;
-    }
-    return true;
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    return (blockData->mGroundType == eGroundType_Building);
 }
 
 bool PhysicsManager::HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar)

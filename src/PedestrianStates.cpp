@@ -127,6 +127,18 @@ bool PedestrianBaseState::CanStartSlideOnCarState(Pedestrian* pedestrian) const
     return pedestrian->mPhysicsComponent->mContactingCars > 0;
 }
 
+void PedestrianBaseState::SetInCarPositionToDoor(Pedestrian* pedestrian)
+{
+    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
+
+    pedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, pedestrian->mPhysicsComponent->mCarPointLocal);
+}
+
+void PedestrianBaseState::SetInCarPositionToSeat(Pedestrian* pedestrian)
+{
+    pedestrian->mCurrentCar->GetSeatPosLocal(pedestrian->mCurrentSeat, pedestrian->mPhysicsComponent->mCarPointLocal);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
@@ -417,13 +429,7 @@ void PedestrianStateEnterCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan
 
     if (pedestrian->mCurrentAnimState.IsLastFrame())
     {
-        glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
-        glm::vec2 seatPosition;
-
-        pedestrian->mCurrentCar->GetSeatPos(pedestrian->mCurrentSeat, seatPosition);
-        position.x = seatPosition.x;
-        position.z = seatPosition.y;
-        pedestrian->mPhysicsComponent->SetPosition(position, pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle());
+        SetInCarPositionToSeat(pedestrian);
     }
 
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
@@ -457,14 +463,8 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_EnterBike : eSpriteAnimationID_Ped_EnterCar, eSpriteAnimLoop_None);
 
-    glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
-    glm::vec2 doorPosition;
-
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    pedestrian->mCurrentCar->GetDoorPos(doorIndex, doorPosition);
-    position.x = doorPosition.x;
-    position.z = doorPosition.y;
-    pedestrian->mPhysicsComponent->SetPosition(position, pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle());
+    SetInCarPositionToDoor(pedestrian);
 
     if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
     {
@@ -503,14 +503,8 @@ void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const Ped
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
 
-    glm::vec3 position = pedestrian->mPhysicsComponent->GetPosition();
-    glm::vec2 doorPosition;
-
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    pedestrian->mCurrentCar->GetDoorPos(doorIndex, doorPosition);
-    position.x = doorPosition.x;
-    position.z = doorPosition.y;
-    pedestrian->mPhysicsComponent->SetPosition(position, pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle());
+    SetInCarPositionToDoor(pedestrian);
 
     if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
     {
@@ -539,15 +533,11 @@ void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const 
 
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_SittingOnBike : eSpriteAnimationID_Ped_SittingInCar, eSpriteAnimLoop_None);
-    pedestrian->mPhysicsComponent->HandleCarEnter();
-    pedestrian->mCurrentCar->mPhysicsComponent->AttachComponent(pedestrian->mPhysicsComponent, pedestrian->mCurrentCar->mPhysicsComponent->GetWorldPoint({}));
 }
 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian)
 {
     pedestrian->mCurrentCar->RemovePassenger(pedestrian);
-    pedestrian->mPhysicsComponent->HandleCarLeave();
-    pedestrian->mCurrentCar->mPhysicsComponent->DetachComponent(pedestrian->mPhysicsComponent);
 }
 
 void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)

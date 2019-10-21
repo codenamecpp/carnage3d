@@ -52,29 +52,14 @@ public:
     // cancel currently active forces
     void ClearForces();
 
-    // attach or detach physics component to car
-    // @param component: Component to attach
-    // @param localAnchor: Attachment point local coordinate
-    void AttachComponent(PhysicsComponent* component, const glm::vec2& localAnchor);
-    void DetachComponent(PhysicsComponent* component);
-    void DetachAllComponents();
-
 protected:
     // only derived classes could be instantiated
     PhysicsComponent(b2World* physicsWorld);
     virtual ~PhysicsComponent();
 
 protected:
-    // box2d specific objects is could be accessed only by derived classes and physics manager himself
-    struct PhysicsConnection
-    {
-        b2Joint* mJoint;
-        PhysicsComponent* mPhysicsComponent;
-    };
-
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
-    std::vector<PhysicsConnection> mConnections;
 };
 
 // pedestrian physics component
@@ -84,6 +69,8 @@ class PedPhysicsComponent: public PhysicsComponent
 
 public:
     Pedestrian* mReferencePed = nullptr;
+
+    glm::vec2 mCarPointLocal; // when driving car, pedestrian body will be attached to that point
 
     int mContactingCars = 0; // number of contacting cars
     bool mFalling = false; // falling from a height
@@ -98,8 +85,6 @@ public:
     void SetFalling(bool isFalling);
     void HandleCarContactBegin();
     void HandleCarContactEnd();
-    void HandleCarEnter();
-    void HandleCarLeave();
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;

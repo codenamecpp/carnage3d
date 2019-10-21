@@ -68,6 +68,9 @@ protected:
 
     bool CanStartSlideOnCarState(Pedestrian* pedestrian) const;
 
+    void SetInCarPositionToDoor(Pedestrian* pedestrian);
+    void SetInCarPositionToSeat(Pedestrian* pedestrian);
+
 private:
     const ePedestrianState mStateIdentifier;
 };

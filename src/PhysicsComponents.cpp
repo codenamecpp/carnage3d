@@ -2,6 +2,7 @@
 #include "PhysicsComponents.h"
 #include "PhysicsDefs.h"
 #include "Pedestrian.h"
+#include "Vehicle.h"
 #include "PhysicsManager.h"
 
 PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
@@ -15,63 +16,6 @@ PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
 
 PhysicsComponent::~PhysicsComponent()
 {
-    DetachAllComponents();
-}
-
-void PhysicsComponent::AttachComponent(PhysicsComponent* component, const glm::vec2& localAnchor)
-{
-    if (component == this)
-    {
-        debug_assert(false);
-        return;
-    }
-
-    // test is already attached
-    for (const PhysicsConnection& curr: mConnections)
-    {
-        if (curr.mPhysicsComponent == component)
-        {
-            debug_assert(false);
-            return;
-        }
-    }
-
-    b2WeldJointDef jointDef;
-    b2Vec2 anchorPoint { localAnchor.x * PHYSICS_SCALE, localAnchor.y * PHYSICS_SCALE };
-    jointDef.Initialize(mPhysicsBody, component->mPhysicsBody, anchorPoint);
-
-    PhysicsConnection connectionInfo;
-    connectionInfo.mJoint = mPhysicsWorld->CreateJoint(&jointDef);
-    debug_assert(connectionInfo.mJoint);
-    connectionInfo.mPhysicsComponent = component;
-    mConnections.push_back(connectionInfo);
-}
-
-void PhysicsComponent::DetachComponent(PhysicsComponent* component)
-{
-    b2Joint* connection = nullptr;
-    for (auto itercurr = mConnections.begin(); itercurr != mConnections.end(); ++itercurr)
-    {
-        if (itercurr->mPhysicsComponent == component)
-        {
-            connection = itercurr->mJoint;
-            mConnections.erase(itercurr);
-            break;
-        }
-    }
-    if (connection)
-    {
-        mPhysicsWorld->DestroyJoint(connection);
-    }
-}
-
-void PhysicsComponent::DetachAllComponents()
-{
-    for (const PhysicsConnection& curr: mConnections)
-    {
-        mPhysicsWorld->DestroyJoint(curr.mJoint);
-    }
-    mConnections.clear();
 }
 
 void PhysicsComponent::SetPosition(const glm::vec3& position)
@@ -226,7 +170,17 @@ PedPhysicsComponent::~PedPhysicsComponent()
 
 void PedPhysicsComponent::SimulationStep()
 {
+    if (mReferencePed->IsCarPassenger())
+    {
+        CarPhysicsComponent* currentCarPhysics = mReferencePed->mCurrentCar->mPhysicsComponent;
 
+        glm::vec2 pos = currentCarPhysics->GetWorldPoint(mCarPointLocal);
+        glm::vec3 currentPos;
+        currentPos.x = pos.x;
+        currentPos.y = currentCarPhysics->mHeight;
+        currentPos.z = pos.y;
+        SetPosition(currentPos, currentCarPhysics->GetRotationAngle());
+    }
 }
 
 void PedPhysicsComponent::SetFalling(bool isFalling)
@@ -260,16 +214,6 @@ void PedPhysicsComponent::HandleCarContactEnd()
     }
 }
 
-void PedPhysicsComponent::HandleCarEnter()
-{
-    mPhysicsBody->SetFixedRotation(false);
-}
-
-void PedPhysicsComponent::HandleCarLeave()
-{
-    mPhysicsBody->SetFixedRotation(true);
-}
-
 bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
 {
     debug_assert(bits);
@@ -281,7 +225,7 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
         return (bits & (PHYSICS_OBJCAT_MAP_SOLID_BLOCK | PHYSICS_OBJCAT_WALL)) > 0;
     }
 
-    if (currState == ePedestrianState_DrivingCar)
+    if (mReferencePed->IsCarPassenger())
     {
         return false;
     }
