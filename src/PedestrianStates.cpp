@@ -517,6 +517,9 @@ void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian)
     if (pedestrian->mCurrentCar)
     {
         pedestrian->HandleCarExited();
+
+        cxx::angle_t currentCarAngle = pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
+        pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
         pedestrian->mCurrentCar = nullptr;
     }
 }
