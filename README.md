@@ -1,12 +1,17 @@
-# Carnage3D ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+# Carnage3D #
 
 ![alt text](https://github.com/codenamecpp/carnage3d/blob/master/carnage3d_logo.png)
 
 This is open source Grand Theft Auto 1 remake project.
 
 [![Build Status](https://travis-ci.org/codenamecpp/carnage3d.svg?branch=master)](https://travis-ci.org/codenamecpp/carnage3d)
+[![Github Stars](https://img.shields.io/github/stars/codenamecpp/carnage3d?logo=github)](https://github.com/codenamecpp/carnage3d/stargazers)
+![Platforms](https://img.shields.io/badge/platform-windows%20%7C%20linux-blue) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-Tools and technologies used:
+## Status ##
+Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
+
+## Tools and technologies used ##
 * C++11
 * OpenGL 3.2
 * Box2D
@@ -17,7 +22,7 @@ Tools and technologies used:
 * GLFW
 * GLEW
 
-### Compiling on Linux ###
+## Compiling on Linux ##
 At the moment, makefile configured so project will build with clang compiler.
 
 Before build project make sure to install dependencies: 
@@ -30,14 +35,14 @@ Run these commands in terminal:
 
 Done! Now proceed to __How To Run__ section below.
 
-### Compiling on Windows ###
+## Compiling on Windows ##
 You will need Visual Studio 2015 Community Edition to build project.
 Before compile, add system environment variable __SDKDIR__ with path where all the dependencies lives. These dependencies are:
 * GLEW
 * GLM
 * GLFW
 
-### How To Run ###
+## How To Run ##
 Game needs to be configured before launch, there is example config document in __gamedata/config/sys_config.json.default__ - it must be copy-pasted to same directory but withoud ".default" suffix: __gamedata/config/sys_config.json__ . 
 
 Set screen resolution (optionally) but most importand you must specify path to original GTA1 game data - __gta_gamedata_location__
@@ -48,7 +53,7 @@ To select specific level to play you can add command line argument **-mapname**,
 
 Tested on Ubuntu Linux and Windows 7 64bits.
 
-### Other GTA 1/2 re-implementations ###
+## Other GTA 1/2 re-implementations ##
 * [WebGL-GTA](https://github.com/niklasvh/WebGL-GTA)
 * [OpenGTA](http://ogta.fifengine.de/download.html)
 * [GTA2NET](https://github.com/andrecarlucci/gta2net)
@@ -56,8 +61,5 @@ Tested on Ubuntu Linux and Windows 7 64bits.
 * [GTA2 level viewer](https://github.com/aalin/gta2-level-viewer)
 * [gta2.js](https://github.com/aalin/gta2.js)
 
-### Status ###
-Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
-
-### Screenshots ###
+## Screenshots ##
 ![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
