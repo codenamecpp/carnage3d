@@ -39,6 +39,8 @@ impl_enum_strings(eTextureFormat)
     {eTextureFormat_R8_G8, "r8_g8"},
     {eTextureFormat_RGB8, "rgb8"},
     {eTextureFormat_RGBA8, "rgba8"},
+    {eTextureFormat_R8UI, "r8ui"},
+    {eTextureFormat_RGBA8UI, "rgba8ui"},
     {eTextureFormat_R16UI, "r16ui"},
 };
 
@@ -86,6 +88,7 @@ impl_enum_strings(eVertexAttributeSemantics)
     {eVertexAttributeSemantics_Texcoord, "texcoord"},
     {eVertexAttributeSemantics_Position2d, "position2d"},
     {eVertexAttributeSemantics_Texcoord3d, "texcoord3d"},
+    {eVertexAttributeSemantics_PaletteIndex, "paletteIndex"},
     {eVertexAttributeSemantics_Unknown, "unknown"},
 };
 
@@ -124,7 +127,6 @@ impl_enum_strings(eRenderUniform)
     {eRenderUniform_ViewProjectionMatrix, "view_projection_matrix"},
     {eRenderUniform_NormalMatrix, "normal_matrix"},
     {eRenderUniform_CameraPosition, "camera_position"},
-    {eRenderUniform_EnableTextureMapping, "enable_texture_mapping"},
 };
 
 impl_enum_strings(eBlendMode)

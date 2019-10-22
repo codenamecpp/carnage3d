@@ -148,48 +148,28 @@ public:
     // @param posx, posy, posz: Coordinate in 3d space
     // @param tcu, tcv: Texture coordinate normalized [0, 1]
     // @param tcz: Texture layer in texture array
-    // @param normx, normy, normz: Normal unit vector
-    // @param color: Color RGBA
-    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz, float normx, float normy, float normz, unsigned int color)
+    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz,
+        unsigned short remap, unsigned short transparency)
     {
         mPosition.x = posx;
         mPosition.y = posy;
         mPosition.z = posz;
-        mNormal.x = normx;
-        mNormal.y = normy;
-        mNormal.z = normz;
         mTexcoord.x = tcu;
         mTexcoord.y = tcv;
         mTexcoord.z = tcz;
-        mColor = color;
+        mRemap = remap;
+        mTransparency = transparency;
     }
-    // setup vertex
-    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz, unsigned int color)
+    inline void SetColorData(unsigned short remap, unsigned short transparency)
     {
-        mPosition.x = posx;
-        mPosition.y = posy;
-        mPosition.z = posz;
-        mTexcoord.x = tcu;
-        mTexcoord.y = tcv;
-        mTexcoord.z = tcz;
-        mColor = color;
-    }
-    // setup vertex
-    void Set(float posx, float posy, float posz, float tcu, float tcv, float tcz)
-    {
-        mPosition.x = posx;
-        mPosition.y = posy;
-        mPosition.z = posz;
-        mTexcoord.x = tcu;
-        mTexcoord.y = tcv;
-        mTexcoord.z = tcz;
-        mColor = COLOR_WHITE;
+        mRemap = remap;
+        mTransparency = transparency;
     }
 public:
     glm::vec3 mPosition; // 12 bytes
-    glm::vec3 mNormal; // 12 bytes
     glm::vec3 mTexcoord; // 12 bytes
-    unsigned int mColor; // 4 bytes
+    unsigned short mRemap; // 2 bytes
+    unsigned short mTransparency; // 2 bytes
 };
 
 const unsigned int Sizeof_CityVertex3D = sizeof(CityVertex3D);
@@ -214,9 +194,8 @@ public:
     {
         this->mDataStride = Sizeof_CityVertex3D;
         this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
-        this->SetAttribute(eVertexAttribute_Normal0, offsetof(TVertexType, mNormal));
-        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
-        // force semantics for texcoord0 attribute - expect 3 floats per vertex
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mRemap));
+        this->SetAttribute(eVertexAttribute_Color1, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mTransparency));
         this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeSemantics_Texcoord3d, offsetof(TVertexType, mTexcoord));
     }
 };

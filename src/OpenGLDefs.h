@@ -89,7 +89,10 @@ inline GLuint GetTextureInputFormatGL(eTextureFormat textureFormat)
         case eTextureFormat_R8_G8: return GL_RG;
         case eTextureFormat_RGB8: return GL_RGB;
         case eTextureFormat_RGBA8: return GL_RGBA;
-        case eTextureFormat_R16UI: return GL_RED_INTEGER;
+        case eTextureFormat_RGBA8UI:
+        case eTextureFormat_R16UI: 
+        case eTextureFormat_R8UI:
+            return GL_RED_INTEGER;
     }
     debug_assert(false);
     return 0;
@@ -104,6 +107,8 @@ inline GLint GetTextureInternalFormatGL(eTextureFormat textureFormat)
         case eTextureFormat_RGB8: return GL_RGB8;
         case eTextureFormat_RGBA8: return GL_RGBA8;
         case eTextureFormat_R16UI: return GL_R16UI;
+        case eTextureFormat_R8UI: return GL_R8UI;
+        case eTextureFormat_RGBA8UI: return GL_RGBA8UI;
     }
     debug_assert(false);
     return 0;
@@ -117,6 +122,8 @@ inline GLenum GetTextureDataTypeGL(eTextureFormat textureFormat)
         case eTextureFormat_R8_G8:
         case eTextureFormat_RGB8:
         case eTextureFormat_RGBA8: 
+        case eTextureFormat_R8UI:
+        case eTextureFormat_RGBA8UI:
             return GL_UNSIGNED_BYTE;
 
         case eTextureFormat_R16UI: 
@@ -124,4 +131,23 @@ inline GLenum GetTextureDataTypeGL(eTextureFormat textureFormat)
     }
     debug_assert(false);
     return 0;
+}
+
+inline GLenum GetAttributeDataTypeGL(eVertexAttributeSemantics attributeSemantics)
+{
+    switch (attributeSemantics)
+    {
+        case eVertexAttributeSemantics_Position:
+        case eVertexAttributeSemantics_Normal:
+        case eVertexAttributeSemantics_Texcoord:
+        case eVertexAttributeSemantics_Position2d:
+        case eVertexAttributeSemantics_Texcoord3d:
+            return GL_FLOAT;
+        case eVertexAttributeSemantics_Color:
+            return GL_UNSIGNED_BYTE;
+        case eVertexAttributeSemantics_PaletteIndex:
+            return GL_UNSIGNED_SHORT;
+    }
+    debug_assert(false);
+    return GL_UNSIGNED_BYTE;
 }

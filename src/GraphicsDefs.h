@@ -244,6 +244,8 @@ enum eTextureFormat
     eTextureFormat_R8_G8,
     eTextureFormat_RGB8,
     eTextureFormat_RGBA8,
+    eTextureFormat_RGBA8UI,
+    eTextureFormat_R8UI,
     eTextureFormat_R16UI,
     eTextureFormat_COUNT
 };
@@ -262,6 +264,8 @@ inline int NumBytesPerPixel(eTextureFormat format)
         case eTextureFormat_R8_G8 : return 2;
         case eTextureFormat_R8 : return 1;
         case eTextureFormat_R16UI: return 2;
+        case eTextureFormat_R8UI: return 1;
+        case eTextureFormat_RGBA8UI: return 4;
     }
     return 0;
 }
@@ -328,6 +332,7 @@ enum eVertexAttributeSemantics
     eVertexAttributeSemantics_Texcoord,     // 2 floats
     eVertexAttributeSemantics_Position2d,   // 2 floats
     eVertexAttributeSemantics_Texcoord3d,   // 3 floats
+    eVertexAttributeSemantics_PaletteIndex, // 1 unsigned short
     eVertexAttributeSemantics_Unknown
 };
 
@@ -387,6 +392,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeSemantics attribu
         case eVertexAttributeSemantics_Texcoord: return 2;
         case eVertexAttributeSemantics_Position2d: return 2;
         case eVertexAttributeSemantics_Texcoord3d: return 3;
+        case eVertexAttributeSemantics_PaletteIndex: return 1;
     }
     debug_assert(false);
     return 0;
@@ -404,6 +410,7 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeSemantics attributeSem
         case eVertexAttributeSemantics_Texcoord: return sizeof(float) * 2;
         case eVertexAttributeSemantics_Position2d: return sizeof(float) * 2;
         case eVertexAttributeSemantics_Texcoord3d: return sizeof(float) * 3;
+        case eVertexAttributeSemantics_PaletteIndex: return sizeof(unsigned short);
     }
     debug_assert(false);
     return 0;
@@ -559,7 +566,6 @@ enum eRenderUniform
     eRenderUniform_ViewProjectionMatrix,
     eRenderUniform_NormalMatrix,         
     eRenderUniform_CameraPosition, // world space camera position
-    eRenderUniform_EnableTextureMapping,
     eRenderUniform_COUNT
 };
 

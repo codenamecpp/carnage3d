@@ -57,6 +57,10 @@ void MapRenderer::Deinit()
 void MapRenderer::RenderFrame()
 {
     BuildMapMesh();
+
+    gGraphicsDevice.BindTexture(eTextureUnit_3, gSpriteManager.mPalettesTable);
+    gGraphicsDevice.BindTexture(eTextureUnit_2, gSpriteManager.mPaletteIndicesTable);
+
     DrawCityMesh();
 
     // collect and render game objects sprites
@@ -180,7 +184,6 @@ void MapRenderer::DrawCityMesh()
 
     gRenderManager.mCityMeshProgram.Activate();
     gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices();
-    gRenderManager.mCityMeshProgram.SetTextureMappingEnabled(gSpriteManager.mBlocksTextureArray != nullptr);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {

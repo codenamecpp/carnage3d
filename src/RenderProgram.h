@@ -33,10 +33,6 @@ public:
     // the matrices stored in game camera class, make sure compute them first
     void UploadCameraTransformMatrices();
 
-    // enable or disable texture mapping for render program
-    // @param isEnabled: State
-    void SetTextureMappingEnabled(bool isEnabled);
-
 protected:
     // overridable
     virtual void InitUniformParameters()

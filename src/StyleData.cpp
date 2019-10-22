@@ -71,9 +71,9 @@ struct GTAFileHeaderG24
 
 StyleData::StyleData(): mBlockTexturesRaw(), mPaletteIndices()
     , mLidBlocksCount(), mSideBlocksCount()
-    , mAuxBlocksCount(), mTileClutSize()
-    , mSpriteClutSize(), mRemapClutSize()
-    , mFontClutSize()
+    , mAuxBlocksCount(), mTileClutsCount()
+    , mSpriteClutsCount(), mRemapClutsCount()
+    , mFontClutsCount()
 {
     for (int isprite = 0; isprite < CountOf(mSpriteNumbers); ++isprite)
     {
@@ -134,10 +134,10 @@ bool StyleData::LoadFromFile(const char* stylesName)
     mAuxBlocksCount = header.aux_size / MAP_BLOCK_TEXTURE_AREA;
 
     // various cluts
-    mTileClutSize = header.tileclut_size;
-    mSpriteClutSize = header.spriteclut_size;
-    mRemapClutSize = header.newcarclut_size;
-    mFontClutSize = header.fontclut_size;
+    mTileClutsCount = header.tileclut_size / sizeof(Palette256);
+    mSpriteClutsCount = header.spriteclut_size / sizeof(Palette256);
+    mRemapClutsCount = header.newcarclut_size / sizeof(Palette256);
+    mFontClutsCount = header.fontclut_size / sizeof(Palette256);
 
     if (!ReadBlockTextures(file))
     {
@@ -212,10 +212,10 @@ void StyleData::Cleanup()
     mLidBlocksCount = 0;
     mSideBlocksCount = 0;
     mAuxBlocksCount = 0;
-    mTileClutSize = 0;
-    mSpriteClutSize = 0;
-    mRemapClutSize = 0;
-    mFontClutSize = 0;
+    mTileClutsCount = 0;
+    mSpriteClutsCount = 0;
+    mRemapClutsCount = 0;
+    mFontClutsCount = 0;
     // reset all sprite numbers
     for (int isprite = 0; isprite < CountOf(mSpriteNumbers); ++isprite)
     {
@@ -263,7 +263,6 @@ int StyleData::GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex,
     const int blockLinearIndex = GetBlockTextureLinearIndex(blockType, blockIndex);
     if (remap > 0)
     {
-        debug_assert(blockType == eBlockType_Lid);
         debug_assert(remap < 4);
     }   
     return mPaletteIndices[4 * blockLinearIndex + remap];
@@ -386,7 +385,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
     {
         int destOffset = (((destPositionY + iy) * bitmap->mSizex) + (ix + destPositionX)) * bpp;
         int srcOffset = ((sprite.mPageOffsetY + iy) * GTA_SPRITE_PAGE_DIMS + (ix + sprite.mPageOffsetX));
-        int palindex = mPaletteIndices[sprite.mClut + mTileClutSize / 1024];
+        int palindex = mPaletteIndices[sprite.mClut + mTileClutsCount];
         int palentry = srcPixels[srcOffset];
         const Color32& color = mPalettes[palindex].mColors[palentry];
         bitmap->mData[destOffset + 0] = color.mR;
@@ -448,7 +447,7 @@ void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& sp
         debug_assert(pagey < bitmap->mSizey);
         debug_assert(pagex + source_length <= bitmap->mSizex);
         
-        int palindex = mPaletteIndices[sprite.mClut + mTileClutSize / 1024];
+        int palindex = mPaletteIndices[sprite.mClut + mTileClutsCount];
         for (int ipixel = 0; ipixel < source_length; ++ipixel)
         {
             int curr_pixel_offset = (pagey * bitmap->mSizex * bpp) + pagex * bpp;

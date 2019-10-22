@@ -13,6 +13,8 @@ public:
     std::vector<SpriteStyle> mSprites;
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
+    std::vector<Palette256> mPalettes;
+    std::vector<unsigned short> mPaletteIndices;
 
 public: 
     StyleData();
@@ -104,11 +106,9 @@ private:
 private:
     std::vector<unsigned char> mBlockTexturesRaw;
     std::vector<unsigned char> mSpriteGraphicsRaw;
-    std::vector<unsigned short> mPaletteIndices;
-    std::vector<Palette256> mPalettes;
     SpriteAnimationData mSpriteAnimations[eSpriteAnimation_COUNT];
 
-    int mTileClutSize, mSpriteClutSize, mRemapClutSize, mFontClutSize;
+    int mTileClutsCount, mSpriteClutsCount, mRemapClutsCount, mFontClutsCount;
     int mSideBlocksCount, mLidBlocksCount, mAuxBlocksCount;
     int mSpriteNumbers[eSpriteType_COUNT];
 };

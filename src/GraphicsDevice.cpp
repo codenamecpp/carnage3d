@@ -782,18 +782,22 @@ void GraphicsDevice::SetupVertexAttributes(const VertexFormat& streamDefinition)
             continue;
         }
 
-        GLint numComponents = GetAttributeComponentCount(attribute.mSemantics);
+        unsigned int numComponents = GetAttributeComponentCount(attribute.mSemantics);
         if (numComponents == 0)
         {
             debug_assert(numComponents > 0);
             continue;
         }
 
+        GLboolean normalizeData = GL_FALSE;
+        if (attribute.mSemantics == eVertexAttributeSemantics_Color)
+        {
+            normalizeData = GL_TRUE;
+        }
+        GLenum dataType = GetAttributeDataTypeGL(attribute.mSemantics);
         // set attribute location
-        bool isColorAttribute = (attribute.mSemantics == eVertexAttributeSemantics_Color);
-        ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, 
-            isColorAttribute ? GL_UNSIGNED_BYTE : GL_FLOAT, 
-            isColorAttribute ? GL_TRUE : GL_FALSE, streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
+        ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, normalizeData, 
+            streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
         glCheckError();
     }
 }

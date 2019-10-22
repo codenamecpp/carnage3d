@@ -114,16 +114,3 @@ void RenderProgram::UploadCameraTransformMatrices()
     }
     debug_assert(isInited);
 }
-
-void RenderProgram::SetTextureMappingEnabled(bool isEnabled)
-{
-    bool isInited = IsProgramInited();
-    if (isInited)
-    {
-        if (mGpuProgram->IsUniformExists(eRenderUniform_EnableTextureMapping))
-        {
-            mGpuProgram->SetUniform(eRenderUniform_EnableTextureMapping, isEnabled ? 1 : 0);
-        }
-    }
-    debug_assert(isInited);
-}

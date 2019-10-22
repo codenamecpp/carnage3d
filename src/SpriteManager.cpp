@@ -37,6 +37,8 @@ bool SpriteManager::InitLevelSprites()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot create objects spritesheet");
         return false;
     }
+
+    InitPalettesTable();
     InitBlocksAnimations();
     return true;
 }
@@ -62,6 +64,18 @@ void SpriteManager::Cleanup()
     {
         gGraphicsDevice.DestroyTexture(mObjectsSpritesheet.mSpritesheetTexture);
         mObjectsSpritesheet.mSpritesheetTexture = nullptr;
+    }
+
+    if (mPalettesTable)
+    {
+        gGraphicsDevice.DestroyTexture(mPalettesTable);
+        mPalettesTable = nullptr;
+    }
+
+    if (mPaletteIndicesTable)
+    {
+        gGraphicsDevice.DestroyTexture(mPaletteIndicesTable);
+        mPaletteIndicesTable = nullptr;
     }
 
     mBlocksIndices.clear();
@@ -181,13 +195,13 @@ bool SpriteManager::InitBlocksTexture()
 
     // allocate temporary bitmap
     PixelsArray blockBitmap;
-    if (!blockBitmap.Create(eTextureFormat_RGBA8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS, gMemoryManager.mFrameHeapAllocator))
+    if (!blockBitmap.Create(eTextureFormat_R8, MAP_BLOCK_TEXTURE_DIMS, MAP_BLOCK_TEXTURE_DIMS, gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
         return false;
     }
 
-    mBlocksTextureArray = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_RGBA8, blockBitmap.mSizex, blockBitmap.mSizey, totalTextures, nullptr);
+    mBlocksTextureArray = gGraphicsDevice.CreateTextureArray2D(eTextureFormat_R8UI, blockBitmap.mSizex, blockBitmap.mSizey, totalTextures, nullptr);
     debug_assert(mBlocksTextureArray);
     
     int currentLayerIndex = 0;
@@ -235,10 +249,29 @@ bool SpriteManager::InitBlocksIndicesTable()
         mBlocksIndices[i] = i;
     }
 
-    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
+    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 
+        mBlocksIndices.size() * sizeof(unsigned short), 
+        mBlocksIndices.data());
     debug_assert(mBlocksIndicesTable);
 
     return true;
+}
+
+void SpriteManager::InitPalettesTable()
+{
+    StyleData& cityStyle = gGameMap.mStyleData;
+
+    mPalettesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_RGBA8UI, 
+        cityStyle.mPalettes.size() * sizeof(Palette256),
+        cityStyle.mPalettes.data());
+
+    debug_assert(mPalettesTable);
+
+    mPaletteIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 
+        cityStyle.mPaletteIndices.size() * sizeof(unsigned short),
+        cityStyle.mPaletteIndices.data());
+
+    debug_assert(mPaletteIndicesTable);
 }
 
 void SpriteManager::RenderFrameBegin()

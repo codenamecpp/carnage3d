@@ -13,6 +13,9 @@ public:
     // animating blocks texture indices table
     GpuBufferTexture* mBlocksIndicesTable = nullptr;
 
+    GpuBufferTexture* mPalettesTable = nullptr;
+    GpuBufferTexture* mPaletteIndicesTable = nullptr; // index of palette in global palettes table
+
     // all blocks are packed into single texture array, where each level is single 64x64 bitmap
     GpuTextureArray2D* mBlocksTextureArray = nullptr;
 
@@ -55,6 +58,7 @@ private:
     bool InitBlocksIndicesTable();
     bool InitBlocksTexture();
     bool InitObjectsSpritesheet();
+    void InitPalettesTable();
     void InitBlocksAnimations();
 
     // find texture with required size and format or create new if nothing found
