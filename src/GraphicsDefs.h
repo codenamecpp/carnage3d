@@ -244,9 +244,7 @@ enum eTextureFormat
     eTextureFormat_R8_G8,
     eTextureFormat_RGB8,
     eTextureFormat_RGBA8,
-
-    // ext formats 
-    eTextureFormat_R16I, // single channel, unsigned short
+    eTextureFormat_R16UI,
     eTextureFormat_COUNT
 };
 
@@ -263,7 +261,7 @@ inline int NumBytesPerPixel(eTextureFormat format)
         case eTextureFormat_RGB8 : return 3;
         case eTextureFormat_R8_G8 : return 2;
         case eTextureFormat_R8 : return 1;
-        case eTextureFormat_R16I: return 2;
+        case eTextureFormat_R16UI: return 2;
     }
     return 0;
 }

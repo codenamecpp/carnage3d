@@ -235,7 +235,7 @@ bool SpriteManager::InitBlocksIndicesTable()
         mBlocksIndices[i] = i;
     }
 
-    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16I, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
+    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
     debug_assert(mBlocksIndicesTable);
 
     return true;

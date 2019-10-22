@@ -58,33 +58,10 @@ GpuTexture2D::~GpuTexture2D()
 
 bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData)
 {
-    GLuint formatGL = 0;
-    GLint internalFormatGL = 0;
-    switch (textureFormat)
-    {
-        case eTextureFormat_R16I:
-            formatGL = GL_RED_INTEGER;
-            internalFormatGL = GL_R16UI;
-        break;
-        case eTextureFormat_R8: 
-            formatGL = GL_RED;
-            internalFormatGL = GL_R8;
-        break;
-        case eTextureFormat_R8_G8: 
-            formatGL = GL_RG;
-            internalFormatGL = GL_RG8;
-        break;
-        case eTextureFormat_RGB8: 
-            formatGL = GL_RGB;
-            internalFormatGL = GL_RGB8;
-        break;
-        case eTextureFormat_RGBA8: 
-            formatGL = GL_RGBA;
-            internalFormatGL = GL_RGBA8;
-        break;
-    }
-    // unknown format
-    if (formatGL == 0 || internalFormatGL == 0)
+    GLuint formatGL = GetTextureInputFormatGL(textureFormat);
+    GLint internalFormatGL = GetTextureInternalFormatGL(textureFormat);
+    GLenum dataType = GetTextureDataTypeGL(textureFormat);
+    if (formatGL == 0 || internalFormatGL == 0 || dataType == 0)
     {
         debug_assert(false);
         return false;
@@ -93,8 +70,6 @@ bool GpuTexture2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, con
     mFormat = textureFormat;
     mSize.x = sizex;
     mSize.y = sizey;
-
-    GLenum dataType = (mFormat == eTextureFormat_R16I) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
     
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);
@@ -152,33 +127,14 @@ bool GpuTexture2D::Upload(const void* sourceData)
 
     debug_assert(sourceData);
 
-    GLuint formatGL = 0;
-    GLint internalFormatGL = 0;
-    switch (mFormat)
+    GLuint formatGL = GetTextureInputFormatGL(mFormat);
+    GLint internalFormatGL = GetTextureInternalFormatGL(mFormat);
+    GLenum dataType = GetTextureDataTypeGL(mFormat);
+    if (formatGL == 0 || internalFormatGL == 0 || dataType == 0)
     {
-        case eTextureFormat_R16I:
-            formatGL = GL_RED_INTEGER;
-            internalFormatGL = GL_R16UI;
-        break;
-        case eTextureFormat_R8: 
-            formatGL = GL_RED;
-            internalFormatGL = GL_R8;
-        break;
-        case eTextureFormat_R8_G8: 
-            formatGL = GL_RG;
-            internalFormatGL = GL_RG8;
-        break;
-        case eTextureFormat_RGB8: 
-            formatGL = GL_RGB;
-            internalFormatGL = GL_RGB8;
-        break;
-        case eTextureFormat_RGBA8: 
-            formatGL = GL_RGBA;
-            internalFormatGL = GL_RGBA8;
-        break;
+        debug_assert(false);
+        return false;
     }
-
-    GLenum dataType = (mFormat == eTextureFormat_R16I) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
     ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);

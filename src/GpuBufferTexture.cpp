@@ -64,27 +64,8 @@ GpuBufferTexture::~GpuBufferTexture()
 
 bool GpuBufferTexture::Setup(eTextureFormat textureFormat, int dataLength, const void* sourceData)
 {
-    GLint internalFormatGL = 0;
-    switch (textureFormat)
-    {
-        case eTextureFormat_R16I:
-            internalFormatGL = GL_R16I;
-        break;
-        case eTextureFormat_R8: 
-            internalFormatGL = GL_R8;
-        break;
-        case eTextureFormat_R8_G8: 
-            internalFormatGL = GL_RG8;
-        break;
-        case eTextureFormat_RGB8: 
-            internalFormatGL = GL_RGB8;
-        break;
-        case eTextureFormat_RGBA8: 
-            internalFormatGL = GL_RGBA8;
-        break;
-    }
-    // unknown format
-    if ( internalFormatGL == 0)
+    GLint internalFormatGL = GetTextureInternalFormatGL(textureFormat);
+    if (internalFormatGL == 0)
     {
         debug_assert(false);
         return false;

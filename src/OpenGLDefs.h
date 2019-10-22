@@ -80,3 +80,48 @@ inline GLenum EnumToGL(ePrimitiveType primitiveType)
     debug_assert(false);
     return GL_TRIANGLES;
 }
+
+inline GLuint GetTextureInputFormatGL(eTextureFormat textureFormat)
+{
+    switch (textureFormat)
+    {
+        case eTextureFormat_R8: return GL_RED;
+        case eTextureFormat_R8_G8: return GL_RG;
+        case eTextureFormat_RGB8: return GL_RGB;
+        case eTextureFormat_RGBA8: return GL_RGBA;
+        case eTextureFormat_R16UI: return GL_RED_INTEGER;
+    }
+    debug_assert(false);
+    return 0;
+}
+
+inline GLint GetTextureInternalFormatGL(eTextureFormat textureFormat)
+{
+    switch (textureFormat)
+    {
+        case eTextureFormat_R8: return GL_R8;
+        case eTextureFormat_R8_G8: return GL_RG8;
+        case eTextureFormat_RGB8: return GL_RGB8;
+        case eTextureFormat_RGBA8: return GL_RGBA8;
+        case eTextureFormat_R16UI: return GL_R16UI;
+    }
+    debug_assert(false);
+    return 0;
+}
+
+inline GLenum GetTextureDataTypeGL(eTextureFormat textureFormat)
+{
+    switch (textureFormat)
+    {
+        case eTextureFormat_R8:
+        case eTextureFormat_R8_G8:
+        case eTextureFormat_RGB8:
+        case eTextureFormat_RGBA8: 
+            return GL_UNSIGNED_BYTE;
+
+        case eTextureFormat_R16UI: 
+            return GL_UNSIGNED_SHORT;
+    }
+    debug_assert(false);
+    return 0;
+}

@@ -59,29 +59,10 @@ GpuTextureArray2D::~GpuTextureArray2D()
 
 bool GpuTextureArray2D::Setup(eTextureFormat textureFormat, int sizex, int sizey, int layersCount, const void* sourceData)
 {
-    GLuint formatGL = 0;
-    GLint internalFormatGL = 0;
-    switch (textureFormat)
-    {
-        case eTextureFormat_R8: 
-            formatGL = GL_RED;
-            internalFormatGL = GL_R8;
-        break;
-        case eTextureFormat_R8_G8: 
-            formatGL = GL_RG;
-            internalFormatGL = GL_RG8;
-        break;
-        case eTextureFormat_RGB8: 
-            formatGL = GL_RGB;
-            internalFormatGL = GL_RGB8;
-        break;
-        case eTextureFormat_RGBA8: 
-            formatGL = GL_RGBA;
-            internalFormatGL = GL_RGBA8;
-        break;
-    }
-    // unknown format
-    if (formatGL == 0 || internalFormatGL == 0)
+    GLuint formatGL = GetTextureInputFormatGL(textureFormat);
+    GLint internalFormatGL = GetTextureInternalFormatGL(textureFormat);
+    GLenum dataType = GetTextureDataTypeGL(textureFormat);
+    if (formatGL == 0 || internalFormatGL == 0 || dataType == 0)
     {
         debug_assert(false);
         return false;
@@ -107,7 +88,7 @@ bool GpuTextureArray2D::Setup(eTextureFormat textureFormat, int sizex, int sizey
 
     if (sourceData)
     {
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, mSize.x, mSize.y, layersCount, formatGL, GL_UNSIGNED_BYTE, sourceData);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, mSize.x, mSize.y, layersCount, formatGL, dataType, sourceData);
         glCheckError();
     }
 
@@ -124,30 +105,18 @@ bool GpuTextureArray2D::Upload(int startLayerIndex, int layersCount, const void*
     debug_assert(sourceData);
     debug_assert(mLayersCount >= (startLayerIndex + layersCount));
 
-    GLuint formatGL = 0;
-    GLint internalFormatGL = 0;
-    switch (mFormat)
+    GLuint formatGL = GetTextureInputFormatGL(mFormat);
+    GLint internalFormatGL = GetTextureInternalFormatGL(mFormat);
+    GLenum dataType = GetTextureDataTypeGL(mFormat);
+    if (formatGL == 0 || internalFormatGL == 0 || dataType == 0)
     {
-        case eTextureFormat_R8: 
-            formatGL = GL_RED;
-            internalFormatGL = GL_R8;
-        break;
-        case eTextureFormat_R8_G8: 
-            formatGL = GL_RG;
-            internalFormatGL = GL_RG8;
-        break;
-        case eTextureFormat_RGB8: 
-            formatGL = GL_RGB;
-            internalFormatGL = GL_RGB8;
-        break;
-        case eTextureFormat_RGBA8: 
-            formatGL = GL_RGBA;
-            internalFormatGL = GL_RGBA8;
-        break;
+        debug_assert(false);
+        return false;
     }
+
     ScopedTextureArray2DBinder scopedBind(mGraphicsContext, this);
 
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, startLayerIndex, mSize.x, mSize.y, layersCount, formatGL, GL_UNSIGNED_BYTE, sourceData);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, startLayerIndex, mSize.x, mSize.y, layersCount, formatGL, dataType, sourceData);
     glCheckError();
     return true;
 }
