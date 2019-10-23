@@ -73,6 +73,13 @@ bool GpuBufferTexture::Setup(eTextureFormat textureFormat, int dataLength, const
 
     mFormat = textureFormat;
     mBufferLength = dataLength;
+
+    int maxTextureBufferSize = gGraphicsDevice.mCaps.mMaxTextureBufferSize;
+    debug_assert(maxTextureBufferSize >= dataLength);
+    if (maxTextureBufferSize < dataLength)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Exceeded max texture buffer size (%d, max is %d)", dataLength, maxTextureBufferSize);
+    }
     
     ScopedBufferTextureBinder scopedBind(mGraphicsContext, this);
 
