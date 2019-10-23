@@ -261,10 +261,9 @@ void SpriteManager::InitPalettesTable()
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
-    mPalettesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_RGBA8UI, 
-        cityStyle.mPalettes.size() * sizeof(Palette256),
-        cityStyle.mPalettes.data());
+    int textureHeight = cxx::get_next_pot(cityStyle.mPalettes.size());
 
+    mPalettesTable = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, 256, textureHeight, cityStyle.mPalettes.data());
     debug_assert(mPalettesTable);
 
     mPaletteIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 

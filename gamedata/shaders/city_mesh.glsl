@@ -43,7 +43,7 @@ void main()
 #ifdef FRAGMENT_SHADER
 
 uniform usampler2DArray tex_0; // block texture
-uniform isamplerBuffer tex_3; // palettes table
+uniform sampler2D tex_3; // palettes table
 
 // passed from vertex shader
 in vec3 Texcoord;
@@ -65,7 +65,7 @@ void main()
         discard;
 
     // fetch pixel color at least
-    vec4 pixelColor = texelFetch(tex_3, int(PaletteIndex * 256 + pal_color)) / 255.0;
+    vec4 pixelColor = texelFetch(tex_3, ivec2(int(pal_color), int(PaletteIndex)), 0);
     pixelColor.a = 1.0f;
     FinalColor = clamp(pixelColor, 0.0f, 1.0f);
 }
