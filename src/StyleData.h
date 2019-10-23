@@ -14,6 +14,13 @@ public:
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
+
+    // CLUT data :
+    //  tiles
+    //  sprites
+    //  car remaps
+    //  ped remaps
+    //  fonts
     std::vector<unsigned short> mPaletteIndices;
 
 public: 

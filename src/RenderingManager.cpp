@@ -17,11 +17,7 @@ RenderingManager::RenderingManager()
 
 bool RenderingManager::Initialize()
 {
-    if (!InitRenderPrograms())
-    {
-        Deinit();
-        return false;
-    }
+    InitRenderPrograms();
 
     if (!mMapRenderer.Initialize())
     {
@@ -79,17 +75,11 @@ void RenderingManager::FreeRenderPrograms()
 
 bool RenderingManager::InitRenderPrograms()
 {
-    if (!mDefaultTexColorProgram.Initialize() || !mGuiTexColorProgram.Initialize() ||
-        !mCityMeshProgram.Initialize() || !mSpritesProgram.Initialize())
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize render programs");
-        return false;
-    }
-
-    if (!mDebugProgram.Initialize())
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize render programs");
-    }
+    mDefaultTexColorProgram.Initialize();
+    mGuiTexColorProgram.Initialize();
+    mCityMeshProgram.Initialize(); 
+    mSpritesProgram.Initialize();
+    mDebugProgram.Initialize();
 
     return true;
 }
