@@ -175,10 +175,11 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     }
 
     // color
-    meshData.mBlocksVertices[baseVertexIndex + 0].SetColorData(blockInfo->mRemap, blockInfo->mIsFlat ? 1 : 0);
-    meshData.mBlocksVertices[baseVertexIndex + 1].SetColorData(blockInfo->mRemap, blockInfo->mIsFlat ? 1 : 0);
-    meshData.mBlocksVertices[baseVertexIndex + 2].SetColorData(blockInfo->mRemap, blockInfo->mIsFlat ? 1 : 0);
-    meshData.mBlocksVertices[baseVertexIndex + 3].SetColorData(blockInfo->mRemap, blockInfo->mIsFlat ? 1 : 0);
+    int remap = (face == eBlockFace_Lid) ? blockInfo->mRemap : 0;
+    meshData.mBlocksVertices[baseVertexIndex + 0].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
+    meshData.mBlocksVertices[baseVertexIndex + 1].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
+    meshData.mBlocksVertices[baseVertexIndex + 2].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
+    meshData.mBlocksVertices[baseVertexIndex + 3].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
 
     // setup face vertices
     const glm::vec3 cubeOffset { x * MAP_BLOCK_LENGTH, z * MAP_BLOCK_LENGTH, y * MAP_BLOCK_LENGTH };

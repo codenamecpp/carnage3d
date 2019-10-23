@@ -6,7 +6,7 @@ void FreeLookCameraController::SetupInitial()
     glm::vec3 cameraPosition = gCamera.mPosition;
     // set camera defaults
     gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 1000.0f);
+    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 60.0f, 0.1f, 1000.0f);
     gCamera.SetTopDownOrientation();
     gCamera.SetPosition(cameraPosition);
 

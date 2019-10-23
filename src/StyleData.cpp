@@ -264,7 +264,7 @@ int StyleData::GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex,
     if (remap > 0)
     {
         debug_assert(remap < 4);
-    }   
+    }
     return mPaletteIndices[4 * blockLinearIndex + remap];
 }
 
