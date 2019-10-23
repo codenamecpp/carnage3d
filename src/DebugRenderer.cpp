@@ -79,7 +79,7 @@ void DebugRenderer::FlushLines()
     if (numVertices == 0)
         return;
 
-    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
+    FrameVertexCache& vertscache = gRenderManager.mFrameVertexCache;
     TransientBuffer vBuffer;
     if (!vertscache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mLineVertices.data(), vBuffer))
     {
@@ -104,7 +104,7 @@ void DebugRenderer::FlushTriangles()
     if (numVertices == 0)
         return;
 
-    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
+    FrameVertexCache& vertscache = gRenderManager.mFrameVertexCache;
     TransientBuffer vBuffer;
     if (!vertscache.AllocVertex(numVertices * Sizeof_Vertex3D_Debug, mTrisVertices.data(), vBuffer))
     {

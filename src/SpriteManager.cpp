@@ -263,8 +263,10 @@ void SpriteManager::InitPalettesTable()
 
     int textureHeight = cxx::get_next_pot(cityStyle.mPalettes.size());
 
-    mPalettesTable = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, 256, textureHeight, cityStyle.mPalettes.data());
+    mPalettesTable = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, 256, textureHeight, nullptr); 
     debug_assert(mPalettesTable);
+    // upload texels
+    mPalettesTable->Upload(0, 0, 0, 256, cityStyle.mPalettes.size(), cityStyle.mPalettes.data());
 
     mPaletteIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 
         cityStyle.mPaletteIndices.size() * sizeof(unsigned short),

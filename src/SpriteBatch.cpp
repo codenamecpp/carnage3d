@@ -135,7 +135,7 @@ void SpriteBatch::GenerateSpritesBatches()
 
 void SpriteBatch::RenderSpritesBatches()
 {
-    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
+    FrameVertexCache& vertscache = gRenderManager.mFrameVertexCache;
 
     RenderStates cityMeshRenderStates;
     cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);

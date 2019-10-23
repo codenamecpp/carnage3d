@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
-#include "StreamingVertexCache.h"
+#include "FrameVertexCache.h"
 #include "Sprite2D.h"
 
 // defines renderer class for 2d sprites

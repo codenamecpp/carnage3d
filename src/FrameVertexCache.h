@@ -22,7 +22,7 @@ public:
 };
 
 // defines cache system for dynamic geometry that being created each render frame
-class StreamingVertexCache final: public cxx::noncopyable
+class FrameVertexCache final: public cxx::noncopyable
 {
 public:
     bool Initialize();

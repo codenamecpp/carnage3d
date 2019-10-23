@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "StreamingVertexCache.h"
+#include "FrameVertexCache.h"
 #include "GpuBuffer.h"
 
 void TransientBuffer::SetSourceBuffer(GpuBuffer* bufferObject, unsigned int dataOffset, unsigned int dataLength)
@@ -28,7 +28,7 @@ bool TransientBuffer::NonNull() const
 
 //////////////////////////////////////////////////////////////////////////
 
-bool StreamingVertexCache::Initialize()
+bool FrameVertexCache::Initialize()
 {
     if (!InitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer, eBufferContent_Vertices, MaxVertexBufferSize) ||
         !InitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer, eBufferContent_Indices, MaxIndexBufferSize))
@@ -39,19 +39,19 @@ bool StreamingVertexCache::Initialize()
     return true;
 }
 
-void StreamingVertexCache::Deinit()
+void FrameVertexCache::Deinit()
 {
     DeinitFrameCacheBuffer(mFrameCache.mVertexCacheBuffer);
     DeinitFrameCacheBuffer(mFrameCache.mIndexCacheBuffer);
 }
 
-void StreamingVertexCache::FlushCache()
+void FrameVertexCache::FlushCache()
 {
     SetFreeBuffers(mFrameCache.mVertexCacheBuffer);
     SetFreeBuffers(mFrameCache.mIndexCacheBuffer);
 }
 
-bool StreamingVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned int maxBufferLength)
+bool FrameVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, eBufferContent content, unsigned int maxBufferLength)
 {
     // create initial buffer object
 
@@ -66,7 +66,7 @@ bool StreamingVertexCache::InitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer, e
     return false;
 }
 
-void StreamingVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
+void FrameVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
 {
     // destroy all allocated buffers
 
@@ -92,7 +92,7 @@ void StreamingVertexCache::DeinitFrameCacheBuffer(FrameCacheBuffer& cacheBuffer)
     cacheBuffer.mFreeBuffers.clear();
 }
 
-void StreamingVertexCache::SetFreeBuffers(FrameCacheBuffer& cacheBuffer)
+void FrameVertexCache::SetFreeBuffers(FrameCacheBuffer& cacheBuffer)
 {
     if (!cacheBuffer.mFullBuffers.empty())
     {
@@ -103,7 +103,7 @@ void StreamingVertexCache::SetFreeBuffers(FrameCacheBuffer& cacheBuffer)
     }
 }
 
-bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool FrameVertexCache::AllocVertex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 
@@ -116,7 +116,7 @@ bool StreamingVertexCache::AllocVertex(unsigned int dataLength, void* sourceData
     return false;
 }
 
-bool StreamingVertexCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool FrameVertexCache::AllocIndex(unsigned int dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     outputBuffer.SetNull();
 
@@ -129,7 +129,7 @@ bool StreamingVertexCache::AllocIndex(unsigned int dataLength, void* sourceData,
     return false;
 }
 
-bool StreamingVertexCache::RequestNextBuffer(FrameCacheBuffer& cacheBuffer)
+bool FrameVertexCache::RequestNextBuffer(FrameCacheBuffer& cacheBuffer)
 {
     GpuBuffer* prevBufferObject = cacheBuffer.mGraphicsBuffer;
     GpuBuffer* nextBufferObject = nullptr;
@@ -157,7 +157,7 @@ bool StreamingVertexCache::RequestNextBuffer(FrameCacheBuffer& cacheBuffer)
     return false;
 }
 
-bool StreamingVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
+bool FrameVertexCache::TryAllocateData(FrameCacheBuffer& cacheBuffer, unsigned long dataLength, void* sourceData, TransientBuffer& outputBuffer)
 {
     debug_assert (cacheBuffer.mGraphicsBuffer);
 

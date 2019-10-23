@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDefs.h"
-#include "StreamingVertexCache.h"
+#include "FrameVertexCache.h"
 
 // defines gui render context
 class GuiRenderContext final: public cxx::noncopyable

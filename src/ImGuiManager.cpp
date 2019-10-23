@@ -96,7 +96,7 @@ void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
     ImVec2 clip_off = imGuiDrawData->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = imGuiDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
-    StreamingVertexCache& vertscache = gRenderManager.mStreamingVertexCache;
+    FrameVertexCache& vertscache = gRenderManager.mFrameVertexCache;
     // imgui primitives rendering
     for (int iCommandList = 0; iCommandList < imGuiDrawData->CmdListsCount; ++iCommandList)
     {

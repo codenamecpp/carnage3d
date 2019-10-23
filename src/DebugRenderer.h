@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDefs.h"
-#include "StreamingVertexCache.h"
+#include "FrameVertexCache.h"
 
 // renders debug information
 class DebugRenderer final: public cxx::noncopyable

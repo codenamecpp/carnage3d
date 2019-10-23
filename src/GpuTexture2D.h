@@ -23,8 +23,12 @@ public:
     // @param sourceData: Source data buffer
     bool Setup(eTextureFormat textureFormat, int sizex, int sizey, const void* sourceData);
 
-    // Uploads pixels data for first mipmap, size of source bitmap should match current texture dimensions
-    // @param sourceData: Source data buffer
+    // Uploads pixels data
+    // @param mipLevel: Specifies the level-of-detail number; level 0 is the base image level
+    // @param xoffset, yoffset: Specifies a texel offset within the texture array
+    // @param sizex, sizey: Specifies the size of the texture subimage
+    // @param sourceData: Specifies a pointer to the source data
+    bool Upload(int mipLevel, int xoffset, int yoffset, int sizex, int sizey, const void* sourceData);
     bool Upload(const void* sourceData);
 
     // Set texture filter and wrap parameters

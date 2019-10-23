@@ -45,17 +45,11 @@ out vec4 FinalColor;
 void main()
 {
     vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
-    if (true)
-    {
-        pixelColor = texture(tex_0, Texcoord);
 
-        if (pixelColor.a < 1.0f) // old school alpha test
-            discard;
-    }
-    else
-    {
-        pixelColor = FragColor;
-    }
+    pixelColor = texture(tex_0, Texcoord);
+
+    if (pixelColor.a < 1.0f) // old school alpha test
+        discard;
 
     FinalColor = clamp(pixelColor, 0.0f, 1.0f);
 }

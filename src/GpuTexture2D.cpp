@@ -120,26 +120,29 @@ bool GpuTexture2D::IsTextureBound() const
     return false;
 }
 
-bool GpuTexture2D::Upload(const void* sourceData)
+bool GpuTexture2D::Upload(int mipLevel, int xoffset, int yoffset, int sizex, int sizey, const void* sourceData)
 {
     if (!IsTextureInited())
         return false;
 
     debug_assert(sourceData);
-
     GLuint formatGL = GetTextureInputFormatGL(mFormat);
-    GLint internalFormatGL = GetTextureInternalFormatGL(mFormat);
     GLenum dataType = GetTextureDataTypeGL(mFormat);
-    if (formatGL == 0 || internalFormatGL == 0 || dataType == 0)
+    if (formatGL == 0 || dataType == 0)
     {
         debug_assert(false);
         return false;
     }
 
     ScopedTexture2DBinder scopedBind(mGraphicsContext, this);
-    ::glTexImage2D(GL_TEXTURE_2D, 0, internalFormatGL, mSize.x, mSize.y, 0, formatGL, dataType, sourceData);
+    ::glTexSubImage2D(GL_TEXTURE_2D, mipLevel, xoffset, yoffset, sizex, sizey, formatGL, dataType, sourceData);
     glCheckError();
     return true;
+}
+
+bool GpuTexture2D::Upload(const void* sourceData)
+{
+    return Upload(0, 0, 0, mSize.x, mSize.y, sourceData);
 }
 
 bool GpuTexture2D::IsTextureInited() const

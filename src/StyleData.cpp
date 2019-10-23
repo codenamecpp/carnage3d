@@ -376,7 +376,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
 
     unsigned char* srcPixels = mSpriteGraphicsRaw.data() + GTA_SPRITE_PAGE_SIZE * sprite.mPageNumber;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
-    debug_assert(bpp == 3 || bpp == 4);
+    debug_assert(bpp == 3 || bpp == 4 || bpp == 1);
     debug_assert(bitmap->mSizex >= destPositionX + sprite.mWidth);
     debug_assert(bitmap->mSizey >= destPositionY + sprite.mHeight);
 
@@ -387,13 +387,20 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
         int srcOffset = ((sprite.mPageOffsetY + iy) * GTA_SPRITE_PAGE_DIMS + (ix + sprite.mPageOffsetX));
         int palindex = mPaletteIndices[sprite.mClut + mTileClutsCount];
         int palentry = srcPixels[srcOffset];
-        const Color32& color = mPalettes[palindex].mColors[palentry];
-        bitmap->mData[destOffset + 0] = color.mR;
-        bitmap->mData[destOffset + 1] = color.mG;
-        bitmap->mData[destOffset + 2] = color.mB;
-        if (bpp == 4)
+        if (bpp == 1) // color index in palette
         {
-            bitmap->mData[destOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+            bitmap->mData[destOffset + 0] = palentry;
+        }
+        else
+        {
+            const Color32& color = mPalettes[palindex].mColors[palentry];
+            bitmap->mData[destOffset + 0] = color.mR;
+            bitmap->mData[destOffset + 1] = color.mG;
+            bitmap->mData[destOffset + 2] = color.mB;
+            if (bpp == 4)
+            {
+                bitmap->mData[destOffset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+            }
         }
     }
     return true;
@@ -423,7 +430,7 @@ void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& sp
 {
     unsigned char* srcData = mSpriteGraphicsRaw.data() + spriteDelta.mOffset;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
-    debug_assert(bpp == 3 || bpp == 4);
+    debug_assert(bpp == 3 || bpp == 4 || bpp == 1);
 
     const int HeaderSize = 3;
     unsigned int dstPixelOffset = 0;
@@ -451,15 +458,21 @@ void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& sp
         for (int ipixel = 0; ipixel < source_length; ++ipixel)
         {
             int curr_pixel_offset = (pagey * bitmap->mSizex * bpp) + pagex * bpp;
-
             int palentry = srcData[curr_pos + ipixel];
-            const Color32& color = mPalettes[palindex].mColors[palentry];
-            bitmap->mData[curr_pixel_offset + 0] = color.mR;
-            bitmap->mData[curr_pixel_offset + 1] = color.mG;
-            bitmap->mData[curr_pixel_offset + 2] = color.mB;
-            if (bpp == 4)
+            if (bpp == 1) // color index in palette
             {
-                bitmap->mData[curr_pixel_offset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+                bitmap->mData[curr_pixel_offset + 0] = palentry;
+            }
+            else
+            {
+                const Color32& color = mPalettes[palindex].mColors[palentry];
+                bitmap->mData[curr_pixel_offset + 0] = color.mR;
+                bitmap->mData[curr_pixel_offset + 1] = color.mG;
+                bitmap->mData[curr_pixel_offset + 2] = color.mB;
+                if (bpp == 4)
+                {
+                    bitmap->mData[curr_pixel_offset + 3] = (palentry == 0) ? 0x00 : 0xFF;
+                }
             }
             ++pagex;
         }

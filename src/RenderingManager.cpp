@@ -30,7 +30,7 @@ bool RenderingManager::Initialize()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug renderer");
     }
 
-    if (!mStreamingVertexCache.Initialize())
+    if (!mFrameVertexCache.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize vertex cache");
         return false;
@@ -43,7 +43,7 @@ bool RenderingManager::Initialize()
 
 void RenderingManager::Deinit()
 {
-    mStreamingVertexCache.Deinit();
+    mFrameVertexCache.Deinit();
     mDebugRenderer.Deinit();
     mMapRenderer.Deinit();
     gSpriteManager.Cleanup();
@@ -53,7 +53,7 @@ void RenderingManager::Deinit()
 
 void RenderingManager::RenderFrame()
 {
-    mStreamingVertexCache.FlushCache();
+    mFrameVertexCache.FlushCache();
     gGraphicsDevice.ClearScreen();
     gCamera.ComputeMatricesAndFrustum();
     gSpriteManager.RenderFrameBegin();

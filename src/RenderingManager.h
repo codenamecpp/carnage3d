@@ -2,7 +2,7 @@
 
 #include "GraphicsDefs.h"
 #include "RenderProgram.h"
-#include "StreamingVertexCache.h"
+#include "FrameVertexCache.h"
 #include "MapRenderer.h"
 #include "DebugRenderer.h"
 
@@ -15,7 +15,7 @@ public:
     RenderProgram mGuiTexColorProgram;
     RenderProgram mSpritesProgram;
     RenderProgram mDebugProgram;
-    StreamingVertexCache mStreamingVertexCache;
+    FrameVertexCache mFrameVertexCache;
 
     MapRenderer mMapRenderer;
     DebugRenderer mDebugRenderer;

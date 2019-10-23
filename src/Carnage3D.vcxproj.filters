@@ -181,9 +181,6 @@
     <ClInclude Include="GuiRenderContext.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="StreamingVertexCache.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -301,6 +298,9 @@
     <ClInclude Include="GpuBufferTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="FrameVertexCache.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -360,9 +360,6 @@
     </ClCompile>
     <ClCompile Include="GuiRenderContext.cpp">
       <Filter>Game\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="StreamingVertexCache.cpp">
-      <Filter>Game\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="GpuTexture2D.cpp">
       <Filter>Graphics</Filter>
@@ -469,6 +466,9 @@
     </ClCompile>
     <ClCompile Include="GpuBufferTexture.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameVertexCache.cpp">
+      <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
