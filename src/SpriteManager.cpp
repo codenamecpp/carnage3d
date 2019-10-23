@@ -98,7 +98,7 @@ bool SpriteManager::InitObjectsSpritesheet()
     debug_assert(ObjectsTextureSizeX > 0);
     debug_assert(ObjectsTextureSizeY > 0);
 
-    mObjectsSpritesheet.mSpritesheetTexture = gGraphicsDevice.CreateTexture2D(eTextureFormat_RGBA8, ObjectsTextureSizeX, ObjectsTextureSizeY, nullptr);
+    mObjectsSpritesheet.mSpritesheetTexture = gGraphicsDevice.CreateTexture2D(eTextureFormat_R8UI, ObjectsTextureSizeX, ObjectsTextureSizeY, nullptr);
     debug_assert(mObjectsSpritesheet.mSpritesheetTexture);
 
     if (mObjectsSpritesheet.mSpritesheetTexture == nullptr)
@@ -108,13 +108,13 @@ bool SpriteManager::InitObjectsSpritesheet()
 
     // allocate temporary bitmap
     PixelsArray spritesBitmap;
-    if (!spritesBitmap.Create(eTextureFormat_RGBA8, ObjectsTextureSizeX, ObjectsTextureSizeY, gMemoryManager.mFrameHeapAllocator))
+    if (!spritesBitmap.Create(eTextureFormat_R8UI, ObjectsTextureSizeX, ObjectsTextureSizeY, gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
         return false;
     }
 
-    spritesBitmap.FillWithColor(MAKE_RGBA(255, 255, 255, 0));
+    spritesBitmap.FillWithColor(0);
 
     // detect total layers count
     std::vector<stbrp_node> stbrp_nodes(ObjectsTextureSizeX);
@@ -533,6 +533,8 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
     deltaBits &= spriteStyle.GetDeltaBits();
 
+    sourceSprite.mClutIndex = gGameMap.mStyleData.GetSpriteClutIndex(spriteStyle.mClut, 0);
+
     if (deltaBits == 0)
     {
         GetSpriteTexture(objectID, spriteIndex, sourceSprite);
@@ -577,14 +579,14 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     dimensions.x = cxx::get_next_pot(spriteStyle.mWidth);
     dimensions.y = cxx::get_next_pot(spriteStyle.mHeight);
 
-    sourceSprite.mTexture = GetFreeSpriteTexture(dimensions, eTextureFormat_RGBA8);
+    sourceSprite.mTexture = GetFreeSpriteTexture(dimensions, eTextureFormat_R8UI);
     if (sourceSprite.mTexture == nullptr)
     {
         debug_assert(false);
     }
 
     PixelsArray pixels;
-    if (!pixels.Create(eTextureFormat_RGBA8, dimensions.x, dimensions.y, 
+    if (!pixels.Create(eTextureFormat_R8UI, dimensions.x, dimensions.y, 
         gMemoryManager.mFrameHeapAllocator))
     {
         debug_assert(false);
@@ -623,7 +625,9 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
 void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite2D& sourceSprite)
 {
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
+    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
 
+    sourceSprite.mClutIndex = gGameMap.mStyleData.GetSpriteClutIndex(spriteStyle.mClut, 0);
     sourceSprite.mTexture = mObjectsSpritesheet.mSpritesheetTexture;
     sourceSprite.mTextureRegion = mObjectsSpritesheet.mEntries[spriteIndex];
 }

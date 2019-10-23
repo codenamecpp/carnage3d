@@ -209,30 +209,19 @@ public:
     // setup vertex
     // @param posx, posy, posz: Coordinate in 3d space
     // @param tcu, tcv: Texture coordinate normalized [0, 1]
-    // @param color: Color RGBA
-    void Set(float posx, float posy, float posz, float tcu, float tcv, unsigned int color)
+    void Set(float posx, float posy, float posz, float tcu, float tcv, unsigned short clutIndex)
     {
         mPosition.x = posx;
         mPosition.y = posy;
         mPosition.z = posz;
         mTexcoord.x = tcu;
         mTexcoord.y = tcv;
-        mColor = color;
-    }
-    // setup vertex
-    void Set(float posx, float posy, float posz, float tcu, float tcv)
-    {
-        mPosition.x = posx;
-        mPosition.y = posy;
-        mPosition.z = posz;
-        mTexcoord.x = tcu;
-        mTexcoord.y = tcv;
-        mColor = COLOR_WHITE;
+        mClutIndex = clutIndex;
     }
 public:
     glm::vec3 mPosition; // 12 bytes
     glm::vec2 mTexcoord; // 8 bytes
-    unsigned int mColor; // 4 bytes
+    unsigned short mClutIndex; // 2 bytes
 };
 
 const unsigned int Sizeof_SpriteVertex3D = sizeof(SpriteVertex3D);
@@ -258,7 +247,7 @@ public:
         this->mDataStride = Sizeof_SpriteVertex3D;
         this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
         this->SetAttribute(eVertexAttribute_Texcoord0, offsetof(TVertexType, mTexcoord));
-        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mClutIndex));
     }
 };
 

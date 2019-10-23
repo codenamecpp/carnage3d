@@ -241,18 +241,25 @@ bool PixelsArray::FillWithColor(Color32 color)
         return false;
 
     int bpp = NumBytesPerPixel(mFormat);
-    debug_assert(bpp == 3 || bpp == 4);
+    debug_assert(bpp == 3 || bpp == 4 || bpp == 1);
 
     for (int iy = 0; iy < mSizey; ++iy)
     for (int ix = 0; ix < mSizex; ++ix)
     {
         int offset = (iy * mSizex * bpp) + (ix * bpp);
-        mData[offset + 0] = color.mR;
-        mData[offset + 1] = color.mG;
-        mData[offset + 2] = color.mB;
-        if (bpp == 4)
+        if (bpp == 1)
         {
-            mData[offset + 3] = color.mA;
+            mData[0] = color.mR;
+        }
+        else
+        {
+            mData[offset + 0] = color.mR;
+            mData[offset + 1] = color.mG;
+            mData[offset + 2] = color.mB;
+            if (bpp == 4)
+            {
+                mData[offset + 3] = color.mA;
+            }
         }
     }
     return true;

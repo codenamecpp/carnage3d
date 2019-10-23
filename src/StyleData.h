@@ -92,6 +92,9 @@ public:
     // @param animationData: Output data
     bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
 
+    // Get color lookup table index for sprite
+    int GetSpriteClutIndex(int spriteClut, int remap) const;
+
 private:
     // apply single delta on sprite
     void ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);

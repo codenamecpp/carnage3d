@@ -100,18 +100,22 @@ void SpriteBatch::GenerateSpritesBatches()
         vertexData[vertexOffset + 0].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 0].mTexcoord.y = sprite.mTextureRegion.mV0;
         vertexData[vertexOffset + 0].mPosition.y = sprite.mHeight;
+        vertexData[vertexOffset + 0].mClutIndex = sprite.mClutIndex;
 
         vertexData[vertexOffset + 1].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 1].mTexcoord.y = sprite.mTextureRegion.mV0;
         vertexData[vertexOffset + 1].mPosition.y = sprite.mHeight;
+        vertexData[vertexOffset + 1].mClutIndex = sprite.mClutIndex;
 
         vertexData[vertexOffset + 2].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 2].mTexcoord.y = sprite.mTextureRegion.mV1;
         vertexData[vertexOffset + 2].mPosition.y = sprite.mHeight;
+        vertexData[vertexOffset + 2].mClutIndex = sprite.mClutIndex;
 
         vertexData[vertexOffset + 3].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTextureRegion.mV1;
         vertexData[vertexOffset + 3].mPosition.y = sprite.mHeight;
+        vertexData[vertexOffset + 3].mClutIndex = sprite.mClutIndex;
 
         glm::vec2 positions[4];
         sprite.GetCorners(positions);

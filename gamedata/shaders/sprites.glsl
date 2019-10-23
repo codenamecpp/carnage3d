@@ -4,23 +4,26 @@
 
 // constants
 uniform mat4 view_projection_matrix;
+uniform isamplerBuffer tex_2; // palette indices table
 
 // attributes
 in vec3 in_pos0;
 in vec2 in_texcoord0;
-in vec4 in_color0;
+in float in_color0; // clut index
 
 // pass to fragment shader
 out vec2 Texcoord;
-out vec4 FragColor;
 out vec3 Position;
+flat out float PaletteIndex;
 
 // entry point
 void main() 
 {
 	Texcoord = in_texcoord0;
     Position = in_pos0;
-    FragColor = in_color0;
+
+    // get palette index for sprite
+    PaletteIndex = texelFetch(tex_2, int(in_color0)).r;
 
     vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0f);
     gl_Position = vertexPosition;
@@ -31,12 +34,13 @@ void main()
 //////////////////////////////////////////////////////////////////////////
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D tex_0;
+uniform usampler2D tex_0;
+uniform sampler2D tex_3; // palettes table
 
 // passed from vertex shader
 in vec2 Texcoord;
-in vec4 FragColor;
 in vec3 Position;
+flat in float PaletteIndex;
 
 // result
 out vec4 FinalColor;
@@ -44,13 +48,16 @@ out vec4 FinalColor;
 // entry point
 void main()
 {
-    vec4 pixelColor = vec4(1.0, 1.0, 1.0, 1.0);
+    // get color index in palette
 
-    pixelColor = texture(tex_0, Texcoord);
+    float pal_color = texture(tex_0, Texcoord).r;
 
-    if (pixelColor.a < 1.0f) // old school alpha test
+    if (pal_color < 0.5f) // old school alpha test
         discard;
 
+    // fetch pixel color
+    vec4 pixelColor = texelFetch(tex_3, ivec2(int(pal_color), int(PaletteIndex)), 0);
+    pixelColor.a = 1.0f;
     FinalColor = clamp(pixelColor, 0.0f, 1.0f);
 }
 

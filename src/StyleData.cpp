@@ -915,3 +915,9 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileWalking].Setup(154, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileRunning].Setup(162, 8);
 }
+
+int StyleData::GetSpriteClutIndex(int spriteClut, int remap) const
+{
+    // todo
+    return mTileClutsCount + spriteClut + remap;
+}
