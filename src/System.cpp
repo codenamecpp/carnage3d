@@ -50,24 +50,32 @@ System gSystem;
 
 void System::Execute(const SysStartupParameters& sysStartupParams)
 {
+    const long MinFPS = 20;
+    const long MaxFrameDelta = Timespan::MillisecondsPerSecond / MinFPS;
+
     mIgnoreInputs = true; // don't dispatch input events until initialization completed
     mStartupParams = sysStartupParams;
     Initialize();
 
     // main loop
-    long mPreviousFrameTimestamp = GetSysMilliseconds();
+    long previousFrameTimestamp = GetSysMilliseconds();
     for (; !mQuitRequested; )
     {
-        long mCurrentTimestamp = GetSysMilliseconds();
+        long currentTimestamp = GetSysMilliseconds();
 
-        Timespan deltaTime ( mCurrentTimestamp - mPreviousFrameTimestamp );
+        Timespan deltaTime ( currentTimestamp - previousFrameTimestamp );
         if (deltaTime < 1)
         {
             // small delay
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-            mCurrentTimestamp = GetSysMilliseconds();
+            currentTimestamp = GetSysMilliseconds();
             deltaTime = 1;
+        }
+
+        if (deltaTime > MaxFrameDelta)
+        {
+            deltaTime = MaxFrameDelta;
         }
 
         gMemoryManager.FlushFrameHeapMemory();
@@ -76,7 +84,7 @@ void System::Execute(const SysStartupParameters& sysStartupParams)
         gGuiSystem.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
         gRenderManager.RenderFrame();
-        mPreviousFrameTimestamp = mCurrentTimestamp;
+        previousFrameTimestamp = currentTimestamp;
         if (mIgnoreInputs) // ingore inputs at very first frame
         {
             mIgnoreInputs = false;
