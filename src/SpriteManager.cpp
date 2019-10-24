@@ -518,12 +518,12 @@ void SpriteManager::DestroySpriteTextures()
     mFreeSpriteTextures.clear();
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite)
 {
     sourceSprite.mTexture = nullptr;
     if (deltaBits == 0)
     {
-        GetSpriteTexture(objectID, spriteIndex, sourceSprite);
+        GetSpriteTexture(objectID, spriteIndex, remap, sourceSprite);
         return;
     }
 
@@ -533,11 +533,11 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
     deltaBits &= spriteStyle.GetDeltaBits();
 
-    sourceSprite.mClutIndex = gGameMap.mStyleData.GetSpriteClutIndex(spriteStyle.mClut, 0);
+    sourceSprite.mPaletteIndex = gGameMap.mStyleData.GetSpritePaletteIndex(spriteStyle.mClut, remap);
 
     if (deltaBits == 0)
     {
-        GetSpriteTexture(objectID, spriteIndex, sourceSprite);
+        GetSpriteTexture(objectID, spriteIndex, remap, sourceSprite);
         return;
     }
 
@@ -622,12 +622,12 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, S
     mSpritesCache.push_back(spriteCacheElement);
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite2D& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, Sprite2D& sourceSprite)
 {
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
     SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
 
-    sourceSprite.mClutIndex = gGameMap.mStyleData.GetSpriteClutIndex(spriteStyle.mClut, 0);
+    sourceSprite.mPaletteIndex = gGameMap.mStyleData.GetSpritePaletteIndex(spriteStyle.mClut, remap);
     sourceSprite.mTexture = mObjectsSpritesheet.mSpritesheetTexture;
     sourceSprite.mTextureRegion = mObjectsSpritesheet.mEntries[spriteIndex];
 }

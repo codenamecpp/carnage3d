@@ -44,8 +44,8 @@ public:
     // @param spriteIndex: Sprite index, linear
     // @param deltaBits: Sprite delta bits
     // @param sourceSprite: Sprite data
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite);
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, Sprite2D& sourceSprite);
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite);
+    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, Sprite2D& sourceSprite);
 
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);

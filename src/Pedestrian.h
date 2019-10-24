@@ -22,6 +22,7 @@ public:
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
     float mDrawHeight;
+    int mRemapIndex;
     
     // in car
     Vehicle* mCurrentCar = nullptr;

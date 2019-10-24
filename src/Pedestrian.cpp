@@ -32,6 +32,7 @@ void Pedestrian::EnterTheGame()
     glm::vec3 startPosition;
 
     mCurrentStateTime = 0;
+    mRemapIndex = NO_REMAP;
 
     // reset actions
     for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
@@ -92,7 +93,8 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, mDrawSprite);
+    int remapClut = gGameMap.mStyleData.GetPedRemapClut(mRemapIndex);
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, remapClut, mDrawSprite);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;

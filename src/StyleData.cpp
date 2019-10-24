@@ -196,7 +196,35 @@ bool StyleData::LoadFromFile(const char* stylesName)
     }
 
     InitSpriteAnimations();
+
+    // do some data verifications before go further
+    if (!DoDataIntegrityCheck())
+    {
+        debug_assert(false);
+    }
+
     return true;
+}
+
+bool StyleData::DoDataIntegrityCheck() const
+{
+    bool allChecksPassed = true;
+
+    int expectRemapsClutCount = mCars.size() * MAX_CAR_REMAPS + MAX_PED_REMAPS;
+    if (expectRemapsClutCount != mRemapClutsCount)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Miscalculation for RemapClutsCount (expect %d but read %d)", expectRemapsClutCount, mRemapClutsCount);
+        allChecksPassed = false;
+    }
+
+    int expectTilesClutCount = GetBlockTexturesCount() * 4;
+    if (expectTilesClutCount != mTileClutsCount)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Miscalculation for TileClutsCount (expect %d but read %d)", expectTilesClutCount, mTileClutsCount);
+        allChecksPassed = false;
+    }
+
+    return allChecksPassed;
 }
 
 void StyleData::Cleanup()
@@ -266,6 +294,42 @@ int StyleData::GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex,
         debug_assert(remap < 4);
     }
     return mPaletteIndices[4 * blockLinearIndex + remap];
+}
+
+int StyleData::GetSpritePaletteIndex(int spriteClut, int remapClut) const
+{
+    if (remapClut)
+    {
+        return mPaletteIndices[mTileClutsCount + mSpriteClutsCount + remapClut];
+    }
+
+    return mPaletteIndices[mTileClutsCount + spriteClut];
+}
+
+int StyleData::GetCarRemapClut(int carStyleIndex, int remap) const
+{
+    if (remap < 0)
+        return 0;
+
+    debug_assert(remap < MAX_CAR_REMAPS);
+
+    int remapIndex = carStyleIndex * MAX_CAR_REMAPS + remap;
+    debug_assert(remapIndex < mRemapClutsCount);
+
+    return remapIndex;
+}
+
+int StyleData::GetPedRemapClut(int remap) const
+{
+    if (remap < 0)
+        return 0;
+
+    debug_assert(remap < MAX_PED_REMAPS);
+
+    int remapClut = (mRemapClutsCount - MAX_PED_REMAPS) + remap;
+    debug_assert(remapClut > -1);
+
+    return remapClut;
 }
 
 bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY, int remap)
@@ -670,11 +734,13 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
 
 bool StyleData::ReadCars(std::ifstream& file, int dataLength)
 {
-    for (; dataLength > 0;)
+    for (int icurrent = 0; dataLength > 0; ++icurrent)
     {
         const std::streampos startStreamPos = file.tellg();
 
         CarStyle carInfo;
+        carInfo.mCarStyleIndex = icurrent;
+
         READ_SI16(file, carInfo.mWidth);
         READ_SI16(file, carInfo.mHeight);
         READ_SI16(file, carInfo.mDepth);
@@ -914,10 +980,4 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileStanding].Setup(170, 2);
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileWalking].Setup(154, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileRunning].Setup(162, 8);
-}
-
-int StyleData::GetSpriteClutIndex(int spriteClut, int remap) const
-{
-    // todo
-    return mTileClutsCount + spriteClut + remap;
 }

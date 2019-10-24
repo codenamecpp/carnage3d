@@ -43,6 +43,16 @@ public:
     // @param remap: Remap index, remapping applies to lids only, 0 means no remap, 1-3 means look up tile remap index
     int GetBlockTexturePaletteIndex(eBlockType blockType, int blockIndex, int remap) const;
 
+    // Get palette index for sprite
+    // @param spriteClut: Sprite clut index
+    // @param remap: Remap index, can only be used for pedestrian and car sprites
+    int GetSpritePaletteIndex(int spriteClut, int remapClut) const;
+
+    // Get remap clut index for pedestrian and car sprites
+    // @returns value that can be used in GetSpritePaletteIndex
+    int GetCarRemapClut(int carStyleIndex, int remap) const;
+    int GetPedRemapClut(int remap) const;
+
     // Get number of textures total or for specific block type only
     // @param blockType: Block type
     int GetBlockTexturesCount(eBlockType blockType) const;
@@ -92,9 +102,6 @@ public:
     // @param animationData: Output data
     bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
 
-    // Get color lookup table index for sprite
-    int GetSpriteClutIndex(int spriteClut, int remap) const;
-
 private:
     // apply single delta on sprite
     void ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
@@ -112,6 +119,7 @@ private:
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
     void InitSpriteAnimations();
+    bool DoDataIntegrityCheck() const;
 
 private:
     std::vector<unsigned char> mBlockTexturesRaw;

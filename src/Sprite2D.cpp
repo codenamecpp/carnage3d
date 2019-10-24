@@ -13,7 +13,7 @@ void Sprite2D::SetNull()
     mPosition.y = 0.0f;
     mHeight = 0.0f;
     mScale = 1.0f;
-    mClutIndex = 0;
+    mPaletteIndex = 0;
 
     mRotateAngle = cxx::angle_t::from_degrees(0.0f);
 }

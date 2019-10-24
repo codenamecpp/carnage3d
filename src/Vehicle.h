@@ -20,6 +20,7 @@ public:
     bool mIsOnScreen;
 
     float mDrawHeight;
+    int mRemapIndex;
 
     CarStyle* mCarStyle; // cannot be null
     std::vector<Pedestrian*> mPassengers;

@@ -11,6 +11,8 @@
 #define MAX_MAP_BLOCK_ANIM_FRAMES 32
 #define MAX_CAR_DOORS 4
 #define MAX_CAR_REMAPS 12
+#define MAX_PED_REMAPS 64
+#define NO_REMAP -1
 #define MAX_SPRITE_DELTAS 32
 
 // map width and height is same
@@ -523,6 +525,7 @@ decl_enum_strings(eCarConvertible);
 struct CarStyle
 {
 public:
+    int mCarStyleIndex;
     short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
     short mSprNum; // first sprite number offset for this car
     short mWeight;	

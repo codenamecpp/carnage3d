@@ -4,12 +4,11 @@
 
 // constants
 uniform mat4 view_projection_matrix;
-uniform isamplerBuffer tex_2; // palette indices table
 
 // attributes
 in vec3 in_pos0;
 in vec2 in_texcoord0;
-in float in_color0; // clut index
+in float in_color0; // palette index
 
 // pass to fragment shader
 out vec2 Texcoord;
@@ -21,9 +20,7 @@ void main()
 {
 	Texcoord = in_texcoord0;
     Position = in_pos0;
-
-    // get palette index for sprite
-    PaletteIndex = texelFetch(tex_2, int(in_color0)).r;
+    PaletteIndex = in_color0;
 
     vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0f);
     gl_Position = vertexPosition;

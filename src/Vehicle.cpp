@@ -42,6 +42,7 @@ void Vehicle::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRot
     mIsOnScreen = false;
     mDamageDeltaBits = 0;
     mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
+    mRemapIndex = NO_REMAP;
 
     SetupDeltaAnimations();
 }
@@ -60,7 +61,8 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
     ComputeDrawHeight(position);
 
-    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, GetSpriteDeltas(), mChassisDrawSprite);
+    int remapClut = gGameMap.mStyleData.GetCarRemapClut(mCarStyle->mCarStyleIndex, mRemapIndex);
+    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mChassisDrawSprite);
 
     mChassisDrawSprite.mPosition.x = position.x;
     mChassisDrawSprite.mPosition.y = position.z;

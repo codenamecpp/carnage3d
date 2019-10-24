@@ -35,7 +35,7 @@ public:
 
     cxx::angle_t mRotateAngle;
 
-    unsigned short mClutIndex = 0;
+    unsigned short mPaletteIndex = 0;
 };
 
 const int Sizeof_Sprite2D = sizeof(Sprite2D);
