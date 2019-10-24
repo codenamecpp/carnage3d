@@ -53,6 +53,16 @@ To select specific level to play you can add command line argument **-mapname**,
 
 Tested on Ubuntu Linux and Windows 7 64bits.
 
+## Controls ##
+It is similar to original:
+* **Arrow** keys to walk/drive in directions
+* **Space** to slide on car
+* **Enter** to enter or exit car
+* **Tab** to enable or disable car emergency lights (if it present)
+* **Z**, **X** to change current weapon and **Ctrl** to shoot
+
+When in "Free Look" camera mode, moving with **W**, **S**, **A**, **D** keys.
+
 ## Other GTA 1/2 re-implementations ##
 * [WebGL-GTA](https://github.com/niklasvh/WebGL-GTA)
 * [OpenGTA](http://ogta.fifengine.de/download.html)
