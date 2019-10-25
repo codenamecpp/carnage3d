@@ -2,6 +2,7 @@
 #include "CommonTypes.h"
 #include "GameDefs.h"
 #include "GraphicsDefs.h"
+#include "GameObject.h"
 
 impl_enum_strings(eLogMessage)
 {
@@ -409,4 +410,11 @@ impl_enum_strings(eCarConvertible)
     {eCarConvertible_OpenTop, "open_top"},
     {eCarConvertible_HardTopAnimated, "hard_top_animated"},
     {eCarConvertible_OpenTopAnimated, "open_top_animated"},
+};
+
+impl_enum_strings(eGameObjectType)
+{
+    {eGameObjectType_Pedestrian, "pedestrian"},
+    {eGameObjectType_Car, "car"},
+    {eGameObjectType_MapObject, "map_object"},
 };

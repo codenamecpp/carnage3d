@@ -498,5 +498,8 @@
     <Text Include="..\docs\Sprites.txt">
       <Filter>Docs</Filter>
     </Text>
+    <Text Include="..\docs\ped.txt">
+      <Filter>Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>

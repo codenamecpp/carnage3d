@@ -314,6 +314,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\docs\CorrectionsToCDS.txt" />
+    <Text Include="..\docs\ped.txt" />
     <Text Include="..\docs\Sprites.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

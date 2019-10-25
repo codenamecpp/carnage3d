@@ -86,6 +86,12 @@ bool GameMapManager::LoadFromFile(const char* filename)
         return false;
     }
 
+    if (!ReadStartupObjects(file, header.object_pos_size))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read map startup objects from '%s'", filename);
+        return false;
+    }
+
     // load corresponding style data
     char styleName[16];
     snprintf(styleName, CountOf(styleName), "STYLE%03d.G24", header.style_number);
@@ -109,6 +115,7 @@ void GameMapManager::Cleanup()
             memset(&mMapTiles[tilez][tiley][tilex], 0, Sizeof_BlockStyle);
         }
     }
+    mStartupObjects.clear();
 }
 
 bool GameMapManager::IsLoaded() const
@@ -375,4 +382,36 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
     }
 
     return false;
+}
+
+bool GameMapManager::ReadStartupObjects(std::ifstream& file, int dataSize)
+{
+    const unsigned int RecordSize = 14;
+    debug_assert(dataSize % RecordSize == 0);
+
+    int numRecords = dataSize / RecordSize;
+
+    mStartupObjects.resize(numRecords);
+    for (StartupObjectPosStruct& currRecord: mStartupObjects)
+    {
+        READ_I16(file, currRecord.mX);
+        READ_I16(file, currRecord.mY);
+        READ_I16(file, currRecord.mZ);
+
+        READ_I8(file, currRecord.mType);
+        READ_I8(file, currRecord.mRemap);
+
+        unsigned short fix16angle;
+
+        READ_I16(file, fix16angle);
+        currRecord.mRotation = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
+
+        READ_I16(file, fix16angle);
+        currRecord.mPitch = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
+
+        READ_I16(file, fix16angle);
+        currRecord.mRoll = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
+    }
+
+    return true;
 }

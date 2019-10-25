@@ -10,6 +10,8 @@ public:
     // public for convenience
     StyleData mStyleData;
 
+    std::vector<StartupObjectPosStruct> mStartupObjects;
+
 public:
     // load map data from specific file, returns false on error
     // @param filename: Target file name
@@ -43,6 +45,7 @@ private:
     // Reading map data internals
     // @param file: Source stream
     bool ReadCompressedMapData(std::ifstream& file, int columnLength, int blockLength);
+    bool ReadStartupObjects(std::ifstream& file, int dataSize);
     void FixShiftedBits();
 
 private:

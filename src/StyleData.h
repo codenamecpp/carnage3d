@@ -9,7 +9,7 @@ class StyleData final
 {
 public:
     // public for convenience, should not be modified directly
-    std::vector<MapObjectStyle> mObjects;
+    std::vector<ObjectStyle> mObjects;
     std::vector<SpriteStyle> mSprites;
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;

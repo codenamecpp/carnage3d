@@ -1,0 +1,135 @@
+Ben "Cerbera" Millard
+Updated: 5th September 2004
+
+ A detailed examination of how pedestrians (peds) can be used in GTA1.
+
+Syntax
+------
+N.B. these coordinates are the PIXEL co-ords. This means take the normal cube coordinates at multiply by 64.  e.g. (10,100,4) becomes (640,6400,256)
+
+200 (12567,3456,256) FUTUREPED 0 512
+
+
+COLOUR GUIDE
+------------
+2000 PED_ON 2000 0 0 146 0 
+                       ^ped color
+
+Number:	Top:	Trousers:	Skin:	Gun:
+[Player]
+41	Green	 Blue		White	Normal
+[Player]
+131	Green	   "		  "	  "
+133	Grey	   "		  "	  "
+135	Yellow 	Black	  	  "	Blue
+136	Red	   "		  "	  "
+137	DGreen	   "		  "	  "
+138	DBlue	   "		  "	  "
+139	Green	   "		  "	  "
+140	BluEgrn	   "		  "	  "
+[Player]
+142	Pink	 Blue		  "	Normal
+[Player]
+148	Yellow	 Green		  "	  "
+153	Yellow	 Red		Black	  "
+154	Green	   "		  "	  "
+155	Red	 Red		  "	  "
+156	LBlue	 Red		  "	  "
+157	Yellow	 Orange		White	  "
+158	Green	  "		  "	  "
+159	Red	  "		  "	  "
+160	Blue	  "		  "	  "
+161	Yellow 	 Grey		Black	  "
+162	Green	  "		  "	  "
+163	Red	  "		  "	  "
+164	Bl/Grn	  "		  "	  "
+177	    "	 Yellow		  "	  "
+178	DGreen	   "		  "	  "
+179	Green	 Bl/Grn		  "	  "
+180	DGreen	 DBlue		  "	  "
+181	White	   "		  "	  "
+
+
+Gingerheads:
+149	Yellow    Blue		White	  " 
+150	Green	DRed		  "	  "
+151	Red	Red		  "	  "
+152	Bl/Grn	  "		  "	  "
+173	Yellow	Gray		  "	  "
+174	Gray	  "		  "	  "
+175	Red	  "		  "	  "
+176	Bl/Grn	  "		  "	  "
+182	DBlue	Red		  "	  "
+183	  "	DBlue		  "	  "
+184	  "	Green		  "	  "
+185	  "	Blue		  "	  "
+186	  "	Orange		  "	  "
+187	  "	Brown		  "	  "
+
+
+Baldheads:
+165	Yellow    Blue		White	Normal
+166	Green	   "		  "	  "
+167	Red	   "		  "	  "
+168	LBlue	   "		  "	  "
+169	Yellow	   "		Black	  "
+170	Green	   "		  "	  "
+171	Red	   "		  "	  "
+172	LBlue	   "		  "	  "
+
+
+Distinct Opponents:
+33	SAN ANDREAS GLOVES & SUITS
+132	All-blue citizen, can be used as a police officer rather than PED_POLICE.
+134	SAN ANDREAS JEANS & JACKETS YELLOW GUN
+147	SAN ANDREAS SUITS
+143	HARE KRISHNAS
+144	DOCTOR/PRIESTS
+145	VICE CITY GUARDS BROWN GUN
+146	VICE CITY ORANGE & GREEN YELLOW GUN
+
+By using 'PED_POLICE 2000 0 0 0 0' you will create a policeman who cannot arrest you.  It responses to all PED-related processes just like a PED_ON version would, execpt for NOT sliding over cars.  This means he will get squashed if you drive (even very slowly) over him. <HINT!>
+
+
+
+Behaviour Guide
+---------------
+
+ You can create peds who will act in different ways.  The complete list of AI types of peds which I have tested with is here.
+
+Syntax
+------
+2200 CHANGE_PED_TYPE 2000 0 -1 42 2060
+			    TYPE^    ^TARGET
+
+Elemental types:
+0	Waiting Ped
+1	Enemy Guard, Sprays
+2	Ped enters a FUTURECAR set as TARGET
+4	Strolling ped
+5	Follows TARGET
+6	Jogging ped who is scared by bullets
+7	Runs Away From TARGET
+8	Excellent assassin
+9	Same as 7, but worth more!
+10	Runs suicidally on its FUTUREPED angle (0-1023)
+11	Like type "8" but these shoot without chasing
+12	Enemy Guard, shoots at vehicle TARGET
+13	As above, but will chase the TARGET
+
+Specialist:
+21	Enemy Guard, Bad
+22	Enemy Guard, Good
+23	Enemy Guard, Excellent
+24	Enemy Assasin, Bad
+25	Enemy Assasin, Good
+26	Enemy Assasin, Excellent
+
+41	Friend Guard, Bad
+42	Friend Guard, Good
+43	Friend Guard, Excellent
+44	Friend Assasin, Bad
+45	Friend Assasin, Good
+46	Friend Assasin, Excellent
+
+  Friendly Peds' bullets cannot kill you and your bullets cannot kill them.  Only explosions, flames or getting run over can make you kill each other.  Enemy bullets can kill you and your friendls but do not kill other enemies.  Friendly AND enemy bullets will kill peds not created by the missions.

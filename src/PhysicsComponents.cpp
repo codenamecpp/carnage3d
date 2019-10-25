@@ -499,24 +499,26 @@ void CarPhysicsComponent::CreateWheel(eCarWheelID wheelID)
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     bodyDef.userData = this;
-    bodyDef.position = mPhysicsBody->GetPosition();
 
     // fix position
     if (wheelID == eCarWheelID_Steering)
     {
-        bodyDef.position.x += ((1.0f * mCarDesc->mSteeringWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x = ((1.0f * mCarDesc->mSteeringWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
     }
     else if (wheelID == eCarWheelID_Drive)
     {
-        bodyDef.position.x += ((1.0f * mCarDesc->mDriveWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x = ((1.0f * mCarDesc->mDriveWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
     }
     else
     {
         debug_assert(false);
     }
 
+    bodyDef.position = mPhysicsBody->GetWorldPoint(bodyDef.position);
+
     wheel.mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
     debug_assert(wheel.mPhysicsBody);
+    wheel.mPhysicsBody->SetTransform(bodyDef.position, mPhysicsBody->GetAngle());
 
     float wheel_size_w = ((1.0f * wheel_pixels_w) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;
     float wheel_size_h = ((1.0f * wheel_pixels_h) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;

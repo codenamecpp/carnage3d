@@ -9,7 +9,7 @@
 #include "Pedestrian.h"
 
 Vehicle::Vehicle(GameObjectID_t id)
-    : GameObject(id)
+    : GameObject(eGameObjectType_Car, id)
     , mActiveCarsNode(this)
     , mDeleteCarsNode(this)
     , mPhysicsComponent()

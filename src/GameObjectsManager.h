@@ -46,6 +46,8 @@ public:
     void DestroyGameObject(Vehicle* object);
 
 private:
+    bool CreateStartupObjects();
+
     void DestroyObjectsInList(cxx::intrusive_list<Pedestrian>& objectsList);
     void DestroyObjectsInList(cxx::intrusive_list<Vehicle>& objectsList);
 

@@ -41,19 +41,36 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-    glm::vec3 pos { 11.0f, 5.0f, 13.0f };
-    pos.y = gGameMap.GetHeightAtPosition(pos);
+    glm::vec3 pos;
+
+    // choose spawn point
+    // it is temporary!
+    for (int yBlock = 10; yBlock < 20; ++yBlock)
+    {
+        for (int xBlock = 10; xBlock < 20; ++xBlock)
+        {
+            pos = glm::ivec3(xBlock, MAP_LAYERS_COUNT - 1, yBlock);
+
+            float currHeight = gGameMap.GetHeightAtPosition(pos);
+            int zBlock = static_cast<int>(currHeight);
+            if (zBlock > MAP_LAYERS_COUNT - 1)
+                continue;
+
+            BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
+            if (currBlock->mGroundType == eGroundType_Field ||
+                currBlock->mGroundType == eGroundType_Pawement ||
+                currBlock->mGroundType == eGroundType_Road)
+            {
+                pos.x += MAP_BLOCK_LENGTH * 0.5f;
+                pos.z += MAP_BLOCK_LENGTH * 0.5f;
+                pos.y = currHeight;
+                break;
+            }
+        }
+    }
+
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
     mHumanController.SetCharacter(mPlayerPedestrian);
-
-    for (int icartype = 0; icartype < gGameMap.mStyleData.mCars.size(); ++icartype)
-    {
-        cxx::angle_t rotationAngle;
-        glm::vec3 startPosition = pos + glm::vec3 {4.0f + icartype * 1.3f, 0.0f, 2.0f};
-        Vehicle* dummyCar = mObjectsManager.CreateCar(startPosition, rotationAngle, &gGameMap.mStyleData.mCars[icartype]);
-        //dummyCar->mPhysicsComponent->SetRotationAngle(cxx::angle_t::from_degrees(icartype * 60.0f));
-        //break;
-    }
 
     SetCameraController(&mFollowCameraController);
 

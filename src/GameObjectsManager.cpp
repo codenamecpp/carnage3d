@@ -9,6 +9,12 @@ bool GameObjectsManager::Initialize()
 {
     mIDsCounter = 0;
 
+    if (!CreateStartupObjects())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "GameObjectsManager: Cannot create startup objects");
+        return false;
+    }
+
     return true;
 }
 
@@ -269,4 +275,39 @@ GameObjectID_t GameObjectsManager::GenerateUniqueID()
         debug_assert(false);
     }
     return newID;
+}
+
+bool GameObjectsManager::CreateStartupObjects()
+{
+    debug_assert(gGameMap.IsLoaded());
+
+    StyleData& styleData = gGameMap.mStyleData;
+
+    int numCars = 0;
+    for (const StartupObjectPosStruct& currObject: gGameMap.mStartupObjects)
+    {
+        // create startup cars
+        if (currObject.IsCarObject())
+        {
+            eCarModel carModel;
+            if (!cxx::parse_enum_int(currObject.mType, carModel))
+            {
+                debug_assert(false);
+                continue;
+            }
+
+            glm::vec3 carPosition 
+            { 
+                (1.0f * currObject.mX) / MAP_PIXELS_PER_TILE,
+                (1.0f * currObject.mZ) / MAP_PIXELS_PER_TILE,
+                (1.0f * currObject.mY) / MAP_PIXELS_PER_TILE 
+            };
+
+            Vehicle* startupCar = CreateCar(carPosition, currObject.mRotation, carModel);
+            debug_assert(startupCar);
+
+            ++numCars;
+        }
+    }
+    return true;
 }

@@ -116,6 +116,10 @@ bool StyleData::LoadFromFile(const char* stylesName)
         return false;
     }
 
+    file.seekg(0, std::ios::end);
+    std::streampos fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
     // read header
     GTAFileHeaderG24 header;
     if (!read_from_stream(file, header) || header.version_code != GTA_G24FILE_VERSION_CODE)
@@ -194,6 +198,9 @@ bool StyleData::LoadFromFile(const char* stylesName)
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite numbers from style file '%s'", stylesName);
         return false;
     }
+
+    std::streampos currentPos = file.tellg();
+    debug_assert(currentPos == fileSize);
 
     InitSpriteAnimations();
 
@@ -677,7 +684,7 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
 {
     for (; dataLength > 0;)
     {
-        MapObjectStyle objectInfo;
+        ObjectStyle objectInfo;
 
         READ_SI32(file, objectInfo.mWidth);
         READ_SI32(file, objectInfo.mHeight);

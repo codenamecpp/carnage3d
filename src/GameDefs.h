@@ -404,7 +404,7 @@ public:
 };
 
 // define map object information
-struct MapObjectStyle
+struct ObjectStyle
 {
 public:
     int mWidth;
@@ -507,6 +507,7 @@ enum eCarModel
     eCarModel_Limousine_2   = 86,
     eCarModel_Impaler_2     = 87,
     eCarModel_Helicopter    = 88,
+    eCarModel_COUNT
 };
 
 decl_enum_strings(eCarModel);
@@ -591,6 +592,27 @@ public:
         }
         return deltaBits;
     }
+};
+
+// object_pos_struct / car_pos_struct
+struct StartupObjectPosStruct
+{
+public:
+    StartupObjectPosStruct() = default;
+
+    inline bool IsCarObject() const { return mRemap > 127; }
+
+public:
+    unsigned short mX; 
+    unsigned short mY;
+    unsigned short mZ; // here, (x,y,z) is the position of the object in the world, stated in world co-ordinates
+
+    unsigned char mType; // is the object type - a code between zero and the maximum number of object types which gives an index into the object info
+    unsigned char mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
+
+    cxx::angle_t mRotation;
+    cxx::angle_t mPitch;
+    cxx::angle_t mRoll;
 };
 
 // various sprites animations
