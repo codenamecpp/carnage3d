@@ -533,6 +533,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, i
     SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
     deltaBits &= spriteStyle.GetDeltaBits();
 
+    debug_assert(remap >= 0);
     sourceSprite.mPaletteIndex = gGameMap.mStyleData.GetSpritePaletteIndex(spriteStyle.mClut, remap);
 
     if (deltaBits == 0)
@@ -624,6 +625,8 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, i
 
 void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, Sprite2D& sourceSprite)
 {
+    debug_assert(remap >= 0);
+
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
     SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
 

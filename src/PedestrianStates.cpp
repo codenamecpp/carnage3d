@@ -346,7 +346,7 @@ void PedestrianStateFalling::ProcessStateEnter(Pedestrian* pedestrian, const Ped
     pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallLong, eSpriteAnimLoop_FromStart);
 }
 
-void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian)
+void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
 }
@@ -472,7 +472,7 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     }
 }
 
-void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian)
+void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     if (pedestrian->mCurrentCar)
     {
@@ -512,7 +512,7 @@ void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const Ped
     }
 }
 
-void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian)
+void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     if (pedestrian->mCurrentCar)
     {
@@ -538,7 +538,7 @@ void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const 
     pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_SittingOnBike : eSpriteAnimationID_Ped_SittingInCar, eSpriteAnimLoop_None);
 }
 
-void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian)
+void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->mCurrentCar->RemovePassenger(pedestrian);
 }

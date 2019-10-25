@@ -48,11 +48,6 @@ public:
     // @param remap: Remap index, can only be used for pedestrian and car sprites
     int GetSpritePaletteIndex(int spriteClut, int remapClut) const;
 
-    // Get remap clut index for pedestrian and car sprites
-    // @returns value that can be used in GetSpritePaletteIndex
-    int GetCarRemapClut(int carStyleIndex, int remap) const;
-    int GetPedRemapClut(int remap) const;
-
     // Get number of textures total or for specific block type only
     // @param blockType: Block type
     int GetBlockTexturesCount(eBlockType blockType) const;
@@ -101,6 +96,9 @@ public:
     // @param animationID: Animation identifier
     // @param animationData: Output data
     bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
+
+    // Get base clut index for pedestrian sprites
+    int GetPedestrianRemapsBaseIndex() const;
 
 private:
     // apply single delta on sprite

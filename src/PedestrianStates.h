@@ -52,7 +52,7 @@ public:
 
     // @param transitionEvent: optional, but some states will require for startup params
     virtual void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
-    virtual void ProcessStateExit(Pedestrian* pedestrian) { }
+    virtual void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
     virtual void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) { }
     virtual void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) { }
 
@@ -145,7 +145,7 @@ public:
     PedestrianStateFalling() : PedestrianBaseState(ePedestrianState_Falling) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
 // process state ePedestrianState_SlideOnCar
@@ -167,7 +167,7 @@ public:
     PedestrianStateEnterCar() : PedestrianBaseState(ePedestrianState_EnteringCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
 // process state ePedestrianState_ExitingCar
@@ -177,7 +177,7 @@ public:
     PedestrianStateExitCar() : PedestrianBaseState(ePedestrianState_ExitingCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
 // process state ePedestrianState_DrivingCar
@@ -187,7 +187,7 @@ public:
     PedestrianStateDrivingCar() : PedestrianBaseState(ePedestrianState_DrivingCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 

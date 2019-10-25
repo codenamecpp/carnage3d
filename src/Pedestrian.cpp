@@ -93,7 +93,8 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
-    int remapClut = gGameMap.mStyleData.GetPedRemapClut(mRemapIndex);
+
+    int remapClut = mRemapIndex == NO_REMAP ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
     gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, remapClut, mDrawSprite);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
@@ -197,7 +198,7 @@ void Pedestrian::ChangeState(PedestrianBaseState* nextState, const PedestrianSta
     debug_assert(nextState);
     if (mCurrentState)
     {
-        mCurrentState->ProcessStateExit(this);
+        mCurrentState->ProcessStateExit(this, transitionEvent);
     }
     mCurrentState = nextState;
     if (mCurrentState)

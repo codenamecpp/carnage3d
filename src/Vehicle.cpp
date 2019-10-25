@@ -61,7 +61,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsComponent->GetPosition();
     ComputeDrawHeight(position);
 
-    int remapClut = gGameMap.mStyleData.GetCarRemapClut(mCarStyle->mCarStyleIndex, mRemapIndex);
+    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
     gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mChassisDrawSprite);
 
     mChassisDrawSprite.mPosition.x = position.x;

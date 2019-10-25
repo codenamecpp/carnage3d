@@ -525,13 +525,13 @@ decl_enum_strings(eCarConvertible);
 struct CarStyle
 {
 public:
-    int mCarStyleIndex;
     short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
     short mSprNum; // first sprite number offset for this car
     short mWeight;	
     short mMaxSpeed, mMinSpeed;
     short mAcceleration, mBraking;
     short mGrip, mHandling;
+    short mRemapsBaseIndex;
     HLSRemap mRemap[MAX_CAR_REMAPS];
     eCarVType mVType; // is a descriptor of the type of car / vehicle
     eCarModel mModelId;

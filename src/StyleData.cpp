@@ -306,32 +306,6 @@ int StyleData::GetSpritePaletteIndex(int spriteClut, int remapClut) const
     return mPaletteIndices[mTileClutsCount + spriteClut];
 }
 
-int StyleData::GetCarRemapClut(int carStyleIndex, int remap) const
-{
-    if (remap < 0)
-        return 0;
-
-    debug_assert(remap < MAX_CAR_REMAPS);
-
-    int remapIndex = carStyleIndex * MAX_CAR_REMAPS + remap;
-    debug_assert(remapIndex < mRemapClutsCount);
-
-    return remapIndex;
-}
-
-int StyleData::GetPedRemapClut(int remap) const
-{
-    if (remap < 0)
-        return 0;
-
-    debug_assert(remap < MAX_PED_REMAPS);
-
-    int remapClut = (mRemapClutsCount - MAX_PED_REMAPS) + remap;
-    debug_assert(remapClut > -1);
-
-    return remapClut;
-}
-
 bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY, int remap)
 {
     // target bitmap must be allocated otherwise operation makes no sence
@@ -739,7 +713,7 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         const std::streampos startStreamPos = file.tellg();
 
         CarStyle carInfo;
-        carInfo.mCarStyleIndex = icurrent;
+        carInfo.mRemapsBaseIndex = icurrent * MAX_CAR_REMAPS;
 
         READ_SI16(file, carInfo.mWidth);
         READ_SI16(file, carInfo.mHeight);
@@ -980,4 +954,12 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileStanding].Setup(170, 2);
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileWalking].Setup(154, 8);
     mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileRunning].Setup(162, 8);
+}
+
+int StyleData::GetPedestrianRemapsBaseIndex() const
+{
+    int remapsBaseIndex = (mRemapClutsCount - MAX_PED_REMAPS);
+    debug_assert(remapsBaseIndex > -1);
+
+    return remapsBaseIndex;
 }
