@@ -303,7 +303,9 @@ bool GameObjectsManager::CreateStartupObjects()
                 (1.0f * currObject.mY) / MAP_PIXELS_PER_TILE 
             };
 
-            Vehicle* startupCar = CreateCar(carPosition, currObject.mRotation, carModel);
+            float rotationDegrees = ANG16_TO_DEGREES(currObject.mRotation);
+
+            Vehicle* startupCar = CreateCar(carPosition, cxx::angle_t::from_degrees(rotationDegrees), carModel);
             debug_assert(startupCar);
 
             ++numCars;

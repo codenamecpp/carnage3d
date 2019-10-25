@@ -401,16 +401,9 @@ bool GameMapManager::ReadStartupObjects(std::ifstream& file, int dataSize)
         READ_I8(file, currRecord.mType);
         READ_I8(file, currRecord.mRemap);
 
-        unsigned short fix16angle;
-
-        READ_I16(file, fix16angle);
-        currRecord.mRotation = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
-
-        READ_I16(file, fix16angle);
-        currRecord.mPitch = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
-
-        READ_I16(file, fix16angle);
-        currRecord.mRoll = cxx::angle_t::from_degrees((fix16angle / 1024.0f) * 360.0f + 90.0f);
+        READ_I16(file, currRecord.mRotation);
+        READ_I16(file, currRecord.mPitch);
+        READ_I16(file, currRecord.mRoll);
     }
 
     return true;

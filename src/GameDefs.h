@@ -19,6 +19,9 @@
 #define MAP_DIMENSIONS 256
 #define MAP_LAYERS_COUNT 6
 
+// convert object Ang16 to angle
+#define ANG16_TO_DEGREES(ang16) (((ang16) / 1024.0f) * 360.0f - 90.0f)
+
 #define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
@@ -610,9 +613,9 @@ public:
     unsigned char mType; // is the object type - a code between zero and the maximum number of object types which gives an index into the object info
     unsigned char mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
 
-    cxx::angle_t mRotation;
-    cxx::angle_t mPitch;
-    cxx::angle_t mRoll;
+    unsigned short mRotation;
+    unsigned short mPitch;
+    unsigned short mRoll;
 };
 
 // various sprites animations
