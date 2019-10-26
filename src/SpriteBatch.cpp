@@ -14,6 +14,7 @@ bool SpriteBatch::Initialize()
 
 void SpriteBatch::Deinit()
 {
+    mTrimeshBuffer.Deinit();
     Clear();
 }
 
@@ -139,8 +140,6 @@ void SpriteBatch::GenerateSpritesBatches()
 
 void SpriteBatch::RenderSpritesBatches()
 {
-    FrameVertexCache& vertscache = gRenderManager.mFrameVertexCache;
-
     RenderStates cityMeshRenderStates;
     cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
@@ -148,31 +147,16 @@ void SpriteBatch::RenderSpritesBatches()
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices();
 
-    TransientBuffer vBuffer;
-    TransientBuffer iBuffer;
-    if (!vertscache.AllocVertex(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data(), vBuffer))
-    {
-        debug_assert(false);
-        return;
-    }
-
-    if (!vertscache.AllocIndex(Sizeof_DrawIndex * mDrawIndices.size(), mDrawIndices.data(), iBuffer))
-    {
-        debug_assert(false);
-        return;
-    }
-
     SpriteVertex3D_Format vFormat;
-    vFormat.mBaseOffset = vBuffer.mBufferDataOffset;
-
-    gGraphicsDevice.BindVertexBuffer(vBuffer.mGraphicsBuffer, vFormat);
-    gGraphicsDevice.BindIndexBuffer(iBuffer.mGraphicsBuffer);
+    mTrimeshBuffer.SetVertices(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data());
+    mTrimeshBuffer.SetIndices(Sizeof_DrawIndex * mDrawIndices.size(), mDrawIndices.data());
+    mTrimeshBuffer.Bind(vFormat);
 
     for (const DrawSpriteBatch& currBatch: mBatchesList)
     {
         gGraphicsDevice.BindTexture(eTextureUnit_0, currBatch.mSpriteTexture);
 
-        unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_DrawIndex * currBatch.mFirstIndex;
+        unsigned int idxBufferOffset = Sizeof_DrawIndex * currBatch.mFirstIndex;
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);
     }
 

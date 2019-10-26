@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#include "TrimeshBuffer.h"
 
 class GuiRenderContext;
 class DebugWindow;
@@ -35,6 +36,9 @@ private:
     // internals
     bool AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize);
     void SetupStyle(ImGuiIO& imguiIO);
+
+private:
+    TrimeshBuffer mTrimeshBuffer;
 };
 
 extern ImGuiManager gImGuiManager;

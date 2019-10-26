@@ -298,11 +298,11 @@
     <ClInclude Include="GpuBufferTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="FrameVertexCache.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Convert.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TrimeshBuffer.h">
+      <Filter>Game\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -470,7 +470,7 @@
     <ClCompile Include="GpuBufferTexture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="FrameVertexCache.cpp">
+    <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>

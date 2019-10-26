@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
-#include "FrameVertexCache.h"
+#include "TrimeshBuffer.h"
 #include "Sprite2D.h"
 
 // defines renderer class for 2d sprites
@@ -45,4 +45,5 @@ private:
     std::vector<DrawIndex> mDrawIndices;
 
     std::list<DrawSpriteBatch> mBatchesList;
+    TrimeshBuffer mTrimeshBuffer;
 };
