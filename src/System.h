@@ -42,6 +42,7 @@ public:
 
 public:
     cxx::string_buffer_16 mDebugMapName; // startup map name
+    cxx::string_buffer_256 mGtaDataLocation; // force gta data location
 };
 
 // Common system specific stuff collected in System class

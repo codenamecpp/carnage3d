@@ -16,6 +16,12 @@ int main(int argc, char *argv[])
             iarg += 2;
             continue;
         }
+        if (cxx_stricmp(argv[iarg], "-gtadata") == 0 && (argc > iarg + 1))
+        {
+            sysStartupParams.mGtaDataLocation.set_content(argv[iarg + 1]);
+            iarg += 2;
+            continue;
+        }
         ++iarg;
     }
 

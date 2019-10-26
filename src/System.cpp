@@ -42,6 +42,7 @@ void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, boo
 void SysStartupParameters::SetNull()
 {
     mDebugMapName.clear();
+    mGtaDataLocation.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -270,7 +271,14 @@ bool System::LoadConfiguration()
 
     // gta1 data files location
     const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
-    if (gta_data_root)
+
+    // override data location with startup param
+    if (!mStartupParams.mGtaDataLocation.empty())
+    {
+        gta_data_root = mStartupParams.mGtaDataLocation.c_str();
+    }
+
+    if (*gta_data_root)
     {
         if (!cxx::is_directory_exists(gta_data_root))
         {
@@ -278,6 +286,7 @@ bool System::LoadConfiguration()
         }
         else
         {
+            gFiles.AddSearchPlace(gta_data_root);
             gConsole.LogMessage(eLogMessage_Info, "gta_gamedata_location: '%s'", gta_data_root);
         }
     }
@@ -285,7 +294,6 @@ bool System::LoadConfiguration()
     {
         gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location param is null");
     }
-    gFiles.AddSearchPlace(gta_data_root);
 
     // memory
     if (cxx::config_node memConfig = configDocument.get_root_node().get_child("memory"))
