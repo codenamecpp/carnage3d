@@ -157,6 +157,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
+    <ClInclude Include="Convert.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="mem_allocators.h" />

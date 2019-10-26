@@ -301,6 +301,9 @@
     <ClInclude Include="FrameVertexCache.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Convert.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

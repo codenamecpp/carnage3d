@@ -298,12 +298,12 @@ bool GameObjectsManager::CreateStartupObjects()
 
             glm::vec3 carPosition 
             { 
-                (1.0f * currObject.mX) / MAP_PIXELS_PER_TILE,
-                (1.0f * currObject.mZ) / MAP_PIXELS_PER_TILE,
-                (1.0f * currObject.mY) / MAP_PIXELS_PER_TILE 
+                ConvertPixelsToMap(currObject.mX),
+                ConvertPixelsToMap(currObject.mZ),
+                ConvertPixelsToMap(currObject.mY) 
             };
 
-            float rotationDegrees = ANG16_TO_DEGREES(currObject.mRotation);
+            float rotationDegrees = ConvertFixAngleToDegs(currObject.mRotation);
 
             Vehicle* startupCar = CreateCar(carPosition, cxx::angle_t::from_degrees(rotationDegrees), carModel);
             debug_assert(startupCar);

@@ -19,9 +19,6 @@
 #define MAP_DIMENSIONS 256
 #define MAP_LAYERS_COUNT 6
 
-// convert object Ang16 to angle
-#define ANG16_TO_DEGREES(ang16) (((ang16) / 1024.0f) * 360.0f - 90.0f)
-
 #define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees

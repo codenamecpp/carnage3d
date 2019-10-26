@@ -384,8 +384,8 @@ bool Vehicle::GetDoorPosLocal(int doorIndex, glm::vec2& out) const
 {
     if (doorIndex > -1 && doorIndex < mCarStyle->mDoorsCount)
     {
-        out.x = (1.0f * mCarStyle->mDoors[doorIndex].mRpy / MAP_PIXELS_PER_TILE);
-        out.y = -(1.0f * mCarStyle->mDoors[doorIndex].mRpx / MAP_PIXELS_PER_TILE);
+        out.x = ConvertPixelsToMap(mCarStyle->mDoors[doorIndex].mRpy);
+        out.y = -ConvertPixelsToMap(mCarStyle->mDoors[doorIndex].mRpx);
         return true;
     }
 
@@ -421,7 +421,7 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
         }
         else
         {
-            out.y = -(1.0f * mCarStyle->mWidth / MAP_PIXELS_PER_TILE) * 0.25f;
+            out.y = -ConvertPixelsToMap(mCarStyle->mWidth) * 0.25f; // todo: invert in uk
         }
         out.x = doorLocalPos.x;
         return true;

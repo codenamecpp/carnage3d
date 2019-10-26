@@ -112,3 +112,4 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "GuiSystem.h"
 #include "PixelsArray.h"
 #include "GameDefs.h"
+#include "Convert.h"
