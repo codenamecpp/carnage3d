@@ -27,6 +27,8 @@ public:
     float mScreenAspectRatio = 1.0f;
     // memory settings
     bool mEnableFrameHeapAllocator = true;
+    // debug settings
+    bool mShowImguiDemoWindow = false;
 };
 
 // defines system startup parameters

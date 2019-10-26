@@ -180,8 +180,11 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
 
     ImGui::NewFrame();
 
-    //ImGui::ShowDemoWindow();
-    //ImGui::ShowMetricsWindow();
+    if (gSystem.mConfig.mShowImguiDemoWindow)
+    {
+        ImGui::ShowDemoWindow();
+        ImGui::ShowMetricsWindow();
+    }
 
     bool anyWindowShown = false;
 

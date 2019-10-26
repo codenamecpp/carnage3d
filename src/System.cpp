@@ -292,6 +292,12 @@ bool System::LoadConfiguration()
     {
         mConfig.mEnableFrameHeapAllocator = memConfig.get_child("enable_frame_heap_allocator").get_value_boolean();
     }
+
+    // debug
+    if (cxx::config_node memConfig = configDocument.get_root_node().get_child("debug"))
+    {
+        mConfig.mShowImguiDemoWindow = memConfig.get_child("show_imgui_demo_window").get_value_boolean();
+    }
     return true;
 }
 
