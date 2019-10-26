@@ -33,8 +33,6 @@ Run these commands in terminal:
 * cd carnage3d
 * make
 
-Done! Now proceed to __How To Run__ section below.
-
 ## Compiling on Windows ##
 You will need Visual Studio 2015 Community Edition to build project.
 Before compile, add system environment variable __SDKDIR__ with path where all the dependencies lives. These dependencies are:
@@ -42,16 +40,26 @@ Before compile, add system environment variable __SDKDIR__ with path where all t
 * GLM
 * GLFW
 
-## How To Run ##
-Game needs to be configured before launch, there is example config document in __gamedata/config/sys_config.json.default__ - it must be copy-pasted to same directory but withoud ".default" suffix: __gamedata/config/sys_config.json__ . 
+## Configure ##
+Game needs to be configured before launch, there is example config document in __gamedata/config/sys_config.json.default__ - it must be copy-pasted to same directory but withoud ".default" suffix: __gamedata/config/sys_config.json__ .
 
-Set screen resolution (optionally) but most importand you must specify path to original GTA1 game data - __gta_gamedata_location__
+Most important param there is __gta_gamedata_location__ - it is location of GTA1 gamedata resources.
+
+## How To Run ##
 
 **Original GTA1 game resources required in order to play (Full or DEMO)**. Demo version still available for download https://www.rockstargames.com/gta/extras/demos.html .
 
-To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
+It is possible to download and play demo version of the game easily just typing a few commands in console:
+* make get_demoversion
+* make run_demoversion
+
+Note that game must be compiled and configured before this step as described above.
 
 Tested on Ubuntu Linux and Windows 7 64bits.
+
+## Command Line Params ##
+
+To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
 
 ## Controls ##
 It is similar to original:
