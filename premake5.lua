@@ -3,7 +3,8 @@ workspace "carnage3d"
    configurations { "Debug", "Release" }
    cppdialect 'C++17'
 
-buildoptions { "-Wno-switch", "-fsanitize=address", "-fsanitize=undefined" }
+configuration { "linux", "gmake" }
+   buildoptions { "-Wno-switch", "-fsanitize=address", "-fsanitize=undefined" }
    linkoptions { "-fsanitize=address", "-fsanitize=undefined" }
 
 filter 'system:linux'
