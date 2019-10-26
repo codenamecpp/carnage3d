@@ -13,12 +13,21 @@ build_release: box2d premake
 	test -d bin || mkdir bin
 	cp .build/bin/x86_64/Release/carnage3d bin/carnage3d-release
 
+get_demoversion:
+	mkdir -p gamedata/demoversions
+	cd gamedata/demoversions 
+	wget "https://www.rockstargames.com/gta/demos/gtaects.zip" -O gamedata/demoversions/gtaects.zip
+	unzip gamedata/demoversions/gtaects.zip -d gamedata/demoversions
+
 clean:
 	.build/premake5 gmake --cc=clang
 	make -C .build clean
 
 run:
-	bin/carnage3d-release
+	./bin/carnage3d-debug
+	
+run_demoversion:
+	./bin/carnage3d-debug -mapname SANB.CMP -gtadata "gamedata/demoversions/GTAECTS/GTADATA"
 
 builddir: 
 	test -d .build || mkdir .build
