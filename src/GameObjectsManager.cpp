@@ -295,10 +295,11 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
+            int mapLevel = ConvertMapLevel(ConvertPixelsToTilePos(currObject.mZ));
             glm::vec3 carPosition 
             { 
                 ConvertPixelsToMap(currObject.mX),
-                ConvertPixelsToMap(currObject.mZ),
+                mapLevel * 1.0f,
                 ConvertPixelsToMap(currObject.mY) 
             };
 
