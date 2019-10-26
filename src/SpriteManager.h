@@ -37,15 +37,15 @@ public:
     // force drop cached sprites
     // @param objectID: Specific object identifier
     void FlushSpritesCache();
-    void FlushSpritesCache(GameObjectID_t objectID);
+    void FlushSpritesCache(GameObjectID objectID);
 
     // create sprite texture with deltas specified
     // @param objectID: Game object that owns sprite
     // @param spriteIndex: Sprite index, linear
     // @param deltaBits: Sprite delta bits
     // @param sourceSprite: Sprite data
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite);
-    void GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, Sprite2D& sourceSprite);
+    void GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, SpriteDeltaBits deltaBits, Sprite2D& sourceSprite);
+    void GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, Sprite2D& sourceSprite);
 
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const char* outputLocation);
@@ -84,9 +84,9 @@ private:
     struct SpriteCacheElement
     {
     public:
-        GameObjectID_t mObjectID; // object identifier which this sprite belongs to
+        GameObjectID mObjectID; // object identifier which this sprite belongs to
         int mSpriteIndex;
-        SpriteDeltaBits_t mSpriteDeltaBits; // all deltas applied to this sprite
+        SpriteDeltaBits mSpriteDeltaBits; // all deltas applied to this sprite
         GpuTexture2D* mTexture;
         TextureRegion mTextureRegion;
     };

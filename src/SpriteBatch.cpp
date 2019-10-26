@@ -64,7 +64,7 @@ void SpriteBatch::GenerateSpritesBatches()
     SpriteVertex3D* vertexData = mDrawVertices.data();
 
     mDrawIndices.resize(totalIndexCount);
-    DrawIndex_t* indexData = mDrawIndices.data();
+    DrawIndex* indexData = mDrawIndices.data();
 
     // initial batch
     mBatchesList.clear();
@@ -156,7 +156,7 @@ void SpriteBatch::RenderSpritesBatches()
         return;
     }
 
-    if (!vertscache.AllocIndex(Sizeof_DrawIndex_t * mDrawIndices.size(), mDrawIndices.data(), iBuffer))
+    if (!vertscache.AllocIndex(Sizeof_DrawIndex * mDrawIndices.size(), mDrawIndices.data(), iBuffer))
     {
         debug_assert(false);
         return;
@@ -172,7 +172,7 @@ void SpriteBatch::RenderSpritesBatches()
     {
         gGraphicsDevice.BindTexture(eTextureUnit_0, currBatch.mSpriteTexture);
 
-        unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_DrawIndex_t * currBatch.mFirstIndex;
+        unsigned int idxBufferOffset = iBuffer.mBufferDataOffset + Sizeof_DrawIndex * currBatch.mFirstIndex;
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);
     }
 

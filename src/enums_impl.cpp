@@ -416,5 +416,8 @@ impl_enum_strings(eGameObjectType)
 {
     {eGameObjectType_Pedestrian, "pedestrian"},
     {eGameObjectType_Car, "car"},
-    {eGameObjectType_MapObject, "map_object"},
+    {eGameObjectType_Projectile, "projectile"},
+    {eGameObjectType_Powerup, "powerup"},
+    {eGameObjectType_Decoration, "decoration"},
+    {eGameObjectType_Obstacle, "obstacle"},
 };

@@ -8,7 +8,7 @@
 #include "PedestrianStates.h"
 #include "Vehicle.h"
 
-Pedestrian::Pedestrian(GameObjectID_t id)
+Pedestrian::Pedestrian(GameObjectID id)
     : GameObject(eGameObjectType_Pedestrian, id)
     , mPhysicsComponent()
     , mCurrentAnimID(eSpriteAnimationID_Null)

@@ -42,7 +42,7 @@ private:
 
     // draw data buffers
     std::vector<SpriteVertex3D> mDrawVertices;
-    std::vector<DrawIndex_t> mDrawIndices;
+    std::vector<DrawIndex> mDrawIndices;
 
     std::list<DrawSpriteBatch> mBatchesList;
 };

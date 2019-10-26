@@ -90,7 +90,7 @@ void GameObjectsManager::DebugDraw()
 
 Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position)
 {
-    GameObjectID_t pedestrianID = GenerateUniqueID();
+    GameObjectID pedestrianID = GenerateUniqueID();
 
     Pedestrian* instance = mPedestriansPool.create(pedestrianID);
     debug_assert(instance);
@@ -103,7 +103,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position)
     return instance;
 }
 
-Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID_t objectID) const
+Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
 {
     for (const Pedestrian* currVehicle: mActivePedestriansList)
     {
@@ -118,7 +118,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t c
     StyleData& styleData = gGameMap.mStyleData;
 
     debug_assert(styleData.IsLoaded());
-    GameObjectID_t carID = GenerateUniqueID();
+    GameObjectID carID = GenerateUniqueID();
 
     Vehicle* instance = mCarsPool.create(carID);
     debug_assert(instance);
@@ -145,7 +145,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t c
     return nullptr;
 }
 
-Vehicle* GameObjectsManager::GetCarByID(GameObjectID_t objectID) const
+Vehicle* GameObjectsManager::GetCarByID(GameObjectID objectID) const
 {
     for (const Vehicle* currVehicle: mActiveCarsList)
     {
@@ -267,9 +267,9 @@ void GameObjectsManager::DestroyPendingObjects()
     DestroyObjectsInList(mDeleteCarsList);
 }
 
-GameObjectID_t GameObjectsManager::GenerateUniqueID()
+GameObjectID GameObjectsManager::GenerateUniqueID()
 {
-    GameObjectID_t newID = ++mIDsCounter;
+    GameObjectID newID = ++mIDsCounter;
     if (newID == 0) // overflow
     {
         debug_assert(false);
@@ -295,7 +295,6 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-
             glm::vec3 carPosition 
             { 
                 ConvertPixelsToMap(currObject.mX),

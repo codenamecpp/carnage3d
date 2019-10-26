@@ -8,7 +8,7 @@
 #include "SpriteManager.h"
 #include "Pedestrian.h"
 
-Vehicle::Vehicle(GameObjectID_t id)
+Vehicle::Vehicle(GameObjectID id)
     : GameObject(eGameObjectType_Car, id)
     , mActiveCarsNode(this)
     , mDeleteCarsNode(this)
@@ -192,9 +192,9 @@ void Vehicle::ComputeDrawHeight(const glm::vec3& position)
     mDrawHeight = maxHeight + 0.02f; // todo: magic numbers
 }
 
-SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
+SpriteDeltaBits Vehicle::GetSpriteDeltas() const
 {
-    SpriteDeltaBits_t deltaBits = mDamageDeltaBits;
+    SpriteDeltaBits deltaBits = mDamageDeltaBits;
 
     // add doors
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
@@ -218,7 +218,7 @@ SpriteDeltaBits_t Vehicle::GetSpriteDeltas() const
 
 void Vehicle::SetupDeltaAnimations()
 {
-    SpriteDeltaBits_t deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
+    SpriteDeltaBits deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
 
     mEmergLightsAnim.SetNull();
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
@@ -226,7 +226,7 @@ void Vehicle::SetupDeltaAnimations()
         mDoorsAnims[idoor].SetNull();
     }
 
-    SpriteDeltaBits_t maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
+    SpriteDeltaBits maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
     if ((deltaBits & maskBits) == maskBits)
     {
         mEmergLightsAnim.SetNull();

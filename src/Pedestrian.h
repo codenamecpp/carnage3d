@@ -34,7 +34,7 @@ public:
 
 public:
     // @param id: Unique object identifier, constant
-    Pedestrian(GameObjectID_t id);
+    Pedestrian(GameObjectID id);
     ~Pedestrian();
 
     // setup initial state when spawned on level

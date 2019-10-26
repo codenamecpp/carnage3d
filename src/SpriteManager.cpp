@@ -493,7 +493,7 @@ void SpriteManager::FlushSpritesCache()
     mSpritesCache.clear();
 }
 
-void SpriteManager::FlushSpritesCache(GameObjectID_t objectID)
+void SpriteManager::FlushSpritesCache(GameObjectID objectID)
 {
     for (auto icurrent = mSpritesCache.begin(); icurrent != mSpritesCache.end(); )
     {
@@ -518,7 +518,7 @@ void SpriteManager::DestroySpriteTextures()
     mFreeSpriteTextures.clear();
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, SpriteDeltaBits_t deltaBits, Sprite2D& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, SpriteDeltaBits deltaBits, Sprite2D& sourceSprite)
 {
     sourceSprite.mTexture = nullptr;
     if (deltaBits == 0)
@@ -623,7 +623,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, i
     mSpritesCache.push_back(spriteCacheElement);
 }
 
-void SpriteManager::GetSpriteTexture(GameObjectID_t objectID, int spriteIndex, int remap, Sprite2D& sourceSprite)
+void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, Sprite2D& sourceSprite)
 {
     debug_assert(remap >= 0);
 

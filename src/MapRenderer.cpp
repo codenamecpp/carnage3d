@@ -92,7 +92,7 @@ void MapRenderer::CommitCityMeshData()
     if (totalIndexCount == 0 || totalVertexCount == 0)
         return;
 
-    int totalIndexDataBytes = totalIndexCount * Sizeof_DrawIndex_t;
+    int totalIndexDataBytes = totalIndexCount * Sizeof_DrawIndex;
     int totalVertexDataBytes = totalVertexCount * Sizeof_CityVertex3D;
 
     // upload vertex data
@@ -118,7 +118,7 @@ void MapRenderer::CommitCityMeshData()
         char* pcursor = static_cast<char*>(pdata);
         for (int iLayer = 0; iLayer < MAP_LAYERS_COUNT; ++iLayer)
         {
-            int dataLength = mCityMeshData[iLayer].mBlocksIndices.size() * Sizeof_DrawIndex_t;
+            int dataLength = mCityMeshData[iLayer].mBlocksIndices.size() * Sizeof_DrawIndex;
             if (mCityMeshData[iLayer].mBlocksIndices.empty())
                 continue;
             memcpy(pcursor, mCityMeshData[iLayer].mBlocksIndices.data(), dataLength);
@@ -201,7 +201,7 @@ void MapRenderer::DrawCityMesh()
             int numVertices = mCityMeshData[i].mBlocksVertices.size();
             if (gGameCheatsWindow.mDrawMapLayers[i])
             {
-                int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex_t;
+                int currIndexOffsetBytes = currIndexOffset * Sizeof_DrawIndex;
                 gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, currIndexOffsetBytes, numIndices, currBaseVertex);
             }
             currIndexOffset += numIndices;

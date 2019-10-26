@@ -406,5 +406,10 @@ bool GameMapManager::ReadStartupObjects(std::ifstream& file, int dataSize)
         READ_I16(file, currRecord.mRoll);
     }
 
+    // remove duplicates -
+    // objects list contains a number of identical car records for some reason
+    // so it better get rid of them
+    std::set<StartupObjectPosStruct> uniqueObjects {mStartupObjects.begin(), mStartupObjects.end()};
+    mStartupObjects.assign(uniqueObjects.begin(), uniqueObjects.end());
     return true;
 }

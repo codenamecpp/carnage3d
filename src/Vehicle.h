@@ -27,7 +27,7 @@ public:
 
 public:
     // @param id: Unique object identifier, constant
-    Vehicle(GameObjectID_t id);
+    Vehicle(GameObjectID id);
     ~Vehicle();
 
     // setup initial state when spawned on level
@@ -86,14 +86,14 @@ private:
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations(Timespan deltaTime);
 
-    SpriteDeltaBits_t GetSpriteDeltas() const;
+    SpriteDeltaBits GetSpriteDeltas() const;
 
 private:
     Sprite2D mChassisDrawSprite;
 
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
-    SpriteDeltaBits_t mDamageDeltaBits;
+    SpriteDeltaBits mDamageDeltaBits;
 
     int mChassisSpriteIndex = 0;
 

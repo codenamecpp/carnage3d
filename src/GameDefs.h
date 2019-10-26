@@ -58,6 +58,20 @@
 class Pedestrian;
 class Vehicle;
 
+// enums all possible gameobject types
+enum eGameObjectType
+{
+    eGameObjectType_Pedestrian,
+    eGameObjectType_Car,
+    eGameObjectType_Projectile,
+    eGameObjectType_Powerup,
+    eGameObjectType_Decoration,
+    eGameObjectType_Obstacle,
+    eGameObjectType_COUNT,
+};
+
+decl_enum_strings(eGameObjectType);
+
 // map block lid rotation
 enum eLidRotation : unsigned char
 {
@@ -135,10 +149,10 @@ enum eBlockFace : unsigned short
 
 decl_enum_strings(eBlockFace);
 
-using SpriteDeltaBits_t = unsigned int;
-static_assert(sizeof(SpriteDeltaBits_t) * 8 >= MAX_SPRITE_DELTAS, "Delta bits underlying type is too small, see MAX_SPRITE_DELTAS");
+using SpriteDeltaBits = unsigned int;
+static_assert(sizeof(SpriteDeltaBits) * 8 >= MAX_SPRITE_DELTAS, "Delta bits underlying type is too small, see MAX_SPRITE_DELTAS");
 
-using GameObjectID_t = unsigned int;
+using GameObjectID = unsigned int;
 
 // defines draw vertex of city mesh
 struct CityVertex3D
@@ -268,7 +282,7 @@ public:
 
 public:
     std::vector<TVertexType> mBlocksVertices;
-    std::vector<DrawIndex_t> mBlocksIndices;
+    std::vector<DrawIndex> mBlocksIndices;
 };
 
 // defines picture rectanle within sprite atlas
@@ -583,9 +597,9 @@ public:
     DeltaInfo mDeltas[MAX_SPRITE_DELTAS];
 
     // get sprite delta bits
-    inline SpriteDeltaBits_t GetDeltaBits() const
+    inline SpriteDeltaBits GetDeltaBits() const
     {
-        SpriteDeltaBits_t deltaBits = 0;
+        SpriteDeltaBits deltaBits = 0;
         for (int idelta = 0; idelta < mDeltaCount; ++idelta)
         {
             deltaBits |= BIT(idelta);
@@ -601,18 +615,30 @@ public:
     StartupObjectPosStruct() = default;
 
     inline bool IsCarObject() const { return mRemap > 127; }
-
+    
+    inline bool operator < (const StartupObjectPosStruct& rhs) const
+    {
+        return memcmp(this, &rhs, sizeof(StartupObjectPosStruct)) < 0;
+    }
+    inline bool operator == (const StartupObjectPosStruct& rhs) const
+    {
+        return memcmp(this, &rhs, sizeof(StartupObjectPosStruct)) == 0;
+    }
+    inline bool operator > (const StartupObjectPosStruct& rhs) const
+    {
+        return memcmp(this, &rhs, sizeof(StartupObjectPosStruct)) > 0;
+    }
 public:
     unsigned short mX; 
     unsigned short mY;
     unsigned short mZ; // here, (x,y,z) is the position of the object in the world, stated in world co-ordinates
 
-    unsigned char mType; // is the object type - a code between zero and the maximum number of object types which gives an index into the object info
-    unsigned char mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
-
     unsigned short mRotation;
     unsigned short mPitch;
     unsigned short mRoll;
+
+    unsigned short mType; // is the object type - a code between zero and the maximum number of object types which gives an index into the object info
+    unsigned short mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
 };
 
 // various sprites animations
