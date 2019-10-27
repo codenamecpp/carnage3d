@@ -304,6 +304,9 @@
     <ClInclude Include="TrimeshBuffer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="InputActionsMapping.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -472,6 +475,9 @@
     </ClCompile>
     <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="InputActionsMapping.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

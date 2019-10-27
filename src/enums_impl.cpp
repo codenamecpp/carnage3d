@@ -89,6 +89,7 @@ impl_enum_strings(eGamepadButton)
 
 impl_enum_strings(eInputControllerType)
 {
+    {eInputControllerType_None, "None"},
     {eInputControllerType_Keyboard, "Keyboard"},
     {eInputControllerType_Gamepad1, "Gamepad1"},
     {eInputControllerType_Gamepad2, "Gamepad2"},

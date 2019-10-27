@@ -116,6 +116,7 @@ decl_enum_strings(eGamepadButton);
 // input controller
 enum eInputControllerType
 {
+    eInputControllerType_None,
     eInputControllerType_Keyboard,
     eInputControllerType_Gamepad1,
     eInputControllerType_Gamepad2,
