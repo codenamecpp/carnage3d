@@ -71,6 +71,7 @@ public:
     // animation control
 
     void StopAnimation();
+    void StopAnimationAtEnd(); // disable current loop mode
 
     // play animation from current position
     void PlayAnimation(eSpriteAnimLoop animLoop);

@@ -58,6 +58,11 @@ public:
     bool IsCarPassenger() const;
     bool IsCarDriver() const;
 
+    // check if pedestrian is in specific state
+    bool IsStanding() const;
+    bool IsShooting() const;
+    bool IsWalking() const;
+
     // detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
 

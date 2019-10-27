@@ -82,6 +82,9 @@ protected:
     PedestrianStateIdleBase(ePedestrianState stateIdentifier) : PedestrianBaseState(stateIdentifier) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+
+protected:
+    bool CanInterrupCurrentIdleAnim(Pedestrian* pedestrian) const;
 };
 
 // process state ePedestrianState_StandingStill

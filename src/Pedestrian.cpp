@@ -278,6 +278,26 @@ bool Pedestrian::IsCarDriver() const
     return false;
 }
 
+bool Pedestrian::IsStanding() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return (currState == ePedestrianState_StandingStill || currState == ePedestrianState_StandsAndShoots);
+}
+
+bool Pedestrian::IsShooting() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return (currState == ePedestrianState_StandsAndShoots || currState == ePedestrianState_WalksAndShoots ||
+        currState == ePedestrianState_RunsAndShoots);
+}
+
+bool Pedestrian::IsWalking() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return (currState == ePedestrianState_Walks || currState == ePedestrianState_Runs || 
+        currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots);
+}
+
 void Pedestrian::HandleCarEntered()
 {
     debug_assert(mCurrentCar);

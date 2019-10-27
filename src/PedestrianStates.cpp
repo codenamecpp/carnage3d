@@ -150,6 +150,9 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
         return;
     }
 
+    if (!CanInterrupCurrentIdleAnim(pedestrian))
+        return;
+
     ProcessRotateActions(pedestrian, deltaTime);
     ProcessMotionActions(pedestrian, deltaTime);
 
@@ -198,10 +201,23 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
 
 void PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
 {
+    if (!CanInterrupCurrentIdleAnim(pedestrian))
+        return;
+
     if (stateEvent.mID == ePedestrianStateEvent_ActionEnterCar)
     {
         pedestrian->ChangeState(&pedestrian->mStateEnterCar, &stateEvent);
     }
+}
+
+bool PedestrianStateIdleBase::CanInterrupCurrentIdleAnim(Pedestrian* pedestrian) const
+{
+    if (pedestrian->IsStanding() && pedestrian->IsShooting())
+    {
+        return pedestrian->mCurrentAnimState.IsLastFrame() || 
+            !pedestrian->mCurrentAnimState.IsAnimationActive();
+    }
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

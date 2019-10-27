@@ -90,6 +90,11 @@ void SpriteAnimation::StopAnimation()
     mStatus = eSpriteAnimStatus_Stop;
 }
 
+void SpriteAnimation::StopAnimationAtEnd()
+{
+    mLoopMode = eSpriteAnimLoop_None;
+}
+
 void SpriteAnimation::RewindToStart()
 {
     mFrameCursor = 0;
