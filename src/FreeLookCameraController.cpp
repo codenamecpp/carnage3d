@@ -74,22 +74,22 @@ void FreeLookCameraController::InputEvent(KeyInputEvent& inputEvent)
     if (inputEvent.mConsumed)
         return;
 
-    if (inputEvent.mKeycode == KEYCODE_W)
+    if (inputEvent.mKeycode == eKeycode_W)
     {
         mMoveForward = inputEvent.mPressed;
     }
 
-    if (inputEvent.mKeycode == KEYCODE_S)
+    if (inputEvent.mKeycode == eKeycode_S)
     {
         mMoveBackward = inputEvent.mPressed;
     }
 
-    if (inputEvent.mKeycode == KEYCODE_D)
+    if (inputEvent.mKeycode == eKeycode_D)
     {
         mMoveRight = inputEvent.mPressed;
     }
 
-    if (inputEvent.mKeycode == KEYCODE_A)
+    if (inputEvent.mKeycode == eKeycode_A)
     {
         mMoveLeft = inputEvent.mPressed;
     }
@@ -100,7 +100,7 @@ void FreeLookCameraController::InputEvent(MouseButtonInputEvent& inputEvent)
     if (inputEvent.mConsumed)
         return;
 
-    if (inputEvent.mButton == MBUTTON_LEFT)
+    if (inputEvent.mButton == eMButton_LEFT)
     {
         mMouseDragCamera = inputEvent.mPressed;
         if (mMouseDragCamera)

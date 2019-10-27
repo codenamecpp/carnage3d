@@ -14,7 +14,7 @@ void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan delt
 void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 {
     debug_assert(mCharacter);
-    if (inputEvent.mKeycode == KEYCODE_LEFT)
+    if (inputEvent.mKeycode == eKeycode_LEFT)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -27,7 +27,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_RIGHT)
+    if (inputEvent.mKeycode == eKeycode_RIGHT)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -40,7 +40,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_UP)
+    if (inputEvent.mKeycode == eKeycode_UP)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -53,7 +53,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_DOWN)
+    if (inputEvent.mKeycode == eKeycode_DOWN)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -66,7 +66,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_SPACE)
+    if (inputEvent.mKeycode == eKeycode_SPACE)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -79,7 +79,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_TAB)
+    if (inputEvent.mKeycode == eKeycode_TAB)
     {
         if (mCharacter->IsCarPassenger())
         {
@@ -96,31 +96,31 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_LEFT_CTRL)
+    if (inputEvent.mKeycode == eKeycode_LEFT_CTRL)
     {
         mCharacter->mCtlActions[ePedestrianAction_Shoot] = inputEvent.mPressed;
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_Z && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_Z && inputEvent.mPressed)
     {
         SwitchPrevWeapon();
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_X && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_X && inputEvent.mPressed)
     {
         SwitchNextWeapon();
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_ENTER && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_ENTER && inputEvent.mPressed)
     {
         EnterOrExitCar(false);
         inputEvent.SetConsumed();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_F && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_F && inputEvent.mPressed)
     {
         EnterOrExitCar(true);
         inputEvent.SetConsumed();

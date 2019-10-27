@@ -699,7 +699,8 @@ decl_enum_strings(eWeaponType);
 // pedestrian basic action
 enum ePedestrianAction
 {
-    
+    ePedestrianAction_null, // not an action
+
     ePedestrianAction_TurnLeft,
     ePedestrianAction_TurnRight,
     ePedestrianAction_Jump,

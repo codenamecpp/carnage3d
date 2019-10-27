@@ -104,12 +104,12 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
     if (inputEvent.mConsumed)
         return;
 
-    if (inputEvent.mKeycode == KEYCODE_TILDE && inputEvent.mPressed) // show debug console
+    if (inputEvent.mKeycode == eKeycode_TILDE && inputEvent.mPressed) // show debug console
     {
         gDebugConsoleWindow.mWindowShown = !gDebugConsoleWindow.mWindowShown;
         return;
     }
-    if (inputEvent.mKeycode == KEYCODE_F3 && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_F3 && inputEvent.mPressed)
     {
         gRenderManager.ReloadRenderPrograms();
         return;
@@ -117,12 +117,12 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 
     mHumanController.InputEvent(inputEvent);
 
-    if (inputEvent.mKeycode == KEYCODE_ESCAPE && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_ESCAPE && inputEvent.mPressed)
     {
         gSystem.QuitRequest();
     }
 
-    if (inputEvent.mKeycode == KEYCODE_C && inputEvent.mPressed)
+    if (inputEvent.mKeycode == eKeycode_C && inputEvent.mPressed)
     {
         gGameCheatsWindow.mWindowShown = !gGameCheatsWindow.mWindowShown;
     }

@@ -4,6 +4,68 @@
 #include "GraphicsDefs.h"
 #include "GameObject.h"
 
+impl_enum_strings(eKeycode)
+{
+    {eKeycode_ESCAPE, "Escape"},
+    {eKeycode_SPACE, "Space"},
+    {eKeycode_PAGE_UP, "PageUp"},
+    {eKeycode_PAGE_DOWN, "Down"},
+    {eKeycode_HOME, "Home"},
+    {eKeycode_END, "End"},
+    {eKeycode_INSERT, "Insert"},
+    {eKeycode_DELETE, "Delete"},
+    {eKeycode_RIGHT_CTRL, "RCtrl"},
+    {eKeycode_LEFT_CTRL, "LCtrl"},
+    {eKeycode_BACKSPACE, "Backspace"},
+    {eKeycode_ENTER, "Enter"},
+    {eKeycode_TAB, "Tab"},
+    {eKeycode_TILDE, "~"},
+    {eKeycode_F1, "F1"},
+    {eKeycode_F2, "F2"},
+    {eKeycode_F3, "F3"},
+    {eKeycode_F4, "F4"},
+    {eKeycode_F5, "F5"},
+    {eKeycode_F6, "F6"},
+    {eKeycode_F7, "F7"},
+    {eKeycode_F8, "F8"},
+    {eKeycode_F9, "F9"},
+    {eKeycode_F10, "F10"},
+    {eKeycode_F11, "F11"},
+    {eKeycode_F12, "F12"},
+    {eKeycode_A, "a"},
+    {eKeycode_C, "c"},
+    {eKeycode_F, "f"},
+    {eKeycode_V, "v"},
+    {eKeycode_X, "x"},
+    {eKeycode_W, "w"},
+    {eKeycode_D, "d"},
+    {eKeycode_S, "s"},
+    {eKeycode_Y, "y"},
+    {eKeycode_Z, "z"},
+    {eKeycode_R, "r"},
+    {eKeycode_0, "0"},
+    {eKeycode_1, "1"},
+    {eKeycode_2, "2"},
+    {eKeycode_3, "3"},
+    {eKeycode_4, "4"},
+    {eKeycode_5, "5"},
+    {eKeycode_6, "6"},
+    {eKeycode_7, "7"},
+    {eKeycode_8, "8"},
+    {eKeycode_9, "9"},
+    {eKeycode_LEFT, "Left"},
+    {eKeycode_RIGHT, "Right"},
+    {eKeycode_UP, "Up"},
+    {eKeycode_DOWN, "Down"},
+};
+
+impl_enum_strings(eMButton)
+{
+    {eMButton_LEFT, "Left"},
+    {eMButton_RIGHT, "Right"},
+    {eMButton_MIDDLE, "Middle"},
+};
+
 impl_enum_strings(eLogMessage)
 {
     {eLogMessage_Debug, "debug"},
@@ -273,6 +335,7 @@ impl_enum_strings(eWeaponType)
 
 impl_enum_strings(ePedestrianAction)
 {
+    {ePedestrianAction_null, "null"},
     {ePedestrianAction_TurnLeft, "turn_left"},
     {ePedestrianAction_TurnRight, "turn_right"},
     {ePedestrianAction_Jump, "jump"},

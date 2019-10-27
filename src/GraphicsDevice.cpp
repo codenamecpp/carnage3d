@@ -11,6 +11,81 @@
 
 GraphicsDevice gGraphicsDevice;
 
+//////////////////////////////////////////////////////////////////////////
+
+// glfw to native input mapping
+static eKeycode GlfwKeycodeToNative(int keycode)
+{
+    switch (keycode)
+    {
+        case GLFW_KEY_ESCAPE: return eKeycode_ESCAPE;
+        case GLFW_KEY_SPACE: return eKeycode_SPACE;
+        case GLFW_KEY_PAGE_UP: return eKeycode_PAGE_UP;
+        case GLFW_KEY_PAGE_DOWN: return eKeycode_PAGE_DOWN;
+        case GLFW_KEY_HOME: return eKeycode_HOME;
+        case GLFW_KEY_END: return eKeycode_END;
+        case GLFW_KEY_INSERT: return eKeycode_INSERT;
+        case GLFW_KEY_DELETE: return eKeycode_DELETE;
+        case GLFW_KEY_RIGHT_CONTROL: return eKeycode_RIGHT_CTRL;
+        case GLFW_KEY_LEFT_CONTROL: return eKeycode_LEFT_CTRL;
+        case GLFW_KEY_BACKSPACE: return eKeycode_BACKSPACE;
+        case GLFW_KEY_ENTER: return eKeycode_ENTER;
+        case GLFW_KEY_TAB: return eKeycode_TAB;
+        case GLFW_KEY_GRAVE_ACCENT: return eKeycode_TILDE;
+        case GLFW_KEY_F1: return eKeycode_F1;
+        case GLFW_KEY_F2: return eKeycode_F2;
+        case GLFW_KEY_F3: return eKeycode_F3;
+        case GLFW_KEY_F4: return eKeycode_F4;
+        case GLFW_KEY_F5: return eKeycode_F5;
+        case GLFW_KEY_F6: return eKeycode_F6;
+        case GLFW_KEY_F7: return eKeycode_F7;
+        case GLFW_KEY_F8: return eKeycode_F8;
+        case GLFW_KEY_F9: return eKeycode_F9;
+        case GLFW_KEY_F10: return eKeycode_F10;
+        case GLFW_KEY_F11: return eKeycode_F11;
+        case GLFW_KEY_F12: return eKeycode_F12;
+        case GLFW_KEY_A: return eKeycode_A;
+        case GLFW_KEY_C: return eKeycode_C;
+        case GLFW_KEY_F: return eKeycode_F;
+        case GLFW_KEY_V: return eKeycode_V;
+        case GLFW_KEY_X: return eKeycode_X;
+        case GLFW_KEY_W: return eKeycode_W;
+        case GLFW_KEY_D: return eKeycode_D;
+        case GLFW_KEY_S: return eKeycode_S;
+        case GLFW_KEY_Y: return eKeycode_Y;
+        case GLFW_KEY_Z: return eKeycode_Z;
+        case GLFW_KEY_R: return eKeycode_R;
+        case GLFW_KEY_0: return eKeycode_0;
+        case GLFW_KEY_1: return eKeycode_1;
+        case GLFW_KEY_2: return eKeycode_2;
+        case GLFW_KEY_3: return eKeycode_3;
+        case GLFW_KEY_4: return eKeycode_4;
+        case GLFW_KEY_5: return eKeycode_5;
+        case GLFW_KEY_6: return eKeycode_6;
+        case GLFW_KEY_7: return eKeycode_7;
+        case GLFW_KEY_8: return eKeycode_8;
+        case GLFW_KEY_9: return eKeycode_9;
+        case GLFW_KEY_LEFT: return eKeycode_LEFT;
+        case GLFW_KEY_RIGHT: return eKeycode_RIGHT;
+        case GLFW_KEY_UP: return eKeycode_UP;
+        case GLFW_KEY_DOWN: return eKeycode_DOWN;
+    }
+    return eKeycode_null;
+}
+
+static eMButton GlfwMouseButtonToNative(int mbutton)
+{
+    switch (mbutton)
+    {
+        case GLFW_MOUSE_BUTTON_LEFT: return eMButton_LEFT;
+        case GLFW_MOUSE_BUTTON_RIGHT: return eMButton_RIGHT;
+        case GLFW_MOUSE_BUTTON_MIDDLE: return eMButton_MIDDLE;
+    }
+    return eMButton_null;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 GraphicsDevice::GraphicsDevice()
     : mCurrentStates()
     , mViewportRect()
@@ -90,17 +165,25 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glfwMakeContextCurrent(graphicsWindow);
     ::glfwSetMouseButtonCallback(graphicsWindow, [](GLFWwindow*, int button, int action, int mods)
         {
-            if (action != GLFW_REPEAT)
+            if (action == GLFW_REPEAT)
+                return;
+
+            eMButton mbuttonNative = GlfwMouseButtonToNative(button);
+            if (mbuttonNative != eMButton_null)
             {
-                MouseButtonInputEvent ev { button, mods, action == GLFW_PRESS };
+                MouseButtonInputEvent ev { mbuttonNative, mods, action == GLFW_PRESS };
                 gSystem.HandleEvent(ev);
             }
         });
     ::glfwSetKeyCallback(graphicsWindow, [](GLFWwindow*, int keycode, int scancode, int action, int mods)
         {
-            if (action != GLFW_REPEAT)
+            if (action == GLFW_REPEAT)
+                return;
+
+            eKeycode keycodeNative = GlfwKeycodeToNative(keycode);
+            if (keycodeNative != eKeycode_null)
             {
-                KeyInputEvent ev { keycode, scancode, mods, action == GLFW_PRESS };
+                KeyInputEvent ev { keycodeNative, scancode, mods, action == GLFW_PRESS };
                 gSystem.HandleEvent(ev);
             }
         });
