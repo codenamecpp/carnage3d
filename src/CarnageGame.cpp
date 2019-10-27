@@ -161,6 +161,11 @@ void CarnageGame::InputEvent(KeyCharEvent& inputEvent)
 {
 }
 
+void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
+{
+
+}
+
 void CarnageGame::SetCameraController(CameraController* controller)
 {
     if (mCameraController == controller)

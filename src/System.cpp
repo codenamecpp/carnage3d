@@ -222,6 +222,15 @@ void System::HandleEvent(KeyCharEvent& inputEvent)
     gCarnageGame.InputEvent(inputEvent);
 }
 
+void System::HandleEvent(GamepadInputEvent& inputEvent)
+{
+    if (mIgnoreInputs)
+        return;
+
+    gInputs.HandleEvent(inputEvent);
+    gCarnageGame.InputEvent(inputEvent);
+}
+
 long System::GetSysMilliseconds() const
 {
     double totalSeconds = ::glfwGetTime();

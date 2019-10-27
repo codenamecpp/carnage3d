@@ -66,6 +66,36 @@ impl_enum_strings(eMButton)
     {eMButton_MIDDLE, "Middle"},
 };
 
+impl_enum_strings(eGamepadButton)
+{
+    {eGamepadButton_A, "A"},
+    {eGamepadButton_B, "B"},
+    {eGamepadButton_X, "X"},
+    {eGamepadButton_Y, "Y"},
+    {eGamepadButton_LeftBumper, "LeftBumper"},
+    {eGamepadButton_RightBumper, "RightBumper"},
+    {eGamepadButton_Back, "Back"},
+    {eGamepadButton_Start, "Start"},
+    {eGamepadButton_Guide, "Guide"},
+    {eGamepadButton_LeftThumb, "LeftThumb"},
+    {eGamepadButton_RightThumb, "RightThumb"},
+    {eGamepadButton_DPAD_Up, "Up"},
+    {eGamepadButton_DPAD_Right, "Right"},
+    {eGamepadButton_DPAD_Down, "Down"},
+    {eGamepadButton_DPAD_Left, "Left"},
+    {eGamepadButton_LeftTrigger, "LeftTrigger"},
+    {eGamepadButton_RightTrigger, "RightTrigger"},
+};
+
+impl_enum_strings(eInputControllerType)
+{
+    {eInputControllerType_Keyboard, "Keyboard"},
+    {eInputControllerType_Gamepad1, "Gamepad1"},
+    {eInputControllerType_Gamepad2, "Gamepad2"},
+    {eInputControllerType_Gamepad3, "Gamepad3"},
+    {eInputControllerType_Gamepad4, "Gamepad4"},
+};
+
 impl_enum_strings(eLogMessage)
 {
     {eLogMessage_Debug, "debug"},

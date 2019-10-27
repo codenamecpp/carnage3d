@@ -1,7 +1,9 @@
 #pragma once
 
-enum //key mods
+enum 
 {
+    MAX_GAMEPADS    = 4,
+    //key mods
     KEYMOD_SHIFT    = GLFW_MOD_SHIFT,
     KEYMOD_CTRL     = GLFW_MOD_CONTROL,
     KEYMOD_ALT      = GLFW_MOD_ALT,
@@ -84,6 +86,55 @@ enum eKeycode
 };
 
 decl_enum_strings(eKeycode);
+
+// gamepad inputs
+enum eGamepadButton
+{
+    eGamepadButton_null, // invalid button
+    eGamepadButton_A,
+    eGamepadButton_B,
+    eGamepadButton_X,
+    eGamepadButton_Y,
+    eGamepadButton_LeftBumper,
+    eGamepadButton_RightBumper,
+    eGamepadButton_Back,
+    eGamepadButton_Start,
+    eGamepadButton_Guide,
+    eGamepadButton_LeftThumb,
+    eGamepadButton_RightThumb,
+    eGamepadButton_DPAD_Up,
+    eGamepadButton_DPAD_Right,
+    eGamepadButton_DPAD_Down,
+    eGamepadButton_DPAD_Left,
+    eGamepadButton_LeftTrigger,
+    eGamepadButton_RightTrigger,
+    eGamepadButton_COUNT
+};
+
+decl_enum_strings(eGamepadButton);
+
+// input controller
+enum eInputControllerType
+{
+    eInputControllerType_Keyboard,
+    eInputControllerType_Gamepad1,
+    eInputControllerType_Gamepad2,
+    eInputControllerType_Gamepad3,
+    eInputControllerType_Gamepad4,
+    eInputControllerType_COUNT
+};
+
+decl_enum_strings(eInputControllerType);
+
+// gamepad state
+struct GamepadState
+{
+public:
+    GamepadState() = default;
+public:
+    bool mButtons[eGamepadButton_COUNT];
+    bool mPresent;
+};
 
 // input events
 struct BaseInputEvent
@@ -181,6 +232,22 @@ public:
     int mScrollY;
 };
 
+struct GamepadInputEvent: public BaseInputEvent
+{
+public:
+    GamepadInputEvent() = default;
+    GamepadInputEvent(int gamepad, eGamepadButton button, bool pressed)
+        : mButton(button)
+        , mGamepad(gamepad)
+        , mPressed(pressed)
+    {
+    }
+public:
+    int mGamepad;
+    eGamepadButton mButton;
+    bool mPressed;
+};
+
 //////////////////////////////////////////////////////////////////////////
 // Input State Holder
 //////////////////////////////////////////////////////////////////////////
@@ -190,8 +257,11 @@ class Inputs final: public cxx::noncopyable
 public:
     bool mMouseButtons[eMButton_COUNT];
     bool mKeyboardKeys[eKeycode_COUNT];
+
     int mCursorPositionX;
     int mCursorPositionY;
+
+    GamepadState mGamepadsState[MAX_GAMEPADS];
 
 public:
     Inputs();
@@ -203,6 +273,7 @@ public:
     void HandleEvent(MouseScrollInputEvent& inputEvent);
     void HandleEvent(KeyInputEvent& inputEvent);
     void HandleEvent(KeyCharEvent& inputEvent);
+    void HandleEvent(GamepadInputEvent& inputEvent);
 
     // Reset all keys and mouse buttons state
     void Cleanup();
@@ -248,6 +319,8 @@ public:
         debug_assert(button < eMButton_COUNT && button > eMButton_null);
         return mMouseButtons[button];
     }
+
+    void SetGamepadPresent(int gamepad, bool isPresent);
 };
 
 extern Inputs gInputs;

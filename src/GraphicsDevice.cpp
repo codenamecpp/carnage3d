@@ -84,6 +84,29 @@ static eMButton GlfwMouseButtonToNative(int mbutton)
     return eMButton_null;
 }
 
+static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
+{
+    switch(gpbutton)
+    {
+        case GLFW_GAMEPAD_BUTTON_A: return eGamepadButton_A;
+        case GLFW_GAMEPAD_BUTTON_B: return eGamepadButton_B;
+        case GLFW_GAMEPAD_BUTTON_X: return eGamepadButton_X;
+        case GLFW_GAMEPAD_BUTTON_Y: return eGamepadButton_Y;
+        case GLFW_GAMEPAD_BUTTON_LEFT_BUMPER: return eGamepadButton_LeftBumper;
+        case GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER: return eGamepadButton_RightBumper;
+        case GLFW_GAMEPAD_BUTTON_BACK: return eGamepadButton_Back;
+        case GLFW_GAMEPAD_BUTTON_START: return eGamepadButton_Start;
+        case GLFW_GAMEPAD_BUTTON_GUIDE: return eGamepadButton_Guide;
+        case GLFW_GAMEPAD_BUTTON_LEFT_THUMB: return eGamepadButton_LeftThumb;
+        case GLFW_GAMEPAD_BUTTON_RIGHT_THUMB: return eGamepadButton_RightThumb;
+        case GLFW_GAMEPAD_BUTTON_DPAD_UP: return eGamepadButton_DPAD_Up;
+        case GLFW_GAMEPAD_BUTTON_DPAD_RIGHT: return eGamepadButton_DPAD_Right;
+        case GLFW_GAMEPAD_BUTTON_DPAD_DOWN: return eGamepadButton_DPAD_Down;
+        case GLFW_GAMEPAD_BUTTON_DPAD_LEFT: return eGamepadButton_DPAD_Left;
+    };
+    return eGamepadButton_null;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 GraphicsDevice::GraphicsDevice()
@@ -210,6 +233,13 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
             };
             gSystem.HandleEvent(ev);
         });
+    ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
+        {
+            if (gamepad < MAX_GAMEPADS)
+            {
+                gInputs.SetGamepadPresent(gamepad, (gamepadStatus == GLFW_CONNECTED));
+            }
+        });
 
     // setup opengl extensions
     if (!InitializeOGLExtensions())
@@ -266,6 +296,14 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
 
     EnableFullscreen(fullscreen);
     EnableVSync(vsync);
+
+    // init gamepads
+    for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
+    {
+        bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
+        gInputs.SetGamepadPresent(icurr, isGamepad);
+    }
+
     return true;
 }
 
@@ -739,6 +777,51 @@ void GraphicsDevice::Present()
     {
         gSystem.QuitRequest();
         return;
+    }
+    ProcessGamepadsInputs();
+}
+
+void GraphicsDevice::ProcessGamepadsInputs()
+{
+    GLFWgamepadstate gamepadstate;
+
+    for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
+    {
+        GamepadState& currGamepad = gInputs.mGamepadsState[icurr];
+        if (!currGamepad.mPresent)
+            continue;
+
+        if (::glfwGetGamepadState(icurr, &gamepadstate) != GLFW_TRUE)
+            continue;
+
+        for (int ibutton = 0; ibutton < GLFW_JOYSTICK_LAST + 1; ++ibutton)
+        {
+            eGamepadButton buttonNative = GlfwGamepadButtonToNative(ibutton);
+            if (buttonNative == eGamepadButton_null)
+                continue;
+
+            bool newPressed = gamepadstate.buttons[ibutton] == GLFW_PRESS;
+            if (currGamepad.mButtons[buttonNative] == newPressed)
+                continue;
+
+            GamepadInputEvent inputEvent { icurr, buttonNative, newPressed };
+            gSystem.HandleEvent(inputEvent);
+        }
+        
+        // triggers
+        bool leftTriggerPressed = gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > 0.5f;
+        if (leftTriggerPressed != currGamepad.mButtons[eGamepadButton_LeftTrigger])
+        {
+            GamepadInputEvent inputEvent { icurr, eGamepadButton_LeftTrigger, leftTriggerPressed };
+            gSystem.HandleEvent(inputEvent);
+        }
+
+        bool rightTriggerPressed = gamepadstate.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > 0.5f;
+        if (rightTriggerPressed != currGamepad.mButtons[eGamepadButton_RightTrigger])
+        {
+            GamepadInputEvent inputEvent { icurr, eGamepadButton_RightTrigger, rightTriggerPressed };
+            gSystem.HandleEvent(inputEvent);
+        }
     }
 }
 

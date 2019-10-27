@@ -34,6 +34,7 @@ public:
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEvent(KeyCharEvent& inputEvent);
+    void InputEvent(GamepadInputEvent& inputEvent);
 
     // public for debug purposes
     void SetCameraController(CameraController* controller);

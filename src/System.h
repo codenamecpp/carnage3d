@@ -67,6 +67,7 @@ public:
     void HandleEvent(MouseScrollInputEvent& inputEvent);
     void HandleEvent(KeyInputEvent& inputEvent);
     void HandleEvent(KeyCharEvent& inputEvent);
+    void HandleEvent(GamepadInputEvent& inputEvent);
 
     // Set application exit request flag, execution will be interrupted soon
     void QuitRequest();

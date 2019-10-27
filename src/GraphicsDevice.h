@@ -162,6 +162,8 @@ private:
 
     void SetupVertexAttributes(const VertexFormat& streamDefinition);
 
+    void ProcessGamepadsInputs();
+
 private:
     GraphicsContext mGraphicsContext;
     GLFWwindow* mGraphicsWindow;
