@@ -20,7 +20,7 @@ public:
 private:
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
-    void EnterOrExitCar();
+    void EnterOrExitCar(bool alternative);
 
 private:
     Pedestrian* mCharacter = nullptr;

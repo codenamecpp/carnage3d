@@ -116,7 +116,13 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
     if (inputEvent.mKeycode == KEYCODE_ENTER && inputEvent.mPressed)
     {
-        EnterOrExitCar();
+        EnterOrExitCar(false);
+        inputEvent.SetConsumed();
+    }
+
+    if (inputEvent.mKeycode == KEYCODE_F && inputEvent.mPressed)
+    {
+        EnterOrExitCar(true);
         inputEvent.SetConsumed();
     }
 }
@@ -179,7 +185,7 @@ void HumanCharacterController::SwitchPrevWeapon()
     }
 }
 
-void HumanCharacterController::EnterOrExitCar()
+void HumanCharacterController::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
@@ -200,7 +206,7 @@ void HumanCharacterController::EnterOrExitCar()
     {
         Vehicle* currCar = queryResult.mCarsList[icar]->mReferenceCar;
 
-        mCharacter->TakeSeatInCar(currCar, eCarSeat_Driver);
+        mCharacter->TakeSeatInCar(currCar, alternative ? eCarSeat_Passenger : eCarSeat_Driver);
         return;
     }
 }

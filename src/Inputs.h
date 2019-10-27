@@ -34,6 +34,7 @@ enum
     // Letters
     KEYCODE_A           = GLFW_KEY_A,
     KEYCODE_C           = GLFW_KEY_C,
+    KEYCODE_F           = GLFW_KEY_F,
     KEYCODE_V           = GLFW_KEY_V,
     KEYCODE_X           = GLFW_KEY_X,
     KEYCODE_W           = GLFW_KEY_W,
