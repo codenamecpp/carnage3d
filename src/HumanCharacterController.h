@@ -2,8 +2,38 @@
 
 #include "CharacterController.h"
 
+// defines input actions mapping for human player
+class InputActionsMapping
+{
+public:
+    InputActionsMapping() = default;
+
+    // setup actions mapping from config node
+    bool SetFromConfig(cxx::config_node& configNode);
+
+    void SetNull();
+    void SetDefaults();
+
+public:
+    eInputControllerType mControllerType = eInputControllerType_None;
+
+    // keyboard
+    std::map<eKeycode, ePedestrianAction> mKeysInCarActions;
+    std::map<eKeycode, ePedestrianAction> mKeysOnFootActions;
+
+    // gamepad
+    std::map<eGamepadButton, ePedestrianAction> mGpButtonsInCarActions;
+    std::map<eGamepadButton, ePedestrianAction> mGpButtonsOnFootActions;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class HumanCharacterController final: public CharacterController
 {
+public:
+    // public for convenience
+    InputActionsMapping mInputActionsMapping;
+
 public:
     // process controller logic
     // @param deltaTime: Time since last frame
@@ -12,12 +42,10 @@ public:
     // process players inputs
     // @param inputEvent: Event data
     void InputEvent(KeyInputEvent& inputEvent);
-    void InputEvent(MouseButtonInputEvent& inputEvent);
-    void InputEvent(MouseMovedInputEvent& inputEvent);
-    void InputEvent(MouseScrollInputEvent& inputEvent);
-    void InputEvent(KeyCharEvent& inputEvent);
+    void InputEvent(GamepadInputEvent& inputEvent);
 
 private:
+    bool HandleInputAction(ePedestrianAction action, bool isActivated);
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
     void EnterOrExitCar(bool alternative);

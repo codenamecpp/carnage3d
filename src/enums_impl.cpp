@@ -9,7 +9,7 @@ impl_enum_strings(eKeycode)
     {eKeycode_ESCAPE, "Escape"},
     {eKeycode_SPACE, "Space"},
     {eKeycode_PAGE_UP, "PageUp"},
-    {eKeycode_PAGE_DOWN, "Down"},
+    {eKeycode_PAGE_DOWN, "PageDown"},
     {eKeycode_HOME, "Home"},
     {eKeycode_END, "End"},
     {eKeycode_INSERT, "Insert"},
@@ -366,16 +366,27 @@ impl_enum_strings(eWeaponType)
 
 impl_enum_strings(ePedestrianAction)
 {
-    {ePedestrianAction_null, "null"},
-    {ePedestrianAction_TurnLeft, "turn_left"},
-    {ePedestrianAction_TurnRight, "turn_right"},
-    {ePedestrianAction_Jump, "jump"},
-    {ePedestrianAction_WalkForward, "walk_forward"},
-    {ePedestrianAction_WalkBackward, "walk_backward"},
-    {ePedestrianAction_Run, "run"},
-    {ePedestrianAction_Shoot, "shoot"},
-    {ePedestrianAction_EnterCar, "enter_car"},
-    {ePedestrianAction_LeaveCar, "leave_car"},
+    {ePedestrianAction_null, "None"},
+
+    {ePedestrianAction_TurnLeft, "TurnLeft"},
+    {ePedestrianAction_TurnRight, "TurnRight"},
+    {ePedestrianAction_Jump, "Jump"},
+    {ePedestrianAction_WalkForward, "WalkForward"},
+    {ePedestrianAction_WalkBackward, "WalkBackward"},
+    {ePedestrianAction_Run, "Run"},
+    {ePedestrianAction_Shoot, "Shoot"},
+    {ePedestrianAction_NextWeapon, "NextWeapon"},
+    {ePedestrianAction_PrevWeapon, "PrevWeapon"},
+    {ePedestrianAction_EnterCar, "EnterCar"},
+    {ePedestrianAction_EnterCarAsPassenger, "EnterCarAsPassenger"},
+
+    {ePedestrianAction_LeaveCar, "LeaveCar"},
+    {ePedestrianAction_HandBrake, "HandBrake"},
+    {ePedestrianAction_Accelerate, "Accelerate"},
+    {ePedestrianAction_Reverse, "Reverse"},
+    {ePedestrianAction_SteerLeft, "SteerLeft"},
+    {ePedestrianAction_SteerRight, "SteerRight"},
+    {ePedestrianAction_Horn, "Horn"},
 };
 
 impl_enum_strings(ePedestrianState)

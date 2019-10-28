@@ -16,7 +16,7 @@ public:
     // gamestate
     Pedestrian* mPlayerPedestrian = nullptr;
     CameraController* mCameraController = nullptr;
-    HumanCharacterController mHumanController;
+    HumanCharacterController mHumanCharacters[GAME_MAX_PLAYERS];
 
     Timespan mGameTime;
 
@@ -40,6 +40,7 @@ public:
     void SetCameraController(CameraController* controller);
 
 private:
+    bool SetInputActionsFromConfig();
 
 };
 

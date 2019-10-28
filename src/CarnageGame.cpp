@@ -8,11 +8,19 @@
 #include "Pedestrian.h"
 #include "MemoryManager.h"
 
+static const char* InputsConfigPath = "config/inputs.json";
+
+//////////////////////////////////////////////////////////////////////////
+
 CarnageGame gCarnageGame;
+
+//////////////////////////////////////////////////////////////////////////
 
 bool CarnageGame::Initialize()
 {
     gGameCheatsWindow.mWindowShown = true; // show by default
+
+    SetInputActionsFromConfig();
 
     gGameRules.LoadDefaults();
     if (gSystem.mStartupParams.mDebugMapName.empty())
@@ -70,7 +78,7 @@ bool CarnageGame::Initialize()
     }
 
     mPlayerPedestrian = mObjectsManager.CreatePedestrian(pos);
-    mHumanController.SetCharacter(mPlayerPedestrian);
+    mHumanCharacters[0].SetCharacter(mPlayerPedestrian);
 
     SetCameraController(&mFollowCameraController);
 
@@ -115,21 +123,29 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         return;
     }
 
-    mHumanController.InputEvent(inputEvent);
-
     if (inputEvent.mKeycode == eKeycode_ESCAPE && inputEvent.mPressed)
     {
         gSystem.QuitRequest();
+        return;
     }
 
     if (inputEvent.mKeycode == eKeycode_C && inputEvent.mPressed)
     {
         gGameCheatsWindow.mWindowShown = !gGameCheatsWindow.mWindowShown;
+        return;
     }
 
     if (mCameraController)
     {
         mCameraController->InputEvent(inputEvent);
+    }
+
+    for (HumanCharacterController& currentController: mHumanCharacters)
+    {
+        if (inputEvent.mConsumed)
+            break;
+
+        currentController.InputEvent(inputEvent);
     }
 }
 
@@ -163,7 +179,13 @@ void CarnageGame::InputEvent(KeyCharEvent& inputEvent)
 
 void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
 {
+    for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
+    {
+        if (inputEvent.mConsumed)
+            break;
 
+        mHumanCharacters[icurr].InputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::SetCameraController(CameraController* controller)
@@ -176,4 +198,39 @@ void CarnageGame::SetCameraController(CameraController* controller)
     {
         mCameraController->SetupInitial();
     }
+}
+
+bool CarnageGame::SetInputActionsFromConfig()
+{
+    std::string jsonContent;
+    if (!gFiles.ReadTextFile(InputsConfigPath, jsonContent))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load input config from '%s'", InputsConfigPath);
+        return false;
+    }
+
+    cxx::config_document configDocument;
+    if (!configDocument.parse_document(jsonContent.c_str()))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse input config document");
+        return false;
+    }
+
+    cxx::string_buffer_32 tempString;
+    for (int iplayer = 0; iplayer < GAME_MAX_PLAYERS; ++iplayer)
+    {
+        HumanCharacterController& currentChar = mHumanCharacters[iplayer];
+        currentChar.mInputActionsMapping.SetNull();
+
+        if (iplayer == 0) // force default mapping for first player
+        {
+            currentChar.mInputActionsMapping.SetDefaults();
+        }
+
+        tempString.printf("player%d", iplayer + 1);
+
+        cxx::config_node configNode = configDocument.get_root_node().get_child(tempString.c_str());
+        currentChar.mInputActionsMapping.SetFromConfig(configNode);
+    }
+    return true;
 }

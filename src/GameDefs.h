@@ -4,21 +4,17 @@
 
 // side length of block cube, do not change
 #define MAP_BLOCK_LENGTH 1.0f
-
 #define MAP_BLOCK_TEXTURE_DIMS 64
 #define MAP_BLOCK_TEXTURE_AREA (MAP_BLOCK_TEXTURE_DIMS * MAP_BLOCK_TEXTURE_DIMS)
-
 #define MAX_MAP_BLOCK_ANIM_FRAMES 32
 #define MAX_CAR_DOORS 4
 #define MAX_CAR_REMAPS 12
 #define MAX_PED_REMAPS 64
 #define NO_REMAP -1
 #define MAX_SPRITE_DELTAS 32
-
 // map width and height is same
 #define MAP_DIMENSIONS 256
 #define MAP_LAYERS_COUNT 6
-
 #define MAP_PIXELS_PER_TILE MAP_BLOCK_TEXTURE_DIMS
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
@@ -26,6 +22,8 @@
 
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
 #define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)
+
+#define GAME_MAX_PLAYERS 4
 
 // car sprite deltas - damage
 #define CAR_DAMAGE_SPRITE_DELTA_FR 0 // front right
@@ -709,7 +707,10 @@ enum ePedestrianAction
     ePedestrianAction_Run, // overrides walk_forward and walk_backward
     ePedestrianAction_Shoot,
     ePedestrianAction_EnterCar,
+    ePedestrianAction_EnterCarAsPassenger,
     ePedestrianAction_LeaveCar,
+    ePedestrianAction_NextWeapon,
+    ePedestrianAction_PrevWeapon,
 
     // in car
     ePedestrianAction_HandBrake,

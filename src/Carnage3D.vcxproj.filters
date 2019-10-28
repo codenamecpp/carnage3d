@@ -304,9 +304,6 @@
     <ClInclude Include="TrimeshBuffer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="InputActionsMapping.h">
-      <Filter>Game</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -476,9 +473,6 @@
     <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="InputActionsMapping.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">
@@ -498,6 +492,9 @@
     </None>
     <None Include="..\gamedata\shaders\texture_color.glsl">
       <Filter>Data\shaders</Filter>
+    </None>
+    <None Include="..\gamedata\config\inputs.json.default">
+      <Filter>Data\config</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
