@@ -206,10 +206,10 @@ bool CarnageGame::SetInputActionsFromConfig()
     for (int iplayer = 0; iplayer < GAME_MAX_PLAYERS; ++iplayer)
     {
         HumanCharacterController& currentChar = mHumanCharacters[iplayer];
-        currentChar.mInputActionsMapping.SetNull();
+        currentChar.mInputs.SetNull();
         if (iplayer == 0) 
         {
-            currentChar.mInputActionsMapping.SetDefaults();
+            currentChar.mInputs.SetDefaults();
         }  
     }
 
@@ -236,7 +236,7 @@ bool CarnageGame::SetInputActionsFromConfig()
         tempString.printf("player%d", iplayer + 1);
 
         cxx::config_node configNode = configDocument.get_root_node().get_child(tempString.c_str());
-        currentChar.mInputActionsMapping.SetFromConfig(configNode);
+        currentChar.mInputs.SetFromConfig(configNode);
     }
 
     return true;

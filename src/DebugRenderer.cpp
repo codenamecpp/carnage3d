@@ -68,7 +68,7 @@ void DebugRenderer::RenderFrame()
         return;
 
     gRenderManager.mDebugProgram.Activate();
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices();
+    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(gCamera);
     FlushPrimitives();
     gRenderManager.mDebugProgram.Deactivate();
 }

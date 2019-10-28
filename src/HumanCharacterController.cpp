@@ -141,7 +141,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     if (mCharacter == nullptr || inputEvent.mKeycode == eKeycode_null)
         return;
 
-    if (mInputActionsMapping.mControllerType != eInputControllerType_Keyboard)
+    if (mInputs.mControllerType != eInputControllerType_Keyboard)
     {
         return;
     }
@@ -149,16 +149,16 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     ePedestrianAction action = ePedestrianAction_null;
     if (mCharacter->IsCarPassenger())
     {
-        auto iaction = mInputActionsMapping.mKeysInCarActions.find(inputEvent.mKeycode);
-        if (iaction != mInputActionsMapping.mKeysInCarActions.end())
+        auto iaction = mInputs.mKeysInCarActions.find(inputEvent.mKeycode);
+        if (iaction != mInputs.mKeysInCarActions.end())
         {
             action = iaction->second;
         }
     }
     else
     {
-        auto iaction = mInputActionsMapping.mKeysOnFootActions.find(inputEvent.mKeycode);
-        if (iaction != mInputActionsMapping.mKeysOnFootActions.end())
+        auto iaction = mInputs.mKeysOnFootActions.find(inputEvent.mKeycode);
+        if (iaction != mInputs.mKeysOnFootActions.end())
         {
             action = iaction->second;
         }
@@ -189,22 +189,22 @@ void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
     if (inputEvent.mGamepad < MAX_GAMEPADS)
     {
         eInputControllerType controllerType = gamepadControllers[inputEvent.mGamepad];
-        if (controllerType != mInputActionsMapping.mControllerType)
+        if (controllerType != mInputs.mControllerType)
             return;
 
         ePedestrianAction action = ePedestrianAction_null;
         if (mCharacter->IsCarPassenger())
         {
-            auto iaction = mInputActionsMapping.mGpButtonsInCarActions.find(inputEvent.mButton);
-            if (iaction != mInputActionsMapping.mGpButtonsInCarActions.end())
+            auto iaction = mInputs.mGpButtonsInCarActions.find(inputEvent.mButton);
+            if (iaction != mInputs.mGpButtonsInCarActions.end())
             {
                 action = iaction->second;
             }
         }
         else
         {
-            auto iaction = mInputActionsMapping.mGpButtonsOnFootActions.find(inputEvent.mButton);
-            if (iaction != mInputActionsMapping.mGpButtonsOnFootActions.end())
+            auto iaction = mInputs.mGpButtonsOnFootActions.find(inputEvent.mButton);
+            if (iaction != mInputs.mGpButtonsOnFootActions.end())
             {
                 action = iaction->second;
             }

@@ -32,7 +32,7 @@ class HumanCharacterController final: public CharacterController
 {
 public:
     // public for convenience
-    InputActionsMapping mInputActionsMapping;
+    InputActionsMapping mInputs;
 
 public:
     // process controller logic

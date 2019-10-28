@@ -94,7 +94,7 @@ void RenderProgram::Deactivate()
     gGraphicsDevice.BindRenderProgram(nullptr);
 }
 
-void RenderProgram::UploadCameraTransformMatrices()
+void RenderProgram::UploadCameraTransformMatrices(GameCamera& gameCamera)
 {
     bool isInited = IsProgramInited();
     if (isInited)
@@ -105,10 +105,10 @@ void RenderProgram::UploadCameraTransformMatrices()
                 mGpuProgram->SetUniform(uniform_id, matrix_reference); \
             }
 
-        SET_UNIFORM(eRenderUniform_ViewMatrix, gCamera.mViewMatrix);
-        SET_UNIFORM(eRenderUniform_ProjectionMatrix, gCamera.mProjectionMatrix);
-        SET_UNIFORM(eRenderUniform_ViewProjectionMatrix, gCamera.mViewProjectionMatrix);
-        SET_UNIFORM(eRenderUniform_CameraPosition, gCamera.mPosition);
+        SET_UNIFORM(eRenderUniform_ViewMatrix, gameCamera.mViewMatrix);
+        SET_UNIFORM(eRenderUniform_ProjectionMatrix, gameCamera.mProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_ViewProjectionMatrix, gameCamera.mViewProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_CameraPosition, gameCamera.mPosition);
 
         #undef SET_UNIFORM
     }

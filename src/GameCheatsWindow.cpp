@@ -59,11 +59,6 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
         ImGui::Text("b slope: %d", currBlock->mSlopeType);
         ImGui::Text("b directions: %d, %d, %d, %d", currBlock->mUpDirection, currBlock->mRightDirection, 
             currBlock->mDownDirection, currBlock->mLeftDirection);
-        //ImGui::Text("b flat: %d", currBlock->mIsFlat);
-        //for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
-        //{
-        //    ImGui::Text("b face %s : %d", cxx::enum_to_string((eBlockFace) iface), currBlock->mFaces[iface]);
-        //}
 
         ImGui::Separator();
         ImGui::SliderInt("ped remap", &pedestrian->mRemapIndex, -1, MAX_PED_REMAPS - 1);

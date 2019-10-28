@@ -183,7 +183,7 @@ void MapRenderer::DrawCityMesh()
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mCityMeshProgram.Activate();
-    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices();
+    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(gCamera);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {

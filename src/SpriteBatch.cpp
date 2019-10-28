@@ -145,7 +145,7 @@ void SpriteBatch::RenderSpritesBatches()
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mSpritesProgram.Activate();
-    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices();
+    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(gCamera);
 
     SpriteVertex3D_Format vFormat;
     mTrimeshBuffer.SetVertices(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data());
