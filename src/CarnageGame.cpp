@@ -202,6 +202,18 @@ void CarnageGame::SetCameraController(CameraController* controller)
 
 bool CarnageGame::SetInputActionsFromConfig()
 {
+    // force default mapping for first player
+    for (int iplayer = 0; iplayer < GAME_MAX_PLAYERS; ++iplayer)
+    {
+        HumanCharacterController& currentChar = mHumanCharacters[iplayer];
+        currentChar.mInputActionsMapping.SetNull();
+        if (iplayer == 0) 
+        {
+            currentChar.mInputActionsMapping.SetDefaults();
+        }  
+    }
+
+    // open config document
     std::string jsonContent;
     if (!gFiles.ReadTextFile(InputsConfigPath, jsonContent))
     {
@@ -220,17 +232,12 @@ bool CarnageGame::SetInputActionsFromConfig()
     for (int iplayer = 0; iplayer < GAME_MAX_PLAYERS; ++iplayer)
     {
         HumanCharacterController& currentChar = mHumanCharacters[iplayer];
-        currentChar.mInputActionsMapping.SetNull();
-
-        if (iplayer == 0) // force default mapping for first player
-        {
-            currentChar.mInputActionsMapping.SetDefaults();
-        }
 
         tempString.printf("player%d", iplayer + 1);
 
         cxx::config_node configNode = configDocument.get_root_node().get_child(tempString.c_str());
         currentChar.mInputActionsMapping.SetFromConfig(configNode);
     }
+
     return true;
 }
