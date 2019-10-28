@@ -1,3 +1,6 @@
 [submodule "third_party/Box2D"]
 	path = third_party/Box2D
 	url = https://github.com/erincatto/Box2D.git
+[submodule "third_party/GLFW"]
+	path = third_party/GLFW
+	url = https://github.com/glfw/glfw
