@@ -8,44 +8,47 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ActionDefaulMapping
+struct DefaultActionMapping
 {
 public:
-    ActionDefaulMapping(ePedestrianAction action, eKeycode keycode, eGamepadButton gpButton = eGamepadButton_null)
-        : mAction(action)
+    DefaultActionMapping(ePedActionsGroup group, ePedestrianAction action, eKeycode keycode, eGamepadButton gpButton = eGamepadButton_null)
+        : mActionGroup(group)
+        , mAction(action)
         , mKeycode(keycode)
         , mGpButton(gpButton)
     {
     }
 public:
+    ePedActionsGroup mActionGroup;
     ePedestrianAction mAction;
     eKeycode mKeycode;
     eGamepadButton mGpButton;
 };
 
-static const ActionDefaulMapping ActionsInCar[] = 
+static const DefaultActionMapping gDefaultActionsMapping[] = 
 {
-    {ePedestrianAction_LeaveCar,            eKeycode_ENTER},
-    {ePedestrianAction_HandBrake,           eKeycode_SPACE},
-    {ePedestrianAction_Accelerate,          eKeycode_UP},
-    {ePedestrianAction_Reverse,             eKeycode_DOWN},
-    {ePedestrianAction_SteerLeft,           eKeycode_LEFT},
-    {ePedestrianAction_SteerRight,          eKeycode_RIGHT},
-    {ePedestrianAction_Horn,                eKeycode_TAB},
-};
+    // common
+    {ePedActionsGroup_Common,   ePedestrianAction_NextWeapon,           eKeycode_X},
+    {ePedActionsGroup_Common,   ePedestrianAction_PrevWeapon,           eKeycode_Z},
 
-static const ActionDefaulMapping ActionsOnFoot[] =
-{
-    {ePedestrianAction_TurnLeft,            eKeycode_LEFT},
-    {ePedestrianAction_TurnRight,           eKeycode_RIGHT},
-    {ePedestrianAction_Jump,                eKeycode_SPACE},
-    {ePedestrianAction_WalkBackward,        eKeycode_DOWN},
-    {ePedestrianAction_Run,                 eKeycode_UP},
-    {ePedestrianAction_Shoot,               eKeycode_LEFT_CTRL},
-    {ePedestrianAction_NextWeapon,          eKeycode_X},
-    {ePedestrianAction_PrevWeapon,          eKeycode_Z},
-    {ePedestrianAction_EnterCar,            eKeycode_ENTER},
-    {ePedestrianAction_EnterCarAsPassenger, eKeycode_F},
+    // in car
+    {ePedActionsGroup_InCar,    ePedestrianAction_LeaveCar,             eKeycode_ENTER},
+    {ePedActionsGroup_InCar,    ePedestrianAction_HandBrake,            eKeycode_SPACE},
+    {ePedActionsGroup_InCar,    ePedestrianAction_Accelerate,           eKeycode_UP},
+    {ePedActionsGroup_InCar,    ePedestrianAction_Reverse,              eKeycode_DOWN},
+    {ePedActionsGroup_InCar,    ePedestrianAction_SteerLeft,            eKeycode_LEFT},
+    {ePedActionsGroup_InCar,    ePedestrianAction_SteerRight,           eKeycode_RIGHT},
+    {ePedActionsGroup_InCar,    ePedestrianAction_Horn,                 eKeycode_TAB},
+
+    // on foot
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_TurnLeft,             eKeycode_LEFT},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_TurnRight,            eKeycode_RIGHT},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_Jump,                 eKeycode_SPACE},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_WalkBackward,         eKeycode_DOWN},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_Run,                  eKeycode_UP},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_Shoot,                eKeycode_LEFT_CTRL},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_EnterCar,             eKeycode_ENTER},
+    {ePedActionsGroup_OnFoot,   ePedestrianAction_EnterCarAsPassenger,  eKeycode_F},
 };
 
 InputActionsMapping::InputActionsMapping()
@@ -64,13 +67,7 @@ void InputActionsMapping::SetNull()
 void InputActionsMapping::SetDefaults()
 {
     mControllerType = eInputControllerType_Keyboard;
-    // keys in car
-    for (const ActionDefaulMapping& curr: ActionsInCar)
-    {
-        mKeycodes[curr.mAction] = curr.mKeycode;
-    }
-    // keys on foot
-    for (const ActionDefaulMapping& curr: ActionsOnFoot)
+    for (const DefaultActionMapping& curr: gDefaultActionsMapping)
     {
         mKeycodes[curr.mAction] = curr.mKeycode;
     }
@@ -137,48 +134,26 @@ void InputActionsMapping::SetFromConfig(cxx::config_node& configNode)
 
 ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eKeycode keycode) const
 {
-    if (group == ePedActionsGroup_InCar)
+    for (const DefaultActionMapping& curr: gDefaultActionsMapping)
     {
-        for (const ActionDefaulMapping& curr: ActionsInCar)
+        if ((curr.mActionGroup == ePedActionsGroup_Common || curr.mActionGroup == group) &&
+            mKeycodes[curr.mAction] == keycode)
         {
-            if (mKeycodes[curr.mAction] == keycode)
-                return curr.mAction;
+            return curr.mAction;
         }
-        return ePedestrianAction_null;
-    }
-
-    if (group == ePedActionsGroup_OnFoot)
-    {
-        for (const ActionDefaulMapping& curr: ActionsOnFoot)
-        {
-            if (mKeycodes[curr.mAction] == keycode)
-                return curr.mAction;
-        }
-        return ePedestrianAction_null;
     }
     return ePedestrianAction_null;
 }
 
 ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eGamepadButton gpButton) const
 {
-    if (group == ePedActionsGroup_InCar)
+    for (const DefaultActionMapping& curr: gDefaultActionsMapping)
     {
-        for (const ActionDefaulMapping& curr: ActionsInCar)
+        if ((curr.mActionGroup == ePedActionsGroup_Common || curr.mActionGroup == group) &&
+            mGpButtons[curr.mAction] == gpButton)
         {
-            if (mGpButtons[curr.mAction] == gpButton)
-                return curr.mAction;
+            return curr.mAction;
         }
-        return ePedestrianAction_null;
-    }
-
-    if (group == ePedActionsGroup_OnFoot)
-    {
-        for (const ActionDefaulMapping& curr: ActionsOnFoot)
-        {
-            if (mGpButtons[curr.mAction] == gpButton)
-                return curr.mAction;
-        }
-        return ePedestrianAction_null;
     }
     return ePedestrianAction_null;
 }

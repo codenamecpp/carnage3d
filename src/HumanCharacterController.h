@@ -4,6 +4,7 @@
 
 enum ePedActionsGroup
 {
+    ePedActionsGroup_Common,
     ePedActionsGroup_InCar,
     ePedActionsGroup_OnFoot,
     ePedActionsGroup_COUNT
@@ -48,6 +49,7 @@ public:
     // @param deltaTime: Time since last frame
     void UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void SetCharacter(Pedestrian* character);
+
     // process players inputs
     // @param inputEvent: Event data
     void InputEvent(KeyInputEvent& inputEvent);
