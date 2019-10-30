@@ -145,7 +145,10 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         if (inputEvent.mConsumed)
             break;
 
-        currentController.InputEvent(inputEvent);
+        if (currentController.mCharacter)
+        {
+            currentController.InputEvent(inputEvent);
+        }
     }
 }
 
@@ -179,12 +182,15 @@ void CarnageGame::InputEvent(KeyCharEvent& inputEvent)
 
 void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
 {
-    for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
+    for (HumanCharacterController& currentController: mHumanCharacters)
     {
         if (inputEvent.mConsumed)
             break;
 
-        mHumanCharacters[icurr].InputEvent(inputEvent);
+        if (currentController.mCharacter)
+        {
+            currentController.InputEvent(inputEvent);
+        }
     }
 }
 

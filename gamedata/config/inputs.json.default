@@ -4,55 +4,43 @@
         "controller_type": "Keyboard",
         "keys":
         {
-            "in_car":
-            {
-                "LeaveCar": "Enter",
-                "HandBrake": "Space",
-                "Accelerate": "Up",
-                "Reverse": "Down",
-                "SteerLeft": "Left",
-                "SteerRight": "Right",
-                "Horn": "Tab"
-            },
-            "on_foot":
-            {
-                "TurnLeft": "Left",
-                "TurnRight": "Right",
-                "Jump": "Space",
-                "WalkBackward": "Down",
-                "Run": "Up",
-                "Shoot": "LCtrl",
-                "NextWeapon": "x",
-                "PrevWeapon": "z",
-                "EnterCar": "Enter",
-                "EnterCarAsPassenger": "f"
-            }
+            "LeaveCar": "Enter",
+            "HandBrake": "Space",
+            "Accelerate": "Up",
+            "Reverse": "Down",
+            "SteerLeft": "Left",
+            "SteerRight": "Right",
+            "Horn": "Tab",
+            "TurnLeft": "Left",
+            "TurnRight": "Right",
+            "Jump": "Space",
+            "WalkBackward": "Down",
+            "Run": "Up",
+            "Shoot": "LCtrl",
+            "NextWeapon": "x",
+            "PrevWeapon": "z",
+            "EnterCar": "Enter",
+            "EnterCarAsPassenger": "f"
         },
         "gamepad":
         {
-            "in_car":
-            {
-                "LeaveCar": "X",
-                "HandBrake": "Y",
-                "Accelerate": "Up",
-                "Reverse": "Down",
-                "SteerLeft": "Left",
-                "SteerRight": "Right",
-                "Horn": "A"
-            },
-            "on_foot":
-            {
-                "TurnLeft": "Left",
-                "TurnRight": "Right",
-                "Jump": "LeftTrigger",
-                "WalkBackward": "Down",
-                "Run": "Up",
-                "Shoot": "B",
-                "NextWeapon": "LeftBumper",
-                "PrevWeapon": "RightBumper",
-                "EnterCar": "X",
-                "EnterCarAsPassenger": "A"
-            }
+            "LeaveCar": "X",
+            "HandBrake": "Y",
+            "Accelerate": "Up",
+            "Reverse": "Down",
+            "SteerLeft": "Left",
+            "SteerRight": "Right",
+            "Horn": "A",
+            "TurnLeft": "Left",
+            "TurnRight": "Right",
+            "Jump": "LeftTrigger",
+            "WalkBackward": "Down",
+            "Run": "Up",
+            "Shoot": "B",
+            "NextWeapon": "LeftBumper",
+            "PrevWeapon": "RightBumper",
+            "EnterCar": "X",
+            "EnterCarAsPassenger": "A"
         }
     },
     "player2":

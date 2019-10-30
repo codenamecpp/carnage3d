@@ -8,125 +8,179 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ActionDefaulMapping
+{
+public:
+    ActionDefaulMapping(ePedestrianAction action, eKeycode keycode, eGamepadButton gpButton = eGamepadButton_null)
+        : mAction(action)
+        , mKeycode(keycode)
+        , mGpButton(gpButton)
+    {
+    }
+public:
+    ePedestrianAction mAction;
+    eKeycode mKeycode;
+    eGamepadButton mGpButton;
+};
+
+static const ActionDefaulMapping ActionsInCar[] = 
+{
+    {ePedestrianAction_LeaveCar,            eKeycode_ENTER},
+    {ePedestrianAction_HandBrake,           eKeycode_SPACE},
+    {ePedestrianAction_Accelerate,          eKeycode_UP},
+    {ePedestrianAction_Reverse,             eKeycode_DOWN},
+    {ePedestrianAction_SteerLeft,           eKeycode_LEFT},
+    {ePedestrianAction_SteerRight,          eKeycode_RIGHT},
+    {ePedestrianAction_Horn,                eKeycode_TAB},
+};
+
+static const ActionDefaulMapping ActionsOnFoot[] =
+{
+    {ePedestrianAction_TurnLeft,            eKeycode_LEFT},
+    {ePedestrianAction_TurnRight,           eKeycode_RIGHT},
+    {ePedestrianAction_Jump,                eKeycode_SPACE},
+    {ePedestrianAction_WalkBackward,        eKeycode_DOWN},
+    {ePedestrianAction_Run,                 eKeycode_UP},
+    {ePedestrianAction_Shoot,               eKeycode_LEFT_CTRL},
+    {ePedestrianAction_NextWeapon,          eKeycode_X},
+    {ePedestrianAction_PrevWeapon,          eKeycode_Z},
+    {ePedestrianAction_EnterCar,            eKeycode_ENTER},
+    {ePedestrianAction_EnterCarAsPassenger, eKeycode_F},
+};
+
+InputActionsMapping::InputActionsMapping()
+{
+    SetNull();
+}
+
 void InputActionsMapping::SetNull()
 {
     mControllerType = eInputControllerType_None;
 
-    mKeysInCarActions.clear();
-    mKeysOnFootActions.clear();
-    mGpButtonsInCarActions.clear();
-    mGpButtonsOnFootActions.clear();
+    ::memset(mKeycodes, 0, sizeof(mKeycodes));
+    ::memset(mGpButtons, 0, sizeof(mGpButtons));
 }
 
 void InputActionsMapping::SetDefaults()
 {
     mControllerType = eInputControllerType_Keyboard;
-
     // keys in car
-    mKeysInCarActions[eKeycode_ENTER] = ePedestrianAction_LeaveCar;
-    mKeysInCarActions[eKeycode_SPACE] = ePedestrianAction_HandBrake;
-    mKeysInCarActions[eKeycode_UP] = ePedestrianAction_Accelerate;
-    mKeysInCarActions[eKeycode_DOWN] = ePedestrianAction_Reverse;
-    mKeysInCarActions[eKeycode_LEFT] = ePedestrianAction_SteerLeft;
-    mKeysInCarActions[eKeycode_RIGHT] = ePedestrianAction_SteerRight;
-    mKeysInCarActions[eKeycode_TAB] = ePedestrianAction_Horn;
-
+    for (const ActionDefaulMapping& curr: ActionsInCar)
+    {
+        mKeycodes[curr.mAction] = curr.mKeycode;
+    }
     // keys on foot
-    mKeysOnFootActions[eKeycode_LEFT] = ePedestrianAction_TurnLeft;
-    mKeysOnFootActions[eKeycode_RIGHT] = ePedestrianAction_TurnRight;
-    mKeysOnFootActions[eKeycode_SPACE] = ePedestrianAction_Jump;
-    mKeysOnFootActions[eKeycode_DOWN] = ePedestrianAction_WalkBackward;
-    mKeysOnFootActions[eKeycode_UP] = ePedestrianAction_Run;
-    mKeysOnFootActions[eKeycode_LEFT_CTRL] = ePedestrianAction_Shoot;
-    mKeysOnFootActions[eKeycode_X] = ePedestrianAction_NextWeapon;
-    mKeysOnFootActions[eKeycode_Z] = ePedestrianAction_PrevWeapon;
-    mKeysOnFootActions[eKeycode_ENTER] = ePedestrianAction_EnterCar;
-    mKeysOnFootActions[eKeycode_F] = ePedestrianAction_EnterCarAsPassenger;
+    for (const ActionDefaulMapping& curr: ActionsOnFoot)
+    {
+        mKeycodes[curr.mAction] = curr.mKeycode;
+    }
 }
 
-bool InputActionsMapping::SetFromConfig(cxx::config_node& configNode)
+void InputActionsMapping::SetFromConfig(cxx::config_node& configNode)
 {
     const char* controller_type_str = configNode.get_child("controller_type").get_value_string();
     if (!cxx::parse_enum(controller_type_str, mControllerType))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Unknown controller type");
-        return false;
+        gConsole.LogMessage(eLogMessage_Warning, "Unknown controller type '%s'", controller_type_str);
     }
 
-    auto ScanKeys = [](cxx::config_node& innode, std::map<eKeycode, ePedestrianAction>& inmap)
+    // scan keycodes
+    if (cxx::config_node keysNode = configNode.get_child("keys"))
     {
         ePedestrianAction action = ePedestrianAction_null;
         eKeycode keycode = eKeycode_null;
 
-        for (cxx::config_node currNode = innode.first_child(); currNode; currNode = currNode.next_sibling())
+        for (cxx::config_node currNode = keysNode.first_child(); currNode; currNode = currNode.next_sibling())
         {
+            const char* action_str = currNode.get_element_name();
+            if (!cxx::parse_enum(action_str, action))
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", action_str);
+                continue; 
+            }
             const char* keycode_str = currNode.get_value_string();
             if (!cxx::parse_enum(keycode_str, keycode))
             {
                 gConsole.LogMessage(eLogMessage_Warning, "Unknown keycode %s", keycode_str);
                 continue;
             }
+            mKeycodes[action] = keycode;
+        }
+    }
+    
+    // scan gamepad buttons
+    if (cxx::config_node gpNode = configNode.get_child("gamepad"))
+    {
+        ePedestrianAction action = ePedestrianAction_null;
+        eGamepadButton gpButton = eGamepadButton_null;
 
+        for (cxx::config_node currNode = gpNode.first_child(); currNode; currNode = currNode.next_sibling())
+        {
             const char* action_str = currNode.get_element_name();
             if (!cxx::parse_enum(action_str, action))
             {
                 gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", action_str);
                 continue; 
             }
-            inmap[keycode] = action;
-        }
-    };
-
-    if (cxx::config_node keysNode = configNode.get_child("keys"))
-    {
-        if (cxx::config_node inCarNode = keysNode.get_child("in_car"))
-        {
-            ScanKeys(inCarNode, mKeysInCarActions);
-        }
-
-        if (cxx::config_node onFootNode = keysNode.get_child("on_foot"))
-        {
-            ScanKeys(onFootNode, mKeysOnFootActions);
-        }
-    }
-
-    auto ScanGpButtons = [](cxx::config_node& innode, std::map<eGamepadButton, ePedestrianAction>& inmap)
-    {
-        ePedestrianAction action = ePedestrianAction_null;
-        eGamepadButton gpButton = eGamepadButton_null;
-
-        for (cxx::config_node currNode = innode.first_child(); currNode; currNode = currNode.next_sibling())
-        {
             const char* gpbutton_str = currNode.get_value_string();
             if (!cxx::parse_enum(gpbutton_str, gpButton))
             {
                 gConsole.LogMessage(eLogMessage_Warning, "Unknown gamepad button %s", gpbutton_str);
                 continue;
             }
-
-            const char* action_str = currNode.get_element_name();
-            if (!cxx::parse_enum(action_str, action))
-            {
-                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", action_str);
-                continue; 
-            }
-            inmap[gpButton] = action;
-        }
-    };
-
-    if (cxx::config_node gpNode = configNode.get_child("gamepad"))
-    {
-        if (cxx::config_node inCarNode = gpNode.get_child("in_car"))
-        {
-            ScanGpButtons(inCarNode, mGpButtonsInCarActions);
-        }
-
-        if (cxx::config_node onFootNode = gpNode.get_child("on_foot"))
-        {
-            ScanGpButtons(onFootNode, mGpButtonsOnFootActions);
+            mGpButtons[action] = gpButton;
         }
     }
-    return true;
+
+    int bp = 0;
+}
+
+ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eKeycode keycode) const
+{
+    if (group == ePedActionsGroup_InCar)
+    {
+        for (const ActionDefaulMapping& curr: ActionsInCar)
+        {
+            if (mKeycodes[curr.mAction] == keycode)
+                return curr.mAction;
+        }
+        return ePedestrianAction_null;
+    }
+
+    if (group == ePedActionsGroup_OnFoot)
+    {
+        for (const ActionDefaulMapping& curr: ActionsOnFoot)
+        {
+            if (mKeycodes[curr.mAction] == keycode)
+                return curr.mAction;
+        }
+        return ePedestrianAction_null;
+    }
+    return ePedestrianAction_null;
+}
+
+ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eGamepadButton gpButton) const
+{
+    if (group == ePedActionsGroup_InCar)
+    {
+        for (const ActionDefaulMapping& curr: ActionsInCar)
+        {
+            if (mGpButtons[curr.mAction] == gpButton)
+                return curr.mAction;
+        }
+        return ePedestrianAction_null;
+    }
+
+    if (group == ePedActionsGroup_OnFoot)
+    {
+        for (const ActionDefaulMapping& curr: ActionsOnFoot)
+        {
+            if (mGpButtons[curr.mAction] == gpButton)
+                return curr.mAction;
+        }
+        return ePedestrianAction_null;
+    }
+    return ePedestrianAction_null;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -138,31 +192,12 @@ void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan delt
 
 void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 {
-    if (mCharacter == nullptr || inputEvent.mKeycode == eKeycode_null)
-        return;
-
+    debug_assert(mCharacter);
     if (mInputs.mControllerType != eInputControllerType_Keyboard)
-    {
         return;
-    }
 
-    ePedestrianAction action = ePedestrianAction_null;
-    if (mCharacter->IsCarPassenger())
-    {
-        auto iaction = mInputs.mKeysInCarActions.find(inputEvent.mKeycode);
-        if (iaction != mInputs.mKeysInCarActions.end())
-        {
-            action = iaction->second;
-        }
-    }
-    else
-    {
-        auto iaction = mInputs.mKeysOnFootActions.find(inputEvent.mKeycode);
-        if (iaction != mInputs.mKeysOnFootActions.end())
-        {
-            action = iaction->second;
-        }
-    }
+    ePedActionsGroup actionGroup = mCharacter->IsCarPassenger() ? ePedActionsGroup_InCar : ePedActionsGroup_OnFoot;
+    ePedestrianAction action = mInputs.GetAction(actionGroup, inputEvent.mKeycode);
     if (action == ePedestrianAction_null)
         return;
 
@@ -175,8 +210,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
 
 void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
 {
-    if (mCharacter == nullptr || inputEvent.mButton == eGamepadButton_null)
-        return;
+    debug_assert(mCharacter);
 
     static const eInputControllerType gamepadControllers[MAX_GAMEPADS] =
     {
@@ -192,23 +226,8 @@ void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
         if (controllerType != mInputs.mControllerType)
             return;
 
-        ePedestrianAction action = ePedestrianAction_null;
-        if (mCharacter->IsCarPassenger())
-        {
-            auto iaction = mInputs.mGpButtonsInCarActions.find(inputEvent.mButton);
-            if (iaction != mInputs.mGpButtonsInCarActions.end())
-            {
-                action = iaction->second;
-            }
-        }
-        else
-        {
-            auto iaction = mInputs.mGpButtonsOnFootActions.find(inputEvent.mButton);
-            if (iaction != mInputs.mGpButtonsOnFootActions.end())
-            {
-                action = iaction->second;
-            }
-        }
+        ePedActionsGroup actionGroup = mCharacter->IsCarPassenger() ? ePedActionsGroup_InCar : ePedActionsGroup_OnFoot;
+        ePedestrianAction action = mInputs.GetAction(actionGroup, inputEvent.mButton);
         if (action == ePedestrianAction_null)
             return;
 
@@ -221,9 +240,7 @@ void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
 }
 
 bool HumanCharacterController::HandleInputAction(ePedestrianAction action, bool isActivated)
-{
-    debug_assert(mCharacter);
-    
+{    
     switch (action)
     {
         case ePedestrianAction_SteerLeft:
