@@ -10,7 +10,6 @@ GameCheatsWindow gGameCheatsWindow;
 
 GameCheatsWindow::GameCheatsWindow()
     : DebugWindow("Game Cheats")
-    , mGenerateFullMeshForMap()
     , mEnableMapCollisions(true)
     , mEnableGravity(true)
     , mEnableBlocksAnimation(true)
@@ -34,6 +33,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     }
 
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Frame Time: %.3f ms (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    ImGui::Text("Block chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
     
     // pedestrian stats
     if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
@@ -112,18 +112,6 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
     if (ImGui::CollapsingHeader("Map Draw"))
     {
-        for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
-        {
-            cxx::string_buffer_16 cbtext;
-            cbtext.printf("layer %d", ilayer);
-            ImGui::Checkbox(cbtext.c_str(), &mDrawMapLayers[ilayer]);
-        }
-        ImGui::Separator();
-        if (ImGui::Checkbox("Generate full mesh for map", &mGenerateFullMeshForMap))
-        {
-            gRenderManager.mMapRenderer.InvalidateMapMesh();
-        }
-        ImGui::Separator();
         ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);
     }
 

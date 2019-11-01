@@ -7,8 +7,6 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
-    meshData.SetNull();
-
     // preallocate
     meshData.mBlocksIndices.reserve(1 * 1024 * 1024);
     meshData.mBlocksVertices.reserve(1 * 1024 * 1024);
@@ -34,11 +32,9 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area,
 
 bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect2D& area, MapMeshData& meshData)
 {
-    meshData.SetNull();
-
     // preallocate
-    meshData.mBlocksIndices.reserve(1 * 1024 * 1024);
-    meshData.mBlocksVertices.reserve(1 * 1024 * 1024);
+    meshData.mBlocksIndices.reserve(4 * 1024 * 1024);
+    meshData.mBlocksVertices.reserve(4 * 1024 * 1024);
 
     // prepare
     for (int tilez = 0; tilez < MAP_LAYERS_COUNT; ++tilez)

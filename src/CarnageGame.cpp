@@ -30,7 +30,7 @@ bool CarnageGame::Initialize()
 
     gGameMap.LoadFromFile(gSystem.mStartupParams.mDebugMapName.c_str());
     gSpriteManager.Cleanup();
-    gRenderManager.mMapRenderer.InvalidateMapMesh();
+    gRenderManager.mMapRenderer.BuildMapMesh();
     if (!gSpriteManager.InitLevelSprites())
     {
         debug_assert(false);
