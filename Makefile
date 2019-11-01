@@ -21,6 +21,7 @@ get_demoversion:
 
 clean:
 	.build/premake5 gmake --cc=clang
+	make -C third_party/Box2D/Build clean
 	make -C .build clean
 
 run:
