@@ -4,8 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Carnage3D", "Carnage3D.vcxproj", "{169827B7-D0C3-481E-900C-A57549CBD984}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4A74163F-7D76-46EB-92BF-05C50173D846} = {4A74163F-7D76-46EB-92BF-05C50173D846}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2D", "Box2D\Box2D.vcxproj", "{8701FDAE-68BB-4D20-851B-9E7B1B5DAE62}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW", "GLFW\GLFW.vcxproj", "{4A74163F-7D76-46EB-92BF-05C50173D846}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +36,14 @@ Global
 		{8701FDAE-68BB-4D20-851B-9E7B1B5DAE62}.Release|x64.Build.0 = Release|x64
 		{8701FDAE-68BB-4D20-851B-9E7B1B5DAE62}.Release|x86.ActiveCfg = Release|Win32
 		{8701FDAE-68BB-4D20-851B-9E7B1B5DAE62}.Release|x86.Build.0 = Release|Win32
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Debug|x64.ActiveCfg = Debug|x64
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Debug|x64.Build.0 = Debug|x64
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Debug|x86.ActiveCfg = Debug|Win32
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Debug|x86.Build.0 = Debug|Win32
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Release|x64.ActiveCfg = Release|x64
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Release|x64.Build.0 = Release|x64
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Release|x86.ActiveCfg = Release|Win32
+		{4A74163F-7D76-46EB-92BF-05C50173D846}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

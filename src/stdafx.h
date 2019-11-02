@@ -68,11 +68,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#if OS_NAME == OS_WINDOWS
-#include <GLFW/glfw3.h>
-#else
 #include "GLFW/glfw3.h"
-#endif
 
 // glm
 #define GLM_ENABLE_EXPERIMENTAL

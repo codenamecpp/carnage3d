@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="context.c" />
+    <ClCompile Include="egl_context.c" />
+    <ClCompile Include="init.c" />
+    <ClCompile Include="input.c" />
+    <ClCompile Include="monitor.c" />
+    <ClCompile Include="osmesa_context.c" />
+    <ClCompile Include="vulkan.c" />
+    <ClCompile Include="wgl_context.c" />
+    <ClCompile Include="win32_init.c" />
+    <ClCompile Include="win32_joystick.c" />
+    <ClCompile Include="win32_monitor.c" />
+    <ClCompile Include="win32_thread.c" />
+    <ClCompile Include="win32_time.c" />
+    <ClCompile Include="win32_window.c" />
+    <ClCompile Include="window.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="egl_context.h" />
+    <ClInclude Include="glfw_config.h" />
+    <ClInclude Include="glfw3.h" />
+    <ClInclude Include="glfw3native.h" />
+    <ClInclude Include="internal.h" />
+    <ClInclude Include="mappings.h" />
+    <ClInclude Include="osmesa_context.h" />
+    <ClInclude Include="wgl_context.h" />
+    <ClInclude Include="win32_joystick.h" />
+    <ClInclude Include="win32_platform.h" />
+  </ItemGroup>
+</Project>
