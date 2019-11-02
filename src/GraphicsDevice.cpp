@@ -11,11 +11,6 @@
 
 GraphicsDevice gGraphicsDevice;
 
-#if (GLFW_VERSION_MAJOR == 3) && (GLFW_VERSION_MINOR < 3)
-#else
-#define GLFW_SUPPORTS_GAMEPADS
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 
 // glfw to native input mapping
@@ -91,7 +86,6 @@ static eMButton GlfwMouseButtonToNative(int mbutton)
 
 static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
 {
-#ifdef GLFW_SUPPORTS_GAMEPADS
     switch(gpbutton)
     {
         case GLFW_GAMEPAD_BUTTON_A: return eGamepadButton_A;
@@ -110,7 +104,6 @@ static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
         case GLFW_GAMEPAD_BUTTON_DPAD_DOWN: return eGamepadButton_DPAD_Down;
         case GLFW_GAMEPAD_BUTTON_DPAD_LEFT: return eGamepadButton_DPAD_Left;
     };
-#endif
     return eGamepadButton_null;
 }
 
@@ -240,7 +233,6 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
             };
             gSystem.HandleEvent(ev);
         });
-#ifdef GLFW_SUPPORTS_GAMEPADS
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
             if (gamepad < MAX_GAMEPADS)
@@ -248,7 +240,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
                 gInputs.SetGamepadPresent(gamepad, (gamepadStatus == GLFW_CONNECTED));
             }
         });
-#endif
+
     // setup opengl extensions
     if (!InitializeOGLExtensions())
     {
@@ -306,13 +298,12 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     EnableVSync(vsync);
 
     // init gamepads
-#ifdef GLFW_SUPPORTS_GAMEPADS
     for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
     {
         bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
         gInputs.SetGamepadPresent(icurr, isGamepad);
     }
-#endif
+
     return true;
 }
 
@@ -792,7 +783,6 @@ void GraphicsDevice::Present()
 
 void GraphicsDevice::ProcessGamepadsInputs()
 {
-#ifdef GLFW_SUPPORTS_GAMEPADS
     GLFWgamepadstate gamepadstate;
 
     for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
@@ -833,7 +823,6 @@ void GraphicsDevice::ProcessGamepadsInputs()
             gSystem.HandleEvent(inputEvent);
         }
     }
-#endif
 }
 
 void GraphicsDevice::SetViewportRect(const Rect2D& sourceRectangle)
