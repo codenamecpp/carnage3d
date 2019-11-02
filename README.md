@@ -26,7 +26,7 @@ Currently it is in very early stage, a little progress so far: https://www.youtu
 At the moment, makefile configured so project will build with clang compiler.
 
 Before build project make sure to install dependencies: 
-* apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
+* apt install libglew-dev libglm-dev libgl1-mesa-dev xorg-dev clang
 
 Run these commands in terminal:
 * git clone --recurse-submodules https://github.com/codenamecpp/carnage3d
@@ -38,7 +38,6 @@ You will need Visual Studio 2015 Community Edition to build project.
 Before compile, add system environment variable __SDKDIR__ with path where all the dependencies lives. These dependencies are:
 * GLEW
 * GLM
-* GLFW
 
 ## Configure ##
 Game needs to be configured before launch, there is example config document in __gamedata/config/sys_config.json.default__ - it must be copy-pasted to same directory but withoud ".default" suffix: __gamedata/config/sys_config.json__ .
