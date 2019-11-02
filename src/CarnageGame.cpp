@@ -293,7 +293,8 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         int currRow = icurr / MaxCols;
         int currCol = icurr % MaxCols;
 
-        int colsOnCurrentRow = ((playersCount - currRow) + MaxCols - 1) / MaxCols;
+        int colsOnCurrentRow = glm::clamp(playersCount - (currRow * MaxCols), 1, MaxCols);
+        debug_assert(colsOnCurrentRow);
         int frameSizePerW = fullViewport.w / colsOnCurrentRow;
         
         mHumanCharacters[icurr].mCharView.mRenderCamera.mViewportRect.h = frameSizePerH;
@@ -304,5 +305,4 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         mHumanCharacters[icurr].mCharView.SetCameraController(&mHumanCharacters[icurr].mCharView.mFollowCameraController);
         gRenderManager.AttachRenderView(&mHumanCharacters[icurr].mCharView);
     }
-
 }
