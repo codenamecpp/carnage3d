@@ -2,6 +2,8 @@
 
 namespace cxx
 {
+    using enum_files_proc = std::function<void (const std::string&)>;
+
     // extract parent directory for element
     // @param sourcePath: Path
     std::string get_parent_directory(std::string pathto);
@@ -35,5 +37,11 @@ namespace cxx
 
     // create directories in path
     bool ensure_path_exists(std::string pathto);
+
+    // enumerate files and directories at specific location
+    // @param pathto: Location
+    // @param enumproc: Enumeration callback
+    void enum_files(std::string pathto, enum_files_proc enumproc);
+    void enum_files_recursive(std::string pathto, enum_files_proc enumproc);
 
 } // namespace cxx

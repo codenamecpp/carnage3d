@@ -80,4 +80,34 @@ bool ensure_path_exists(std::string pathto)
     return filesystem::create_directories(sourcePath);
 }
 
+void enum_files(std::string pathto, enum_files_proc enumproc)
+{
+    filesystem::path sourcePath {pathto};
+    if (!filesystem::exists(sourcePath))
+        return;
+
+    filesystem::directory_iterator iter_directory_end;
+    for (filesystem::directory_iterator iter_directory(sourcePath); 
+        iter_directory != iter_directory_end; ++iter_directory)
+    {
+        const filesystem::path& currentFile = iter_directory->path();
+        enumproc(currentFile.filename().generic_string());
+    }
+}
+
+void enum_files_recursive(std::string pathto, enum_files_proc enumproc)
+{
+    filesystem::path sourcePath {pathto};
+    if (!filesystem::exists(sourcePath))
+        return;
+
+    filesystem::recursive_directory_iterator iter_directory_end;
+    for (filesystem::recursive_directory_iterator iter_directory(sourcePath); 
+        iter_directory != iter_directory_end; ++iter_directory)
+    {
+        const filesystem::path& currentFile = iter_directory->path();
+        enumproc(currentFile.filename().generic_string());
+    }
+}
+
 } // namespace cxx

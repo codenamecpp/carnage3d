@@ -1132,8 +1132,8 @@ void GraphicsDevice::QueryGraphicsDeviceCaps()
     glCheckError();
 
     gConsole.LogMessage(eLogMessage_Info, "Graphics Device caps:");
-    gConsole.LogMessage(eLogMessage_Info, "- max array texture layers: %d", mCaps.mMaxArrayTextureLayers);
-    gConsole.LogMessage(eLogMessage_Info, "- max texture buffer size: %d bytes", mCaps.mMaxTextureBufferSize);
+    gConsole.LogMessage(eLogMessage_Info, " - max array texture layers: %d", mCaps.mMaxArrayTextureLayers);
+    gConsole.LogMessage(eLogMessage_Info, " - max texture buffer size: %d bytes", mCaps.mMaxTextureBufferSize);
 }
 
 void GraphicsDevice::ActivateTextureUnit(eTextureUnit textureUnit)

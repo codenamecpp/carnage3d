@@ -9,6 +9,7 @@
 #include "MemoryManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
+static const char* GTA1MapFileExtension = ".CMP";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -23,10 +24,44 @@ bool CarnageGame::Initialize()
     SetInputActionsFromConfig();
 
     gGameRules.LoadDefaults();
+
+    // scan all gta1 maps
+    std::vector<std::string> gtaMapNames;
+    for (const std::string& currSearchPlace: gFiles.mSearchPlaces)
+    {
+        cxx::enum_files(currSearchPlace, [&gtaMapNames](const std::string& curr)
+        {
+            if (cxx::get_file_extension(curr) == GTA1MapFileExtension)
+            {
+                gtaMapNames.push_back(curr);  
+            }
+        });
+    }
+
+    if (gtaMapNames.size())
+    {
+        gConsole.LogMessage(eLogMessage_Info, "Found GTA1 maps:");
+        for (const std::string& currMapname: gtaMapNames)
+        {
+            gConsole.LogMessage(eLogMessage_Info, " - %s", currMapname.c_str());
+        }
+    }
+    else
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "No GTA1 maps found within search places");
+    }
+
     if (gSystem.mStartupParams.mDebugMapName.empty())
     {
-        gSystem.mStartupParams.mDebugMapName.set_content("NYC.CMP");
+        // try load first found map
+        if (gtaMapNames.size())
+        {
+            gSystem.mStartupParams.mDebugMapName = gtaMapNames[0].c_str();
+        }
     }
+
+    if (gSystem.mStartupParams.mDebugMapName.empty())
+        return false;
 
     gGameMap.LoadFromFile(gSystem.mStartupParams.mDebugMapName.c_str());
     gSpriteManager.Cleanup();

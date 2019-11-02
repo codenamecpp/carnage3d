@@ -66,6 +66,8 @@ bool GameMapManager::LoadFromFile(const char* filename)
 {
     Cleanup();
 
+    gConsole.LogMessage(eLogMessage_Info, "Loading map '%s'", filename);
+
     std::ifstream file;
     if (!gFiles.OpenBinaryFile(filename, file))
     {
