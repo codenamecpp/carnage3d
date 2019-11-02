@@ -58,7 +58,7 @@ Tested on Ubuntu Linux and Windows 7 64bits.
 
 ## Command Line Params ##
 
-To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**. By default **NYC** will loaded.
+To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**.
 
 ## Controls ##
 It is similar to original:
