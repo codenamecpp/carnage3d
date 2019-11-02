@@ -63,6 +63,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <cctype>
 #include <chrono>
 #include <thread>
+#include <functional>
 
 // opengl
 #include <GL/glew.h>
