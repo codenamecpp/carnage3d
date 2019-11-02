@@ -5,6 +5,8 @@
 #include "MapRenderer.h"
 #include "DebugRenderer.h"
 
+class RenderView;
+
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderingManager final: public cxx::noncopyable
 {
@@ -17,6 +19,8 @@ public:
 
     MapRenderer mMapRenderer;
     DebugRenderer mDebugRenderer;
+
+    std::vector<RenderView*> mActiveRenderViews;
 
 public:
     RenderingManager();
@@ -35,6 +39,9 @@ public:
 
     // Force reload all render programs
     void ReloadRenderPrograms();
+    
+    void AttachRenderView(RenderView* renderview);
+    void DetachRenderView(RenderView* renderview);
 
 private:
     bool InitRenderPrograms();

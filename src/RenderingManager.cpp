@@ -3,6 +3,7 @@
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
 #include "SpriteManager.h"
+#include "RenderView.h"
 
 RenderingManager gRenderManager;
 
@@ -37,6 +38,7 @@ bool RenderingManager::Initialize()
 
 void RenderingManager::Deinit()
 {
+    mActiveRenderViews.clear();
     mDebugRenderer.Deinit();
     mMapRenderer.Deinit();
     gSpriteManager.Cleanup();
@@ -47,11 +49,25 @@ void RenderingManager::Deinit()
 void RenderingManager::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
-    gCamera.ComputeMatricesAndFrustum();
     gSpriteManager.RenderFrameBegin();
-    mMapRenderer.RenderFrame();
-    mDebugRenderer.RenderFrame();
+    mMapRenderer.RenderFrameStart();
+
+    Rect2D viewportRectangle = gGraphicsDevice.mViewportRect;
+    for (RenderView* currRenderview: mActiveRenderViews)
+    {
+        currRenderview->PreRender();
+
+        mMapRenderer.RenderFrame(currRenderview);
+        //mDebugRenderer.RenderFrame(currRenderview);
+    }
+    gGraphicsDevice.SetViewportRect(viewportRectangle);
     gGuiSystem.RenderFrame();
+
+    for (RenderView* currRenderview: mActiveRenderViews)
+    {
+        currRenderview->PostRender();
+    }
+    mMapRenderer.RenderFrameEnd();
     gSpriteManager.RenderFrameEnd();
     gGraphicsDevice.Present();
 }
@@ -85,4 +101,30 @@ void RenderingManager::ReloadRenderPrograms()
     mDebugProgram.Reinitialize();
     mSpritesProgram.Reinitialize();
     mCityMeshProgram.Reinitialize();
+}
+
+void RenderingManager::AttachRenderView(RenderView* renderview)
+{
+    debug_assert(renderview);
+
+    auto ifound = std::find(mActiveRenderViews.begin(), mActiveRenderViews.end(), renderview);
+    if (ifound == mActiveRenderViews.end())
+    {
+        mActiveRenderViews.push_back(renderview);
+        return;
+    }
+    debug_assert(false);
+}
+
+void RenderingManager::DetachRenderView(RenderView* renderview)
+{
+    debug_assert(renderview);
+
+    auto ifound = std::find(mActiveRenderViews.begin(), mActiveRenderViews.end(), renderview);
+    if (ifound != mActiveRenderViews.end())
+    {
+        mActiveRenderViews.erase(ifound);
+        return;
+    }
+    debug_assert(false);
 }

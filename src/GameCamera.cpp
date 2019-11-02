@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "GameCamera.h"
 
-GameCamera gCamera;
-
 GameCamera::GameCamera()
     : mProjMatrixDirty(true)
     , mViewMatrixDirty(true)
     , mCurrentMode(eSceneCameraMode_Perspective)
+    , mViewportRect()
 {
     SetIdentity();
 }
@@ -121,12 +120,12 @@ void GameCamera::Translate(const glm::vec3& direction)
 bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay)
 {
     // wrap y
-    const int32_t mouseY = gGraphicsDevice.mViewportRect.h - screenCoordinate.y;
+    const int32_t mouseY = mViewportRect.h - screenCoordinate.y;
     const glm::ivec4 viewport { 
-        gGraphicsDevice.mViewportRect.x, 
-        gGraphicsDevice.mViewportRect.y, 
-        gGraphicsDevice.mViewportRect.w, 
-        gGraphicsDevice.mViewportRect.h };
+        mViewportRect.x, 
+        mViewportRect.y, 
+        mViewportRect.w, 
+        mViewportRect.h };
         //unproject twice to build a ray from near to far plane
     const glm::vec3 v0 = glm::unProject(glm::vec3{screenCoordinate.x * 1.0f, mouseY * 1.0f, 0.0f}, 
         mViewMatrix, 

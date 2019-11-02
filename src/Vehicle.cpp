@@ -39,7 +39,6 @@ void Vehicle::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRot
 
     mMarkForDeletion = false;
     mDead = false;
-    mIsOnScreen = false;
     mDamageDeltaBits = 0;
     mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
     mRemapIndex = NO_REMAP;
@@ -71,38 +70,9 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     mChassisDrawSprite.mHeight = mDrawHeight;
     mChassisDrawSprite.SetOriginToCenter();
 
-    // update is on screen
-    glm::vec2 corners[4];
-    mChassisDrawSprite.GetCorners(corners);
-
-    glm::vec2 minpos = corners[0];
-    glm::vec2 maxpos = corners[0];
-
-    for (int icorner = 1; icorner < 4; ++icorner)
-    {
-        minpos = glm::min(minpos, corners[icorner]);
-        maxpos = glm::max(maxpos, corners[icorner]);
-    }
-
-    float halfw = (maxpos.x - minpos.x) * 0.5f;
-    float halfh = (maxpos.y - minpos.y) * 0.5f;
-
-    cxx::aabbox_t aabox;
-    aabox.mMin.x = mChassisDrawSprite.mPosition.x - halfw;
-    aabox.mMin.y = mPhysicsComponent->mHeight - 0.1f;
-    aabox.mMin.z = mChassisDrawSprite.mPosition.y - halfh;
-
-    aabox.mMax.x = mChassisDrawSprite.mPosition.x + halfw;
-    aabox.mMax.y = mPhysicsComponent->mHeight + 0.1f;
-    aabox.mMax.z = mChassisDrawSprite.mPosition.y + halfh;
-
-    mIsOnScreen = gCamera.mFrustum.contains(aabox);
-    if (!mIsOnScreen)
-        return;
-
     spriteBatch.DrawSprite(mChassisDrawSprite);
 
-#if 1
+#if 0
     DrawDebug();
 #endif
 }

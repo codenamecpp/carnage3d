@@ -2,6 +2,7 @@
 #include "SpriteBatch.h"
 #include "RenderingManager.h"
 #include "SpriteManager.h"
+#include "RenderView.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -39,13 +40,14 @@ void SpriteBatch::DrawSprite(const Sprite2D& sourceSprite)
     mSpritesList.push_back(sourceSprite);
 }
 
-void SpriteBatch::Flush()
+void SpriteBatch::Flush(RenderView* renderview)
 {
+    debug_assert(renderview);
     if (!mSpritesList.empty())
     {
         SortSpritesList();
         GenerateSpritesBatches();
-        RenderSpritesBatches();
+        RenderSpritesBatches(renderview);
     }
     Clear();
 }
@@ -138,14 +140,14 @@ void SpriteBatch::GenerateSpritesBatches()
     }
 }
 
-void SpriteBatch::RenderSpritesBatches()
+void SpriteBatch::RenderSpritesBatches(RenderView* renderview)
 {
     RenderStates cityMeshRenderStates;
     cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mSpritesProgram.Activate();
-    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(gCamera);
+    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
 
     SpriteVertex3D_Format vFormat;
     mTrimeshBuffer.SetVertices(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data());

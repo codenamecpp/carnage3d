@@ -43,6 +43,7 @@ void SysStartupParameters::SetNull()
 {
     mDebugMapName.clear();
     mGtaDataLocation.clear();
+    mPlayersCount = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -20,6 +20,8 @@ public:
 
     eSceneCameraMode mCurrentMode;
 
+    Rect2D mViewportRect;
+
 public:
     GameCamera();
 
@@ -38,7 +40,7 @@ public:
     // Will not do any unnecessary calculations if nothing changed
     void ComputeMatricesAndFrustum();
 
-    // Reset camera to initial state
+    // Reset camera to initial state, but does not clear viewport
     void SetIdentity();
 
     // Set camera orientation vectors
@@ -94,5 +96,3 @@ private:
     };
     OrthographicParams mOrthographicParams;
 };
-
-extern GameCamera gCamera;

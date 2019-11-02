@@ -3,6 +3,8 @@
 #include "SpriteBatch.h"
 #include "GameDefs.h"
 
+class RenderView;
+
 // map renderer statistics info
 struct MapRenderStats
 {
@@ -24,11 +26,13 @@ public:
 public:
     bool Initialize();
     void Deinit();
-    void RenderFrame();
+    void RenderFrameStart();
+    void RenderFrame(RenderView* renderview);
+    void RenderFrameEnd();
     void BuildMapMesh();
 
 private:
-    void DrawCityMesh();
+    void DrawCityMesh(RenderView* renderview);
 
 private:
     enum

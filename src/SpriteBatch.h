@@ -4,6 +4,8 @@
 #include "TrimeshBuffer.h"
 #include "Sprite2D.h"
 
+class RenderView;
+
 // defines renderer class for 2d sprites
 class SpriteBatch final: public cxx::noncopyable
 {
@@ -13,7 +15,7 @@ public:
     void Deinit();
 
     // render all batched sprites
-    void Flush();
+    void Flush(RenderView* renderview);
 
     // discard all batched sprites
     void Clear();
@@ -25,7 +27,7 @@ public:
 private:
     void SortSpritesList();
     void GenerateSpritesBatches();
-    void RenderSpritesBatches();
+    void RenderSpritesBatches(RenderView* renderview);
 
 private:
     // single batch of drawing sprites

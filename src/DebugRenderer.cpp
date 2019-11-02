@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DebugRenderer.h"
 #include "RenderingManager.h"
+#include "RenderView.h"
 
 static struct DebugSpherePrecomp
 {
@@ -62,13 +63,15 @@ void DebugRenderer::Deinit()
     mTrimeshBuffer.Deinit();
 }
 
-void DebugRenderer::RenderFrame()
+void DebugRenderer::RenderFrame(RenderView* renderview)
 {
+    debug_assert(renderview);
+
     if (mDebugLines.empty() && mDebugTriangles.empty())
         return;
 
     gRenderManager.mDebugProgram.Activate();
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(gCamera);
+    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
     FlushPrimitives();
     gRenderManager.mDebugProgram.Deactivate();
 }

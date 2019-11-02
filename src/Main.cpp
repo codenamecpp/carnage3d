@@ -22,6 +22,12 @@ int main(int argc, char *argv[])
             iarg += 2;
             continue;
         }
+        if (cxx_stricmp(argv[iarg], "-numplayers") == 0 && (argc > iarg + 1))
+        {
+            ::sscanf(argv[iarg + 1], "%d", &sysStartupParams.mPlayersCount);
+            iarg += 2;
+            continue;
+        }
         ++iarg;
     }
 

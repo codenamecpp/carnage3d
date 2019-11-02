@@ -1,5 +1,7 @@
 #pragma once
 
+class GameCamera;
+
 // base camera controller interface
 class CameraController
 {
@@ -8,7 +10,7 @@ public:
     {
     }
     // reset camera and controller both to default state
-    virtual void SetupInitial()
+    virtual void Setup(GameCamera* gameCamera)
     {
     }
     // handle camera controller logic
@@ -30,4 +32,7 @@ public:
     virtual void InputEvent(MouseScrollInputEvent& inputEvent)
     {
     }
+
+public:
+    GameCamera* mCamera = nullptr;
 };

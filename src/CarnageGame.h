@@ -1,22 +1,29 @@
 #pragma once
 
 #include "GameMapManager.h"
-#include "FollowCameraController.h"
-#include "FreeLookCameraController.h"
 #include "GameObjectsManager.h"
 #include "HumanCharacterController.h"
+#include "HumanCharacterView.h"
 
 // top level game application controller
 class CarnageGame final: public cxx::noncopyable
 {
 public:
     GameObjectsManager mObjectsManager;
-    FollowCameraController mFollowCameraController;
-    FreeLookCameraController mFreeLookCameraController;
+
+    // temporary
+    struct HumanCharacterSlot
+    {
+    public:
+        HumanCharacterSlot() = default;        
+    public:
+        HumanCharacterController mCharController;
+        HumanCharacterView mCharView;
+        Pedestrian* mCharPedestrian = nullptr;
+    };
+
     // gamestate
-    Pedestrian* mPlayerPedestrian = nullptr;
-    CameraController* mCameraController = nullptr;
-    HumanCharacterController mHumanCharacters[GAME_MAX_PLAYERS];
+    HumanCharacterSlot mHumanCharacters[GAME_MAX_PLAYERS];
 
     Timespan mGameTime;
 
@@ -36,12 +43,12 @@ public:
     void InputEvent(KeyCharEvent& inputEvent);
     void InputEvent(GamepadInputEvent& inputEvent);
 
-    // public for debug purposes
-    void SetCameraController(CameraController* controller);
+    // initialize player data
+    void SetupHumanCharacter(int playerIndex, Pedestrian* pedestrian);
+    void SetupScreenLayout(int playersCount);
 
 private:
     bool SetInputActionsFromConfig();
-
 };
 
 extern CarnageGame gCarnageGame;

@@ -158,6 +158,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="HumanCharacterView.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="mem_allocators.h" />
@@ -175,6 +176,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClInclude Include="MapRenderer.h" />
     <ClInclude Include="GameMapManager.h" />
     <ClInclude Include="HumanCharacterController.h" />
+    <ClInclude Include="RenderView.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="SpriteBatch.h" />
     <ClInclude Include="StyleData.h" />
@@ -240,6 +242,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="enums_impl.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
+    <ClCompile Include="HumanCharacterView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
@@ -251,6 +254,7 @@ copy "$(SDKDIR)\glfw\lib-vc2015\glfw3.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GameMapHelpers.cpp" />
     <ClCompile Include="GameMapManager.cpp" />
     <ClCompile Include="HumanCharacterController.cpp" />
+    <ClCompile Include="RenderView.cpp" />
     <ClCompile Include="Sprite2D.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />
     <ClCompile Include="StyleData.cpp" />

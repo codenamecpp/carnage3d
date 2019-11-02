@@ -3,6 +3,8 @@
 #include "GraphicsDefs.h"
 #include "TrimeshBuffer.h"
 
+class RenderView;
+
 // renders debug information
 class DebugRenderer final: public cxx::noncopyable
 {
@@ -10,7 +12,7 @@ public:
     DebugRenderer();
     bool Initialize();
     void Deinit();
-    void RenderFrame();
+    void RenderFrame(RenderView* renderview);
 
     void DrawLine(const glm::vec3& point_a, const glm::vec3& point_b, unsigned int line_color);
     void DrawCube(const glm::vec3& point_center, const glm::vec3& cube_dimensions, unsigned int line_color);

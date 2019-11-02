@@ -12,42 +12,48 @@ FollowCameraController::FollowCameraController()
 {
 }
 
-void FollowCameraController::SetupInitial()
+void FollowCameraController::Setup(GameCamera* gameCamera)
 {
+    debug_assert(gameCamera);
+    mCamera = gameCamera;
+
+    // compute aspect ratio
+    float screenAspect = (mCamera->mViewportRect.h > 0) ? ((mCamera->mViewportRect.w * 1.0f) / (mCamera->mViewportRect.h * 1.0f)) : 1.0f;
+
     // set camera defaults
-    gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 55.0f, 0.1f, 1000.0f);
+    mCamera->SetIdentity();
+    mCamera->SetPerspectiveProjection(screenAspect, 55.0f, 0.1f, 1000.0f);
     
-    if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
+    if (mFollowPedestrian)
     {
-        glm::vec3 position = player->mPhysicsComponent->GetPosition();
-        gCamera.SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
+        glm::vec3 position = mFollowPedestrian->mPhysicsComponent->GetPosition();
+        mCamera->SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
     }
     else
     {
-        gCamera.SetPosition({0.0f, mStartupCameraHeight, 0.0f});
+        mCamera->SetPosition({0.0f, mStartupCameraHeight, 0.0f});
     }
-    gCamera.SetTopDownOrientation();
+    mCamera->SetTopDownOrientation();
 }
 
 void FollowCameraController::UpdateFrame(Timespan deltaTime)
 {
     // correct zoom
-    if (Pedestrian* player = gCarnageGame.mPlayerPedestrian)
+    if (mFollowPedestrian)
     {
-        glm::vec3 position = player->mPhysicsComponent->GetPosition();
+        glm::vec3 position = mFollowPedestrian->mPhysicsComponent->GetPosition();
 
         float targetHeight = (position.y + mFollowPedCameraHeight + mScrollHeightOffset);
-        float delta = targetHeight - gCamera.mPosition.y;
+        float delta = targetHeight - mCamera->mPosition.y;
         if (fabs(delta) > 0.005f)
         {
-            position.y = gCamera.mPosition.y + (targetHeight - gCamera.mPosition.y) * mFollowPedZoomCameraSpeed * deltaTime.ToSeconds();
+            position.y = mCamera->mPosition.y + (targetHeight - mCamera->mPosition.y) * mFollowPedZoomCameraSpeed * deltaTime.ToSeconds();
         }
         else
         {
             position.y = targetHeight;
         }
-        gCamera.SetPosition(position); 
+        mCamera->SetPosition(position); 
     }
 }
 
@@ -66,4 +72,9 @@ void FollowCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 void FollowCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     mScrollHeightOffset -= inputEvent.mScrollY;
+}
+
+void FollowCameraController::SetFollowTarget(Pedestrian* pedestrian)
+{
+    mFollowPedestrian = pedestrian;
 }

@@ -304,6 +304,12 @@
     <ClInclude Include="TrimeshBuffer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="RenderView.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanCharacterView.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -471,6 +477,12 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="TrimeshBuffer.cpp">
+      <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanCharacterView.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderView.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
   </ItemGroup>

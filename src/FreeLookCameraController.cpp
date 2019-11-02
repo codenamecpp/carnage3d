@@ -1,14 +1,20 @@
 #include "stdafx.h"
 #include "FreeLookCameraController.h"
 
-void FreeLookCameraController::SetupInitial()
+void FreeLookCameraController::Setup(GameCamera* gameCamera)
 {
-    glm::vec3 cameraPosition = gCamera.mPosition;
+    debug_assert(gameCamera);
+    mCamera = gameCamera;
+
+    // compute aspect ratio
+    float screenAspect = (mCamera->mViewportRect.h > 0) ? ((mCamera->mViewportRect.w * 1.0f) / (mCamera->mViewportRect.h * 1.0f)) : 1.0f;
+
+    glm::vec3 cameraPosition = mCamera->mPosition;
     // set camera defaults
-    gCamera.SetIdentity();
-    gCamera.SetPerspectiveProjection(gSystem.mConfig.mScreenAspectRatio, 60.0f, 0.1f, 1000.0f);
-    gCamera.SetTopDownOrientation();
-    gCamera.SetPosition(cameraPosition);
+    mCamera->SetIdentity();
+    mCamera->SetPerspectiveProjection(screenAspect, 60.0f, 0.1f, 1000.0f);
+    mCamera->SetTopDownOrientation();
+    mCamera->SetPosition(cameraPosition);
 
     // reset controls flags
     mMoveLeft = false;
@@ -25,23 +31,23 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         glm::vec3 moveDirection {0.0f};
         if (mMoveForward)
         {
-            moveDirection -= glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
+            moveDirection -= glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxes::Y));
         }
         else if (mMoveBackward)
         {
-            moveDirection += glm::normalize(glm::cross(gCamera.mRightDirection, SceneAxes::Y));
+            moveDirection += glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxes::Y));
         }
 
         if (mMoveRight)
         {
-            moveDirection += gCamera.mRightDirection;
+            moveDirection += mCamera->mRightDirection;
         }
         else if (mMoveLeft)
         {
-            moveDirection -= gCamera.mRightDirection;
+            moveDirection -= mCamera->mRightDirection;
         }
         moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime.ToSeconds();
-        gCamera.Translate(moveDirection);
+        mCamera->Translate(moveDirection);
     }
 
     if (mMouseDragCamera)
@@ -50,18 +56,18 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         if (mRotateDeltaY)
         {
             float angleRads = -glm::radians(glm::sign(mRotateDeltaY) * rotationAngle * deltaTime.ToSeconds());
-            glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, gCamera.mRightDirection);
-            glm::vec3 updir = glm::normalize(glm::cross(gCamera.mRightDirection, frontdir)); 
-            gCamera.SetOrientation(frontdir, gCamera.mRightDirection, updir);
+            glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, mCamera->mRightDirection);
+            glm::vec3 updir = glm::normalize(glm::cross(mCamera->mRightDirection, frontdir)); 
+            mCamera->SetOrientation(frontdir, mCamera->mRightDirection, updir);
         }
 
         if (mRotateDeltaX)
         {
             float angleRads = -glm::radians(glm::sign(mRotateDeltaX) * rotationAngle * deltaTime.ToSeconds());
-            glm::vec3 rightdir = glm::rotate(gCamera.mRightDirection, angleRads, SceneAxes::Y);
-            glm::vec3 frontdir = glm::rotate(gCamera.mFrontDirection, angleRads, SceneAxes::Y);
+            glm::vec3 rightdir = glm::rotate(mCamera->mRightDirection, angleRads, SceneAxes::Y);
+            glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, SceneAxes::Y);
             glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 
-            gCamera.SetOrientation(frontdir, rightdir, updir);
+            mCamera->SetOrientation(frontdir, rightdir, updir);
         }   
 
         mRotateDeltaX = 0;
@@ -133,5 +139,5 @@ void FreeLookCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
     if (inputEvent.mConsumed)
         return;
 
-    gCamera.Translate({ 0.0f, MAP_BLOCK_LENGTH * 0.5f * -inputEvent.mScrollY, 0.0f});
+    mCamera->Translate({ 0.0f, MAP_BLOCK_LENGTH * 0.5f * -inputEvent.mScrollY, 0.0f});
 }

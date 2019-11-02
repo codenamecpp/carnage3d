@@ -6,8 +6,11 @@ class FollowCameraController final: public CameraController
 {
 public:
     FollowCameraController();
+
+    void SetFollowTarget(Pedestrian* pedestrian);
+
     // reset scene camera to defaults
-    void SetupInitial() override;
+    void Setup(GameCamera* gameCamera) override;
 
     // process events and advance controller logic for single frame
     // @param deltaTime: Time since last frame
@@ -26,4 +29,6 @@ private:
     float mFollowPedCameraHeight;
     float mScrollHeightOffset;
     float mFollowPedZoomCameraSpeed;
+
+    Pedestrian* mFollowPedestrian = nullptr;
 };

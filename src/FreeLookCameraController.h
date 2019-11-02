@@ -6,7 +6,7 @@ class FreeLookCameraController final: public CameraController
 {
 public:
     // reset scene camera to defaults
-    void SetupInitial() override;
+    void Setup(GameCamera* gameCamera) override;
 
     // process events and advance controller logic for single frame
     // @param deltaTime: Time since last frame

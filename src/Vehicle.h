@@ -17,7 +17,6 @@ public:
     CarPhysicsComponent* mPhysicsComponent;
 
     bool mDead;
-    bool mIsOnScreen;
 
     float mDrawHeight;
     int mRemapIndex;

@@ -36,7 +36,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     ImGui::Text("Block chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
     
     // pedestrian stats
-    if (Pedestrian* pedestrian = gCarnageGame.mPlayerPedestrian)
+    if (Pedestrian* pedestrian = gCarnageGame.mHumanCharacters[0].mCharPedestrian)
     {
         ImGui::Separator();
         glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
@@ -72,13 +72,13 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     const char* modeStrings[] = { "Follow", "Free Look" };
     CameraController* modeControllers[] =
     {
-        &gCarnageGame.mFollowCameraController, 
-        &gCarnageGame.mFreeLookCameraController,
+        &gCarnageGame.mHumanCharacters[0].mCharView.mFollowCameraController, 
+        &gCarnageGame.mHumanCharacters[0].mCharView.mFreeLookCameraController,
     }; 
     int currentCameraMode = 0;
     for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
     {
-        if (gCarnageGame.mCameraController == modeControllers[i])
+        if (gCarnageGame.mHumanCharacters[0].mCharView.mCameraController == modeControllers[i])
         {
             currentCameraMode = i;
             break;
@@ -93,7 +93,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
             if (ImGui::Selectable(modeStrings[n], is_selected))
             {
                 item_current = modeStrings[n];
-                gCarnageGame.SetCameraController(modeControllers[n]);
+                gCarnageGame.mHumanCharacters[0].mCharView.SetCameraController(modeControllers[n]);
             }
             if (is_selected)
             {

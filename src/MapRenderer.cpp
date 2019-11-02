@@ -10,6 +10,7 @@
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
 #include "Vehicle.h"
+#include "RenderView.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -60,14 +61,24 @@ void MapRenderer::Deinit()
     }
 }
 
-void MapRenderer::RenderFrame()
+void MapRenderer::RenderFrameStart()
 {
     mRenderStats.FrameStart();
+}
+
+void MapRenderer::RenderFrameEnd()
+{
+    mRenderStats.FrameEnd();
+}
+
+void MapRenderer::RenderFrame(RenderView* renderview)
+{
+    debug_assert(renderview);
 
     gGraphicsDevice.BindTexture(eTextureUnit_3, gSpriteManager.mPalettesTable);
     gGraphicsDevice.BindTexture(eTextureUnit_2, gSpriteManager.mPaletteIndicesTable);
 
-    DrawCityMesh();
+    DrawCityMesh(renderview);
 
     // collect and render game objects sprites
     for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
@@ -78,19 +89,17 @@ void MapRenderer::RenderFrame()
     {
         currVehicle->DrawFrame(mSpritesBatch);
     }
-    mSpritesBatch.Flush();
-
-    mRenderStats.FrameEnd();
+    mSpritesBatch.Flush(renderview);
 }
 
-void MapRenderer::DrawCityMesh()
+void MapRenderer::DrawCityMesh(RenderView* renderview)
 {
     RenderStates cityMeshRenderStates;
 
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mCityMeshProgram.Activate();
-    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(gCamera);
+    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
@@ -101,7 +110,7 @@ void MapRenderer::DrawCityMesh()
 
         for (const MapBlocksChunk& currChunk: mMapBlocksChunks)
         {
-            if (!gCamera.mFrustum.contains(currChunk.mBounds))
+            if (!renderview->mRenderCamera.mFrustum.contains(currChunk.mBounds))
                 continue;
 
             gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, 
