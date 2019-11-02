@@ -1,15 +1,17 @@
+CPUS := $(shell grep -c ^processor /proc/cpuinfo)
+
 all: build_debug
 	true
 
 build_debug: box2d premake
 	.build/premake5 gmake --cc=clang
-	make -C .build config=debug_x86_64 -j $(($(grep -c ^processor /proc/cpuinfo)/2))
+	make -C .build config=debug_x86_64 -j $$(($(CPUS)/2))
 	test -d bin || mkdir bin
 	cp .build/bin/x86_64/Debug/carnage3d bin/carnage3d-debug
 
 build_release: box2d premake
 	.build/premake5 gmake --cc=clang
-	make -C .build config=release_x86_64 -j $(($(grep -c ^processor /proc/cpuinfo)/2))
+	make -C .build config=release_x86_64 -j $$(($(CPUS)/2))
 	test -d bin || mkdir bin
 	cp .build/bin/x86_64/Release/carnage3d bin/carnage3d-release
 
@@ -41,7 +43,7 @@ premake: builddir
 
 box2d: premake
 	.build/premake5 --file=third_party/Box2D/premake5.lua gmake
-	make -C third_party/Box2D/Build config=debug_x86_64
-	make -C third_party/Box2D/Build config=release_x86_64
+	make -C third_party/Box2D/Build config=debug_x86_64 -j $$(($(CPUS)/2))
+	make -C third_party/Box2D/Build config=release_x86_64 -j $$(($(CPUS)/2))
 
 
