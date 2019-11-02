@@ -79,4 +79,8 @@ When in "Free Look" camera mode, moving with **W**, **S**, **A**, **D** keys.
 * [gta2.js](https://github.com/aalin/gta2.js)
 
 ## Screenshots ##
+First test launch on Linux
 ![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
+
+Split screen test on Windows
+![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/SplitScreenTest.png)
