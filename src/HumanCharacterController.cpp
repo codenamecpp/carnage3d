@@ -329,7 +329,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 
     glm::vec3 pos = mCharacter->mPhysicsComponent->GetPosition();
     glm::vec2 posA { pos.x, pos.z };
-    glm::vec2 posB = posA + (mCharacter->mPhysicsComponent->GetSignVector() * gGameRules.mPedestrianSpotTheCarDistance);
+    glm::vec2 posB = posA + (mCharacter->mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance);
 
     gPhysics.QueryObjects(posA, posB, queryResult);
 

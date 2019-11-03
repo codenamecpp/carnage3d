@@ -3,6 +3,8 @@
 #include "Pedestrian.h"
 #include "PhysicsComponents.h"
 #include "Vehicle.h"
+#include "CarnageGame.h"
+#include "PhysicsManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +32,15 @@ PedestrianStateEvent PedestrianStateEvent::Get_ActionLeaveCar()
     return eventData;
 }
 
+PedestrianStateEvent PedestrianStateEvent::Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker)
+{
+    PedestrianStateEvent eventData {ePedestrianStateEvent_TakeDamageFromWeapon};
+    eventData.mDamageFromWeapon.mAttacker = attacker;
+    eventData.mDamageFromWeapon.mWeaponType = weaponType;
+
+    return eventData;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
@@ -37,7 +48,7 @@ void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan 
     if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
         pedestrian->mCtlActions[ePedestrianAction_TurnRight])
     {
-        float angularVelocity = gGameRules.mPedestrianTurnSpeed * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
+        float angularVelocity = gGameParams.mPedestrianTurnSpeed * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
         pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
     else
@@ -52,12 +63,12 @@ void PedestrianBaseState::ProcessMotionActions(Pedestrian* pedestrian, Timespan 
         pedestrian->mCtlActions[ePedestrianAction_WalkBackward] || 
         pedestrian->mCtlActions[ePedestrianAction_Run])
     {
-        float moveSpeed = gGameRules.mPedestrianWalkSpeed;
+        float moveSpeed = gGameParams.mPedestrianWalkSpeed;
 
         glm::vec2 linearVelocity = pedestrian->mPhysicsComponent->GetSignVector();
         if (pedestrian->mCtlActions[ePedestrianAction_Run])
         {
-            moveSpeed = gGameRules.mPedestrianRunSpeed;
+            moveSpeed = gGameParams.mPedestrianRunSpeed;
         }
         else if (pedestrian->mCtlActions[ePedestrianAction_WalkBackward])
         {
@@ -150,6 +161,11 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
         return;
     }
 
+    if (pedestrian->IsShooting())
+    {
+        TryToShoot(pedestrian);
+    }
+
     if (!CanInterrupCurrentIdleAnim(pedestrian))
         return;
 
@@ -201,6 +217,12 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
 
 void PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
 {
+    if (stateEvent.mID == ePedestrianStateEvent_TakeDamageFromWeapon)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateKnockedDown, &stateEvent);
+        return;
+    }
+
     if (!CanInterrupCurrentIdleAnim(pedestrian))
         return;
 
@@ -217,6 +239,45 @@ bool PedestrianStateIdleBase::CanInterrupCurrentIdleAnim(Pedestrian* pedestrian)
         return pedestrian->mCurrentAnimState.IsLastFrame() || 
             !pedestrian->mCurrentAnimState.IsAnimationActive();
     }
+    return true;
+}
+
+bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
+{
+    Timespan currGameTime = gCarnageGame.mGameTime;
+    if (pedestrian->mWeaponRechargeTime > currGameTime ||
+        pedestrian->mWeaponsAmmo[pedestrian->mCurrentWeapon] == 0)
+    {
+        return false;
+    }
+
+    if (pedestrian->mCurrentWeapon == eWeaponType_Fists)
+    {
+        glm::vec3 pos = pedestrian->mPhysicsComponent->GetPosition();
+        glm::vec2 posA { pos.x, pos.z };
+        glm::vec2 posB = posA + (pedestrian->mPhysicsComponent->GetSignVector() * gGameParams.mWeaponsDistance[pedestrian->mCurrentWeapon]);
+        // find candidates
+        PhysicsQueryResult queryResult;
+        gPhysics.QueryObjects(posA, posB, queryResult);
+        for (int iped = 0; iped < queryResult.mPedsCount; ++iped)
+        {
+            Pedestrian* currPedestrian = queryResult.mPedsList[iped]->mReferencePed;
+            if (currPedestrian == pedestrian) // ignore self
+                continue;
+
+            // todo: check distance in y direction
+
+            currPedestrian->TakeDamage(pedestrian->mCurrentWeapon, pedestrian);
+        }
+    }
+    else
+    {
+        // todo: add projectiles
+    }    
+
+    // setup cooldown time for weapons
+    Timespan rechargeTime = Timespan::FromSeconds(gGameParams.mWeaponsRechargeTime[pedestrian->mCurrentWeapon]);
+    pedestrian->mWeaponRechargeTime = currGameTime + rechargeTime;
     return true;
 }
 
@@ -369,6 +430,38 @@ void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const Pede
 
 //////////////////////////////////////////////////////////////////////////
 
+void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+    {
+        if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_FallShort)
+        {
+            pedestrian->SetAnimation(eSpriteAnimationID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+            return;
+        }
+    }
+
+    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_LiesOnFloor)
+    {
+        if (pedestrian->mCurrentStateTime >= Timespan::FromSeconds(gGameParams.mPedestrianKnockedDownTime))
+        {
+            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+        }
+        return;
+    }
+}
+
+void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+{
+    pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
+}
+
+void PedestrianStateKnockedDown::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     // check for falling state
@@ -417,7 +510,7 @@ void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Tim
     if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
         pedestrian->mCtlActions[ePedestrianAction_TurnRight])
     {
-        float angularVelocity = gGameRules.mPedestrianTurnSpeedSlideOnCar * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
+        float angularVelocity = gGameParams.mPedestrianTurnSpeedSlideOnCar * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
         pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
     else
@@ -428,7 +521,7 @@ void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Tim
 
 void PedestrianStateSlideOnCar::ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime)
 {
-    glm::vec2 linearVelocity = gGameRules.mPedestrianSlideOnCarSpeed * pedestrian->mPhysicsComponent->GetSignVector();
+    glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * pedestrian->mPhysicsComponent->GetSignVector();
     pedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
 }
 

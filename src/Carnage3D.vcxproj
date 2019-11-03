@@ -189,7 +189,7 @@
     <ClInclude Include="Console.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="GameDefs.h" />
-    <ClInclude Include="GameRules.h" />
+    <ClInclude Include="GameParams.h" />
     <ClInclude Include="geometries.h" />
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="frustum.h" />
@@ -265,7 +265,7 @@
     <ClCompile Include="CarnageGame.cpp" />
     <ClCompile Include="config_document.cpp" />
     <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="GameRules.cpp" />
+    <ClCompile Include="GameParams.cpp" />
     <ClCompile Include="GpuTextureArray2D.cpp" />
     <ClCompile Include="GuiRenderContext.cpp" />
     <ClCompile Include="GuiSystem.cpp" />

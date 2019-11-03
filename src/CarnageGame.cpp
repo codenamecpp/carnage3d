@@ -23,7 +23,7 @@ bool CarnageGame::Initialize()
 
     SetInputActionsFromConfig();
 
-    gGameRules.LoadDefaults();
+    gGameParams.LoadDefaults();
 
     // scan all gta1 maps
     std::vector<std::string> gtaMapNames;
@@ -305,6 +305,11 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
     debug_assert(mHumanCharacters[humanIndex].mCharPedestrian == nullptr);
     if (mHumanCharacters[humanIndex].mCharPedestrian)
         return;
+
+    if (humanIndex > 0)
+    {
+        pedestrian->mRemapIndex = humanIndex - 1;
+    }
 
     mHumanCharacters[humanIndex].mCharPedestrian = pedestrian;
     mHumanCharacters[humanIndex].mCharController.SetCharacter(pedestrian);

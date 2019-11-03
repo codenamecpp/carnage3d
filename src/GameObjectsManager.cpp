@@ -5,6 +5,12 @@
 #include "PhysicsComponents.h"
 #include "GameMapManager.h"
 
+GameObjectsManager::~GameObjectsManager()
+{
+    mPedestriansPool.cleanup();
+    mCarsPool.cleanup();
+}
+
 bool GameObjectsManager::Initialize()
 {
     mIDsCounter = 0;

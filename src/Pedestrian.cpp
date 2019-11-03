@@ -32,6 +32,7 @@ void Pedestrian::EnterTheGame()
     glm::vec3 startPosition;
 
     mCurrentStateTime = 0;
+    mWeaponRechargeTime = 0;
     mRemapIndex = NO_REMAP;
 
     // reset actions
@@ -105,7 +106,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     spriteBatch.DrawSprite(mDrawSprite);
 
 #if 1 // debug
-    glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameRules.mPedestrianSpotTheCarDistance;
+    glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
     gRenderManager.mDebugRenderer.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), COLOR_WHITE);
 #endif
 }
@@ -173,7 +174,13 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
         maxHeight += 0.35f; // todo: magic numbers
     }
 
-    mDrawHeight = maxHeight + 0.01f; // todo: magic numbers
+    float drawOffset = 0.02f; // todo: magic numbers
+    if (IsUnconscious())
+    {
+        drawOffset = 0.001f; // todo: magic numbers
+    }
+
+    mDrawHeight = maxHeight + drawOffset;
 }
 
 void Pedestrian::SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
@@ -194,7 +201,7 @@ void Pedestrian::ChangeState(PedestrianBaseState* nextState, const PedestrianSta
 {
     if (nextState == mCurrentState && mCurrentState)
         return;
-
+    mCurrentStateTime = 0;
     debug_assert(nextState);
     if (mCurrentState)
     {
@@ -235,6 +242,16 @@ void Pedestrian::TakeSeatInCar(Vehicle* targetCar, eCarSeat targetSeat)
     if (mCurrentState)
     {
         PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionEnterCar(targetCar, targetSeat);
+        mCurrentState->ProcessStateEvent(this, evData);
+    }
+}
+
+void Pedestrian::TakeDamage(eWeaponType weaponType, Pedestrian* attacker)
+{
+    // notify current state
+    if (mCurrentState)
+    {
+        PedestrianStateEvent evData = PedestrianStateEvent::Get_DamageFromWeapon(weaponType, attacker);
         mCurrentState->ProcessStateEvent(this, evData);
     }
 }
@@ -298,6 +315,12 @@ bool Pedestrian::IsWalking() const
         currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots);
 }
 
+bool Pedestrian::IsUnconscious() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return currState == ePedestrianState_KnockedDown;
+}
+
 void Pedestrian::HandleCarEntered()
 {
     debug_assert(mCurrentCar);
@@ -324,3 +347,4 @@ void Pedestrian::HandleCarExited()
     mCtlActions[ePedestrianAction_SteerRight] = false;
     mCtlActions[ePedestrianAction_Horn] = false;
 }
+

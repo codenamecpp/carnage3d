@@ -7,6 +7,8 @@ enum ePedestrianStateEvent
     ePedestrianStateEvent_ActionWeaponChange, 
     ePedestrianStateEvent_ActionEnterCar, // brains request enter specific vehicle
     ePedestrianStateEvent_ActionLeaveCar, // brains request exit current vehicle
+
+    ePedestrianStateEvent_TakeDamageFromWeapon,
 };
 
 // defines state event
@@ -17,6 +19,7 @@ public:
     static PedestrianStateEvent Get_ActionWeaponChange(eWeaponType prevWeapon);
     static PedestrianStateEvent Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat);
     static PedestrianStateEvent Get_ActionLeaveCar();
+    static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
 
     PedestrianStateEvent(ePedestrianStateEvent eventID): mID(eventID)
     {
@@ -38,6 +41,14 @@ public:
         eCarSeat mTargetSeat;
     };
     _action_enter_car mActionEnterCar;
+
+    // data for event ePedestrianStateEvent_TakeDamageFromWeapon
+    struct _damage_from_weapon
+    {
+        Pedestrian* mAttacker = nullptr;
+        eWeaponType mWeaponType;
+    };
+    _damage_from_weapon mDamageFromWeapon;
 };
 
 // defines basic pedestrian state
@@ -85,6 +96,7 @@ protected:
 
 protected:
     bool CanInterrupCurrentIdleAnim(Pedestrian* pedestrian) const;
+    bool TryToShoot(Pedestrian* pedestrian);
 };
 
 // process state ePedestrianState_StandingStill
@@ -151,6 +163,16 @@ public:
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
+// process state ePedestrianState_KnockedDown
+class PedestrianStateKnockedDown: public PedestrianBaseState
+{
+public:
+    PedestrianStateKnockedDown() : PedestrianBaseState(ePedestrianState_KnockedDown) {}
+    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+};
+
 // process state ePedestrianState_SlideOnCar
 class PedestrianStateSlideOnCar: public PedestrianBaseState
 {
@@ -195,6 +217,5 @@ public:
 };
 
 // todo:
-    //ePedestrianState_KnockedDown
     //ePedestrianState_Dying,
     //ePedestrianState_Dead,

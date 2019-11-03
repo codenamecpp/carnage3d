@@ -235,7 +235,7 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
         return false;
     }
 
-    if (currState == ePedestrianState_KnockedDown)
+    if (mReferencePed->IsUnconscious())
     {
         return (bits & PHYSICS_OBJCAT_PED) == 0; // collide to all except for other peds
     }

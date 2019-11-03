@@ -940,7 +940,7 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimationID_Ped_JumpOntoCar].Setup(91, 3);
     mSpriteAnimations[eSpriteAnimationID_Ped_SlideOnCar].Setup(94, 1, 1.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_DropOffCarSliding].Setup(95, 2);
-    mSpriteAnimations[eSpriteAnimationID_Ped_FallShort].Setup(38, 2, 1.0f);
+    mSpriteAnimations[eSpriteAnimationID_Ped_FallShort].Setup(38, 2, 8.0f);
     mSpriteAnimations[eSpriteAnimationID_Ped_LiesOnFloor].Setup(42, 1, 1.0f);
 
     mSpriteAnimations[eSpriteAnimationID_Ped_PunchingWhileStanding].Setup(50, 6);

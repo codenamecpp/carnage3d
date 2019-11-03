@@ -117,9 +117,9 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
 
     if (ImGui::CollapsingHeader("Ped"))
     {
-        ImGui::SliderFloat("Turn speed", &gGameRules.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
-        ImGui::SliderFloat("Run speed", &gGameRules.mPedestrianRunSpeed, 0.1f, 16.0f, "%.2f");
-        ImGui::SliderFloat("Walk speed", &gGameRules.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
+        ImGui::SliderFloat("Turn speed", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
+        ImGui::SliderFloat("Run speed", &gGameParams.mPedestrianRunSpeed, 0.1f, 16.0f, "%.2f");
+        ImGui::SliderFloat("Walk speed", &gGameParams.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
     }
 
     if (ImGui::CollapsingHeader("Graphics"))

@@ -18,6 +18,7 @@ public:
     PedPhysicsComponent* mPhysicsComponent;
 
     Timespan mCurrentStateTime; // time since current state has started
+    Timespan mWeaponRechargeTime; // next time weapon can be used again
 
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
@@ -51,6 +52,11 @@ public:
     // @param targetSeat: Seat, cannot be 'any'
     void TakeSeatInCar(Vehicle* targetCar, eCarSeat targetSeat);
 
+    // receive weapons damage, may fail depending on its current state
+    // @param weaponType: Type of weapon
+    // @param attacker: Attacker pedestrian
+    void TakeDamage(eWeaponType weaponType, Pedestrian* attacker);
+
     // pedestrian will try exit vehicle, may fail depending on its current state
     void LeaveCar();
 
@@ -62,6 +68,7 @@ public:
     bool IsStanding() const;
     bool IsShooting() const;
     bool IsWalking() const;
+    bool IsUnconscious() const;
 
     // detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
@@ -95,6 +102,7 @@ private:
     friend class PedestrianStateExitCar;
     friend class PedestrianStateSlideOnCar;
     friend class PedestrianStateDrivingCar;
+    friend class PedestrianStateKnockedDown;
 
     eSpriteAnimationID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
@@ -114,6 +122,7 @@ private:
     PedestrianStateExitCar mStateExitCar;
     PedestrianStateSlideOnCar mStateSlideOnCar;
     PedestrianStateDrivingCar mStateDrivingCar;
+    PedestrianStateKnockedDown mStateKnockedDown;
 
     // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mActivePedsNode;

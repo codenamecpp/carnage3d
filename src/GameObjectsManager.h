@@ -15,6 +15,8 @@ public:
     cxx::intrusive_list<Vehicle> mDeleteCarsList;
 
 public:
+    ~GameObjectsManager();
+
     bool Initialize();
     void Deinit();
     void UpdateFrame(Timespan deltaTime);

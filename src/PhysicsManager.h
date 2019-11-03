@@ -53,6 +53,7 @@ private:
 	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
+    bool CollidePedVsPed(b2Contact* contact, PedPhysicsComponent* pedA, PedPhysicsComponent* pedB);
     bool HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const;
     bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const;
     bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar);

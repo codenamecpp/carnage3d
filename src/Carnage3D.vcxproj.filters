@@ -202,9 +202,6 @@
     <ClInclude Include="SpriteAnimation.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="GameRules.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="GameCheatsWindow.h">
       <Filter>Game\GUI\DebugWindows</Filter>
     </ClInclude>
@@ -310,6 +307,9 @@
     <ClInclude Include="HumanCharacterView.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="GameParams.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -389,9 +389,6 @@
       <Filter>Third_Party\stb</Filter>
     </ClCompile>
     <ClCompile Include="SpriteAnimation.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GameRules.cpp">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="GameCheatsWindow.cpp">
@@ -484,6 +481,9 @@
     </ClCompile>
     <ClCompile Include="RenderView.cpp">
       <Filter>Game\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="GameParams.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

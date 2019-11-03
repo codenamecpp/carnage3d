@@ -253,6 +253,14 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
     bool hasCollision = true;
     for (;;)
     {
+        if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED &&
+            fixtureB->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED)
+        {
+            PedPhysicsComponent* physicsComponentA = (PedPhysicsComponent*) fixtureA->GetBody()->GetUserData();
+            PedPhysicsComponent* physicsComponentB = (PedPhysicsComponent*) fixtureB->GetBody()->GetUserData();
+            hasCollision = CollidePedVsPed(contact, physicsComponentA, physicsComponentB);
+        }
+
         if (hasCollision && fixturePed)
         {
             PedPhysicsComponent* physicsComponent = (PedPhysicsComponent*) fixturePed->GetBody()->GetUserData();
@@ -356,6 +364,13 @@ void PhysicsManager::FixedStepGravity()
         }
         physicsComponent->SetPosition(position);
     }
+}
+
+bool PhysicsManager::CollidePedVsPed(b2Contact* contact, PedPhysicsComponent* pedA, PedPhysicsComponent* pedB)
+{
+    // todo: temporary implementation
+
+    return false;
 }
 
 bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const
