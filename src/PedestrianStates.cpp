@@ -436,6 +436,7 @@ void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Times
     {
         if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_FallShort)
         {
+            pedestrian->mPhysicsComponent->ClearForces();
             pedestrian->SetAnimation(eSpriteAnimationID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
             return;
         }
@@ -454,6 +455,7 @@ void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Times
 void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
+    pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * 0.3f);
 }
 
 void PedestrianStateKnockedDown::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
