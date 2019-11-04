@@ -14,22 +14,36 @@ GameCheatsWindow::GameCheatsWindow()
     , mEnableGravity(true)
     , mEnableBlocksAnimation(true)
 {
-    for (int ilayer = 0; ilayer < MAP_LAYERS_COUNT; ++ilayer)
-    {
-        mDrawMapLayers[ilayer] = true;
-    }
 }
 
 void GameCheatsWindow::DoUI(Timespan deltaTime)
 {
     ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | 
-        ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar;
 
     ImGuiIO& io = ImGui::GetIO();
     if (!ImGui::Begin(mWindowName, &mWindowShown, wndFlags))
     {
         ImGui::End();
         return;
+    }
+
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Create Car..."))
+        {
+            for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mCars.size(); ++icurr)
+            {
+                ImGui::PushID(icurr);
+                if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mCars[icurr].mModelId))) 
+                {
+                    CreateCarNearby(&gGameMap.mStyleData.mCars[icurr], gCarnageGame.mHumanCharacters[0].mCharPedestrian);
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
 
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Frame Time: %.3f ms (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
@@ -136,4 +150,16 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     }
 
     ImGui::End();
+}
+
+void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestrian)
+{
+    if (carStyle == nullptr || pedestrian == nullptr)
+        return;
+
+    glm::vec3 currPosition = pedestrian->mPhysicsComponent->GetPosition();
+    currPosition.x += MAP_BLOCK_LENGTH * 0.5f;
+    currPosition.z += MAP_BLOCK_LENGTH * 0.5f;
+
+    gCarnageGame.mObjectsManager.CreateCar(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
 }

@@ -377,8 +377,6 @@ bool Vehicle::GetDoorPos(int doorIndex, glm::vec2& out) const
 
 bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
 {
-    // todo: handle bike
-
     int doorIndex = GetDoorIndexForSeat(carSeat);
 
     glm::vec2 doorLocalPos;
@@ -409,6 +407,12 @@ bool Vehicle::GetSeatPos(eCarSeat carSeat, glm::vec2& out) const
 
     debug_assert(false);
     return false;
+}
+
+bool Vehicle::IsSeatPresent(eCarSeat carSeat) const
+{
+    int doorIndex = GetDoorIndexForSeat(carSeat);
+    return (doorIndex < mCarStyle->mDoorsCount && doorIndex > -1);
 }
 
 void Vehicle::PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat)

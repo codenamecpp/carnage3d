@@ -5,17 +5,19 @@
 class GameCheatsWindow: public DebugWindow
 {
 public:
-    bool mDrawMapLayers[MAP_LAYERS_COUNT];
     bool mEnableMapCollisions;
     bool mEnableGravity;
     bool mEnableBlocksAnimation;
 
 public:
     GameCheatsWindow();
+
+private:
     // process window state
     // @param deltaTime: Time since last frame
     void DoUI(Timespan deltaTime) override;
-private:
+
+    void CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestrian);
 };
 
 extern GameCheatsWindow gGameCheatsWindow;

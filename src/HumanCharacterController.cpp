@@ -337,8 +337,12 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
     for (int icar = 0; icar < queryResult.mCarsCount; ++icar)
     {
         Vehicle* currCar = queryResult.mCarsList[icar]->mReferenceCar;
+        eCarSeat carSeat = alternative ? eCarSeat_Passenger : eCarSeat_Driver;
 
-        mCharacter->TakeSeatInCar(currCar, alternative ? eCarSeat_Passenger : eCarSeat_Driver);
+        if (currCar->IsSeatPresent(carSeat))
+        {
+            mCharacter->TakeSeatInCar(currCar, carSeat);
+        }
         return;
     }
 }

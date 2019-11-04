@@ -78,6 +78,8 @@ public:
     // @param carSeat: Seat
     bool GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const;
     bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
+    
+    bool IsSeatPresent(eCarSeat carSeat) const;
 
 private:
     void UpdateDriving(Timespan deltaTime);
