@@ -166,10 +166,11 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
         TryToShoot(pedestrian);
     }
 
+    ProcessRotateActions(pedestrian, deltaTime);
+
     if (!CanInterrupCurrentIdleAnim(pedestrian))
         return;
 
-    ProcessRotateActions(pedestrian, deltaTime);
     ProcessMotionActions(pedestrian, deltaTime);
 
     if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
