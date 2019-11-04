@@ -107,6 +107,7 @@ private:
     friend class PedestrianStateSlideOnCar;
     friend class PedestrianStateDrivingCar;
     friend class PedestrianStateKnockedDown;
+    friend class PedestrianStateDead;
 
     eSpriteAnimationID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
@@ -127,6 +128,7 @@ private:
     PedestrianStateSlideOnCar mStateSlideOnCar;
     PedestrianStateDrivingCar mStateDrivingCar;
     PedestrianStateKnockedDown mStateKnockedDown;
+    PedestrianStateDead mStateDead;
 
     // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mActivePedsNode;

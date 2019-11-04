@@ -104,8 +104,9 @@ protected:
     void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 
 protected:
-    bool CanInterrupCurrentIdleAnim(Pedestrian* pedestrian) const;
     bool TryToShoot(Pedestrian* pedestrian);
+
+    PedestrianBaseState* GetNextIdleState(Pedestrian* pedestrian, Timespan deltaTime);
 };
 
 // process state ePedestrianState_StandingStill
@@ -226,6 +227,12 @@ public:
     void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
-// todo:
-    //ePedestrianState_Dying,
-    //ePedestrianState_Dead,
+// process state ePedestrianState_Dead
+class PedestrianStateDead: public PedestrianBaseState
+{
+public:
+    PedestrianStateDead() : PedestrianBaseState(ePedestrianState_Dead) {}
+    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+};

@@ -26,7 +26,7 @@ void GameParams::LoadDefaults()
     mWeaponsRechargeTime[eWeaponType_RocketLauncher] = 1.0f * 3.0f;
 
     // weapons distance todo
-    mWeaponsDistance[eWeaponType_Fists] = PHYSICS_PED_BOUNDING_SPHERE_RADIUS;
+    mWeaponsDistance[eWeaponType_Fists] = PHYSICS_PED_BOUNDING_SPHERE_RADIUS * 1.6f;
     mWeaponsDistance[eWeaponType_Pistol] = 1.0f;
     mWeaponsDistance[eWeaponType_Machinegun] = 1.0f;
     mWeaponsDistance[eWeaponType_Flamethrower] = 1.0f;

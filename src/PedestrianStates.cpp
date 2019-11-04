@@ -160,6 +160,32 @@ void PedestrianBaseState::SetInCarPositionToSeat(Pedestrian* pedestrian)
 
 //////////////////////////////////////////////////////////////////////////
 
+PedestrianBaseState* PedestrianStateIdleBase::GetNextIdleState(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    if (pedestrian->mCtlActions[ePedestrianAction_Run])
+    {
+        if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
+            return &pedestrian->mStateRunsAndShoots;
+
+        return &pedestrian->mStateRuns;
+    }
+
+    if (pedestrian->mCtlActions[ePedestrianAction_WalkBackward] ||
+        pedestrian->mCtlActions[ePedestrianAction_WalkForward])
+    {
+        // cannot walk and use fists simultaneously
+        if (pedestrian->mCtlActions[ePedestrianAction_Shoot] && pedestrian->mCurrentWeapon != eWeaponType_Fists)
+            return &pedestrian->mStateWalksAndShoots;
+
+        return &pedestrian->mStateWalks;
+    }
+
+    if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
+        return &pedestrian->mStateStandsAndShoots;
+
+    return &pedestrian->mStateStandingStill;
+}
+
 void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     // check for falling state
@@ -175,12 +201,9 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
     }
 
     ProcessRotateActions(pedestrian, deltaTime);
-
-    if (!CanInterrupCurrentIdleAnim(pedestrian))
-        return;
-
     ProcessMotionActions(pedestrian, deltaTime);
 
+    // slide over car
     if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
     {
         if (pedestrian->mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState(pedestrian))
@@ -189,39 +212,24 @@ void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan
             return;
         }
     }
- 
-    if (pedestrian->mCtlActions[ePedestrianAction_Run])
+    
+    // process shooting
+    PedestrianBaseState* nextIdleState = GetNextIdleState(pedestrian, deltaTime);
+    if (nextIdleState == pedestrian->mCurrentState)
+        return;
+
+    ePedestrianState currPedestrianState = pedestrian->mCurrentState->GetStateID();
+
+    if ((currPedestrianState == ePedestrianState_RunsAndShoots && nextIdleState->GetStateID() == ePedestrianState_Runs) ||
+        (currPedestrianState == ePedestrianState_WalksAndShoots && nextIdleState->GetStateID() == ePedestrianState_Walks) ||
+        (currPedestrianState == ePedestrianState_StandsAndShoots && nextIdleState->GetStateID() == ePedestrianState_StandingStill))
     {
-        if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
-        {
-            pedestrian->ChangeState(&pedestrian->mStateRunsAndShoots, nullptr);
+        // wait animation ends
+        if (pedestrian->mCurrentAnimState.IsAnimationActive() && !pedestrian->mCurrentAnimState.IsLastFrame())
             return;
-        }
-        pedestrian->ChangeState(&pedestrian->mStateRuns, nullptr);
-        return;
     }
 
-    if (pedestrian->mCtlActions[ePedestrianAction_WalkBackward] ||
-        pedestrian->mCtlActions[ePedestrianAction_WalkForward])
-    {
-        // cannot walk and use fists simultaneously
-        if (pedestrian->mCtlActions[ePedestrianAction_Shoot] && pedestrian->mCurrentWeapon != eWeaponType_Fists)
-        {
-            pedestrian->ChangeState(&pedestrian->mStateWalksAndShoots, nullptr);
-            return;
-        }
-        pedestrian->ChangeState(&pedestrian->mStateWalks, nullptr);
-        return;
-    }
-
-    if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
-    {
-        pedestrian->ChangeState(&pedestrian->mStateStandsAndShoots, nullptr);
-        return;
-    }
-
-    pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-    return;
+    pedestrian->ChangeState(nextIdleState, nullptr);
 }
 
 void PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
@@ -232,23 +240,10 @@ void PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const Pe
         return;
     }
 
-    if (!CanInterrupCurrentIdleAnim(pedestrian))
-        return;
-
     if (stateEvent.mID == ePedestrianStateEvent_ActionEnterCar)
     {
         pedestrian->ChangeState(&pedestrian->mStateEnterCar, &stateEvent);
     }
-}
-
-bool PedestrianStateIdleBase::CanInterrupCurrentIdleAnim(Pedestrian* pedestrian) const
-{
-    if (pedestrian->IsStanding() && pedestrian->IsShooting())
-    {
-        return pedestrian->mCurrentAnimState.IsLastFrame() || 
-            !pedestrian->mCurrentAnimState.IsAnimationActive();
-    }
-    return true;
 }
 
 bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
@@ -441,6 +436,13 @@ void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const Pede
 
 void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
+    // check for falling state
+    if (pedestrian->mPhysicsComponent->mFalling)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
+        return;
+    }
+
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
         if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_FallShort)
@@ -708,4 +710,21 @@ void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const 
         pedestrian->ChangeState(&pedestrian->mStateExitCar, &stateEvent);
         return;
     }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStateDead::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+{
+    // todo
+}
+
+void PedestrianStateDead::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+{
+    // todo
+}
+
+void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+{
+    // todo
 }

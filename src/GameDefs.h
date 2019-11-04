@@ -740,7 +740,6 @@ enum ePedestrianState
     ePedestrianState_ExitingCar,
     ePedestrianState_DrivingCar,
     ePedestrianState_SlideOnCar,
-    ePedestrianState_Dying,
     ePedestrianState_Dead,
     ePedestrianState_KnockedDown,
     ePedestrianState_COUNT

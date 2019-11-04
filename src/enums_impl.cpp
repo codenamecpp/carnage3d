@@ -403,7 +403,6 @@ impl_enum_strings(ePedestrianState)
     {ePedestrianState_ExitingCar, "exiting_car"},
     {ePedestrianState_DrivingCar, "driving_car"},
     {ePedestrianState_SlideOnCar, "slide_on_car"},
-    {ePedestrianState_Dying, "dying"},
     {ePedestrianState_Dead, "dead"},
     {ePedestrianState_KnockedDown, "knocked_down"},
 };

@@ -230,7 +230,7 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
         return false;
     }
 
-    if (currState == ePedestrianState_Dying || currState == ePedestrianState_Dead)
+    if (currState == ePedestrianState_Dead)
     {
         return false;
     }
