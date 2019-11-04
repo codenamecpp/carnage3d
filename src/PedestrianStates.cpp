@@ -41,6 +41,14 @@ PedestrianStateEvent PedestrianStateEvent::Get_DamageFromWeapon(eWeaponType weap
     return eventData;
 }
 
+PedestrianStateEvent PedestrianStateEvent::Get_PullOutFromCar(Pedestrian* attacker)
+{
+    PedestrianStateEvent eventData {ePedestrianStateEvent_PullOutFromCar};
+    eventData.mPullOutFromCar.mAttacker = attacker;
+
+    return eventData;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
@@ -582,6 +590,12 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     {
         pedestrian->mCurrentCar->OpenDoor(doorIndex);
     }
+
+    // pullout driver
+    if (Pedestrian* prevDriver = pedestrian->mCurrentCar->GetFirstPassenger(pedestrian->mCurrentSeat))
+    {
+        prevDriver->PullOutFromCar(pedestrian);
+    }
 }
 
 void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
@@ -597,31 +611,54 @@ void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian, const Ped
 void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
-        pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
+    if (mIsPullOut)
     {
-        pedestrian->mCurrentCar->CloseDoor(doorIndex);
+        // do nothing
+    }
+    else
+    {
+        if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
+            pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
+        {
+            pedestrian->mCurrentCar->CloseDoor(doorIndex);
+        }
     }
 
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+        if (mIsPullOut)
+        {
+            pedestrian->ChangeState(&pedestrian->mStateKnockedDown, nullptr);
+        }
+        else
+        {
+            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+        }
         return;
     }
 }
 
 void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
+    mIsPullOut = (transitionEvent && transitionEvent->mID == ePedestrianStateEvent_PullOutFromCar);
 
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    SetInCarPositionToDoor(pedestrian);
-
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
+    if (mIsPullOut)
     {
-        pedestrian->mCurrentCar->OpenDoor(doorIndex);
+        pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
     }
+    else
+    {
+        bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+        pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
+
+        if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
+        {
+            pedestrian->mCurrentCar->OpenDoor(doorIndex);
+        }
+    }
+
+    SetInCarPositionToDoor(pedestrian);
 }
 
 void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
@@ -631,16 +668,19 @@ void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const Pede
         pedestrian->HandleCarExited();
 
         cxx::angle_t currentCarAngle = pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
-        pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        if (mIsPullOut)
+        {
+            pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle + cxx::angle_t::from_degrees(30.0f));
+        }
+        else
+        {
+            pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        }
         pedestrian->mCurrentCar = nullptr;
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateDrivingCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-}
 
 void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
@@ -658,6 +698,12 @@ void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian, const P
 void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionLeaveCar)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateExitCar, &stateEvent);
+        return;
+    }
+
+    if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
     {
         pedestrian->ChangeState(&pedestrian->mStateExitCar, &stateEvent);
         return;

@@ -9,6 +9,7 @@ enum ePedestrianStateEvent
     ePedestrianStateEvent_ActionLeaveCar, // brains request exit current vehicle
 
     ePedestrianStateEvent_TakeDamageFromWeapon,
+    ePedestrianStateEvent_PullOutFromCar,
 };
 
 // defines state event
@@ -20,6 +21,7 @@ public:
     static PedestrianStateEvent Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat);
     static PedestrianStateEvent Get_ActionLeaveCar();
     static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
+    static PedestrianStateEvent Get_PullOutFromCar(Pedestrian* attacker);
 
     PedestrianStateEvent(ePedestrianStateEvent eventID): mID(eventID)
     {
@@ -49,6 +51,13 @@ public:
         eWeaponType mWeaponType;
     };
     _damage_from_weapon mDamageFromWeapon;
+
+    // data for event ePedestrianStateEvent_PullOutFromCar
+    struct _pullout_from_car
+    {
+        Pedestrian* mAttacker = nullptr;
+    };
+    _pullout_from_car mPullOutFromCar;
 };
 
 // defines basic pedestrian state
@@ -203,6 +212,8 @@ public:
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+protected:
+    bool mIsPullOut = false;
 };
 
 // process state ePedestrianState_DrivingCar
@@ -210,7 +221,6 @@ class PedestrianStateDrivingCar: public PedestrianBaseState
 {
 public:
     PedestrianStateDrivingCar() : PedestrianBaseState(ePedestrianState_DrivingCar) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;

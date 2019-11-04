@@ -256,6 +256,16 @@ void Pedestrian::TakeDamage(eWeaponType weaponType, Pedestrian* attacker)
     }
 }
 
+void Pedestrian::PullOutFromCar(Pedestrian* attacker)
+{   
+    // notify current state
+    if (mCurrentState)
+    {
+        PedestrianStateEvent evData = PedestrianStateEvent::Get_PullOutFromCar(attacker);
+        mCurrentState->ProcessStateEvent(this, evData);
+    }
+}
+
 void Pedestrian::LeaveCar()
 {
     if (mCurrentState)
@@ -347,4 +357,5 @@ void Pedestrian::HandleCarExited()
     mCtlActions[ePedestrianAction_SteerRight] = false;
     mCtlActions[ePedestrianAction_Horn] = false;
 }
+
 

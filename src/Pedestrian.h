@@ -57,6 +57,10 @@ public:
     // @param attacker: Attacker pedestrian
     void TakeDamage(eWeaponType weaponType, Pedestrian* attacker);
 
+    // pullout from car event, may fail depending on its current state
+    // @param attacker: Attacker pedestrian
+    void PullOutFromCar(Pedestrian* attacker);
+
     // pedestrian will try exit vehicle, may fail depending on its current state
     void LeaveCar();
 
