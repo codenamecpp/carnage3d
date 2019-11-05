@@ -60,8 +60,8 @@ void PhysicsManager::UpdateFrame(Timespan deltaTime)
     int maxSimulationStepsPerFrame = 5;
     int numSimulations = 0;
 
-    const int velocityIterations = 3;
-    const int positionIterations = 2;
+    const int velocityIterations = 4;
+    const int positionIterations = 4;
 
     mSimulationTimeAccumulator += deltaTime.ToSeconds();
 

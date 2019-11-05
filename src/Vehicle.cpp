@@ -71,13 +71,9 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     mChassisDrawSprite.SetOriginToCenter();
 
     spriteBatch.DrawSprite(mChassisDrawSprite);
-
-#if 0
-    DrawDebug();
-#endif
 }
 
-void Vehicle::DrawDebug()
+void Vehicle::DrawDebug(DebugRenderer& debugRender)
 {
     glm::vec3 position = mPhysicsComponent->GetPosition();
 
@@ -93,7 +89,7 @@ void Vehicle::DrawDebug()
     }
     for (int i = 0; i < 4; ++i)
     {
-        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
+        debugRender.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
     }
 
     // draw doors
@@ -101,14 +97,14 @@ void Vehicle::DrawDebug()
     {
         glm::vec2 rotated_pos;
         GetDoorPos(idoor, rotated_pos);
-        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_YELLOW);
+        debugRender.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_YELLOW);
     }
 
     if (mCarStyle->mDoorsCount > 0)
     {
         glm::vec2 seatpos;
         GetSeatPos(eCarSeat_Driver, seatpos);
-        gRenderManager.mDebugRenderer.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
+        debugRender.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), COLOR_GREEN);
     }
 
     // draw wheels
@@ -127,16 +123,16 @@ void Vehicle::DrawDebug()
         }
         for (int i = 0; i < 4; ++i)
         {
-            gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_YELLOW);
+            debugRender.DrawLine(points[i], points[(i + 1) % 4], COLOR_YELLOW);
         }
         glm::vec2 forwardVelocity = mPhysicsComponent->GetWheelForwardVelocity(currID);
         glm::vec2 lateralVelocity = mPhysicsComponent->GetWheelLateralVelocity(currID);
         glm::vec2 wheelPosition = mPhysicsComponent->GetWheelPosition(currID);
 
-        gRenderManager.mDebugRenderer.DrawLine(
+        debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + forwardVelocity.x, mDrawHeight, wheelPosition.y + forwardVelocity.y}, COLOR_GREEN);
-        gRenderManager.mDebugRenderer.DrawLine(
+        debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, COLOR_SKYBLUE);
     }

@@ -2,6 +2,7 @@
 #include "DebugRenderer.h"
 #include "RenderingManager.h"
 #include "RenderView.h"
+#include "GpuBuffer.h"
 
 static struct DebugSpherePrecomp
 {
@@ -48,114 +49,84 @@ static struct DebugSpherePrecomp
 
 DebugRenderer::DebugRenderer()
 {
-    mDebugLines.reserve(2048);
-    mDebugTriangles.reserve(2048);
-    mVerticesBuffer.reserve(4096);
 }
 
 bool DebugRenderer::Initialize()
 {
+    mVerticesBuffer = gGraphicsDevice.CreateBuffer(eBufferContent_Vertices, eBufferUsage_Stream, mMaxVerticesCount * Sizeof_Vertex3D_Debug, nullptr);
+    debug_assert(mVerticesBuffer);
+
+    mVerticesPointer = static_cast<Vertex3D_Debug*>(mVerticesBuffer->Lock(BufferAccess_UnsynchronizedWrite));
+    debug_assert(mVerticesPointer);
+
+    mCurrVerticesCount = 0;
+
     return true;
 }
 
 void DebugRenderer::Deinit()
 {
-    mTrimeshBuffer.Deinit();
+    if (mVerticesBuffer)
+    {
+        gGraphicsDevice.DestroyBuffer(mVerticesBuffer);
+        mVerticesBuffer = nullptr;
+        mVerticesPointer = nullptr;
+    }
 }
 
-void DebugRenderer::RenderFrame(RenderView* renderview)
+void DebugRenderer::RenderFrameBegin(RenderView* renderview)
 {
-    debug_assert(renderview);
-
-    if (mDebugLines.empty() && mDebugTriangles.empty())
-        return;
-
     gRenderManager.mDebugProgram.Activate();
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
+    mCurrentRenderView = renderview;
+
+    debug_assert(mCurrentRenderView);
+    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(mCurrentRenderView->mRenderCamera);
+}
+
+void DebugRenderer::RenderFrameEnd()
+{
+    debug_assert(mCurrentRenderView);        
+
     FlushPrimitives();
+
     gRenderManager.mDebugProgram.Deactivate();
 }
 
 void DebugRenderer::FlushPrimitives()
 {
-    int numLines = mDebugLines.size();
-    // push line vertices
-    {
-        for (const DebugLine& currLine: mDebugLines)
-        {
-            mVerticesBuffer.emplace_back();
-            {
-                Vertex3D_Debug& vertex = mVerticesBuffer.back();
-                vertex.mPosition = currLine.mPointA;
-                vertex.mColor = currLine.mColor;
-            }
-            mVerticesBuffer.emplace_back();
-            {
-                Vertex3D_Debug& vertex = mVerticesBuffer.back();
-                vertex.mPosition = currLine.mPointB;
-                vertex.mColor = currLine.mColor;
-            }
-        }
-    }
-
-    int numTriangles = mDebugTriangles.size();
-    // push triangle vertices
-    {
-        for (const DebugTriangle& currTriangle: mDebugTriangles)
-        {
-            mVerticesBuffer.emplace_back();
-            {
-                Vertex3D_Debug& vertex = mVerticesBuffer.back();
-                vertex.mPosition = currTriangle.mPointA;
-                vertex.mColor = currTriangle.mColor;
-            }
-            mVerticesBuffer.emplace_back();
-            {
-                Vertex3D_Debug& vertex = mVerticesBuffer.back();
-                vertex.mPosition = currTriangle.mPointB;
-                vertex.mColor = currTriangle.mColor;
-            }
-            mVerticesBuffer.emplace_back();
-            {
-                Vertex3D_Debug& vertex = mVerticesBuffer.back();
-                vertex.mPosition = currTriangle.mPointC;
-                vertex.mColor = currTriangle.mColor;
-            }
-        }
-    }
-
-    int numVertices = mVerticesBuffer.size();
-
-    if (numVertices == 0)
+    if (mCurrVerticesCount == 0)
         return;
 
+    if (!mVerticesBuffer->Unlock())
+    {
+        debug_assert(false);
+    }
+
     Vertex3D_Debug_Format vFormat;
-    mTrimeshBuffer.SetVertices(numVertices * Sizeof_Vertex3D_Debug, mVerticesBuffer.data());
-    mTrimeshBuffer.Bind(vFormat);
+    gGraphicsDevice.BindVertexBuffer(mVerticesBuffer, vFormat);
+    gGraphicsDevice.RenderPrimitives(ePrimitiveType_Lines, 0, mCurrVerticesCount);
 
-    if (numLines > 0)
-    {
-        gGraphicsDevice.RenderPrimitives(ePrimitiveType_Lines, 0, numLines * 2);
-    }
+    mVerticesBuffer->Invalidate();
 
-    if (numTriangles > 0)
-    {
-        gGraphicsDevice.RenderPrimitives(ePrimitiveType_Triangles, numLines * 2, numTriangles * 3);
-    }
+    mVerticesPointer = static_cast<Vertex3D_Debug*>(mVerticesBuffer->Lock(BufferAccess_UnsynchronizedWrite));
+    debug_assert(mVerticesPointer);
 
-    mVerticesBuffer.clear();
-    mDebugLines.clear();
-    mDebugTriangles.clear();
+    mCurrVerticesCount = 0;
 }
 
 void DebugRenderer::DrawLine(const glm::vec3& point_a, const glm::vec3& point_b, unsigned int line_color)
 {
-    push_line_verts(point_a, point_b, line_color);
-}
+    if ((mCurrVerticesCount + 2) >= mMaxVerticesCount)
+    {
+        FlushPrimitives();
+    }
 
-void DebugRenderer::FillTriangle(const glm::vec3& point_a, const glm::vec3& point_b, const glm::vec3& point_c, unsigned int tri_color)
-{
-    push_tri_verts(point_a, point_b, point_c, tri_color);
+    mVerticesPointer[mCurrVerticesCount + 0].mPosition = point_a;
+    mVerticesPointer[mCurrVerticesCount + 0].mColor = line_color;
+
+    mVerticesPointer[mCurrVerticesCount + 1].mPosition = point_b;
+    mVerticesPointer[mCurrVerticesCount + 1].mColor = line_color;
+    mCurrVerticesCount += 2;
 }
 
 void DebugRenderer::DrawCube(const glm::vec3& point_center, const glm::vec3& cube_dimensions, unsigned int line_color)
@@ -185,22 +156,22 @@ void DebugRenderer::DrawCube(const glm::vec3& point_center, const glm::vec3& cub
     };
 
     // near quad
-    push_line_verts(t_points[0], t_points[1], line_color); // top line
-    push_line_verts(b_points[0], b_points[1], line_color); // bottom line
-    push_line_verts(t_points[0], b_points[0], line_color); // left line
-    push_line_verts(t_points[1], b_points[1], line_color); // right line
+    DrawLine(t_points[0], t_points[1], line_color); // top line
+    DrawLine(b_points[0], b_points[1], line_color); // bottom line
+    DrawLine(t_points[0], b_points[0], line_color); // left line
+    DrawLine(t_points[1], b_points[1], line_color); // right line
 
     // far quad
-    push_line_verts(t_points[2], t_points[3], line_color); // top line
-    push_line_verts(b_points[2], b_points[3], line_color); // bottom line
-    push_line_verts(t_points[2], b_points[2], line_color); // left line
-    push_line_verts(t_points[3], b_points[3], line_color); // right line
+    DrawLine(t_points[2], t_points[3], line_color); // top line
+    DrawLine(b_points[2], b_points[3], line_color); // bottom line
+    DrawLine(t_points[2], b_points[2], line_color); // left line
+    DrawLine(t_points[3], b_points[3], line_color); // right line
 
     // edges
-    push_line_verts(t_points[0], t_points[2], line_color); // top left edge
-    push_line_verts(b_points[0], b_points[2], line_color); // bottom left edge
-    push_line_verts(t_points[1], t_points[3], line_color); // top right edge
-    push_line_verts(b_points[1], b_points[3], line_color); // bottom right edge
+    DrawLine(t_points[0], t_points[2], line_color); // top left edge
+    DrawLine(b_points[0], b_points[2], line_color); // bottom left edge
+    DrawLine(t_points[1], t_points[3], line_color); // top right edge
+    DrawLine(b_points[1], b_points[3], line_color); // bottom right edge
 }
 
 void DebugRenderer::DrawSphere(const glm::vec3& point_center, float radius, unsigned int line_color)
@@ -217,6 +188,6 @@ void DebugRenderer::DrawSphere(const glm::vec3& point_center, float radius, unsi
             sphereLine.p1.y * radius + point_center.y,
             sphereLine.p1.z * radius + point_center.z
         );
-        push_line_verts(startp, endp, line_color);
+        DrawLine(startp, endp, line_color);
     }
 }

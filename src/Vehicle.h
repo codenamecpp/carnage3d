@@ -6,6 +6,7 @@
 #include "Sprite2D.h"
 
 class SpriteBatch;
+class DebugRenderer;
 
 // defines vehicle instance
 class Vehicle final: public GameObject
@@ -34,7 +35,7 @@ public:
 
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
-    void DrawDebug();
+    void DrawDebug(DebugRenderer& debugRender);
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null

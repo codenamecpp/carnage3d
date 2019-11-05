@@ -92,6 +92,19 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     mSpritesBatch.Flush(renderview);
 }
 
+void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
+{
+    debug_assert(renderview);
+    for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
+    {
+        currPedestrian->DrawDebug(debugRender);
+    }
+    for (Vehicle* currVehicle: gCarnageGame.mObjectsManager.mActiveCarsList)
+    {
+        currVehicle->DrawDebug(debugRender);
+    }
+}
+
 void MapRenderer::DrawCityMesh(RenderView* renderview)
 {
     RenderStates cityMeshRenderStates;

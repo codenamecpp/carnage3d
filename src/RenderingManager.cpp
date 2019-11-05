@@ -56,10 +56,17 @@ void RenderingManager::RenderFrame()
     for (RenderView* currRenderview: mActiveRenderViews)
     {
         currRenderview->PreRender();
-
         mMapRenderer.RenderFrame(currRenderview);
-        //mDebugRenderer.RenderFrame(currRenderview);
+
+        // draw debug info for first human view only
+        if (currRenderview == mActiveRenderViews[0])
+        {
+            mDebugRenderer.RenderFrameBegin(currRenderview);
+            mMapRenderer.RenderDebug(currRenderview, mDebugRenderer);
+            mDebugRenderer.RenderFrameEnd();
+        }
     }
+
     gGraphicsDevice.SetViewportRect(viewportRectangle);
     gGuiSystem.RenderFrame();
 

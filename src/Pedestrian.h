@@ -8,6 +8,7 @@
 #include "PedestrianStates.h"
 
 class SpriteBatch;
+class DebugRenderer;
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
@@ -43,6 +44,7 @@ public:
 
     void UpdateFrame(Timespan deltaTime);
     void DrawFrame(SpriteBatch& spriteBatch);
+    void DrawDebug(DebugRenderer& debugRender);
 
     // set current weapon, does nothing if out of ammo
     void ChangeWeapon(eWeaponType newWeapon);

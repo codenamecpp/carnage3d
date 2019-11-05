@@ -18,7 +18,6 @@ public:
     RenderProgram mDebugProgram;
 
     MapRenderer mMapRenderer;
-    DebugRenderer mDebugRenderer;
 
     std::vector<RenderView*> mActiveRenderViews;
 
@@ -46,6 +45,9 @@ public:
 private:
     bool InitRenderPrograms();
     void FreeRenderPrograms();
+
+private:
+    DebugRenderer mDebugRenderer;
 };
 
 extern RenderingManager gRenderManager;

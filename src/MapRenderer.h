@@ -3,6 +3,7 @@
 #include "SpriteBatch.h"
 #include "GameDefs.h"
 
+class DebugRenderer;
 class RenderView;
 
 // map renderer statistics info
@@ -28,6 +29,7 @@ public:
     void Deinit();
     void RenderFrameStart();
     void RenderFrame(RenderView* renderview);
+    void RenderDebug(RenderView* renderview, DebugRenderer& debugRender);
     void RenderFrameEnd();
     void BuildMapMesh();
 

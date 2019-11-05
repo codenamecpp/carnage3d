@@ -104,11 +104,15 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();
     spriteBatch.DrawSprite(mDrawSprite);
+}
 
-#if 1 // debug
+void Pedestrian::DrawDebug(DebugRenderer& debugRender)
+{
+    glm::vec3 position = mPhysicsComponent->GetPosition();
+
     glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
-    gRenderManager.mDebugRenderer.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), COLOR_WHITE);
-#endif
+
+    debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), COLOR_WHITE);
 }
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
@@ -160,13 +164,6 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
             maxHeight = height;
         }
     }
-#if 1
-    // debug
-    for (int i = 0; i < 4; ++i)
-    {
-        gRenderManager.mDebugRenderer.DrawLine(points[i], points[(i + 1) % 4], COLOR_RED);
-    }
-#endif
 
     // todo: get rid of magic numbers
     if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
