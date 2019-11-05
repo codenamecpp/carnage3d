@@ -208,7 +208,6 @@ void Vehicle::SetupDeltaAnimations()
         CAR_DELTA_ANIMS_SPEED);
     }
 
-    // todo: bike
     // doors
     if (mCarStyle->mDoorsCount >= 1)
     {
@@ -389,7 +388,7 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
         }
         else
         {
-            out.y = -ConvertPixelsToMap(mCarStyle->mWidth) * 0.25f; // todo: invert in uk
+            out.y = -ConvertPixelsToMap(mCarStyle->mWidth) * 0.25f * -glm::sign(doorLocalPos.y);
         }
         out.x = doorLocalPos.x;
         return true;
