@@ -465,12 +465,10 @@ void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Times
 
 void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
-    pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * 0.3f);
-}
+    float impulse = 0.6f;
 
-void PedestrianStateKnockedDown::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
+    pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
+    pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * impulse);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -543,7 +541,7 @@ void PedestrianStateSlideOnCar::ProcessMotionActions(Pedestrian* pedestrian, Tim
 void PedestrianStateEnterCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
+    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) && 
         pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
     {
         pedestrian->mCurrentCar->CloseDoor(doorIndex);
@@ -578,8 +576,7 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
         return;
     }
 
-    pedestrian->mCurrentCar = transitionEvent->mActionEnterCar.mTargetCar;
-    pedestrian->mCurrentSeat = transitionEvent->mActionEnterCar.mTargetSeat;
+    pedestrian->SetCarEntered(transitionEvent->mActionEnterCar.mTargetCar, transitionEvent->mActionEnterCar.mTargetSeat);
     pedestrian->mPhysicsComponent->ClearForces();
 
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
@@ -600,64 +597,33 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     }
 }
 
-void PedestrianStateEnterCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    if (pedestrian->mCurrentCar)
-    {
-        pedestrian->HandleCarEntered();
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (mIsPullOut)
+    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
+        pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
     {
-        // do nothing
-    }
-    else
-    {
-        if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
-            pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
-        {
-            pedestrian->mCurrentCar->CloseDoor(doorIndex);
-        }
+        pedestrian->mCurrentCar->CloseDoor(doorIndex);
     }
 
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        if (mIsPullOut)
-        {
-            pedestrian->ChangeState(&pedestrian->mStateKnockedDown, nullptr);
-        }
-        else
-        {
-            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        }
+        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
         return;
     }
 }
 
 void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    mIsPullOut = (transitionEvent && transitionEvent->mID == ePedestrianStateEvent_PullOutFromCar);
+    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
 
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (mIsPullOut)
+    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
     {
-        pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
-    }
-    else
-    {
-        bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-        pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
-
-        if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
-        {
-            pedestrian->mCurrentCar->OpenDoor(doorIndex);
-        }
+        pedestrian->mCurrentCar->OpenDoor(doorIndex);
     }
 
     SetInCarPositionToDoor(pedestrian);
@@ -667,18 +633,10 @@ void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const Pede
 {
     if (pedestrian->mCurrentCar)
     {
-        pedestrian->HandleCarExited();
-
         cxx::angle_t currentCarAngle = pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
-        if (mIsPullOut)
-        {
-            pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle + cxx::angle_t::from_degrees(30.0f));
-        }
-        else
-        {
-            pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
-        }
-        pedestrian->mCurrentCar = nullptr;
+
+        pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        pedestrian->SetCarExited();
     }
 }
 
@@ -695,6 +653,12 @@ void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->mCurrentCar->RemovePassenger(pedestrian);
+    if (transitionEvent && transitionEvent->mID == ePedestrianStateEvent_PullOutFromCar)
+    {
+        SetInCarPositionToDoor(pedestrian);
+
+        pedestrian->SetCarExited();
+    }
 }
 
 void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
@@ -707,7 +671,7 @@ void PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const 
 
     if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
     {
-        pedestrian->ChangeState(&pedestrian->mStateExitCar, &stateEvent);
+        pedestrian->ChangeState(&pedestrian->mStateKnockedDown, &stateEvent);
         return;
     }
 }

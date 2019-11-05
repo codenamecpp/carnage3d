@@ -180,7 +180,6 @@ public:
     PedestrianStateKnockedDown() : PedestrianBaseState(ePedestrianState_KnockedDown) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
 // process state ePedestrianState_SlideOnCar
@@ -202,7 +201,6 @@ public:
     PedestrianStateEnterCar() : PedestrianBaseState(ePedestrianState_EnteringCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
 };
 
 // process state ePedestrianState_ExitingCar
@@ -213,8 +211,6 @@ public:
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-protected:
-    bool mIsPullOut = false;
 };
 
 // process state ePedestrianState_DrivingCar

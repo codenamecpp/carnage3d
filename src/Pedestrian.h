@@ -87,8 +87,8 @@ private:
     void SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
 
-    void HandleCarEntered();
-    void HandleCarExited();
+    void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
+    void SetCarExited();
 
 private:
     friend class GameObjectsManager;

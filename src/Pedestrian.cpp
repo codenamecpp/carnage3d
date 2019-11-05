@@ -331,9 +331,13 @@ bool Pedestrian::IsUnconscious() const
     return currState == ePedestrianState_KnockedDown;
 }
 
-void Pedestrian::HandleCarEntered()
+void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
 {
-    debug_assert(mCurrentCar);
+    debug_assert(mCurrentCar == nullptr);
+    debug_assert(targetCar && targetSeat != eCarSeat_Any);
+
+    mCurrentCar = targetCar;
+    mCurrentSeat = targetSeat;
 
     // reset actions
     mCtlActions[ePedestrianAction_TurnLeft] = false;
@@ -345,9 +349,9 @@ void Pedestrian::HandleCarEntered()
     mCtlActions[ePedestrianAction_Shoot] = false;
 }
 
-void Pedestrian::HandleCarExited()
+void Pedestrian::SetCarExited()
 {
-    debug_assert(mCurrentCar);
+    mCurrentCar = nullptr;
 
     // reset actions
     mCtlActions[ePedestrianAction_HandBrake] = false;
