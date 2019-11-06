@@ -1,11 +1,20 @@
+newoption {
+    trigger = "sanitize",
+    description = "enable sanitizers"
+}
+
 workspace "carnage3d"
    location '.build'
    configurations { "Debug", "Release" }
    cppdialect 'C++17'
 
 configuration { "linux", "gmake" }
-buildoptions { "-Wno-switch", "-fsanitize=address", "-fsanitize=undefined" }
-linkoptions { "-fsanitize=address", "-fsanitize=undefined" }
+buildoptions { "-Wno-switch" }
+
+if _OPTIONS["sanitize"] then
+    buildoptions { "-fsanitize=address", "-fsanitize=undefined" }
+    linkoptions { "-fsanitize=address", "-fsanitize=undefined" }
+end
 
 filter 'system:linux'
    platforms { 'x86_64' }
@@ -27,7 +36,7 @@ project "carnage3d"
 		"src/GLFW/monitor.c",
 		"src/GLFW/vulkan.c",
 		"src/GLFW/window.c",
-    		"src/GLFW/x11_platform.h",
+    	"src/GLFW/x11_platform.h",
 		"src/GLFW/xkb_unicode.h",
 		"src/GLFW/linux_joystick.h",
 		"src/GLFW/posix_time.h",

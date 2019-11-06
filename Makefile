@@ -3,6 +3,12 @@ CPUS := $(shell nproc)
 all: build_debug
 	true
 
+build_sanitize: box2d premake
+	.build/premake5 gmake --cc=clang --sanitize
+	make -C .build config=debug_x86_64 -j$(CPUS)
+	test -d bin || mkdir bin
+	cp .build/bin/x86_64/Debug/carnage3d bin/carnage3d-debug
+
 build_debug: box2d premake
 	.build/premake5 gmake --cc=clang
 	make -C .build config=debug_x86_64 -j$(CPUS)
