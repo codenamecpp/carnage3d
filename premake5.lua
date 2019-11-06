@@ -19,13 +19,11 @@ end
 filter 'system:linux'
    platforms { 'x86_64' }
 
-project "carnage3d"
-	kind "WindowedApp"
-   	language "C++"
-   	files 
+project "GLFW"
+	kind "StaticLib"
+   	language "C"
+	files 
 	{ 
-		"src/*.h", 
-		"src/*.cpp",
 		"src/GLFW/internal.h",
 		"src/GLFWglfw_config.h",
 		"src/GLFW/glfw3.h",
@@ -58,9 +56,30 @@ project "carnage3d"
 		"src/GLFW/osmesa_context.c",
 		"src/GLFW/osmesa_context.h"
 	}
+	includedirs { "GLFW" }
+	links { "GL", "GLEW", "stdc++fs", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl" }
+
+	filter { "configurations:Debug" }
+		defines { "DEBUG", "_DEBUG" }
+		symbols "On"
+
+	filter { "configurations:Release" }
+		defines { "NDEBUG" }
+		optimize "On"
+
+project "carnage3d"
+	kind "WindowedApp"
+   	language "C++"
+	pchheader "src/stdafx.h"
+	pchsource "src/stdafx.cpp"
+	files 
+	{ 
+		"src/*.h", 
+		"src/*.cpp"
+	}
 	includedirs { "third_party/Box2D" }
 	includedirs { "GLFW" }
-	links { "GL", "GLEW", "stdc++fs", "Box2D", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl" }
+	links { "GL", "GLEW", "stdc++fs", "Box2D", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl", "GLFW" }
 
 	filter { "configurations:Debug" }
 		defines { "DEBUG", "_DEBUG" }
