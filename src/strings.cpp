@@ -7,21 +7,6 @@
 namespace cxx
 {
 
-int f_snprintf(char* buffer_string, int buffer_size, const char* format_string, ...)
-{
-    va_list vaList {};
-    va_start(vaList, format_string);
-    int num_formatted = stbsp_vsnprintf(buffer_string, buffer_size, format_string, vaList);
-    va_end(vaList);
-    return num_formatted;
-}
-
-int f_vsnprintf(char* buffer_string, int buffer_size, const char* format_string, va_list args_list)
-{
-    int num_formatted = stbsp_vsnprintf(buffer_string, buffer_size, format_string, args_list);
-    return num_formatted;
-}
-
 int count_common_prefix_length(const char* string_a, const char* string_b)
 {
     if (string_a == nullptr || string_b == nullptr)
@@ -333,7 +318,7 @@ int string_buffer::printf(const char* szFormatString, ...)
     // formatted print routine
     va_list parguments;
     va_start(parguments, szFormatString);
-    int icounter = f_vsnprintf(mBufferPtr, mBufferCapacity + 1, szFormatString, parguments);
+    int icounter = vsnprintf(mBufferPtr, mBufferCapacity + 1, szFormatString, parguments);
     if (icounter > 0)
     {
         mBufferEnd = mBufferPtr + (icounter > mBufferCapacity ? mBufferCapacity : icounter);
