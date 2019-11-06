@@ -99,8 +99,8 @@ void trim_right(std::string& input_string)
 
 void trim(std::string& input_string)
 {
-    trim_left(input_string);
     trim_right(input_string);
+    trim_left(input_string);
 }
 
 static const char* eat_whitespaces(const char* cursor)
@@ -329,18 +329,39 @@ int string_buffer::printf(const char* szFormatString, ...)
 
 void string_buffer::trim_left()
 {
-    // todo
+    int copyPos = 0;
+    int stringLength = get_length();
+    for (; copyPos < stringLength; ++copyPos)
+    {
+        if (!is_space(mBufferPtr[copyPos]))
+            break;
+    }
+    if (copyPos == 0)
+        return;
+
+    stringLength -= copyPos;
+    for (int icurr = 0; icurr < stringLength; ++icurr)
+    {
+        mBufferPtr[icurr] = mBufferPtr[copyPos + icurr];
+    }
+    mBufferPtr[stringLength] = 0;
 }
 
 void string_buffer::trim_right()
 {
-    // todo
+    for (int currLength = get_length(); currLength > 0; --currLength)
+    {
+        if (!is_space(mBufferPtr[currLength - 1]))
+            break;
+
+        pop_back();
+    }
 }
 
 void string_buffer::trim()
 {
-    trim_left();
     trim_right();
+    trim_left();
 }
 
 } // namespace cxx

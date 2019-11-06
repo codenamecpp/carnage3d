@@ -67,15 +67,6 @@ namespace cxx
 
     //////////////////////////////////////////////////////////////////////////
 
-    // fast print formatted string into destination buffer
-    // @param buffer_string: Destination buffer
-    // @param buffer_size: Destination buffer size
-    // @param format_string: String format
-    int f_snprintf(char* buffer_string, int buffer_size, const char* format_string, ...);
-    int f_vsnprintf(char* buffer_string, int buffer_size, const char* format_string, va_list args_list);
-
-    //////////////////////////////////////////////////////////////////////////
-
     // defines string buffer of fixed length
     class string_buffer
     {
