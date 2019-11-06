@@ -26,7 +26,7 @@ void Console::Deinit()
 void Console::LogMessage(eLogMessage messageCat, const char* format, ...)
 {
     VA_SCOPE_OPEN(format, vaList)
-    cxx::f_vsnprintf(ConsoleMessageBuffer, sizeof(ConsoleMessageBuffer), format, vaList);
+    vsnprintf(ConsoleMessageBuffer, sizeof(ConsoleMessageBuffer), format, vaList);
     VA_SCOPE_CLOSE(vaList)
 
     if (messageCat > eLogMessage_Debug)
