@@ -46,25 +46,9 @@ public:
     void DrawFrame(SpriteBatch& spriteBatch);
     void DrawDebug(DebugRenderer& debugRender);
 
-    // set current weapon, does nothing if out of ammo
-    void ChangeWeapon(eWeaponType newWeapon);
-
-    // pedestrian will try enter vehicle, may fail depending on its current state
-    // @param targetCar: Car
-    // @param targetSeat: Seat, cannot be 'any'
-    void TakeSeatInCar(Vehicle* targetCar, eCarSeat targetSeat);
-
-    // receive weapons damage, may fail depending on its current state
-    // @param weaponType: Type of weapon
-    // @param attacker: Attacker pedestrian
-    void TakeDamage(eWeaponType weaponType, Pedestrian* attacker);
-
-    // pullout from car event, may fail depending on its current state
-    // @param attacker: Attacker pedestrian
-    void PullOutFromCar(Pedestrian* attacker);
-
-    // pedestrian will try exit vehicle, may fail depending on its current state
-    void LeaveCar();
+    // send event to pedestrian, it may be ignored depending on its current state
+    // @returns false if event not processed
+    bool ProcessEvent(const PedestrianStateEvent& eventData);
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;
@@ -88,6 +72,8 @@ private:
 
     void SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
+
+    void SetCurrentWeapon(eWeaponType weapon);
 
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();

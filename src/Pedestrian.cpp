@@ -211,65 +211,9 @@ void Pedestrian::ChangeState(PedestrianBaseState* nextState, const PedestrianSta
     }
 }
 
-void Pedestrian::ChangeWeapon(eWeaponType newWeapon)
+bool Pedestrian::ProcessEvent(const PedestrianStateEvent& eventData)
 {
-    debug_assert(newWeapon < eWeaponType_COUNT);
-    if (mWeaponsAmmo[newWeapon] == 0 || mCurrentWeapon == newWeapon)
-        return;
-
-    eWeaponType prevWeapon = mCurrentWeapon;
-    mCurrentWeapon = newWeapon;
-
-    // notify current state
-    if (mCurrentState)
-    {
-        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionWeaponChange(prevWeapon);
-        mCurrentState->ProcessStateEvent(this, evData);
-    }
-}
-
-void Pedestrian::TakeSeatInCar(Vehicle* targetCar, eCarSeat targetSeat)
-{
-    if (targetCar == nullptr || targetSeat == eCarSeat_Any)
-    {
-        debug_assert(false);
-        return;
-    }
-
-    if (mCurrentState)
-    {
-        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionEnterCar(targetCar, targetSeat);
-        mCurrentState->ProcessStateEvent(this, evData);
-    }
-}
-
-void Pedestrian::TakeDamage(eWeaponType weaponType, Pedestrian* attacker)
-{
-    // notify current state
-    if (mCurrentState)
-    {
-        PedestrianStateEvent evData = PedestrianStateEvent::Get_DamageFromWeapon(weaponType, attacker);
-        mCurrentState->ProcessStateEvent(this, evData);
-    }
-}
-
-void Pedestrian::PullOutFromCar(Pedestrian* attacker)
-{   
-    // notify current state
-    if (mCurrentState)
-    {
-        PedestrianStateEvent evData = PedestrianStateEvent::Get_PullOutFromCar(attacker);
-        mCurrentState->ProcessStateEvent(this, evData);
-    }
-}
-
-void Pedestrian::LeaveCar()
-{
-    if (mCurrentState)
-    {
-        PedestrianStateEvent evData = PedestrianStateEvent::Get_ActionLeaveCar();
-        mCurrentState->ProcessStateEvent(this, evData);
-    }
+    return mCurrentState && mCurrentState->ProcessStateEvent(this, eventData);
 }
 
 ePedestrianState Pedestrian::GetCurrentStateID() const
@@ -359,4 +303,8 @@ void Pedestrian::SetCarExited()
     mCtlActions[ePedestrianAction_Horn] = false;
 }
 
+void Pedestrian::SetCurrentWeapon(eWeaponType weapon)
+{
+    mCurrentWeapon = weapon;
+}
 

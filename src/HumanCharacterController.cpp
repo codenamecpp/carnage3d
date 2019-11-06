@@ -296,7 +296,8 @@ void HumanCharacterController::SwitchNextWeapon()
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
+            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionWeaponChange((eWeaponType) nextWeaponIndex);
+            mCharacter->ProcessEvent(ev);
             return;
         }
         nextWeaponIndex = (nextWeaponIndex + 1) % eWeaponType_COUNT;
@@ -310,7 +311,8 @@ void HumanCharacterController::SwitchPrevWeapon()
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
+            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionWeaponChange((eWeaponType) nextWeaponIndex);
+            mCharacter->ProcessEvent(ev);
             return;
         }
         nextWeaponIndex = nextWeaponIndex == 0 ? (eWeaponType_COUNT - 1) : (nextWeaponIndex - 1);
@@ -321,7 +323,8 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
-        mCharacter->LeaveCar();
+        PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionLeaveCar();
+        mCharacter->ProcessEvent(ev);
         return;
     }
 
@@ -341,7 +344,8 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 
         if (currCar->IsSeatPresent(carSeat))
         {
-            mCharacter->TakeSeatInCar(currCar, carSeat);
+            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionEnterCar(currCar, carSeat);
+            mCharacter->ProcessEvent(ev);
         }
         return;
     }

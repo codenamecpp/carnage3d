@@ -17,7 +17,7 @@ struct PedestrianStateEvent
 {
 public:
     // build state event helpers
-    static PedestrianStateEvent Get_ActionWeaponChange(eWeaponType prevWeapon);
+    static PedestrianStateEvent Get_ActionWeaponChange(eWeaponType newWeapon);
     static PedestrianStateEvent Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat);
     static PedestrianStateEvent Get_ActionLeaveCar();
     static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
@@ -32,7 +32,7 @@ public:
     // data for event ePedestrianStateEvent_ActionWeaponChange
     struct _action_weapon_change
     {
-        eWeaponType mPrevWeapon;
+        eWeaponType mWeapon;
     };
     _action_weapon_change mActionWeaponChange;
 
@@ -73,8 +73,10 @@ public:
     // @param transitionEvent: optional, but some states will require for startup params
     virtual void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
     virtual void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
-    virtual void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) { }
     virtual void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) { }
+    // send event to state
+    // @returns false if event is ignored by state
+    virtual bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent);
 
 protected:
     PedestrianBaseState(ePedestrianState stateIdentifier) : mStateIdentifier(stateIdentifier) {}
@@ -101,7 +103,7 @@ class PedestrianStateIdleBase: public PedestrianBaseState
 protected:
     PedestrianStateIdleBase(ePedestrianState stateIdentifier) : PedestrianBaseState(stateIdentifier) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 
 protected:
     bool TryToShoot(Pedestrian* pedestrian);
@@ -115,7 +117,7 @@ class PedestrianStateStandingStill: public PedestrianStateIdleBase
 public:
     PedestrianStateStandingStill() : PedestrianStateIdleBase(ePedestrianState_StandingStill) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_Walks
@@ -124,7 +126,7 @@ class PedestrianStateWalks: public PedestrianStateIdleBase
 public:
     PedestrianStateWalks() : PedestrianStateIdleBase(ePedestrianState_Walks) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_Runs
@@ -133,7 +135,7 @@ class PedestrianStateRuns: public PedestrianStateIdleBase
 public:
     PedestrianStateRuns() : PedestrianStateIdleBase(ePedestrianState_Runs) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_StandsAndShoots
@@ -142,7 +144,7 @@ class PedestrianStateStandsAndShoots: public PedestrianStateIdleBase
 public:
     PedestrianStateStandsAndShoots() : PedestrianStateIdleBase(ePedestrianState_StandsAndShoots) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_WalksAndShoots
@@ -151,7 +153,7 @@ class PedestrianStateWalksAndShoots: public PedestrianStateIdleBase
 public:
     PedestrianStateWalksAndShoots() : PedestrianStateIdleBase(ePedestrianState_WalksAndShoots) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_RunsAndShoots
@@ -160,7 +162,7 @@ class PedestrianStateRunsAndShoots: public PedestrianStateIdleBase
 public:
     PedestrianStateRunsAndShoots() : PedestrianStateIdleBase(ePedestrianState_RunsAndShoots) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_Falling
@@ -220,7 +222,7 @@ public:
     PedestrianStateDrivingCar() : PedestrianBaseState(ePedestrianState_DrivingCar) {}
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_Dead
