@@ -9,7 +9,7 @@ This is open source Grand Theft Auto 1 remake project.
 ![Platforms](https://img.shields.io/badge/platform-windows%20%7C%20linux-blue) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 ## Status ##
-Currently it is in very early stage, a little progress so far: https://www.youtube.com/watch?v=91L_CJ0teEA
+Currently it is in very early stage, a progress so far: https://www.youtube.com/watch?v=RENqPCwTdhw
 
 ## Tools and technologies used ##
 * C++11
