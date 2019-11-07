@@ -1,6 +1,6 @@
 # Carnage3D #
 
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/carnage3d_logo.png)
+![Carnage3D Logo](https://raw.githubusercontent.com/codenamecpp/carnage3d/master/carnage3d_logo.png)
 
 This is open source Grand Theft Auto 1 remake project.
 
@@ -70,6 +70,8 @@ It is similar to original:
 
 When in "Free Look" camera mode, moving with **W**, **S**, **A**, **D** keys.
 
+In addition there is support of xbox-compatible gamepads. To enable it or change default key bindings create config file gamedata/config/inputs.json (copy-paste template inputs.json.default) and modify it as you wish.
+
 ## Other GTA 1/2 re-implementations ##
 * [WebGL-GTA](https://github.com/niklasvh/WebGL-GTA)
 * [OpenGTA](http://ogta.fifengine.de/download.html)
@@ -80,7 +82,7 @@ When in "Free Look" camera mode, moving with **W**, **S**, **A**, **D** keys.
 
 ## Screenshots ##
 First test launch on Linux
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
+![ScreenShot](https://raw.githubusercontent.com/codenamecpp/carnage3d/master/screenshots/WorksOnLinux.png)
 
 Split screen test on Windows
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/SplitScreenTest.png)
+![ScreenShot](https://raw.githubusercontent.com/codenamecpp/carnage3d/master/screenshots/SplitScreenTest.png)
