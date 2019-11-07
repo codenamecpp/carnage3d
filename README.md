@@ -1,6 +1,6 @@
 # Carnage3D #
 
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/carnage3d_logo.png)
+![Carnage3D Logo](/carnage3d_logo.png)
 
 This is open source Grand Theft Auto 1 remake project.
 
@@ -80,7 +80,7 @@ When in "Free Look" camera mode, moving with **W**, **S**, **A**, **D** keys.
 
 ## Screenshots ##
 First test launch on Linux
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/WorksOnLinux.png)
+![ScreenShot](/screenshots/WorksOnLinux.png)
 
 Split screen test on Windows
-![alt text](https://github.com/codenamecpp/carnage3d/blob/master/screenshots/SplitScreenTest.png)
+![ScreenShot](/screenshots/SplitScreenTest.png)
