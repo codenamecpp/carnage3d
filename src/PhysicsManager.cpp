@@ -469,37 +469,47 @@ bool PhysicsManager::GetContactComponents(b2Contact* contact, PedPhysicsComponen
     return true;
 }
 
-void PhysicsManager::QueryObjects(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult) const
+void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsLinecastResult& outputResult) const
 {
     outputResult.SetNull();
 
     struct _raycast_callback: public b2RayCastCallback
     {
     public:
-        _raycast_callback(PhysicsQueryResult& out)
+        _raycast_callback(PhysicsLinecastResult& out)
             : mOutput(out)
         {
         }
 	    float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction) override
         {
+            if (mOutput.IsFull())
+                return 0.0f;
+
+            PhysicsLinecastHit* currHit = nullptr;
+
             const b2Filter& filterData = fixture->GetFilterData();
             if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
             {
-                CarPhysicsComponent* component = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
-                if (!mOutput.AddElement(component))
-                    return 0.0f;
-                
+                currHit = &mOutput.mHits[mOutput.mHitsCount++];
+                currHit->mCarComponent = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
+
             }
             if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
             {
-                PedPhysicsComponent* component = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
-                if (!mOutput.AddElement(component))
-                    return 0.0f;
+                currHit = &mOutput.mHits[mOutput.mHitsCount++];
+                currHit->mPedComponent = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
+            }
+            if (currHit)
+            {
+                currHit->mIntersectionPoint.x = ConvertPhysicsToMap(point.x);
+                currHit->mIntersectionPoint.y = ConvertPhysicsToMap(point.y);
+                currHit->mNormal.x = normal.x;
+                currHit->mNormal.y = normal.y;
             }
             return 1.0f;
         }
     public:
-        PhysicsQueryResult& mOutput;
+        PhysicsLinecastResult& mOutput;
     };
 
     _raycast_callback raycast_callback {outputResult};
@@ -521,19 +531,20 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
         }
         bool ReportFixture(b2Fixture* fixture) override
         {
+            if (mOutput.IsFull())
+                return false;
+
             const b2Filter& filterData = fixture->GetFilterData();
             if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
             {
-                CarPhysicsComponent* component = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
-                if (!mOutput.AddElement(component))
-                    return false;
-                
+                PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
+                currElement.mCarComponent = (CarPhysicsComponent*) fixture->GetBody()->GetUserData();
             }
+
             if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
             {
-                PedPhysicsComponent* component = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
-                if (!mOutput.AddElement(component))
-                    return false;
+                PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
+                currElement.mPedComponent = (PedPhysicsComponent*) fixture->GetBody()->GetUserData();
             }
             return true;
         }

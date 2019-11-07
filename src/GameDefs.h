@@ -415,6 +415,22 @@ public:
     int mFrames[MAX_MAP_BLOCK_ANIM_FRAMES]; // an array of block numbers, these refer to aux_block
 };
 
+// warning - these values are mapped to gta1, so don't change it
+enum eObjectStatus
+{
+    eObjectStatus_Normal    = 0,
+    eObjectStatus_Ignorable = 1, // can drive over
+    eObjectStatus_Smashable = 2, // breaks on landing
+    eObjectStatus_Invisible = 3,
+    eObjectStatus_Particle  = 5, // fire, water, smoke etc
+    eObjectStatus_CarObject = 6, // tank gun, water gun, train doors etc
+    eObjectStatus_Unknown   = 7,
+    eObjectStatus_Scenery   = 8, // not sure
+    eObjectStatus_Powerup   = 9,
+};
+
+decl_enum_strings(eObjectStatus);
+
 // define map object information
 struct ObjectStyle
 {
@@ -422,10 +438,10 @@ public:
     int mWidth;
     int mHeight; 
     int mDepth;
-    int mSpriteIndex;
+    int mBaseSprite;
     int mWeight;
     int mAux;
-    int mStatus;
+    eObjectStatus mStatus;
 };
 
 // define car door information

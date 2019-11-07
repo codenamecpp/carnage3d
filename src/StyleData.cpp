@@ -689,10 +689,17 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
         READ_SI32(file, objectInfo.mWidth);
         READ_SI32(file, objectInfo.mHeight);
         READ_SI32(file, objectInfo.mDepth);
-        READ_I16(file, objectInfo.mSpriteIndex);
+        READ_I16(file, objectInfo.mBaseSprite);
         READ_I16(file, objectInfo.mWeight);
         READ_I16(file, objectInfo.mAux);
-        READ_I8(file, objectInfo.mStatus);
+
+        unsigned char objStatus;
+        READ_I8(file, objStatus);
+
+        if (!cxx::parse_enum_int(objStatus, objectInfo.mStatus))
+        {
+            debug_assert(false);
+        }
 
         int numInto;
         READ_I8(file, numInto);
@@ -703,6 +710,8 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
         if (numInto > 0)
         {
             int skipBytes = numInto * sizeof(unsigned short);
+            dataLength -= skipBytes;
+
             if (!file.seekg(skipBytes, std::ios::cur))
                 return false;
         }

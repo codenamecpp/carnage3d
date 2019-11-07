@@ -525,3 +525,16 @@ impl_enum_strings(eGameObjectType)
     {eGameObjectType_Decoration, "decoration"},
     {eGameObjectType_Obstacle, "obstacle"},
 };
+
+impl_enum_strings(eObjectStatus)
+{
+    {eObjectStatus_Normal, "normal"},
+    {eObjectStatus_Ignorable, "ignorable"},
+    {eObjectStatus_Smashable, "smashable"},
+    {eObjectStatus_Invisible, "invisible"},
+    {eObjectStatus_Particle, "particle"},
+    {eObjectStatus_CarObject, "carobject"},
+    {eObjectStatus_Scenery, "scenery"},
+    {eObjectStatus_Unknown, "unknown"},
+    {eObjectStatus_Powerup, "powerup"},
+};

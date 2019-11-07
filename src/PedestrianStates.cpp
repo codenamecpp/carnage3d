@@ -275,18 +275,18 @@ bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
         glm::vec2 posA { pos.x, pos.z };
         glm::vec2 posB = posA + (pedestrian->mPhysicsComponent->GetSignVector() * gGameParams.mWeaponsDistance[pedestrian->mCurrentWeapon]);
         // find candidates
-        PhysicsQueryResult queryResult;
-        gPhysics.QueryObjects(posA, posB, queryResult);
-        for (int iped = 0; iped < queryResult.mPedsCount; ++iped)
+        PhysicsLinecastResult linecastResult;
+        gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
+        for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
         {
-            Pedestrian* currPedestrian = queryResult.mPedsList[iped]->mReferencePed;
-            if (currPedestrian == pedestrian) // ignore self
-                continue;
+            PedPhysicsComponent* pedBody = linecastResult.mHits[icurr].mPedComponent;
+            if (pedBody == nullptr || pedBody->mReferencePed == pedestrian) // ignore self
+                continue; 
 
             // todo: check distance in y direction
 
             PedestrianStateEvent ev = PedestrianStateEvent::Get_DamageFromWeapon(pedestrian->mCurrentWeapon, pedestrian);
-            currPedestrian->ProcessEvent(ev);
+            pedBody->mReferencePed->ProcessEvent(ev);
         }
     }
     else

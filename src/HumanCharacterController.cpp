@@ -328,23 +328,25 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
         return;
     }
 
-    PhysicsQueryResult queryResult;
+    PhysicsLinecastResult linecastResult;
 
     glm::vec3 pos = mCharacter->mPhysicsComponent->GetPosition();
     glm::vec2 posA { pos.x, pos.z };
     glm::vec2 posB = posA + (mCharacter->mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance);
 
-    gPhysics.QueryObjects(posA, posB, queryResult);
+    gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
 
     // process all cars
-    for (int icar = 0; icar < queryResult.mCarsCount; ++icar)
+    for (int icar = 0; icar < linecastResult.mHitsCount; ++icar)
     {
-        Vehicle* currCar = queryResult.mCarsList[icar]->mReferenceCar;
-        eCarSeat carSeat = alternative ? eCarSeat_Passenger : eCarSeat_Driver;
+        CarPhysicsComponent* carBody = linecastResult.mHits[icar].mCarComponent;
+        if (carBody == nullptr)
+            continue;
 
-        if (currCar->IsSeatPresent(carSeat))
+        eCarSeat carSeat = alternative ? eCarSeat_Passenger : eCarSeat_Driver;
+        if (carBody->mReferenceCar->IsSeatPresent(carSeat))
         {
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionEnterCar(currCar, carSeat);
+            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionEnterCar(carBody->mReferenceCar, carSeat);
             mCharacter->ProcessEvent(ev);
         }
         return;

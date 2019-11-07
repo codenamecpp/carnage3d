@@ -37,7 +37,7 @@ public:
     // @param pointA, pointB: Line of intersect points
     // @param aaboxCenter, aabboxExtents: AABBox area of intersections
     // @param outputResult: Output objects
-    void QueryObjects(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult) const;
+    void QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsLinecastResult& outputResult) const;
     void QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const glm::vec2& aabboxExtents, PhysicsQueryResult& outputResult) const;
 
 private:

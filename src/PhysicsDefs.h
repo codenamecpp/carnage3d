@@ -23,49 +23,65 @@ enum
     PHYSICS_OBJCAT_PED_SENSOR = (1 << 5),
 };
 
-// holds physics world query result
-const int MaxPhysicsQueryElements = 16;
+const int MaxPhysicsQueryElements = 32;
+
+// linecast hit info
+struct PhysicsLinecastHit
+{
+public:
+    PhysicsLinecastHit() = default;
+    inline void SetNull()
+    {
+        mPedComponent = nullptr;
+        mCarComponent = nullptr;
+    }
+public:
+    // ped or car physical object
+    PedPhysicsComponent* mPedComponent = nullptr;
+    CarPhysicsComponent* mCarComponent = nullptr;
+
+    glm::vec2 mNormal;
+    glm::vec2 mIntersectionPoint;
+};
+
+// physical components query info
+struct PhysicsQueryElement
+{
+public:
+    PhysicsQueryElement() = default;
+    inline void SetNull()
+    {
+        mPedComponent = nullptr;
+        mCarComponent = nullptr;
+    }
+public:
+    // ped or car physical object
+    PedPhysicsComponent* mPedComponent = nullptr;
+    CarPhysicsComponent* mCarComponent = nullptr;
+};
+
+// linecast result
+struct PhysicsLinecastResult
+{
+public:
+    PhysicsLinecastResult() = default;
+    inline void SetNull() { mHitsCount = 0; }
+    inline bool IsNull() const { return mHitsCount == 0; }
+    inline bool IsFull() const { return mHitsCount == MaxPhysicsQueryElements; }
+public:
+    int mHitsCount = 0;
+    PhysicsLinecastHit mHits[MaxPhysicsQueryElements];
+};
+
+// physical components query result
 struct PhysicsQueryResult
 {
 public:
     PhysicsQueryResult() = default;
-
-    inline bool AddElement(PedPhysicsComponent* component)
-    {
-        debug_assert(component);
-        if (mPedsCount < MaxPhysicsQueryElements)
-        {
-            mPedsList[mPedsCount++] = component;
-            return true;
-        }
-        return false;
-    }
-
-    inline bool AddElement(CarPhysicsComponent* component)
-    {
-        debug_assert(component);
-        if (mCarsCount < MaxPhysicsQueryElements)
-        {
-            mCarsList[mCarsCount++] = component;
-            return true;
-        }
-        return false;
-    }
-
-    inline void SetNull()
-    {
-        mPedsCount = 0;
-        mCarsCount = 0;
-    }
-
-    inline bool IsNull() const
-    {
-        return mPedsCount == 0 && mCarsCount == 0;
-    }
-
+    inline void SetNull() { mElementsCount = 0; }
+    inline bool IsNull() const { return mElementsCount == 0; }
+    inline bool IsFull() const { return mElementsCount == MaxPhysicsQueryElements; }
 public:
-    int mPedsCount = 0;
-    int mCarsCount = 0;
-    PedPhysicsComponent* mPedsList[MaxPhysicsQueryElements];
-    CarPhysicsComponent* mCarsList[MaxPhysicsQueryElements];
+    int mElementsCount = 0;
+    PhysicsQueryElement mElements[MaxPhysicsQueryElements];
 };
