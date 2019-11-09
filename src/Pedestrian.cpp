@@ -51,6 +51,7 @@ void Pedestrian::EnterTheGame()
     debug_assert(mPhysicsComponent);
 
     mCurrentAnimID = eSpriteAnimID_Null;
+    mDeathReason = ePedestrianDeathReason_null;
 
     mCurrentCar = nullptr;
     mCurrentSeat = eCarSeat_Any;
@@ -269,6 +270,12 @@ bool Pedestrian::IsUnconscious() const
     return currState == ePedestrianState_KnockedDown;
 }
 
+bool Pedestrian::IsDead() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return currState == ePedestrianState_Dead;
+}
+
 void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
 {
     debug_assert(mCurrentCar == nullptr);
@@ -303,5 +310,12 @@ void Pedestrian::SetCarExited()
 void Pedestrian::SetCurrentWeapon(eWeaponType weapon)
 {
     mCurrentWeapon = weapon;
+}
+
+void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
+{
+    debug_assert(mDeathReason == ePedestrianDeathReason_null);
+    debug_assert(deathReason != ePedestrianDeathReason_null);
+    mDeathReason = deathReason;
 }
 

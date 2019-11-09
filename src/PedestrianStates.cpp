@@ -49,12 +49,16 @@ PedestrianStateEvent PedestrianStateEvent::Get_PullOutFromCar(Pedestrian* attack
     return eventData;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-bool PedestrianBaseState::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+PedestrianStateEvent PedestrianStateEvent::Get_Die(ePedestrianDeathReason reason, Pedestrian* attacker)
 {
-    return false; // ignore all
+    PedestrianStateEvent eventData {ePedestrianStateEvent_Die};
+    eventData.mDie.mAttacker = attacker;
+    eventData.mDie.mDeathReason = reason;
+
+    return eventData;
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
 {
@@ -257,7 +261,13 @@ bool PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const Pe
         return true;
     }
 
-    return PedestrianBaseState::ProcessStateEvent(pedestrian, stateEvent);
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+
+    return false;
 }
 
 bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
@@ -447,6 +457,16 @@ void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const Pede
     pedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
 }
 
+bool PedestrianStateFalling::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
@@ -484,6 +504,16 @@ void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const
 
     pedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
     pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * impulse);
+}
+
+bool PedestrianStateKnockedDown::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -529,6 +559,16 @@ void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timesp
 void PedestrianStateSlideOnCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
+}
+
+bool PedestrianStateSlideOnCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+    return false;
 }
 
 void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
@@ -613,6 +653,16 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     }
 }
 
+bool PedestrianStateEnterCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
@@ -656,6 +706,16 @@ void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const Pede
     }
 }
 
+bool PedestrianStateExitCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
@@ -690,6 +750,11 @@ bool PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const 
         pedestrian->ChangeState(&pedestrian->mStateKnockedDown, &stateEvent);
         return true;
     }
+    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    {
+        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
     return false;
 }
 
@@ -708,4 +773,9 @@ void PedestrianStateDead::ProcessStateEnter(Pedestrian* pedestrian, const Pedest
 void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     // todo
+}
+
+bool PedestrianStateDead::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+{
+    return false; // ignore all
 }

@@ -10,6 +10,7 @@ enum ePedestrianStateEvent
 
     ePedestrianStateEvent_TakeDamageFromWeapon,
     ePedestrianStateEvent_PullOutFromCar,
+    ePedestrianStateEvent_Die,
 };
 
 // defines state event
@@ -22,6 +23,7 @@ public:
     static PedestrianStateEvent Get_ActionLeaveCar();
     static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
     static PedestrianStateEvent Get_PullOutFromCar(Pedestrian* attacker);
+    static PedestrianStateEvent Get_Die(ePedestrianDeathReason reason, Pedestrian* attacker);
 
     PedestrianStateEvent(ePedestrianStateEvent eventID): mID(eventID)
     {
@@ -58,7 +60,17 @@ public:
         Pedestrian* mAttacker = nullptr;
     };
     _pullout_from_car mPullOutFromCar;
+
+    // data for event ePedestrianStateEvent_Die
+    struct _die
+    {
+        ePedestrianDeathReason mDeathReason;
+        Pedestrian* mAttacker = nullptr;
+    };
+    _die mDie;
 };
+
+const unsigned int Sizeof_PedestrianStateEvent = sizeof(PedestrianStateEvent);
 
 // defines basic pedestrian state
 class PedestrianBaseState: public cxx::noncopyable
@@ -76,7 +88,7 @@ public:
     virtual void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) { }
     // send event to state
     // @returns false if event is ignored by state
-    virtual bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent);
+    virtual bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) = 0;
 
 protected:
     PedestrianBaseState(ePedestrianState stateIdentifier) : mStateIdentifier(stateIdentifier) {}
@@ -173,6 +185,7 @@ public:
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_KnockedDown
@@ -182,6 +195,7 @@ public:
     PedestrianStateKnockedDown() : PedestrianBaseState(ePedestrianState_KnockedDown) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_SlideOnCar
@@ -191,6 +205,7 @@ public:
     PedestrianStateSlideOnCar() : PedestrianBaseState(ePedestrianState_SlideOnCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 protected:
     void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime) override;
@@ -203,6 +218,7 @@ public:
     PedestrianStateEnterCar() : PedestrianBaseState(ePedestrianState_EnteringCar) {}
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_ExitingCar
@@ -213,6 +229,7 @@ public:
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };
 
 // process state ePedestrianState_DrivingCar
@@ -233,4 +250,5 @@ public:
     void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
+    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
 };

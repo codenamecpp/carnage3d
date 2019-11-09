@@ -26,6 +26,8 @@ public:
     float mDrawHeight;
     int mRemapIndex;
     
+    ePedestrianDeathReason mDeathReason = ePedestrianDeathReason_null; // has meaning only in 'dead state'
+
     // in car
     Vehicle* mCurrentCar = nullptr;
     eCarSeat mCurrentSeat;
@@ -59,6 +61,7 @@ public:
     bool IsShooting() const;
     bool IsWalking() const;
     bool IsUnconscious() const;
+    bool IsDead() const;
 
     // detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
@@ -74,6 +77,7 @@ private:
     void ComputeDrawHeight(const glm::vec3& position);
 
     void SetCurrentWeapon(eWeaponType weapon);
+    void SetDead(ePedestrianDeathReason deathReason);
 
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();

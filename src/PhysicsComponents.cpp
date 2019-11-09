@@ -216,8 +216,12 @@ void PedPhysicsComponent::HandleCarContactEnd()
 
 bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
 {
-    debug_assert(bits);
+    if (mReferencePed->IsDead())
+    {
+        return false;
+    }
 
+    debug_assert(bits);
     ePedestrianState currState = mReferencePed->GetCurrentStateID();
     if (currState == ePedestrianState_Falling || currState == ePedestrianState_SlideOnCar ||
         currState == ePedestrianState_EnteringCar || currState == ePedestrianState_ExitingCar)
@@ -226,11 +230,6 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
     }
 
     if (mReferencePed->IsCarPassenger())
-    {
-        return false;
-    }
-
-    if (currState == ePedestrianState_Dead)
     {
         return false;
     }

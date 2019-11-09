@@ -778,3 +778,19 @@ enum eCarSeat
 };
 
 decl_enum_strings(eCarSeat);
+
+// pedestrian death cause
+enum ePedestrianDeathReason
+{
+    ePedestrianDeathReason_null,
+
+    ePedestrianDeathReason_FallFromHeight,
+    ePedestrianDeathReason_Shot,
+    ePedestrianDeathReason_BlownUp,
+    ePedestrianDeathReason_Fried,
+    ePedestrianDeathReason_Electrocuted,
+    ePedestrianDeathReason_Drowned,
+    ePedestrianDeathReason_HitByCar, // blown in car
+};
+
+decl_enum_strings(ePedestrianDeathReason);

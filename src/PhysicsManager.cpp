@@ -39,8 +39,6 @@ bool PhysicsManager::Initialize()
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetContactListener(this);
-    //mPhysicsWorld->SetAutoClearForces(true);
-
     CreateMapCollisionShape();
     return true;
 }
@@ -312,33 +310,32 @@ void PhysicsManager::FixedStepGravity()
         physicsComponent->mOnTheGround = newHeight > position.y - 0.1f;
         if (!physicsComponent->mOnTheGround)
         {
-            position.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }
         else
         {
-            position.y = newHeight;
+            physicsComponent->mHeight = newHeight;
         }
-        physicsComponent->SetPosition(position);  
     }
 
     // pedestrians
     for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
     {
         PedPhysicsComponent* physicsComponent = currPedestrian->mPhysicsComponent;
-        glm::vec3 position = physicsComponent->GetPosition();
-
         if (currPedestrian->IsCarPassenger())
         {
             glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsComponent->GetPosition();
-            position.y = carPosition.y;
-            physicsComponent->SetPosition(position);
 
+            physicsComponent->mHeight = carPosition.y;
             return;
         }
 
+        glm::vec3 position = physicsComponent->GetPosition();
+
         // process falling
         float newHeight = gGameMap.GetHeightAtPosition(position);
-        physicsComponent->mOnTheGround = newHeight > position.y - 0.1f;
+        physicsComponent->mOnTheGround = newHeight > (position.y - 0.01f);
+
         if (physicsComponent->mFalling)
         {
             if (physicsComponent->mOnTheGround)
@@ -348,21 +345,21 @@ void PhysicsManager::FixedStepGravity()
         }
         else
         {
-            if ((position.y - newHeight) >= MAP_BLOCK_LENGTH)
+            float distanceToGround = position.y - newHeight;
+            if (distanceToGround > (MAP_BLOCK_LENGTH - 0.01f))
             {
                 physicsComponent->SetFalling(true);
             }
         }
 
-        if (!physicsComponent->mOnTheGround)
+        if (!physicsComponent->mOnTheGround && physicsComponent->mFalling)
         {
-            position.y -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }
         else
         {
-            position.y = newHeight;
+            physicsComponent->mHeight = newHeight;
         }
-        physicsComponent->SetPosition(position);
     }
 }
 

@@ -538,3 +538,15 @@ impl_enum_strings(eObjectStatus)
     {eObjectStatus_Unknown, "unknown"},
     {eObjectStatus_Powerup, "powerup"},
 };
+
+impl_enum_strings(ePedestrianDeathReason)
+{
+    {ePedestrianDeathReason_null, "None"},
+    {ePedestrianDeathReason_FallFromHeight, "FallFromHeight"},
+    {ePedestrianDeathReason_Shot, "Shot"},
+    {ePedestrianDeathReason_BlownUp, "BlownUp"},
+    {ePedestrianDeathReason_Fried, "Fried"},
+    {ePedestrianDeathReason_Electrocuted, "Electrocuted"},
+    {ePedestrianDeathReason_Drowned, "Drowned"},
+    {ePedestrianDeathReason_HitByCar, "HitByCar"},
+};
