@@ -37,7 +37,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
                 ImGui::PushID(icurr);
                 if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mCars[icurr].mModelId))) 
                 {
-                    CreateCarNearby(&gGameMap.mStyleData.mCars[icurr], gCarnageGame.mHumanCharacters[0].mCharPedestrian);
+                    CreateCarNearby(&gGameMap.mStyleData.mCars[icurr], gCarnageGame.mHumanSlot[0].mCharPedestrian);
                 }
                 ImGui::PopID();
             }
@@ -50,7 +50,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     ImGui::Text("Block chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
     
     // pedestrian stats
-    if (Pedestrian* pedestrian = gCarnageGame.mHumanCharacters[0].mCharPedestrian)
+    if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
     {
         ImGui::Separator();
         glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
@@ -86,13 +86,13 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     const char* modeStrings[] = { "Follow", "Free Look" };
     CameraController* modeControllers[] =
     {
-        &gCarnageGame.mHumanCharacters[0].mCharView.mFollowCameraController, 
-        &gCarnageGame.mHumanCharacters[0].mCharView.mFreeLookCameraController,
+        &gCarnageGame.mHumanSlot[0].mCharView.mFollowCameraController, 
+        &gCarnageGame.mHumanSlot[0].mCharView.mFreeLookCameraController,
     }; 
     int currentCameraMode = 0;
     for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
     {
-        if (gCarnageGame.mHumanCharacters[0].mCharView.mCameraController == modeControllers[i])
+        if (gCarnageGame.mHumanSlot[0].mCharView.mCameraController == modeControllers[i])
         {
             currentCameraMode = i;
             break;
@@ -107,7 +107,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
             if (ImGui::Selectable(modeStrings[n], is_selected))
             {
                 item_current = modeStrings[n];
-                gCarnageGame.mHumanCharacters[0].mCharView.SetCameraController(modeControllers[n]);
+                gCarnageGame.mHumanSlot[0].mCharView.SetCameraController(modeControllers[n]);
             }
             if (is_selected)
             {

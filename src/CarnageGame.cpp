@@ -130,6 +130,17 @@ bool CarnageGame::Initialize()
 
 void CarnageGame::Deinit()
 {
+    // temporary
+    for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
+    {
+        if (mHumanSlot[icurr].mCharPedestrian &&
+            mHumanSlot[icurr].mCharPedestrian->IsCarPassenger())
+        {
+            PedestrianStateEvent ev = PedestrianStateEvent::Get_PullOutFromCar(nullptr);
+            mHumanSlot[icurr].mCharPedestrian->ProcessEvent(ev);
+        }
+    }
+
     gGameObjectsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();
@@ -146,11 +157,11 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharController.UpdateFrame(mHumanCharacters[ihuman].mCharPedestrian, deltaTime);
-        mHumanCharacters[ihuman].mCharView.UpdateFrame(deltaTime);
+        mHumanSlot[ihuman].mCharController.UpdateFrame(mHumanSlot[ihuman].mCharPedestrian, deltaTime);
+        mHumanSlot[ihuman].mCharView.UpdateFrame(deltaTime);
     }
 }
 
@@ -184,11 +195,11 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharController.InputEvent(inputEvent);
-        mHumanCharacters[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
 
         if (inputEvent.mConsumed)
             break;
@@ -199,10 +210,10 @@ void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
 
         if (inputEvent.mConsumed)
             break;
@@ -213,10 +224,10 @@ void CarnageGame::InputEvent(MouseMovedInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
 
         if (inputEvent.mConsumed)
             break;
@@ -227,10 +238,10 @@ void CarnageGame::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
 
         if (inputEvent.mConsumed)
             break;
@@ -245,10 +256,10 @@ void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanCharacters[ihuman].mCharPedestrian == nullptr)
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanCharacters[ihuman].mCharController.InputEvent(inputEvent);
+        mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
 
         if (inputEvent.mConsumed)
             break;
@@ -260,7 +271,7 @@ bool CarnageGame::SetInputActionsFromConfig()
     // force default mapping for first player
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        HumanCharacterSlot& currentChar = mHumanCharacters[ihuman];
+        HumanCharacterSlot& currentChar = mHumanSlot[ihuman];
         currentChar.mCharController.mInputs.SetNull();
         if (ihuman == 0) 
         {
@@ -286,7 +297,7 @@ bool CarnageGame::SetInputActionsFromConfig()
     cxx::string_buffer_32 tempString;
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        HumanCharacterController& currentChar = mHumanCharacters[ihuman].mCharController;
+        HumanCharacterController& currentChar = mHumanSlot[ihuman].mCharController;
 
         tempString.printf("player%d", ihuman + 1);
 
@@ -302,8 +313,8 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
     // todo: what a mess
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
-    debug_assert(mHumanCharacters[humanIndex].mCharPedestrian == nullptr);
-    if (mHumanCharacters[humanIndex].mCharPedestrian)
+    debug_assert(mHumanSlot[humanIndex].mCharPedestrian == nullptr);
+    if (mHumanSlot[humanIndex].mCharPedestrian)
         return;
 
     if (humanIndex > 0)
@@ -311,9 +322,9 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
         pedestrian->mRemapIndex = humanIndex - 1;
     }
 
-    mHumanCharacters[humanIndex].mCharPedestrian = pedestrian;
-    mHumanCharacters[humanIndex].mCharController.SetCharacter(pedestrian);
-    mHumanCharacters[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);
+    mHumanSlot[humanIndex].mCharPedestrian = pedestrian;
+    mHumanSlot[humanIndex].mCharController.SetCharacter(pedestrian);
+    mHumanSlot[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);
 }
 
 void CarnageGame::SetupScreenLayout(int playersCount)
@@ -337,12 +348,12 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         debug_assert(colsOnCurrentRow);
         int frameSizePerW = fullViewport.w / colsOnCurrentRow;
         
-        mHumanCharacters[icurr].mCharView.mRenderCamera.mViewportRect.h = frameSizePerH;
-        mHumanCharacters[icurr].mCharView.mRenderCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
-        mHumanCharacters[icurr].mCharView.mRenderCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
-        mHumanCharacters[icurr].mCharView.mRenderCamera.mViewportRect.w = frameSizePerW;
+        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.h = frameSizePerH;
+        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
+        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
+        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.w = frameSizePerW;
  
-        mHumanCharacters[icurr].mCharView.SetCameraController(&mHumanCharacters[icurr].mCharView.mFollowCameraController);
-        gRenderManager.AttachRenderView(&mHumanCharacters[icurr].mCharView);
+        mHumanSlot[icurr].mCharView.SetCameraController(&mHumanSlot[icurr].mCharView.mFollowCameraController);
+        gRenderManager.AttachRenderView(&mHumanSlot[icurr].mCharView);
     }
 }

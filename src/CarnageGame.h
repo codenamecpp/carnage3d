@@ -21,7 +21,7 @@ public:
     };
 
     // gamestate
-    HumanCharacterSlot mHumanCharacters[GAME_MAX_PLAYERS];
+    HumanCharacterSlot mHumanSlot[GAME_MAX_PLAYERS];
 
     Timespan mGameTime;
 
