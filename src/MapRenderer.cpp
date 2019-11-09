@@ -79,15 +79,10 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gGraphicsDevice.BindTexture(eTextureUnit_2, gSpriteManager.mPaletteIndicesTable);
 
     DrawCityMesh(renderview);
-
     // collect and render game objects sprites
-    for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
+    for (GameObject* currGameObject: gGameObjectsManager.mObjectsList)
     {
-        currPedestrian->DrawFrame(mSpritesBatch);
-    }
-    for (Vehicle* currVehicle: gCarnageGame.mObjectsManager.mActiveCarsList)
-    {
-        currVehicle->DrawFrame(mSpritesBatch);
+        currGameObject->DrawFrame(mSpritesBatch);
     }
     mSpritesBatch.Flush(renderview);
 }
@@ -95,13 +90,9 @@ void MapRenderer::RenderFrame(RenderView* renderview)
 void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
 {
     debug_assert(renderview);
-    for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
+    for (GameObject* currGameObject: gGameObjectsManager.mObjectsList)
     {
-        currPedestrian->DrawDebug(debugRender);
-    }
-    for (Vehicle* currVehicle: gCarnageGame.mObjectsManager.mActiveCarsList)
-    {
-        currVehicle->DrawDebug(debugRender);
+        currGameObject->DrawDebug(debugRender);
     }
 }
 

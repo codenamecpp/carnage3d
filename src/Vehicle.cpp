@@ -8,15 +8,13 @@
 #include "SpriteManager.h"
 #include "Pedestrian.h"
 
-Vehicle::Vehicle(GameObjectID id)
-    : GameObject(eGameObjectType_Car, id)
-    , mActiveCarsNode(this)
-    , mDeleteCarsNode(this)
+Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
     , mPhysicsComponent()
     , mDead()
     , mCarStyle()
     , mDamageDeltaBits()
     , mDrawHeight()
+    , mCarsListNode(this)
 {
 }
 
@@ -37,7 +35,6 @@ void Vehicle::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRot
     mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation, mCarStyle);
     debug_assert(mPhysicsComponent);
 
-    mMarkForDeletion = false;
     mDead = false;
     mDamageDeltaBits = 0;
     mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
@@ -196,7 +193,7 @@ void Vehicle::SetupDeltaAnimations()
     if ((deltaBits & maskBits) == maskBits)
     {
         mEmergLightsAnim.SetNull();
-        mEmergLightsAnim.mAnimData.SetupFrames(
+        mEmergLightsAnim.mAnimDesc.SetupFrames(
         {
             BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0),
             BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1),
@@ -207,7 +204,7 @@ void Vehicle::SetupDeltaAnimations()
     // doors
     if (mCarStyle->mDoorsCount >= 1)
     {
-        mDoorsAnims[0].mAnimData.SetupFrames(
+        mDoorsAnims[0].mAnimDesc.SetupFrames(
         {
             0,
             BIT(CAR_DOOR1_SPRITE_DELTA_0),
@@ -220,7 +217,7 @@ void Vehicle::SetupDeltaAnimations()
 
     if (mCarStyle->mDoorsCount >= 2)
     {
-        mDoorsAnims[1].mAnimData.SetupFrames(
+        mDoorsAnims[1].mAnimDesc.SetupFrames(
         {
             0,
             BIT(CAR_DOOR2_SPRITE_DELTA_0),

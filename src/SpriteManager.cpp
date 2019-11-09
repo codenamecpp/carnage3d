@@ -300,13 +300,13 @@ void SpriteManager::InitBlocksAnimations()
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
-        animData.mAnimData.mFramesPerSecond = (20.0f / currAnim.mSpeed);
-        animData.mAnimData.mFramesCount = currAnim.mFrameCount + 1;
-        animData.mAnimData.mFrames[0] = animData.mBlockIndex; // initial frame
+        animData.mAnimDesc.mFramesPerSecond = (20.0f / currAnim.mSpeed);
+        animData.mAnimDesc.mFramesCount = currAnim.mFrameCount + 1;
+        animData.mAnimDesc.mFrames[0] = animData.mBlockIndex; // initial frame
         for (int iframe = 0; iframe < currAnim.mFrameCount; ++iframe)
         {   
             // convert to linear indices
-            animData.mAnimData.mFrames[iframe + 1] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
+            animData.mAnimDesc.mFrames[iframe + 1] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
         }
         animData.PlayAnimation(eSpriteAnimLoop_FromStart);
         mBlocksAnimations.push_back(animData);

@@ -8,11 +8,10 @@ class GameObjectsManager final: public cxx::noncopyable
 {
 public:
     // public for convenience, should not be modified directly
-    cxx::intrusive_list<Pedestrian> mActivePedestriansList;
-    cxx::intrusive_list<Pedestrian> mDeletePedestriansList;
-
-    cxx::intrusive_list<Vehicle> mActiveCarsList;
-    cxx::intrusive_list<Vehicle> mDeleteCarsList;
+    cxx::intrusive_list<GameObject> mObjectsList;
+    cxx::intrusive_list<GameObject> mDeleteList;
+    cxx::intrusive_list<Pedestrian> mPedestriansList;
+    cxx::intrusive_list<Vehicle> mCarsList;
 
 public:
     ~GameObjectsManager();
@@ -26,10 +25,6 @@ public:
     // @param position: Real world position
     Pedestrian* CreatePedestrian(const glm::vec3& position);
 
-    // find pedestrian object by its unique identifier
-    // @param objectID: Unique identifier
-    Pedestrian* GetPedestrianByID(GameObjectID objectID) const;
-
     // add car instance to map at specific location
     // @param startPosition: Initial world position
     // @param startRotation: Initial rotation
@@ -38,27 +33,23 @@ public:
     Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, CarStyle* carStyle);
     Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, eCarModel carModel);
 
-    // find car object by its unique identifier
+    // find gameobject by its unique identifier
     // @param objectID: Unique identifier
     Vehicle* GetCarByID(GameObjectID objectID) const;
+    Pedestrian* GetPedestrianByID(GameObjectID objectID) const;
+    GameObject* GetGameObjectByID(GameObjectID objectID) const;
 
-    // will immediately destroy game object, make sure it is not in use at this moment
+    // will immediately destroy gameobject, don't call this mehod while UpdateFrame
     // @param object: Object to destroy
-    void DestroyGameObject(Pedestrian* object);
-    void DestroyGameObject(Vehicle* object);
+    void DestroyGameObject(GameObject* object);
+
+    // queue gameobject for deletion, it will be destroyed next frame
+    // @param object: Object to queue
+    void MarkForDeletion(GameObject* object);
 
 private:
     bool CreateStartupObjects();
-
-    void DestroyObjectsInList(cxx::intrusive_list<Pedestrian>& objectsList);
-    void DestroyObjectsInList(cxx::intrusive_list<Vehicle>& objectsList);
-
-    void AddToActiveList(Pedestrian* object);
-    void AddToActiveList(Vehicle* object);
-
-    void RemoveFromActiveList(Pedestrian* object);
-    void RemoveFromActiveList(Vehicle* object);
-
+    void DestroyObjectsInList(cxx::intrusive_list<GameObject>& objectsList);
     void DestroyPendingObjects();
     GameObjectID GenerateUniqueID();
 
@@ -69,3 +60,5 @@ private:
     cxx::object_pool<Pedestrian> mPedestriansPool;
     cxx::object_pool<Vehicle> mCarsPool;
 };
+
+extern GameObjectsManager gGameObjectsManager;

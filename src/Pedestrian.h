@@ -42,9 +42,9 @@ public:
     // setup initial state when spawned on level
     void EnterTheGame();
 
-    void UpdateFrame(Timespan deltaTime);
-    void DrawFrame(SpriteBatch& spriteBatch);
-    void DrawDebug(DebugRenderer& debugRender);
+    void UpdateFrame(Timespan deltaTime) override;
+    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void DrawDebug(DebugRenderer& debugRender) override;
 
     // send event to pedestrian, it may be ignored depending on its current state
     // @returns false if event not processed
@@ -70,7 +70,7 @@ private:
     // @param transitionEvent: Transition event, it will be handled by new state on enter, optional
     void ChangeState(PedestrianBaseState* nextState, const PedestrianStateEvent* transitionEvent);
 
-    void SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode);
+    void SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
 
     void SetCurrentWeapon(eWeaponType weapon);
@@ -97,7 +97,7 @@ private:
     friend class PedestrianStateKnockedDown;
     friend class PedestrianStateDead;
 
-    eSpriteAnimationID mCurrentAnimID;
+    eSpriteAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianBaseState* mCurrentState = nullptr;
 
@@ -119,8 +119,7 @@ private:
     PedestrianStateDead mStateDead;
 
     // internal stuff that can be touched only by PedestrianManager
-    cxx::intrusive_node<Pedestrian> mActivePedsNode;
-    cxx::intrusive_node<Pedestrian> mDeletePedsNode;
+    cxx::intrusive_node<Pedestrian> mPedsListNode;
 };
 
 const int Sizeof_Pedestrian = sizeof(Pedestrian);

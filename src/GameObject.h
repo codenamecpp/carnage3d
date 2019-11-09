@@ -2,23 +2,39 @@
 
 #include "GameDefs.h"
 
+class SpriteBatch;
+class DebugRenderer;
+
 // defines base class of game entity
 class GameObject: public cxx::noncopyable
 {
-public:
-    GameObject(eGameObjectType objectTypeID, GameObjectID uniqueID)
-        : mObjectID(uniqueID)
-        , mObjectTypeID(objectTypeID)
-    {
-    }
-
-    virtual ~GameObject()
-    {
-    }
+    friend class GameObjectsManager;
 
 public:
-    const GameObjectID mObjectID; // its unique for all game objects
+    const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
     const eGameObjectType mObjectTypeID;
 
-    bool mMarkForDeletion = false; // destroy object at next frame
+public:
+    virtual ~GameObject();
+
+    // draw gameobject
+    virtual void DrawFrame(SpriteBatch& spriteBatch)
+    {
+    }
+    // process logic
+    virtual void UpdateFrame(Timespan deltaTime)
+    {
+    }
+    // draw debug info
+    virtual void DrawDebug(DebugRenderer& debugRender)
+    {
+    }
+
+protected:
+    GameObject(eGameObjectType objectTypeID, GameObjectID uniqueID);
+    
+private:
+    // internal stuff that can be touched only by PedestrianManager
+    cxx::intrusive_node<GameObject> mObjectsNode; // updatable and drawable entities
+    cxx::intrusive_node<GameObject> mDeleteObjectsNode; // to remove queue
 };

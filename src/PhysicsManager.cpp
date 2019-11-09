@@ -303,7 +303,7 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 void PhysicsManager::FixedStepGravity()
 {
     // cars
-    for (Vehicle* currCar: gCarnageGame.mObjectsManager.mActiveCarsList)
+    for (Vehicle* currCar: gGameObjectsManager.mCarsList)
     {
         CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
         glm::vec3 position = physicsComponent->GetPosition();
@@ -322,7 +322,7 @@ void PhysicsManager::FixedStepGravity()
     }
 
     // pedestrians
-    for (Pedestrian* currPedestrian: gCarnageGame.mObjectsManager.mActivePedestriansList)
+    for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
     {
         PedPhysicsComponent* physicsComponent = currPedestrian->mPhysicsComponent;
         glm::vec3 position = physicsComponent->GetPosition();

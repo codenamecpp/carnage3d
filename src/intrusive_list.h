@@ -91,7 +91,7 @@ namespace cxx
 
         // test whether list has specified node
         // @param node: Element node
-        inline bool contains(intrusive_node<TClass>* node) const
+        inline bool contains(const intrusive_node<TClass>* node) const
         {
             return node && node->mList == this;
         }

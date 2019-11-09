@@ -52,9 +52,16 @@
 
 #define CAR_DELTA_ANIMS_SPEED 10.0f
 
+#define CANONICAL_FPS 25 // gta1 game speed
+
 // forwards
 class Pedestrian;
 class Vehicle;
+
+// some game objects has null identifier, they are dacals, projectiles and short-lived effects
+#define GAMEOBJECT_ID_NULL 0
+
+using GameObjectID = unsigned int;
 
 // enums all possible gameobject types
 enum eGameObjectType
@@ -149,8 +156,6 @@ decl_enum_strings(eBlockFace);
 
 using SpriteDeltaBits = unsigned int;
 static_assert(sizeof(SpriteDeltaBits) * 8 >= MAX_SPRITE_DELTAS, "Delta bits underlying type is too small, see MAX_SPRITE_DELTAS");
-
-using GameObjectID = unsigned int;
 
 // defines draw vertex of city mesh
 struct CityVertex3D
@@ -656,46 +661,46 @@ public:
 };
 
 // various sprites animations
-enum eSpriteAnimationID
+enum eSpriteAnimID
 {
-    eSpriteAnimationID_Null, // dummy animation
+    eSpriteAnimID_Null, // dummy animation
     // pedestrians
-    eSpriteAnimationID_Ped_Walk,
-    eSpriteAnimationID_Ped_Run,
-    eSpriteAnimationID_Ped_ExitCar,
-    eSpriteAnimationID_Ped_EnterCar,
-    eSpriteAnimationID_Ped_SittingInCar,
-    eSpriteAnimationID_Ped_ExitBike,
-    eSpriteAnimationID_Ped_EnterBike,
-    eSpriteAnimationID_Ped_SittingOnBike,
-    eSpriteAnimationID_Ped_FallLong,
-    eSpriteAnimationID_Ped_SlideUnderTheCar,
-    eSpriteAnimationID_Ped_StandingStill, // no weapons
-    eSpriteAnimationID_Ped_JumpOntoCar,
-    eSpriteAnimationID_Ped_SlideOnCar,
-    eSpriteAnimationID_Ped_DropOffCarSliding,
-    eSpriteAnimationID_Ped_FallShort,
-    eSpriteAnimationID_Ped_LiesOnFloor,
-    eSpriteAnimationID_Ped_PunchingWhileStanding,
-    eSpriteAnimationID_Ped_PunchingWhileRunning,
-    eSpriteAnimationID_Ped_ShootPistolWhileStanding,
-    eSpriteAnimationID_Ped_ShootPistolWhileWalking,
-    eSpriteAnimationID_Ped_ShootPistolWhileRunning,
-    eSpriteAnimationID_Ped_ShootMachinegunWhileStanding,
-    eSpriteAnimationID_Ped_ShootMachinegunWhileWalking,
-    eSpriteAnimationID_Ped_ShootMachinegunWhileRunning,
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding,
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking,
-    eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning,
-    eSpriteAnimationID_Ped_ShootRPGWhileStanding,
-    eSpriteAnimationID_Ped_ShootRPGWhileWalking,
-    eSpriteAnimationID_Ped_ShootRPGWhileRunning,
+    eSpriteAnimID_Ped_Walk,
+    eSpriteAnimID_Ped_Run,
+    eSpriteAnimID_Ped_ExitCar,
+    eSpriteAnimID_Ped_EnterCar,
+    eSpriteAnimID_Ped_SittingInCar,
+    eSpriteAnimID_Ped_ExitBike,
+    eSpriteAnimID_Ped_EnterBike,
+    eSpriteAnimID_Ped_SittingOnBike,
+    eSpriteAnimID_Ped_FallLong,
+    eSpriteAnimID_Ped_SlideUnderTheCar,
+    eSpriteAnimID_Ped_StandingStill, // no weapons
+    eSpriteAnimID_Ped_JumpOntoCar,
+    eSpriteAnimID_Ped_SlideOnCar,
+    eSpriteAnimID_Ped_DropOffCarSliding,
+    eSpriteAnimID_Ped_FallShort,
+    eSpriteAnimID_Ped_LiesOnFloor,
+    eSpriteAnimID_Ped_PunchingWhileStanding,
+    eSpriteAnimID_Ped_PunchingWhileRunning,
+    eSpriteAnimID_Ped_ShootPistolWhileStanding,
+    eSpriteAnimID_Ped_ShootPistolWhileWalking,
+    eSpriteAnimID_Ped_ShootPistolWhileRunning,
+    eSpriteAnimID_Ped_ShootMachinegunWhileStanding,
+    eSpriteAnimID_Ped_ShootMachinegunWhileWalking,
+    eSpriteAnimID_Ped_ShootMachinegunWhileRunning,
+    eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding,
+    eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking,
+    eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning,
+    eSpriteAnimID_Ped_ShootRPGWhileStanding,
+    eSpriteAnimID_Ped_ShootRPGWhileWalking,
+    eSpriteAnimID_Ped_ShootRPGWhileRunning,
     // cops
 
-    eSpriteAnimation_COUNT
+    eSpriteAnimID_COUNT
 };
 
-decl_enum_strings(eSpriteAnimationID);
+decl_enum_strings(eSpriteAnimID);
 
 // pedestrian weapon
 enum eWeaponType

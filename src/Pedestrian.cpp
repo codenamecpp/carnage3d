@@ -8,14 +8,12 @@
 #include "PedestrianStates.h"
 #include "Vehicle.h"
 
-Pedestrian::Pedestrian(GameObjectID id)
-    : GameObject(eGameObjectType_Pedestrian, id)
+Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian, id)
     , mPhysicsComponent()
-    , mCurrentAnimID(eSpriteAnimationID_Null)
+    , mCurrentAnimID(eSpriteAnimID_Null)
     , mController()
     , mDrawHeight()
-    , mActivePedsNode(this)
-    , mDeletePedsNode(this)
+    , mPedsListNode(this)
 {
 }
 
@@ -52,8 +50,7 @@ void Pedestrian::EnterTheGame()
     mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
     debug_assert(mPhysicsComponent);
 
-    mMarkForDeletion = false;
-    mCurrentAnimID = eSpriteAnimationID_Null;
+    mCurrentAnimID = eSpriteAnimID_Null;
 
     mCurrentCar = nullptr;
     mCurrentSeat = eCarSeat_Any;
@@ -180,12 +177,12 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     mDrawHeight = maxHeight + drawOffset;
 }
 
-void Pedestrian::SetAnimation(eSpriteAnimationID animation, eSpriteAnimLoop loopMode)
+void Pedestrian::SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode)
 {
     if (mCurrentAnimID != animation)
     {
         mCurrentAnimState.SetNull();
-        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mCurrentAnimState.mAnimData)) // todo
+        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mCurrentAnimState.mAnimDesc)) // todo
         {
             debug_assert(false);
         }

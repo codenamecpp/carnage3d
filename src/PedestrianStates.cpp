@@ -95,55 +95,55 @@ void PedestrianBaseState::ProcessMotionActions(Pedestrian* pedestrian, Timespan 
     }
 }
 
-eSpriteAnimationID PedestrianBaseState::DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const
+eSpriteAnimID PedestrianBaseState::DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const
 {
     if (!shoots)
-        return eSpriteAnimationID_Ped_StandingStill;
+        return eSpriteAnimID_Ped_StandingStill;
 
     switch (weapon)
     {
-        case eWeaponType_Fists: return eSpriteAnimationID_Ped_PunchingWhileStanding;
-        case eWeaponType_Pistol: return eSpriteAnimationID_Ped_ShootPistolWhileStanding;
-        case eWeaponType_Machinegun: return eSpriteAnimationID_Ped_ShootMachinegunWhileStanding;
-        case eWeaponType_Flamethrower: return eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding;
-        case eWeaponType_RocketLauncher: return eSpriteAnimationID_Ped_ShootRPGWhileStanding;
+        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileStanding;
+        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileStanding;
+        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileStanding;
+        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding;
+        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileStanding;
     }
     debug_assert(false);
-    return eSpriteAnimationID_Ped_StandingStill;
+    return eSpriteAnimID_Ped_StandingStill;
 }
 
-eSpriteAnimationID PedestrianBaseState::DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const
+eSpriteAnimID PedestrianBaseState::DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const
 {
     if (!shoots)
-        return eSpriteAnimationID_Ped_Walk;
+        return eSpriteAnimID_Ped_Walk;
 
     switch (weapon)
     {
-        case eWeaponType_Fists: return eSpriteAnimationID_Ped_PunchingWhileRunning;
-        case eWeaponType_Pistol: return eSpriteAnimationID_Ped_ShootPistolWhileWalking;
-        case eWeaponType_Machinegun: return eSpriteAnimationID_Ped_ShootMachinegunWhileWalking;
-        case eWeaponType_Flamethrower: return eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking;
-        case eWeaponType_RocketLauncher: return eSpriteAnimationID_Ped_ShootRPGWhileWalking;
+        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
+        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileWalking;
+        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileWalking;
+        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking;
+        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileWalking;
     }
     debug_assert(false);
-    return eSpriteAnimationID_Ped_Walk;
+    return eSpriteAnimID_Ped_Walk;
 }
 
-eSpriteAnimationID PedestrianBaseState::DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const
+eSpriteAnimID PedestrianBaseState::DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const
 {
     if (!shoots)
-        return eSpriteAnimationID_Ped_Run;
+        return eSpriteAnimID_Ped_Run;
 
     switch (weapon)
     {
-        case eWeaponType_Fists: return eSpriteAnimationID_Ped_PunchingWhileRunning;
-        case eWeaponType_Pistol: return eSpriteAnimationID_Ped_ShootPistolWhileRunning;
-        case eWeaponType_Machinegun: return eSpriteAnimationID_Ped_ShootMachinegunWhileRunning;
-        case eWeaponType_Flamethrower: return eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning;
-        case eWeaponType_RocketLauncher: return eSpriteAnimationID_Ped_ShootRPGWhileRunning;
+        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
+        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileRunning;
+        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileRunning;
+        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning;
+        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileRunning;
     }
     debug_assert(false);
-    return eSpriteAnimationID_Ped_Run;
+    return eSpriteAnimID_Ped_Run;
 }
 
 bool PedestrianBaseState::CanStartSlideOnCarState(Pedestrian* pedestrian) const
@@ -304,7 +304,7 @@ bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
 
 void PedestrianStateStandingStill::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, false);
+    eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, false);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -312,7 +312,7 @@ bool PedestrianStateStandingStill::ProcessStateEvent(Pedestrian* pedestrian, con
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
+        eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -325,7 +325,7 @@ bool PedestrianStateStandingStill::ProcessStateEvent(Pedestrian* pedestrian, con
 
 void PedestrianStateWalks::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, false);
+    eSpriteAnimID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, false);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -333,7 +333,7 @@ bool PedestrianStateWalks::ProcessStateEvent(Pedestrian* pedestrian, const Pedes
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
+        eSpriteAnimID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart);
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -346,7 +346,7 @@ bool PedestrianStateWalks::ProcessStateEvent(Pedestrian* pedestrian, const Pedes
 
 void PedestrianStateRuns::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, false);
+    eSpriteAnimID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, false);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -354,7 +354,7 @@ bool PedestrianStateRuns::ProcessStateEvent(Pedestrian* pedestrian, const Pedest
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
+        eSpriteAnimID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -367,7 +367,7 @@ bool PedestrianStateRuns::ProcessStateEvent(Pedestrian* pedestrian, const Pedest
 
 void PedestrianStateStandsAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, true);
+    eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, true);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -375,7 +375,7 @@ bool PedestrianStateStandsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, c
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
+        eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -388,7 +388,7 @@ bool PedestrianStateStandsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, c
 
 void PedestrianStateWalksAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, true);
+    eSpriteAnimID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, true);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -396,7 +396,7 @@ bool PedestrianStateWalksAndShoots::ProcessStateEvent(Pedestrian* pedestrian, co
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
+        eSpriteAnimID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -409,7 +409,7 @@ bool PedestrianStateWalksAndShoots::ProcessStateEvent(Pedestrian* pedestrian, co
 
 void PedestrianStateRunsAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    eSpriteAnimationID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, true);
+    eSpriteAnimID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, true);
     pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -417,7 +417,7 @@ bool PedestrianStateRunsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, con
 {
     if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
     {
-        eSpriteAnimationID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
+        eSpriteAnimID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
         pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
         return true;
@@ -439,7 +439,7 @@ void PedestrianStateFalling::ProcessStateFrame(Pedestrian* pedestrian, Timespan 
 
 void PedestrianStateFalling::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallLong, eSpriteAnimLoop_FromStart);
+    pedestrian->SetAnimation(eSpriteAnimID_Ped_FallLong, eSpriteAnimLoop_FromStart);
 }
 
 void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
@@ -460,15 +460,15 @@ void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Times
 
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_FallShort)
+        if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
         {
             pedestrian->mPhysicsComponent->ClearForces();
-            pedestrian->SetAnimation(eSpriteAnimationID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+            pedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
             return;
         }
     }
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_LiesOnFloor)
+    if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_LiesOnFloor)
     {
         if (pedestrian->mCurrentStateTime >= Timespan::FromSeconds(gGameParams.mPedestrianKnockedDownTime))
         {
@@ -482,7 +482,7 @@ void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const
 {
     float impulse = 0.6f;
 
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_FallShort, eSpriteAnimLoop_None);
+    pedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
     pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * impulse);
 }
 
@@ -500,21 +500,21 @@ void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timesp
     ProcessRotateActions(pedestrian, deltaTime);
     ProcessMotionActions(pedestrian, deltaTime);
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_JumpOntoCar)
+    if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_JumpOntoCar)
     {
         if (!pedestrian->mCurrentAnimState.IsAnimationActive())
         {
-            pedestrian->SetAnimation(eSpriteAnimationID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
+            pedestrian->SetAnimation(eSpriteAnimID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
         }
     }
-    else if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_SlideOnCar)
+    else if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_SlideOnCar)
     {
         if (!CanStartSlideOnCarState(pedestrian)) // check if no car to slide over
         {
-            pedestrian->SetAnimation(eSpriteAnimationID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
+            pedestrian->SetAnimation(eSpriteAnimID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
         }
     }
-    else if (pedestrian->mCurrentAnimID == eSpriteAnimationID_Ped_DropOffCarSliding)
+    else if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_DropOffCarSliding)
     {
         // check can finish current state
         if (!pedestrian->mCurrentAnimState.IsAnimationActive())
@@ -528,7 +528,7 @@ void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timesp
 
 void PedestrianStateSlideOnCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    pedestrian->SetAnimation(eSpriteAnimationID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
+    pedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
 }
 
 void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
@@ -595,7 +595,7 @@ void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const Pe
     pedestrian->mPhysicsComponent->ClearForces();
 
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_EnterBike : eSpriteAnimationID_Ped_EnterCar, eSpriteAnimLoop_None);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_EnterBike : eSpriteAnimID_Ped_EnterCar, eSpriteAnimLoop_None);
 
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
     SetInCarPositionToDoor(pedestrian);
@@ -634,7 +634,7 @@ void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan 
 void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_ExitBike : eSpriteAnimationID_Ped_ExitCar, eSpriteAnimLoop_None);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_ExitBike : eSpriteAnimID_Ped_ExitCar, eSpriteAnimLoop_None);
 
     int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
     if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
@@ -663,7 +663,7 @@ void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const 
     pedestrian->mCurrentCar->PutPassenger(pedestrian, pedestrian->mCurrentSeat);
 
     bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimationID_Ped_SittingOnBike : eSpriteAnimationID_Ped_SittingInCar, eSpriteAnimLoop_None);
+    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_SittingOnBike : eSpriteAnimID_Ped_SittingInCar, eSpriteAnimLoop_None);
 }
 
 void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)

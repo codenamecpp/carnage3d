@@ -95,7 +95,7 @@ public:
     // Read speicic sprite animation data
     // @param animationID: Animation identifier
     // @param animationData: Output data
-    bool GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const;
+    bool GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimDesc& animationData) const;
 
     // Get base clut index for pedestrian sprites
     int GetPedestrianRemapsBaseIndex() const;
@@ -122,7 +122,7 @@ private:
 private:
     std::vector<unsigned char> mBlockTexturesRaw;
     std::vector<unsigned char> mSpriteGraphicsRaw;
-    SpriteAnimationData mSpriteAnimations[eSpriteAnimation_COUNT];
+    SpriteAnimDesc mSpriteAnimations[eSpriteAnimID_COUNT];
 
     int mTileClutsCount, mSpriteClutsCount, mRemapClutsCount, mFontClutsCount;
     int mSideBlocksCount, mLidBlocksCount, mAuxBlocksCount;

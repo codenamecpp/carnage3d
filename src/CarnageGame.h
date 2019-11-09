@@ -9,8 +9,6 @@
 class CarnageGame final: public cxx::noncopyable
 {
 public:
-    GameObjectsManager mObjectsManager;
-
     // temporary
     struct HumanCharacterSlot
     {

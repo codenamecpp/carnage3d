@@ -76,7 +76,7 @@ bool CarnageGame::Initialize()
     //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
     gPhysics.Initialize();
 
-    mObjectsManager.Initialize();
+    gGameObjectsManager.Initialize();
 
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
@@ -119,7 +119,7 @@ bool CarnageGame::Initialize()
 
     for (int icurr = 0; icurr < numPlayers; ++icurr)
     {
-        Pedestrian* pedestrian = mObjectsManager.CreatePedestrian(pos[icurr]);
+        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr]);
         SetupHumanCharacter(icurr, pedestrian);
     }
 
@@ -130,7 +130,7 @@ bool CarnageGame::Initialize()
 
 void CarnageGame::Deinit()
 {
-    mObjectsManager.Deinit();
+    gGameObjectsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();
 }
@@ -142,7 +142,7 @@ void CarnageGame::UpdateFrame(Timespan deltaTime)
 
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame(deltaTime);
-    mObjectsManager.UpdateFrame(deltaTime);
+    gGameObjectsManager.UpdateFrame(deltaTime);
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {

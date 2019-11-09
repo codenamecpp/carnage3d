@@ -5,6 +5,8 @@
 #include "PhysicsComponents.h"
 #include "GameMapManager.h"
 
+GameObjectsManager gGameObjectsManager;
+
 GameObjectsManager::~GameObjectsManager()
 {
     mPedestriansPool.cleanup();
@@ -26,11 +28,11 @@ bool GameObjectsManager::Initialize()
 
 void GameObjectsManager::Deinit()
 {
-    DestroyObjectsInList(mActivePedestriansList);
-    DestroyObjectsInList(mDeletePedestriansList);
+    DestroyObjectsInList(mDeleteList);
+    DestroyObjectsInList(mObjectsList);
 
-    DestroyObjectsInList(mActiveCarsList);
-    DestroyObjectsInList(mDeleteCarsList);
+    debug_assert(!mCarsList.has_elements());
+    debug_assert(!mPedestriansList.has_elements());
 }
 
 void GameObjectsManager::UpdateFrame(Timespan deltaTime)
@@ -38,55 +40,21 @@ void GameObjectsManager::UpdateFrame(Timespan deltaTime)
     DestroyPendingObjects();
     
     // update pedestrians
-    bool hasDeletePeds = false;
-    for (Pedestrian* currentPed: mActivePedestriansList) // warning: dont add or remove peds during this loop
+    for (Pedestrian* currentPed: mPedestriansList) // warning: dont add or remove peds during this loop
     {
-        if (!currentPed->mMarkForDeletion)
-        {
-            debug_assert(!mDeletePedestriansList.contains(&currentPed->mDeletePedsNode));
-            currentPed->UpdateFrame(deltaTime);
-        }
+        if (mDeleteList.contains(&currentPed->mDeleteObjectsNode))
+            continue;
 
-        if (currentPed->mMarkForDeletion)
-        {
-            mDeletePedestriansList.insert(&currentPed->mDeletePedsNode);
-            hasDeletePeds = true;
-        }
-    }
-
-    if (hasDeletePeds)
-    {
-        // deactivate all peds marked for deletion
-        for (Pedestrian* deletePed: mDeletePedestriansList)
-        {
-            RemoveFromActiveList(deletePed);
-        }
+        currentPed->UpdateFrame(deltaTime);
     }
 
     // update cars    
-    bool hasDeleteCars = false;
-    for (Vehicle* currentCar: mActiveCarsList) // warning: dont add or remove cars during this loop
+    for (Vehicle* currentCar: mCarsList) // warning: dont add or remove cars during this loop
     {
-        if (!currentCar->mMarkForDeletion)
-        {
-            debug_assert(!mDeleteCarsList.contains(&currentCar->mDeleteCarsNode));
-            currentCar->UpdateFrame(deltaTime);
-        }
+        if (mDeleteList.contains(&currentCar->mDeleteObjectsNode))
+            continue;
 
-        if (currentCar->mMarkForDeletion)
-        {
-            mDeleteCarsList.insert(&currentCar->mDeleteCarsNode);
-            hasDeleteCars = true;
-        }
-    }
-
-    if (hasDeleteCars)
-    {
-        // deactivate all cars marked for deletion
-        for (Vehicle* deleteCar: mDeleteCarsList)
-        {
-            RemoveFromActiveList(deleteCar);
-        }
+        currentCar->UpdateFrame(deltaTime);
     }
 }
 
@@ -101,22 +69,13 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position)
     Pedestrian* instance = mPedestriansPool.create(pedestrianID);
     debug_assert(instance);
 
-    AddToActiveList(instance);
+    mPedestriansList.insert(&instance->mPedsListNode);
+    mObjectsList.insert(&instance->mObjectsNode);
 
     // init
     instance->EnterTheGame();
     instance->mPhysicsComponent->SetPosition(position);
     return instance;
-}
-
-Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
-{
-    for (const Pedestrian* currVehicle: mActivePedestriansList)
-    {
-        if (currVehicle->mObjectID == objectID)
-            return const_cast<Pedestrian*>(currVehicle);
-    }
-    return nullptr;
 }
 
 Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t carRotation, CarStyle* carStyle)
@@ -129,7 +88,8 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t c
     Vehicle* instance = mCarsPool.create(carID);
     debug_assert(instance);
 
-    AddToActiveList(instance);
+    mCarsList.insert(&instance->mCarsListNode);
+    mObjectsList.insert(&instance->mObjectsNode);
 
     // init
     instance->mCarStyle = carStyle;
@@ -153,15 +113,49 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t c
 
 Vehicle* GameObjectsManager::GetCarByID(GameObjectID objectID) const
 {
-    for (const Vehicle* currVehicle: mActiveCarsList)
+    for (const Vehicle* curr: mCarsList)
     {
-        if (currVehicle->mObjectID == objectID)
-            return const_cast<Vehicle*>(currVehicle);
+        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
+        {
+            return const_cast<Vehicle*>(curr);
+        }
     }
     return nullptr;
 }
 
-void GameObjectsManager::DestroyGameObject(Pedestrian* object)
+Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
+{
+    for (const Pedestrian* curr: mPedestriansList)
+    {
+        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
+        {
+            return const_cast<Pedestrian*>(curr);
+        }
+    }
+    return nullptr;
+}
+
+GameObject* GameObjectsManager::GetGameObjectByID(GameObjectID objectID) const
+{
+    for (const GameObject* curr: mObjectsList)
+    {
+        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
+        {
+            return const_cast<GameObject*>(curr);
+        }
+    }
+    return nullptr;
+}
+
+void GameObjectsManager::MarkForDeletion(GameObject* object)
+{
+    if (!mDeleteList.contains(&object->mDeleteObjectsNode))
+    {
+        mDeleteList.insert(&object->mDeleteObjectsNode);
+    }
+}
+
+void GameObjectsManager::DestroyGameObject(GameObject* object)
 {
     if (object == nullptr)
     {
@@ -169,114 +163,68 @@ void GameObjectsManager::DestroyGameObject(Pedestrian* object)
         return;
     }
 
-    if (mDeletePedestriansList.contains(&object->mDeletePedsNode))
+    if (mDeleteList.contains(&object->mDeleteObjectsNode))
     {
-        mDeletePedestriansList.remove(&object->mDeletePedsNode);
+        mDeleteList.remove(&object->mDeleteObjectsNode);
     }
 
-    if (mActivePedestriansList.contains(&object->mActivePedsNode))
+    if (mObjectsList.contains(&object->mObjectsNode))
     {
-        mActivePedestriansList.remove(&object->mActivePedsNode);
+        mObjectsList.remove(&object->mObjectsNode);
     }
 
-    mPedestriansPool.destroy(object);
+    switch (object->mObjectTypeID)
+    {
+        case eGameObjectType_Pedestrian:
+        {
+            Pedestrian* pedestrian = static_cast<Pedestrian*>(object);
+
+            mPedestriansList.remove(&pedestrian->mPedsListNode);
+            mPedestriansPool.destroy(pedestrian);
+        }
+        break;
+
+        case eGameObjectType_Car:
+        {
+            Vehicle* car = static_cast<Vehicle*>(object);
+
+            mCarsList.remove(&car->mCarsListNode);
+            mCarsPool.destroy(car);
+        }
+        break;
+
+        case eGameObjectType_Projectile:
+        case eGameObjectType_Powerup:
+        case eGameObjectType_Decoration:
+        case eGameObjectType_Obstacle:
+        default:
+        {
+            debug_assert(false);
+            return;
+        }
+    }
 }
 
-void GameObjectsManager::DestroyGameObject(Vehicle* object)
-{
-    if (object == nullptr)
-    {
-        debug_assert(false);
-        return;
-    }
-
-    if (mDeleteCarsList.contains(&object->mDeleteCarsNode))
-    {
-        mDeleteCarsList.remove(&object->mDeleteCarsNode);
-    }
-
-    if (mActiveCarsList.contains(&object->mActiveCarsNode))
-    {
-        mActiveCarsList.remove(&object->mActiveCarsNode);
-    }
-
-    mCarsPool.destroy(object);
-}
-
-void GameObjectsManager::DestroyObjectsInList(cxx::intrusive_list<Pedestrian>& objectsList)
+void GameObjectsManager::DestroyObjectsInList(cxx::intrusive_list<GameObject>& objectsList)
 {
     while (objectsList.has_elements())
     {
-        cxx::intrusive_node<Pedestrian>* pedestrianNode = objectsList.get_head_node();
+        cxx::intrusive_node<GameObject>* pedestrianNode = objectsList.get_head_node();
         objectsList.remove(pedestrianNode);
-
-        Pedestrian* pedestrian = pedestrianNode->get_element();
-        mPedestriansPool.destroy(pedestrian);
-    }
-}
-
-void GameObjectsManager::DestroyObjectsInList(cxx::intrusive_list<Vehicle>& objectsList)
-{
-    while (objectsList.has_elements())
-    {
-        cxx::intrusive_node<Vehicle>* carNode = objectsList.get_head_node();
-        objectsList.remove(carNode);
-
-        Vehicle* carInstance = carNode->get_element();
-        mCarsPool.destroy(carInstance);
-    }
-}
-
-void GameObjectsManager::AddToActiveList(Pedestrian* object)
-{
-    debug_assert(object);
-    if (object == nullptr)
-        return;
-
-    debug_assert(!mActivePedestriansList.contains(&object->mActivePedsNode));
-    debug_assert(!mDeletePedestriansList.contains(&object->mDeletePedsNode));
-    mActivePedestriansList.insert(&object->mActivePedsNode);
-}
-
-void GameObjectsManager::AddToActiveList(Vehicle* object)
-{
-    debug_assert(object);
-    if (object == nullptr)
-        return;
-
-    debug_assert(!mActiveCarsList.contains(&object->mActiveCarsNode));
-    debug_assert(!mDeleteCarsList.contains(&object->mDeleteCarsNode));
-    mActiveCarsList.insert(&object->mActiveCarsNode);
-}
-
-void GameObjectsManager::RemoveFromActiveList(Pedestrian* object)
-{
-    debug_assert(object);
-    if (object && mActivePedestriansList.contains(&object->mActivePedsNode))
-    {
-        mActivePedestriansList.remove(&object->mActivePedsNode);
-    }
-}
-
-void GameObjectsManager::RemoveFromActiveList(Vehicle* object)
-{
-    debug_assert(object);
-    if (object && mActiveCarsList.contains(&object->mActiveCarsNode))
-    {
-        mActiveCarsList.remove(&object->mActiveCarsNode);
+        
+        DestroyGameObject(pedestrianNode->get_element());
     }
 }
 
 void GameObjectsManager::DestroyPendingObjects()
 {
-    DestroyObjectsInList(mDeletePedestriansList);
-    DestroyObjectsInList(mDeleteCarsList);
+    DestroyObjectsInList(mDeleteList);
 }
 
 GameObjectID GameObjectsManager::GenerateUniqueID()
 {
     GameObjectID newID = ++mIDsCounter;
-    if (newID == 0) // overflow
+    if (newID == GAMEOBJECT_ID_NULL) // overflow
     {
         debug_assert(false);
     }

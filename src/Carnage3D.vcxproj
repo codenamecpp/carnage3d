@@ -239,6 +239,7 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="enums_impl.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="HumanCharacterView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />

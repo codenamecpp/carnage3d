@@ -33,9 +33,9 @@ public:
     // setup initial state when spawned on level
     void EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
-    void UpdateFrame(Timespan deltaTime);
-    void DrawFrame(SpriteBatch& spriteBatch);
-    void DrawDebug(DebugRenderer& debugRender);
+    void UpdateFrame(Timespan deltaTime) override;
+    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void DrawDebug(DebugRenderer& debugRender) override;
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null
@@ -99,7 +99,6 @@ private:
 
     int mChassisSpriteIndex = 0;
 
-    // internal stuff that can be touched only by CarsManager
-    cxx::intrusive_node<Vehicle> mActiveCarsNode;
-    cxx::intrusive_node<Vehicle> mDeleteCarsNode;
+    // internal stuff that can be touched only by PedestrianManager
+    cxx::intrusive_node<Vehicle> mCarsListNode;
 };

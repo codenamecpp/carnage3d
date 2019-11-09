@@ -84,9 +84,9 @@ protected:
     virtual void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
 
     // anims helpers
-    eSpriteAnimationID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
-    eSpriteAnimationID DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const;
-    eSpriteAnimationID DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    eSpriteAnimID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    eSpriteAnimID DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    eSpriteAnimID DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const;
 
     bool CanStartSlideOnCarState(Pedestrian* pedestrian) const;
 

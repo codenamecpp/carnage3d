@@ -161,5 +161,5 @@ void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestria
     currPosition.x += MAP_BLOCK_LENGTH * 0.5f;
     currPosition.z += MAP_BLOCK_LENGTH * 0.5f;
 
-    gCarnageGame.mObjectsManager.CreateCar(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
+    gGameObjectsManager.CreateCar(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
 }

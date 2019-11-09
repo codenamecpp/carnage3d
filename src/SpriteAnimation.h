@@ -21,10 +21,10 @@ enum eSpriteAnimLoop
 decl_enum_strings(eSpriteAnimLoop);
 
 // defines sprite animation data
-struct SpriteAnimationData
+struct SpriteAnimDesc
 {
 public:
-    SpriteAnimationData() = default;
+    SpriteAnimDesc() = default;
     inline void Setup(int startFrame, int numFrames, float fps = 12.0f)
     {
         mFramesCount = numFrames;
@@ -94,7 +94,7 @@ public:
     
 public:
     // public for convenience, should not be modified directly
-    SpriteAnimationData mAnimData;
+    SpriteAnimDesc mAnimDesc;
     eSpriteAnimStatus mStatus;
     eSpriteAnimLoop mLoopMode;
 

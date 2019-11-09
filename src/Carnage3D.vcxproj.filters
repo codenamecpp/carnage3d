@@ -485,6 +485,9 @@
     <ClCompile Include="GameParams.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Game\GameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">

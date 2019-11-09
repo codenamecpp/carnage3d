@@ -913,10 +913,10 @@ int StyleData::GetNumSprites(eSpriteType spriteType) const
     return mSpriteNumbers[spriteType];
 }
 
-bool StyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimationData& animationData) const
+bool StyleData::GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimDesc& animationData) const
 {
-    debug_assert(animationID < eSpriteAnimation_COUNT);
-    if (animationID < eSpriteAnimation_COUNT)
+    debug_assert(animationID < eSpriteAnimID_COUNT);
+    if (animationID < eSpriteAnimID_COUNT)
     {
         animationData = mSpriteAnimations[animationID];
         debug_assert(animationData.NonNull());
@@ -927,49 +927,49 @@ bool StyleData::GetSpriteAnimation(eSpriteAnimationID animationID, SpriteAnimati
 
 void StyleData::InitSpriteAnimations()
 {
-    mSpriteAnimations[eSpriteAnimationID_Ped_Walk].Setup(0, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_Run].Setup(8, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_Walk].Setup(0, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_Run].Setup(8, 8);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_ExitCar].Setup(16, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_EnterCar].SetupFrames(
+    mSpriteAnimations[eSpriteAnimID_Ped_ExitCar].Setup(16, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_EnterCar].SetupFrames(
         {
             26, 26, 26,
             25, 25,
             29, 30, 31, 32, 33
         });
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_SittingInCar].Setup(97, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ExitBike].Setup(85, 4);
-    mSpriteAnimations[eSpriteAnimationID_Ped_EnterBike].Setup(80, 4);
-    mSpriteAnimations[eSpriteAnimationID_Ped_SittingOnBike].Setup(84, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_SittingInCar].Setup(97, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_ExitBike].Setup(85, 4);
+    mSpriteAnimations[eSpriteAnimID_Ped_EnterBike].Setup(80, 4);
+    mSpriteAnimations[eSpriteAnimID_Ped_SittingOnBike].Setup(84, 1, 1.0f);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_FallLong].Setup(38, 3);
-    mSpriteAnimations[eSpriteAnimationID_Ped_SlideUnderTheCar].Setup(41, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_StandingStill].Setup(98, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_JumpOntoCar].Setup(91, 3);
-    mSpriteAnimations[eSpriteAnimationID_Ped_SlideOnCar].Setup(94, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_DropOffCarSliding].Setup(95, 2);
-    mSpriteAnimations[eSpriteAnimationID_Ped_FallShort].Setup(38, 2, 8.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_LiesOnFloor].Setup(42, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_FallLong].Setup(38, 3);
+    mSpriteAnimations[eSpriteAnimID_Ped_SlideUnderTheCar].Setup(41, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_StandingStill].Setup(98, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_JumpOntoCar].Setup(91, 3);
+    mSpriteAnimations[eSpriteAnimID_Ped_SlideOnCar].Setup(94, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_DropOffCarSliding].Setup(95, 2);
+    mSpriteAnimations[eSpriteAnimID_Ped_FallShort].Setup(38, 2, 8.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_LiesOnFloor].Setup(42, 1, 1.0f);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_PunchingWhileStanding].Setup(50, 6);
-    mSpriteAnimations[eSpriteAnimationID_Ped_PunchingWhileRunning].Setup(181, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_PunchingWhileStanding].Setup(50, 6);
+    mSpriteAnimations[eSpriteAnimID_Ped_PunchingWhileRunning].Setup(181, 8);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileStanding].Setup(89, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileWalking].Setup(99, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootPistolWhileRunning].Setup(107, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileStanding].Setup(89, 1, 1.0f);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileWalking].Setup(99, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileRunning].Setup(107, 8);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileStanding].Setup(152, 2);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileWalking].Setup(136, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootMachinegunWhileRunning].Setup(144, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileStanding].Setup(152, 2);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileWalking].Setup(136, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileRunning].Setup(144, 8);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileStanding].Setup(134, 2);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileWalking].Setup(118, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootFlamethrowerWhileRunning].Setup(126, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding].Setup(134, 2);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking].Setup(118, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning].Setup(126, 8);
 
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileStanding].Setup(170, 2);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileWalking].Setup(154, 8);
-    mSpriteAnimations[eSpriteAnimationID_Ped_ShootRPGWhileRunning].Setup(162, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileStanding].Setup(170, 2);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileWalking].Setup(154, 8);
+    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileRunning].Setup(162, 8);
 }
 
 int StyleData::GetPedestrianRemapsBaseIndex() const
