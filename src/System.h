@@ -1,6 +1,8 @@
 #pragma once
 
 const int SysMemoryFrameHeapSize = 12 * 1024 * 1024;
+const int DefaultScreenResolutionX = 1024;
+const int DefaultScreenResolutionY = 768;
 
 // defines system configuration
 class SysConfig
@@ -8,6 +10,9 @@ class SysConfig
 public:
     SysConfig() = default;
     SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
+
+    // set config default params
+    void SetDefaultParams();
 
     // Set screen dimensions and automatically compute aspect ratio
     // @param screenSizex, screenSizey: Dimensions
@@ -19,8 +24,8 @@ public:
 
 public:
     // graphics settings
-    int mScreenSizex = 0; // screen dimensions
-    int mScreenSizey = 0; 
+    int mScreenSizex = DefaultScreenResolutionX; // screen dimensions
+    int mScreenSizey = DefaultScreenResolutionY; 
     bool mFullscreen = false; // enable full screen mode
     bool mEnableVSync = false; // enable vertical synchronization
     bool mOpenGLCoreProfile = true;

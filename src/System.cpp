@@ -21,6 +21,15 @@ SysConfig::SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsy
     mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
 }
 
+void SysConfig::SetDefaultParams()
+{
+    mOpenGLCoreProfile = true;
+    mEnableFrameHeapAllocator = true;
+    mShowImguiDemoWindow = false;
+
+    SetParams(DefaultScreenResolutionX, DefaultScreenResolutionY, false, false);
+}
+
 void SysConfig::SetScreenSize(int screenSizex, int screenSizey)
 {
     mScreenSizex = screenSizex;
@@ -111,9 +120,11 @@ void System::Initialize()
         Terminate();
     }
 
-    if (!LoadConfiguration())
+    LoadConfiguration();
+
+    if (!gFiles.SetupGtaDataLocation())
     {
-        gConsole.LogMessage(eLogMessage_Error, "Cannot load configuration");
+        gConsole.LogMessage(eLogMessage_Error, "Set valid gta gamedata location via sys config param 'gta_gamedata_location'");
         Terminate();
     }
 
@@ -240,69 +251,45 @@ long System::GetSysMilliseconds() const
 
 bool System::LoadConfiguration()
 {
-    const int DefaultResolutionX = 1280;
-    const int DefaultResolutionY = 900;
+    mConfig.SetDefaultParams();
 
     // read config
     std::string jsonContent;
     if (!gFiles.ReadTextFile(SysConfigPath, jsonContent))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config from '%s'", SysConfigPath);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config '%s'", SysConfigPath);
         return false;
     }
 
     cxx::config_document configDocument;
     if (!configDocument.parse_document(jsonContent.c_str()))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config document");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config '%s'", SysConfigPath);
         return false;
     }
 
-    cxx::config_node screenConfig = configDocument.get_root_node().get_child("screen");
-    if (!screenConfig)
+    if (cxx::config_node screenConfig = configDocument.get_root_node().get_child("screen"))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Screen config section is missed");
-        return false;
+        int screen_sizex = DefaultScreenResolutionX;
+        int screen_sizey = DefaultScreenResolutionY;
+        if (cxx::config_node screenResolution = screenConfig.get_child("resolution"))
+        {
+            screen_sizex = screenResolution.get_array_element(0).get_value_integer();
+            screen_sizey = screenResolution.get_array_element(1).get_value_integer();
+        }
+
+        bool fullscreen_mode = screenConfig.get_child("fullscreen").get_value_boolean();
+        bool vsync_mode = screenConfig.get_child("vsync").get_value_boolean();
+        bool hardware_cursor = screenConfig.get_child("hardware_cursor").get_value_boolean();
+
+        mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
     }
-
-    int screen_sizex = DefaultResolutionX;
-    int screen_sizey = DefaultResolutionY;
-    if (cxx::config_node screenResolution = screenConfig.get_child("resolution"))
-    {
-        screen_sizex = screenResolution.get_array_element(0).get_value_integer();
-        screen_sizey = screenResolution.get_array_element(1).get_value_integer();
-    }
-
-    bool fullscreen_mode = screenConfig.get_child("fullscreen").get_value_boolean();
-    bool vsync_mode = screenConfig.get_child("vsync").get_value_boolean();
-    bool hardware_cursor = screenConfig.get_child("hardware_cursor").get_value_boolean();
-
-    mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
 
     // gta1 data files location
     const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
-
-    // override data location with startup param
-    if (!mStartupParams.mGtaDataLocation.empty())
-    {
-        gta_data_root = mStartupParams.mGtaDataLocation.c_str();
-    }
-
     if (*gta_data_root)
     {
-        if (!cxx::is_directory_exists(gta_data_root))
-        {
-            gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location directory does not exists");
-        }
-        else
-        {
-            gFiles.AddSearchPlace(gta_data_root);
-            gConsole.LogMessage(eLogMessage_Info, "gta_gamedata_location: '%s'", gta_data_root);
-        }
-    }
-    else
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "gta_gamedata_location param is null");
+        gFiles.mGTADataDirectoryPath = gta_data_root;
     }
 
     // memory

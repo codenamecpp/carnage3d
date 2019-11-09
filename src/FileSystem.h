@@ -17,6 +17,9 @@ public:
     // Free allocated resources
     void Deinit();
 
+    // init gta gamedata files location
+    bool SetupGtaDataLocation();
+
     // Add search place directory
     // @param searchPlace: Path
     void AddSearchPlace(const char* searchPlace);

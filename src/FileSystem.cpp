@@ -152,3 +152,29 @@ bool FileSystem::GetFullPathToFile(const char* objectName, std::string& fullPath
     }
     return false;
 }
+
+bool FileSystem::SetupGtaDataLocation()
+{
+    const SysStartupParameters& startupParams = gSystem.mStartupParams;
+    // override data location with startup param
+    if (startupParams.mGtaDataLocation.get_length())
+    {
+        mGTADataDirectoryPath = startupParams.mGtaDataLocation.c_str();
+    }
+
+    if (mGTADataDirectoryPath.length())
+    {
+        if (!cxx::is_directory_exists(mGTADataDirectoryPath))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot locate gta gamedata: '%s'", mGTADataDirectoryPath.c_str());
+            return false;
+        }
+
+        gFiles.AddSearchPlace(mGTADataDirectoryPath.c_str());
+        gConsole.LogMessage(eLogMessage_Info, "Current gta gamedata location is: '%s'", mGTADataDirectoryPath.c_str());
+        return true;
+    }
+
+    gConsole.LogMessage(eLogMessage_Error, "Location of gta gamedata is not specified");
+    return false;
+}
