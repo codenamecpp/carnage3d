@@ -28,7 +28,7 @@ private:
     float mStartupCameraHeight;
     float mFollowPedCameraHeight;
     float mScrollHeightOffset;
-    float mFollowPedZoomCameraSpeed;
+    float mFollowPedCameraCatchSpeed;
 
     Pedestrian* mFollowPedestrian = nullptr;
 };
