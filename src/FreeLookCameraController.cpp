@@ -139,5 +139,7 @@ void FreeLookCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
     if (inputEvent.mConsumed)
         return;
 
-    mCamera->Translate({ 0.0f, MAP_BLOCK_LENGTH * 0.5f * -inputEvent.mScrollY, 0.0f});
+    glm::vec3 position = mCamera->mPosition;
+    position.y = glm::max(position.y + (MAP_BLOCK_LENGTH * 0.5f * -inputEvent.mScrollY), MAP_LAYERS_COUNT * MAP_BLOCK_LENGTH);
+    mCamera->SetPosition(position);
 }
