@@ -307,8 +307,9 @@ void PhysicsManager::FixedStepGravity()
         glm::vec3 position = physicsComponent->GetPosition();
         // process falling
         float newHeight = gGameMap.GetHeightAtPosition(position);
-        physicsComponent->mOnTheGround = newHeight > position.y - 0.1f;
-        if (!physicsComponent->mOnTheGround)
+
+        bool onTheGround = newHeight > (position.y - 0.01f);
+        if (!onTheGround)
         {
             physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }
@@ -332,15 +333,15 @@ void PhysicsManager::FixedStepGravity()
 
         glm::vec3 position = physicsComponent->GetPosition();
 
-        // process falling
+        // process fall
         float newHeight = gGameMap.GetHeightAtPosition(position);
-        physicsComponent->mOnTheGround = newHeight > (position.y - 0.01f);
 
+        bool onTheGround = newHeight > (position.y - 0.01f);
         if (physicsComponent->mFalling)
         {
-            if (physicsComponent->mOnTheGround)
+            if (onTheGround)
             {
-                physicsComponent->SetFalling(false);
+                physicsComponent->HandleFallEnd();
             }
         }
         else
@@ -348,11 +349,11 @@ void PhysicsManager::FixedStepGravity()
             float distanceToGround = position.y - newHeight;
             if (distanceToGround > (MAP_BLOCK_LENGTH - 0.01f))
             {
-                physicsComponent->SetFalling(true);
+                physicsComponent->HandleFallBegin(distanceToGround);
             }
         }
 
-        if (!physicsComponent->mOnTheGround && physicsComponent->mFalling)
+        if (!onTheGround && physicsComponent->mFalling)
         {
             physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
         }

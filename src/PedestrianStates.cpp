@@ -25,13 +25,6 @@ PedestrianStateEvent PedestrianStateEvent::Get_ActionEnterCar(Vehicle* targetCar
     return eventData;
 }
 
-PedestrianStateEvent PedestrianStateEvent::Get_ActionLeaveCar()
-{
-    PedestrianStateEvent eventData {ePedestrianStateEvent_ActionLeaveCar};
-
-    return eventData;
-}
-
 PedestrianStateEvent PedestrianStateEvent::Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker)
 {
     PedestrianStateEvent eventData {ePedestrianStateEvent_TakeDamageFromWeapon};
@@ -197,13 +190,6 @@ PedestrianBaseState* PedestrianStateIdleBase::GetNextIdleState(Pedestrian* pedes
 
 void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
-    // check for falling state
-    if (pedestrian->mPhysicsComponent->mFalling)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return;
-    }
-
     if (pedestrian->IsShooting())
     {
         TryToShoot(pedestrian);
@@ -264,6 +250,12 @@ bool PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const Pe
     if (stateEvent.mID == ePedestrianStateEvent_Die)
     {
         pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        return true;
+    }
+
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
         return true;
     }
 
@@ -438,15 +430,6 @@ bool PedestrianStateRunsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, con
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStateFalling::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    if (!pedestrian->mPhysicsComponent->mFalling)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        return;
-    }
-}
-
 void PedestrianStateFalling::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
     pedestrian->SetAnimation(eSpriteAnimID_Ped_FallLong, eSpriteAnimLoop_FromStart);
@@ -459,6 +442,22 @@ void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const Pede
 
 bool PedestrianStateFalling::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
 {
+    // todo: detect drowning
+    
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
+    {
+        // die
+        if (pedestrian->mPhysicsComponent->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
+        {
+            PedestrianStateEvent evData = PedestrianStateEvent::Get_Die(ePedestrianDeathReason_FallFromHeight, nullptr);
+            pedestrian->ChangeState(&pedestrian->mStateDead, &evData);
+            return true;
+        }
+
+        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+        return true;
+    }
+
     if (stateEvent.mID == ePedestrianStateEvent_Die)
     {
         pedestrian->SetDead(stateEvent.mDie.mDeathReason);
@@ -471,13 +470,6 @@ bool PedestrianStateFalling::ProcessStateEvent(Pedestrian* pedestrian, const Ped
 
 void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
-    // check for falling state
-    if (pedestrian->mPhysicsComponent->mFalling)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return;
-    }
-
     if (!pedestrian->mCurrentAnimState.IsAnimationActive())
     {
         if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
@@ -513,20 +505,20 @@ bool PedestrianStateKnockedDown::ProcessStateEvent(Pedestrian* pedestrian, const
         pedestrian->SetDead(stateEvent.mDie.mDeathReason);
         return true;
     }
+
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
+        return true;
+    }
+
     return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    // check for falling state
-    if (pedestrian->mPhysicsComponent->mFalling)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return;
-    }
-    
+{    
     ProcessRotateActions(pedestrian, deltaTime);
     ProcessMotionActions(pedestrian, deltaTime);
 
@@ -568,6 +560,13 @@ bool PedestrianStateSlideOnCar::ProcessStateEvent(Pedestrian* pedestrian, const 
         pedestrian->SetDead(stateEvent.mDie.mDeathReason);
         return true;
     }
+
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
+        return true;
+    }
+
     return false;
 }
 
@@ -767,7 +766,9 @@ void PedestrianStateDead::ProcessStateFrame(Pedestrian* pedestrian, Timespan del
 
 void PedestrianStateDead::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
 {
-    // todo
+    pedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+
+    // todo: notify brains
 }
 
 void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
@@ -777,5 +778,11 @@ void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const Pedestr
 
 bool PedestrianStateDead::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
 {
-    return false; // ignore all
+    if (stateEvent.mID == ePedestrianStateEvent_ActionResurrect)
+    {
+        pedestrian->ChangeState(&pedestrian->mStateStandingStill, &stateEvent);
+        return true;
+    }
+
+    return false;
 }

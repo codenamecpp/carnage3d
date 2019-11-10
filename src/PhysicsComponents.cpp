@@ -7,7 +7,6 @@
 
 PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
     : mHeight()
-    , mOnTheGround()
     , mPhysicsWorld(physicsWorld)
     , mPhysicsBody()
 {
@@ -183,19 +182,34 @@ void PedPhysicsComponent::SimulationStep()
     }
 }
 
-void PedPhysicsComponent::SetFalling(bool isFalling)
+void PedPhysicsComponent::HandleFallBegin(float fallDistance)
 {
-    if (isFalling == mFalling)
+    if (mFalling)
         return;
 
-    mFalling = isFalling;
-    if (mFalling)
-    {
-        b2Vec2 velocity = mPhysicsBody->GetLinearVelocity();
-        ClearForces();
-        velocity.Normalize();
-        mPhysicsBody->SetLinearVelocity(velocity);
-    }
+    mFalling = true;
+    mFallDistance = fallDistance;
+
+    b2Vec2 velocity = mPhysicsBody->GetLinearVelocity();
+    velocity.Normalize();
+
+    ClearForces();
+    mPhysicsBody->SetLinearVelocity(velocity);
+
+    // notify brains
+    PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightStart };
+    mReferencePed->ProcessEvent(evData);
+}
+
+void PedPhysicsComponent::HandleFallEnd()
+{
+    if (!mFalling)
+        return;
+
+    mFalling = false;
+    // notify brains
+    PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightEnd };
+    mReferencePed->ProcessEvent(evData);
 }
 
 void PedPhysicsComponent::HandleCarContactBegin()

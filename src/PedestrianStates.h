@@ -5,12 +5,15 @@
 enum ePedestrianStateEvent
 {
     ePedestrianStateEvent_ActionWeaponChange, 
-    ePedestrianStateEvent_ActionEnterCar, // brains request enter specific vehicle
-    ePedestrianStateEvent_ActionLeaveCar, // brains request exit current vehicle
+    ePedestrianStateEvent_ActionEnterCar, // brains requests to enter specific vehicle
+    ePedestrianStateEvent_ActionLeaveCar, // brains requests to exit current vehicle
+    ePedestrianStateEvent_ActionResurrect, // brains requests to arise from the dead
 
     ePedestrianStateEvent_TakeDamageFromWeapon,
     ePedestrianStateEvent_PullOutFromCar,
     ePedestrianStateEvent_Die,
+    ePedestrianStateEvent_FallFromHeightStart,
+    ePedestrianStateEvent_FallFromHeightEnd,
 };
 
 // defines state event
@@ -20,7 +23,6 @@ public:
     // build state event helpers
     static PedestrianStateEvent Get_ActionWeaponChange(eWeaponType newWeapon);
     static PedestrianStateEvent Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat);
-    static PedestrianStateEvent Get_ActionLeaveCar();
     static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
     static PedestrianStateEvent Get_PullOutFromCar(Pedestrian* attacker);
     static PedestrianStateEvent Get_Die(ePedestrianDeathReason reason, Pedestrian* attacker);
@@ -182,7 +184,6 @@ class PedestrianStateFalling: public PedestrianBaseState
 {
 public:
     PedestrianStateFalling() : PedestrianBaseState(ePedestrianState_Falling) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
     bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;

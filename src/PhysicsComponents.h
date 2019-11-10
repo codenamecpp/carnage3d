@@ -14,8 +14,8 @@ public:
         // since game using 2d physics engine, the forces and impulses are not affected on 3rd dimension
         // gravity is simulated roughly
 
-    // current state flags
-    bool mOnTheGround;
+    bool mFalling = false; // falling from a height
+    float mFallDistance = 0.0f; // specified if mFalling is set
 
 public:
     // set/get object's world position and rotation angle
@@ -71,9 +71,7 @@ public:
     Pedestrian* mReferencePed = nullptr;
 
     glm::vec2 mCarPointLocal; // when driving car, pedestrian body will be attached to that point
-
     int mContactingCars = 0; // number of contacting cars
-    bool mFalling = false; // falling from a height
 
 public:
     // @param startPosition: Initial world position
@@ -82,7 +80,8 @@ public:
     ~PedPhysicsComponent();
 
     void SimulationStep();
-    void SetFalling(bool isFalling);
+    void HandleFallBegin(float fallDistance);
+    void HandleFallEnd();
     void HandleCarContactBegin();
     void HandleCarContactEnd();
     // test whether pedestrian should collide with other objects depending on its current state

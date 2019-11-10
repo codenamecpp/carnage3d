@@ -323,7 +323,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
-        PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionLeaveCar();
+        PedestrianStateEvent ev { ePedestrianStateEvent_ActionLeaveCar };
         mCharacter->ProcessEvent(ev);
         return;
     }
