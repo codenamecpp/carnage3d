@@ -4,6 +4,7 @@
 #include "GpuProgram.h"
 #include "SpriteManager.h"
 #include "RenderView.h"
+#include "GameCheatsWindow.h"
 
 RenderingManager gRenderManager;
 
@@ -59,7 +60,7 @@ void RenderingManager::RenderFrame()
         mMapRenderer.RenderFrame(currRenderview);
 
         // draw debug info for first human view only
-        if (currRenderview == mActiveRenderViews[0])
+        if (currRenderview == mActiveRenderViews[0] && gGameCheatsWindow.mEnableDebugDraw)
         {
             mDebugRenderer.RenderFrameBegin(currRenderview);
             mMapRenderer.RenderDebug(currRenderview, mDebugRenderer);

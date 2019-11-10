@@ -78,7 +78,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
-    glm::vec3 position = mPhysicsComponent->GetPosition();
+    glm::vec3 position = mPhysicsComponent->mSmoothPosition;
     ComputeDrawHeight(position);
 
     ePedestrianState currState = GetCurrentStateID();

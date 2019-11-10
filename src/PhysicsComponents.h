@@ -17,6 +17,9 @@ public:
     bool mFalling = false; // falling from a height
     float mFallDistance = 0.0f; // specified if mFalling is set
 
+    glm::vec3 mPreviousPosition;
+    glm::vec3 mSmoothPosition; // for rendering only
+
 public:
     // set/get object's world position and rotation angle
     // @param position: Coordinate

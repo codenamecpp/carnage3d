@@ -8,6 +8,7 @@ public:
     bool mEnableMapCollisions;
     bool mEnableGravity;
     bool mEnableBlocksAnimation;
+    bool mEnableDebugDraw;
 
 public:
     GameCheatsWindow();

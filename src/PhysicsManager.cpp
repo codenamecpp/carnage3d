@@ -55,36 +55,74 @@ void PhysicsManager::Deinit()
 
 void PhysicsManager::UpdateFrame(Timespan deltaTime)
 {
-    int maxSimulationStepsPerFrame = 5;
-    int numSimulations = 0;
+    mSimulationTimeAccumulator += deltaTime.ToSeconds();
 
+    const int MaxSimulationStepsPerFrame = 5;
+    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP);
+    if (numSimulations > 0)
+    {
+        mSimulationTimeAccumulator -= (numSimulations * PHYSICS_SIMULATION_STEP);
+        numSimulations = glm::min(numSimulations, MaxSimulationStepsPerFrame);
+    }
+    debug_assert(numSimulations <= MaxSimulationStepsPerFrame);
+    debug_assert(mSimulationTimeAccumulator < PHYSICS_SIMULATION_STEP && mSimulationTimeAccumulator > -0.01f);
+
+    for (int icurrStep = 0; icurrStep < numSimulations; ++icurrStep)
+    {
+        ProcessSimulationStep(icurrStep == (numSimulations - 1));
+    }
+
+    ProcessInterpolation();
+}
+
+void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
+{
     const int velocityIterations = 4;
     const int positionIterations = 4;
 
-    mSimulationTimeAccumulator += deltaTime.ToSeconds();
-
-    while (mSimulationTimeAccumulator >= PHYSICS_SIMULATION_STEP)
+    if (resetPreviousState)
     {
-        mSimulationTimeAccumulator -= PHYSICS_SIMULATION_STEP;
-        mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
-
-        // process cars physics components
         for (CarPhysicsComponent* currComponent: mCarsBodiesList)
         {
-            currComponent->SimulationStep();
+            currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
         }
 
-        // process peds physics components
         for (PedPhysicsComponent* currComponent: mPedsBodiesList)
         {
-            currComponent->SimulationStep();
-        }
-
-        FixedStepGravity();
-        if (++numSimulations == maxSimulationStepsPerFrame)
-            break;
+            currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+        }  
     }
-    mPhysicsWorld->DrawDebugData();
+
+    mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
+
+    // process cars physics components
+    for (CarPhysicsComponent* currComponent: mCarsBodiesList)
+    {
+        currComponent->SimulationStep();
+    }
+
+    // process peds physics components
+    for (PedPhysicsComponent* currComponent: mPedsBodiesList)
+    {
+        currComponent->SimulationStep();
+    }
+
+    FixedStepGravity();
+}
+
+void PhysicsManager::ProcessInterpolation()
+{
+    float mixFactor = mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP;
+
+    for (CarPhysicsComponent* currComponent: mCarsBodiesList)
+    {
+        currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
+    }
+
+    for (PedPhysicsComponent* currComponent: mPedsBodiesList)
+    {
+        currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
+    }
 }
 
 PedPhysicsComponent* PhysicsManager::CreatePhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle)

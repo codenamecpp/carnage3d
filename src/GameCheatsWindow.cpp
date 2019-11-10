@@ -13,6 +13,7 @@ GameCheatsWindow::GameCheatsWindow()
     , mEnableMapCollisions(true)
     , mEnableGravity(true)
     , mEnableBlocksAnimation(true)
+    , mEnableDebugDraw(true)
 {
 }
 
@@ -127,6 +128,7 @@ void GameCheatsWindow::DoUI(Timespan deltaTime)
     if (ImGui::CollapsingHeader("Map Draw"))
     {
         ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);
+        ImGui::Checkbox("Enable debug draw", &mEnableDebugDraw);
     }
 
     if (ImGui::CollapsingHeader("Ped"))

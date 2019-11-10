@@ -23,6 +23,9 @@ void PhysicsComponent::SetPosition(const glm::vec3& position)
 
     b2Vec2 b2position { position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE };
     mPhysicsBody->SetTransform(b2position, mPhysicsBody->GetAngle());
+
+    mPreviousPosition = position;
+    mSmoothPosition = position;
 }
 
 void PhysicsComponent::SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle)
@@ -31,6 +34,9 @@ void PhysicsComponent::SetPosition(const glm::vec3& position, cxx::angle_t rotat
 
     b2Vec2 b2position { position.x * PHYSICS_SCALE, position.z * PHYSICS_SCALE };
     mPhysicsBody->SetTransform(b2position, rotationAngle.to_radians());
+
+    mPreviousPosition = position;
+    mSmoothPosition = position;
 }
 
 void PhysicsComponent::SetRotationAngle(cxx::angle_t rotationAngle)

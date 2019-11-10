@@ -47,6 +47,9 @@ private:
     // apply gravity forces and correct y coord for objects
     void FixedStepGravity();
 
+    void ProcessSimulationStep(bool resetPreviousState);
+    void ProcessInterpolation();
+
     // override b2ContactFilter
 	void BeginContact(b2Contact* contact) override;
 	void EndContact(b2Contact* contact) override;
@@ -67,6 +70,7 @@ private:
     b2World* mPhysicsWorld;
 
     float mSimulationTimeAccumulator;
+
     // physics components pools
     cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;
     cxx::object_pool<CarPhysicsComponent> mCarsBodiesPool;

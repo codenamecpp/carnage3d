@@ -54,7 +54,7 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 {   
     // sync sprite transformation with physical body
     cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    glm::vec3 position = mPhysicsComponent->GetPosition();
+    glm::vec3 position = mPhysicsComponent->mSmoothPosition;
     ComputeDrawHeight(position);
 
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
