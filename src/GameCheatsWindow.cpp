@@ -13,7 +13,7 @@ GameCheatsWindow::GameCheatsWindow()
     , mEnableMapCollisions(true)
     , mEnableGravity(true)
     , mEnableBlocksAnimation(true)
-    , mEnableDebugDraw(true)
+    , mEnableDebugDraw(false)
 {
 }
 

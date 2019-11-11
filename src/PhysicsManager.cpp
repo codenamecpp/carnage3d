@@ -346,15 +346,15 @@ void PhysicsManager::FixedStepGravity()
         // process falling
         float newHeight = gGameMap.GetHeightAtPosition(position);
 
-        bool onTheGround = newHeight > (position.y - 0.01f);
-        if (!onTheGround)
-        {
-            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
-        }
-        else
-        {
+        //bool onTheGround = newHeight > (position.y - 0.01f);
+        //if (!onTheGround)
+        //{
+        //    physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+        //}
+        //else
+        //{
             physicsComponent->mHeight = newHeight;
-        }
+        //}
     }
 
     // pedestrians
@@ -366,7 +366,7 @@ void PhysicsManager::FixedStepGravity()
             glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsComponent->GetPosition();
 
             physicsComponent->mHeight = carPosition.y;
-            return;
+            continue;
         }
 
         glm::vec3 position = physicsComponent->GetPosition();

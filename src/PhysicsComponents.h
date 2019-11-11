@@ -7,6 +7,9 @@ class PhysicsComponent: public cxx::noncopyable
 {
     friend class PhysicsManager;
 
+    friend class PedPhysicsComponent;
+    friend class CarPhysicsComponent;
+
 public:    
     // public for convenience, should not be modified directly
 
