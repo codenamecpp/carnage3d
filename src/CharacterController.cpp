@@ -20,3 +20,8 @@ void CharacterController::ResetControlState(Pedestrian* pedestrian)
     }
 }
 
+void CharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
+{
+
+}
+

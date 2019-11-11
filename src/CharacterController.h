@@ -14,4 +14,7 @@ public:
 
     // clear current state but keep target character bound to controller
     virtual void ResetControlState(Pedestrian* pedestrian);
+
+    // process pedestrian death
+    virtual void HandleCharacterDeath(Pedestrian* pedestrian);
 };

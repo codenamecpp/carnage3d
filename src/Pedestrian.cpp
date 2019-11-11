@@ -14,6 +14,7 @@ Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian,
     , mController()
     , mDrawHeight()
     , mPedsListNode(this)
+    , mRemapIndex(NO_REMAP)
 {
 }
 
@@ -25,13 +26,10 @@ Pedestrian::~Pedestrian()
     }
 }
 
-void Pedestrian::EnterTheGame()
+void Pedestrian::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
-    glm::vec3 startPosition;
-
     mCurrentStateTime = 0;
     mWeaponRechargeTime = 0;
-    mRemapIndex = NO_REMAP;
 
     // reset actions
     for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
@@ -47,16 +45,27 @@ void Pedestrian::EnterTheGame()
     mWeaponsAmmo[eWeaponType_Fists] = -1;
     mCurrentWeapon = eWeaponType_Fists;
     
-    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, cxx::angle_t::from_degrees(0.0f));
-    debug_assert(mPhysicsComponent);
+    if (mPhysicsComponent == nullptr)
+    {
+        mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation);
+        debug_assert(mPhysicsComponent);
+    }
+    else
+    {
+        mPhysicsComponent->SetPosition(startPosition, startRotation);
+    }
 
-    mCurrentAnimID = eSpriteAnimID_Null;
     mDeathReason = ePedestrianDeathReason_null;
 
+    if (mCurrentState == nullptr)
+    {
+        mCurrentAnimID = eSpriteAnimID_Null;
+        ChangeState(&mStateStandingStill, nullptr); 
+    }
+
+    debug_assert(mCurrentCar == nullptr);
     mCurrentCar = nullptr;
     mCurrentSeat = eCarSeat_Any;
-
-    ChangeState(&mStateStandingStill, nullptr);
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)

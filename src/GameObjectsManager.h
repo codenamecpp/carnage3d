@@ -23,7 +23,8 @@ public:
 
     // add pedestrian to map at specific location
     // @param position: Real world position
-    Pedestrian* CreatePedestrian(const glm::vec3& position);
+    // @param startRotation: Initial rotation
+    Pedestrian* CreatePedestrian(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
     // add car instance to map at specific location
     // @param startPosition: Initial world position

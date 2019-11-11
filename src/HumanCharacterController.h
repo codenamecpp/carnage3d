@@ -43,12 +43,15 @@ public:
     InputActionsMapping mInputs;
 
     Pedestrian* mCharacter = nullptr;
+    glm::vec3 mSpawnPosition;
 
 public:
     // process controller logic
     // @param deltaTime: Time since last frame
     void UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
     void SetCharacter(Pedestrian* character);
+
+    void HandleCharacterDeath(Pedestrian* pedestrian) override;
 
     // process players inputs
     // @param inputEvent: Event data
@@ -60,4 +63,9 @@ private:
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
     void EnterOrExitCar(bool alternative);
+
+    void Respawn();
+
+private:
+    Timespan mRespawnTime;
 };

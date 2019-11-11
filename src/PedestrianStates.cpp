@@ -768,7 +768,11 @@ void PedestrianStateDead::ProcessStateEnter(Pedestrian* pedestrian, const Pedest
 {
     pedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
 
-    // todo: notify brains
+    // notify brains
+    if (pedestrian->mController)
+    {
+        pedestrian->mController->HandleCharacterDeath(pedestrian);
+    }
 }
 
 void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)

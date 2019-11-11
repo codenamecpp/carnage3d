@@ -119,7 +119,9 @@ bool CarnageGame::Initialize()
 
     for (int icurr = 0; icurr < numPlayers; ++icurr)
     {
-        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr]);
+        float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
+
+        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
         SetupHumanCharacter(icurr, pedestrian);
     }
 
@@ -321,7 +323,7 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
     {
         pedestrian->mRemapIndex = humanIndex - 1;
     }
-
+    mHumanSlot[humanIndex].mCharController.mSpawnPosition = pedestrian->mPhysicsComponent->GetPosition();
     mHumanSlot[humanIndex].mCharPedestrian = pedestrian;
     mHumanSlot[humanIndex].mCharController.SetCharacter(pedestrian);
     mHumanSlot[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);

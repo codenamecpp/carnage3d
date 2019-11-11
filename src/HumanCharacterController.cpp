@@ -5,6 +5,9 @@
 #include "PhysicsComponents.h"
 #include "PhysicsDefs.h"
 #include "Vehicle.h"
+#include "GameMapManager.h"
+
+static const Timespan PlayerCharacterRespawnTime = Timespan::FromSeconds(10.0f);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -163,6 +166,15 @@ ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eGamepa
 void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime)
 {
     debug_assert(pedestrian == mCharacter);
+
+    if (mCharacter->IsDead())
+    {
+        mRespawnTime -= deltaTime;
+        if (mRespawnTime < 0)
+        {
+            Respawn();
+        }
+    }
 }
 
 void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
@@ -351,4 +363,24 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
         }
         return;
     }
+}
+
+void HumanCharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
+{
+    mRespawnTime = PlayerCharacterRespawnTime;
+
+    // todo: show WASTED
+}
+
+void HumanCharacterController::Respawn()
+{
+    mRespawnTime = 0;
+
+    // todo : exit from car
+
+    PedestrianStateEvent evData { ePedestrianStateEvent_ActionResurrect };
+    mCharacter->ProcessEvent(evData);
+
+    // setup pos
+    mCharacter->EnterTheGame(mSpawnPosition, mCharacter->mPhysicsComponent->GetRotationAngle());
 }

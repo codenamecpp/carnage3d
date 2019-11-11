@@ -41,8 +41,8 @@ public:
     Pedestrian(GameObjectID id);
     ~Pedestrian();
 
-    // setup initial state when spawned on level
-    void EnterTheGame();
+    // setup initial state when spawned or respawned on level
+    void EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
     void UpdateFrame(Timespan deltaTime) override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
