@@ -80,7 +80,11 @@ void MapRenderer::RenderFrame(RenderView* renderview)
 
     DrawCityMesh(renderview);
     // collect and render game objects sprites
-    for (GameObject* currGameObject: gGameObjectsManager.mObjectsList)
+    for (Vehicle* currGameObject: gGameObjectsManager.mCarsList)
+    {
+        currGameObject->DrawFrame(mSpritesBatch);
+    }
+    for (Pedestrian* currGameObject: gGameObjectsManager.mPedestriansList)
     {
         currGameObject->DrawFrame(mSpritesBatch);
     }

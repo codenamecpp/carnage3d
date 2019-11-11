@@ -179,12 +179,11 @@ void PedPhysicsComponent::SimulationStep()
     {
         CarPhysicsComponent* currentCarPhysics = mReferencePed->mCurrentCar->mPhysicsComponent;
 
-        glm::vec2 pos = currentCarPhysics->GetWorldPoint(mCarPointLocal);
-        glm::vec3 currentPos;
-        currentPos.x = pos.x;
-        currentPos.y = currentCarPhysics->mHeight;
-        currentPos.z = pos.y;
-        SetPosition(currentPos, currentCarPhysics->GetRotationAngle());
+        b2Vec2 b2LocalPosition { mCarPointLocal.x * PHYSICS_SCALE, mCarPointLocal.y * PHYSICS_SCALE };
+        b2Vec2 b2WorldPosition = currentCarPhysics->mPhysicsBody->GetWorldPoint(b2LocalPosition);
+
+        mHeight = currentCarPhysics->mHeight;
+        mPhysicsBody->SetTransform(b2WorldPosition, currentCarPhysics->mPhysicsBody->GetAngle());
     }
 }
 
