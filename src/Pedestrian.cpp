@@ -15,18 +15,21 @@ Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian,
     , mDrawHeight()
     , mPedsListNode(this)
     , mRemapIndex(NO_REMAP)
+    , mStatesManager(this)
 {
 }
 
 Pedestrian::~Pedestrian()
 {
+    SetCarExited();
+
     if (mPhysicsComponent)
     {
         gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
     }
 }
 
-void Pedestrian::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
     mCurrentStateTime = 0;
     mWeaponRechargeTime = 0;
@@ -57,15 +60,12 @@ void Pedestrian::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t start
 
     mDeathReason = ePedestrianDeathReason_null;
 
-    if (mCurrentState == nullptr)
-    {
-        mCurrentAnimID = eSpriteAnimID_Null;
-        ChangeState(&mStateStandingStill, nullptr); 
-    }
+    mCurrentAnimID = eSpriteAnimID_Null;
 
-    debug_assert(mCurrentCar == nullptr);
-    mCurrentCar = nullptr;
-    mCurrentSeat = eCarSeat_Any;
+    PedestrianStateEvent evData { ePedestrianStateEvent_Spawn };
+    mStatesManager.ChangeState(ePedestrianState_StandingStill, evData); // force idle state
+
+    SetCarExited();
 }
 
 void Pedestrian::UpdateFrame(Timespan deltaTime)
@@ -79,10 +79,7 @@ void Pedestrian::UpdateFrame(Timespan deltaTime)
 
     mCurrentStateTime += deltaTime;
     // update current state logic
-    if (mCurrentState)
-    {
-        mCurrentState->ProcessStateFrame(this, deltaTime);
-    }
+    mStatesManager.ProcessFrame(deltaTime);
 }
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
@@ -124,9 +121,8 @@ void Pedestrian::DrawDebug(DebugRenderer& debugRender)
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
-    if (IsCarPassenger())
+    if (mCurrentCar)
     {
-        debug_assert(mCurrentCar);
         bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
         // dont draw pedestrian if it in car with hard top
         if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
@@ -187,6 +183,62 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     mDrawHeight = maxHeight + drawOffset;
 }
 
+void Pedestrian::ChangeWeapon(eWeaponType weapon)
+{
+    if (mCurrentWeapon == weapon)
+        return;
+
+    mCurrentWeapon = weapon;
+    // notify current state
+    PedestrianStateEvent evData { ePedestrianStateEvent_WeaponChange };
+    mStatesManager.ProcessEvent(evData);
+}
+
+void Pedestrian::Die(ePedestrianDeathReason deathReason, Pedestrian* attacker)
+{
+    if (IsDead())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    PedestrianStateEvent evData { ePedestrianStateEvent_Die };
+    evData.mDeathReason = deathReason;
+    evData.mAttacker = attacker;
+    mStatesManager.ChangeState(ePedestrianState_Dead, evData);
+}
+
+void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
+{
+    debug_assert(targetSeat != eCarSeat_Any);
+    debug_assert(targetCar);
+
+    if (IsIdle())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_EnterCar };
+        evData.mTargetCar = targetCar;
+        evData.mTargetSeat = targetSeat;
+        mStatesManager.ChangeState(ePedestrianState_EnteringCar, evData);
+    }
+}
+
+void Pedestrian::ExitCar()
+{
+    if (IsCarPassenger())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_ExitCar };
+        mStatesManager.ChangeState(ePedestrianState_ExitingCar, evData);
+    }
+}
+
+void Pedestrian::ReceiveDamage(eWeaponType weapon, Pedestrian* attacker)
+{
+    PedestrianStateEvent evData { ePedestrianStateEvent_DamageFromWeapon };
+    evData.mAttacker = attacker;
+    evData.mWeaponType = weapon;
+    mStatesManager.ProcessEvent(evData);
+}
+
 void Pedestrian::SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode)
 {
     if (mCurrentAnimID != animation)
@@ -201,41 +253,15 @@ void Pedestrian::SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode)
     mCurrentAnimState.PlayAnimation(loopMode);
 }
 
-void Pedestrian::ChangeState(PedestrianBaseState* nextState, const PedestrianStateEvent* transitionEvent)
-{
-    if (nextState == mCurrentState && mCurrentState)
-        return;
-    mCurrentStateTime = 0;
-    debug_assert(nextState);
-    if (mCurrentState)
-    {
-        mCurrentState->ProcessStateExit(this, transitionEvent);
-    }
-    mCurrentState = nextState;
-    if (mCurrentState)
-    {
-        mCurrentState->ProcessStateEnter(this, transitionEvent);
-    }
-}
-
-bool Pedestrian::ProcessEvent(const PedestrianStateEvent& eventData)
-{
-    return mCurrentState && mCurrentState->ProcessStateEvent(this, eventData);
-}
-
 ePedestrianState Pedestrian::GetCurrentStateID() const
 {
-    if (mCurrentState == nullptr)
-        return ePedestrianState_Unspecified;
-
-    return mCurrentState->GetStateID();
+    return mStatesManager.GetCurrentStateID();
 }
 
 bool Pedestrian::IsCarPassenger() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    if (currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
-        currState == ePedestrianState_ExitingCar)
+    if (currState == ePedestrianState_DrivingCar)
     {
         return true; // includes driver
     }
@@ -245,12 +271,26 @@ bool Pedestrian::IsCarPassenger() const
 bool Pedestrian::IsCarDriver() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    if (currState == ePedestrianState_DrivingCar || currState == ePedestrianState_EnteringCar || 
-        currState == ePedestrianState_ExitingCar)
+    if (currState == ePedestrianState_DrivingCar)
     {
         return mCurrentSeat == eCarSeat_Driver;
     }
     return false;
+}
+
+bool Pedestrian::IsEnteringOrExitingCar() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    if (currState == ePedestrianState_EnteringCar || currState == ePedestrianState_ExitingCar)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Pedestrian::IsIdle() const
+{
+    return IsStanding() || IsShooting() || IsWalking();
 }
 
 bool Pedestrian::IsStanding() const
@@ -293,6 +333,8 @@ void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
     mCurrentCar = targetCar;
     mCurrentSeat = targetSeat;
 
+    mCurrentCar->PutPassenger(this, mCurrentSeat);
+
     // reset actions
     mCtlActions[ePedestrianAction_TurnLeft] = false;
     mCtlActions[ePedestrianAction_TurnRight] = false;
@@ -305,7 +347,11 @@ void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
 
 void Pedestrian::SetCarExited()
 {
-    mCurrentCar = nullptr;
+    if (mCurrentCar)
+    {
+        mCurrentCar->RemovePassenger(this);
+        mCurrentCar = nullptr;
+    }
 
     // reset actions
     mCtlActions[ePedestrianAction_HandBrake] = false;
@@ -316,15 +362,16 @@ void Pedestrian::SetCarExited()
     mCtlActions[ePedestrianAction_Horn] = false;
 }
 
-void Pedestrian::SetCurrentWeapon(eWeaponType weapon)
-{
-    mCurrentWeapon = weapon;
-}
-
 void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
 {
     debug_assert(mDeathReason == ePedestrianDeathReason_null);
     debug_assert(deathReason != ePedestrianDeathReason_null);
     mDeathReason = deathReason;
+
+    // notify brains
+    if (mController)
+    {
+        mController->HandleCharacterDeath(this);
+    }
 }
 

@@ -175,7 +175,7 @@ PedPhysicsComponent::~PedPhysicsComponent()
 
 void PedPhysicsComponent::SimulationStep()
 {
-    if (mReferencePed->IsCarPassenger())
+    if (mReferencePed->mCurrentCar)
     {
         CarPhysicsComponent* currentCarPhysics = mReferencePed->mCurrentCar->mPhysicsComponent;
 
@@ -201,9 +201,9 @@ void PedPhysicsComponent::HandleFallBegin(float fallDistance)
     ClearForces();
     mPhysicsBody->SetLinearVelocity(velocity);
 
-    // notify brains
+    // notify
     PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightStart };
-    mReferencePed->ProcessEvent(evData);
+    mReferencePed->mStatesManager.ProcessEvent(evData);
 }
 
 void PedPhysicsComponent::HandleFallEnd()
@@ -212,9 +212,10 @@ void PedPhysicsComponent::HandleFallEnd()
         return;
 
     mFalling = false;
-    // notify brains
+
+    // notify
     PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightEnd };
-    mReferencePed->ProcessEvent(evData);
+    mReferencePed->mStatesManager.ProcessEvent(evData);
 }
 
 void PedPhysicsComponent::HandleCarContactBegin()
@@ -248,7 +249,7 @@ bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const
         return (bits & (PHYSICS_OBJCAT_MAP_SOLID_BLOCK | PHYSICS_OBJCAT_WALL)) > 0;
     }
 
-    if (mReferencePed->IsCarPassenger())
+    if (mReferencePed->mCurrentCar)
     {
         return false;
     }

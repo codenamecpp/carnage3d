@@ -73,7 +73,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& startPosition,
     mObjectsList.insert(&instance->mObjectsNode);
 
     // init
-    instance->EnterTheGame(startPosition, startRotation);
+    instance->Spawn(startPosition, startRotation);
     return instance;
 }
 
@@ -92,7 +92,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& startPosition, cxx::angl
 
     // init
     instance->mCarStyle = carStyle;
-    instance->EnterTheGame(startPosition, carRotation);
+    instance->Spawn(startPosition, carRotation);
     return instance;
 }
 

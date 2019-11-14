@@ -6,289 +6,193 @@
 #include "CarnageGame.h"
 #include "PhysicsManager.h"
 
+PedestrianStatesManager::PedestrianStatesManager(Pedestrian* pedestrian)
+    : mPedestrian(pedestrian)
+{
+    debug_assert(mPedestrian);
+    InitFuncsTable();
+}
+
+void PedestrianStatesManager::ChangeState(ePedestrianState nextState, const PedestrianStateEvent& evData)
+{
+    if (nextState == mCurrentStateID)
+        return;
+
+    mPedestrian->mCurrentStateTime = 0;
+    debug_assert(nextState > ePedestrianState_Unspecified && nextState < ePedestrianState_COUNT);
+    // process exit current state
+    (this->*mFuncsTable[mCurrentStateID].pfStateExit)();
+    mCurrentStateID = nextState;
+    // process enter next state
+    (this->*mFuncsTable[mCurrentStateID].pfStateEnter)(evData);
+}
+
+bool PedestrianStatesManager::ProcessEvent(const PedestrianStateEvent& evData)
+{
+    return (this->*mFuncsTable[mCurrentStateID].pfStateEvent)(evData);
+}
+
+void PedestrianStatesManager::ProcessFrame(Timespan deltaTime)
+{
+    (this->*mFuncsTable[mCurrentStateID].pfStateFrame)(deltaTime);
+}
+
+void PedestrianStatesManager::InitFuncsTable()
+{
+    mFuncsTable[ePedestrianState_Unspecified] = {&PedestrianStatesManager::StateUnspecified_ProcessEnter, 
+        &PedestrianStatesManager::StateUnspecified_ProcessExit, 
+        &PedestrianStatesManager::StateUnspecified_ProcessFrame, 
+        &PedestrianStatesManager::StateUnspecified_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_StandingStill] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
+        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_StandsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
+        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Walks] = {&PedestrianStatesManager::StateIdle_ProcessEnter,
+        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Runs] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
+        &PedestrianStatesManager::StateIdle_ProcessExit,
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_WalksAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
+        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_RunsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
+        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateIdle_ProcessFrame, 
+        &PedestrianStatesManager::StateIdle_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Falling] = {&PedestrianStatesManager::StateFalling_ProcessEnter, 
+        &PedestrianStatesManager::StateFalling_ProcessExit, 
+        &PedestrianStatesManager::StateFalling_ProcessFrame, 
+        &PedestrianStatesManager::StateFalling_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_EnteringCar] = {&PedestrianStatesManager::StateEnterCar_ProcessEnter, 
+        &PedestrianStatesManager::StateEnterCar_ProcessExit, 
+        &PedestrianStatesManager::StateEnterCar_ProcessFrame, 
+        &PedestrianStatesManager::StateEnterCar_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_ExitingCar] =  {&PedestrianStatesManager::StateExitCar_ProcessEnter, 
+        &PedestrianStatesManager::StateExitCar_ProcessExit, 
+        &PedestrianStatesManager::StateExitCar_ProcessFrame, 
+        &PedestrianStatesManager::StateExitCar_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_DrivingCar] = {&PedestrianStatesManager::StateDriveCar_ProcessEnter, 
+        &PedestrianStatesManager::StateDriveCar_ProcessExit, 
+        &PedestrianStatesManager::StateDriveCar_ProcessFrame, 
+        &PedestrianStatesManager::StateDriveCar_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_SlideOnCar] = {&PedestrianStatesManager::StateSlideCar_ProcessEnter, 
+        &PedestrianStatesManager::StateSlideCar_ProcessExit, 
+        &PedestrianStatesManager::StateSlideCar_ProcessFrame, 
+        &PedestrianStatesManager::StateSlideCar_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Dead] = {&PedestrianStatesManager::StateDead_ProcessEnter, 
+        &PedestrianStatesManager::StateDead_ProcessExit, 
+        &PedestrianStatesManager::StateDead_ProcessFrame, 
+        &PedestrianStatesManager::StateDead_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_KnockedDown] = {&PedestrianStatesManager::StateKnockedDown_ProcessEnter, 
+        &PedestrianStatesManager::StateKnockedDown_ProcessExit, 
+        &PedestrianStatesManager::StateKnockedDown_ProcessFrame, 
+        &PedestrianStatesManager::StateKnockedDown_ProcessEvent};
+}
+
 //////////////////////////////////////////////////////////////////////////
 
-PedestrianStateEvent PedestrianStateEvent::Get_ActionWeaponChange(eWeaponType newWeapon)
+void PedestrianStatesManager::ProcessRotateActions(Timespan deltaTime)
 {
-    PedestrianStateEvent eventData {ePedestrianStateEvent_ActionWeaponChange};
-    eventData.mActionWeaponChange.mWeapon = newWeapon;
-
-    return eventData;
-}
-
-PedestrianStateEvent PedestrianStateEvent::Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat)
-{
-    PedestrianStateEvent eventData {ePedestrianStateEvent_ActionEnterCar};
-    eventData.mActionEnterCar.mTargetCar = targetCar;
-    eventData.mActionEnterCar.mTargetSeat = targetSeat;
-    
-    return eventData;
-}
-
-PedestrianStateEvent PedestrianStateEvent::Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker)
-{
-    PedestrianStateEvent eventData {ePedestrianStateEvent_TakeDamageFromWeapon};
-    eventData.mDamageFromWeapon.mAttacker = attacker;
-    eventData.mDamageFromWeapon.mWeaponType = weaponType;
-
-    return eventData;
-}
-
-PedestrianStateEvent PedestrianStateEvent::Get_PullOutFromCar(Pedestrian* attacker)
-{
-    PedestrianStateEvent eventData {ePedestrianStateEvent_PullOutFromCar};
-    eventData.mPullOutFromCar.mAttacker = attacker;
-
-    return eventData;
-}
-
-PedestrianStateEvent PedestrianStateEvent::Get_Die(ePedestrianDeathReason reason, Pedestrian* attacker)
-{
-    PedestrianStateEvent eventData {ePedestrianStateEvent_Die};
-    eventData.mDie.mAttacker = attacker;
-    eventData.mDie.mDeathReason = reason;
-
-    return eventData;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianBaseState::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
-        pedestrian->mCtlActions[ePedestrianAction_TurnRight])
+    if (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
+        mPedestrian->mCtlActions[ePedestrianAction_TurnRight])
     {
-        float angularVelocity = gGameParams.mPedestrianTurnSpeed * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
-        pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
+        float turnSpeed = gGameParams.mPedestrianTurnSpeed;
+        if (mCurrentStateID == ePedestrianState_SlideOnCar)
+        {
+            turnSpeed = gGameParams.mPedestrianTurnSpeedSlideOnCar;
+        }
+
+        float angularVelocity = turnSpeed * (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
+        mPedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
     else
     {
-        pedestrian->mPhysicsComponent->SetAngularVelocity(0.0f);
+        mPedestrian->mPhysicsComponent->SetAngularVelocity(0.0f);
     }
 }
 
-void PedestrianBaseState::ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime)
+void PedestrianStatesManager::ProcessMotionActions(Timespan deltaTime)
 {
-    if (pedestrian->mCtlActions[ePedestrianAction_WalkForward] || 
-        pedestrian->mCtlActions[ePedestrianAction_WalkBackward] || 
-        pedestrian->mCtlActions[ePedestrianAction_Run])
+    // while slding on car
+    if (mCurrentStateID == ePedestrianState_SlideOnCar)
+    {
+        glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * mPedestrian->mPhysicsComponent->GetSignVector();
+        mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
+
+        return;
+    }
+
+    // generic case
+    if (mPedestrian->mCtlActions[ePedestrianAction_WalkForward] || 
+        mPedestrian->mCtlActions[ePedestrianAction_WalkBackward] || 
+        mPedestrian->mCtlActions[ePedestrianAction_Run])
     {
         float moveSpeed = gGameParams.mPedestrianWalkSpeed;
 
-        glm::vec2 linearVelocity = pedestrian->mPhysicsComponent->GetSignVector();
-        if (pedestrian->mCtlActions[ePedestrianAction_Run])
+        glm::vec2 linearVelocity = mPedestrian->mPhysicsComponent->GetSignVector();
+        if (mPedestrian->mCtlActions[ePedestrianAction_Run])
         {
             moveSpeed = gGameParams.mPedestrianRunSpeed;
         }
-        else if (pedestrian->mCtlActions[ePedestrianAction_WalkBackward])
+        else if (mPedestrian->mCtlActions[ePedestrianAction_WalkBackward])
         {
             linearVelocity = -linearVelocity;
         }
-        pedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity * moveSpeed);
+        mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity * moveSpeed);
     }
     else
     {
-        pedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
+        mPedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
     }
 }
 
-eSpriteAnimID PedestrianBaseState::DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const
-{
-    if (!shoots)
-        return eSpriteAnimID_Ped_StandingStill;
-
-    switch (weapon)
-    {
-        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileStanding;
-        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileStanding;
-        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileStanding;
-        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding;
-        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileStanding;
-    }
-    debug_assert(false);
-    return eSpriteAnimID_Ped_StandingStill;
-}
-
-eSpriteAnimID PedestrianBaseState::DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const
-{
-    if (!shoots)
-        return eSpriteAnimID_Ped_Walk;
-
-    switch (weapon)
-    {
-        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
-        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileWalking;
-        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileWalking;
-        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking;
-        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileWalking;
-    }
-    debug_assert(false);
-    return eSpriteAnimID_Ped_Walk;
-}
-
-eSpriteAnimID PedestrianBaseState::DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const
-{
-    if (!shoots)
-        return eSpriteAnimID_Ped_Run;
-
-    switch (weapon)
-    {
-        case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
-        case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileRunning;
-        case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileRunning;
-        case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning;
-        case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileRunning;
-    }
-    debug_assert(false);
-    return eSpriteAnimID_Ped_Run;
-}
-
-bool PedestrianBaseState::CanStartSlideOnCarState(Pedestrian* pedestrian) const
-{
-    return pedestrian->mPhysicsComponent->mContactingCars > 0;
-}
-
-void PedestrianBaseState::SetInCarPositionToDoor(Pedestrian* pedestrian)
-{
-    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-
-    pedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, pedestrian->mPhysicsComponent->mCarPointLocal);
-}
-
-void PedestrianBaseState::SetInCarPositionToSeat(Pedestrian* pedestrian)
-{
-    pedestrian->mCurrentCar->GetSeatPosLocal(pedestrian->mCurrentSeat, pedestrian->mPhysicsComponent->mCarPointLocal);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-PedestrianBaseState* PedestrianStateIdleBase::GetNextIdleState(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    if (pedestrian->mCtlActions[ePedestrianAction_Run])
-    {
-        if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
-            return &pedestrian->mStateRunsAndShoots;
-
-        return &pedestrian->mStateRuns;
-    }
-
-    if (pedestrian->mCtlActions[ePedestrianAction_WalkBackward] ||
-        pedestrian->mCtlActions[ePedestrianAction_WalkForward])
-    {
-        // cannot walk and use fists simultaneously
-        if (pedestrian->mCtlActions[ePedestrianAction_Shoot] && pedestrian->mCurrentWeapon != eWeaponType_Fists)
-            return &pedestrian->mStateWalksAndShoots;
-
-        return &pedestrian->mStateWalks;
-    }
-
-    if (pedestrian->mCtlActions[ePedestrianAction_Shoot])
-        return &pedestrian->mStateStandsAndShoots;
-
-    return &pedestrian->mStateStandingStill;
-}
-
-void PedestrianStateIdleBase::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    if (pedestrian->IsShooting())
-    {
-        TryToShoot(pedestrian);
-    }
-
-    ProcessRotateActions(pedestrian, deltaTime);
-    ProcessMotionActions(pedestrian, deltaTime);
-
-    // slide over car
-    if (pedestrian->mCtlActions[ePedestrianAction_Run] || pedestrian->mCtlActions[ePedestrianAction_WalkForward])
-    {
-        if (pedestrian->mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState(pedestrian))
-        {
-            pedestrian->ChangeState(&pedestrian->mStateSlideOnCar, nullptr);
-            return;
-        }
-    }
-    
-    // process shooting
-    PedestrianBaseState* nextIdleState = GetNextIdleState(pedestrian, deltaTime);
-    if (nextIdleState == pedestrian->mCurrentState)
-        return;
-
-    ePedestrianState currPedestrianState = pedestrian->mCurrentState->GetStateID();
-
-    if ((currPedestrianState == ePedestrianState_RunsAndShoots && nextIdleState->GetStateID() == ePedestrianState_Runs) ||
-        (currPedestrianState == ePedestrianState_WalksAndShoots && nextIdleState->GetStateID() == ePedestrianState_Walks) ||
-        (currPedestrianState == ePedestrianState_StandsAndShoots && nextIdleState->GetStateID() == ePedestrianState_StandingStill))
-    {
-        // wait animation ends
-        if (pedestrian->mCurrentAnimState.IsAnimationActive() && !pedestrian->mCurrentAnimState.IsLastFrame())
-            return;
-    }
-
-    pedestrian->ChangeState(nextIdleState, nullptr);
-}
-
-bool PedestrianStateIdleBase::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_TakeDamageFromWeapon)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateKnockedDown, &stateEvent);
-        return true;
-    }
-
-    if (stateEvent.mID == ePedestrianStateEvent_ActionEnterCar)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateEnterCar, &stateEvent);
-        return true;
-    }
-
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
-    {
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
-    }
-
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
-    {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
-        return true;
-    }
-
-    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return true;
-    }
-
-    return false;
-}
-
-bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
+bool PedestrianStatesManager::TryToShoot()
 {
     Timespan currGameTime = gCarnageGame.mGameTime;
-    if (pedestrian->mWeaponRechargeTime > currGameTime ||
-        pedestrian->mWeaponsAmmo[pedestrian->mCurrentWeapon] == 0)
+    if (mPedestrian->mWeaponRechargeTime > currGameTime ||
+        mPedestrian->mWeaponsAmmo[mPedestrian->mCurrentWeapon] == 0)
     {
         return false;
     }
 
-    if (pedestrian->mCurrentWeapon == eWeaponType_Fists)
+    if (mPedestrian->mCurrentWeapon == eWeaponType_Fists)
     {
-        glm::vec3 pos = pedestrian->mPhysicsComponent->GetPosition();
+        glm::vec3 pos = mPedestrian->mPhysicsComponent->GetPosition();
         glm::vec2 posA { pos.x, pos.z };
-        glm::vec2 posB = posA + (pedestrian->mPhysicsComponent->GetSignVector() * gGameParams.mWeaponsDistance[pedestrian->mCurrentWeapon]);
+        glm::vec2 posB = posA + (mPedestrian->mPhysicsComponent->GetSignVector() * gGameParams.mWeaponsDistance[mPedestrian->mCurrentWeapon]);
         // find candidates
         PhysicsLinecastResult linecastResult;
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
         for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
         {
             PedPhysicsComponent* pedBody = linecastResult.mHits[icurr].mPedComponent;
-            if (pedBody == nullptr || pedBody->mReferencePed == pedestrian) // ignore self
+            if (pedBody == nullptr || pedBody->mReferencePed == mPedestrian) // ignore self
                 continue; 
 
             // todo: check distance in y direction
 
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_DamageFromWeapon(pedestrian->mCurrentWeapon, pedestrian);
-            pedBody->mReferencePed->ProcessEvent(ev);
+            pedBody->mReferencePed->ReceiveDamage(mPedestrian->mCurrentWeapon, mPedestrian);
         }
     }
     else
@@ -297,170 +201,156 @@ bool PedestrianStateIdleBase::TryToShoot(Pedestrian* pedestrian)
     }    
 
     // setup cooldown time for weapons
-    Timespan rechargeTime = Timespan::FromSeconds(gGameParams.mWeaponsRechargeTime[pedestrian->mCurrentWeapon]);
-    pedestrian->mWeaponRechargeTime = currGameTime + rechargeTime;
+    Timespan rechargeTime = Timespan::FromSeconds(gGameParams.mWeaponsRechargeTime[mPedestrian->mCurrentWeapon]);
+    mPedestrian->mWeaponRechargeTime = currGameTime + rechargeTime;
     return true;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateStandingStill::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+ePedestrianState PedestrianStatesManager::GetNextIdleState(Timespan deltaTime)
 {
-    eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, false);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
-
-bool PedestrianStateStandingStill::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
+    if (mPedestrian->mCtlActions[ePedestrianAction_Run])
     {
-        eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
+        if (mPedestrian->mCtlActions[ePedestrianAction_Shoot])
+            return ePedestrianState_RunsAndShoots;
+
+        return ePedestrianState_Runs;
     }
 
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateWalks::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    eSpriteAnimID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, false);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
-
-bool PedestrianStateWalks::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
+    if (mPedestrian->mCtlActions[ePedestrianAction_WalkBackward] ||
+        mPedestrian->mCtlActions[ePedestrianAction_WalkForward])
     {
-        eSpriteAnimID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart);
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
+        // cannot walk and use fists simultaneously
+        if (mPedestrian->mCtlActions[ePedestrianAction_Shoot] && mPedestrian->mCurrentWeapon != eWeaponType_Fists)
+            return ePedestrianState_WalksAndShoots;
+
+        return ePedestrianState_Walks;
     }
 
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
+    if (mPedestrian->mCtlActions[ePedestrianAction_Shoot])
+        return ePedestrianState_StandsAndShoots;
+
+    return ePedestrianState_StandingStill;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateRuns::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+eSpriteAnimID PedestrianStatesManager::DetectIdleAnimation() const
 {
-    eSpriteAnimID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, false);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
+    if (mCurrentStateID == ePedestrianState_StandingStill)
+        return eSpriteAnimID_Ped_StandingStill;
 
-bool PedestrianStateRuns::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
+    if (mCurrentStateID == ePedestrianState_Walks)
+        return eSpriteAnimID_Ped_Walk;
+
+    if (mCurrentStateID == ePedestrianState_Runs)
+        return eSpriteAnimID_Ped_Run;
+
+    // stands and shoots
+    if (mCurrentStateID == ePedestrianState_StandsAndShoots)
     {
-        eSpriteAnimID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, false);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
-    }
-
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateStandsAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(pedestrian->mCurrentWeapon, true);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
-
-bool PedestrianStateStandsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
-    {
-        eSpriteAnimID animID = DetectStandingStillAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
-    }
-
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateWalksAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    eSpriteAnimID animID = DetectWalkingAnimWithWeapon(pedestrian->mCurrentWeapon, true);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
-
-bool PedestrianStateWalksAndShoots::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
-    {
-        eSpriteAnimID animID = DetectWalkingAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
-    }
-
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateRunsAndShoots::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    eSpriteAnimID animID = DetectRunningAnimWithWeapon(pedestrian->mCurrentWeapon, true);
-    pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-}
-
-bool PedestrianStateRunsAndShoots::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionWeaponChange)
-    {
-        eSpriteAnimID animID = DetectRunningAnimWithWeapon(stateEvent.mActionWeaponChange.mWeapon, true);
-        pedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
-        pedestrian->SetCurrentWeapon(stateEvent.mActionWeaponChange.mWeapon);
-        return true;
-    }
-
-    return PedestrianStateIdleBase::ProcessStateEvent(pedestrian, stateEvent);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateFalling::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    pedestrian->SetAnimation(eSpriteAnimID_Ped_FallLong, eSpriteAnimLoop_FromStart);
-}
-
-void PedestrianStateFalling::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    pedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
-}
-
-bool PedestrianStateFalling::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    // todo: detect drowning
-    
-    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
-    {
-        // die
-        if (pedestrian->mPhysicsComponent->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
+        switch (mPedestrian->mCurrentWeapon)
         {
-            PedestrianStateEvent evData = PedestrianStateEvent::Get_Die(ePedestrianDeathReason_FallFromHeight, nullptr);
-            pedestrian->ChangeState(&pedestrian->mStateDead, &evData);
-            return true;
+            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileStanding;
+            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileStanding;
+            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileStanding;
+            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding;
+            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileStanding;
         }
-
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        return true;
+        debug_assert(false);
+        return eSpriteAnimID_Ped_StandingStill;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    // walks and shoots
+    if (mCurrentStateID == ePedestrianState_WalksAndShoots)
     {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        switch (mPedestrian->mCurrentWeapon)
+        {
+            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
+            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileWalking;
+            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileWalking;
+            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking;
+            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileWalking;
+        }
+        debug_assert(false);
+        return eSpriteAnimID_Ped_Walk;
+    }
+
+    // runs and shoots
+    if (mCurrentStateID == ePedestrianState_RunsAndShoots)
+    {
+        switch (mPedestrian->mCurrentWeapon)
+        {
+            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
+            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileRunning;
+            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileRunning;
+            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning;
+            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileRunning;
+        }
+        debug_assert(false);
+        return eSpriteAnimID_Ped_Run;
+    }
+
+    debug_assert(false);
+    return eSpriteAnimID_Ped_StandingStill;
+}
+
+bool PedestrianStatesManager::CanStartSlideOnCarState() const
+{
+    return mPedestrian->mPhysicsComponent->mContactingCars > 0;
+}
+
+void PedestrianStatesManager::SetInCarPositionToDoor()
+{
+    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    mPedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, mPedestrian->mPhysicsComponent->mCarPointLocal);
+}
+
+void PedestrianStatesManager::SetInCarPositionToSeat()
+{
+    mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, mPedestrian->mPhysicsComponent->mCarPointLocal);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateDead_ProcessFrame(Timespan deltaTime)
+{
+}
+
+void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
+    mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+    mPedestrian->SetDead(stateEvent.mDeathReason);
+}
+
+void PedestrianStatesManager::StateDead_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateDead_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateDriveCar_ProcessFrame(Timespan deltaTime)
+{
+}
+
+void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_SittingOnBike : eSpriteAnimID_Ped_SittingInCar, eSpriteAnimLoop_None);
+}
+
+void PedestrianStatesManager::StateDriveCar_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
+    {
+        ChangeState(ePedestrianState_KnockedDown, stateEvent);
         return true;
     }
     return false;
@@ -468,323 +358,326 @@ bool PedestrianStateFalling::ProcessStateEvent(Pedestrian* pedestrian, const Ped
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStateKnockedDown::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+void PedestrianStatesManager::StateExitCar_ProcessFrame(Timespan deltaTime)
 {
-    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
+        mPedestrian->mCurrentCar->IsDoorOpened(doorIndex))
     {
-        if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
-        {
-            pedestrian->mPhysicsComponent->ClearForces();
-            pedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
-            return;
-        }
+        mPedestrian->mCurrentCar->CloseDoor(doorIndex);
     }
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_LiesOnFloor)
+    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        if (pedestrian->mCurrentStateTime >= Timespan::FromSeconds(gGameParams.mPedestrianKnockedDownTime))
-        {
-            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        }
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        ChangeState(ePedestrianState_StandingStill, evData);
         return;
     }
 }
 
-void PedestrianStateKnockedDown::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+void PedestrianStatesManager::StateExitCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    float impulse = 0.6f;
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_ExitBike : eSpriteAnimID_Ped_ExitCar, eSpriteAnimLoop_None);
 
-    pedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
-    pedestrian->mPhysicsComponent->AddLinearImpulse(-pedestrian->mPhysicsComponent->GetSignVector() * impulse);
+    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
+    {
+        mPedestrian->mCurrentCar->OpenDoor(doorIndex);
+    }
+
+    SetInCarPositionToDoor();
 }
 
-bool PedestrianStateKnockedDown::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+void PedestrianStatesManager::StateExitCar_ProcessExit()
 {
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
+    if (mPedestrian->mCurrentCar)
     {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
-        return true;
-    }
+        cxx::angle_t currentCarAngle = mPedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
 
-    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return true;
+        mPedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        mPedestrian->SetCarExited();
     }
+}
 
+bool PedestrianStatesManager::StateExitCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
     return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStateSlideOnCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{    
-    ProcessRotateActions(pedestrian, deltaTime);
-    ProcessMotionActions(pedestrian, deltaTime);
+void PedestrianStatesManager::StateEnterCar_ProcessFrame(Timespan deltaTime)
+{
+    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex) && 
+        mPedestrian->mCurrentCar->IsDoorOpened(doorIndex))
+    {
+        mPedestrian->mCurrentCar->CloseDoor(doorIndex);
+    }
 
-    if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_JumpOntoCar)
+    if (mPedestrian->mCurrentAnimState.IsLastFrame())
     {
-        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+        SetInCarPositionToSeat();
+    }
+
+    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        ChangeState(ePedestrianState_DrivingCar, evData);
+        return;
+    }
+}
+
+void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    debug_assert(stateEvent.mTargetCar);
+
+    mPedestrian->SetCarEntered(stateEvent.mTargetCar, stateEvent.mTargetSeat);
+    mPedestrian->mPhysicsComponent->ClearForces();
+
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_EnterBike : eSpriteAnimID_Ped_EnterCar, eSpriteAnimLoop_None);
+
+    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    SetInCarPositionToDoor();
+
+    if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
+    {
+        mPedestrian->mCurrentCar->OpenDoor(doorIndex);
+    }
+
+    // pullout passenger
+    if (Pedestrian* prevDriver = mPedestrian->mCurrentCar->GetFirstPassenger(mPedestrian->mCurrentSeat))
+    {
+        PedestrianStateEvent ev {ePedestrianStateEvent_PullOutFromCar};
+        prevDriver->mStatesManager.ProcessEvent(ev);
+    }
+}
+
+void PedestrianStatesManager::StateEnterCar_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateEnterCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateSlideCar_ProcessFrame(Timespan deltaTime)
+{
+    ProcessRotateActions(deltaTime);
+    ProcessMotionActions(deltaTime);
+
+    if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_JumpOntoCar)
+    {
+        if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
         {
-            pedestrian->SetAnimation(eSpriteAnimID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
+            mPedestrian->SetAnimation(eSpriteAnimID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
         }
     }
-    else if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_SlideOnCar)
+    else if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_SlideOnCar)
     {
-        if (!CanStartSlideOnCarState(pedestrian)) // check if no car to slide over
+        if (!CanStartSlideOnCarState()) // check if no car to slide over
         {
-            pedestrian->SetAnimation(eSpriteAnimID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
+            mPedestrian->SetAnimation(eSpriteAnimID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
         }
     }
-    else if (pedestrian->mCurrentAnimID == eSpriteAnimID_Ped_DropOffCarSliding)
+    else if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_DropOffCarSliding)
     {
         // check can finish current state
-        if (!pedestrian->mCurrentAnimState.IsAnimationActive())
+        if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
         {
-            pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
+            PedestrianStateEvent evData { ePedestrianStateEvent_None };
+            ChangeState(ePedestrianState_StandingStill, evData);
             return;
         }
     }
     else {}
 }
 
-void PedestrianStateSlideOnCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
+void PedestrianStatesManager::StateSlideCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    pedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
 }
 
-bool PedestrianStateSlideOnCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
+void PedestrianStatesManager::StateSlideCar_ProcessExit()
 {
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
+}
+
+bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
     {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
+        ChangeState(ePedestrianState_Falling, stateEvent);
+        return true;
+    }
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateKnockedDown_ProcessFrame(Timespan deltaTime)
+{
+    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    {
+        if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
+        {
+            mPedestrian->mPhysicsComponent->ClearForces();
+            mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+            return;
+        }
+    }
+
+    if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_LiesOnFloor)
+    {
+        if (mPedestrian->mCurrentStateTime >= Timespan::FromSeconds(gGameParams.mPedestrianKnockedDownTime))
+        {
+            PedestrianStateEvent evData { ePedestrianStateEvent_None };
+            ChangeState(ePedestrianState_StandingStill, evData);
+        }
+        return;
+    }
+}
+
+void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
+    {
+        SetInCarPositionToDoor();
+
+        mPedestrian->SetCarExited();
+    }
+
+    float impulse = 0.6f;
+
+    mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
+    mPedestrian->mPhysicsComponent->AddLinearImpulse(-mPedestrian->mPhysicsComponent->GetSignVector() * impulse);
+}
+
+void PedestrianStatesManager::StateKnockedDown_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
+    {
+        ChangeState(ePedestrianState_Falling, stateEvent);
+        return true;
+    }
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateFalling_ProcessFrame(Timespan deltaTime)
+{
+}
+
+void PedestrianStatesManager::StateFalling_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallLong, eSpriteAnimLoop_FromStart);
+}
+
+void PedestrianStatesManager::StateFalling_ProcessExit()
+{
+    mPedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
+}
+
+bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    // todo: detect drowning
+    
+    if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
+    {
+        // die
+        if (mPedestrian->mPhysicsComponent->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
+        {
+            mPedestrian->Die(ePedestrianDeathReason_FallFromHeight, nullptr);
+            return true;
+        }
+
+        ChangeState(ePedestrianState_StandingStill, stateEvent);
+        return true;
+    }
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateIdle_ProcessFrame(Timespan deltaTime)
+{
+    if (mPedestrian->IsShooting())
+    {
+        TryToShoot();
+    }
+
+    ProcessRotateActions(deltaTime);
+    ProcessMotionActions(deltaTime);
+
+    // slide over car
+    if (mPedestrian->mCtlActions[ePedestrianAction_Run] || mPedestrian->mCtlActions[ePedestrianAction_WalkForward])
+    {
+        if (mPedestrian->mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState())
+        {
+            PedestrianStateEvent evData { ePedestrianStateEvent_None };
+            ChangeState(ePedestrianState_SlideOnCar, evData);
+            return;
+        }
+    }
+    
+    // process shooting
+    ePedestrianState nextIdleState = GetNextIdleState(deltaTime);
+    if (nextIdleState == mCurrentStateID)
+        return;
+
+    if ((mCurrentStateID == ePedestrianState_RunsAndShoots && nextIdleState == ePedestrianState_Runs) ||
+        (mCurrentStateID == ePedestrianState_WalksAndShoots && nextIdleState == ePedestrianState_Walks) ||
+        (mCurrentStateID == ePedestrianState_StandsAndShoots && nextIdleState == ePedestrianState_StandingStill))
+    {
+        // wait animation ends
+        if (mPedestrian->mCurrentAnimState.IsAnimationActive() && !mPedestrian->mCurrentAnimState.IsLastFrame())
+            return;
+    }
+
+    PedestrianStateEvent evData { ePedestrianStateEvent_None };
+    ChangeState(nextIdleState, evData);
+}
+
+void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    eSpriteAnimID animID = DetectIdleAnimation();
+    mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
+}
+
+void PedestrianStatesManager::StateIdle_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
+    {
+        eSpriteAnimID animID = DetectIdleAnimation();
+        mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
+        return true;
+    }
+
+    if (stateEvent.mID == ePedestrianStateEvent_DamageFromWeapon)
+    {
+        ChangeState(ePedestrianState_KnockedDown, stateEvent);
         return true;
     }
 
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
     {
-        pedestrian->ChangeState(&pedestrian->mStateFalling, nullptr);
-        return true;
-    }
-
-    return false;
-}
-
-void PedestrianStateSlideOnCar::ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    if (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
-        pedestrian->mCtlActions[ePedestrianAction_TurnRight])
-    {
-        float angularVelocity = gGameParams.mPedestrianTurnSpeedSlideOnCar * (pedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
-        pedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
-    }
-    else
-    {
-        pedestrian->mPhysicsComponent->SetAngularVelocity(0.0f);
-    }
-}
-
-void PedestrianStateSlideOnCar::ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * pedestrian->mPhysicsComponent->GetSignVector();
-    pedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateEnterCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) && 
-        pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
-    {
-        pedestrian->mCurrentCar->CloseDoor(doorIndex);
-    }
-
-    if (pedestrian->mCurrentAnimState.IsLastFrame())
-    {
-        SetInCarPositionToSeat(pedestrian);
-    }
-
-    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
-    {
-        pedestrian->ChangeState(&pedestrian->mStateDrivingCar, nullptr);
-        return;
-    }
-}
-
-void PedestrianStateEnterCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    if (transitionEvent == nullptr || transitionEvent->mID != ePedestrianStateEvent_ActionEnterCar)
-    {
-        debug_assert(false);
-        return;
-    }
-
-    if (transitionEvent->mActionEnterCar.mTargetCar == nullptr || 
-        transitionEvent->mActionEnterCar.mTargetSeat == eCarSeat_Any)
-    {
-        debug_assert(false);
-
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        return;
-    }
-
-    pedestrian->SetCarEntered(transitionEvent->mActionEnterCar.mTargetCar, transitionEvent->mActionEnterCar.mTargetSeat);
-    pedestrian->mPhysicsComponent->ClearForces();
-
-    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_EnterBike : eSpriteAnimID_Ped_EnterCar, eSpriteAnimLoop_None);
-
-    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    SetInCarPositionToDoor(pedestrian);
-
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
-    {
-        pedestrian->mCurrentCar->OpenDoor(doorIndex);
-    }
-
-    // pullout driver
-    if (Pedestrian* prevDriver = pedestrian->mCurrentCar->GetFirstPassenger(pedestrian->mCurrentSeat))
-    {
-        PedestrianStateEvent ev = PedestrianStateEvent::Get_PullOutFromCar(pedestrian);
-        prevDriver->ProcessEvent(ev);
-    }
-}
-
-bool PedestrianStateEnterCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
-    {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
-        return true;
-    }
-    return false;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateExitCar::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
-        pedestrian->mCurrentCar->IsDoorOpened(doorIndex))
-    {
-        pedestrian->mCurrentCar->CloseDoor(doorIndex);
-    }
-
-    if (!pedestrian->mCurrentAnimState.IsAnimationActive())
-    {
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, nullptr);
-        return;
-    }
-}
-
-void PedestrianStateExitCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_ExitBike : eSpriteAnimID_Ped_ExitCar, eSpriteAnimLoop_None);
-
-    int doorIndex = pedestrian->mCurrentCar->GetDoorIndexForSeat(pedestrian->mCurrentSeat);
-    if (pedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
-    {
-        pedestrian->mCurrentCar->OpenDoor(doorIndex);
-    }
-
-    SetInCarPositionToDoor(pedestrian);
-}
-
-void PedestrianStateExitCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    if (pedestrian->mCurrentCar)
-    {
-        cxx::angle_t currentCarAngle = pedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
-
-        pedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
-        pedestrian->SetCarExited();
-    }
-}
-
-bool PedestrianStateExitCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
-    {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
-        return true;
-    }
-    return false;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateDrivingCar::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    pedestrian->mCurrentCar->PutPassenger(pedestrian, pedestrian->mCurrentSeat);
-
-    bool isBike = (pedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    pedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_SittingOnBike : eSpriteAnimID_Ped_SittingInCar, eSpriteAnimLoop_None);
-}
-
-void PedestrianStateDrivingCar::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    pedestrian->mCurrentCar->RemovePassenger(pedestrian);
-    if (transitionEvent && transitionEvent->mID == ePedestrianStateEvent_PullOutFromCar)
-    {
-        SetInCarPositionToDoor(pedestrian);
-
-        pedestrian->SetCarExited();
-    }
-}
-
-bool PedestrianStateDrivingCar::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionLeaveCar)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateExitCar, &stateEvent);
-        return true;
-    }
-
-    if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateKnockedDown, &stateEvent);
-        return true;
-    }
-    if (stateEvent.mID == ePedestrianStateEvent_Die)
-    {
-        pedestrian->SetDead(stateEvent.mDie.mDeathReason);
-        return true;
-    }
-    return false;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PedestrianStateDead::ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime)
-{
-    // todo
-}
-
-void PedestrianStateDead::ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    pedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
-
-    // notify brains
-    if (pedestrian->mController)
-    {
-        pedestrian->mController->HandleCharacterDeath(pedestrian);
-    }
-}
-
-void PedestrianStateDead::ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent)
-{
-    // todo
-}
-
-bool PedestrianStateDead::ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent)
-{
-    if (stateEvent.mID == ePedestrianStateEvent_ActionResurrect)
-    {
-        pedestrian->ChangeState(&pedestrian->mStateStandingStill, &stateEvent);
+        ChangeState(ePedestrianState_Falling, stateEvent);
         return true;
     }
 

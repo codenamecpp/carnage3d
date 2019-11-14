@@ -4,252 +4,142 @@
 
 enum ePedestrianStateEvent
 {
-    ePedestrianStateEvent_ActionWeaponChange, 
-    ePedestrianStateEvent_ActionEnterCar, // brains requests to enter specific vehicle
-    ePedestrianStateEvent_ActionLeaveCar, // brains requests to exit current vehicle
-    ePedestrianStateEvent_ActionResurrect, // brains requests to arise from the dead
+    ePedestrianStateEvent_None, // dummy event
 
-    ePedestrianStateEvent_TakeDamageFromWeapon,
+    ePedestrianStateEvent_Spawn,
+    ePedestrianStateEvent_EnterCar,
+    ePedestrianStateEvent_ExitCar,
+    ePedestrianStateEvent_DamageFromWeapon,
     ePedestrianStateEvent_PullOutFromCar,
     ePedestrianStateEvent_Die,
     ePedestrianStateEvent_FallFromHeightStart,
     ePedestrianStateEvent_FallFromHeightEnd,
+    ePedestrianStateEvent_WeaponChange, 
 };
 
 // defines state event
 struct PedestrianStateEvent
 {
 public:
-    // build state event helpers
-    static PedestrianStateEvent Get_ActionWeaponChange(eWeaponType newWeapon);
-    static PedestrianStateEvent Get_ActionEnterCar(Vehicle* targetCar, eCarSeat targetSeat);
-    static PedestrianStateEvent Get_DamageFromWeapon(eWeaponType weaponType, Pedestrian* attacker);
-    static PedestrianStateEvent Get_PullOutFromCar(Pedestrian* attacker);
-    static PedestrianStateEvent Get_Die(ePedestrianDeathReason reason, Pedestrian* attacker);
-
     PedestrianStateEvent(ePedestrianStateEvent eventID): mID(eventID)
     {
     }
 public:
-    ePedestrianStateEvent mID;
+    const ePedestrianStateEvent mID;
 
-    // data for event ePedestrianStateEvent_ActionWeaponChange
-    struct _action_weapon_change
-    {
-        eWeaponType mWeapon;
-    };
-    _action_weapon_change mActionWeaponChange;
+    Vehicle* mTargetCar = nullptr;
+    eCarSeat mTargetSeat;
 
-    // data for event ePedestrianStateEvent_ActionEnterCar
-    struct _action_enter_car
-    {
-        Vehicle* mTargetCar = nullptr;
-        eCarSeat mTargetSeat;
-    };
-    _action_enter_car mActionEnterCar;
+    Pedestrian* mAttacker = nullptr;
+    eWeaponType mWeaponType;
 
-    // data for event ePedestrianStateEvent_TakeDamageFromWeapon
-    struct _damage_from_weapon
-    {
-        Pedestrian* mAttacker = nullptr;
-        eWeaponType mWeaponType;
-    };
-    _damage_from_weapon mDamageFromWeapon;
-
-    // data for event ePedestrianStateEvent_PullOutFromCar
-    struct _pullout_from_car
-    {
-        Pedestrian* mAttacker = nullptr;
-    };
-    _pullout_from_car mPullOutFromCar;
-
-    // data for event ePedestrianStateEvent_Die
-    struct _die
-    {
-        ePedestrianDeathReason mDeathReason;
-        Pedestrian* mAttacker = nullptr;
-    };
-    _die mDie;
+    ePedestrianDeathReason mDeathReason;
 };
 
-const unsigned int Sizeof_PedestrianStateEvent = sizeof(PedestrianStateEvent);
+//////////////////////////////////////////////////////////////////////////
 
-// defines basic pedestrian state
-class PedestrianBaseState: public cxx::noncopyable
+class PedestrianStatesManager: public cxx::noncopyable
 {
 public:
-    virtual ~PedestrianBaseState()
-    {
-    }
-    // get actual state identifier
-    inline ePedestrianState GetStateID() const { return mStateIdentifier; }
+    PedestrianStatesManager(Pedestrian* pedestrian);
 
-    // @param transitionEvent: optional, but some states will require for startup params
-    virtual void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
-    virtual void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) { }
-    virtual void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) { }
-    // send event to state
-    // @returns false if event is ignored by state
-    virtual bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) = 0;
+    // get current state identifier
+    inline ePedestrianState GetCurrentStateID() const { return mCurrentStateID; }
 
-protected:
-    PedestrianBaseState(ePedestrianState stateIdentifier) : mStateIdentifier(stateIdentifier) {}
-    virtual void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime);
-    virtual void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime);
+    // changes current pedestrian state, note that switching to the same state will be ignored
+    // @param nextState: New state
+    // @param transitionEvent: Transition event, it will be handled by new state on enter
+    void ChangeState(ePedestrianState nextState, const PedestrianStateEvent& evData);
 
-    // anims helpers
-    eSpriteAnimID DetectStandingStillAnimWithWeapon(eWeaponType weapon, bool shoots) const;
-    eSpriteAnimID DetectWalkingAnimWithWeapon(eWeaponType weapon, bool shoots) const;
-    eSpriteAnimID DetectRunningAnimWithWeapon(eWeaponType weapon, bool shoots) const;
+    // send event to current state
+    bool ProcessEvent(const PedestrianStateEvent& evData);
 
-    bool CanStartSlideOnCarState(Pedestrian* pedestrian) const;
-
-    void SetInCarPositionToDoor(Pedestrian* pedestrian);
-    void SetInCarPositionToSeat(Pedestrian* pedestrian);
+    // update current state
+    void ProcessFrame(Timespan deltaTime);
 
 private:
-    const ePedestrianState mStateIdentifier;
+    void InitFuncsTable();
+    
+    // state helpers
+    void ProcessRotateActions(Timespan deltaTime);
+    void ProcessMotionActions(Timespan deltaTime);
+    bool TryToShoot();
+
+    ePedestrianState GetNextIdleState(Timespan deltaTime);
+
+    // anims helpers
+    eSpriteAnimID DetectIdleAnimation() const;
+
+    bool CanStartSlideOnCarState() const;
+    void SetInCarPositionToDoor();
+    void SetInCarPositionToSeat();
+
+    // state unspecified
+    void StateUnspecified_ProcessFrame(Timespan deltaTime) {}
+    void StateUnspecified_ProcessEnter(const PedestrianStateEvent& stateEvent) {}
+    void StateUnspecified_ProcessExit() {}
+    bool StateUnspecified_ProcessEvent(const PedestrianStateEvent& stateEvent) { return false; }
+
+    // state dead
+    void StateDead_ProcessFrame(Timespan deltaTime);
+    void StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateDead_ProcessExit();
+    bool StateDead_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state driving car
+    void StateDriveCar_ProcessFrame(Timespan deltaTime);
+    void StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateDriveCar_ProcessExit();
+    bool StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state exit car
+    void StateExitCar_ProcessFrame(Timespan deltaTime);
+    void StateExitCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateExitCar_ProcessExit();
+    bool StateExitCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state enter car
+    void StateEnterCar_ProcessFrame(Timespan deltaTime);
+    void StateEnterCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateEnterCar_ProcessExit();
+    bool StateEnterCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state slide on car
+    void StateSlideCar_ProcessFrame(Timespan deltaTime);
+    void StateSlideCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateSlideCar_ProcessExit();
+    bool StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state knocked down
+    void StateKnockedDown_ProcessFrame(Timespan deltaTime);
+    void StateKnockedDown_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateKnockedDown_ProcessExit();
+    bool StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // state falling
+    void StateFalling_ProcessFrame(Timespan deltaTime);
+    void StateFalling_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateFalling_ProcessExit();
+    bool StateFalling_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // states standing, walking, running, shooting
+    void StateIdle_ProcessFrame(Timespan deltaTime);
+    void StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateIdle_ProcessExit();
+    bool StateIdle_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+private:
+
+    struct StateFuncs
+    {
+        void (PedestrianStatesManager::*pfStateEnter)(const PedestrianStateEvent& stateEvent);
+        void (PedestrianStatesManager::*pfStateExit)();
+        void (PedestrianStatesManager::*pfStateFrame)(Timespan deltaTime);
+        bool (PedestrianStatesManager::*pfStateEvent)(const PedestrianStateEvent& stateEvent);
+    };
+
+    Pedestrian* mPedestrian;
+    ePedestrianState mCurrentStateID = ePedestrianState_Unspecified;
+    StateFuncs mFuncsTable[ePedestrianState_COUNT];
 };
 
-// base class of idle state
-class PedestrianStateIdleBase: public PedestrianBaseState
-{
-protected:
-    PedestrianStateIdleBase(ePedestrianState stateIdentifier) : PedestrianBaseState(stateIdentifier) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-
-protected:
-    bool TryToShoot(Pedestrian* pedestrian);
-
-    PedestrianBaseState* GetNextIdleState(Pedestrian* pedestrian, Timespan deltaTime);
-};
-
-// process state ePedestrianState_StandingStill
-class PedestrianStateStandingStill: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateStandingStill() : PedestrianStateIdleBase(ePedestrianState_StandingStill) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_Walks
-class PedestrianStateWalks: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateWalks() : PedestrianStateIdleBase(ePedestrianState_Walks) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_Runs
-class PedestrianStateRuns: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateRuns() : PedestrianStateIdleBase(ePedestrianState_Runs) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_StandsAndShoots
-class PedestrianStateStandsAndShoots: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateStandsAndShoots() : PedestrianStateIdleBase(ePedestrianState_StandsAndShoots) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_WalksAndShoots
-class PedestrianStateWalksAndShoots: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateWalksAndShoots() : PedestrianStateIdleBase(ePedestrianState_WalksAndShoots) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_RunsAndShoots
-class PedestrianStateRunsAndShoots: public PedestrianStateIdleBase
-{
-public:
-    PedestrianStateRunsAndShoots() : PedestrianStateIdleBase(ePedestrianState_RunsAndShoots) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_Falling
-class PedestrianStateFalling: public PedestrianBaseState
-{
-public:
-    PedestrianStateFalling() : PedestrianBaseState(ePedestrianState_Falling) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_KnockedDown
-class PedestrianStateKnockedDown: public PedestrianBaseState
-{
-public:
-    PedestrianStateKnockedDown() : PedestrianBaseState(ePedestrianState_KnockedDown) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_SlideOnCar
-class PedestrianStateSlideOnCar: public PedestrianBaseState
-{
-public:
-    PedestrianStateSlideOnCar() : PedestrianBaseState(ePedestrianState_SlideOnCar) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-protected:
-    void ProcessRotateActions(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessMotionActions(Pedestrian* pedestrian, Timespan deltaTime) override;
-};
-
-// process state ePedestrianState_EnteringCar
-class PedestrianStateEnterCar: public PedestrianBaseState
-{
-public:
-    PedestrianStateEnterCar() : PedestrianBaseState(ePedestrianState_EnteringCar) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_ExitingCar
-class PedestrianStateExitCar: public PedestrianBaseState
-{
-public:
-    PedestrianStateExitCar() : PedestrianBaseState(ePedestrianState_ExitingCar) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_DrivingCar
-class PedestrianStateDrivingCar: public PedestrianBaseState
-{
-public:
-    PedestrianStateDrivingCar() : PedestrianBaseState(ePedestrianState_DrivingCar) {}
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};
-
-// process state ePedestrianState_Dead
-class PedestrianStateDead: public PedestrianBaseState
-{
-public:
-    PedestrianStateDead() : PedestrianBaseState(ePedestrianState_Dead) {}
-    void ProcessStateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
-    void ProcessStateEnter(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    void ProcessStateExit(Pedestrian* pedestrian, const PedestrianStateEvent* transitionEvent) override;
-    bool ProcessStateEvent(Pedestrian* pedestrian, const PedestrianStateEvent& stateEvent) override;
-};

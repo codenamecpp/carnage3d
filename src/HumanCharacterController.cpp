@@ -308,8 +308,7 @@ void HumanCharacterController::SwitchNextWeapon()
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionWeaponChange((eWeaponType) nextWeaponIndex);
-            mCharacter->ProcessEvent(ev);
+            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
             return;
         }
         nextWeaponIndex = (nextWeaponIndex + 1) % eWeaponType_COUNT;
@@ -323,8 +322,7 @@ void HumanCharacterController::SwitchPrevWeapon()
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionWeaponChange((eWeaponType) nextWeaponIndex);
-            mCharacter->ProcessEvent(ev);
+            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
             return;
         }
         nextWeaponIndex = nextWeaponIndex == 0 ? (eWeaponType_COUNT - 1) : (nextWeaponIndex - 1);
@@ -335,8 +333,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
-        PedestrianStateEvent ev { ePedestrianStateEvent_ActionLeaveCar };
-        mCharacter->ProcessEvent(ev);
+        mCharacter->ExitCar();
         return;
     }
 
@@ -358,8 +355,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
         eCarSeat carSeat = alternative ? eCarSeat_Passenger : eCarSeat_Driver;
         if (carBody->mReferenceCar->IsSeatPresent(carSeat))
         {
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_ActionEnterCar(carBody->mReferenceCar, carSeat);
-            mCharacter->ProcessEvent(ev);
+            mCharacter->EnterCar(carBody->mReferenceCar, carSeat);
         }
         return;
     }
@@ -378,9 +374,5 @@ void HumanCharacterController::Respawn()
 
     // todo : exit from car
 
-    PedestrianStateEvent evData { ePedestrianStateEvent_ActionResurrect };
-    mCharacter->ProcessEvent(evData);
-
-    // setup pos
-    mCharacter->EnterTheGame(mSpawnPosition, mCharacter->mPhysicsComponent->GetRotationAngle());
+    mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsComponent->GetRotationAngle());
 }

@@ -132,17 +132,6 @@ bool CarnageGame::Initialize()
 
 void CarnageGame::Deinit()
 {
-    // temporary
-    for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
-    {
-        if (mHumanSlot[icurr].mCharPedestrian &&
-            mHumanSlot[icurr].mCharPedestrian->IsCarPassenger())
-        {
-            PedestrianStateEvent ev = PedestrianStateEvent::Get_PullOutFromCar(nullptr);
-            mHumanSlot[icurr].mCharPedestrian->ProcessEvent(ev);
-        }
-    }
-
     gGameObjectsManager.Deinit();
     gPhysics.Deinit();
     gGameMap.Cleanup();

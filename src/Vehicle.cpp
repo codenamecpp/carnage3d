@@ -15,6 +15,7 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
     , mDamageDeltaBits()
     , mDrawHeight()
     , mCarsListNode(this)
+    , mRemapIndex(NO_REMAP)
 {
 }
 
@@ -28,17 +29,22 @@ Vehicle::~Vehicle()
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
 
-void Vehicle::EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
     debug_assert(mCarStyle);
     
-    mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation, mCarStyle);
-    debug_assert(mPhysicsComponent);
+    if (mPhysicsComponent == nullptr)
+    {
+        mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation, mCarStyle);
+        debug_assert(mPhysicsComponent);
+    }
+    else
+    {   mPhysicsComponent->SetPosition(startPosition, startRotation);
+    }
 
     mDead = false;
     mDamageDeltaBits = 0;
     mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
-    mRemapIndex = NO_REMAP;
 
     SetupDeltaAnimations();
 }
@@ -457,7 +463,7 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
 void Vehicle::UpdateDriving(Timespan deltaTime)
 {
     Pedestrian* carDriver = GetCarDriver();
-    if (carDriver == nullptr)
+    if (carDriver == nullptr || ePedestrianState_DrivingCar != carDriver->GetCurrentStateID())
     {
         mPhysicsComponent->ResetDriveState();
         return;

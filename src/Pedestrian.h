@@ -41,22 +41,38 @@ public:
     Pedestrian(GameObjectID id);
     ~Pedestrian();
 
-    // setup initial state when spawned or respawned on level
-    void EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation);
-
     void UpdateFrame(Timespan deltaTime) override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
-    // send event to pedestrian, it may be ignored depending on its current state
-    // @returns false if event not processed
-    bool ProcessEvent(const PedestrianStateEvent& eventData);
+    // setup initial state when spawned or respawned on level
+    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
+
+    // set current weapon type
+    void ChangeWeapon(eWeaponType weapon);
+
+    // instant kill, pedestrian will remain in dead state until respawn
+    // @param attacker: Optional
+    void Die(ePedestrianDeathReason deathReason, Pedestrian* attacker);
+
+    // get seat in car, pedestrian should be on foot
+    // @param targetCar: Cannot be null
+    // @param targetSeat: Cannot be 'any'
+    void EnterCar(Vehicle* targetCar, eCarSeat targetSeat);
+
+    // gracefully leave current vehicle
+    void ExitCar();
+
+    // get damage from weapon, it may be ignored depending on its current state
+    void ReceiveDamage(eWeaponType weapon, Pedestrian* attacker);
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;
     bool IsCarDriver() const;
+    bool IsEnteringOrExitingCar() const;
 
     // check if pedestrian is in specific state
+    bool IsIdle() const; // standing, shooting, walking
     bool IsStanding() const;
     bool IsShooting() const;
     bool IsWalking() const;
@@ -67,16 +83,9 @@ public:
     ePedestrianState GetCurrentStateID() const;
 
 private:
-    // changes current pedestrian state, note that switching to the same state will be ignored
-    // some of the states must be configured before switch
-    // @param nextState: New state, cannot be null
-    // @param transitionEvent: Transition event, it will be handled by new state on enter, optional
-    void ChangeState(PedestrianBaseState* nextState, const PedestrianStateEvent* transitionEvent);
-
     void SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
 
-    void SetCurrentWeapon(eWeaponType weapon);
     void SetDead(ePedestrianDeathReason deathReason);
 
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
@@ -84,43 +93,14 @@ private:
 
 private:
     friend class GameObjectsManager;
-
-    // all base states should have access to private data
-    friend class PedestrianStateIdleBase;
-    friend class PedestrianStateStandingStill;
-    friend class PedestrianStateWalks;
-    friend class PedestrianStateRuns;
-    friend class PedestrianStateStandsAndShoots;
-    friend class PedestrianStateWalksAndShoots;
-    friend class PedestrianStateRunsAndShoots;
-    friend class PedestrianStateFalling;
-    friend class PedestrianStateEnterCar;
-    friend class PedestrianStateExitCar;
-    friend class PedestrianStateSlideOnCar;
-    friend class PedestrianStateDrivingCar;
-    friend class PedestrianStateKnockedDown;
-    friend class PedestrianStateDead;
+    friend class PedPhysicsComponent;
+    friend class PedestrianStatesManager;
 
     eSpriteAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
-    PedestrianBaseState* mCurrentState = nullptr;
+    PedestrianStatesManager mStatesManager;
 
     Sprite2D mDrawSprite;
-
-    // all pedestrian states
-    PedestrianStateStandingStill mStateStandingStill;
-    PedestrianStateWalks mStateWalks;
-    PedestrianStateRuns mStateRuns;
-    PedestrianStateStandsAndShoots mStateStandsAndShoots;
-    PedestrianStateWalksAndShoots mStateWalksAndShoots;
-    PedestrianStateRunsAndShoots mStateRunsAndShoots;
-    PedestrianStateFalling mStateFalling;
-    PedestrianStateEnterCar mStateEnterCar;
-    PedestrianStateExitCar mStateExitCar;
-    PedestrianStateSlideOnCar mStateSlideOnCar;
-    PedestrianStateDrivingCar mStateDrivingCar;
-    PedestrianStateKnockedDown mStateKnockedDown;
-    PedestrianStateDead mStateDead;
 
     // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mPedsListNode;

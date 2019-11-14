@@ -361,7 +361,7 @@ void PhysicsManager::FixedStepGravity()
     for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
     {
         PedPhysicsComponent* physicsComponent = currPedestrian->mPhysicsComponent;
-        if (currPedestrian->IsCarPassenger())
+        if (currPedestrian->mCurrentCar)
         {
             glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsComponent->GetPosition();
 

@@ -30,12 +30,12 @@ public:
     Vehicle(GameObjectID id);
     ~Vehicle();
 
-    // setup initial state when spawned on level
-    void EnterTheGame(const glm::vec3& startPosition, cxx::angle_t startRotation);
-
     void UpdateFrame(Timespan deltaTime) override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
+
+    // setup initial state when spawned or respawned on level
+    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null
