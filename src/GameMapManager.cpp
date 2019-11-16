@@ -259,7 +259,7 @@ void GameMapManager::FixShiftedBits()
     }
 }
 
-float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
+float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
 {
     int mapcoordx = (int) position.x;
     int mapcoordy = (int) position.z;
@@ -282,7 +282,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position) const
             break;
         }
 
-        if (blockData->mGroundType == eGroundType_Air || blockData->mGroundType == eGroundType_Water) // fall through non solid block
+        if (blockData->mGroundType == eGroundType_Air || (blockData->mGroundType == eGroundType_Water && excludeWater)) // fall through non solid block
         {
             height -= MAP_BLOCK_LENGTH;
             --maplayer;

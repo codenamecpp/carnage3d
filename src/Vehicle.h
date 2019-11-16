@@ -37,6 +37,9 @@ public:
     // setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
+    // todo: implement car damage system
+    void ReceiveDamageFromWater();
+
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null
     // @param carSeat: Target seat, does not do check if seat is already occupied, cannot be 'any'

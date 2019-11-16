@@ -485,3 +485,14 @@ void Vehicle::UpdateDriving(Timespan deltaTime)
     }
     mPhysicsComponent->SetSteering(currentSteering);
 }
+
+void Vehicle::ReceiveDamageFromWater()
+{
+    mDead = true;
+
+    // kill passengers inside
+    for (Pedestrian* currentPed: mPassengers)
+    {
+        currentPed->Die(ePedestrianDeathReason_Drowned, nullptr);
+    }
+}

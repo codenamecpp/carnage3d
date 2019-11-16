@@ -130,6 +130,7 @@ public:
     ~CarPhysicsComponent();
 
     void ResetDriveState();
+    void HandleDrowning();
 
     void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;

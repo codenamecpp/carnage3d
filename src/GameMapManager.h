@@ -31,7 +31,7 @@ public:
 
     // get real height at specified map point
     // @param position: Current position on map
-    float GetHeightAtPosition(const glm::vec3& position) const;
+    float GetHeightAtPosition(const glm::vec3& position, bool excludeWater = true) const;
 
     // get intersection with solid blocks on specific map layer, ignores slopes
     // @param origin: Start position

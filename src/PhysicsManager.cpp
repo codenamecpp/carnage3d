@@ -342,19 +342,33 @@ void PhysicsManager::FixedStepGravity()
     for (Vehicle* currCar: gGameObjectsManager.mCarsList)
     {
         CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
-        glm::vec3 position = physicsComponent->GetPosition();
-        // process falling
-        float newHeight = gGameMap.GetHeightAtPosition(position);
 
-        //bool onTheGround = newHeight > (position.y - 0.01f);
-        //if (!onTheGround)
-        //{
-        //    physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
-        //}
-        //else
-        //{
+        if (physicsComponent->mDrowning) // just ignore
+            continue;
+
+        glm::vec3 position = physicsComponent->GetPosition();
+
+        // process falling
+        float newHeight = gGameMap.GetHeightAtPosition(position, false);
+
+        bool onTheGround = newHeight > (position.y - 0.01f);
+        if (!onTheGround)
+        {
+            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+        }
+        else
+        {
             physicsComponent->mHeight = newHeight;
-        //}
+        }
+
+        // process drowning
+        glm::ivec3 iposition = physicsComponent->GetPosition();
+        BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
+
+        if (currentTile->mGroundType == eGroundType_Water)
+        {
+            physicsComponent->HandleDrowning();
+        }
     }
 
     // pedestrians
@@ -374,20 +388,8 @@ void PhysicsManager::FixedStepGravity()
 
         glm::vec3 position = physicsComponent->GetPosition();
 
-        // process drowning
-        {
-            glm::ivec3 iposition = position;
-            BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
-
-            if (currentTile->mGroundType == eGroundType_Water)
-            {
-                physicsComponent->HandleDrowning();
-                continue; // skip gravity for current ped
-            }
-        }
-
         // process fall
-        float newHeight = gGameMap.GetHeightAtPosition(position);
+        float newHeight = gGameMap.GetHeightAtPosition(position, false);
 
         bool onTheGround = newHeight > (position.y - 0.01f);
         if (physicsComponent->mFalling)
@@ -413,6 +415,16 @@ void PhysicsManager::FixedStepGravity()
         else
         {
             physicsComponent->mHeight = newHeight;
+        }
+
+        // process drowning
+        glm::ivec3 iposition = physicsComponent->GetPosition();
+        BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
+
+        if (currentTile->mGroundType == eGroundType_Water)
+        {
+            physicsComponent->HandleDrowning();
+            continue; // skip gravity for current ped
         }
     }
 }

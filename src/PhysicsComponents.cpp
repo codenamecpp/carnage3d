@@ -337,6 +337,17 @@ void CarPhysicsComponent::ResetDriveState()
     SetHandBrake(false);
 }
 
+void CarPhysicsComponent::HandleDrowning()
+{
+    if (mDrowning || mReferenceCar->mDead) // todo
+        return;
+
+    mDrowning = true;
+    mHeight -= (MAP_BLOCK_LENGTH * 2.0f); // force position underwater
+    // notify
+    mReferenceCar->ReceiveDamageFromWater();
+}
+
 void CarPhysicsComponent::SimulationStep()
 {
     UpdateWheelFriction(eCarWheelID_Drive);
