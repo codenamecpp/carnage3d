@@ -108,6 +108,11 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateKnockedDown_ProcessExit, 
         &PedestrianStatesManager::StateKnockedDown_ProcessFrame, 
         &PedestrianStatesManager::StateKnockedDown_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Drowning] = {&PedestrianStatesManager::StateDrowning_ProcessEnter, 
+        &PedestrianStatesManager::StateDrowning_ProcessExit, 
+        &PedestrianStatesManager::StateDrowning_ProcessFrame, 
+        &PedestrianStatesManager::StateDrowning_ProcessEvent};
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -515,6 +520,12 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
         return true;
     }
 
+    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    {
+        ChangeState(ePedestrianState_Drowning, stateEvent);
+        return true;
+    }
+
     return false;
 }
 
@@ -570,6 +581,12 @@ bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStat
         return true;
     }
 
+    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    {
+        ChangeState(ePedestrianState_Drowning, stateEvent);
+        return true;
+    }
+
     return false;
 }
 
@@ -590,9 +607,7 @@ void PedestrianStatesManager::StateFalling_ProcessExit()
 }
 
 bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    // todo: detect drowning
-    
+{    
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
     {
         // die
@@ -603,6 +618,12 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
         }
 
         ChangeState(ePedestrianState_StandingStill, stateEvent);
+        return true;
+    }
+
+    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    {
+        ChangeState(ePedestrianState_Drowning, stateEvent);
         return true;
     }
 
@@ -681,5 +702,40 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
         return true;
     }
 
+    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    {
+        ChangeState(ePedestrianState_Drowning, stateEvent);
+        return true;
+    }
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateDrowning_ProcessFrame(Timespan deltaTime)
+{
+    if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime.ToSeconds())
+    {
+        // force current position to underwater
+        glm::vec3 currentPosition = mPedestrian->mPhysicsComponent->GetPosition();
+        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, MAP_BLOCK_LENGTH * 2.0f, 0.0f});
+
+        mPedestrian->Die(ePedestrianDeathReason_Drowned, nullptr);
+        return;
+    }
+}
+
+void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+    mPedestrian->SetAnimation(eSpriteAnimID_Ped_Drowning, eSpriteAnimLoop_FromStart);
+}
+
+void PedestrianStatesManager::StateDrowning_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateDrowning_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
     return false;
 }

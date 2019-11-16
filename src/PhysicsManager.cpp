@@ -369,7 +369,22 @@ void PhysicsManager::FixedStepGravity()
             continue;
         }
 
+        if (physicsComponent->mDrowning) // just ignore
+            continue;
+
         glm::vec3 position = physicsComponent->GetPosition();
+
+        // process drowning
+        {
+            glm::ivec3 iposition = position;
+            BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
+
+            if (currentTile->mGroundType == eGroundType_Water)
+            {
+                physicsComponent->HandleDrowning();
+                continue; // skip gravity for current ped
+            }
+        }
 
         // process fall
         float newHeight = gGameMap.GetHeightAtPosition(position);

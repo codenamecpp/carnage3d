@@ -329,6 +329,7 @@ impl_enum_strings(eSpriteAnimID)
     {eSpriteAnimID_Ped_EnterCar, "ped_enter_car"},
     {eSpriteAnimID_Ped_SittingInCar, "ped_sitting_in_car"},
     {eSpriteAnimID_Ped_ExitBike, "ped_exit_bike"},
+    {eSpriteAnimID_Ped_Drowning, "drowning"},
     {eSpriteAnimID_Ped_EnterBike, "ped_enter_bike"},
     {eSpriteAnimID_Ped_SittingOnBike, "ped_sitting_on_bike"},
     {eSpriteAnimID_Ped_FallLong, "ped_fall_long"},
@@ -405,6 +406,7 @@ impl_enum_strings(ePedestrianState)
     {ePedestrianState_SlideOnCar, "slide_on_car"},
     {ePedestrianState_Dead, "dead"},
     {ePedestrianState_KnockedDown, "knocked_down"},
+    {ePedestrianState_Drowning, "drowning"},
 };
 
 impl_enum_strings(eConsoleLineType)

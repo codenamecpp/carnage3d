@@ -130,6 +130,13 @@ glm::vec2 PhysicsComponent::GetLocalPoint(const glm::vec2& worldPosition) const
     return glm::vec2 { b2LocalPosition.x / PHYSICS_SCALE, b2LocalPosition.y / PHYSICS_SCALE };
 }
 
+void PhysicsComponent::SetRespawned()
+{
+    mFalling = false;
+    mDrowning = false;
+    mFallDistance = 0.0f;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3& startPosition, cxx::angle_t startRotation)
@@ -232,6 +239,18 @@ void PedPhysicsComponent::HandleCarContactEnd()
         debug_assert(false);
         mContactingCars = 0;
     }
+}
+
+void PedPhysicsComponent::HandleDrowning()
+{
+    if (mDrowning || mReferencePed->IsDead())
+        return;
+
+    mDrowning = true;
+
+    // notify
+    PedestrianStateEvent evData { ePedestrianStateEvent_Drowning };
+    mReferencePed->mStatesManager.ProcessEvent(evData);
 }
 
 bool PedPhysicsComponent::ShouldCollideWith(unsigned int bits) const

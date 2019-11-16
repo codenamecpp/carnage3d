@@ -676,6 +676,7 @@ enum eSpriteAnimID
     eSpriteAnimID_Ped_FallLong,
     eSpriteAnimID_Ped_SlideUnderTheCar,
     eSpriteAnimID_Ped_StandingStill, // no weapons
+    eSpriteAnimID_Ped_Drowning,
     eSpriteAnimID_Ped_JumpOntoCar,
     eSpriteAnimID_Ped_SlideOnCar,
     eSpriteAnimID_Ped_DropOffCarSliding,
@@ -763,6 +764,7 @@ enum ePedestrianState
     ePedestrianState_SlideOnCar,
     ePedestrianState_Dead,
     ePedestrianState_KnockedDown,
+    ePedestrianState_Drowning,
     ePedestrianState_COUNT
 };
 

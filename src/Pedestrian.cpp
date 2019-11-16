@@ -55,6 +55,7 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     }
     else
     {
+        mPhysicsComponent->SetRespawned();
         mPhysicsComponent->SetPosition(startPosition, startRotation);
     }
 

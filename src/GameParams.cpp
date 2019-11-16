@@ -18,6 +18,7 @@ void GameParams::LoadDefaults()
     mPedestrianSpotTheCarDistance = MAP_BLOCK_LENGTH * 3.0f;
     mPedestrianKnockedDownTime = 3.0f;
     mPedestrianFallDeathHeight = MAP_BLOCK_LENGTH * 2.0f;
+    mPedestrianDrowningTime = 0.05f;
 
     // weapons time todo
     mWeaponsRechargeTime[eWeaponType_Fists] = 1.0f / 2.0f;

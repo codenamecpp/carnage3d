@@ -21,6 +21,7 @@ public:
     float mPedestrianKnockedDownTime; // knocked down duration after the punch in face, seconds
     float mPedestrianSpotTheCarDistance; // max distance to detect the car
     float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death
+    float mPedestrianDrowningTime; // specified in seconds
     float mWeaponsRechargeTime[eWeaponType_COUNT]; // weapons reload time specified in seconds
     float mWeaponsDistance[eWeaponType_COUNT]; // specified in blocks
 };

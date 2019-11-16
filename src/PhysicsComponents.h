@@ -17,6 +17,7 @@ public:
         // since game using 2d physics engine, the forces and impulses are not affected on 3rd dimension
         // gravity is simulated roughly
 
+    bool mDrowning = false; // fall into water
     bool mFalling = false; // falling from a height
     float mFallDistance = 0.0f; // specified if mFalling is set
 
@@ -57,6 +58,8 @@ public:
     void AddAngularImpulse(float impulse);
     // cancel currently active forces
     void ClearForces();
+    // clear state
+    void SetRespawned();
 
 protected:
     // only derived classes could be instantiated
@@ -90,6 +93,7 @@ public:
     void HandleFallEnd();
     void HandleCarContactBegin();
     void HandleCarContactEnd();
+    void HandleDrowning();
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;

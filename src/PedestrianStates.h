@@ -15,6 +15,7 @@ enum ePedestrianStateEvent
     ePedestrianStateEvent_FallFromHeightStart,
     ePedestrianStateEvent_FallFromHeightEnd,
     ePedestrianStateEvent_WeaponChange, 
+    ePedestrianStateEvent_Drowning,
 };
 
 // defines state event
@@ -127,6 +128,12 @@ private:
     void StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent);
     void StateIdle_ProcessExit();
     bool StateIdle_ProcessEvent(const PedestrianStateEvent& stateEvent);
+
+    // states drowning
+    void StateDrowning_ProcessFrame(Timespan deltaTime);
+    void StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateDrowning_ProcessExit();
+    bool StateDrowning_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
 private:
 
