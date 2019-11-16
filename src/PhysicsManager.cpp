@@ -343,9 +343,6 @@ void PhysicsManager::FixedStepGravity()
     {
         CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
 
-        if (physicsComponent->mWaterContact) // just ignore
-            continue;
-
         glm::vec3 position = physicsComponent->GetPosition();
 
         // process falling
@@ -361,7 +358,10 @@ void PhysicsManager::FixedStepGravity()
             physicsComponent->mHeight = newHeight;
         }
 
-        // process drowning
+        if (physicsComponent->mWaterContact)
+            continue;
+
+        // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();
         BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
 
@@ -382,9 +382,6 @@ void PhysicsManager::FixedStepGravity()
             physicsComponent->mHeight = carPosition.y;
             continue;
         }
-
-        if (physicsComponent->mWaterContact) // just ignore
-            continue;
 
         glm::vec3 position = physicsComponent->GetPosition();
 
@@ -417,14 +414,16 @@ void PhysicsManager::FixedStepGravity()
             physicsComponent->mHeight = newHeight;
         }
 
-        // process drowning
+        if (physicsComponent->mWaterContact)
+            continue;
+
+        // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();
         BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
 
         if (currentTile->mGroundType == eGroundType_Water)
         {
             physicsComponent->HandleWaterContact();
-            continue; // skip gravity for current ped
         }
     }
 }
