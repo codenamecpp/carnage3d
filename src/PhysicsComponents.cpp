@@ -133,7 +133,7 @@ glm::vec2 PhysicsComponent::GetLocalPoint(const glm::vec2& worldPosition) const
 void PhysicsComponent::SetRespawned()
 {
     mFalling = false;
-    mDrowning = false;
+    mWaterContact = false;
     mFallDistance = 0.0f;
 }
 
@@ -241,15 +241,15 @@ void PedPhysicsComponent::HandleCarContactEnd()
     }
 }
 
-void PedPhysicsComponent::HandleDrowning()
+void PedPhysicsComponent::HandleWaterContact()
 {
-    if (mDrowning || mReferencePed->IsDead())
+    if (mWaterContact)
         return;
 
-    mDrowning = true;
+    mWaterContact = true;
 
     // notify
-    PedestrianStateEvent evData { ePedestrianStateEvent_Drowning };
+    PedestrianStateEvent evData { ePedestrianStateEvent_WaterContact };
     mReferencePed->mStatesManager.ProcessEvent(evData);
 }
 
@@ -337,12 +337,16 @@ void CarPhysicsComponent::ResetDriveState()
     SetHandBrake(false);
 }
 
-void CarPhysicsComponent::HandleDrowning()
+void CarPhysicsComponent::HandleWaterContact()
 {
-    if (mDrowning || mReferenceCar->mDead) // todo
+    if (mWaterContact || mReferenceCar->mDead) // todo
         return;
 
-    mDrowning = true;
+    mWaterContact = true;
+    // boats aren't receive damage from water
+    if (mReferenceCar->mCarStyle->mVType == eCarVType_Boat)
+        return;
+
     mHeight -= (MAP_BLOCK_LENGTH * 2.0f); // force position underwater
     // notify
     mReferenceCar->ReceiveDamageFromWater();

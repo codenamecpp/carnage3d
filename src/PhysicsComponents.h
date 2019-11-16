@@ -17,7 +17,7 @@ public:
         // since game using 2d physics engine, the forces and impulses are not affected on 3rd dimension
         // gravity is simulated roughly
 
-    bool mDrowning = false; // fall into water
+    bool mWaterContact = false; // fall into water
     bool mFalling = false; // falling from a height
     float mFallDistance = 0.0f; // specified if mFalling is set
 
@@ -93,7 +93,7 @@ public:
     void HandleFallEnd();
     void HandleCarContactBegin();
     void HandleCarContactEnd();
-    void HandleDrowning();
+    void HandleWaterContact();
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;
@@ -130,7 +130,7 @@ public:
     ~CarPhysicsComponent();
 
     void ResetDriveState();
-    void HandleDrowning();
+    void HandleWaterContact();
 
     void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;

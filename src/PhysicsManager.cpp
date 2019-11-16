@@ -343,7 +343,7 @@ void PhysicsManager::FixedStepGravity()
     {
         CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
 
-        if (physicsComponent->mDrowning) // just ignore
+        if (physicsComponent->mWaterContact) // just ignore
             continue;
 
         glm::vec3 position = physicsComponent->GetPosition();
@@ -367,7 +367,7 @@ void PhysicsManager::FixedStepGravity()
 
         if (currentTile->mGroundType == eGroundType_Water)
         {
-            physicsComponent->HandleDrowning();
+            physicsComponent->HandleWaterContact();
         }
     }
 
@@ -383,7 +383,7 @@ void PhysicsManager::FixedStepGravity()
             continue;
         }
 
-        if (physicsComponent->mDrowning) // just ignore
+        if (physicsComponent->mWaterContact) // just ignore
             continue;
 
         glm::vec3 position = physicsComponent->GetPosition();
@@ -423,7 +423,7 @@ void PhysicsManager::FixedStepGravity()
 
         if (currentTile->mGroundType == eGroundType_Water)
         {
-            physicsComponent->HandleDrowning();
+            physicsComponent->HandleWaterContact();
             continue; // skip gravity for current ped
         }
     }

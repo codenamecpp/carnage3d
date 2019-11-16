@@ -39,80 +39,80 @@ void PedestrianStatesManager::ProcessFrame(Timespan deltaTime)
 
 void PedestrianStatesManager::InitFuncsTable()
 {
-    mFuncsTable[ePedestrianState_Unspecified] = {&PedestrianStatesManager::StateUnspecified_ProcessEnter, 
-        &PedestrianStatesManager::StateUnspecified_ProcessExit, 
-        &PedestrianStatesManager::StateUnspecified_ProcessFrame, 
-        &PedestrianStatesManager::StateUnspecified_ProcessEvent};
+    mFuncsTable[ePedestrianState_Unspecified] = {&PedestrianStatesManager::StateDummy_ProcessEnter, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessFrame, 
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 
     mFuncsTable[ePedestrianState_StandingStill] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_StandsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Walks] = {&PedestrianStatesManager::StateIdle_ProcessEnter,
-        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Runs] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateIdle_ProcessExit,
+        &PedestrianStatesManager::StateDummy_ProcessExit,
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_WalksAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_RunsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateIdle_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Falling] = {&PedestrianStatesManager::StateFalling_ProcessEnter, 
         &PedestrianStatesManager::StateFalling_ProcessExit, 
-        &PedestrianStatesManager::StateFalling_ProcessFrame, 
+        &PedestrianStatesManager::StateDummy_ProcessFrame, 
         &PedestrianStatesManager::StateFalling_ProcessEvent};
 
     mFuncsTable[ePedestrianState_EnteringCar] = {&PedestrianStatesManager::StateEnterCar_ProcessEnter, 
-        &PedestrianStatesManager::StateEnterCar_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateEnterCar_ProcessFrame, 
-        &PedestrianStatesManager::StateEnterCar_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 
     mFuncsTable[ePedestrianState_ExitingCar] =  {&PedestrianStatesManager::StateExitCar_ProcessEnter, 
         &PedestrianStatesManager::StateExitCar_ProcessExit, 
         &PedestrianStatesManager::StateExitCar_ProcessFrame, 
-        &PedestrianStatesManager::StateExitCar_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 
     mFuncsTable[ePedestrianState_DrivingCar] = {&PedestrianStatesManager::StateDriveCar_ProcessEnter, 
-        &PedestrianStatesManager::StateDriveCar_ProcessExit, 
-        &PedestrianStatesManager::StateDriveCar_ProcessFrame, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessFrame, 
         &PedestrianStatesManager::StateDriveCar_ProcessEvent};
 
     mFuncsTable[ePedestrianState_SlideOnCar] = {&PedestrianStatesManager::StateSlideCar_ProcessEnter, 
-        &PedestrianStatesManager::StateSlideCar_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateSlideCar_ProcessFrame, 
         &PedestrianStatesManager::StateSlideCar_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Dead] = {&PedestrianStatesManager::StateDead_ProcessEnter, 
-        &PedestrianStatesManager::StateDead_ProcessExit, 
-        &PedestrianStatesManager::StateDead_ProcessFrame, 
-        &PedestrianStatesManager::StateDead_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessFrame, 
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 
     mFuncsTable[ePedestrianState_KnockedDown] = {&PedestrianStatesManager::StateKnockedDown_ProcessEnter, 
-        &PedestrianStatesManager::StateKnockedDown_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateKnockedDown_ProcessFrame, 
         &PedestrianStatesManager::StateKnockedDown_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Drowning] = {&PedestrianStatesManager::StateDrowning_ProcessEnter, 
-        &PedestrianStatesManager::StateDrowning_ProcessExit, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateDrowning_ProcessFrame, 
-        &PedestrianStatesManager::StateDrowning_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -315,10 +315,6 @@ void PedestrianStatesManager::SetInCarPositionToSeat()
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateDead_ProcessFrame(Timespan deltaTime)
-{
-}
-
 void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
@@ -326,29 +322,13 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     mPedestrian->SetDead(stateEvent.mDeathReason);
 }
 
-void PedestrianStatesManager::StateDead_ProcessExit()
-{
-}
-
-bool PedestrianStatesManager::StateDead_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    return false;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateDriveCar_ProcessFrame(Timespan deltaTime)
-{
-}
 
 void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_SittingOnBike : eSpriteAnimID_Ped_SittingInCar, eSpriteAnimLoop_None);
-}
-
-void PedestrianStatesManager::StateDriveCar_ProcessExit()
-{
 }
 
 bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -405,11 +385,6 @@ void PedestrianStatesManager::StateExitCar_ProcessExit()
     }
 }
 
-bool PedestrianStatesManager::StateExitCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    return false;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStatesManager::StateEnterCar_ProcessFrame(Timespan deltaTime)
@@ -460,15 +435,6 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
     }
 }
 
-void PedestrianStatesManager::StateEnterCar_ProcessExit()
-{
-}
-
-bool PedestrianStatesManager::StateEnterCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    return false;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStatesManager::StateSlideCar_ProcessFrame(Timespan deltaTime)
@@ -508,10 +474,6 @@ void PedestrianStatesManager::StateSlideCar_ProcessEnter(const PedestrianStateEv
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
 }
 
-void PedestrianStatesManager::StateSlideCar_ProcessExit()
-{
-}
-
 bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
@@ -520,7 +482,7 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
         return true;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    if (stateEvent.mID == ePedestrianStateEvent_WaterContact)
     {
         ChangeState(ePedestrianState_Drowning, stateEvent);
         return true;
@@ -569,10 +531,6 @@ void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStat
     mPedestrian->mPhysicsComponent->AddLinearImpulse(-mPedestrian->mPhysicsComponent->GetSignVector() * impulse);
 }
 
-void PedestrianStatesManager::StateKnockedDown_ProcessExit()
-{
-}
-
 bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
@@ -581,7 +539,7 @@ bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStat
         return true;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    if (stateEvent.mID == ePedestrianStateEvent_WaterContact)
     {
         ChangeState(ePedestrianState_Drowning, stateEvent);
         return true;
@@ -591,10 +549,6 @@ bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStat
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-void PedestrianStatesManager::StateFalling_ProcessFrame(Timespan deltaTime)
-{
-}
 
 void PedestrianStatesManager::StateFalling_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
@@ -621,7 +575,7 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
         return true;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    if (stateEvent.mID == ePedestrianStateEvent_WaterContact)
     {
         ChangeState(ePedestrianState_Drowning, stateEvent);
         return true;
@@ -677,10 +631,6 @@ void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent&
     mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
-void PedestrianStatesManager::StateIdle_ProcessExit()
-{
-}
-
 bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
@@ -702,7 +652,7 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
         return true;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_Drowning)
+    if (stateEvent.mID == ePedestrianStateEvent_WaterContact)
     {
         ChangeState(ePedestrianState_Drowning, stateEvent);
         return true;
@@ -729,13 +679,4 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame(Timespan deltaTime)
 void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_Drowning, eSpriteAnimLoop_FromStart);
-}
-
-void PedestrianStatesManager::StateDrowning_ProcessExit()
-{
-}
-
-bool PedestrianStatesManager::StateDrowning_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    return false;
 }
