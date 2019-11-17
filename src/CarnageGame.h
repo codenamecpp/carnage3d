@@ -47,6 +47,10 @@ public:
     void SetupHumanCharacter(int playerIndex, Pedestrian* pedestrian);
     void SetupScreenLayout(int playersCount);
 
+    // get player index from human char controller
+    // @returns -1 on error
+    int GetPlayerIndex(const HumanCharacterController* controller) const;
+
 private:
     bool SetInputActionsFromConfig();
 };

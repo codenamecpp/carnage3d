@@ -6,6 +6,7 @@
 #include "PhysicsDefs.h"
 #include "Vehicle.h"
 #include "GameMapManager.h"
+#include "CarnageGame.h"
 
 static const Timespan PlayerCharacterRespawnTime = Timespan::FromSeconds(10.0f);
 
@@ -363,9 +364,13 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 
 void HumanCharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
 {
+    debug_assert(mCharacter->IsDead());
     mRespawnTime = PlayerCharacterRespawnTime;
 
     // todo: show WASTED
+
+    int playerIndex = 1 + gCarnageGame.GetPlayerIndex(this);
+    gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", playerIndex, cxx::enum_to_string(mCharacter->mDeathReason));
 }
 
 void HumanCharacterController::Respawn()

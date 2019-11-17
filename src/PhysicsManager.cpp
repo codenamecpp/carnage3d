@@ -343,6 +343,9 @@ void PhysicsManager::FixedStepGravity()
     {
         CarPhysicsComponent* physicsComponent = currCar->mPhysicsComponent;
 
+        if (physicsComponent->mWaterContact)
+            continue;
+
         glm::vec3 position = physicsComponent->GetPosition();
 
         // process falling
@@ -357,9 +360,6 @@ void PhysicsManager::FixedStepGravity()
         {
             physicsComponent->mHeight = newHeight;
         }
-
-        if (physicsComponent->mWaterContact)
-            continue;
 
         // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();
@@ -382,6 +382,9 @@ void PhysicsManager::FixedStepGravity()
             physicsComponent->mHeight = carPosition.y;
             continue;
         }
+
+        if (physicsComponent->mWaterContact)
+            continue;
 
         glm::vec3 position = physicsComponent->GetPosition();
 
@@ -413,9 +416,6 @@ void PhysicsManager::FixedStepGravity()
         {
             physicsComponent->mHeight = newHeight;
         }
-
-        if (physicsComponent->mWaterContact)
-            continue;
 
         // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();

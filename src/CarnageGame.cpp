@@ -348,3 +348,13 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         gRenderManager.AttachRenderView(&mHumanSlot[icurr].mCharView);
     }
 }
+
+int CarnageGame::GetPlayerIndex(const HumanCharacterController* controller) const
+{
+    for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
+    {
+        if (&mHumanSlot[icurr].mCharController == controller)
+            return icurr;
+    }
+    return -1;
+}

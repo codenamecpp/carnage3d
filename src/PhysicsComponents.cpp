@@ -348,6 +348,7 @@ void CarPhysicsComponent::HandleWaterContact()
         return;
 
     mHeight -= (MAP_BLOCK_LENGTH * 2.0f); // force position underwater
+    ClearForces();
     // notify
     mReferenceCar->ReceiveDamageFromWater();
 }
