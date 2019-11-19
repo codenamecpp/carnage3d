@@ -40,14 +40,13 @@ void SpriteBatch::DrawSprite(const Sprite2D& sourceSprite)
     mSpritesList.push_back(sourceSprite);
 }
 
-void SpriteBatch::Flush(RenderView* renderview)
+void SpriteBatch::Flush()
 {
-    debug_assert(renderview);
     if (!mSpritesList.empty())
     {
         SortSpritesList();
         GenerateSpritesBatches();
-        RenderSpritesBatches(renderview);
+        RenderSpritesBatches();
     }
     Clear();
 }
@@ -102,31 +101,46 @@ void SpriteBatch::GenerateSpritesBatches()
 
         vertexData[vertexOffset + 0].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 0].mTexcoord.y = sprite.mTextureRegion.mV0;
-        vertexData[vertexOffset + 0].mPosition.y = sprite.mHeight;
         vertexData[vertexOffset + 0].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 1].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 1].mTexcoord.y = sprite.mTextureRegion.mV0;
-        vertexData[vertexOffset + 1].mPosition.y = sprite.mHeight;
         vertexData[vertexOffset + 1].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 2].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 2].mTexcoord.y = sprite.mTextureRegion.mV1;
-        vertexData[vertexOffset + 2].mPosition.y = sprite.mHeight;
         vertexData[vertexOffset + 2].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 3].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTextureRegion.mV1;
-        vertexData[vertexOffset + 3].mPosition.y = sprite.mHeight;
         vertexData[vertexOffset + 3].mClutIndex = sprite.mPaletteIndex;
 
         glm::vec2 positions[4];
         sprite.GetCorners(positions);
 
-        for (int i = 0; i < 4; ++i)
+        if (mDepthAxis == DepthAxis_Y)
         {
-            vertexData[vertexOffset + i].mPosition.x = positions[i].x;
-            vertexData[vertexOffset + i].mPosition.z = positions[i].y;
+            for (int i = 0; i < 4; ++i)
+            {
+                vertexData[vertexOffset + i].mPosition.x = positions[i].x;
+                vertexData[vertexOffset + i].mPosition.z = positions[i].y;
+            }
+            vertexData[vertexOffset + 0].mPosition.y = sprite.mHeight;
+            vertexData[vertexOffset + 1].mPosition.y = sprite.mHeight;
+            vertexData[vertexOffset + 2].mPosition.y = sprite.mHeight;
+            vertexData[vertexOffset + 3].mPosition.y = sprite.mHeight;
+        }
+        else
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                vertexData[vertexOffset + i].mPosition.x = positions[i].x;
+                vertexData[vertexOffset + i].mPosition.y = positions[i].y;
+            }
+            vertexData[vertexOffset + 0].mPosition.z = sprite.mHeight;
+            vertexData[vertexOffset + 1].mPosition.z = sprite.mHeight;
+            vertexData[vertexOffset + 2].mPosition.z = sprite.mHeight;
+            vertexData[vertexOffset + 3].mPosition.z = sprite.mHeight;
         }
 
         // setup indices
@@ -140,15 +154,8 @@ void SpriteBatch::GenerateSpritesBatches()
     }
 }
 
-void SpriteBatch::RenderSpritesBatches(RenderView* renderview)
+void SpriteBatch::RenderSpritesBatches()
 {
-    RenderStates cityMeshRenderStates;
-    cityMeshRenderStates.Disable(RenderStateFlags_FaceCulling);
-    gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
-
-    gRenderManager.mSpritesProgram.Activate();
-    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
-
     SpriteVertex3D_Format vFormat;
     mTrimeshBuffer.SetVertices(Sizeof_SpriteVertex3D * mDrawVertices.size(), mDrawVertices.data());
     mTrimeshBuffer.SetIndices(Sizeof_DrawIndex * mDrawIndices.size(), mDrawIndices.data());
@@ -161,6 +168,11 @@ void SpriteBatch::RenderSpritesBatches(RenderView* renderview)
         unsigned int idxBufferOffset = Sizeof_DrawIndex * currBatch.mFirstIndex;
         gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, idxBufferOffset, currBatch.mIndexCount);
     }
+}
 
-    gRenderManager.mSpritesProgram.Deactivate();
+void SpriteBatch::BeginBatch(DepthAxis depthAxis)
+{
+    Clear();
+
+    mDepthAxis = depthAxis;
 }

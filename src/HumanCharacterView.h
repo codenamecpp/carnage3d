@@ -4,11 +4,14 @@
 #include "FollowCameraController.h"
 #include "FreeLookCameraController.h"
 #include "RenderView.h"
+#include "HUD.h"
 
 class HumanCharacterView: public RenderView
 {
 public:
-    HumanCharacterView();
+    HumanCharacterView() = default;
+
+    void OnDrawUi(UiContext& uiContext) override;
 
     void UpdateFrame(Timespan deltaTime);
     void InputEvent(KeyInputEvent& inputEvent);
@@ -23,4 +26,6 @@ public:
     FollowCameraController mFollowCameraController;
     FreeLookCameraController mFreeLookCameraController;
     CameraController* mCameraController = nullptr;
+
+    HUD mHUD;
 };

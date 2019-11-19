@@ -301,7 +301,8 @@ bool CarnageGame::SetInputActionsFromConfig()
 
 void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
 {
-    // todo: what a mess
+    // todo: what a mess!
+
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
     debug_assert(mHumanSlot[humanIndex].mCharPedestrian == nullptr);
@@ -316,6 +317,7 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
     mHumanSlot[humanIndex].mCharPedestrian = pedestrian;
     mHumanSlot[humanIndex].mCharController.SetCharacter(pedestrian);
     mHumanSlot[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);
+    mHumanSlot[humanIndex].mCharView.mHUD.Setup(pedestrian);
 }
 
 void CarnageGame::SetupScreenLayout(int playersCount)
@@ -339,10 +341,10 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         debug_assert(colsOnCurrentRow);
         int frameSizePerW = fullViewport.w / colsOnCurrentRow;
         
-        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.h = frameSizePerH;
-        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
-        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
-        mHumanSlot[icurr].mCharView.mRenderCamera.mViewportRect.w = frameSizePerW;
+        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.h = frameSizePerH;
+        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
+        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
+        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.w = frameSizePerW;
  
         mHumanSlot[icurr].mCharView.SetCameraController(&mHumanSlot[icurr].mCharView.mFollowCameraController);
         gRenderManager.AttachRenderView(&mHumanSlot[icurr].mCharView);

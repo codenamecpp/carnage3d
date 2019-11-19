@@ -4,18 +4,21 @@
 #include "TrimeshBuffer.h"
 #include "Sprite2D.h"
 
-class RenderView;
-
 // defines renderer class for 2d sprites
 class SpriteBatch final: public cxx::noncopyable
 {
 public:
+
+    enum DepthAxis { DepthAxis_Y, DepthAxis_Z };
+
     // init/deinit internal resources of sprite batch
     bool Initialize();
     void Deinit();
 
+    void BeginBatch(DepthAxis depthAxis);
+
     // render all batched sprites
-    void Flush(RenderView* renderview);
+    void Flush();
 
     // discard all batched sprites
     void Clear();
@@ -27,7 +30,7 @@ public:
 private:
     void SortSpritesList();
     void GenerateSpritesBatches();
-    void RenderSpritesBatches(RenderView* renderview);
+    void RenderSpritesBatches();
 
 private:
     // single batch of drawing sprites
@@ -48,4 +51,6 @@ private:
 
     std::list<DrawSpriteBatch> mBatchesList;
     TrimeshBuffer mTrimeshBuffer;
+
+    DepthAxis mDepthAxis = DepthAxis_Y;
 };

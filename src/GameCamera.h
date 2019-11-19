@@ -3,7 +3,7 @@
 #include "CommonTypes.h"
 
 // defines camera in 3d space
-class GameCamera final: public cxx::noncopyable
+class GameCamera final
 {
 public:
     // public for convenience, should not be modified directly
@@ -95,4 +95,23 @@ private:
         float mTopP = 1.0;
     };
     OrthographicParams mOrthographicParams;
+};
+
+// defines ui camera
+class GameCamera2D final
+{
+public:
+    // public for convenience, should not be modified directly
+    glm::mat4 mProjectionMatrix;
+    Rect2D mViewportRect;
+
+public:
+    GameCamera2D();
+
+    // setup orthographic projection matrix
+    // @param leftp, rightp, bottomp, topp
+    void SetProjection(float leftp, float rightp, float bottomp, float topp);
+
+    // Reset camera to initial state, but does not clear viewport
+    void SetIdentity();
 };

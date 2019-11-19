@@ -1,21 +1,17 @@
 #pragma once
 
-#include "GuiRenderContext.h"
+#include "GameCamera.h"
+#include "SpriteBatch.h"
 
 // manages all graphical user interface operation
-class GuiSystem final: public cxx::noncopyable
+class UiManager final: public cxx::noncopyable
 {
 public:
-    GuiRenderContext mRenderContext;
-
-public:
-    // setup internal resources
+    // setup/free internal resources
     bool Initialize();
-
-    // free allocated resources
     void Deinit();
 
-    // render all
+    // render
     void RenderFrame();
 
     // process gui logic
@@ -29,6 +25,10 @@ public:
     void HandleEvent(MouseButtonInputEvent& inputEvent);
     void HandleEvent(KeyInputEvent& inputEvent);
     void HandleEvent(KeyCharEvent& inputEvent);
+
+private:
+    SpriteBatch mSpriteBatch;
+    GameCamera2D mCamera2D;
 };
 
-extern GuiSystem gGuiSystem;
+extern UiManager gUiManager;

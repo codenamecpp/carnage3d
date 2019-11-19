@@ -80,7 +80,7 @@ void DebugRenderer::RenderFrameBegin(RenderView* renderview)
     mCurrentRenderView = renderview;
 
     debug_assert(mCurrentRenderView);
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(mCurrentRenderView->mRenderCamera);
+    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(mCurrentRenderView->mCamera);
 }
 
 void DebugRenderer::RenderFrameEnd()

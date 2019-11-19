@@ -51,12 +51,12 @@ void RenderingManager::RenderFrame()
 {
     gGraphicsDevice.ClearScreen();
     gSpriteManager.RenderFrameBegin();
-    mMapRenderer.RenderFrameStart();
+    mMapRenderer.RenderFrameBegin();
 
     Rect2D viewportRectangle = gGraphicsDevice.mViewportRect;
     for (RenderView* currRenderview: mActiveRenderViews)
     {
-        currRenderview->PreRender();
+        currRenderview->DrawFrameBegin();
         mMapRenderer.RenderFrame(currRenderview);
 
         // draw debug info for first human view only
@@ -67,13 +67,13 @@ void RenderingManager::RenderFrame()
             mDebugRenderer.RenderFrameEnd();
         }
     }
-
     gGraphicsDevice.SetViewportRect(viewportRectangle);
-    gGuiSystem.RenderFrame();
+
+    gUiManager.RenderFrame();
 
     for (RenderView* currRenderview: mActiveRenderViews)
     {
-        currRenderview->PostRender();
+        currRenderview->DrawFrameEnd();
     }
     mMapRenderer.RenderFrameEnd();
     gSpriteManager.RenderFrameEnd();

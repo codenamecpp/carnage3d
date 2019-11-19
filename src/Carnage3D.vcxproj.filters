@@ -175,12 +175,6 @@
     <ClInclude Include="imstb_truetype.h">
       <Filter>Third_Party\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="GuiSystem.h">
-      <Filter>Game\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GuiRenderContext.h">
-      <Filter>Game\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="enum_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -310,6 +304,15 @@
     <ClInclude Include="GameParams.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="UiManager.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="HUD.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="UiContext.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -363,12 +366,6 @@
     </ClCompile>
     <ClCompile Include="imgui_widgets.cpp">
       <Filter>Third_Party\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiSystem.cpp">
-      <Filter>Game\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiRenderContext.cpp">
-      <Filter>Game\GUI</Filter>
     </ClCompile>
     <ClCompile Include="GpuTexture2D.cpp">
       <Filter>Graphics</Filter>
@@ -487,6 +484,12 @@
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Game\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="UiManager.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD.cpp">
+      <Filter>Game\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

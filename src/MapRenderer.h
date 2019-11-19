@@ -11,7 +11,7 @@ struct MapRenderStats
 {
 public:
     MapRenderStats() = default;
-    void FrameStart();
+    void FrameBegin();
     void FrameEnd();
 
 public:
@@ -27,7 +27,7 @@ public:
 public:
     bool Initialize();
     void Deinit();
-    void RenderFrameStart();
+    void RenderFrameBegin();
     void RenderFrame(RenderView* renderview);
     void RenderDebug(RenderView* renderview, DebugRenderer& debugRender);
     void RenderFrameEnd();
@@ -56,5 +56,5 @@ private:
     GpuBuffer* mCityMeshBufferV;
     GpuBuffer* mCityMeshBufferI;
 
-    SpriteBatch mSpritesBatch;
+    SpriteBatch mSpriteBatch;
 };

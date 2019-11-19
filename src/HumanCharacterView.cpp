@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "HumanCharacterView.h"
 
-HumanCharacterView::HumanCharacterView()
-    : mFollowCameraController()
-    , mFreeLookCameraController()
+void HumanCharacterView::OnDrawUi(UiContext& uiContext)
 {
+    mHUD.DrawFrame(uiContext);
 }
 
 void HumanCharacterView::UpdateFrame(Timespan deltaTime)
@@ -55,6 +54,6 @@ void HumanCharacterView::SetCameraController(CameraController* controller)
     mCameraController = controller;
     if (mCameraController)
     {
-        mCameraController->Setup(&mRenderCamera);
+        mCameraController->Setup(&mCamera);
     }
 }

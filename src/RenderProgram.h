@@ -32,6 +32,7 @@ public:
     // will update projection and view parameters of render program
     // the matrices stored in game camera class, make sure compute them first
     void UploadCameraTransformMatrices(GameCamera& gameCamera);
+    void UploadCameraTransformMatrices(GameCamera2D& gameCamera);
 
 protected:
     // overridable

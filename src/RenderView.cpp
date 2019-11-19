@@ -1,14 +1,24 @@
 #include "stdafx.h"
 #include "RenderView.h"
 #include "GraphicsDevice.h"
+#include "SpriteManager.h"
+#include "GameMapManager.h"
 
-void RenderView::PreRender()
+RenderView::~RenderView()
 {
-    mRenderCamera.ComputeMatricesAndFrustum();
-   
-    gGraphicsDevice.SetViewportRect(mRenderCamera.mViewportRect);
 }
 
-void RenderView::PostRender()
+void RenderView::DrawFrameBegin()
+{
+    mCamera.ComputeMatricesAndFrustum();
+   
+    gGraphicsDevice.SetViewportRect(mCamera.mViewportRect);
+}
+
+void RenderView::DrawFrameEnd()
+{
+}
+
+void RenderView::OnDrawUi(UiContext& uiContext)
 {
 }

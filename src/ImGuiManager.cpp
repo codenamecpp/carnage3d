@@ -82,7 +82,7 @@ void ImGuiManager::Deinit()
     ImGui::DestroyContext();
 }
  
-void ImGuiManager::RenderFrame(GuiRenderContext& renderContext)
+void ImGuiManager::RenderFrame()
 {
     ImGui::EndFrame();
     ImGui::Render();

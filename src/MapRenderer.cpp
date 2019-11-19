@@ -14,7 +14,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-void MapRenderStats::FrameStart()
+void MapRenderStats::FrameBegin()
 {
     mBlockChunksDrawnCount = 0;
 }
@@ -36,7 +36,7 @@ bool MapRenderer::Initialize()
     if (mCityMeshBufferV == nullptr || mCityMeshBufferI == nullptr)
         return false;
 
-    if (!mSpritesBatch.Initialize())
+    if (!mSpriteBatch.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize sprites batch");
         return false;
@@ -47,7 +47,7 @@ bool MapRenderer::Initialize()
 
 void MapRenderer::Deinit()
 {
-    mSpritesBatch.Deinit();
+    mSpriteBatch.Deinit();
     if (mCityMeshBufferV)
     {
         gGraphicsDevice.DestroyBuffer(mCityMeshBufferV);
@@ -61,9 +61,9 @@ void MapRenderer::Deinit()
     }
 }
 
-void MapRenderer::RenderFrameStart()
+void MapRenderer::RenderFrameBegin()
 {
-    mRenderStats.FrameStart();
+    mRenderStats.FrameBegin();
 }
 
 void MapRenderer::RenderFrameEnd()
@@ -79,16 +79,30 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gGraphicsDevice.BindTexture(eTextureUnit_2, gSpriteManager.mPaletteIndicesTable);
 
     DrawCityMesh(renderview);
-    // collect and render game objects sprites
+
+    mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y);
+
+    // collect and render game objects sprites - the order matters
+
     for (Vehicle* currGameObject: gGameObjectsManager.mCarsList)
     {
-        currGameObject->DrawFrame(mSpritesBatch);
+        currGameObject->DrawFrame(mSpriteBatch);
     }
+
     for (Pedestrian* currGameObject: gGameObjectsManager.mPedestriansList)
     {
-        currGameObject->DrawFrame(mSpritesBatch);
+        currGameObject->DrawFrame(mSpriteBatch);
     }
-    mSpritesBatch.Flush(renderview);
+
+    gRenderManager.mSpritesProgram.Activate();
+    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
+
+    RenderStates guiRenderStates = RenderStates().Disable(RenderStateFlags_FaceCulling);
+    gGraphicsDevice.SetRenderStates(guiRenderStates);
+
+    mSpriteBatch.Flush();
+
+    gRenderManager.mSpritesProgram.Deactivate();
 }
 
 void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
@@ -107,7 +121,7 @@ void MapRenderer::DrawCityMesh(RenderView* renderview)
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mCityMeshProgram.Activate();
-    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(renderview->mRenderCamera);
+    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(renderview->mCamera);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
@@ -118,7 +132,7 @@ void MapRenderer::DrawCityMesh(RenderView* renderview)
 
         for (const MapBlocksChunk& currChunk: mMapBlocksChunks)
         {
-            if (!renderview->mRenderCamera.mFrustum.contains(currChunk.mBounds))
+            if (!renderview->mCamera.mFrustum.contains(currChunk.mBounds))
                 continue;
 
             gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, 

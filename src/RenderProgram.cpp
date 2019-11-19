@@ -114,3 +114,26 @@ void RenderProgram::UploadCameraTransformMatrices(GameCamera& gameCamera)
     }
     debug_assert(isInited);
 }
+
+void RenderProgram::UploadCameraTransformMatrices(GameCamera2D& gameCamera)
+{
+    static glm::mat4 ident_matrix { 1.0f };
+
+    bool isInited = IsProgramInited();
+    if (isInited)
+    {
+        #define SET_UNIFORM(uniform_id, matrix_reference) \
+            if (mGpuProgram->IsUniformExists(uniform_id)) \
+            { \
+                mGpuProgram->SetUniform(uniform_id, matrix_reference); \
+            }
+
+        SET_UNIFORM(eRenderUniform_ViewMatrix, ident_matrix);
+        SET_UNIFORM(eRenderUniform_ProjectionMatrix, gameCamera.mProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_ViewProjectionMatrix, gameCamera.mProjectionMatrix);
+        SET_UNIFORM(eRenderUniform_CameraPosition, glm::vec3(0.0f));
+
+        #undef SET_UNIFORM
+    }
+    debug_assert(isInited);
+}

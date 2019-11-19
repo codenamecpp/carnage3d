@@ -92,7 +92,7 @@ void System::Execute(const SysStartupParameters& sysStartupParams)
         gMemoryManager.FlushFrameHeapMemory();
 
         // order in which subsystems gets updated is significant
-        gGuiSystem.UpdateFrame(deltaTime);
+        gUiManager.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
         gRenderManager.RenderFrame();
         previousFrameTimestamp = currentTimestamp;
@@ -146,7 +146,7 @@ void System::Initialize()
         Terminate();
     }
 
-    if (!gGuiSystem.Initialize())
+    if (!gUiManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize gui system");
         Terminate();
@@ -165,7 +165,7 @@ void System::Deinit()
     gConsole.LogMessage(eLogMessage_Info, "System shutdown");
 
     gCarnageGame.Deinit();
-    gGuiSystem.Deinit();
+    gUiManager.Deinit();
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
     gMemoryManager.Deinit();
@@ -190,7 +190,7 @@ void System::HandleEvent(MouseButtonInputEvent& inputEvent)
         return;
 
     gInputs.HandleEvent(inputEvent);
-    gGuiSystem.HandleEvent(inputEvent);
+    gUiManager.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
@@ -200,7 +200,7 @@ void System::HandleEvent(MouseMovedInputEvent& inputEvent)
         return;
 
     gInputs.HandleEvent(inputEvent);
-    gGuiSystem.HandleEvent(inputEvent);
+    gUiManager.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
@@ -210,7 +210,7 @@ void System::HandleEvent(MouseScrollInputEvent& inputEvent)
         return;
 
     gInputs.HandleEvent(inputEvent);
-    gGuiSystem.HandleEvent(inputEvent);
+    gUiManager.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
@@ -220,7 +220,7 @@ void System::HandleEvent(KeyInputEvent& inputEvent)
         return;
 
     gInputs.HandleEvent(inputEvent);
-    gGuiSystem.HandleEvent(inputEvent);
+    gUiManager.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 
@@ -230,7 +230,7 @@ void System::HandleEvent(KeyCharEvent& inputEvent)
         return;
 
     gInputs.HandleEvent(inputEvent);
-    gGuiSystem.HandleEvent(inputEvent);
+    gUiManager.HandleEvent(inputEvent);
     gCarnageGame.InputEvent(inputEvent);
 }
 

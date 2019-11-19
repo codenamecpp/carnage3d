@@ -2,16 +2,20 @@
 
 #include "GameCamera.h"
 
+class UiContext;
+
+// base renderview class
 class RenderView: public cxx::noncopyable
 {
 public:
-    RenderView() = default;
-    virtual ~RenderView()
-    {
-    }
-    virtual void PreRender();
-    virtual void PostRender();
+    GameCamera mCamera;
 
 public:
-    GameCamera mRenderCamera;
+    RenderView() = default;
+    virtual ~RenderView();
+
+    virtual void DrawFrameBegin();
+    virtual void DrawFrameEnd();
+
+    virtual void OnDrawUi(UiContext& uiContext);
 };

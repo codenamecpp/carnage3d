@@ -156,6 +156,7 @@
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="MemoryManager.h" />
@@ -200,8 +201,8 @@
     <ClInclude Include="GraphicsContext.h" />
     <ClInclude Include="GraphicsDefs.h" />
     <ClInclude Include="GraphicsDevice.h" />
-    <ClInclude Include="GuiRenderContext.h" />
-    <ClInclude Include="GuiSystem.h" />
+    <ClInclude Include="UiContext.h" />
+    <ClInclude Include="UiManager.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="enums_impl.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
+    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="HumanCharacterView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />
     <ClCompile Include="CharacterController.cpp" />
@@ -268,8 +270,7 @@
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="GameParams.cpp" />
     <ClCompile Include="GpuTextureArray2D.cpp" />
-    <ClCompile Include="GuiRenderContext.cpp" />
-    <ClCompile Include="GuiSystem.cpp" />
+    <ClCompile Include="UiManager.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />

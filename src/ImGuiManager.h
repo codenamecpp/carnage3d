@@ -3,20 +3,15 @@
 #include "imgui.h"
 #include "TrimeshBuffer.h"
 
-class GuiRenderContext;
-class DebugWindow;
-
 class ImGuiManager final: public cxx::noncopyable
 {
 public:
-    // setup internal resources
+    // setup/free internal resources
     bool Initialize();
-
-    // free allocated resources
     void Deinit();
 
     // render 
-    void RenderFrame(GuiRenderContext& renderContext);
+    void RenderFrame();
 
     // process logic
     // @param deltaTime: Time passed since previous update

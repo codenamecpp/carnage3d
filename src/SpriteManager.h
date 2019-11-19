@@ -40,7 +40,7 @@ public:
     void FlushSpritesCache(GameObjectID objectID);
 
     // create sprite texture with deltas specified
-    // @param objectID: Game object that owns sprite
+    // @param objectID: Game object that owns sprite or GAMEOBJECT_ID_NULL
     // @param spriteIndex: Sprite index, linear
     // @param deltaBits: Sprite delta bits
     // @param sourceSprite: Sprite data

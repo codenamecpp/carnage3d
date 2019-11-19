@@ -155,3 +155,20 @@ void GameCamera::SetOrientation(const glm::vec3& dirForward, const glm::vec3& di
     mRightDirection = dirRight;
     mViewMatrixDirty = true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+GameCamera2D::GameCamera2D(): mViewportRect()
+{
+    SetIdentity();
+}
+
+void GameCamera2D::SetProjection(float leftp, float rightp, float bottomp, float topp)
+{
+    mProjectionMatrix = glm::ortho(leftp, rightp, bottomp, topp);
+}
+
+void GameCamera2D::SetIdentity()
+{
+    mProjectionMatrix = glm::mat4(1.0f);
+}
