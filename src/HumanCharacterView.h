@@ -11,8 +11,6 @@ class HumanCharacterView: public RenderView
 public:
     HumanCharacterView() = default;
 
-    void OnDrawUi(UiContext& uiContext) override;
-
     void UpdateFrame(Timespan deltaTime);
     void InputEvent(KeyInputEvent& inputEvent);
     void InputEvent(MouseButtonInputEvent& inputEvent);

@@ -22,6 +22,7 @@ public:
 
     // gamestate
     HumanCharacterSlot mHumanSlot[GAME_MAX_PLAYERS];
+    int mNumPlayers = 0;
 
     Timespan mGameTime;
 

@@ -1,17 +1,14 @@
 #include "stdafx.h"
 #include "HumanCharacterView.h"
 
-void HumanCharacterView::OnDrawUi(UiContext& uiContext)
-{
-    mHUD.DrawFrame(uiContext);
-}
-
 void HumanCharacterView::UpdateFrame(Timespan deltaTime)
 {
     if (mCameraController)
     {
         mCameraController->UpdateFrame(deltaTime);
     }
+
+    mHUD.UpdateFrame(deltaTime);
 }
 
 void HumanCharacterView::InputEvent(KeyInputEvent& inputEvent)

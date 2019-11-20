@@ -9,7 +9,7 @@ public:
     // setup hud
     void Setup(Pedestrian* character);
     
-    // draw hud
+    void UpdateFrame(Timespan deltaTile);
     void DrawFrame(UiContext& uiContext);
 
 private:

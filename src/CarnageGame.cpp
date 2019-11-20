@@ -85,17 +85,17 @@ bool CarnageGame::Initialize()
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
 
-    const int numPlayers = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
-    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", numPlayers);
+    mNumPlayers = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
+    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", mNumPlayers);
 
     glm::vec3 pos[GAME_MAX_PLAYERS];
 
     // choose spawn point
     // it is temporary!
     int currFindPosIter = 0;
-    for (int yBlock = 10; yBlock < 20 && currFindPosIter < numPlayers; ++yBlock)
+    for (int yBlock = 10; yBlock < 20 && currFindPosIter < mNumPlayers; ++yBlock)
     {
-        for (int xBlock = 10; xBlock < 20 && currFindPosIter < numPlayers; ++xBlock)
+        for (int xBlock = 10; xBlock < 20 && currFindPosIter < mNumPlayers; ++xBlock)
         {
             pos[currFindPosIter] = glm::ivec3(xBlock, MAP_LAYERS_COUNT - 1, yBlock);
 
@@ -117,7 +117,7 @@ bool CarnageGame::Initialize()
         }
     }
 
-    for (int icurr = 0; icurr < numPlayers; ++icurr)
+    for (int icurr = 0; icurr < mNumPlayers; ++icurr)
     {
         float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
 
@@ -125,7 +125,7 @@ bool CarnageGame::Initialize()
         SetupHumanCharacter(icurr, pedestrian);
     }
 
-    SetupScreenLayout(numPlayers);
+    SetupScreenLayout(mNumPlayers);
     mGameTime = 0;
     return true;
 }

@@ -11,11 +11,17 @@ void HUD::Setup(Pedestrian* character)
     mCharacter = character;
 }
 
+void HUD::UpdateFrame(Timespan deltaTile)
+{
+
+}
+
 void HUD::DrawFrame(UiContext& uiContext)
 {
     if (mCharacter == nullptr)
         return;
 
+    // temporary
     if (mCharacter->mCurrentWeapon != eWeaponType_Fists)
     {
         int arrowSpriteIndex = 30;

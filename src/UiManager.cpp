@@ -6,6 +6,7 @@
 #include "SpriteManager.h"
 #include "RenderView.h"
 #include "UiContext.h"
+#include "CarnageGame.h"
 
 UiManager gUiManager;
 
@@ -47,10 +48,11 @@ void UiManager::RenderFrame()
             .Disable(RenderStateFlags_DepthTest);
         gGraphicsDevice.SetRenderStates(guiRenderStates);
 
-        for (RenderView* currRenderview: gRenderManager.mActiveRenderViews)
-        {
+        for (int icurr = 0; icurr < gCarnageGame.mNumPlayers; ++icurr)
+        {   
+            CarnageGame::HumanCharacterSlot& currPlayer = gCarnageGame.mHumanSlot[icurr];
             mCamera2D.SetIdentity();
-            mCamera2D.mViewportRect = currRenderview->mCamera.mViewportRect;
+            mCamera2D.mViewportRect = currPlayer.mCharView.mCamera.mViewportRect;
             mCamera2D.SetProjection(0.0f, mCamera2D.mViewportRect.w * 1.0f, mCamera2D.mViewportRect.h * 1.0f, 0.0f);
 
             gGraphicsDevice.SetViewportRect(mCamera2D.mViewportRect);
@@ -59,7 +61,7 @@ void UiManager::RenderFrame()
             gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(mCamera2D);
 
             UiContext uiContext ( mCamera2D, mSpriteBatch );
-            currRenderview->OnDrawUi(uiContext);
+            currPlayer.mCharView.mHUD.DrawFrame(uiContext);
             mSpriteBatch.Flush();
         }
 

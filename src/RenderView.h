@@ -16,6 +16,4 @@ public:
 
     virtual void DrawFrameBegin();
     virtual void DrawFrameEnd();
-
-    virtual void OnDrawUi(UiContext& uiContext);
 };

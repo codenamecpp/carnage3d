@@ -18,7 +18,3 @@ void RenderView::DrawFrameBegin()
 void RenderView::DrawFrameEnd()
 {
 }
-
-void RenderView::OnDrawUi(UiContext& uiContext)
-{
-}
