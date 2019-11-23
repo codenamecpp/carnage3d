@@ -313,6 +313,12 @@
     <ClInclude Include="UiContext.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="iostream_utils.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="GtaFontData.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -490,6 +496,9 @@
     </ClCompile>
     <ClCompile Include="HUD.cpp">
       <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GtaFontData.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

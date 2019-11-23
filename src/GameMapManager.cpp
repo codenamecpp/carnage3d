@@ -3,41 +3,6 @@
 
 GameMapManager gGameMap;
 
-//////////////////////////////////////////////////////////////////////////
-
-template<typename TValue>
-inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
-{
-    if (!filestream.read(reinterpret_cast<char*>(&outputValue), sizeof(outputValue)))
-        return false;
-
-    return true;
-}
-
-// helpers
-#define READ_DATA(filestream, destination, datatype) \
-    { \
-        datatype _$data; \
-        if (!read_from_stream(filestream, _$data)) \
-            return false; \
-        \
-        destination = _$data; \
-    }
-
-#define READ_I8(filestream, destination) READ_DATA(filestream, destination, unsigned char)
-#define READ_I16(filestream, destination) READ_DATA(filestream, destination, unsigned short)
-#define READ_SI32(filestream, destination) READ_DATA(filestream, destination, int)
-#define READ_BOOL(filestream, destination) \
-    { \
-        unsigned char _$data; \
-        if (!read_from_stream(filestream, _$data)) \
-            return false; \
-        \
-        destination = _$data > 0; \
-    }
-
-//////////////////////////////////////////////////////////////////////////
-
 enum
 {
     GTA_CMPFILE_VERSION_CODE = 331,
@@ -76,7 +41,7 @@ bool GameMapManager::LoadFromFile(const char* filename)
     }
 
     GTAFileHeaderCMP header;
-    if (!read_from_stream(file, header) || header.version_code != GTA_CMPFILE_VERSION_CODE)
+    if (!cxx::read_from_stream(file, header) || header.version_code != GTA_CMPFILE_VERSION_CODE)
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of map data file '%s'", filename);
         return false;

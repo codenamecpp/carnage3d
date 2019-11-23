@@ -156,8 +156,10 @@
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
+    <ClInclude Include="iostream_utils.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="mem_allocators.h" />
@@ -240,6 +242,7 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="enums_impl.cpp" />
+    <ClCompile Include="GtaFontData.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="HUD.cpp" />

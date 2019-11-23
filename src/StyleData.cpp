@@ -1,43 +1,6 @@
 #include "stdafx.h"
 #include "StyleData.h"
 
-//////////////////////////////////////////////////////////////////////////
-
-template<typename TValue>
-inline bool read_from_stream(std::ifstream& filestream, TValue& outputValue)
-{
-    if (!filestream.read(reinterpret_cast<char*>(&outputValue), sizeof(outputValue)))
-        return false;
-
-    return true;
-}
-
-// helpers
-#define READ_DATA(filestream, destination, datatype) \
-    { \
-        datatype _$data; \
-        if (!read_from_stream(filestream, _$data)) \
-            return false; \
-        \
-        destination = _$data; \
-    }
-
-#define READ_I8(filestream, destination) READ_DATA(filestream, destination, unsigned char)
-#define READ_SI8(filestream, destination) READ_DATA(filestream, destination, char)
-#define READ_I16(filestream, destination) READ_DATA(filestream, destination, unsigned short)
-#define READ_SI16(filestream, destination) READ_DATA(filestream, destination, short)
-#define READ_SI32(filestream, destination) READ_DATA(filestream, destination, int)
-#define READ_FIXEDF32(filestream, destination) \
-    { \
-        int _$data; \
-        if (!read_from_stream(filestream, _$data)) \
-            return false; \
-        \
-        destination = _$data / 65536.0f; \
-    }
-
-//////////////////////////////////////////////////////////////////////////
-
 enum 
 {
     GTA_G24FILE_VERSION_CODE = 336,
@@ -122,7 +85,7 @@ bool StyleData::LoadFromFile(const char* stylesName)
 
     // read header
     GTAFileHeaderG24 header;
-    if (!read_from_stream(file, header) || header.version_code != GTA_G24FILE_VERSION_CODE)
+    if (!cxx::read_from_stream(file, header) || header.version_code != GTA_G24FILE_VERSION_CODE)
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of style file '%s'", stylesName);
         return false;
@@ -652,7 +615,7 @@ bool StyleData::ReadAnimations(std::ifstream& file, int dataLength)
 {
     (void)dataLength;
     unsigned char numAnimationBlocks = 0;
-    if (!read_from_stream(file, numAnimationBlocks))
+    if (!cxx::read_from_stream(file, numAnimationBlocks))
         return false;
 
     for (int ianimation = 0; ianimation < numAnimationBlocks; ++ianimation)
