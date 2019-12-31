@@ -151,13 +151,18 @@ public:
     glm::vec2 GetWheelPosition(eCarWheelID wheelID) const;
 
 private:
+
+    // helpers
+    static const b2Vec2 B2ForwardVector;
+    static const b2Vec2 B2LateralVector;
+
     // car internals wheel data
     struct WheelData
     {
     public:
         WheelData() = default;
     public:
-        b2Body* mPhysicsBody = nullptr;
+        b2Body* mBody = nullptr;
         b2Fixture* mFixture = nullptr;
     };
 
