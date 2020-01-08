@@ -16,8 +16,9 @@ public:
 
     // compute height for specific block slope type
     // @param slope: Index
-    // @param posx, posy: Position within block in range [0, 1]
-    static float GetSlopeHeight(int slope, float posx, float posy);
+    // @param pxcoord_x, pxcoord_y: Position within block specified in pixels [0, MAP_PIXELS_PER_TILE)
+    // @return slope height specified in pixels [0, MAP_PIXELS_PER_TILE]
+    static int GetSlopeHeight(int slope, int pxcoord_x, int pxcoord_y);
 
 private:
     GameMapHelpers();

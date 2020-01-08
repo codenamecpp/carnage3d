@@ -137,35 +137,36 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
         }
         return;
     }
-
-    float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
-
-    //glm::vec3 points[4] = {
-    //    { 0.0f,     position.y + 0.01f, -halfBox },
-    //    { halfBox,  position.y + 0.01f, 0.0f },
-    //    { 0.0f,     position.y + 0.01f, halfBox },
-    //    { -halfBox, position.y + 0.01f, 0.0f },
-    //};
-
-    glm::vec3 points[4] = {
-        { -halfBox, position.y + 0.01f, -halfBox },
-        { halfBox,  position.y + 0.01f, -halfBox },
-        { halfBox,  position.y + 0.01f, halfBox },
-        { -halfBox, position.y + 0.01f, halfBox },
-    };
-
+    
     float maxHeight = position.y;
-    for (glm::vec3& currPoint: points)
+    if (!mPhysicsComponent->mFalling)
     {
-        //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
-        currPoint.x += position.x;
-        currPoint.z += position.z;
+        float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
+        //glm::vec3 points[4] = {
+        //    { 0.0f,     position.y + 0.01f, -halfBox },
+        //    { halfBox,  position.y + 0.01f, 0.0f },
+        //    { 0.0f,     position.y + 0.01f, halfBox },
+        //    { -halfBox, position.y + 0.01f, 0.0f },
+        //};
 
-        // get height
-        float height = gGameMap.GetHeightAtPosition(currPoint);
-        if (height > maxHeight)
+        glm::vec3 points[4] = {
+            { -halfBox, position.y + 0.01f, -halfBox },
+            { halfBox,  position.y + 0.01f, -halfBox },
+            { halfBox,  position.y + 0.01f, halfBox },
+            { -halfBox, position.y + 0.01f, halfBox },
+        };
+        for (glm::vec3& currPoint: points)
         {
-            maxHeight = height;
+            //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
+            currPoint.x += position.x;
+            currPoint.z += position.z;
+
+            // get height
+            float height = gGameMap.GetHeightAtPosition(currPoint);
+            if (height > maxHeight)
+            {
+                maxHeight = height;
+            }
         }
     }
 

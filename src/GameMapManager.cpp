@@ -241,9 +241,11 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool exclud
 
         if (slope) // compute slope height
         {
-            float cx = position.x - mapcoordx;
-            float cy = position.z - mapcoordy;
-            height += GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+            int cx = ConvertMapToPixels(position.x - mapcoordx);
+            int cy = ConvertMapToPixels(position.z - mapcoordy);
+
+            int pix_height = GameMapHelpers::GetSlopeHeight(slope, cx, cy);
+            height += ConvertPixelsToMap(pix_height);
             break;
         }
 
