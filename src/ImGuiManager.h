@@ -9,6 +9,7 @@ public:
     // setup/free internal resources
     bool Initialize();
     void Deinit();
+    bool IsInitialized() const;
 
     // render 
     void RenderFrame();
@@ -19,13 +20,12 @@ public:
 
     // process input events
     // @param inputEvent: Input event data
-    void HandleEvent(MouseMovedInputEvent& inputEvent);
-    void HandleEvent(MouseScrollInputEvent& inputEvent);
-    void HandleEvent(MouseButtonInputEvent& inputEvent);
-    void HandleEvent(KeyInputEvent& inputEvent);
-    void HandleEvent(KeyCharEvent& inputEvent);
-
-    bool IsInitialized() const;
+    void InputEvent(MouseMovedInputEvent& inputEvent);
+    void InputEvent(MouseScrollInputEvent& inputEvent);
+    void InputEvent(MouseButtonInputEvent& inputEvent);
+    void InputEvent(KeyInputEvent& inputEvent);
+    void InputEvent(KeyCharEvent& inputEvent);
+    void InputEvent(GamepadInputEvent& inputEvent);
 
 private:
     // internals

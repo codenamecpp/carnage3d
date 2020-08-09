@@ -8,6 +8,8 @@
 #define OPENGL_CONTEXT_MAJOR_VERSION 3
 #define OPENGL_CONTEXT_MINOR_VERSION 2
 
+#define OPENGL_CORE_PROFILE
+
 // checks current opengl error code
 #ifdef _DEBUG
     #define glCheckError()\

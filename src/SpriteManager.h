@@ -62,7 +62,7 @@ private:
     void InitBlocksAnimations();
 
     // find texture with required size and format or create new if nothing found
-    GpuTexture2D* GetFreeSpriteTexture(const Size2D& dimensions, eTextureFormat format);
+    GpuTexture2D* GetFreeSpriteTexture(const Point& dimensions, eTextureFormat format);
     void DestroySpriteTextures();
 
 private:

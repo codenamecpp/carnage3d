@@ -31,11 +31,11 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         glm::vec3 moveDirection {0.0f};
         if (mMoveForward)
         {
-            moveDirection -= glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxes::Y));
+            moveDirection -= glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxisY));
         }
         else if (mMoveBackward)
         {
-            moveDirection += glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxes::Y));
+            moveDirection += glm::normalize(glm::cross(mCamera->mRightDirection, SceneAxisY));
         }
 
         if (mMoveRight)
@@ -64,8 +64,8 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         if (mRotateDeltaX)
         {
             float angleRads = -glm::radians(glm::sign(mRotateDeltaX) * rotationAngle * deltaTime.ToSeconds());
-            glm::vec3 rightdir = glm::rotate(mCamera->mRightDirection, angleRads, SceneAxes::Y);
-            glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, SceneAxes::Y);
+            glm::vec3 rightdir = glm::rotate(mCamera->mRightDirection, angleRads, SceneAxisY);
+            glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, SceneAxisY);
             glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 
             mCamera->SetOrientation(frontdir, rightdir, updir);
         }   

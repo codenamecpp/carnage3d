@@ -76,7 +76,7 @@
 // app
 #include "CommonTypes.h"
 #include "Console.h"
-#include "Inputs.h"
+#include "InputsManager.h"
 #include "System.h"
 #include "FileSystem.h"
 #include "GraphicsDevice.h"

@@ -20,7 +20,7 @@ public:
 
     eSceneCameraMode mCurrentMode;
 
-    Rect2D mViewportRect;
+    Rectangle mViewportRect;
 
 public:
     GameCamera();
@@ -103,7 +103,7 @@ class GameCamera2D final
 public:
     // public for convenience, should not be modified directly
     glm::mat4 mProjectionMatrix;
-    Rect2D mViewportRect;
+    Rectangle mViewportRect;
 
 public:
     GameCamera2D();

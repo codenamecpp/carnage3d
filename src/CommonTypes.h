@@ -1,23 +1,5 @@
 #pragma once
 
-// combine rgba bytes into single unsigned int value
-#define MAKE_RGBA(r,g,b,a) (((unsigned int)(r)) | (((unsigned int)(g)) << 8) | (((unsigned int)(b)) << 16) | (((unsigned int)(a)) << 24))
-#define MAKE_RGB_SET_ALPHA(rgb, a) ((((unsigned int)(rgb) & 0x00FFFFFFU)) | (((unsigned int)(a)) << 24))
-
-// predefined rgba colors
-
-#define COLOR_RED           MAKE_RGBA(0xFF,0x00,0x00,0xFF)
-#define COLOR_GREEN         MAKE_RGBA(0x00,0xFF,0x00,0xFF)
-#define COLOR_DARK_GREEN    MAKE_RGBA(0x00,0x80,0x00,0xFF)
-#define COLOR_ORANGE        MAKE_RGBA(0xFF,0xA5,0x00,0xFF)
-#define COLOR_BLUE          MAKE_RGBA(0x00,0x00,0xFF,0xFF)
-#define COLOR_SKYBLUE       MAKE_RGBA(0x87,0xCE,0xEB,0xFF)
-#define COLOR_DARK_BLUE     MAKE_RGBA(0x00,0x00,0xA0,0xFF)
-#define COLOR_WHITE         MAKE_RGBA(0xFF,0xFF,0xFF,0xFF)
-#define COLOR_BLACK         MAKE_RGBA(0x00,0x00,0x00,0xFF)
-#define COLOR_CYAN          MAKE_RGBA(0x00,0xFF,0xFF,0xFF)
-#define COLOR_YELLOW        MAKE_RGBA(0xFF,0xFF,0x00,0xFF)
-
 // defines rgba color
 struct Color32
 {
@@ -31,33 +13,50 @@ public:
         , mA(ca)
     {
     }
-    // @param rgba: Source rgba color
-    inline Color32& operator = (const Color32& rgba)
+    // @param rgba: Source 32bits color
+    inline Color32& operator = (Color32 rgba)
     {
         mRGBA = rgba.mRGBA;
         return *this;
     }
-    // Set color components
-    // @param theR, theG, theB, theA: Color components
-    inline void SetComponents(unsigned char theR, unsigned char theG, unsigned char theB, unsigned char theA)
+    // set color components
+    // @param cr, cg, cb, ca: Color components
+    inline void SetComponents(unsigned char cr, unsigned char cg, unsigned char cb, unsigned char ca)
     {
-        mA = theA;
-        mR = theR;
-        mG = theG;
-        mB = theB;
+        mA = cr;
+        mR = cg;
+        mG = cg;
+        mB = cb;
     }
-    // Set color components
-    // @param theR, theG, theB, theA: Normalized color components in range [0, 1]
-    inline void SetComponentsF(float theR, float theG, float theB, float theA)
+
+    // combine rgba channels into single unsigned int value
+    static unsigned int MakeRGBA(unsigned char cr, unsigned char cg, unsigned char cb, unsigned char ca)
     {
-        mA = (unsigned char) (theA * 255);
-        mR = (unsigned char) (theR * 255);
-        mG = (unsigned char) (theG * 255);
-        mB = (unsigned char) (theB * 255);
+        return ((unsigned int)(cr)) | (((unsigned int)(cg)) << 8U) | (((unsigned int)(cb)) << 16U) | (((unsigned int)(ca)) << 24U);
     }
+
+    // implicit conversion to int
+    inline operator unsigned int () const { return mRGBA; }
+
+    inline unsigned char operator [] (int index) const
+    {
+        debug_assert(index > -1 && index < 4);
+        return mChannels[index];
+    }
+
+    inline unsigned char& operator [] (int index)
+    {
+        debug_assert(index > -1 && index < 4);
+        return mChannels[index];
+    }
+
 public:
     union
     {
+        struct
+        {
+            unsigned char mChannels[4];
+        };
         struct
         {
             unsigned char mR;
@@ -69,47 +68,113 @@ public:
     };
 };
 
+const unsigned int Sizeof_Color32 = sizeof(Color32);
+
 inline bool operator == (const Color32& LHS, const Color32& RHS) { return LHS.mRGBA == RHS.mRGBA; }
 inline bool operator != (const Color32& LHS, const Color32& RHS) { return LHS.mRGBA != RHS.mRGBA; }
 
-// defines point in 2d space
-using Point2D = glm::ivec2;
+// predefined rgba colors
 
-// defines size in 2d space
-using Size2D = glm::ivec2;
+// standard colors
+extern const Color32 Color32_Red;
+extern const Color32 Color32_Green;
+extern const Color32 Color32_DarkGreen;
+extern const Color32 Color32_Orange;
+extern const Color32 Color32_Blue;
+extern const Color32 Color32_Brown;
+extern const Color32 Color32_SkyBlue;
+extern const Color32 Color32_DarkBlue;
+extern const Color32 Color32_White;
+extern const Color32 Color32_DarkGray;
+extern const Color32 Color32_GrimGray;
+extern const Color32 Color32_Gray;
+extern const Color32 Color32_Black;
+extern const Color32 Color32_Cyan;
+extern const Color32 Color32_Yellow;
+extern const Color32 Color32_NULL;
+
+// defines coordinate or size in 2d
+using Point = glm::ivec2;
 
 // defines rectangle in 2d space
-struct Rect2D
+struct Rectangle
 {
 public:
-    Rect2D() = default;
-    Rect2D(int posx, int posy, int sizex, int sizey)
+    Rectangle() = default;
+    Rectangle(int posx, int posy, int sizex, int sizey)
         : x(posx)
         , y(posy)
         , w(sizex)
         , h(sizey)
     {
     }
+    inline void Set(int posx, int posy, int sizex, int sizey)
+    {
+        x = posx;
+        y = posy;
+        w = sizex;
+        h = sizey;
+    }
     inline void SetNull()
     {
-        x = 0; y = 0;
-        w = 0; h = 0;
+        x = 0;
+        y = 0;
+        w = 0;
+        h = 0;
+    }
+    // test whether point is within rect
+    inline bool PointWithin(const Point& point) const
+    {
+        return point.x >= x && point.y >= y &&
+            point.x < (x + w - 1) &&
+            point.y < (y + h - 1);
+    }
+    // get union area of two rectangles
+    inline Rectangle GetUnion(const Rectangle& rc) const
+    {
+        Rectangle rcOutput;
+
+        int maxx = glm::max(x + w, rc.x + rc.w);
+        int maxy = glm::max(y + h, rc.y + rc.h);
+
+        rcOutput.x = glm::min(x, rc.x);
+        rcOutput.y = glm::min(y, rc.y);
+        rcOutput.w = glm::max(maxx - rcOutput.x, 0);
+        rcOutput.h = glm::max(maxy - rcOutput.y, 0);
+
+        return rcOutput;
+    }
+    // get intersection area of two rectangles
+    inline Rectangle GetIntersection(const Rectangle& rc) const
+    {        
+        Rectangle rcOutput;
+
+        int minx = glm::min(x + w, rc.x + rc.w);
+        int miny = glm::min(y + h, rc.y + rc.h);
+
+        rcOutput.x = glm::max(x, rc.x);
+        rcOutput.y = glm::max(y, rc.y);
+        rcOutput.w = glm::max(minx - rcOutput.x, 0);
+        rcOutput.h = glm::max(miny - rcOutput.y, 0);
+
+        return rcOutput;
     }
 public:
     int x, y;
     int w, h;
 };
 
-inline bool operator == (const Rect2D& theL, const Rect2D& theR) 
+inline bool operator == (const Rectangle& lhs, const Rectangle& rhs) 
 { 
-    return (theL.x == theR.x) && (theL.y == theR.y) && (theL.w == theR.w) && (theL.h == theR.h);
+    return (lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.w == rhs.w) && (lhs.h == rhs.h);
 }
 
-inline bool operator != (const Rect2D& theL, const Rect2D& theR)
+inline bool operator != (const Rectangle& lhs, const Rectangle& rhs)
 {
-    return (theL.x != theR.x) || (theL.y != theR.y) || (theL.w != theR.w) || (theL.h != theR.h);
+    return (lhs.x != rhs.x) || (lhs.y != rhs.y) || (lhs.w != rhs.w) || (lhs.h != rhs.h);
 }
 
+// console log message category
 enum eLogMessage
 {
     eLogMessage_Debug,
@@ -142,12 +207,10 @@ public:
     std::string mString;
 };
 
-namespace SceneAxes
-{
-    static const glm::vec3 X {1.0f, 0.0f, 0.0f};
-    static const glm::vec3 Y {0.0f, 1.0f, 0.0f};
-    static const glm::vec3 Z {0.0f, 0.0f, 1.0f};
-};
+// global constants
+extern const glm::vec3 SceneAxisX;
+extern const glm::vec3 SceneAxisY;
+extern const glm::vec3 SceneAxisZ;
 
 enum eSceneCameraMode
 {

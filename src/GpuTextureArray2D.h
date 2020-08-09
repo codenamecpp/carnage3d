@@ -10,7 +10,7 @@ public:
     GpuTextureHandle mResourceHandle;
     eTextureFilterMode mFiltering;
     eTextureWrapMode mRepeating;
-    Size2D mSize;
+    Point mSize;
     int mLayersCount;
     eTextureFormat mFormat;
 

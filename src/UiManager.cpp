@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "UiManager.h"
-#include "ImGuiManager.h"
 #include "RenderingManager.h"
 #include "GpuProgram.h"
 #include "SpriteManager.h"
 #include "RenderView.h"
 #include "UiContext.h"
 #include "CarnageGame.h"
+#include "ImGuiManager.h"
 
 UiManager gUiManager;
 
@@ -18,7 +18,6 @@ bool UiManager::Initialize()
         return false;
     }
 
-    gImGuiManager.Initialize();
     mCamera2D.SetIdentity();
     return true;
 }
@@ -26,15 +25,14 @@ bool UiManager::Initialize()
 void UiManager::Deinit()
 {
     mSpriteBatch.Deinit();
-    gImGuiManager.Deinit();
 }
 
 void UiManager::RenderFrame()
 {
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Z);
 
-    Rect2D prevScreenRect = gGraphicsDevice.mViewportRect;
-    Rect2D prevScissorsBox = gGraphicsDevice.mScissorBox;
+    Rectangle prevScreenRect = gGraphicsDevice.mViewportRect;
+    Rectangle prevScissorsBox = gGraphicsDevice.mScissorBox;
 
     // draw renderviews
     {
@@ -94,30 +92,35 @@ void UiManager::RenderFrame()
 
 void UiManager::UpdateFrame(Timespan deltaTime)
 {
-    gImGuiManager.UpdateFrame(deltaTime);
+    // do nothing
 }
 
-void UiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
+void UiManager::InputEvent(MouseMovedInputEvent& inputEvent)
 {
-    gImGuiManager.HandleEvent(inputEvent);
+    // do nothing
 }
 
-void UiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
+void UiManager::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    gImGuiManager.HandleEvent(inputEvent);
+    // do nothing
 }
 
-void UiManager::HandleEvent(MouseButtonInputEvent& inputEvent)
+void UiManager::InputEvent(MouseButtonInputEvent& inputEvent)
 {
-    gImGuiManager.HandleEvent(inputEvent);
+    // do nothing
 }
 
-void UiManager::HandleEvent(KeyInputEvent& inputEvent)
+void UiManager::InputEvent(KeyInputEvent& inputEvent)
 {
-    gImGuiManager.HandleEvent(inputEvent);
+    // do nothing
 }
 
-void UiManager::HandleEvent(KeyCharEvent& inputEvent)
+void UiManager::InputEvent(KeyCharEvent& inputEvent)
 {
-    gImGuiManager.HandleEvent(inputEvent);
+    // do nothing
+}
+
+void UiManager::InputEvent(GamepadInputEvent& inputEvent)
+{
+    // do nothing
 }

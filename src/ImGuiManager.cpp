@@ -127,7 +127,7 @@ void ImGuiManager::RenderFrame()
             if (!should_draw)
                 continue;
 
-            Rect2D rcClip {
+            Rectangle rcClip {
                 static_cast<int>(clip_rect_x), static_cast<int>(fb_height - clip_rect_h), 
                 static_cast<int>(clip_rect_w - clip_rect_x), 
                 static_cast<int>(clip_rect_h - clip_rect_y)
@@ -180,7 +180,7 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
     io.MouseDrawCursor = anyWindowShown;
 }
 
-void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
+void ImGuiManager::InputEvent(MouseMovedInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -190,7 +190,7 @@ void ImGuiManager::HandleEvent(MouseMovedInputEvent& inputEvent)
     }
 }
 
-void ImGuiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
+void ImGuiManager::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -203,7 +203,7 @@ void ImGuiManager::HandleEvent(MouseScrollInputEvent& inputEvent)
     }
 }
 
-void ImGuiManager::HandleEvent(MouseButtonInputEvent& inputEvent)
+void ImGuiManager::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -213,7 +213,7 @@ void ImGuiManager::HandleEvent(MouseButtonInputEvent& inputEvent)
     }
 }
 
-void ImGuiManager::HandleEvent(KeyInputEvent& inputEvent)
+void ImGuiManager::InputEvent(KeyInputEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -228,7 +228,7 @@ void ImGuiManager::HandleEvent(KeyInputEvent& inputEvent)
     }
 }
 
-void ImGuiManager::HandleEvent(KeyCharEvent& inputEvent)
+void ImGuiManager::InputEvent(KeyCharEvent& inputEvent)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -238,6 +238,11 @@ void ImGuiManager::HandleEvent(KeyCharEvent& inputEvent)
     {
         inputEvent.SetConsumed();
     }
+}
+
+void ImGuiManager::InputEvent(GamepadInputEvent& inputEvent)
+{
+    // do nothing
 }
 
 bool ImGuiManager::AddFontFromExternalFile(ImGuiIO& imguiIO, const char* fontFile, float fontSize)

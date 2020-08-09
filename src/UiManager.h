@@ -20,11 +20,12 @@ public:
 
     // process input events
     // @param inputEvent: Input event data
-    void HandleEvent(MouseMovedInputEvent& inputEvent);
-    void HandleEvent(MouseScrollInputEvent& inputEvent);
-    void HandleEvent(MouseButtonInputEvent& inputEvent);
-    void HandleEvent(KeyInputEvent& inputEvent);
-    void HandleEvent(KeyCharEvent& inputEvent);
+    void InputEvent(MouseMovedInputEvent& inputEvent);
+    void InputEvent(MouseScrollInputEvent& inputEvent);
+    void InputEvent(MouseButtonInputEvent& inputEvent);
+    void InputEvent(KeyInputEvent& inputEvent);
+    void InputEvent(KeyCharEvent& inputEvent);
+    void InputEvent(GamepadInputEvent& inputEvent);
 
 private:
     SpriteBatch mSpriteBatch;

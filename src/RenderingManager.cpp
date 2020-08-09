@@ -32,7 +32,7 @@ bool RenderingManager::Initialize()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug renderer");
     }
 
-    gGraphicsDevice.SetClearColor(COLOR_SKYBLUE);
+    gGraphicsDevice.SetClearColor(Color32_SkyBlue);
 
     return true;
 }
@@ -53,7 +53,7 @@ void RenderingManager::RenderFrame()
     gSpriteManager.RenderFrameBegin();
     mMapRenderer.RenderFrameBegin();
 
-    Rect2D viewportRectangle = gGraphicsDevice.mViewportRect;
+    Rectangle viewportRectangle = gGraphicsDevice.mViewportRect;
     for (RenderView* currRenderview: mActiveRenderViews)
     {
         currRenderview->DrawFrameBegin();

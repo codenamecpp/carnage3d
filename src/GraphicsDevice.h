@@ -10,23 +10,23 @@ class GraphicsDevice final: public cxx::noncopyable
 public:
     // public for convenience, don't change these fields directly
     RenderStates mCurrentStates;
-    Rect2D mViewportRect;
-    Rect2D mScissorBox;
+    Rectangle mViewportRect;
+    Rectangle mScissorBox;
     GraphicsDeviceCaps mCaps;
 
     // these params will automatically set during texture creation
     eTextureFilterMode mDefaultTextureFilter = eTextureFilterMode_Nearest;
     eTextureWrapMode mDefaultTextureWrap = eTextureWrapMode_ClampToEdge;
 
+    // current screen params
+    Point mScreenResolution;
+
 public:
     GraphicsDevice();
     ~GraphicsDevice();
 
-    // Initialize graphics system, setup resolution and vsync mode
-    // @param screensizex, screensizey: Screen dimensions
-    // @param fullscreen: Fullscreen or windowed mode
-    // @param vsync: Vertical synchronization enabled or disabled
-    bool Initialize(int screensizex, int screensizey, bool fullscreen, bool vsync);
+    // Initialize graphics system
+    bool Initialize();
 
     // Shutdown graphics system, any render operations will be ignored after this
     void Deinit();
@@ -136,11 +136,11 @@ public:
 
     // Setup dimensions of graphic device viewport
     // @param sourceRectangle: Viewport rectangle
-    void SetViewportRect(const Rect2D& sourceRectangle);
+    void SetViewportRect(const Rectangle& sourceRectangle);
 
     // Setup clip rect, default is whole viewport area
     // @param sourceRectangle: Clipping rectangle
-    void SetScissorRect(const Rect2D& sourceRectangle);
+    void SetScissorRect(const Rectangle& sourceRectangle);
 
     // Set clear color for render revice
     // @param clearColor: Color components

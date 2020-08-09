@@ -71,9 +71,9 @@ void GameCamera::SetIdentity()
     mViewMatrix = glm::mat4(1.0f);
 
     // set default axes
-    mUpDirection = SceneAxes::Y;
-    mFrontDirection = -SceneAxes::Z;
-    mRightDirection = SceneAxes::X;
+    mUpDirection = SceneAxisY;
+    mFrontDirection = -SceneAxisZ;
+    mRightDirection = SceneAxisX;
 
     // reset position to origin
     mPosition = glm::vec3(0.0f);
@@ -104,8 +104,8 @@ void GameCamera::SetRotationAngles(const glm::vec3& rotationAngles)
         glm::radians(rotationAngles.x), 
         glm::radians(rotationAngles.z));
 
-    const glm::vec3 rotatedUp = glm::vec3(rotationMatrix * glm::vec4(SceneAxes::Y, 0.0f));
-    mFrontDirection = glm::vec3(rotationMatrix * glm::vec4(-SceneAxes::Z, 0.0f));
+    const glm::vec3 rotatedUp = glm::vec3(rotationMatrix * glm::vec4(SceneAxisY, 0.0f));
+    mFrontDirection = glm::vec3(rotationMatrix * glm::vec4(-SceneAxisZ, 0.0f));
     mRightDirection = glm::normalize(glm::cross(rotatedUp, mFrontDirection)); 
     mUpDirection = glm::normalize(glm::cross(mFrontDirection, mRightDirection));
     mViewMatrixDirty = true;
@@ -142,9 +142,9 @@ bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx:
 
 void GameCamera::SetTopDownOrientation()
 {
-    mFrontDirection = -SceneAxes::Y;
-    mUpDirection = -SceneAxes::Z;
-    mRightDirection = SceneAxes::X;
+    mFrontDirection = -SceneAxisY;
+    mUpDirection = -SceneAxisZ;
+    mRightDirection = SceneAxisX;
     mViewMatrixDirty = true;
 }
 

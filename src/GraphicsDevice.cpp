@@ -120,8 +120,10 @@ GraphicsDevice::~GraphicsDevice()
     debug_assert(!IsDeviceInited());
 }
 
-bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscreen, bool vsync)
+bool GraphicsDevice::Initialize()
 {
+    SystemConfig& config = gSystem.mConfig;
+
     if (IsDeviceInited())
     {
         Deinit();
@@ -132,6 +134,12 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
             gConsole.LogMessage(eLogMessage_Error, "GLFW error occurred: %s", errorString);
         });
 
+    mScreenResolution.x = config.mScreenSizex;
+    mScreenResolution.y = config.mScreenSizey;
+    gConsole.LogMessage(eLogMessage_Debug, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
+        mScreenResolution.x, mScreenResolution.y, 
+        config.mEnableVSync ? "enabled" : "disabled", config.mFullscreen ? "yes" : "no");
+
     if (::glfwInit() == GL_FALSE)
     {
         gConsole.LogMessage(eLogMessage_Warning, "GLFW initialization failed");
@@ -139,29 +147,29 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     }
 
     // dump some information
-    gConsole.LogMessage(eLogMessage_Info, "GLFW Information: %s", ::glfwGetVersionString());
-    gConsole.LogMessage(eLogMessage_Info, "Initialize OpenGL %d.%d %s",
+    gConsole.LogMessage(eLogMessage_Info, "GLFW version string: %s", ::glfwGetVersionString());
+    gConsole.LogMessage(eLogMessage_Info, "OpenGL %d.%d %s",
         OPENGL_CONTEXT_MAJOR_VERSION, 
         OPENGL_CONTEXT_MINOR_VERSION,
-        gSystem.mConfig.mOpenGLCoreProfile ? "(Core profile)" : "");
+#ifdef OPENGL_CORE_PROFILE
+        "(Core profile)"
+#else 
+        ""
+#endif   
+    );
 
     GLFWmonitor* graphicsMonitor = nullptr;
-    if (fullscreen)
+    if (config.mFullscreen)
     {
         graphicsMonitor = ::glfwGetPrimaryMonitor();
         debug_assert(graphicsMonitor);
     }
 
-    gConsole.LogMessage(eLogMessage_Info, "Screen resolution: %dx%d, Vsync: %s, Fullscreen: %s", 
-        screensizex, 
-        screensizey, vsync ? "enabled" : "disabled", fullscreen ? "yes" : "no");
-
     // opengl params
-    if (gSystem.mConfig.mOpenGLCoreProfile)
-    {
-        ::glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        ::glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
+#ifdef OPENGL_CORE_PROFILE
+    ::glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    ::glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
     ::glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_CONTEXT_MAJOR_VERSION);
     ::glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_CONTEXT_MINOR_VERSION);
@@ -171,10 +179,10 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glfwWindowHint(GLFW_GREEN_BITS, 8);
     ::glfwWindowHint(GLFW_BLUE_BITS, 8);
     ::glfwWindowHint(GLFW_ALPHA_BITS, 8);
-    ::glfwWindowHint(GLFW_DEPTH_BITS, 16);
+    ::glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
     // create window and set current context
-    GLFWwindow* graphicsWindow = ::glfwCreateWindow(screensizex, screensizey, GAME_TITLE, graphicsMonitor, nullptr);
+    GLFWwindow* graphicsWindow = ::glfwCreateWindow(mScreenResolution.x, mScreenResolution.y, GAME_TITLE, graphicsMonitor, nullptr);
     debug_assert(graphicsWindow);
     if (!graphicsWindow)
     {
@@ -193,7 +201,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
             if (mbuttonNative != eMButton_null)
             {
                 MouseButtonInputEvent ev { mbuttonNative, mods, action == GLFW_PRESS };
-                gSystem.HandleEvent(ev);
+                gInputs.InputEvent(ev);
             }
         });
     ::glfwSetKeyCallback(graphicsWindow, [](GLFWwindow*, int keycode, int scancode, int action, int mods)
@@ -205,13 +213,13 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
             if (keycodeNative != eKeycode_null)
             {
                 KeyInputEvent ev { keycodeNative, scancode, mods, action == GLFW_PRESS };
-                gSystem.HandleEvent(ev);
+                gInputs.InputEvent(ev);
             }
         });
     ::glfwSetCharCallback(graphicsWindow, [](GLFWwindow*, unsigned int unicodechar)
         {
             KeyCharEvent ev ( unicodechar );
-            gSystem.HandleEvent(ev);
+            gInputs.InputEvent(ev);
         });
     ::glfwSetScrollCallback(graphicsWindow, [](GLFWwindow*, double xscroll, double yscroll)
         {
@@ -220,7 +228,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
                 static_cast<int>(xscroll), 
                 static_cast<int>(yscroll) 
             };
-            gSystem.HandleEvent(ev);
+            gInputs.InputEvent(ev);
         });
     ::glfwSetCursorPosCallback(graphicsWindow, [](GLFWwindow*, double xposition, double yposition)
         {
@@ -229,7 +237,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
                 static_cast<int>(xposition),
                 static_cast<int>(yposition),
             };
-            gSystem.HandleEvent(ev);
+            gInputs.InputEvent(ev);
         });
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
@@ -267,10 +275,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     glCheckError();
 
     // setup viewport
-    mViewportRect.x = 0;
-    mViewportRect.y = 0;
-    mViewportRect.w = screensizex;
-    mViewportRect.h = screensizey;
+    mViewportRect.Set(0, 0, mScreenResolution.x, mScreenResolution.y);
 
     ::glViewport(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
     glCheckError();
@@ -289,11 +294,11 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     glCheckError();
 
     // setup default render state
-    static const RenderStates defaultRenderStates;
+    RenderStates defaultRenderStates;
     InternalSetRenderStates(defaultRenderStates, true);
 
-    EnableFullscreen(fullscreen);
-    EnableVSync(vsync);
+    EnableFullscreen(config.mFullscreen);
+    EnableVSync(config.mEnableVSync);
 
     // init gamepads
     for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
@@ -309,6 +314,9 @@ void GraphicsDevice::Deinit()
 {
     if (!IsDeviceInited())
         return;
+
+    mScreenResolution.x = 0;
+    mScreenResolution.y = 0;
 
     // destroy vertex array object
     ::glBindVertexArray(0);
@@ -803,7 +811,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
                 continue;
 
             GamepadInputEvent inputEvent { icurr, buttonNative, newPressed };
-            gSystem.HandleEvent(inputEvent);
+            gInputs.InputEvent(inputEvent);
         }
         
         // triggers
@@ -811,19 +819,19 @@ void GraphicsDevice::ProcessGamepadsInputs()
         if (leftTriggerPressed != currGamepad.mButtons[eGamepadButton_LeftTrigger])
         {
             GamepadInputEvent inputEvent { icurr, eGamepadButton_LeftTrigger, leftTriggerPressed };
-            gSystem.HandleEvent(inputEvent);
+            gInputs.InputEvent(inputEvent);
         }
 
         bool rightTriggerPressed = gamepadstate.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > 0.5f;
         if (rightTriggerPressed != currGamepad.mButtons[eGamepadButton_RightTrigger])
         {
             GamepadInputEvent inputEvent { icurr, eGamepadButton_RightTrigger, rightTriggerPressed };
-            gSystem.HandleEvent(inputEvent);
+            gInputs.InputEvent(inputEvent);
         }
     }
 }
 
-void GraphicsDevice::SetViewportRect(const Rect2D& sourceRectangle)
+void GraphicsDevice::SetViewportRect(const Rectangle& sourceRectangle)
 {
     if (!IsDeviceInited())
     {
@@ -839,7 +847,7 @@ void GraphicsDevice::SetViewportRect(const Rect2D& sourceRectangle)
     glCheckError();
 }
 
-void GraphicsDevice::SetScissorRect(const Rect2D& sourceRectangle)
+void GraphicsDevice::SetScissorRect(const Rectangle& sourceRectangle)
 {
     if (!IsDeviceInited())
     {

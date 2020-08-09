@@ -5,11 +5,11 @@ const int DefaultScreenResolutionX = 1024;
 const int DefaultScreenResolutionY = 768;
 
 // defines system configuration
-class SysConfig
+class SystemConfig
 {
 public:
-    SysConfig() = default;
-    SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
+    SystemConfig() = default;
+    SystemConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
 
     // set config default params
     void SetDefaultParams();
@@ -28,7 +28,6 @@ public:
     int mScreenSizey = DefaultScreenResolutionY; 
     bool mFullscreen = false; // enable full screen mode
     bool mEnableVSync = false; // enable vertical synchronization
-    bool mOpenGLCoreProfile = true;
     float mScreenAspectRatio = 1.0f;
     // memory settings
     bool mEnableFrameHeapAllocator = true;
@@ -37,13 +36,12 @@ public:
 };
 
 // defines system startup parameters
-class SysStartupParams
+class SystemStartupParams
 {
 public:
-    SysStartupParams() = default;
+    SystemStartupParams() = default;
 
     bool ParseStartupParams(int argc, char *argv[]);
-
     // clear all startup params
     void ClearParams();
 
@@ -58,8 +56,8 @@ class System final: public cxx::noncopyable
 {
 public:
     // public just for convenience
-    SysConfig mConfig; // current configuration of the system
-    SysStartupParams mStartupParams;
+    SystemConfig mConfig; // current configuration of the system
+    SystemStartupParams mStartupParams;
 
 public:
     void Initialize(int argc, char *argv[]);
@@ -70,15 +68,6 @@ public:
 
     // Abnormal application shutdown due to critical failure
     void Terminate();
-
-    // Process input event, all events will be propagated then to game subsystems
-    // @param inputEvent: Event data
-    void HandleEvent(MouseButtonInputEvent& inputEvent);
-    void HandleEvent(MouseMovedInputEvent& inputEvent);
-    void HandleEvent(MouseScrollInputEvent& inputEvent);
-    void HandleEvent(KeyInputEvent& inputEvent);
-    void HandleEvent(KeyCharEvent& inputEvent);
-    void HandleEvent(GamepadInputEvent& inputEvent);
 
     // Set application exit request flag, execution will be interrupted soon
     void QuitRequest();
@@ -93,7 +82,6 @@ private:
 
 private:
     bool mQuitRequested;
-    bool mIgnoreInputs;
 };
 
 extern System gSystem;

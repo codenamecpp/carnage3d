@@ -4,6 +4,7 @@
 #include "RenderingManager.h"
 #include "MemoryManager.h"
 #include "CarnageGame.h"
+#include "ImGuiManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +12,7 @@ static const char* SysConfigPath = "config/sys_config.json";
 
 //////////////////////////////////////////////////////////////////////////
 
-SysConfig::SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
+SystemConfig::SystemConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
     : mScreenSizex(screenSizex)
     , mScreenSizey(screenSizey)
     , mFullscreen(fullscreen)
@@ -21,23 +22,22 @@ SysConfig::SysConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsy
     mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
 }
 
-void SysConfig::SetDefaultParams()
+void SystemConfig::SetDefaultParams()
 {
-    mOpenGLCoreProfile = true;
     mEnableFrameHeapAllocator = true;
     mShowImguiDemoWindow = false;
 
     SetParams(DefaultScreenResolutionX, DefaultScreenResolutionY, false, false);
 }
 
-void SysConfig::SetScreenSize(int screenSizex, int screenSizey)
+void SystemConfig::SetScreenSize(int screenSizex, int screenSizey)
 {
     mScreenSizex = screenSizex;
     mScreenSizey = screenSizey;
     mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
 }
 
-void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
+void SystemConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
 {
     mEnableVSync = vsync;
     mFullscreen = fullscreen;
@@ -48,7 +48,7 @@ void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, boo
 
 //////////////////////////////////////////////////////////////////////////
 
-bool SysStartupParams::ParseStartupParams(int argc, char *argv[])
+bool SystemStartupParams::ParseStartupParams(int argc, char *argv[])
 {
     ClearParams();
 
@@ -78,7 +78,7 @@ bool SysStartupParams::ParseStartupParams(int argc, char *argv[])
     return true;
 }
 
-void SysStartupParams::ClearParams()
+void SystemStartupParams::ClearParams()
 {
     mDebugMapName.clear();
     mGtaDataLocation.clear();
@@ -124,10 +124,16 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
-    if (!gGraphicsDevice.Initialize(mConfig.mScreenSizex, mConfig.mScreenSizey, mConfig.mFullscreen, mConfig.mEnableVSync))
+    if (!gGraphicsDevice.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize graphics device");
         Terminate();
+    }
+
+    if (!gImGuiManager.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug ui system");
+        // ignore failure
     }
 
     if (!gRenderManager.Initialize())
@@ -155,6 +161,7 @@ void System::Deinit()
     gConsole.LogMessage(eLogMessage_Info, "System shutdown");
 
     gCarnageGame.Deinit();
+    gImGuiManager.Deinit();
     gUiManager.Deinit();
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
@@ -167,8 +174,6 @@ void System::Execute()
 {
     const long MinFPS = 20;
     const long MaxFrameDelta = Timespan::MillisecondsPerSecond / MinFPS;
-
-    mIgnoreInputs = true; // don't dispatch input events until initialization completed
 
     // main loop
     long previousFrameTimestamp = GetSysMilliseconds();
@@ -194,14 +199,11 @@ void System::Execute()
         gMemoryManager.FlushFrameHeapMemory();
 
         // order in which subsystems gets updated is significant
+        gImGuiManager.UpdateFrame(deltaTime);
         gUiManager.UpdateFrame(deltaTime);
         gCarnageGame.UpdateFrame(deltaTime);
         gRenderManager.RenderFrame();
         previousFrameTimestamp = currentTimestamp;
-        if (mIgnoreInputs) // ingore inputs at very first frame
-        {
-            mIgnoreInputs = false;
-        }
     }
 
     Deinit();
@@ -216,65 +218,6 @@ void System::Terminate()
 void System::QuitRequest()
 {
     mQuitRequested = true;
-}
-
-void System::HandleEvent(MouseButtonInputEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gUiManager.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
-}
-
-void System::HandleEvent(MouseMovedInputEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gUiManager.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
-}
-
-void System::HandleEvent(MouseScrollInputEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gUiManager.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
-}
-
-void System::HandleEvent(KeyInputEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gUiManager.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
-}
-
-void System::HandleEvent(KeyCharEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gUiManager.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
-}
-
-void System::HandleEvent(GamepadInputEvent& inputEvent)
-{
-    if (mIgnoreInputs)
-        return;
-
-    gInputs.HandleEvent(inputEvent);
-    gCarnageGame.InputEvent(inputEvent);
 }
 
 long System::GetSysMilliseconds() const

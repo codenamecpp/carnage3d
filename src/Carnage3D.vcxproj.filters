@@ -91,9 +91,6 @@
     <ClInclude Include="Console.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Inputs.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="System.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -326,6 +323,12 @@
     <ClInclude Include="rtti.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="InputsDefs.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="InputsManager.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -341,9 +344,6 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Console.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="Inputs.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="System.cpp">
@@ -506,6 +506,12 @@
     </ClCompile>
     <ClCompile Include="json_document.cpp">
       <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonTypes.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="InputsManager.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

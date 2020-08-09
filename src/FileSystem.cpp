@@ -155,7 +155,7 @@ bool FileSystem::GetFullPathToFile(const char* objectName, std::string& fullPath
 
 bool FileSystem::SetupGtaDataLocation()
 {
-    const SysStartupParams& startupParams = gSystem.mStartupParams;
+    const SystemStartupParams& startupParams = gSystem.mStartupParams;
     // override data location with startup param
     if (!startupParams.mGtaDataLocation.empty())
     {

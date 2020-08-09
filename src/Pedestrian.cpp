@@ -117,7 +117,7 @@ void Pedestrian::DrawDebug(DebugRenderer& debugRender)
 
     glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
 
-    debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), COLOR_WHITE);
+    debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White);
 }
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)

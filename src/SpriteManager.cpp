@@ -576,7 +576,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     }
     
     // cache miss
-    Size2D dimensions;
+    Point dimensions;
     dimensions.x = cxx::get_next_pot(spriteStyle.mWidth);
     dimensions.y = cxx::get_next_pot(spriteStyle.mHeight);
 
@@ -604,7 +604,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     // upload to texture
     sourceSprite.mTexture->Upload(pixels.mData);
 
-    Rect2D srcRect;
+    Rectangle srcRect;
     srcRect.x = 0;
     srcRect.y = 0;
     srcRect.w = spriteStyle.mWidth;
@@ -635,7 +635,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     sourceSprite.mTextureRegion = mObjectsSpritesheet.mEntries[spriteIndex];
 }
 
-GpuTexture2D* SpriteManager::GetFreeSpriteTexture(const Size2D& dimensions, eTextureFormat format)
+GpuTexture2D* SpriteManager::GetFreeSpriteTexture(const Point& dimensions, eTextureFormat format)
 {
     for (auto icurr = mFreeSpriteTextures.begin(); icurr != mFreeSpriteTextures.end(); )
     {
