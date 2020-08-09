@@ -7,45 +7,42 @@ ConsoleWindow gDebugConsoleWindow;
 
 ConsoleWindow::ConsoleWindow() : DebugWindow("Debug Console")
 {
-    mCommands.push_back("clear");
-    mCommands.push_back("quit");
 }
 
-void ConsoleWindow::DoUI(Timespan deltaTime)
+void ConsoleWindow::DoUI(ImGuiIO& imguiContext)
 {
-    ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | 
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-    ImGui::SetNextWindowSize(ImVec2(620,360));
-    if (!ImGui::Begin(mWindowName, &mWindowShown, wndFlags))
+    ImGui::SetNextWindowBgAlpha(0.9f);
+    if (!ImGui::Begin("Console", &mWindowShown, windowFlags))
     {
         ImGui::End();
         return;
     }
 
+    if (ImGui::IsWindowAppearing())
+    {
+        ImVec2 distance { 10.0f, 10.0f };
+        ImVec2 windowSize { 
+            imguiContext.DisplaySize.x - distance.x * 2.0f, 
+            imguiContext.DisplaySize.y * 0.45f - distance.y * 2.0f};
+        ImVec2 windowPos { distance.x, distance.y };
+        ImGui::SetWindowSize(windowSize);
+        ImGui::SetWindowPos(windowPos);
+    }
+
     ImGui::Separator();
 
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, 
+        ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoBackground);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1));
 
-    // Display every line as a separate entry so we can change their color or add custom widgets. If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
-    // NB- if you have thousands of entries this approach may be too inefficient and may require user-side clipping to only process visible items.
-    // You can seek and display only the lines that are visible using the ImGuiListClipper helper, if your elements are evenly spaced and you have cheap random access to the elements.
-    // To use the clipper we could replace the 'for (int i = 0; i < Items.Size; i++)' loop with:
-    //     ImGuiListClipper clipper(Items.Size);
-    //     while (clipper.Step())
-    //         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-    // However, note that you can not use this code as is if a filter is active because it breaks the 'cheap random-access' property. We would need random-access on the post-filtered list.
-    // A typical application wanting coarse clipping and filtering may want to pre-compute an array of indices that passed the filtering test, recomputing this array when user changes the filter,
-    // and appending newly elements as they are inserted. This is left as a task to the user until we can manage to improve this example code!
-    // If your items are of variable size you may want to implement code similar to what ImGuiListClipper does. Or split your data into fixed height items to allow random-seeking into your list.
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
-
-    for (unsigned int i = 0; i < gConsole.mLines.size(); i++)
+    for (const ConsoleLine& currentLine: gConsole.mLines)
     {
-        const ConsoleLine& currentLine = gConsole.mLines[i];
         const char* item = currentLine.mString.c_str();
 
-        // Normally you would store more information in your item (e.g. make Items[] an array of structure, store color/type etc.)
         bool pop_color = false;
         if (currentLine.mMessageCategory == eLogMessage_Error) 
         { 
@@ -69,35 +66,34 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
         }
     }
 
-    if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+    if (mScrollToBottom || (mAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
     {
         ImGui::SetScrollHereY(1.0f);
     }
-    ScrollToBottom = false;
+    mScrollToBottom = false;
 
     ImGui::PopStyleVar();
     ImGui::EndChild();
+
     ImGui::Separator();
 
     auto TextEditCallbackStub = [](ImGuiInputTextCallbackData* data) -> int
-        {
-            ConsoleWindow* this_ = (ConsoleWindow*) data->UserData;
-            debug_assert(this_);
-            return this_->TextEditCallback(data);
-        };
+    {
+        ConsoleWindow* this_ = (ConsoleWindow*) data->UserData;
+        debug_assert(this_);
+        return this_->TextEditCallback(data);
+    };
 
     // command-line
     bool reclaim_focus = false;
-    if (ImGui::InputText("Input", mInputBuffer.c_str(), mInputBuffer.get_capacity() + 1, 
-        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | 
-        ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackResize, TextEditCallbackStub, (void*)this))
+    if (ImGui::InputText("Input", (char*)mInputString.c_str(), mInputString.capacity() + 1, 
+        ImGuiInputTextFlags_EnterReturnsTrue | 
+        ImGuiInputTextFlags_CallbackCompletion | 
+        ImGuiInputTextFlags_CallbackHistory | 
+        ImGuiInputTextFlags_CallbackResize | 
+        ImGuiInputTextFlags_CallbackCharFilter, TextEditCallbackStub, (void*)this))
     {
-        mInputBuffer.trim();
-        if (!mInputBuffer.empty())
-        {
-            ExecCommand(mInputBuffer.c_str());
-        }
-        mInputBuffer.clear();
+        Exec();
         reclaim_focus = true;
     }
 
@@ -107,34 +103,27 @@ void ConsoleWindow::DoUI(Timespan deltaTime)
     {
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
     }
+    else
+    {
+        ImGui::SetKeyboardFocusHere(0); // Auto focus previous widget
+    }
+
     ImGui::End();
-}
-
-void ConsoleWindow::ExecCommand(const char* command_line)
-{
-    gConsole.LogMessage(eLogMessage_Debug, "# %s\n", command_line);
-
-    int historySize = mHistory.size();
-    // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
-    mHistoryPos = -1;
-    for (int i = historySize - 1; i >= 0; i--)
-        if (cxx_stricmp(mHistory[i].c_str(), command_line) == 0)
-        {
-            mHistory.erase(mHistory.begin() + i);
-            break;
-        }
-    mHistory.push_back(command_line);
-
-    // todo: process command
-
-    // On commad input, we scroll to bottom even if AutoScroll==false
-    ScrollToBottom = true;
 }
 
 int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
     switch (data->EventFlag)
     {
+    case ImGuiInputTextFlags_CallbackCharFilter:
+        {
+            if (data->EventChar == L'`')
+            {
+                ToggleWindowShown();
+                return 1;
+            }
+            break;
+        }
     case ImGuiInputTextFlags_CallbackCompletion:
         {
             // Locate beginning of current word
@@ -145,22 +134,22 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
                 const char c = word_start[-1];
                 if (c == ' ' || c == '\t' || c == ',' || c == ';')
                     break;
+
                 word_start--;
             }
 
-            // Build a list of candidates
+            if (word_end == word_start)
+                break;
+
+            // build a list of candidates
             std::vector<const char*> candidates;
-            for (int i = 0; i < mCommands.size(); i++)
-                if (::strncmp(mCommands[i].c_str(), word_start, (int)(word_end-word_start)) == 0)
-                {
-                    candidates.push_back(mCommands[i].c_str());
-                }
+
+            // todo: vars, commands
 
             int candidatesCount = candidates.size();
             if (candidatesCount == 0)
             {
-                // No match
-                gConsole.LogMessage(eLogMessage_Debug, "No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
+                // no match
             }
             else if (candidatesCount == 1)
             {
@@ -192,9 +181,8 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
                     data->DeleteChars((int)(word_start - data->Buf), (int)(word_end-word_start));
                     data->InsertChars(data->CursorPos, candidates[0], candidates[0] + match_len);
                 }
-
+                gConsole.LogMessage(eLogMessage_Debug, "");
                 // List matches
-                gConsole.LogMessage(eLogMessage_Debug, "Possible matches:\n");
                 for (int i = 0; i < candidatesCount; i++)
                 {
                     gConsole.LogMessage(eLogMessage_Debug, "- %s\n", candidates[i]);
@@ -237,13 +225,39 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
                 data->DeleteChars(0, data->BufTextLen);
                 data->InsertChars(0, history_str);
             }
+            break;
         }
     case ImGuiInputTextFlags_CallbackResize:
         {
-            // Resize string callback
-            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
-            data->Buf = mInputBuffer.c_str();
+            mInputString.resize(data->BufTextLen);
+
+            data->Buf = (char*)mInputString.c_str();
+            break;
         }
     }
     return 0;
+}
+
+void ConsoleWindow::Exec()
+{
+    if (!mInputString.empty())
+    {
+        cxx::trim(mInputString);
+    }
+
+    if (mInputString.empty())
+        return;
+
+    gConsole.ExecuteCommands(mInputString.c_str());
+    MoveInputToHistory();
+}
+
+void ConsoleWindow::MoveInputToHistory()
+{
+    const int MaxHistoryEntries = 6;
+    if (mHistory.size() >= MaxHistoryEntries)
+    {
+        mHistory.pop_front();
+    }
+    mHistory.emplace_back(std::move(mInputString));
 }

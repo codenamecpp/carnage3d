@@ -127,9 +127,6 @@
     <ClInclude Include="aux_math.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="config_document.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
     <ClInclude Include="frustum.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -319,6 +316,16 @@
     <ClInclude Include="GtaFontData.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="game_version.h" />
+    <ClInclude Include="common_utils.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="json_document.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="rtti.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -357,9 +364,6 @@
     </ClCompile>
     <ClCompile Include="cJSON.cpp">
       <Filter>Third_Party\cjson</Filter>
-    </ClCompile>
-    <ClCompile Include="config_document.cpp">
-      <Filter>Lib</Filter>
     </ClCompile>
     <ClCompile Include="strings.cpp">
       <Filter>Lib</Filter>
@@ -499,6 +503,9 @@
     </ClCompile>
     <ClCompile Include="GtaFontData.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="json_document.cpp">
+      <Filter>Lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

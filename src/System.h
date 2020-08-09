@@ -37,17 +37,19 @@ public:
 };
 
 // defines system startup parameters
-class SysStartupParameters
+class SysStartupParams
 {
 public:
-    SysStartupParameters() = default;
+    SysStartupParams() = default;
+
+    bool ParseStartupParams(int argc, char *argv[]);
 
     // clear all startup params
-    void SetNull();
+    void ClearParams();
 
 public:
-    cxx::string_buffer_16 mDebugMapName; // startup map name
-    cxx::string_buffer_256 mGtaDataLocation; // force gta data location
+    std::string mDebugMapName; // startup map name
+    std::string mGtaDataLocation; // force gta data location
     int mPlayersCount = 0;
 };
 
@@ -57,11 +59,14 @@ class System final: public cxx::noncopyable
 public:
     // public just for convenience
     SysConfig mConfig; // current configuration of the system
-    SysStartupParameters mStartupParams;
+    SysStartupParams mStartupParams;
 
 public:
+    void Initialize(int argc, char *argv[]);
+    void Deinit();
+
     // Initialize game subsystems and run main loop
-    void Execute(const SysStartupParameters& sysStartupParams);
+    void Execute();
 
     // Abnormal application shutdown due to critical failure
     void Terminate();
@@ -82,9 +87,6 @@ public:
     long GetSysMilliseconds() const;
 
 private:
-    void Initialize();
-    void Deinit();
-
     // Save/Load configuration to/from external file
     bool LoadConfiguration();
     bool SaveConfiguration();

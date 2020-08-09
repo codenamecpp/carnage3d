@@ -340,7 +340,7 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
         debug_assert(false);
         return;
     }
-    cxx::string_buffer_1024 pathBuffer;
+    std::string pathBuffer;
     for (int iblockType = 0; iblockType < eBlockType_COUNT; ++iblockType)
     {
         eBlockType currentBlockType = (eBlockType) iblockType;
@@ -355,7 +355,7 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
             }
             
             // dump to file
-            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
+            pathBuffer = cxx::va("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
             if (!blockBitmap.SaveToFile(pathBuffer.c_str()))
             {
                 debug_assert(false);
@@ -370,7 +370,7 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
-    cxx::string_buffer_1024 pathBuffer;
+    std::string pathBuffer;
     for (int iSpriteType = 0; iSpriteType < eSpriteType_COUNT; ++iSpriteType)
     {
         eSpriteType sprite_type = (eSpriteType) iSpriteType;
@@ -385,7 +385,7 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
             cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
             // dump to file
-            pathBuffer.printf("%s/%s_%d.png", outputLocation, cxx::enum_to_string(sprite_type), iSpriteId);
+            cxx::va("%s/%s_%d.png", outputLocation, cxx::enum_to_string(sprite_type), iSpriteId);
             if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
             {
                 debug_assert(false);
@@ -400,7 +400,7 @@ void SpriteManager::DumpCarsTextures(const char* outputLocation)
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
-    cxx::string_buffer_1024 pathBuffer;
+    std::string pathBuffer;
     for (const CarStyle& currCar: cityStyle.mCars)
     {
         int sprite_index = cityStyle.GetCarSpriteIndex(currCar.mVType, currCar.mSprNum);
@@ -412,7 +412,7 @@ void SpriteManager::DumpCarsTextures(const char* outputLocation)
         cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
         // dump to file
-        pathBuffer.printf("%s/%d-%s-%s.png", outputLocation, currCar.mModelId, 
+        cxx::va("%s/%d-%s-%s.png", outputLocation, currCar.mModelId, 
             cxx::enum_to_string(currCar.mModelId), 
             cxx::enum_to_string(currCar.mVType));
 
@@ -429,7 +429,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
-    cxx::string_buffer_1024 pathBuffer;
+    std::string pathBuffer;
 
     for (int isprite = 0, Num = gGameMap.mStyleData.mSprites.size(); isprite < Num; ++isprite)
     {
@@ -445,7 +445,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
             }
 
             // dump to file
-            pathBuffer.printf("%s/sprite_%d_delta_%d.png", outputLocation, isprite, idelta);
+            cxx::va("%s/sprite_%d_delta_%d.png", outputLocation, isprite, idelta);
             if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
             {
                 debug_assert(false);
@@ -460,7 +460,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
 
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
-    cxx::string_buffer_1024 pathBuffer;
+    std::string pathBuffer;
 
     SpriteStyle& sprite = cityStyle.mSprites[spriteIndex];
 
@@ -474,7 +474,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
         }
 
         // dump to file
-        pathBuffer.printf("%s/sprite_%d_delta_%d.png", outputLocation, spriteIndex, idelta);
+        cxx::va("%s/sprite_%d_delta_%d.png", outputLocation, spriteIndex, idelta);
         if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
         {
             debug_assert(false);

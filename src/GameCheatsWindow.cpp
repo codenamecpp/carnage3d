@@ -17,7 +17,7 @@ GameCheatsWindow::GameCheatsWindow()
 {
 }
 
-void GameCheatsWindow::DoUI(Timespan deltaTime)
+void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 {
     ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | 
         ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar;

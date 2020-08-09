@@ -21,7 +21,3 @@ DebugWindow::~DebugWindow()
 {
     GetDebugWindowsList().remove(&mDebugWindowsListNode);
 }
-
-void DebugWindow::DoUI(Timespan deltaTime)
-{
-}

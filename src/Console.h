@@ -21,6 +21,10 @@ public:
     // Clear all console text messages
     void Flush();
 
+    // parse and execute commands
+    // @param commands: Commands string
+    void ExecuteCommands(const char* commands);
+
 public:
     std::deque<ConsoleLine> mLines;
 };

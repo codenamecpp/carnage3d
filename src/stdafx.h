@@ -14,38 +14,6 @@
 
 #include <stdlib.h>
 
-// small c++ std templates library extensions
-
-template <typename Array> struct ArrayType;
-template <typename TElement, int NumElements> 
-struct ArrayType<TElement[NumElements]>
-{
-    enum { Countof = NumElements };
-};
-template <typename TElement, int NumElements>
-constexpr int CountOf(const TElement(&)[NumElements])
-{
-    return NumElements;
-}
-template <typename TElement>
-inline void SafeDelete(TElement*& elementPointer)
-{
-    if (elementPointer)
-    {
-        delete elementPointer;
-        elementPointer = nullptr;
-    }
-}
-template<typename TElement>
-inline void SafeDeleteArray(TElement*& elementPointer)
-{
-    if (elementPointer)
-    {
-        delete [] elementPointer;
-        elementPointer = nullptr;
-    }
-}
-
 // stdlib
 #include <math.h>
 #include <stdarg.h>
@@ -59,6 +27,7 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <stdint.h>
 #include <cctype>
 #include <chrono>
@@ -85,6 +54,8 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include <Box2D/Box2D.h>
 
 // lib
+#include "common_utils.h"
+#include "rtti.h"
 #include "enum_utils.h"
 #include "aux_math.h"
 #include "geometries.h"
@@ -97,10 +68,11 @@ inline void SafeDeleteArray(TElement*& elementPointer)
 #include "randomizer.h"
 #include "strings.h"
 #include "path_utils.h"
-#include "config_document.h"
+#include "json_document.h"
 #include "mem_allocators.h"
 #include "iostream_utils.h"
 
+#include "game_version.h"
 // app
 #include "CommonTypes.h"
 #include "Console.h"

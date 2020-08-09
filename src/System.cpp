@@ -48,7 +48,37 @@ void SysConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, boo
 
 //////////////////////////////////////////////////////////////////////////
 
-void SysStartupParameters::SetNull()
+bool SysStartupParams::ParseStartupParams(int argc, char *argv[])
+{
+    ClearParams();
+
+    for (int iarg = 1; iarg < argc; )
+    {
+        if (cxx_stricmp(argv[iarg], "-mapname") == 0 && (argc > iarg + 1))
+        {
+            mDebugMapName.assign(argv[iarg + 1]);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-gtadata") == 0 && (argc > iarg + 1))
+        {
+            mGtaDataLocation.assign(argv[iarg + 1]);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-numplayers") == 0 && (argc > iarg + 1))
+        {
+            ::sscanf(argv[iarg + 1], "%d", &mPlayersCount);
+            iarg += 2;
+            continue;
+        }
+        ++iarg;
+    }
+
+    return true;
+}
+
+void SysStartupParams::ClearParams()
 {
     mDebugMapName.clear();
     mGtaDataLocation.clear();
@@ -59,61 +89,21 @@ void SysStartupParameters::SetNull()
 
 System gSystem;
 
-void System::Execute(const SysStartupParameters& sysStartupParams)
-{
-    const long MinFPS = 20;
-    const long MaxFrameDelta = Timespan::MillisecondsPerSecond / MinFPS;
-
-    mIgnoreInputs = true; // don't dispatch input events until initialization completed
-    mStartupParams = sysStartupParams;
-    Initialize();
-
-    // main loop
-    long previousFrameTimestamp = GetSysMilliseconds();
-    for (; !mQuitRequested; )
-    {
-        long currentTimestamp = GetSysMilliseconds();
-
-        Timespan deltaTime ( currentTimestamp - previousFrameTimestamp );
-        if (deltaTime < 1)
-        {
-            // small delay
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-            currentTimestamp = GetSysMilliseconds();
-            deltaTime = 1;
-        }
-
-        if (deltaTime > MaxFrameDelta)
-        {
-            deltaTime = MaxFrameDelta;
-        }
-
-        gMemoryManager.FlushFrameHeapMemory();
-
-        // order in which subsystems gets updated is significant
-        gUiManager.UpdateFrame(deltaTime);
-        gCarnageGame.UpdateFrame(deltaTime);
-        gRenderManager.RenderFrame();
-        previousFrameTimestamp = currentTimestamp;
-        if (mIgnoreInputs) // ingore inputs at very first frame
-        {
-            mIgnoreInputs = false;
-        }
-    }
-
-    Deinit();
-}
-
-void System::Initialize()
+void System::Initialize(int argc, char *argv[])
 {
     if (!gConsole.Initialize())
     {
         debug_assert(false);
     }
 
+    gConsole.LogMessage(eLogMessage_Info, GAME_TITLE);
     gConsole.LogMessage(eLogMessage_Info, "System initialize");
     
+    if (!mStartupParams.ParseStartupParams(argc, argv))
+    {
+        debug_assert(false);
+    }
+
     if (!gFiles.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize filesystem");
@@ -171,6 +161,50 @@ void System::Deinit()
     gMemoryManager.Deinit();
     gFiles.Deinit();
     gConsole.Deinit();
+}
+
+void System::Execute()
+{
+    const long MinFPS = 20;
+    const long MaxFrameDelta = Timespan::MillisecondsPerSecond / MinFPS;
+
+    mIgnoreInputs = true; // don't dispatch input events until initialization completed
+
+    // main loop
+    long previousFrameTimestamp = GetSysMilliseconds();
+    for (; !mQuitRequested; )
+    {
+        long currentTimestamp = GetSysMilliseconds();
+
+        Timespan deltaTime ( currentTimestamp - previousFrameTimestamp );
+        if (deltaTime < 1)
+        {
+            // small delay
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+            currentTimestamp = GetSysMilliseconds();
+            deltaTime = 1;
+        }
+
+        if (deltaTime > MaxFrameDelta)
+        {
+            deltaTime = MaxFrameDelta;
+        }
+
+        gMemoryManager.FlushFrameHeapMemory();
+
+        // order in which subsystems gets updated is significant
+        gUiManager.UpdateFrame(deltaTime);
+        gCarnageGame.UpdateFrame(deltaTime);
+        gRenderManager.RenderFrame();
+        previousFrameTimestamp = currentTimestamp;
+        if (mIgnoreInputs) // ingore inputs at very first frame
+        {
+            mIgnoreInputs = false;
+        }
+    }
+
+    Deinit();
 }
 
 void System::Terminate()
@@ -261,47 +295,49 @@ bool System::LoadConfiguration()
         return false;
     }
 
-    cxx::config_document configDocument;
+    cxx::json_document configDocument;
     if (!configDocument.parse_document(jsonContent.c_str()))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config '%s'", SysConfigPath);
         return false;
     }
 
-    if (cxx::config_node screenConfig = configDocument.get_root_node().get_child("screen"))
+    cxx::json_document_node configRootNode = configDocument.get_root_node();
+    if (cxx::json_document_node screenConfig = configRootNode["screen"])
     {
         int screen_sizex = DefaultScreenResolutionX;
         int screen_sizey = DefaultScreenResolutionY;
-        if (cxx::config_node screenResolution = screenConfig.get_child("resolution"))
+        if (cxx::json_document_node screenResolution = screenConfig["resolution"])
         {
-            screen_sizex = screenResolution.get_array_element(0).get_value_integer();
-            screen_sizey = screenResolution.get_array_element(1).get_value_integer();
+            cxx::json_get_attribute(screenResolution, 0, screen_sizex);
+            cxx::json_get_attribute(screenResolution, 1, screen_sizey);
         }
 
-        bool fullscreen_mode = screenConfig.get_child("fullscreen").get_value_boolean();
-        bool vsync_mode = screenConfig.get_child("vsync").get_value_boolean();
-        bool hardware_cursor = screenConfig.get_child("hardware_cursor").get_value_boolean();
+        bool fullscreen_mode = mConfig.mFullscreen; 
+        cxx::json_get_attribute(screenConfig, "fullscreen", fullscreen_mode);
+
+        bool vsync_mode = mConfig.mEnableVSync;
+        cxx::json_get_attribute(screenConfig, "vsync", vsync_mode);
+
+        bool hardware_cursor = false;
+        cxx::json_get_attribute(screenConfig, "hardware_cursor", hardware_cursor);
 
         mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
     }
 
     // gta1 data files location
-    const char* gta_data_root = configDocument.get_root_node().get_child("gta_gamedata_location").get_value_string();
-    if (*gta_data_root)
-    {
-        gFiles.mGTADataDirectoryPath = gta_data_root;
-    }
+    cxx::json_get_attribute(configRootNode, "gta_gamedata_location", gFiles.mGTADataDirectoryPath);
 
     // memory
-    if (cxx::config_node memConfig = configDocument.get_root_node().get_child("memory"))
+    if (cxx::json_document_node memConfig = configRootNode["memory"])
     {
-        mConfig.mEnableFrameHeapAllocator = memConfig.get_child("enable_frame_heap_allocator").get_value_boolean();
+        cxx::json_get_attribute(memConfig, "enable_frame_heap_allocator", mConfig.mEnableFrameHeapAllocator);
     }
 
     // debug
-    if (cxx::config_node memConfig = configDocument.get_root_node().get_child("debug"))
+    if (cxx::json_document_node memConfig = configRootNode["debug"])
     {
-        mConfig.mShowImguiDemoWindow = memConfig.get_child("show_imgui_demo_window").get_value_boolean();
+        cxx::json_get_attribute(memConfig, "show_imgui_demo_window", mConfig.mShowImguiDemoWindow);
     }
     return true;
 }

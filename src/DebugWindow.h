@@ -1,5 +1,8 @@
 #pragma once
 
+// forwards
+struct ImGuiIO;
+
 // base class for all debug windows
 class DebugWindow: public cxx::noncopyable
 {
@@ -20,8 +23,13 @@ public:
     virtual ~DebugWindow();
     
     // process window state
-    // @param deltaTime: Time since last frame
-    virtual void DoUI(Timespan deltaTime);
+    // @param imguiContext: Internal imgui context
+    virtual void DoUI(ImGuiIO& imguiContext) = 0;
+
+    inline void ToggleWindowShown()
+    {
+        mWindowShown = !mWindowShown;
+    }
 
 public:
     const char* mWindowName;

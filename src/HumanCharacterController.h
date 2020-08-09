@@ -17,7 +17,7 @@ public:
     InputActionsMapping();
 
     // setup actions mapping from config node
-    void SetFromConfig(cxx::config_node& configNode);
+    void SetFromConfig(cxx::json_document_node& configNode);
 
     void SetDefaults();
     void SetNull();

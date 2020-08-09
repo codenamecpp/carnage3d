@@ -76,6 +76,23 @@ bool has_suffix_icase(const char* string_a, const char* suffix_string)
     return false;
 }
 
+const char* va(const char* format_string, ...)
+{
+    va_list argptr;
+
+    static int scope_index = 0;
+    static char string_buffers[4][16384]; // in case called by nested functions
+
+    char *current_buffer = string_buffers[scope_index];
+    scope_index = (scope_index + 1) & 3;
+
+    va_start(argptr, format_string);
+    vsprintf(current_buffer, format_string, argptr);
+    va_end(argptr);
+
+    return current_buffer;
+}
+
 void trim_left(std::string& input_string)
 {
     input_string.erase(input_string.begin(), std::find_if(input_string.begin(), input_string.end(), 
@@ -117,7 +134,7 @@ static const char* eat_whitespaces(const char* cursor)
     return cursor;
 }
 
-static const char* eat_quoted_string(const char* cursor, string_buffer& outputString)
+static const char* eat_quoted_string(const char* cursor, std::string& outputString)
 {
     cursor = eat_whitespaces(cursor);
 
@@ -134,7 +151,7 @@ static const char* eat_quoted_string(const char* cursor, string_buffer& outputSt
         if (*cursor == '\"')
             break;
 
-        outputString.append_char(*cursor);
+        outputString.push_back(*cursor);
         ++cursor;
     }
 
@@ -147,7 +164,7 @@ static const char* eat_quoted_string(const char* cursor, string_buffer& outputSt
     return nullptr;
 }
 
-static const char* eat_argument(const char* cursor, string_buffer& outputString)
+static const char* eat_argument(const char* cursor, std::string& outputString)
 {
     cursor = eat_whitespaces(cursor);
 
@@ -167,7 +184,7 @@ static const char* eat_argument(const char* cursor, string_buffer& outputString)
             break;
         }
 
-        outputString.append_char(*cursor);
+        outputString.push_back(*cursor);
         ++cursor;
     }
     return cursor;
@@ -215,150 +232,6 @@ bool arguments_parser::parse_next_string()
 {
     mArgsCursor = eat_argument(mArgsCursor, mContent);
     return mArgsCursor != nullptr;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-string_buffer::string_buffer(char* buffer_begin, char* buffer_end, int buffer_capacity)
-    : mBufferPtr(buffer_begin)
-    , mBufferEnd(buffer_end)
-    , mBufferCapacity(buffer_capacity)
-{
-    debug_assert(mBufferPtr);
-    clear();
-}
-
-void string_buffer::clear()
-{
-    debug_assert(mBufferPtr);
-    if (mBufferCapacity > 0)
-    {
-        mBufferEnd = mBufferPtr;
-        *mBufferPtr = 0;
-    }
-}
-
-void string_buffer::append_char(char c)
-{
-    int currLength = get_length();
-    if (currLength < mBufferCapacity)
-    {
-        mBufferEnd[0] = c;
-        mBufferEnd[1] = 0;
-        ++mBufferEnd;
-    }
-}
-
-void string_buffer::pop_back()
-{
-    if (mBufferPtr == mBufferEnd)
-    {
-        debug_assert(false);
-        return;
-    }
-    --mBufferEnd;
-    mBufferEnd[0] = 0;
-}
-
-void string_buffer::append_string(const char* sourceString)
-{
-    if (mBufferPtr == sourceString)
-        return;
-
-    for (;sourceString && *sourceString; ++sourceString)
-    {
-        int currLength = get_length();
-        if (currLength < mBufferCapacity)
-        {
-            mBufferEnd[0] = *sourceString;
-            mBufferEnd[1] = 0;
-            ++mBufferEnd;
-            continue;
-        }
-        break;
-    }
-}
-
-void string_buffer::set_content(const char* sourceString, int length)
-{
-    if (mBufferPtr == sourceString)
-        return;
-
-    clear();
-
-    if (length == 0)
-    {
-        append_string(sourceString);
-        return;
-    }
-
-    for (int i = 0; i < length; ++i)
-    {
-        int currLength = get_length();
-        if (currLength < mBufferCapacity)
-        {
-            mBufferEnd[0] = sourceString[i];
-            mBufferEnd[1] = 0;
-            ++mBufferEnd;
-            continue;
-        }
-        break;
-    }        
-}
-
-int string_buffer::printf(const char* szFormatString, ...)
-{
-    debug_assert(mBufferPtr);
-
-    clear();
-
-    // formatted print routine
-    va_list parguments;
-    va_start(parguments, szFormatString);
-    int icounter = vsnprintf(mBufferPtr, mBufferCapacity + 1, szFormatString, parguments);
-    if (icounter > 0)
-    {
-        mBufferEnd = mBufferPtr + (icounter > mBufferCapacity ? mBufferCapacity : icounter);
-    }
-    va_end(parguments);
-    return icounter;
-}
-
-void string_buffer::trim_left()
-{
-    int copyPos = 0;
-    int stringLength = get_length();
-    for (; copyPos < stringLength; ++copyPos)
-    {
-        if (!is_space(mBufferPtr[copyPos]))
-            break;
-    }
-    if (copyPos == 0)
-        return;
-
-    stringLength -= copyPos;
-    for (int icurr = 0; icurr < stringLength; ++icurr)
-    {
-        mBufferPtr[icurr] = mBufferPtr[copyPos + icurr];
-    }
-    mBufferPtr[stringLength] = 0;
-}
-
-void string_buffer::trim_right()
-{
-    for (int currLength = get_length(); currLength > 0; --currLength)
-    {
-        if (!is_space(mBufferPtr[currLength - 1]))
-            break;
-
-        pop_back();
-    }
-}
-
-void string_buffer::trim()
-{
-    trim_right();
-    trim_left();
 }
 
 } // namespace cxx

@@ -16,7 +16,7 @@ public:
 private:
     // process window state
     // @param deltaTime: Time since last frame
-    void DoUI(Timespan deltaTime) override;
+    void DoUI(ImGuiIO& imguiContext) override;
 
     void CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestrian);
 };

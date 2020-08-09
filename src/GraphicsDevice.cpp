@@ -7,8 +7,6 @@
 #include "GpuTexture2D.h"
 #include "GpuTextureArray2D.h"
 
-#define WINDOW_TITLE "Carnage3D"
-
 GraphicsDevice gGraphicsDevice;
 
 //////////////////////////////////////////////////////////////////////////
@@ -176,7 +174,7 @@ bool GraphicsDevice::Initialize(int screensizex, int screensizey, bool fullscree
     ::glfwWindowHint(GLFW_DEPTH_BITS, 16);
 
     // create window and set current context
-    GLFWwindow* graphicsWindow = ::glfwCreateWindow(screensizex, screensizey, WINDOW_TITLE, graphicsMonitor, nullptr);
+    GLFWwindow* graphicsWindow = ::glfwCreateWindow(screensizex, screensizey, GAME_TITLE, graphicsMonitor, nullptr);
     debug_assert(graphicsWindow);
     if (!graphicsWindow)
     {

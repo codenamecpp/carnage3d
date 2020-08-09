@@ -173,7 +173,7 @@ void ImGuiManager::UpdateFrame(Timespan deltaTime)
         if (!currWindow->mWindowShown)
             continue;
 
-        currWindow->DoUI(deltaTime);
+        currWindow->DoUI(io);
         anyWindowShown = true;
     }
 

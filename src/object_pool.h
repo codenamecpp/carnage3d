@@ -117,7 +117,7 @@ namespace cxx
                     }
                     return;
                 }
-        
+
                 if (mNextChunk)
                 {
                     mNextChunk->deallocate_object(element);
@@ -174,7 +174,7 @@ namespace cxx
 
     } // namespace details
 
-    // template objects pool class
+      // template objects pool class
     template<typename TPoolElement, int BlockSize = 1024>
     class object_pool
     {

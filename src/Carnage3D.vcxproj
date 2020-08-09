@@ -155,7 +155,9 @@
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="aux_math.h" />
+    <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="game_version.h" />
     <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
@@ -178,6 +180,7 @@
     <ClInclude Include="GameMapManager.h" />
     <ClInclude Include="HumanCharacterController.h" />
     <ClInclude Include="RenderView.h" />
+    <ClInclude Include="rtti.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="SpriteBatch.h" />
     <ClInclude Include="StyleData.h" />
@@ -216,7 +219,7 @@
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="Inputs.h" />
     <ClInclude Include="intrusive_list.h" />
-    <ClInclude Include="config_document.h" />
+    <ClInclude Include="json_document.h" />
     <ClInclude Include="memory_istream.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="OpenGLDefs.h" />
@@ -269,7 +272,7 @@
     <ClCompile Include="FollowCameraController.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="CarnageGame.cpp" />
-    <ClCompile Include="config_document.cpp" />
+    <ClCompile Include="json_document.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="GameParams.cpp" />
     <ClCompile Include="GpuTextureArray2D.cpp" />

@@ -77,32 +77,37 @@ void InputActionsMapping::SetDefaults()
     }
 }
 
-void InputActionsMapping::SetFromConfig(cxx::config_node& configNode)
+void InputActionsMapping::SetFromConfig(cxx::json_document_node& configNode)
 {
-    const char* controller_type_str = configNode.get_child("controller_type").get_value_string();
-    if (!cxx::parse_enum(controller_type_str, mControllerType))
+    std::string bufferString;
+
+    if (cxx::json_node_string controllerTypeNode = configNode["controller_type"])
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Unknown controller type '%s'", controller_type_str);
+        bufferString = controllerTypeNode.get_value();
+        if (!cxx::parse_enum(bufferString.c_str(), mControllerType))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown controller type '%s'", bufferString.c_str());
+        }        
     }
 
     // scan keycodes
-    if (cxx::config_node keysNode = configNode.get_child("keys"))
+    if (cxx::json_document_node keysNode = configNode["keys"])
     {
         ePedestrianAction action = ePedestrianAction_null;
         eKeycode keycode = eKeycode_null;
 
-        for (cxx::config_node currNode = keysNode.first_child(); currNode; currNode = currNode.next_sibling())
+        for (cxx::json_node_string currNode = keysNode.first_child(); currNode; currNode = currNode.next_sibling())
         {
-            const char* action_str = currNode.get_element_name();
-            if (!cxx::parse_enum(action_str, action))
+            bufferString = currNode.get_element_name();
+            if (!cxx::parse_enum(bufferString.c_str(), action))
             {
-                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", action_str);
+                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", bufferString.c_str());
                 continue; 
             }
-            const char* keycode_str = currNode.get_value_string();
-            if (!cxx::parse_enum(keycode_str, keycode))
+            bufferString = currNode.get_value();
+            if (!cxx::parse_enum(bufferString.c_str(), keycode))
             {
-                gConsole.LogMessage(eLogMessage_Warning, "Unknown keycode %s", keycode_str);
+                gConsole.LogMessage(eLogMessage_Warning, "Unknown keycode %s", bufferString.c_str());
                 continue;
             }
             mKeycodes[action] = keycode;
@@ -110,23 +115,23 @@ void InputActionsMapping::SetFromConfig(cxx::config_node& configNode)
     }
     
     // scan gamepad buttons
-    if (cxx::config_node gpNode = configNode.get_child("gamepad"))
+    if (cxx::json_document_node gpNode = configNode["gamepad"])
     {
         ePedestrianAction action = ePedestrianAction_null;
         eGamepadButton gpButton = eGamepadButton_null;
 
-        for (cxx::config_node currNode = gpNode.first_child(); currNode; currNode = currNode.next_sibling())
+        for (cxx::json_node_string currNode = gpNode.first_child(); currNode; currNode = currNode.next_sibling())
         {
-            const char* action_str = currNode.get_element_name();
-            if (!cxx::parse_enum(action_str, action))
+            bufferString = currNode.get_element_name();
+            if (!cxx::parse_enum(bufferString.c_str(), action))
             {
-                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", action_str);
+                gConsole.LogMessage(eLogMessage_Warning, "Unknown action %s", bufferString.c_str());
                 continue; 
             }
-            const char* gpbutton_str = currNode.get_value_string();
-            if (!cxx::parse_enum(gpbutton_str, gpButton))
+            bufferString = currNode.get_value();
+            if (!cxx::parse_enum(bufferString.c_str(), gpButton))
             {
-                gConsole.LogMessage(eLogMessage_Warning, "Unknown gamepad button %s", gpbutton_str);
+                gConsole.LogMessage(eLogMessage_Warning, "Unknown gamepad button %s", bufferString.c_str());
                 continue;
             }
             mGpButtons[action] = gpButton;

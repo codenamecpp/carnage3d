@@ -44,3 +44,27 @@ void Console::Flush()
 {
     mLines.clear();
 }
+
+void Console::ExecuteCommands(const char* commands)
+{
+    cxx::string_tokenizer tokenizer(commands);
+    for (;;)
+    {
+        std::string commandName;
+        if (!tokenizer.get_next(commandName, ' '))
+            break;
+
+        std::string commandParams;
+        if (tokenizer.get_next(commandParams, ';'))
+        {
+            cxx::trim(commandParams);
+        }
+
+        cxx::trim(commandName);
+
+        // todo:
+        // vars
+        // commands
+        LogMessage(eLogMessage_Warning, "Unknown command %s", commandName.c_str());
+    }
+}

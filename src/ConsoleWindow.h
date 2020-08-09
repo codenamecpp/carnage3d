@@ -8,25 +8,25 @@ struct ImGuiInputTextCallbackData;
 class ConsoleWindow final: public DebugWindow
 {
 public:
-    bool AutoScroll = true;
-    bool ScrollToBottom = false;
+    bool mAutoScroll = true;
+    bool mScrollToBottom = false;
 
 public:
     ConsoleWindow();
 
     // process logic
     // @param deltaTime: Time passed since previous update
-    void DoUI(Timespan deltaTime) override;
-
-    void ExecCommand(const char* command_line);
+    void DoUI(ImGuiIO& imguiContext) override;
 
 private:
+    // internals
     int TextEditCallback(ImGuiInputTextCallbackData* data);
+    void Exec();
+    void MoveInputToHistory();
 
 private:
-    cxx::string_buffer_256 mInputBuffer;
-    std::vector<std::string> mCommands;
-    std::vector<std::string> mHistory;
+    std::string mInputString;
+    std::deque<std::string> mHistory;
     int mHistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
 };
 

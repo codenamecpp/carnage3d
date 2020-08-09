@@ -35,11 +35,11 @@ bool FileSystem::OpenBinaryFile(const char* objectName, std::ifstream& instream)
         return instream.is_open();
     }
 
-    cxx::string_buffer_512 pathBuffer;
+    std::string pathBuffer;
     // search file in search places
     for (const std::string& currPlace: mSearchPlaces)
     {
-        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName);
         if (cxx::is_file_exists(pathBuffer.c_str()))
         {
             instream.open(pathBuffer.c_str(), std::ios::in | std::ios::binary);
@@ -58,11 +58,11 @@ bool FileSystem::OpenTextFile(const char* objectName, std::ifstream& instream)
         return instream.is_open();
     }
 
-    cxx::string_buffer_512 pathBuffer;
+    std::string pathBuffer;
     // search file in search places
     for (const std::string& currPlace: mSearchPlaces)
     {
-        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName);
         if (cxx::is_file_exists(pathBuffer.c_str()))
         {
             instream.open(pathBuffer.c_str(), std::ios::in);
@@ -77,11 +77,11 @@ bool FileSystem::IsDirectoryExists(const char* objectName)
     {
         return cxx::is_directory_exists(objectName);
     }
-    cxx::string_buffer_512 pathBuffer;
+    std::string pathBuffer;
     // search directory in search places
     for (const std::string& currPlace: mSearchPlaces)
     {
-        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName);
         if (cxx::is_directory_exists(pathBuffer.c_str()))
             return true;
     }
@@ -93,11 +93,11 @@ bool FileSystem::IsFileExists(const char* objectName)
     if (cxx::is_absolute_path(objectName))
         return cxx::is_file_exists(objectName);
 
-    cxx::string_buffer_512 pathBuffer;
+    std::string pathBuffer;
     // search file in search places
     for (const std::string& currPlace: mSearchPlaces)
     {
-        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName);
         if (cxx::is_file_exists(pathBuffer.c_str()))
             return true;
     }
@@ -139,11 +139,11 @@ bool FileSystem::GetFullPathToFile(const char* objectName, std::string& fullPath
         fullPath = objectName;
         return true;
     }
-    cxx::string_buffer_512 pathBuffer;
+    std::string pathBuffer;
     // search directory in search places
     for (const std::string& currPlace: mSearchPlaces)
     {
-        pathBuffer.printf("%s/%s", currPlace.c_str(), objectName);
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName);
         if (cxx::is_file_exists(pathBuffer.c_str()))
         {
             fullPath = pathBuffer.c_str();
@@ -155,9 +155,9 @@ bool FileSystem::GetFullPathToFile(const char* objectName, std::string& fullPath
 
 bool FileSystem::SetupGtaDataLocation()
 {
-    const SysStartupParameters& startupParams = gSystem.mStartupParams;
+    const SysStartupParams& startupParams = gSystem.mStartupParams;
     // override data location with startup param
-    if (startupParams.mGtaDataLocation.get_length())
+    if (!startupParams.mGtaDataLocation.empty())
     {
         mGTADataDirectoryPath = startupParams.mGtaDataLocation.c_str();
     }

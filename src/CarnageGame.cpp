@@ -278,21 +278,22 @@ bool CarnageGame::SetInputActionsFromConfig()
         return false;
     }
 
-    cxx::config_document configDocument;
+    cxx::json_document configDocument;
     if (!configDocument.parse_document(jsonContent.c_str()))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot parse input config document");
         return false;
     }
 
-    cxx::string_buffer_32 tempString;
+    std::string tempString;
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
         HumanCharacterController& currentChar = mHumanSlot[ihuman].mCharController;
 
-        tempString.printf("player%d", ihuman + 1);
+        tempString = cxx::va("player%d", ihuman + 1);
 
-        cxx::config_node configNode = configDocument.get_root_node().get_child(tempString.c_str());
+        cxx::json_document_node rootNode = configDocument.get_root_node();
+        cxx::json_document_node configNode = rootNode[tempString];
         currentChar.mInputs.SetFromConfig(configNode);
     }
 
