@@ -65,7 +65,7 @@ class SpriteAnimation
 public:
     SpriteAnimation();
     // advance animation state, returns true on frame changes
-    bool AdvanceAnimation(Timespan deltaTime);
+    bool AdvanceAnimation(float deltaTime);
     void SetNull();
 
     // animation control
@@ -98,8 +98,8 @@ public:
     eSpriteAnimStatus mStatus;
     eSpriteAnimLoop mLoopMode;
 
-    Timespan mTicksFromFrameStart;
-    Timespan mTicksFromAnimStart;
+    float mFrameStartTime;
+    float mAnimationStartTime;
     
     int mCyclesCounter;
     int mFrameCursor; // current offset in mAnimData.Frames

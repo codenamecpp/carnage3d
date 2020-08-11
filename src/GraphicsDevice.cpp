@@ -180,6 +180,7 @@ bool GraphicsDevice::Initialize()
     ::glfwWindowHint(GLFW_BLUE_BITS, 8);
     ::glfwWindowHint(GLFW_ALPHA_BITS, 8);
     ::glfwWindowHint(GLFW_DEPTH_BITS, 24);
+    ::glfwWindowHint(GLFW_DOUBLEBUFFER, 1);
 
     // create window and set current context
     GLFWwindow* graphicsWindow = ::glfwCreateWindow(mScreenResolution.x, mScreenResolution.y, GAME_TITLE, graphicsMonitor, nullptr);

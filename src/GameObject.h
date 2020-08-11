@@ -22,7 +22,7 @@ public:
     {
     }
     // process logic
-    virtual void UpdateFrame(Timespan deltaTime)
+    virtual void UpdateFrame()
     {
     }
     // draw debug info

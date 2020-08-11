@@ -5,6 +5,7 @@
 #include "MemoryManager.h"
 #include "CarnageGame.h"
 #include "ImGuiManager.h"
+#include "TimeManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +131,9 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
+    mStartSystemTime = ::glfwGetTime();
+    debug_assert(mStartSystemTime > 0.0);
+
     if (!gImGuiManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug ui system");
@@ -153,6 +157,9 @@ void System::Initialize(int argc, char *argv[])
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize game");
         Terminate();
     }
+
+    gTimeManager.Initialize();
+
     mQuitRequested = false;
 }
 
@@ -160,6 +167,7 @@ void System::Deinit()
 {
     gConsole.LogMessage(eLogMessage_Info, "System shutdown");
 
+    gTimeManager.Deinit();
     gCarnageGame.Deinit();
     gImGuiManager.Deinit();
     gUiManager.Deinit();
@@ -172,41 +180,43 @@ void System::Deinit()
 
 void System::Execute()
 {
-    const long MinFPS = 20;
-    const long MaxFrameDelta = Timespan::MillisecondsPerSecond / MinFPS;
+    const double MinFPS = 20.0;
+    const double MaxFrameDelta = 1.0 / MinFPS;
+
+    const double MaxFPS = 120.0f;
+    const double MinFrameDelta = 1.0 / MaxFPS;
 
     // main loop
-    long previousFrameTimestamp = GetSysMilliseconds();
+    double previousFrameTimestamp = GetSystemSeconds();
     for (; !mQuitRequested; )
     {
-        long currentTimestamp = GetSysMilliseconds();
-
-        Timespan deltaTime ( currentTimestamp - previousFrameTimestamp );
-        if (deltaTime < 1)
+        double currentTimestamp = GetSystemSeconds();
+        double systemDeltaTime = (currentTimestamp - previousFrameTimestamp);
+        if (systemDeltaTime < MinFrameDelta)
         {
-            // small delay
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            // limit fps 
+            std::chrono::duration<double> sleepTime (MinFrameDelta - systemDeltaTime);
+            std::this_thread::sleep_for(sleepTime);
 
-            currentTimestamp = GetSysMilliseconds();
-            deltaTime = 1;
+            currentTimestamp = GetSystemSeconds();
+            systemDeltaTime = (currentTimestamp - previousFrameTimestamp);
         }
 
-        if (deltaTime > MaxFrameDelta)
+        if (systemDeltaTime > MaxFrameDelta)
         {
-            deltaTime = MaxFrameDelta;
+            systemDeltaTime = MaxFrameDelta;
         }
+
+        gTimeManager.AdvanceTime(systemDeltaTime);
 
         gMemoryManager.FlushFrameHeapMemory();
-
         // order in which subsystems gets updated is significant
-        gImGuiManager.UpdateFrame(deltaTime);
-        gUiManager.UpdateFrame(deltaTime);
-        gCarnageGame.UpdateFrame(deltaTime);
+        gImGuiManager.UpdateFrame();
+        gUiManager.UpdateFrame();
+        gCarnageGame.UpdateFrame();
         gRenderManager.RenderFrame();
         previousFrameTimestamp = currentTimestamp;
     }
-
-    Deinit();
 }
 
 void System::Terminate()
@@ -218,12 +228,6 @@ void System::Terminate()
 void System::QuitRequest()
 {
     mQuitRequested = true;
-}
-
-long System::GetSysMilliseconds() const
-{
-    double totalSeconds = ::glfwGetTime();
-    return static_cast<long>(totalSeconds * 1000.0);
 }
 
 bool System::LoadConfiguration()
@@ -289,4 +293,10 @@ bool System::SaveConfiguration()
 {
     // todo
     return true;
+}
+
+double System::GetSystemSeconds() const
+{   
+    double currentTime = ::glfwGetTime();
+    return (currentTime - mStartSystemTime);
 }

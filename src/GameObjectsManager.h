@@ -18,7 +18,7 @@ public:
 
     bool Initialize();
     void Deinit();
-    void UpdateFrame(Timespan deltaTime);
+    void UpdateFrame();
     void DebugDraw();
 
     // add pedestrian to map at specific location

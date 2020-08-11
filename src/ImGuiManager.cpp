@@ -2,6 +2,7 @@
 #include "ImGuiManager.h"
 #include "RenderingManager.h"
 #include "DebugWindow.h"
+#include "TimeManager.h"
 
 ImGuiManager gImGuiManager;
 
@@ -145,11 +146,11 @@ void ImGuiManager::RenderFrame()
     }
 }
 
-void ImGuiManager::UpdateFrame(Timespan deltaTime)
+void ImGuiManager::UpdateFrame()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    io.DeltaTime = deltaTime.ToSeconds();   // set the time elapsed since the previous frame (in seconds)
+    io.DeltaTime = (float) gTimeManager.mUiFrameDelta;   // set the time elapsed since the previous frame (in seconds)
     io.DisplaySize.x = gGraphicsDevice.mViewportRect.w * 1.0f;
     io.DisplaySize.y = gGraphicsDevice.mViewportRect.h * 1.0f;
     io.MousePos.x = gInputs.mCursorPositionX * 1.0f;

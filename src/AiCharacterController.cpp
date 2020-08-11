@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AiCharacterController.h"
 
-void AiCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+void AiCharacterController::UpdateFrame(Pedestrian* pedestrian)
 {
 
 }

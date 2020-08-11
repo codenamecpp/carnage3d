@@ -4,6 +4,7 @@
 #include "GameCheatsWindow.h"
 #include "CarnageGame.h"
 #include "Pedestrian.h"
+#include "TimeManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -53,9 +54,9 @@ void PhysicsManager::Deinit()
     SafeDelete(mPhysicsWorld);
 }
 
-void PhysicsManager::UpdateFrame(Timespan deltaTime)
+void PhysicsManager::UpdateFrame()
 {
-    mSimulationTimeAccumulator += deltaTime.ToSeconds();
+    mSimulationTimeAccumulator += gTimeManager.mGameFrameDelta;
 
     const int MaxSimulationStepsPerFrame = 5;
     int numSimulations = static_cast<int>(mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP);

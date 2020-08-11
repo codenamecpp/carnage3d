@@ -329,6 +329,9 @@
     <ClInclude Include="InputsManager.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="TimeManager.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -511,6 +514,9 @@
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="InputsManager.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeManager.cpp">
       <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>

@@ -56,17 +56,17 @@ public:
     bool ProcessEvent(const PedestrianStateEvent& evData);
 
     // update current state
-    void ProcessFrame(Timespan deltaTime);
+    void ProcessFrame();
 
 private:
     void InitFuncsTable();
     
     // state helpers
-    void ProcessRotateActions(Timespan deltaTime);
-    void ProcessMotionActions(Timespan deltaTime);
+    void ProcessRotateActions();
+    void ProcessMotionActions();
     bool TryToShoot();
 
-    ePedestrianState GetNextIdleState(Timespan deltaTime);
+    ePedestrianState GetNextIdleState();
 
     // anims helpers
     eSpriteAnimID DetectIdleAnimation() const;
@@ -76,7 +76,7 @@ private:
     void SetInCarPositionToSeat();
 
     // state unspecified
-    void StateDummy_ProcessFrame(Timespan deltaTime) {}
+    void StateDummy_ProcessFrame() {}
     void StateDummy_ProcessEnter(const PedestrianStateEvent& stateEvent) {}
     void StateDummy_ProcessExit() {}
     bool StateDummy_ProcessEvent(const PedestrianStateEvent& stateEvent) { return false; }
@@ -89,21 +89,21 @@ private:
     bool StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // state exit car
-    void StateExitCar_ProcessFrame(Timespan deltaTime);
+    void StateExitCar_ProcessFrame();
     void StateExitCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
     void StateExitCar_ProcessExit();
 
     // state enter car
-    void StateEnterCar_ProcessFrame(Timespan deltaTime);
+    void StateEnterCar_ProcessFrame();
     void StateEnterCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
 
     // state slide on car
-    void StateSlideCar_ProcessFrame(Timespan deltaTime);
+    void StateSlideCar_ProcessFrame();
     void StateSlideCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
     bool StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // state knocked down
-    void StateKnockedDown_ProcessFrame(Timespan deltaTime);
+    void StateKnockedDown_ProcessFrame();
     void StateKnockedDown_ProcessEnter(const PedestrianStateEvent& stateEvent);
     bool StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
@@ -113,12 +113,12 @@ private:
     bool StateFalling_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // states standing, walking, running, shooting
-    void StateIdle_ProcessFrame(Timespan deltaTime);
+    void StateIdle_ProcessFrame();
     void StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent);
     bool StateIdle_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // states drowning
-    void StateDrowning_ProcessFrame(Timespan deltaTime);
+    void StateDrowning_ProcessFrame();
     void StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent);
 
 private:
@@ -127,7 +127,7 @@ private:
     {
         void (PedestrianStatesManager::*pfStateEnter)(const PedestrianStateEvent& stateEvent);
         void (PedestrianStatesManager::*pfStateExit)();
-        void (PedestrianStatesManager::*pfStateFrame)(Timespan deltaTime);
+        void (PedestrianStatesManager::*pfStateFrame)();
         bool (PedestrianStatesManager::*pfStateEvent)(const PedestrianStateEvent& stateEvent);
     };
 

@@ -35,7 +35,7 @@ void GameObjectsManager::Deinit()
     debug_assert(!mPedestriansList.has_elements());
 }
 
-void GameObjectsManager::UpdateFrame(Timespan deltaTime)
+void GameObjectsManager::UpdateFrame()
 {
     DestroyPendingObjects();
     
@@ -45,7 +45,7 @@ void GameObjectsManager::UpdateFrame(Timespan deltaTime)
         if (mDeleteList.contains(&currentPed->mDeleteObjectsNode))
             continue;
 
-        currentPed->UpdateFrame(deltaTime);
+        currentPed->UpdateFrame();
     }
 
     // update cars    
@@ -54,7 +54,7 @@ void GameObjectsManager::UpdateFrame(Timespan deltaTime)
         if (mDeleteList.contains(&currentCar->mDeleteObjectsNode))
             continue;
 
-        currentCar->UpdateFrame(deltaTime);
+        currentCar->UpdateFrame();
     }
 }
 

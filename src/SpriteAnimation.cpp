@@ -57,8 +57,8 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
         return;
     }
 
-    mTicksFromFrameStart = 0;
-    mTicksFromAnimStart = 0;
+    mFrameStartTime = 0.0;
+    mAnimationStartTime = 0.0;
     mCyclesCounter = 0;
     mStatus = eSpriteAnimStatus_PlayForward;
     mLoopMode = animLoop;
@@ -109,20 +109,20 @@ void SpriteAnimation::RewindToEnd()
     }
 }
 
-bool SpriteAnimation::AdvanceAnimation(Timespan deltaTime)
+bool SpriteAnimation::AdvanceAnimation(float deltaTime)
 {
     if (mStatus == eSpriteAnimStatus_Stop)
         return false;
 
-    mTicksFromAnimStart += deltaTime;
-    mTicksFromFrameStart += deltaTime;
+    mAnimationStartTime += deltaTime;
+    mFrameStartTime += deltaTime;
 
     float ticksPerFrame = (1.0f / mAnimDesc.mFramesPerSecond);
-    if (mTicksFromFrameStart.ToSeconds() < ticksPerFrame)
+    if (mFrameStartTime < ticksPerFrame)
         return false;
 
     // start next frame
-    mTicksFromFrameStart = 0;
+    mFrameStartTime = 0.0f;
     if (mStatus == eSpriteAnimStatus_PlayForward)
     {
         if (mFrameCursor == (mAnimDesc.mFramesCount - 1)) // end

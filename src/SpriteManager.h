@@ -32,7 +32,7 @@ public:
     void RenderFrameBegin();
     void RenderFrameEnd();
 
-    void UpdateBlocksAnimations(Timespan deltaTime);
+    void UpdateBlocksAnimations(float deltaTime);
 
     // force drop cached sprites
     // @param objectID: Specific object identifier

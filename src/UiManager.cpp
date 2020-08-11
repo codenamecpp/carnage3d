@@ -90,7 +90,7 @@ void UiManager::RenderFrame()
     }
 }
 
-void UiManager::UpdateFrame(Timespan deltaTime)
+void UiManager::UpdateFrame()
 {
     // do nothing
 }

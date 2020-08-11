@@ -9,8 +9,7 @@ public:
     virtual ~CharacterController();
 
     // process controller logic
-    // @param deltaTime: Time since last frame
-    virtual void UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime);
+    virtual void UpdateFrame(Pedestrian* pedestrian);
 
     // clear current state but keep target character bound to controller
     virtual void ResetControlState(Pedestrian* pedestrian);

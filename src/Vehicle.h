@@ -30,7 +30,7 @@ public:
     Vehicle(GameObjectID id);
     ~Vehicle();
 
-    void UpdateFrame(Timespan deltaTime) override;
+    void UpdateFrame() override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
@@ -86,10 +86,10 @@ public:
     bool IsSeatPresent(eCarSeat carSeat) const;
 
 private:
-    void UpdateDriving(Timespan deltaTime);
+    void UpdateDriving();
     void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
-    void UpdateDeltaAnimations(Timespan deltaTime);
+    void UpdateDeltaAnimations();
 
     SpriteDeltaBits GetSpriteDeltas() const;
 

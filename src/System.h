@@ -35,6 +35,8 @@ public:
     bool mShowImguiDemoWindow = false;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 // defines system startup parameters
 class SystemStartupParams
 {
@@ -50,6 +52,8 @@ public:
     std::string mGtaDataLocation; // force gta data location
     int mPlayersCount = 0;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // Common system specific stuff collected in System class
 class System final: public cxx::noncopyable
@@ -72,8 +76,8 @@ public:
     // Set application exit request flag, execution will be interrupted soon
     void QuitRequest();
 
-    // Get milliseconds since system started
-    long GetSysMilliseconds() const;
+    // Get real time seconds since system started
+    double GetSystemSeconds() const;
 
 private:
     // Save/Load configuration to/from external file
@@ -82,6 +86,7 @@ private:
 
 private:
     bool mQuitRequested;
+    double mStartSystemTime = 0.0;
 };
 
 extern System gSystem;

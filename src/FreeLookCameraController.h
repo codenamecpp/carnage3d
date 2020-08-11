@@ -9,8 +9,7 @@ public:
     void Setup(GameCamera* gameCamera) override;
 
     // process events and advance controller logic for single frame
-    // @param deltaTime: Time since last frame
-    void UpdateFrame(Timespan deltaTime) override;
+    void UpdateFrame() override;
 
     // process input event
     // @param inputEvent: Event data

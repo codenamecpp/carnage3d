@@ -3,6 +3,7 @@
 #include "PhysicsComponents.h"
 #include "CarnageGame.h"
 #include "Pedestrian.h"
+#include "TimeManager.h"
 
 FollowCameraController::FollowCameraController()
     : mStartupCameraHeight(8.0f)
@@ -36,7 +37,7 @@ void FollowCameraController::Setup(GameCamera* gameCamera)
     mCamera->SetTopDownOrientation();
 }
 
-void FollowCameraController::UpdateFrame(Timespan deltaTime)
+void FollowCameraController::UpdateFrame()
 {
     if (mFollowPedestrian == nullptr)
         return;
@@ -55,9 +56,10 @@ void FollowCameraController::UpdateFrame(Timespan deltaTime)
         position.z += (carVelocity.y * carSpeed * 0.35f);
     }
 
+    float deltaTime = gTimeManager.mSystemFrameDelta;
     if (glm::length(mCamera->mPosition - position) > 0.01f)
     {
-        position = mCamera->mPosition + (position - mCamera->mPosition) * catchSpeed * deltaTime.ToSeconds();
+        position = mCamera->mPosition + (position - mCamera->mPosition) * catchSpeed * deltaTime;
         mCamera->SetPosition(position); 
     }
 }

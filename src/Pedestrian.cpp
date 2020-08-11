@@ -7,6 +7,7 @@
 #include "RenderingManager.h"
 #include "PedestrianStates.h"
 #include "Vehicle.h"
+#include "TimeManager.h"
 
 Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian, id)
     , mPhysicsComponent()
@@ -69,18 +70,20 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     SetCarExited();
 }
 
-void Pedestrian::UpdateFrame(Timespan deltaTime)
+void Pedestrian::UpdateFrame()
 {
     // update controller logic if it specified
     if (mController)
     {
-        mController->UpdateFrame(this, deltaTime);
+        mController->UpdateFrame(this);
     }
+
+    float deltaTime = gTimeManager.mGameFrameDelta;
     mCurrentAnimState.AdvanceAnimation(deltaTime);
 
     mCurrentStateTime += deltaTime;
     // update current state logic
-    mStatesManager.ProcessFrame(deltaTime);
+    mStatesManager.ProcessFrame();
 }
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FreeLookCameraController.h"
+#include "TimeManager.h"
 
 void FreeLookCameraController::Setup(GameCamera* gameCamera)
 {
@@ -24,8 +25,10 @@ void FreeLookCameraController::Setup(GameCamera* gameCamera)
     mMouseDragCamera = false;
 }
 
-void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
+void FreeLookCameraController::UpdateFrame()
 {
+    float deltaTime = gTimeManager.mSystemFrameDelta;
+
     if (mMoveBackward || mMoveForward || mMoveLeft || mMoveRight)
     {
         glm::vec3 moveDirection {0.0f};
@@ -46,7 +49,7 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         {
             moveDirection -= mCamera->mRightDirection;
         }
-        moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime.ToSeconds();
+        moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime;
         mCamera->Translate(moveDirection);
     }
 
@@ -55,7 +58,7 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
         const float rotationAngle = 90.0f;
         if (mRotateDeltaY)
         {
-            float angleRads = -glm::radians(glm::sign(mRotateDeltaY) * rotationAngle * deltaTime.ToSeconds());
+            float angleRads = -glm::radians(glm::sign(mRotateDeltaY) * rotationAngle * deltaTime);
             glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, mCamera->mRightDirection);
             glm::vec3 updir = glm::normalize(glm::cross(mCamera->mRightDirection, frontdir)); 
             mCamera->SetOrientation(frontdir, mCamera->mRightDirection, updir);
@@ -63,7 +66,7 @@ void FreeLookCameraController::UpdateFrame(Timespan deltaTime)
 
         if (mRotateDeltaX)
         {
-            float angleRads = -glm::radians(glm::sign(mRotateDeltaX) * rotationAngle * deltaTime.ToSeconds());
+            float angleRads = -glm::radians(glm::sign(mRotateDeltaX) * rotationAngle * deltaTime);
             glm::vec3 rightdir = glm::rotate(mCamera->mRightDirection, angleRads, SceneAxisY);
             glm::vec3 frontdir = glm::rotate(mCamera->mFrontDirection, angleRads, SceneAxisY);
             glm::vec3 updir = glm::normalize(glm::cross(rightdir, frontdir)); 

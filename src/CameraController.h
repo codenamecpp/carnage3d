@@ -14,8 +14,7 @@ public:
     {
     }
     // handle camera controller logic
-    // @param deltaTime: Time since last frame
-    virtual void UpdateFrame(Timespan deltaTime)
+    virtual void UpdateFrame()
     {
     }
     // handle input events

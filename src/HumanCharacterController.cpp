@@ -7,8 +7,9 @@
 #include "Vehicle.h"
 #include "GameMapManager.h"
 #include "CarnageGame.h"
+#include "TimeManager.h"
 
-static const Timespan PlayerCharacterRespawnTime = Timespan::FromSeconds(10.0f);
+static const float PlayerCharacterRespawnTime = 10.0f;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -169,12 +170,13 @@ ePedestrianAction InputActionsMapping::GetAction(ePedActionsGroup group, eGamepa
 
 //////////////////////////////////////////////////////////////////////////
 
-void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian)
 {
     debug_assert(pedestrian == mCharacter);
 
     if (mCharacter->IsDead())
     {
+        float deltaTime = gTimeManager.mGameFrameDelta;
         mRespawnTime -= deltaTime;
         if (mRespawnTime < 0)
         {
@@ -380,7 +382,7 @@ void HumanCharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
 
 void HumanCharacterController::Respawn()
 {
-    mRespawnTime = 0;
+    mRespawnTime = 0.0f;
 
     // todo : exit from car
 

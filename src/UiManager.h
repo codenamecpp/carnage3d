@@ -11,12 +11,8 @@ public:
     bool Initialize();
     void Deinit();
 
-    // render
     void RenderFrame();
-
-    // process gui logic
-    // @param deltaTime: Time passed since previous update
-    void UpdateFrame(Timespan deltaTime);
+    void UpdateFrame();
 
     // process input events
     // @param inputEvent: Input event data

@@ -7,6 +7,5 @@ class AiCharacterController final: public CharacterController
 {
 public:
     // process controller logic
-    // @param deltaTime: Time since last frame
-    void UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime) override;
+    void UpdateFrame(Pedestrian* pedestrian) override;
 };

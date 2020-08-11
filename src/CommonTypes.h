@@ -23,8 +23,8 @@ public:
     // @param cr, cg, cb, ca: Color components
     inline void SetComponents(unsigned char cr, unsigned char cg, unsigned char cb, unsigned char ca)
     {
-        mA = cr;
-        mR = cg;
+        mA = ca;
+        mR = cr;
         mG = cg;
         mB = cb;
     }
@@ -254,72 +254,3 @@ public:
 public:
     Color32 mColors[256];
 };
-
-// defines time interval in milliseconds
-struct Timespan
-{
-public:    
-    // @param timeMilliseconds: Milliseconds
-    Timespan() = default;
-    Timespan(long long timeMilliseconds) : mMilliseconds(timeMilliseconds)
-    {
-    }
-    inline Timespan& operator += (const Timespan& timespan)
-    {
-        mMilliseconds += timespan.mMilliseconds;
-        return *this;
-    }
-    inline Timespan& operator -= (const Timespan& timespan)
-    {
-        mMilliseconds -= timespan.mMilliseconds;
-        return *this;
-    }
-
-	static const long long MillisecondsPerSecond = 1000LL;
-	static const long long MillisecondsPerMinute = 60000LL;
-	static const long long MillisecondsPerHour = 3600000LL;
-	static const long long MillisecondsPerDay = 86400000LL;
-
-    // convert time to timespan
-    // @param intime: Input amount of time specified in days/hours/minutes/seconds
-    static Timespan FromDays(float intime)
-    {
-        return (long long)(intime * MillisecondsPerDay);
-    }
-
-    static Timespan FromHours(float intime)
-    {
-        return (long long)(intime * MillisecondsPerHour);
-    }
-
-    static Timespan FromMinutes(float intime)
-    {
-        return (long long)(intime * MillisecondsPerMinute);
-    }
-
-    static Timespan FromSeconds(float intime)
-    {
-        return (long long)(intime * MillisecondsPerSecond);
-    }
-
-    // convert timespan to specific time values
-    inline float ToMinutes() const { return (mMilliseconds * 1.0f) / (MillisecondsPerMinute * 1.0f); }
-    inline float ToSeconds() const { return (mMilliseconds * 1.0f) / (MillisecondsPerSecond * 1.0f); }
-    inline float ToDays() const { return (mMilliseconds * 1.0f) / (MillisecondsPerDay * 1.0f); }
-    inline float ToHours() const { return (mMilliseconds * 1.0f) / (MillisecondsPerHour * 1.0f); }
-
-public:
-    long long mMilliseconds = 0;
-};
-
-inline bool operator == (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds == theR.mMilliseconds; }
-inline bool operator != (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds != theR.mMilliseconds; }
-
-inline bool operator > (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds > theR.mMilliseconds; }
-inline bool operator < (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds < theR.mMilliseconds; }
-
-inline bool operator >= (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds >= theR.mMilliseconds; }
-inline bool operator <= (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds <= theR.mMilliseconds; }
-
-inline Timespan operator - (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds - theR.mMilliseconds; }
-inline Timespan operator + (const Timespan& theL, const Timespan& theR) { return theL.mMilliseconds + theR.mMilliseconds; }

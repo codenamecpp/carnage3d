@@ -11,7 +11,7 @@ void HUD::Setup(Pedestrian* character)
     mCharacter = character;
 }
 
-void HUD::UpdateFrame(Timespan deltaTile)
+void HUD::UpdateFrame()
 {
 
 }

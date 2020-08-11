@@ -313,7 +313,7 @@ void SpriteManager::InitBlocksAnimations()
     }
 }
 
-void SpriteManager::UpdateBlocksAnimations(Timespan deltaTime)
+void SpriteManager::UpdateBlocksAnimations(float deltaTime)
 {
     if (!gGameCheatsWindow.mEnableBlocksAnimation)
         return;

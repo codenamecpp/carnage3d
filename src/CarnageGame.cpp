@@ -7,6 +7,7 @@
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
 #include "MemoryManager.h"
+#include "TimeManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 static const char* GTA1MapFileExtension = ".CMP";
@@ -126,7 +127,6 @@ bool CarnageGame::Initialize()
     }
 
     SetupScreenLayout(mNumPlayers);
-    mGameTime = 0;
     return true;
 }
 
@@ -137,22 +137,21 @@ void CarnageGame::Deinit()
     gGameMap.Cleanup();
 }
 
-void CarnageGame::UpdateFrame(Timespan deltaTime)
+void CarnageGame::UpdateFrame()
 {
-    // advance game time
-    mGameTime += deltaTime;
+    float deltaTime = gTimeManager.mGameFrameDelta;
 
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
-    gPhysics.UpdateFrame(deltaTime);
-    gGameObjectsManager.UpdateFrame(deltaTime);
+    gPhysics.UpdateFrame();
+    gGameObjectsManager.UpdateFrame();
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
         if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.UpdateFrame(mHumanSlot[ihuman].mCharPedestrian, deltaTime);
-        mHumanSlot[ihuman].mCharView.UpdateFrame(deltaTime);
+        mHumanSlot[ihuman].mCharController.UpdateFrame(mHumanSlot[ihuman].mCharPedestrian);
+        mHumanSlot[ihuman].mCharView.UpdateFrame();
     }
 }
 

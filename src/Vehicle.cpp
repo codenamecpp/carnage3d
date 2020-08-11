@@ -7,6 +7,7 @@
 #include "RenderingManager.h"
 #include "SpriteManager.h"
 #include "Pedestrian.h"
+#include "TimeManager.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
     , mPhysicsComponent()
@@ -49,11 +50,11 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     SetupDeltaAnimations();
 }
 
-void Vehicle::UpdateFrame(Timespan deltaTime)
+void Vehicle::UpdateFrame()
 {
-    UpdateDeltaAnimations(deltaTime);
+    UpdateDeltaAnimations();
 
-    UpdateDriving(deltaTime);
+    UpdateDriving();
 }
 
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
@@ -235,8 +236,9 @@ void Vehicle::SetupDeltaAnimations()
     }
 }
 
-void Vehicle::UpdateDeltaAnimations(Timespan deltaTime)
+void Vehicle::UpdateDeltaAnimations()
 {
+    float deltaTime = gTimeManager.mGameFrameDelta;
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
     {
         if (mDoorsAnims[idoor].IsAnimationActive())
@@ -460,7 +462,7 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
     return nullptr;
 }
 
-void Vehicle::UpdateDriving(Timespan deltaTime)
+void Vehicle::UpdateDriving()
 {
     Pedestrian* carDriver = GetCarDriver();
     if (carDriver == nullptr || ePedestrianState_DrivingCar != carDriver->GetCurrentStateID())

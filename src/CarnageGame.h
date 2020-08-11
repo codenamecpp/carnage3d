@@ -24,8 +24,6 @@ public:
     HumanCharacterSlot mHumanSlot[GAME_MAX_PLAYERS];
     int mNumPlayers = 0;
 
-    Timespan mGameTime;
-
     cxx::randomizer mGameRand;
 
 public:
@@ -36,7 +34,7 @@ public:
     void Deinit();
 
     // Common processing
-    void UpdateFrame(Timespan deltaTime);
+    void UpdateFrame();
     void InputEvent(KeyInputEvent& inputEvent);
     void InputEvent(MouseButtonInputEvent& inputEvent);
     void InputEvent(MouseMovedInputEvent& inputEvent);

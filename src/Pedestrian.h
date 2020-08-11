@@ -18,8 +18,8 @@ public:
     CharacterController* mController; // controls pedestrian actions
     PedPhysicsComponent* mPhysicsComponent;
 
-    Timespan mCurrentStateTime; // time since current state has started
-    Timespan mWeaponRechargeTime; // next time weapon can be used again
+    float mCurrentStateTime; // time since current state has started
+    float mWeaponRechargeTime; // next time weapon can be used again
 
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
@@ -41,7 +41,7 @@ public:
     Pedestrian(GameObjectID id);
     ~Pedestrian();
 
-    void UpdateFrame(Timespan deltaTime) override;
+    void UpdateFrame() override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
 

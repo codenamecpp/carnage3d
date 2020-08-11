@@ -5,6 +5,7 @@
 #include "Vehicle.h"
 #include "CarnageGame.h"
 #include "PhysicsManager.h"
+#include "TimeManager.h"
 
 PedestrianStatesManager::PedestrianStatesManager(Pedestrian* pedestrian)
     : mPedestrian(pedestrian)
@@ -32,9 +33,9 @@ bool PedestrianStatesManager::ProcessEvent(const PedestrianStateEvent& evData)
     return (this->*mFuncsTable[mCurrentStateID].pfStateEvent)(evData);
 }
 
-void PedestrianStatesManager::ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::ProcessFrame()
 {
-    (this->*mFuncsTable[mCurrentStateID].pfStateFrame)(deltaTime);
+    (this->*mFuncsTable[mCurrentStateID].pfStateFrame)();
 }
 
 void PedestrianStatesManager::InitFuncsTable()
@@ -117,7 +118,7 @@ void PedestrianStatesManager::InitFuncsTable()
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::ProcessRotateActions(Timespan deltaTime)
+void PedestrianStatesManager::ProcessRotateActions()
 {
     if (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] || 
         mPedestrian->mCtlActions[ePedestrianAction_TurnRight])
@@ -137,7 +138,7 @@ void PedestrianStatesManager::ProcessRotateActions(Timespan deltaTime)
     }
 }
 
-void PedestrianStatesManager::ProcessMotionActions(Timespan deltaTime)
+void PedestrianStatesManager::ProcessMotionActions()
 {
     // while slding on car
     if (mCurrentStateID == ePedestrianState_SlideOnCar)
@@ -174,7 +175,7 @@ void PedestrianStatesManager::ProcessMotionActions(Timespan deltaTime)
 
 bool PedestrianStatesManager::TryToShoot()
 {
-    Timespan currGameTime = gCarnageGame.mGameTime;
+    float currGameTime = gTimeManager.mGameTime;
     if (mPedestrian->mWeaponRechargeTime > currGameTime ||
         mPedestrian->mWeaponsAmmo[mPedestrian->mCurrentWeapon] == 0)
     {
@@ -206,12 +207,12 @@ bool PedestrianStatesManager::TryToShoot()
     }    
 
     // setup cooldown time for weapons
-    Timespan rechargeTime = Timespan::FromSeconds(gGameParams.mWeaponsRechargeTime[mPedestrian->mCurrentWeapon]);
+    float rechargeTime = gGameParams.mWeaponsRechargeTime[mPedestrian->mCurrentWeapon];
     mPedestrian->mWeaponRechargeTime = currGameTime + rechargeTime;
     return true;
 }
 
-ePedestrianState PedestrianStatesManager::GetNextIdleState(Timespan deltaTime)
+ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     if (mPedestrian->mCtlActions[ePedestrianAction_Run])
     {
@@ -343,7 +344,7 @@ bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEv
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateExitCar_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateExitCar_ProcessFrame()
 {
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
     if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
@@ -387,7 +388,7 @@ void PedestrianStatesManager::StateExitCar_ProcessExit()
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateEnterCar_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateEnterCar_ProcessFrame()
 {
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
     if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex) && 
@@ -437,10 +438,10 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateSlideCar_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 {
-    ProcessRotateActions(deltaTime);
-    ProcessMotionActions(deltaTime);
+    ProcessRotateActions();
+    ProcessMotionActions();
 
     if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_JumpOntoCar)
     {
@@ -493,7 +494,7 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateKnockedDown_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateKnockedDown_ProcessFrame()
 {
     if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
     {
@@ -507,7 +508,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessFrame(Timespan deltaTime)
 
     if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_LiesOnFloor)
     {
-        if (mPedestrian->mCurrentStateTime >= Timespan::FromSeconds(gGameParams.mPedestrianKnockedDownTime))
+        if (mPedestrian->mCurrentStateTime >= gGameParams.mPedestrianKnockedDownTime)
         {
             PedestrianStateEvent evData { ePedestrianStateEvent_None };
             ChangeState(ePedestrianState_StandingStill, evData);
@@ -586,15 +587,15 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateIdle_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateIdle_ProcessFrame()
 {
     if (mPedestrian->IsShooting())
     {
         TryToShoot();
     }
 
-    ProcessRotateActions(deltaTime);
-    ProcessMotionActions(deltaTime);
+    ProcessRotateActions();
+    ProcessMotionActions();
 
     // slide over car
     if (mPedestrian->mCtlActions[ePedestrianAction_Run] || mPedestrian->mCtlActions[ePedestrianAction_WalkForward])
@@ -608,7 +609,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame(Timespan deltaTime)
     }
     
     // process shooting
-    ePedestrianState nextIdleState = GetNextIdleState(deltaTime);
+    ePedestrianState nextIdleState = GetNextIdleState();
     if (nextIdleState == mCurrentStateID)
         return;
 
@@ -663,9 +664,9 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateDrowning_ProcessFrame(Timespan deltaTime)
+void PedestrianStatesManager::StateDrowning_ProcessFrame()
 {
-    if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime.ToSeconds())
+    if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime)
     {
         // force current position to underwater
         glm::vec3 currentPosition = mPedestrian->mPhysicsComponent->GetPosition();

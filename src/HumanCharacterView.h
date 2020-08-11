@@ -11,7 +11,7 @@ class HumanCharacterView: public RenderView
 public:
     HumanCharacterView() = default;
 
-    void UpdateFrame(Timespan deltaTime);
+    void UpdateFrame();
     void InputEvent(KeyInputEvent& inputEvent);
     void InputEvent(MouseButtonInputEvent& inputEvent);
     void InputEvent(MouseMovedInputEvent& inputEvent);

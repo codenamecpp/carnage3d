@@ -12,7 +12,7 @@ public:
 
     bool Initialize();
     void Deinit();
-    void UpdateFrame(Timespan deltaTime);
+    void UpdateFrame();
 
     // create pedestrian specific physical body
     // @param pedestrian: Reference ped

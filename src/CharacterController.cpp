@@ -7,7 +7,7 @@ CharacterController::~CharacterController()
 {
 }
 
-void CharacterController::UpdateFrame(Pedestrian* pedestrian, Timespan deltaTime)
+void CharacterController::UpdateFrame(Pedestrian* pedestrian)
 {
 }
 
