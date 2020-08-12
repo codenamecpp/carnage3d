@@ -128,7 +128,7 @@ void ImGuiManager::RenderFrame()
             if (!should_draw)
                 continue;
 
-            Rectangle rcClip {
+            Rect rcClip {
                 static_cast<int>(clip_rect_x), static_cast<int>(fb_height - clip_rect_h), 
                 static_cast<int>(clip_rect_w - clip_rect_x), 
                 static_cast<int>(clip_rect_h - clip_rect_y)

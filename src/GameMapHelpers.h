@@ -11,8 +11,8 @@ public:
     // @param area: Target map rect
     // @param layerIndex: Target map layer, see MAP_LAYERS_COUNT
     // @param meshData: Output mesh data
-    static bool BuildMapMesh(GameMapManager& city, const Rectangle& area, int layerIndex, MapMeshData& meshData);
-    static bool BuildMapMesh(GameMapManager& city, const Rectangle& area, MapMeshData& meshData);
+    static bool BuildMapMesh(GameMapManager& city, const Rect& area, int layerIndex, MapMeshData& meshData);
+    static bool BuildMapMesh(GameMapManager& city, const Rect& area, MapMeshData& meshData);
 
     // compute height for specific block slope type
     // @param slope: Index

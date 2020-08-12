@@ -180,42 +180,15 @@ void System::Deinit()
 
 void System::Execute()
 {
-    const double MinFPS = 20.0;
-    const double MaxFrameDelta = 1.0 / MinFPS;
-
-    const double MaxFPS = 120.0f;
-    const double MinFrameDelta = 1.0 / MaxFPS;
-
     // main loop
-    double previousFrameTimestamp = GetSystemSeconds();
     for (; !mQuitRequested; )
     {
-        double currentTimestamp = GetSystemSeconds();
-        double systemDeltaTime = (currentTimestamp - previousFrameTimestamp);
-        if (systemDeltaTime < MinFrameDelta)
-        {
-            // limit fps 
-            std::chrono::duration<double> sleepTime (MinFrameDelta - systemDeltaTime);
-            std::this_thread::sleep_for(sleepTime);
-
-            currentTimestamp = GetSystemSeconds();
-            systemDeltaTime = (currentTimestamp - previousFrameTimestamp);
-        }
-
-        if (systemDeltaTime > MaxFrameDelta)
-        {
-            systemDeltaTime = MaxFrameDelta;
-        }
-
-        gTimeManager.AdvanceTime(systemDeltaTime);
-
+        gTimeManager.UpdateFrame();
         gMemoryManager.FlushFrameHeapMemory();
-        // order in which subsystems gets updated is significant
         gImGuiManager.UpdateFrame();
         gUiManager.UpdateFrame();
         gCarnageGame.UpdateFrame();
         gRenderManager.RenderFrame();
-        previousFrameTimestamp = currentTimestamp;
     }
 }
 
@@ -296,7 +269,7 @@ bool System::SaveConfiguration()
 }
 
 double System::GetSystemSeconds() const
-{   
+{
     double currentTime = ::glfwGetTime();
     return (currentTime - mStartSystemTime);
 }

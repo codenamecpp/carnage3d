@@ -53,7 +53,7 @@ void RenderingManager::RenderFrame()
     gSpriteManager.RenderFrameBegin();
     mMapRenderer.RenderFrameBegin();
 
-    Rectangle viewportRectangle = gGraphicsDevice.mViewportRect;
+    Rect viewportRectangle = gGraphicsDevice.mViewportRect;
     for (RenderView* currRenderview: mActiveRenderViews)
     {
         currRenderview->DrawFrameBegin();

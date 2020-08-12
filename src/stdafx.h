@@ -9,6 +9,16 @@
     #error Unicode is unsupported!
 #endif
 
+#if OS_NAME == OS_WINDOWS
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+    #include <mmsystem.h> // for multimedia timers
+#elif OS_NAME == OS_LINUX
+    #include <limits.h>
+    #include <unistd.h>
+#endif
+
 #pragma warning ( disable : 4351 ) // new behavior: elements of array will be default initialized
 #pragma warning ( disable : 4201 ) // nonstandard extension used: nameless struct/union
 #pragma warning ( disable : 4100 ) // unreferenced formal parameter

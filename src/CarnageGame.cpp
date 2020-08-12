@@ -325,7 +325,7 @@ void CarnageGame::SetupScreenLayout(int playersCount)
     // todo: what a mess
     const int MaxCols = 2;
 
-    Rectangle fullViewport = gGraphicsDevice.mViewportRect;
+    Rect fullViewport = gGraphicsDevice.mViewportRect;
 
     int numRows = (playersCount + MaxCols - 1) / MaxCols;
     debug_assert(numRows > 0);

@@ -832,7 +832,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
     }
 }
 
-void GraphicsDevice::SetViewportRect(const Rectangle& sourceRectangle)
+void GraphicsDevice::SetViewportRect(const Rect& sourceRectangle)
 {
     if (!IsDeviceInited())
     {
@@ -848,7 +848,7 @@ void GraphicsDevice::SetViewportRect(const Rectangle& sourceRectangle)
     glCheckError();
 }
 
-void GraphicsDevice::SetScissorRect(const Rectangle& sourceRectangle)
+void GraphicsDevice::SetScissorRect(const Rect& sourceRectangle)
 {
     if (!IsDeviceInited())
     {

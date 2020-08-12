@@ -145,7 +145,7 @@ const unsigned int Sizeof_Vertex3D_Debug = sizeof(Vertex3D_Debug);
 // @param rcSrc, rcDest: Source and destination rectangles
 // @param color: Quad vertices color
 // @param vertices: Output 4 vertices in order TOP LEFT, BOTTOM LEFT, BOTTOM RIGHT, TOP RIGHT
-inline void MakeQuad2D(const Point& textureSize, const Rectangle& rcSrc, const Rectangle& rcDest, Color32 color, Vertex2D* vertices)
+inline void MakeQuad2D(const Point& textureSize, const Rect& rcSrc, const Rect& rcDest, Color32 color, Vertex2D* vertices)
 {
     const float invx = 1.0f / textureSize.x;
     const float invy = 1.0f / textureSize.y;
@@ -180,7 +180,7 @@ inline void MakeQuad2D(const Point& textureSize, const Rectangle& rcSrc, const R
 }
 
 // same as MakeQuad2D but with 3rd dimension
-inline void MakeQuad3D(const Point& textureSize, const Rectangle& rcSrc, const Rectangle& rcDest, Color32 color, Vertex3D* vertices)
+inline void MakeQuad3D(const Point& textureSize, const Rect& rcSrc, const Rect& rcDest, Color32 color, Vertex3D* vertices)
 {
     const float invx = 1.0f / textureSize.x;
     const float invy = 1.0f / textureSize.y;

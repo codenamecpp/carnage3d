@@ -151,7 +151,7 @@ void MapRenderer::BuildMapMesh()
     {
         for (int batchx = 0; batchx < BlocksBatchesPerSide; ++batchx)
         {
-            Rectangle mapArea { 
+            Rect mapArea { 
                 batchx * BlocksBatchDims - ExtraBlocksPerSide, 
                 batchy * BlocksBatchDims - ExtraBlocksPerSide,
                 BlocksBatchDims,

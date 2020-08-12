@@ -3,7 +3,7 @@
 #include "SpriteManager.h"
 #include "GameMapManager.h"
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rectangle& area, int layerIndex, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, int layerIndex, MapMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
@@ -30,7 +30,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rectangle& ar
     return true;
 }
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rectangle& area, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, MapMeshData& meshData)
 {
     // preallocate
     meshData.mBlocksIndices.reserve(4 * 1024 * 1024);

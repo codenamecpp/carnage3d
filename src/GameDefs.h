@@ -297,13 +297,13 @@ public:
     {
         SetRegion(textureSize);
     }
-    TextureRegion(const Rectangle& srcRectangle, const Point& textureSize)
+    TextureRegion(const Rect& srcRectangle, const Point& textureSize)
     {
         SetRegion(srcRectangle, textureSize);
     }
 
     // init texture region to partial area
-    inline void SetRegion(const Rectangle& srcRectangle, const Point& textureSize)
+    inline void SetRegion(const Rect& srcRectangle, const Point& textureSize)
     {
         debug_assert(textureSize.x > 0);
         debug_assert(textureSize.y > 0);
@@ -334,7 +334,7 @@ public:
         mRectangle.SetNull();
     }
 public:
-    Rectangle mRectangle;
+    Rect mRectangle;
 
     float mU0, mV0; // texture coords
     float mU1, mV1; // texture coords

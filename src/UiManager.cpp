@@ -31,8 +31,8 @@ void UiManager::RenderFrame()
 {
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Z);
 
-    Rectangle prevScreenRect = gGraphicsDevice.mViewportRect;
-    Rectangle prevScissorsBox = gGraphicsDevice.mScissorBox;
+    Rect prevScreenRect = gGraphicsDevice.mViewportRect;
+    Rect prevScissorsBox = gGraphicsDevice.mScissorBox;
 
     // draw renderviews
     {

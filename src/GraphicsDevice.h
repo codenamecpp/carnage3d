@@ -10,8 +10,8 @@ class GraphicsDevice final: public cxx::noncopyable
 public:
     // public for convenience, don't change these fields directly
     RenderStates mCurrentStates;
-    Rectangle mViewportRect;
-    Rectangle mScissorBox;
+    Rect mViewportRect;
+    Rect mScissorBox;
     GraphicsDeviceCaps mCaps;
 
     // these params will automatically set during texture creation
@@ -136,11 +136,11 @@ public:
 
     // Setup dimensions of graphic device viewport
     // @param sourceRectangle: Viewport rectangle
-    void SetViewportRect(const Rectangle& sourceRectangle);
+    void SetViewportRect(const Rect& sourceRectangle);
 
     // Setup clip rect, default is whole viewport area
     // @param sourceRectangle: Clipping rectangle
-    void SetScissorRect(const Rectangle& sourceRectangle);
+    void SetScissorRect(const Rect& sourceRectangle);
 
     // Set clear color for render revice
     // @param clearColor: Color components

@@ -97,11 +97,11 @@ extern const Color32 Color32_NULL;
 using Point = glm::ivec2;
 
 // defines rectangle in 2d space
-struct Rectangle
+struct Rect
 {
 public:
-    Rectangle() = default;
-    Rectangle(int posx, int posy, int sizex, int sizey)
+    Rect() = default;
+    Rect(int posx, int posy, int sizex, int sizey)
         : x(posx)
         , y(posy)
         , w(sizex)
@@ -130,9 +130,9 @@ public:
             point.y < (y + h - 1);
     }
     // get union area of two rectangles
-    inline Rectangle GetUnion(const Rectangle& rc) const
+    inline Rect GetUnion(const Rect& rc) const
     {
-        Rectangle rcOutput;
+        Rect rcOutput;
 
         int maxx = glm::max(x + w, rc.x + rc.w);
         int maxy = glm::max(y + h, rc.y + rc.h);
@@ -145,9 +145,9 @@ public:
         return rcOutput;
     }
     // get intersection area of two rectangles
-    inline Rectangle GetIntersection(const Rectangle& rc) const
+    inline Rect GetIntersection(const Rect& rc) const
     {        
-        Rectangle rcOutput;
+        Rect rcOutput;
 
         int minx = glm::min(x + w, rc.x + rc.w);
         int miny = glm::min(y + h, rc.y + rc.h);
@@ -164,12 +164,12 @@ public:
     int w, h;
 };
 
-inline bool operator == (const Rectangle& lhs, const Rectangle& rhs) 
+inline bool operator == (const Rect& lhs, const Rect& rhs) 
 { 
     return (lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.w == rhs.w) && (lhs.h == rhs.h);
 }
 
-inline bool operator != (const Rectangle& lhs, const Rectangle& rhs)
+inline bool operator != (const Rect& lhs, const Rect& rhs)
 {
     return (lhs.x != rhs.x) || (lhs.y != rhs.y) || (lhs.w != rhs.w) || (lhs.h != rhs.h);
 }

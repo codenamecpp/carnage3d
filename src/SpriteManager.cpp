@@ -604,7 +604,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     // upload to texture
     sourceSprite.mTexture->Upload(pixels.mData);
 
-    Rectangle srcRect;
+    Rect srcRect;
     srcRect.x = 0;
     srcRect.y = 0;
     srcRect.w = spriteStyle.mWidth;
