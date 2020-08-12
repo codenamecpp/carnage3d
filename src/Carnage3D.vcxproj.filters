@@ -121,15 +121,6 @@
     <ClInclude Include="stb_sprintf.h">
       <Filter>Third_Party\stb</Filter>
     </ClInclude>
-    <ClInclude Include="aux_math.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="frustum.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="geometries.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
     <ClInclude Include="handle.h">
       <Filter>Lib</Filter>
     </ClInclude>
@@ -331,6 +322,12 @@
     </ClInclude>
     <ClInclude Include="TimeManager.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="math_defs.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="math_utils.h">
+      <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

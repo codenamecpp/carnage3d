@@ -154,7 +154,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
-    <ClInclude Include="aux_math.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
     <ClInclude Include="game_version.h" />
@@ -164,6 +163,8 @@
     <ClInclude Include="InputsDefs.h" />
     <ClInclude Include="iostream_utils.h" />
     <ClInclude Include="macro.h" />
+    <ClInclude Include="math_defs.h" />
+    <ClInclude Include="math_utils.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="mem_allocators.h" />
     <ClInclude Include="noncopyable.h" />
@@ -197,9 +198,7 @@
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="GameDefs.h" />
     <ClInclude Include="GameParams.h" />
-    <ClInclude Include="geometries.h" />
     <ClInclude Include="cJSON.h" />
-    <ClInclude Include="frustum.h" />
     <ClInclude Include="GpuBuffer.h" />
     <ClInclude Include="GpuProgram.h" />
     <ClInclude Include="GpuTexture2D.h" />
