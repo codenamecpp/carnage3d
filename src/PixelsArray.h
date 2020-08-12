@@ -27,12 +27,12 @@ public:
     // @param fileName: File name
     // @param forceFormat: Explicit format conversion, optional
     // @param allocator: Custom memory allocator, optional
-    bool LoadFromFile(const char* fileName, eTextureFormat forceFormat = eTextureFormat_Null, cxx::memory_allocator* allocator = nullptr);
+    bool LoadFromFile(const std::string& fileName, eTextureFormat forceFormat = eTextureFormat_Null, cxx::memory_allocator* allocator = nullptr);
 
     // Save bitmap content to external file
     // Note that filesystem must be initialized otherwise error occurs
     // @param fileName: File name
-    bool SaveToFile(const char* fileName);
+    bool SaveToFile(const std::string& fileName);
 
     // Fill bitmap with checkerboard pattern, does not allocate memory
     // @returns false if bitmap null
@@ -50,7 +50,7 @@ public:
     // @param format: Format of pixels array
     // @param sizex, sizey: Picture dimensions
     // @param pixels: Source data
-    static bool SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels);
+    static bool SaveToFile(const std::string& fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels);
 
 private:
     void SetPixelsAllocator(cxx::memory_allocator* allocator);

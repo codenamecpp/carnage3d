@@ -27,42 +27,40 @@ struct GTAFileHeaderCMP
     int nav_data_size;
 };
 
-bool GameMapManager::LoadFromFile(const char* filename)
+bool GameMapManager::LoadFromFile(const std::string& filename)
 {
     Cleanup();
 
-    gConsole.LogMessage(eLogMessage_Info, "Loading map '%s'", filename);
+    gConsole.LogMessage(eLogMessage_Info, "Loading map '%s'", filename.c_str());
 
     std::ifstream file;
     if (!gFiles.OpenBinaryFile(filename, file))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot open map data file '%s'", filename);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot open map data file '%s'", filename.c_str());
         return false;
     }
 
     GTAFileHeaderCMP header;
     if (!cxx::read_from_stream(file, header) || header.version_code != GTA_CMPFILE_VERSION_CODE)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of map data file '%s'", filename);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of map data file '%s'", filename.c_str());
         return false;
     }
 
     if (!ReadCompressedMapData(file, header.column_size, header.block_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read compressed map data from '%s'", filename);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read compressed map data from '%s'", filename.c_str());
         return false;
     }
 
     if (!ReadStartupObjects(file, header.object_pos_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read map startup objects from '%s'", filename);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read map startup objects from '%s'", filename.c_str());
         return false;
     }
 
     // load corresponding style data
-    char styleName[16];
-    snprintf(styleName, CountOf(styleName), "STYLE%03d.G24", header.style_number);
-
+    std::string styleName = cxx::va("STYLE%03d.G24", header.style_number);
     if (!mStyleData.LoadFromFile(styleName))
     {
         Cleanup();

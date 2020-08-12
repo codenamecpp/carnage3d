@@ -31,7 +31,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::BeginMenu("Create Car..."))
+        if (ImGui::BeginMenu("[ Create Car ]"))
         {
             for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mCars.size(); ++icurr)
             {
@@ -39,6 +39,19 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mCars[icurr].mModelId))) 
                 {
                     CreateCarNearby(&gGameMap.mStyleData.mCars[icurr], gCarnageGame.mHumanSlot[0].mCharPedestrian);
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("[ Select map ]"))
+        {
+            for (int icurr = 0; icurr < (int)gFiles.mGameMapsList.size(); ++icurr)
+            {
+                ImGui::PushID(icurr);
+                if (ImGui::MenuItem(gFiles.mGameMapsList[icurr].c_str())) 
+                {
+                    gCarnageGame.DebugChangeMap(gFiles.mGameMapsList[icurr]);
                 }
                 ImGui::PopID();
             }

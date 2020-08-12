@@ -48,11 +48,11 @@ public:
     void GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, Sprite2D& sourceSprite);
 
     // save all blocks textures to hard drive
-    void DumpBlocksTexture(const char* outputLocation);
-    void DumpSpriteTextures(const char* outputLocation);
-    void DumpSpriteDeltas(const char* outputLocation);
-    void DumpSpriteDeltas(const char* outputLocation, int spriteIndex);
-    void DumpCarsTextures(const char* outputLocation);
+    void DumpBlocksTexture(const std::string& outputLocation);
+    void DumpSpriteTextures(const std::string& outputLocation);
+    void DumpSpriteDeltas(const std::string& outputLocation);
+    void DumpSpriteDeltas(const std::string& outputLocation, int spriteIndex);
+    void DumpCarsTextures(const std::string& outputLocation);
 
 private:
     bool InitBlocksIndicesTable();

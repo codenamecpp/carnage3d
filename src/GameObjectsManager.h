@@ -16,8 +16,9 @@ public:
 public:
     ~GameObjectsManager();
 
-    bool Initialize();
-    void Deinit();
+    bool InitGameObjects();
+    void FreeGameObjects();
+
     void UpdateFrame();
     void DebugDraw();
 

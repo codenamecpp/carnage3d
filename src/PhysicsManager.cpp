@@ -35,7 +35,7 @@ PhysicsManager::PhysicsManager()
 {
 }
 
-bool PhysicsManager::Initialize()
+bool PhysicsManager::InitPhysicsWorld()
 {
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
@@ -44,7 +44,7 @@ bool PhysicsManager::Initialize()
     return true;
 }
 
-void PhysicsManager::Deinit()
+void PhysicsManager::FreePhysicsWorld()
 {
     if (mMapCollisionShape)
     {

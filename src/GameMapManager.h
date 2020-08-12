@@ -15,7 +15,7 @@ public:
 public:
     // load map data from specific file, returns false on error
     // @param filename: Target file name
-    bool LoadFromFile(const char* filename);
+    bool LoadFromFile(const std::string& filename);
 
     // free currently loaded map data
     void Cleanup();

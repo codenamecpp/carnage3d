@@ -216,7 +216,7 @@ bool System::LoadConfiguration()
     }
 
     cxx::json_document configDocument;
-    if (!configDocument.parse_document(jsonContent.c_str()))
+    if (!configDocument.parse_document(jsonContent))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config '%s'", SysConfigPath);
         return false;

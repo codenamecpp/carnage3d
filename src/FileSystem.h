@@ -10,6 +10,8 @@ public:
     std::string mGTADataDirectoryPath;
     std::vector<std::string> mSearchPlaces;
 
+    std::vector<std::string> mGameMapsList;
+
 public:
     // Setup filesystem internal resources
     bool Initialize();
@@ -17,36 +19,40 @@ public:
     // Free allocated resources
     void Deinit();
 
-    // init gta gamedata files location
+    // Init gta gamedata files location
     bool SetupGtaDataLocation();
-
+    
     // Add search place directory
     // @param searchPlace: Path
-    void AddSearchPlace(const char* searchPlace);
+    void AddSearchPlace(const std::string& searchPlace);
 
     // Open text or binary file stream for reading operations
     // @param objectName: File name
     // @param instream: Output stream
-    bool OpenBinaryFile(const char* objectName, std::ifstream& instream);
-    bool OpenTextFile(const char* objectName, std::ifstream& instream);
+    bool OpenBinaryFile(const std::string& objectName, std::ifstream& instream);
+    bool OpenTextFile(const std::string& objectName, std::ifstream& instream);
 
     // Load whole text file content to std string
     // @param objectName: File name
     // @param output: Content
-    bool ReadTextFile(const char* objectName, std::string& output);
+    bool ReadTextFile(const std::string& objectName, std::string& output);
 
     // Test whether file exists
     // @param objectName: File name
-    bool IsFileExists(const char* objectName);
+    bool IsFileExists(const std::string& objectName);
 
     // Test whether directory exists
     // @param objectName: Directory name
-    bool IsDirectoryExists(const char* objectName);
+    bool IsDirectoryExists(const std::string& objectName);
 
     // Find file within search places and get full path to it
     // @param objectName: File name
     // @param fullPath: Out full path
-    bool GetFullPathToFile(const char* objectName, std::string& fullPath) const;
+    bool GetFullPathToFile(const std::string& objectName, std::string& fullPath) const;
+
+private:
+    // Gather all gta maps within gamedata
+    bool ScanGtaMaps();
 };
 
 extern FileSystem gFiles;

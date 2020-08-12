@@ -42,16 +42,22 @@ public:
     void InputEvent(KeyCharEvent& inputEvent);
     void InputEvent(GamepadInputEvent& inputEvent);
 
-    // initialize player data
+    // Initialize player data
     void SetupHumanCharacter(int playerIndex, Pedestrian* pedestrian);
     void SetupScreenLayout(int playersCount);
 
-    // get player index from human char controller
+    // Get player index from human char controller
     // @returns -1 on error
     int GetPlayerIndex(const HumanCharacterController* controller) const;
 
+    // Debug stuff
+    void DebugChangeMap(const std::string& mapName);
+
 private:
     bool SetInputActionsFromConfig();
+
+    bool StartScenario(const std::string& mapName);
+    void ShutdownCurrentScenario();
 };
 
 extern CarnageGame gCarnageGame;

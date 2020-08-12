@@ -327,7 +327,7 @@ void SpriteManager::UpdateBlocksAnimations(float deltaTime)
     }
 }
 
-void SpriteManager::DumpBlocksTexture(const char* outputLocation)
+void SpriteManager::DumpBlocksTexture(const std::string& outputLocation)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
@@ -355,8 +355,8 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
             }
             
             // dump to file
-            pathBuffer = cxx::va("%s/%s_%d.png", outputLocation, cxx::enum_to_string(currentBlockType), itexture);
-            if (!blockBitmap.SaveToFile(pathBuffer.c_str()))
+            pathBuffer = cxx::va("%s/%s_%d.png", outputLocation.c_str(), cxx::enum_to_string(currentBlockType), itexture);
+            if (!blockBitmap.SaveToFile(pathBuffer))
             {
                 debug_assert(false);
             }
@@ -364,7 +364,7 @@ void SpriteManager::DumpBlocksTexture(const char* outputLocation)
     } // for
 }
 
-void SpriteManager::DumpSpriteTextures(const char* outputLocation)
+void SpriteManager::DumpSpriteTextures(const std::string& outputLocation)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
@@ -385,8 +385,8 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
             cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
             // dump to file
-            cxx::va("%s/%s_%d.png", outputLocation, cxx::enum_to_string(sprite_type), iSpriteId);
-            if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+            cxx::va("%s/%s_%d.png", outputLocation.c_str(), cxx::enum_to_string(sprite_type), iSpriteId);
+            if (!spriteBitmap.SaveToFile(pathBuffer))
             {
                 debug_assert(false);
             }
@@ -394,7 +394,7 @@ void SpriteManager::DumpSpriteTextures(const char* outputLocation)
     } // for
 }
 
-void SpriteManager::DumpCarsTextures(const char* outputLocation)
+void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
@@ -412,18 +412,18 @@ void SpriteManager::DumpCarsTextures(const char* outputLocation)
         cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
         // dump to file
-        cxx::va("%s/%d-%s-%s.png", outputLocation, currCar.mModelId, 
+        cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelId, 
             cxx::enum_to_string(currCar.mModelId), 
             cxx::enum_to_string(currCar.mVType));
 
-        if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+        if (!spriteBitmap.SaveToFile(pathBuffer))
         {
             debug_assert(false);
         }
     } // for
 }
 
-void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
+void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
@@ -445,8 +445,8 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
             }
 
             // dump to file
-            cxx::va("%s/sprite_%d_delta_%d.png", outputLocation, isprite, idelta);
-            if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+            cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), isprite, idelta);
+            if (!spriteBitmap.SaveToFile(pathBuffer))
             {
                 debug_assert(false);
             }
@@ -454,7 +454,7 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation)
     } // for
 }
 
-void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex)
+void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation, int spriteIndex)
 {
     StyleData& cityStyle = gGameMap.mStyleData;
 
@@ -474,8 +474,8 @@ void SpriteManager::DumpSpriteDeltas(const char* outputLocation, int spriteIndex
         }
 
         // dump to file
-        cxx::va("%s/sprite_%d_delta_%d.png", outputLocation, spriteIndex, idelta);
-        if (!spriteBitmap.SaveToFile(pathBuffer.c_str()))
+        cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), spriteIndex, idelta);
+        if (!spriteBitmap.SaveToFile(pathBuffer))
         {
             debug_assert(false);
         }

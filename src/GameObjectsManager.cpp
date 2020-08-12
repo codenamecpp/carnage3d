@@ -13,7 +13,7 @@ GameObjectsManager::~GameObjectsManager()
     mCarsPool.cleanup();
 }
 
-bool GameObjectsManager::Initialize()
+bool GameObjectsManager::InitGameObjects()
 {
     mIDsCounter = 0;
 
@@ -26,7 +26,7 @@ bool GameObjectsManager::Initialize()
     return true;
 }
 
-void GameObjectsManager::Deinit()
+void GameObjectsManager::FreeGameObjects()
 {
     DestroyObjectsInList(mDeleteList);
     DestroyObjectsInList(mObjectsList);

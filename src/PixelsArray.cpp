@@ -100,7 +100,7 @@ bool PixelsArray::Create(eTextureFormat format, int sizex, int sizey, cxx::memor
     return true;
 }
 
-bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat, cxx::memory_allocator* allocator)
+bool PixelsArray::LoadFromFile(const std::string& fileName, eTextureFormat forceFormat, cxx::memory_allocator* allocator)
 {
     Cleanup();
 
@@ -180,18 +180,18 @@ bool PixelsArray::LoadFromFile(const char* fileName, eTextureFormat forceFormat,
     return true;
 }
 
-bool PixelsArray::SaveToFile(const char* fileName)
+bool PixelsArray::SaveToFile(const std::string& fileName)
 {
     return SaveToFile(fileName, mFormat, mSizex, mSizey, mData);
 }
 
-bool PixelsArray::SaveToFile(const char* fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels)
+bool PixelsArray::SaveToFile(const std::string& fileName, eTextureFormat format, int sizex, int sizey, unsigned char* pixels)
 {
     if (format == eTextureFormat_Null)
         return false;
 
     int comp = NumBytesPerPixel(format);
-    return stbi_write_png(fileName, sizex, sizey, comp, pixels, sizex * comp) > 0;
+    return stbi_write_png(fileName.c_str(), sizex, sizey, comp, pixels, sizex * comp) > 0;
 }
 
 bool PixelsArray::FillWithCheckerBoard()

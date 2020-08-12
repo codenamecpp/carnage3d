@@ -27,7 +27,7 @@ public:
     StyleData();
     // Load style data from specific file, returns false on error
     // @param stylesName: Target file name
-    bool LoadFromFile(const char* stylesName);
+    bool LoadFromFile(const std::string& stylesName);
     void Cleanup();
     bool IsLoaded() const;
 

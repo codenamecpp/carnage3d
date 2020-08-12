@@ -68,14 +68,14 @@ int StyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockIndex) 
     return 0;
 }
 
-bool StyleData::LoadFromFile(const char* stylesName)
+bool StyleData::LoadFromFile(const std::string& stylesName)
 {
     Cleanup();
 
     std::ifstream file;
     if (!gFiles.OpenBinaryFile(stylesName, file))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot open style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot open style file '%s'", stylesName.c_str());
         return false;
     }
 
@@ -87,7 +87,7 @@ bool StyleData::LoadFromFile(const char* stylesName)
     GTAFileHeaderG24 header;
     if (!cxx::read_from_stream(file, header) || header.version_code != GTA_G24FILE_VERSION_CODE)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of style file '%s'", stylesName.c_str());
         return false;
     }
 
@@ -108,13 +108,13 @@ bool StyleData::LoadFromFile(const char* stylesName)
 
     if (!ReadBlockTextures(file))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read block textures from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read block textures from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadAnimations(file, header.anim_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read animations from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read animations from style file '%s'", stylesName.c_str());
         return false;
     }
 
@@ -122,43 +122,43 @@ bool StyleData::LoadFromFile(const char* stylesName)
     int clutsDataLength = cxx::round_up_to(header.clut_size, 64 * 1024);
     if (!ReadCLUTs(file, clutsDataLength))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read palette data from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read palette data from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadPaletteIndices(file, header.palette_index_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read palette indices data from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read palette indices data from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadObjects(file, header.object_info_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read objects data from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read objects data from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadCars(file, header.car_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read cars data from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read cars data from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadSprites(file, header.sprite_info_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprites info from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprites info from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadSpriteGraphics(file, header.sprite_graphics_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite graphics from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite graphics from style file '%s'", stylesName.c_str());
         return false;
     }
 
     if (!ReadSpriteNumbers(file, header.sprite_numbers_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite numbers from style file '%s'", stylesName);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite numbers from style file '%s'", stylesName.c_str());
         return false;
     }
 

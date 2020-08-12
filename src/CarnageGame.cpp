@@ -10,7 +10,6 @@
 #include "TimeManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
-static const char* GTA1MapFileExtension = ".CMP";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -26,115 +25,29 @@ bool CarnageGame::Initialize()
 
     gGameParams.LoadDefaults();
 
-    // scan all gta1 maps
-    std::vector<std::string> gtaMapNames;
-    for (const std::string& currSearchPlace: gFiles.mSearchPlaces)
-    {
-        cxx::enum_files(currSearchPlace, [&gtaMapNames](const std::string& curr)
-        {
-            if (cxx::get_file_extension(curr) == GTA1MapFileExtension)
-            {
-                gtaMapNames.push_back(curr);  
-            }
-        });
-    }
-
-    if (gtaMapNames.size())
-    {
-        gConsole.LogMessage(eLogMessage_Info, "Found GTA1 maps:");
-        for (const std::string& currMapname: gtaMapNames)
-        {
-            gConsole.LogMessage(eLogMessage_Info, " - %s", currMapname.c_str());
-        }
-    }
-    else
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "No GTA1 maps found within search places");
-    }
-
     if (gSystem.mStartupParams.mDebugMapName.empty())
     {
         // try load first found map
-        if (gtaMapNames.size())
-        {
-            gSystem.mStartupParams.mDebugMapName = gtaMapNames[0].c_str();
-        }
+        debug_assert(!gFiles.mGameMapsList.empty());
+        gSystem.mStartupParams.mDebugMapName = gFiles.mGameMapsList[0];
     }
 
     if (gSystem.mStartupParams.mDebugMapName.empty())
         return false;
 
-    gGameMap.LoadFromFile(gSystem.mStartupParams.mDebugMapName.c_str());
-    gSpriteManager.Cleanup();
-    gRenderManager.mMapRenderer.BuildMapMesh();
-    if (!gSpriteManager.InitLevelSprites())
+    if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
     {
-        debug_assert(false);
+        ShutdownCurrentScenario();
+
+        gConsole.LogMessage(eLogMessage_Warning, "Fail to start game"); 
+        return false;
     }
-    //gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
-    //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
-    //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
-    //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
-    gPhysics.Initialize();
-
-    gGameObjectsManager.Initialize();
-
-    // temporary
-    //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
-    //glm::vec3 pos { 14.0, 2.0f, 38.0f };
-    //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
-    //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
-    //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
-
-    mNumPlayers = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
-    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", mNumPlayers);
-
-    glm::vec3 pos[GAME_MAX_PLAYERS];
-
-    // choose spawn point
-    // it is temporary!
-    int currFindPosIter = 0;
-    for (int yBlock = 10; yBlock < 20 && currFindPosIter < mNumPlayers; ++yBlock)
-    {
-        for (int xBlock = 10; xBlock < 20 && currFindPosIter < mNumPlayers; ++xBlock)
-        {
-            pos[currFindPosIter] = glm::ivec3(xBlock, MAP_LAYERS_COUNT - 1, yBlock);
-
-            float currHeight = gGameMap.GetHeightAtPosition(pos[currFindPosIter]);
-            int zBlock = static_cast<int>(currHeight);
-            if (zBlock > MAP_LAYERS_COUNT - 1)
-                continue;
-
-            BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
-            if (currBlock->mGroundType == eGroundType_Field ||
-                currBlock->mGroundType == eGroundType_Pawement ||
-                currBlock->mGroundType == eGroundType_Road)
-            {
-                pos[currFindPosIter].x += MAP_BLOCK_LENGTH * 0.5f;
-                pos[currFindPosIter].z += MAP_BLOCK_LENGTH * 0.5f;
-                pos[currFindPosIter].y = currHeight;
-                ++currFindPosIter;
-            }
-        }
-    }
-
-    for (int icurr = 0; icurr < mNumPlayers; ++icurr)
-    {
-        float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
-
-        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
-        SetupHumanCharacter(icurr, pedestrian);
-    }
-
-    SetupScreenLayout(mNumPlayers);
     return true;
 }
 
 void CarnageGame::Deinit()
 {
-    gGameObjectsManager.Deinit();
-    gPhysics.Deinit();
-    gGameMap.Cleanup();
+    ShutdownCurrentScenario();
 }
 
 void CarnageGame::UpdateFrame()
@@ -278,7 +191,7 @@ bool CarnageGame::SetInputActionsFromConfig()
     }
 
     cxx::json_document configDocument;
-    if (!configDocument.parse_document(jsonContent.c_str()))
+    if (!configDocument.parse_document(jsonContent))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot parse input config document");
         return false;
@@ -359,4 +272,110 @@ int CarnageGame::GetPlayerIndex(const HumanCharacterController* controller) cons
             return icurr;
     }
     return -1;
+}
+
+void CarnageGame::DebugChangeMap(const std::string& mapName)
+{
+    gConsole.LogMessage(eLogMessage_Debug, "Changing to next map '%s'", mapName.c_str());
+
+    if (!StartScenario(mapName))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Fail to change map");
+        return;
+    }
+}
+
+bool CarnageGame::StartScenario(const std::string& mapName)
+{
+    ShutdownCurrentScenario();
+
+    if (!gGameMap.LoadFromFile(mapName))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load map '%s'", mapName.c_str());
+        return false;
+    }
+    gSpriteManager.Cleanup();
+    gRenderManager.mMapRenderer.BuildMapMesh();
+    if (!gSpriteManager.InitLevelSprites())
+    {
+        debug_assert(false);
+    }
+    //gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
+    //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
+    //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
+    //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
+    if (!gPhysics.InitPhysicsWorld())
+    {
+        debug_assert(false);
+    }
+
+    gGameObjectsManager.InitGameObjects();
+
+    // temporary
+    //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
+    //glm::vec3 pos { 14.0, 2.0f, 38.0f };
+    //glm::vec3 pos { 91.0f, 2.0f, 236.0f };
+    //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
+    //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
+
+    mNumPlayers = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
+    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", mNumPlayers);
+
+    glm::vec3 pos[GAME_MAX_PLAYERS];
+
+    // choose spawn point
+    // it is temporary!
+    int currFindPosIter = 0;
+    for (int yBlock = 10; yBlock < 20 && currFindPosIter < mNumPlayers; ++yBlock)
+    {
+        for (int xBlock = 10; xBlock < 20 && currFindPosIter < mNumPlayers; ++xBlock)
+        {
+            pos[currFindPosIter] = glm::ivec3(xBlock, MAP_LAYERS_COUNT - 1, yBlock);
+
+            float currHeight = gGameMap.GetHeightAtPosition(pos[currFindPosIter]);
+            int zBlock = static_cast<int>(currHeight);
+            if (zBlock > MAP_LAYERS_COUNT - 1)
+                continue;
+
+            BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
+            if (currBlock->mGroundType == eGroundType_Field ||
+                currBlock->mGroundType == eGroundType_Pawement ||
+                currBlock->mGroundType == eGroundType_Road)
+            {
+                pos[currFindPosIter].x += MAP_BLOCK_LENGTH * 0.5f;
+                pos[currFindPosIter].z += MAP_BLOCK_LENGTH * 0.5f;
+                pos[currFindPosIter].y = currHeight;
+                ++currFindPosIter;
+            }
+        }
+    }
+
+    for (int icurr = 0; icurr < mNumPlayers; ++icurr)
+    {
+        float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
+
+        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
+        SetupHumanCharacter(icurr, pedestrian);
+    }
+
+    SetupScreenLayout(mNumPlayers);
+    return true;
+}
+
+void CarnageGame::ShutdownCurrentScenario()
+{
+    // todo: cleanup
+    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    {
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+            continue;
+
+        gRenderManager.DetachRenderView(&mHumanSlot[ihuman].mCharView);
+        mHumanSlot[ihuman].mCharController.SetCharacter(nullptr);
+        mHumanSlot[ihuman].mCharView.SetCameraController(nullptr);
+        mHumanSlot[ihuman].mCharPedestrian = nullptr;
+    }
+    gGameObjectsManager.FreeGameObjects();
+    gPhysics.FreePhysicsWorld();
+    gGameMap.Cleanup();
 }

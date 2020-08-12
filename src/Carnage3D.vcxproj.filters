@@ -47,9 +47,6 @@
     <Filter Include="Third_Party\stb">
       <UniqueIdentifier>{4cca613e-8979-4fd2-8976-bef3ea433c70}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\GUI\DebugWindows">
-      <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Camera">
       <UniqueIdentifier>{444d99fb-9da8-4789-b558-8ba75631c583}</UniqueIdentifier>
     </Filter>
@@ -61,6 +58,9 @@
     </Filter>
     <Filter Include="Game\CharacterControllers">
       <UniqueIdentifier>{73f4101e-aaab-49ec-b0d3-a05f5ee7c929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\DebugWindows">
+      <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -173,16 +173,16 @@
       <Filter>Game\GUI</Filter>
     </ClInclude>
     <ClInclude Include="DebugWindow.h">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleWindow.h">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClInclude>
     <ClInclude Include="SpriteAnimation.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="GameCheatsWindow.h">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClInclude>
     <ClInclude Include="DebugRenderer.h">
       <Filter>Game\Rendering</Filter>
@@ -387,10 +387,10 @@
       <Filter>Game\GUI</Filter>
     </ClCompile>
     <ClCompile Include="DebugWindow.cpp">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClCompile>
     <ClCompile Include="ConsoleWindow.cpp">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClCompile>
     <ClCompile Include="stb_rect_pack.cpp">
       <Filter>Third_Party\stb</Filter>
@@ -399,7 +399,7 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="GameCheatsWindow.cpp">
-      <Filter>Game\GUI\DebugWindows</Filter>
+      <Filter>Game\DebugWindows</Filter>
     </ClCompile>
     <ClCompile Include="DebugRenderer.cpp">
       <Filter>Game\Rendering</Filter>
