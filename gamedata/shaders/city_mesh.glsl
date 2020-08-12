@@ -10,8 +10,8 @@ uniform isamplerBuffer tex_2; // palette indices table
 // attributes
 in vec3 in_pos0;
 in vec3 in_texcoord0;
-in float in_color0; // remap index
-in float in_color1; // transparency flag
+in int in_color0; // remap index
+in int in_color1; // transparency flag
 
 // pass to fragment shader
 out vec3 Texcoord;

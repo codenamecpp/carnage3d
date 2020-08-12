@@ -135,20 +135,15 @@ inline GLenum GetTextureDataTypeGL(eTextureFormat textureFormat)
     return 0;
 }
 
-inline GLenum GetAttributeDataTypeGL(eVertexAttributeSemantics attributeSemantics)
+inline GLenum GetAttributeDataTypeGL(eVertexAttributeFormat attributeFormat)
 {
-    switch (attributeSemantics)
+    switch (attributeFormat)
     {
-        case eVertexAttributeSemantics_Position:
-        case eVertexAttributeSemantics_Normal:
-        case eVertexAttributeSemantics_Texcoord:
-        case eVertexAttributeSemantics_Position2d:
-        case eVertexAttributeSemantics_Texcoord3d:
-            return GL_FLOAT;
-        case eVertexAttributeSemantics_Color:
-            return GL_UNSIGNED_BYTE;
-        case eVertexAttributeSemantics_PaletteIndex:
-            return GL_UNSIGNED_SHORT;
+        case eVertexAttributeFormat_2F: return GL_FLOAT;
+        case eVertexAttributeFormat_3F: return GL_FLOAT;
+        case eVertexAttributeFormat_4UB: return GL_UNSIGNED_BYTE;
+        case eVertexAttributeFormat_1US: return GL_UNSIGNED_SHORT;
+        case eVertexAttributeFormat_2US: return GL_UNSIGNED_SHORT;
     }
     debug_assert(false);
     return GL_UNSIGNED_BYTE;

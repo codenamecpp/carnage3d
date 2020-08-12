@@ -174,16 +174,14 @@ impl_enum_strings(eTextureUnit)
     {eTextureUnit_15, "tex_15"},
 };
 
-impl_enum_strings(eVertexAttributeSemantics)
+impl_enum_strings(eVertexAttributeFormat)
 {
-    {eVertexAttributeSemantics_Position, "position"},
-    {eVertexAttributeSemantics_Normal, "normal"},
-    {eVertexAttributeSemantics_Color, "color"},
-    {eVertexAttributeSemantics_Texcoord, "texcoord"},
-    {eVertexAttributeSemantics_Position2d, "position2d"},
-    {eVertexAttributeSemantics_Texcoord3d, "texcoord3d"},
-    {eVertexAttributeSemantics_PaletteIndex, "paletteIndex"},
-    {eVertexAttributeSemantics_Unknown, "unknown"},
+    {eVertexAttributeFormat_2F, "2f"},
+    {eVertexAttributeFormat_3F, "3f"},
+    {eVertexAttributeFormat_4UB, "4ub"},
+    {eVertexAttributeFormat_1US, "1us"},
+    {eVertexAttributeFormat_2US, "2us"},
+    {eVertexAttributeFormat_Unknown, "unknown"},
 };
 
 impl_enum_strings(eVertexAttribute)

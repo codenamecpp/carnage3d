@@ -949,29 +949,35 @@ void GraphicsDevice::SetupVertexAttributes(const VertexFormat& streamDefinition)
         }
 
         const auto& attribute = streamDefinition.mAttributes[iattribute];
-        if (attribute.mSemantics == eVertexAttributeSemantics_Unknown)
+        if (attribute.mFormat == eVertexAttributeFormat_Unknown)
         {
             debug_assert(false);
             continue;
         }
 
-        unsigned int numComponents = GetAttributeComponentCount(attribute.mSemantics);
+        unsigned int numComponents = GetAttributeComponentCount(attribute.mFormat);
         if (numComponents == 0)
         {
             debug_assert(numComponents > 0);
             continue;
         }
 
-        GLboolean normalizeData = GL_FALSE;
-        if (attribute.mSemantics == eVertexAttributeSemantics_Color)
+        GLenum dataType = GetAttributeDataTypeGL(attribute.mFormat);
+
+        if (dataType == GL_FLOAT || attribute.mNormalized)
         {
-            normalizeData = GL_TRUE;
+            // set attribute location
+            ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, 
+                attribute.mNormalized ? GL_TRUE : GL_FALSE, 
+                streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
+            glCheckError();
         }
-        GLenum dataType = GetAttributeDataTypeGL(attribute.mSemantics);
-        // set attribute location
-        ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, normalizeData, 
-            streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
-        glCheckError();
+        else
+        {
+            ::glVertexAttribIPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, 
+                streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
+            glCheckError();
+        }
     }
 }
 

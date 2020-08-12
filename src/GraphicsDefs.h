@@ -324,19 +324,17 @@ enum eTextureUnit
 decl_enum_strings(eTextureUnit);
 
 // standard vertex attributes
-enum eVertexAttributeSemantics
+enum eVertexAttributeFormat
 {
-    eVertexAttributeSemantics_Position,     // 3 floats
-    eVertexAttributeSemantics_Normal,       // 3 floats
-    eVertexAttributeSemantics_Color,        // 4 unsigned bytes
-    eVertexAttributeSemantics_Texcoord,     // 2 floats
-    eVertexAttributeSemantics_Position2d,   // 2 floats
-    eVertexAttributeSemantics_Texcoord3d,   // 3 floats
-    eVertexAttributeSemantics_PaletteIndex, // 1 unsigned short
-    eVertexAttributeSemantics_Unknown
+    eVertexAttributeFormat_2F,      // 2 floats
+    eVertexAttributeFormat_3F,      // 3 floats
+    eVertexAttributeFormat_4UB,     // 4 unsigned bytes
+    eVertexAttributeFormat_1US,     // 1 unsigned short
+    eVertexAttributeFormat_2US,     // 2 unsigned shorts
+    eVertexAttributeFormat_Unknown
 };
 
-decl_enum_strings(eVertexAttributeSemantics);
+decl_enum_strings(eVertexAttributeFormat);
 
 enum eVertexAttribute
 {
@@ -354,63 +352,33 @@ enum eVertexAttribute
 
 decl_enum_strings(eVertexAttribute);
 
-// Get semantics of vertex attribute
-// @param attribute: Attribute identifier
-inline eVertexAttributeSemantics GetAttributeSemantics(eVertexAttribute attribute)
-{
-    switch (attribute)
-    {
-        case eVertexAttribute_Position0:
-        case eVertexAttribute_Position1:
-            return eVertexAttributeSemantics_Position;
-
-        case eVertexAttribute_Normal0:
-        case eVertexAttribute_Normal1:
-            return eVertexAttributeSemantics_Normal;
-
-        case eVertexAttribute_Texcoord0:
-        case eVertexAttribute_Texcoord1:
-            return eVertexAttributeSemantics_Texcoord;
-
-        case eVertexAttribute_Color0:
-        case eVertexAttribute_Color1:
-            return eVertexAttributeSemantics_Color;
-    }
-    debug_assert(false);
-    return eVertexAttributeSemantics_Unknown;
-}
-
 // Get number of component for vertex attribute
-// @param attributeSemantics: Attribute semantics
-inline unsigned int GetAttributeComponentCount(eVertexAttributeSemantics attributeSemantics)
+// @param attributeFormat: Format identifier
+inline unsigned int GetAttributeComponentCount(eVertexAttributeFormat attributeFormat)
 {
-    switch (attributeSemantics)
+    switch (attributeFormat)
     {
-        case eVertexAttributeSemantics_Normal: return 3;
-        case eVertexAttributeSemantics_Position: return 3;
-        case eVertexAttributeSemantics_Color: return 4;
-        case eVertexAttributeSemantics_Texcoord: return 2;
-        case eVertexAttributeSemantics_Position2d: return 2;
-        case eVertexAttributeSemantics_Texcoord3d: return 3;
-        case eVertexAttributeSemantics_PaletteIndex: return 1;
+        case eVertexAttributeFormat_2F: return 2;
+        case eVertexAttributeFormat_3F: return 3;
+        case eVertexAttributeFormat_4UB: return 4;
+        case eVertexAttributeFormat_1US: return 1;
+        case eVertexAttributeFormat_2US: return 2;
     }
     debug_assert(false);
     return 0;
 }
 
 // Get vertex attribute size in bytes
-// @param attributeSemantics: Attribute semantics
-inline unsigned int GetAttributeSizeBytes(eVertexAttributeSemantics attributeSemantics)
+// @param attributeFormat: Format identifier
+inline unsigned int GetAttributeSizeBytes(eVertexAttributeFormat attributeFormat)
 {
-    switch (attributeSemantics)
+    switch (attributeFormat)
     {
-        case eVertexAttributeSemantics_Normal: return sizeof(float) * 3;
-        case eVertexAttributeSemantics_Position: return sizeof(float) * 3;
-        case eVertexAttributeSemantics_Color: return sizeof(unsigned int);
-        case eVertexAttributeSemantics_Texcoord: return sizeof(float) * 2;
-        case eVertexAttributeSemantics_Position2d: return sizeof(float) * 2;
-        case eVertexAttributeSemantics_Texcoord3d: return sizeof(float) * 3;
-        case eVertexAttributeSemantics_PaletteIndex: return sizeof(unsigned short);
+        case eVertexAttributeFormat_2F: return 2 * sizeof(float);
+        case eVertexAttributeFormat_3F: return 3 * sizeof(float);
+        case eVertexAttributeFormat_4UB: return 4 * sizeof(unsigned char);
+        case eVertexAttributeFormat_1US: return 1 * sizeof(unsigned short);
+        case eVertexAttributeFormat_2US: return 2 * sizeof(unsigned short);
     }
     debug_assert(false);
     return 0;
@@ -424,19 +392,20 @@ public:
 
     // Enable attribute or modify data offset for enabled attribute
     // @param attribute: Attribute identifier
+    // @param attributeFormat: Attribute format format
     // @param dataOffset: Attribute data offset in bytes within buffer
-    inline void SetAttribute(eVertexAttribute attribute, unsigned int dataOffset)
+    inline void SetAttribute(eVertexAttribute attribute, eVertexAttributeFormat attributeFormat, unsigned int dataOffset)
     {
         debug_assert(attribute < eVertexAttribute_COUNT);
+        debug_assert(attributeFormat != eVertexAttributeFormat_Unknown);
         mAttributes[attribute].mDataOffset = dataOffset;
-        mAttributes[attribute].mSemantics = GetAttributeSemantics(attribute);
+        mAttributes[attribute].mFormat = attributeFormat;
+        mAttributes[attribute].mNormalized = false;
     }
-    // @param forceSemantics: Override default semantics for specified attribute
-    inline void SetAttribute(eVertexAttribute attribute, eVertexAttributeSemantics forceSemantics, unsigned int dataOffset)
+    inline void SetAttributeNormalized(eVertexAttribute attribute, bool isNormalized = true)
     {
         debug_assert(attribute < eVertexAttribute_COUNT);
-        mAttributes[attribute].mDataOffset = dataOffset;
-        mAttributes[attribute].mSemantics = forceSemantics;
+        mAttributes[attribute].mNormalized = isNormalized;
     }
 public:
     struct SingleAttribute
@@ -444,8 +413,13 @@ public:
     public:
         SingleAttribute() = default;
     public:
+        eVertexAttributeFormat mFormat = eVertexAttributeFormat_Unknown;
         unsigned int mDataOffset = 0;
-        eVertexAttributeSemantics mSemantics = eVertexAttributeSemantics_Unknown;
+
+        // attribute normalization - opengl specific
+        // if set to true, it indicates that values stored in an integer format are 
+        // to be mapped to the range [-1,1] (for signed values) or [0,1] (for unsigned values) when they are accessed and converted to floating point
+        bool mNormalized = false;
     };
     SingleAttribute mAttributes[eVertexAttribute_COUNT];
     unsigned int mDataStride = 0; // common to all attributes
@@ -471,10 +445,11 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_Vertex3D;
-        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
-        this->SetAttribute(eVertexAttribute_Normal0, offsetof(TVertexType, mNormal));
-        this->SetAttribute(eVertexAttribute_Texcoord0, offsetof(TVertexType, mTexcoord));
-        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_3F, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Normal0, eVertexAttributeFormat_3F, offsetof(TVertexType, mNormal));
+        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeFormat_2F, offsetof(TVertexType, mTexcoord));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_4UB, offsetof(TVertexType, mColor));
+        this->SetAttributeNormalized(eVertexAttribute_Color0);
     }
 };
 
@@ -497,10 +472,11 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_Vertex2D;
-        this->SetAttribute(eVertexAttribute_Texcoord0, offsetof(TVertexType, mTexcoord));
-        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeFormat_2F, offsetof(TVertexType, mTexcoord));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_4UB, offsetof(TVertexType, mColor));
+        this->SetAttributeNormalized(eVertexAttribute_Color0);
         // force semantics for pos0 attribute - expect 2 floats per vertex
-        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeSemantics_Position2d, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_2F, offsetof(TVertexType, mPosition));
     }
 };
 
@@ -523,8 +499,9 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_Vertex3D_Debug;
-        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
-        this->SetAttribute(eVertexAttribute_Color0, offsetof(TVertexType, mColor));
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_3F, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_4UB, offsetof(TVertexType, mColor));
+        this->SetAttributeNormalized(eVertexAttribute_Color0);
     }
 };
 

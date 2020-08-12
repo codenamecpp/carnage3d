@@ -212,10 +212,10 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_CityVertex3D;
-        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
-        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mRemap));
-        this->SetAttribute(eVertexAttribute_Color1, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mTransparency));
-        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeSemantics_Texcoord3d, offsetof(TVertexType, mTexcoord));
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_3F, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_1US, offsetof(TVertexType, mRemap));
+        this->SetAttribute(eVertexAttribute_Color1, eVertexAttributeFormat_1US, offsetof(TVertexType, mTransparency));
+        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeFormat_3F, offsetof(TVertexType, mTexcoord));
     }
 };
 
@@ -264,9 +264,9 @@ public:
     inline void Setup()
     {
         this->mDataStride = Sizeof_SpriteVertex3D;
-        this->SetAttribute(eVertexAttribute_Position0, offsetof(TVertexType, mPosition));
-        this->SetAttribute(eVertexAttribute_Texcoord0, offsetof(TVertexType, mTexcoord));
-        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeSemantics_PaletteIndex, offsetof(TVertexType, mClutIndex));
+        this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_3F, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeFormat_2F, offsetof(TVertexType, mTexcoord));
+        this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_1US, offsetof(TVertexType, mClutIndex));
     }
 };
 
