@@ -90,6 +90,52 @@ public:
             MapUnitsToPixels(units.z)
         };
     }
+
+    // Convert pixels directly to meters
+    static float PixelsToMeters(int pixels)
+    {
+        return ((1.0f * pixels) / PIXELS_PER_MAP_UNIT) * METERS_PER_MAP_UNIT;
+    }
+
+    // Convert meters directly to pixels
+    static int MetersToPixels(float meters)
+    {
+        return (int) ((meters / METERS_PER_MAP_UNIT) * PIXELS_PER_MAP_UNIT);
+    }
+
+    // Convert pixels directly to meters
+    static glm::vec2 PixelsToMeters(const glm::ivec2& pixels)
+    {
+        return {
+            PixelsToMeters(pixels.x),
+            PixelsToMeters(pixels.y)
+        };
+    }
+    static glm::vec3 PixelsToMeters(const glm::ivec3& pixels)
+    {
+        return {
+            PixelsToMeters(pixels.x),
+            PixelsToMeters(pixels.y),
+            PixelsToMeters(pixels.z)
+        };
+    }
+
+    // Convert meters directly to pixels
+    static glm::ivec2 MetersToPixels(const glm::vec2& meters)
+    {
+        return {
+            MetersToPixels(meters.x),
+            MetersToPixels(meters.y)
+        };
+    }
+    static glm::ivec3 MetersToPixels(const glm::vec3& meters)
+    {
+        return {
+            MetersToPixels(meters.x),
+            MetersToPixels(meters.y),
+            MetersToPixels(meters.z)
+        };
+    }
 };
 
 // in original gta1 map height levels is counting from top to bottom - 

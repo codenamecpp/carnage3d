@@ -49,7 +49,7 @@ void FreeLookCameraController::UpdateFrame()
         {
             moveDirection -= mCamera->mRightDirection;
         }
-        moveDirection = glm::normalize(moveDirection) * 5.0f * deltaTime;
+        moveDirection = glm::normalize(moveDirection) * mMoveSpeed * deltaTime;
         mCamera->Translate(moveDirection);
     }
 

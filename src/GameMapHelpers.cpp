@@ -78,6 +78,12 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
         { 0.0f, 0.0f, 0.0f },
     };
 
+    // scale to meters
+    for (glm::vec3& currPoint: cubePoints)
+    {
+        currPoint *= METERS_PER_MAP_UNIT;
+    }
+
     glm::vec3 texCoords[4] =
     {
         {0.0f, 0.0f, blockTexIndex * 1.0f},
@@ -178,7 +184,7 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mBlocksVertices[baseVertexIndex + 3].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { x, z, y };
+    glm::vec3 cubeOffset { x * METERS_PER_MAP_UNIT, z * METERS_PER_MAP_UNIT, y * METERS_PER_MAP_UNIT };
     if (face == eBlockFace_Lid)
     {
         meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;

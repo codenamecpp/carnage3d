@@ -4,8 +4,6 @@
 class PedPhysicsComponent;
 class CarPhysicsComponent;
 
-#define PHYSICS_SCALE 10.0f
-
 // physics objects categories
 enum
 {

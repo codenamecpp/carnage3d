@@ -5,6 +5,7 @@
 // side length of block cube, do not change
 #define MAP_BLOCK_TEXTURE_DIMS 64
 #define MAP_BLOCK_TEXTURE_AREA (MAP_BLOCK_TEXTURE_DIMS * MAP_BLOCK_TEXTURE_DIMS)
+
 #define MAX_MAP_BLOCK_ANIM_FRAMES 32
 #define MAX_CAR_DOORS 4
 #define MAX_CAR_REMAPS 12
@@ -19,7 +20,7 @@
 #define METERS_PER_MAP_UNIT (4.0f)
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
-#define SPRITE_SCALE (1.0f / PIXELS_PER_MAP_UNIT)
+#define SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
 
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
 #define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)

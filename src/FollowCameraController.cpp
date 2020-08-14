@@ -6,9 +6,9 @@
 #include "TimeManager.h"
 
 FollowCameraController::FollowCameraController()
-    : mStartupCameraHeight(8.0f)
-    , mFollowPedCameraHeight(5.0f)
-    , mFollowPedCameraCatchSpeed(5.0f)
+    : mStartupCameraHeight(32.0f)
+    , mFollowPedCameraHeight(20.0f)
+    , mFollowPedCameraCatchSpeed(20.0f)
     , mScrollHeightOffset()
 {
 }

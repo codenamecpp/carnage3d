@@ -344,7 +344,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
             {
                 pos[currFindPosIter].x += 0.5f;
                 pos[currFindPosIter].z += 0.5f;
-                pos[currFindPosIter].y = currHeight;
+                pos[currFindPosIter].y = currHeight * 4;
                 ++currFindPosIter;
             }
         }

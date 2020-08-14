@@ -5,6 +5,7 @@
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
+#include "Box2D_Helpers.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,7 @@ bool PhysicsManager::InitPhysicsWorld()
 
     double physicsFramerate = gSystem.mConfig.mPhysicsFramerate;
     debug_assert(physicsFramerate > 0.0);
+
     mSimulationStepTime = (float) (1.0 / physicsFramerate);
     debug_assert(mSimulationStepTime > 0.0);
 
@@ -194,11 +196,14 @@ void PhysicsManager::CreateMapCollisionShape()
         }
 
         b2PolygonShape b2shapeDef;
-        b2Vec2 center { 
-            (x + 0.5f) * PHYSICS_SCALE, 
-            (y + 0.5f) * PHYSICS_SCALE
-        };
-        b2shapeDef.SetAsBox(0.5f * PHYSICS_SCALE, 0.5f * PHYSICS_SCALE, center, 0.0f);
+
+        box2d::vec2 shapeCenter (x + 0.5f, y + 0.5f);
+        shapeCenter = Convert::MapUnitsToMeters(shapeCenter);
+       
+        box2d::vec2 shapeLength (0.5f, 0.5f);
+        shapeLength = Convert::MapUnitsToMeters(shapeLength);
+        
+        b2shapeDef.SetAsBox(shapeLength.x, shapeLength.y, shapeCenter, 0.0f);
 
         b2FixtureData_map fixtureData;
         fixtureData.mX = x;
@@ -570,8 +575,8 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             }
             if (currHit)
             {
-                currHit->mIntersectionPoint.x = (point.x / PHYSICS_SCALE);
-                currHit->mIntersectionPoint.y = (point.y / PHYSICS_SCALE);
+                currHit->mIntersectionPoint.x = point.x;
+                currHit->mIntersectionPoint.y = point.y;
                 currHit->mNormal.x = normal.x;
                 currHit->mNormal.y = normal.y;
             }
@@ -582,8 +587,8 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
     };
 
     _raycast_callback raycast_callback {outputResult};
-    b2Vec2 p1 { pointA.x * PHYSICS_SCALE, pointA.y * PHYSICS_SCALE };
-    b2Vec2 p2 { pointB.x * PHYSICS_SCALE, pointB.y * PHYSICS_SCALE };
+    box2d::vec2 p1 = pointA;
+    box2d::vec2 p2 = pointB;
     mPhysicsWorld->RayCast(&raycast_callback, p1, p2);
 }
 
@@ -623,9 +628,9 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
     _query_callback query_callback {outputResult};
 
     b2AABB aabb;
-    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x) * PHYSICS_SCALE;
-    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y) * PHYSICS_SCALE;
-    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x) * PHYSICS_SCALE;
-    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y) * PHYSICS_SCALE;
+    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x);
+    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y);
+    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x);
+    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y);
     mPhysicsWorld->QueryAABB(&query_callback, aabb);
 }

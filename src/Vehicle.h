@@ -74,12 +74,14 @@ public:
     // get position of specific door in local or world coords
     // local coords is relative to car center
     // @param doorIndex: Door
+    // @param out: Position in meters
     bool GetDoorPosLocal(int doorIndex, glm::vec2& out) const;
     bool GetDoorPos(int doorIndex, glm::vec2& out) const;
 
     // get position of specific seat in local or world coords
     // local coords is relative to car center
     // @param carSeat: Seat
+    // @param out: Position in meters
     bool GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const;
     bool GetSeatPos(eCarSeat carSeat, glm::vec2& out) const;
     
