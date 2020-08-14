@@ -25,46 +25,57 @@ public:
     glm::vec3 mSmoothPosition; // for rendering only
 
 public:
-    // set/get object's world position and rotation angle
-    // @param position: Coordinate
-    // @param rotationAngle: Rotation, optional
+    virtual ~PhysicsComponent();
+
+    // Set or get object's world position and rotation angle
+    // @param position: Coordinate, meters
+    // @param rotationAngle: Angle
     void SetPosition(const glm::vec3& position);
     void SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle);
     glm::vec3 GetPosition() const;
-    // set/get object's heading angle 
-    // @param rotationAngle: Angle value
+
+    // Set or get object's heading angle 
+    // @param rotationAngle: Angle
     void SetRotationAngle(cxx::angle_t rotationAngle);
     cxx::angle_t GetRotationAngle() const;
-    // set/get current angular velocity
-    // @param velocity: new angular velocity in degrees/second
-    void SetAngularVelocity(float angularVelocity);
-    float GetAngularVelocity() const;
-	/// set/get the linear velocity of the center of mass
-	/// @param velocity: new linear velocity of the center of mass
+
+    // Set or get current angular velocity
+    // @param velocity: New angular velocity in degrees/second
+    void SetAngularVelocity(cxx::angle_t angularVelocity);
+    cxx::angle_t GetAngularVelocity() const;
+
+	/// Set or get the linear velocity of the center of mass
+	/// @param velocity: New linear velocity of the center of mass, meters per second
     void SetLinearVelocity(const glm::vec2& velocity);
     glm::vec2 GetLinearVelocity() const;
     glm::vec2 GetSignVector() const;
-    // convert coordinate from local to world space and vice versa
+
+    // Convert coordinate from local to world space and vice versa
+    // @param localPosition, worldPosition: Coordinate in meters
     glm::vec2 GetWorldPoint(const glm::vec2& localPosition) const;
     glm::vec2 GetLocalPoint(const glm::vec2& worldPosition) const;
-    // apply an impulse to the center of mass
+
+    // Apply an impulse to the center of mass
     // @param impulse: The world impulse vector, usually in N-seconds or kg-m/s
     void AddLinearImpulse(const glm::vec2& impulse);
-	// apply a force to the center of mass
+
+	// Apply a force to the center of mass
     // @param force: Force, the world force vector, usually in Newtons (N)
     void AddForce(const glm::vec2& force);
-	// apply an angular impulse
+
+	// Apply an angular impulse
 	// @param impulse the angular impulse in units of kg*m*m/s
     void AddAngularImpulse(float impulse);
-    // cancel currently active forces
+
+    // Cancel currently active forces
     void ClearForces();
-    // clear state
+
+    // Clear state
     void SetRespawned();
 
 protected:
     // only derived classes could be instantiated
     PhysicsComponent(b2World* physicsWorld);
-    virtual ~PhysicsComponent();
 
 protected:
     b2World* mPhysicsWorld;

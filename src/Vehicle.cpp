@@ -101,14 +101,14 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
     {
         glm::vec2 rotated_pos;
         GetDoorPos(idoor, rotated_pos);
-        debugRender.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.05f, rotated_pos.y), glm::vec3(0.05f, 0.05f, 0.05f), Color32_Yellow, false);
+        debugRender.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.15f, rotated_pos.y), glm::vec3(0.15f, 0.15f, 0.15f), Color32_Yellow, false);
     }
 
     if (mCarStyle->mDoorsCount > 0)
     {
         glm::vec2 seatpos;
         GetSeatPos(eCarSeat_Driver, seatpos);
-        debugRender.DrawCube(glm::vec3(seatpos.x, position.y + 0.05f, seatpos.y), glm::vec3(0.05f, 0.05f, 0.05f), Color32_Green, false);
+        debugRender.DrawCube(glm::vec3(seatpos.x, position.y + 0.15f, seatpos.y), glm::vec3(0.15f, 0.15f, 0.15f), Color32_Green, false);
     }
 
     // draw wheels

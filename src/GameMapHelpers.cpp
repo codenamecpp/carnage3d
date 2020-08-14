@@ -98,47 +98,47 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     {
         // N, 26 low, high
         case 1: case 2:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f);
-            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f);
+            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f) * METERS_PER_MAP_UNIT;
         break;
         // S, 26 low, high
         case 3: case 4:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f);
-            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f);
+            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f) * METERS_PER_MAP_UNIT;
         break;
         // W, 26 low, high
         case 5: case 6:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f);
-            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f);
+            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f) * METERS_PER_MAP_UNIT;
         break;
         // E, 26 low, high
         case 7: case 8:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f);
-            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f);
+            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f) * METERS_PER_MAP_UNIT;
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f);
-            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f);
+            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f) * METERS_PER_MAP_UNIT;
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f);
-            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f);
+            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f) * METERS_PER_MAP_UNIT;
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f);
-            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f);
+            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f) * METERS_PER_MAP_UNIT;
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f);
-            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f);
+            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f) * METERS_PER_MAP_UNIT;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f) * METERS_PER_MAP_UNIT;
         break;
         // 41 - 44 = 45 N,S,W,E
         case 41: cubePoints[0].y = cubePoints[1].y = 0.0f; break;
@@ -254,6 +254,8 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
 
 int GameMapHelpers::GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y)
 {
+    return 0.0f; // todo: redo
+
     debug_assert(pxcoord_x >= 0 && pxcoord_x < PIXELS_PER_MAP_UNIT);
     debug_assert(pxcoord_y >= 0 && pxcoord_y < PIXELS_PER_MAP_UNIT);
 

@@ -10,16 +10,16 @@ GameParams::GameParams()
 
 void GameParams::SetToDefaults()
 {
-    mPedestrianBoundsSphereRadius = 0.15f;
+    mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.15f);
 
     mPedestrianTurnSpeed = 260.0f;
     mPedestrianTurnSpeedSlideOnCar = 120.0f;
-    mPedestrianSlideOnCarSpeed = 1.2f;
-    mPedestrianWalkSpeed = 0.7f;
-    mPedestrianRunSpeed = 1.5f;
-    mPedestrianSpotTheCarDistance = 3.0f;
+    mPedestrianSlideOnCarSpeed = Convert::MapUnitsToMeters(1.2f);
+    mPedestrianWalkSpeed = Convert::MapUnitsToMeters(0.7f);
+    mPedestrianRunSpeed = Convert::MapUnitsToMeters(1.5f);
+    mPedestrianSpotTheCarDistance = Convert::MapUnitsToMeters(3.0f);
     mPedestrianKnockedDownTime = 3.0f;
-    mPedestrianFallDeathHeight = 2.0f;
+    mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
     mPedestrianDrowningTime = 0.05f;
 
     // weapons time todo
@@ -30,9 +30,9 @@ void GameParams::SetToDefaults()
     mWeaponsRechargeTime[eWeaponType_RocketLauncher] = 1.0f * 3.0f;
 
     // weapons distance todo
-    mWeaponsDistance[eWeaponType_Fists] = mPedestrianBoundsSphereRadius + 0.6f;
-    mWeaponsDistance[eWeaponType_Pistol] = 1.0f;
-    mWeaponsDistance[eWeaponType_Machinegun] = 1.0f;
-    mWeaponsDistance[eWeaponType_Flamethrower] = 1.0f;
-    mWeaponsDistance[eWeaponType_RocketLauncher] = 1.0f;
+    mWeaponsDistance[eWeaponType_Fists] = mPedestrianBoundsSphereRadius + Convert::MapUnitsToMeters(0.6f);
+    mWeaponsDistance[eWeaponType_Pistol] = Convert::MapUnitsToMeters(1.0f);
+    mWeaponsDistance[eWeaponType_Machinegun] = Convert::MapUnitsToMeters(1.0f);
+    mWeaponsDistance[eWeaponType_Flamethrower] = Convert::MapUnitsToMeters(1.0f);
+    mWeaponsDistance[eWeaponType_RocketLauncher] = Convert::MapUnitsToMeters(1.0f);
 }

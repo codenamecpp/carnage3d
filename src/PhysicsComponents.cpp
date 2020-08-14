@@ -11,6 +11,8 @@ PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
     : mHeight()
     , mPhysicsWorld(physicsWorld)
     , mPhysicsBody()
+    , mPreviousPosition()
+    , mSmoothPosition()
 {
     debug_assert(physicsWorld);
 }
@@ -75,9 +77,9 @@ glm::vec2 PhysicsComponent::GetLinearVelocity() const
     return { b2position.x, b2position.y };
 }
 
-float PhysicsComponent::GetAngularVelocity() const
+cxx::angle_t PhysicsComponent::GetAngularVelocity() const
 {
-    float angularVelocity = glm::degrees(mPhysicsBody->GetAngularVelocity());
+    cxx::angle_t angularVelocity = cxx::angle_t::from_radians(mPhysicsBody->GetAngularVelocity());
     return angularVelocity;
 }
 
@@ -86,9 +88,9 @@ void PhysicsComponent::AddAngularImpulse(float impulse)
     mPhysicsBody->ApplyAngularImpulse(impulse, true);
 }
 
-void PhysicsComponent::SetAngularVelocity(float angularVelocity)
+void PhysicsComponent::SetAngularVelocity(cxx::angle_t angularVelocity)
 {
-    mPhysicsBody->SetAngularVelocity(glm::radians(angularVelocity));
+    mPhysicsBody->SetAngularVelocity(angularVelocity.to_radians());
 }
 
 void PhysicsComponent::SetLinearVelocity(const glm::vec2& velocity)
@@ -151,7 +153,7 @@ PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3&
     debug_assert(mPhysicsBody);
     
     b2CircleShape shapeDef;
-    shapeDef.m_radius = Convert::MapUnitsToMeters(gGameParams.mPedestrianBoundsSphereRadius);
+    shapeDef.m_radius = gGameParams.mPedestrianBoundsSphereRadius;
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
@@ -162,7 +164,7 @@ PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3&
     debug_assert(b2fixture);
 
     // create sensor
-    shapeDef.m_radius = Convert::MapUnitsToMeters(gGameParams.mPedestrianBoundsSphereRadius);
+    shapeDef.m_radius = gGameParams.mPedestrianBoundsSphereRadius;
     fixtureDef.shape = &shapeDef;
     fixtureDef.isSensor = true;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED_SENSOR;

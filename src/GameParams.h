@@ -13,19 +13,19 @@ public:
 
 public:
     // pedestrians
-    float mPedestrianBoundsSphereRadius; // bounding sphere radius, map units
+    float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters
 
     float mPedestrianTurnSpeed; // degrees per second
     float mPedestrianTurnSpeedSlideOnCar; // degrees per second
-    float mPedestrianSlideOnCarSpeed; // in map units per second
-    float mPedestrianWalkSpeed; // in map units per second
-    float mPedestrianRunSpeed; // in map units per second
+    float mPedestrianSlideOnCarSpeed; // meters per second
+    float mPedestrianWalkSpeed; // meters per second
+    float mPedestrianRunSpeed; // meters per second
     float mPedestrianKnockedDownTime; // knocked down duration after the punch in face, seconds
-    float mPedestrianSpotTheCarDistance; // max distance to detect the car, map units
-    float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, map units
+    float mPedestrianSpotTheCarDistance; // max distance to detect the car, meters
+    float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, meters
     float mPedestrianDrowningTime; // seconds
     float mWeaponsRechargeTime[eWeaponType_COUNT]; // weapons reload time, seconds
-    float mWeaponsDistance[eWeaponType_COUNT]; // map units
+    float mWeaponsDistance[eWeaponType_COUNT]; // hit distance, meters
 };
 
 extern GameParams gGameParams;

@@ -68,7 +68,9 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         ImGui::Separator();
         glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
-        ImGui::Text("pos: %f, %f, %f", pedPosition.x, pedPosition.y, pedPosition.z);
+        ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
+        glm::vec3 logicalPosition = Convert::MetersToMapUnits(pedPosition);
+        ImGui::Text("logical pos: %.3f, %.3f, %.3f", logicalPosition.x, logicalPosition.y, logicalPosition.z);
 
         cxx::angle_t pedHeading = pedestrian->mPhysicsComponent->GetRotationAngle();
         ImGui::Text("heading: %f", pedHeading.mDegrees);
@@ -146,9 +148,13 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     if (ImGui::CollapsingHeader("Ped"))
     {
-        ImGui::SliderFloat("Turn speed", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
-        ImGui::SliderFloat("Run speed", &gGameParams.mPedestrianRunSpeed, 0.1f, 16.0f, "%.2f");
-        ImGui::SliderFloat("Walk speed", &gGameParams.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
+        ImGui::SliderFloat("Turn speed (degs/s)", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
+        ImGui::SliderFloat("Run speed (m/s)", &gGameParams.mPedestrianRunSpeed, 
+            Convert::MapUnitsToMeters(0.1f), 
+            Convert::MapUnitsToMeters(16.0f), "%.2f");
+        ImGui::SliderFloat("Walk speed (m/s)", &gGameParams.mPedestrianWalkSpeed, 
+            Convert::MapUnitsToMeters(0.1f), 
+            Convert::MapUnitsToMeters(16.0f), "%.2f");
     }
 
     if (ImGui::CollapsingHeader("Graphics"))
