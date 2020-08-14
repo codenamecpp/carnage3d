@@ -67,15 +67,15 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     glm::vec3 cubePoints[] =
     {
         // front face, cw
-        { 0.0f,             MAP_BLOCK_LENGTH,   MAP_BLOCK_LENGTH }, 
-        { MAP_BLOCK_LENGTH, MAP_BLOCK_LENGTH,   MAP_BLOCK_LENGTH }, 
-        { MAP_BLOCK_LENGTH, 0.0f,               MAP_BLOCK_LENGTH }, 
-        { 0.0f,             0.0f,               MAP_BLOCK_LENGTH },
+        { 0.0f, 1.0f, 1.0f }, 
+        { 1.0f, 1.0f, 1.0f }, 
+        { 1.0f, 0.0f, 1.0f }, 
+        { 0.0f, 0.0f, 1.0f },
         // back face, cw
-        { 0.0f,             MAP_BLOCK_LENGTH,   0.0f }, 
-        { MAP_BLOCK_LENGTH, MAP_BLOCK_LENGTH,   0.0f }, 
-        { MAP_BLOCK_LENGTH, 0.0f,               0.0f }, 
-        { 0.0f,             0.0f,               0.0f },
+        { 0.0f, 1.0f, 0.0f }, 
+        { 1.0f, 1.0f, 0.0f }, 
+        { 1.0f, 0.0f, 0.0f }, 
+        { 0.0f, 0.0f, 0.0f },
     };
 
     glm::vec3 texCoords[4] =
@@ -92,47 +92,47 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     {
         // N, 26 low, high
         case 1: case 2:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 1) / 2.0f);
+            cubePoints[4].y = cubePoints[5].y = ((slope - 1 + 1) / 2.0f);
         break;
         // S, 26 low, high
         case 3: case 4:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 3) / 2.0f);
+            cubePoints[0].y = cubePoints[1].y = ((slope - 3 + 1) / 2.0f);
         break;
         // W, 26 low, high
         case 5: case 6:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 5) / 2.0f);
+            cubePoints[0].y = cubePoints[4].y = ((slope - 5 + 1) / 2.0f);
         break;
         // E, 26 low, high
         case 7: case 8:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 7) / 2.0f);
+            cubePoints[1].y = cubePoints[5].y = ((slope - 7 + 1) / 2.0f);
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
-            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[1].y = ((slope - 9) / 8.0f);
+            cubePoints[4].y = cubePoints[5].y = ((slope - 9 + 1) / 8.0f);
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
-            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[4].y = cubePoints[5].y = ((slope - 17) / 8.0f);
+            cubePoints[0].y = cubePoints[1].y = ((slope - 17 + 1) / 8.0f);
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
-            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[1].y = cubePoints[5].y = ((slope - 25) / 8.0f);
+            cubePoints[0].y = cubePoints[4].y = ((slope - 25 + 1) / 8.0f);
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
-            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f) * MAP_BLOCK_LENGTH;
-            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f) * MAP_BLOCK_LENGTH;
+            cubePoints[0].y = cubePoints[4].y = ((slope - 33) / 8.0f);
+            cubePoints[1].y = cubePoints[5].y = ((slope - 33 + 1) / 8.0f);
         break;
         // 41 - 44 = 45 N,S,W,E
         case 41: cubePoints[0].y = cubePoints[1].y = 0.0f; break;
@@ -178,7 +178,7 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mBlocksVertices[baseVertexIndex + 3].SetColorData(remap, blockInfo->mIsFlat ? 1 : 0);
 
     // setup face vertices
-    const glm::vec3 cubeOffset { x * MAP_BLOCK_LENGTH, z * MAP_BLOCK_LENGTH, y * MAP_BLOCK_LENGTH };
+    const glm::vec3 cubeOffset { x, z, y };
     if (face == eBlockFace_Lid)
     {
         meshData.mBlocksVertices[baseVertexIndex + 0].mPosition = cubePoints[4] + cubeOffset;
@@ -248,8 +248,8 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
 
 int GameMapHelpers::GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y)
 {
-    debug_assert(pxcoord_x >= 0 && pxcoord_x < MAP_PIXELS_PER_TILE);
-    debug_assert(pxcoord_y >= 0 && pxcoord_y < MAP_PIXELS_PER_TILE);
+    debug_assert(pxcoord_x >= 0 && pxcoord_x < PIXELS_PER_MAP_UNIT);
+    debug_assert(pxcoord_y >= 0 && pxcoord_y < PIXELS_PER_MAP_UNIT);
 
     int pixmin = 0;
     int pixmax = 0;
@@ -260,75 +260,75 @@ int GameMapHelpers::GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y)
         case 0: return 0;
         // N, 26 low, high
         case 1: case 2:
-            pixmin = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 1 + 1);
-            pixmax = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 1 + 0);
+            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 1 + 1);
+            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 1 + 0);
             pixcoord = pxcoord_y;
         break;
         // S, 26 low, high
         case 3: case 4:
-            pixmin = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 3 + 0);
-            pixmax = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 3 + 1);
+            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 3 + 0);
+            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 3 + 1);
             pixcoord = pxcoord_y;
         break;
         // W, 26 low, high
         case 5: case 6:
-            pixmin = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 5 + 1);
-            pixmax = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 5 + 0);
+            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 5 + 1);
+            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 5 + 0);
             pixcoord = pxcoord_x;
         break;
         // E, 26 low, high
         case 7: case 8:
-            pixmin = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 7 + 0);
-            pixmax = (MAP_PIXELS_PER_TILE / 2) * (slopeType - 7 + 1);
+            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 7 + 0);
+            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 7 + 1);
             pixcoord = pxcoord_x;
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
-            pixmin = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 9 + 1);
-            pixmax = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 9 + 0);
+            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 9 + 1);
+            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 9 + 0);
             pixcoord = pxcoord_y;
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
-            pixmin = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 17 + 0);
-            pixmax = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 17 + 1);
+            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 17 + 0);
+            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 17 + 1);
             pixcoord = pxcoord_y;
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
-            pixmin = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 25 + 1);
-            pixmax = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 25 + 0);
+            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 25 + 1);
+            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 25 + 0);
             pixcoord = pxcoord_x;
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
-            pixmin = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 33 + 0);
-            pixmax = (MAP_PIXELS_PER_TILE / 8) * (slopeType - 33 + 1);
+            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 33 + 0);
+            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 33 + 1);
             pixcoord = pxcoord_x;
         break;
         // 41 - 44 = 45 N,S,W,E
         case 41: 
-            pixmin = MAP_PIXELS_PER_TILE;
+            pixmin = PIXELS_PER_MAP_UNIT;
             pixmax = 0;
             pixcoord = pxcoord_y;
         break;
         case 42: 
             pixmin = 0;
-            pixmax = MAP_PIXELS_PER_TILE;
+            pixmax = PIXELS_PER_MAP_UNIT;
             pixcoord = pxcoord_y;
         break;
         case 43: 
-            pixmin = MAP_PIXELS_PER_TILE;
+            pixmin = PIXELS_PER_MAP_UNIT;
             pixmax = 0;
             pixcoord = pxcoord_x;
         break;
         case 44: 
             pixmin = 0;
-            pixmax = MAP_PIXELS_PER_TILE;
+            pixmax = PIXELS_PER_MAP_UNIT;
             pixcoord = pxcoord_x;
         break;
 
@@ -339,7 +339,7 @@ int GameMapHelpers::GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y)
         }
     }
 
-    float t = (pixcoord * 1.0f) / (MAP_PIXELS_PER_TILE - 1);
+    float t = (pixcoord * 1.0f) / (PIXELS_PER_MAP_UNIT - 1);
 
     // linear interpolate point
     int pixheight = static_cast<int>(glm::lerp(pixmin * 1.0f, pixmax * 1.0f, t));

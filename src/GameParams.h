@@ -9,21 +9,23 @@ public:
     GameParams();
 
     // reset all rules to default values
-    void LoadDefaults();
+    void SetToDefaults();
 
 public:
     // pedestrians
+    float mPedestrianBoundsSphereRadius; // bounding sphere radius, map units
+
     float mPedestrianTurnSpeed; // degrees per second
     float mPedestrianTurnSpeedSlideOnCar; // degrees per second
-    float mPedestrianSlideOnCarSpeed; // in blocks per second
-    float mPedestrianWalkSpeed; // in blocks per second
-    float mPedestrianRunSpeed; // in blocks per second
+    float mPedestrianSlideOnCarSpeed; // in map units per second
+    float mPedestrianWalkSpeed; // in map units per second
+    float mPedestrianRunSpeed; // in map units per second
     float mPedestrianKnockedDownTime; // knocked down duration after the punch in face, seconds
-    float mPedestrianSpotTheCarDistance; // max distance to detect the car
-    float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death
-    float mPedestrianDrowningTime; // specified in seconds
-    float mWeaponsRechargeTime[eWeaponType_COUNT]; // weapons reload time specified in seconds
-    float mWeaponsDistance[eWeaponType_COUNT]; // specified in blocks
+    float mPedestrianSpotTheCarDistance; // max distance to detect the car, map units
+    float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, map units
+    float mPedestrianDrowningTime; // seconds
+    float mWeaponsRechargeTime[eWeaponType_COUNT]; // weapons reload time, seconds
+    float mWeaponsDistance[eWeaponType_COUNT]; // map units
 };
 
 extern GameParams gGameParams;

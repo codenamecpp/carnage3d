@@ -40,6 +40,12 @@ bool PhysicsManager::InitPhysicsWorld()
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetContactListener(this);
+
+    double physicsFramerate = gSystem.mConfig.mPhysicsFramerate;
+    debug_assert(physicsFramerate > 0.0);
+    mSimulationStepTime = (float) (1.0 / physicsFramerate);
+    debug_assert(mSimulationStepTime > 0.0);
+
     CreateMapCollisionShape();
     return true;
 }
@@ -59,14 +65,14 @@ void PhysicsManager::UpdateFrame()
     mSimulationTimeAccumulator += gTimeManager.mGameFrameDelta;
 
     const int MaxSimulationStepsPerFrame = 5;
-    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP);
+    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / mSimulationStepTime);
     if (numSimulations > 0)
     {
-        mSimulationTimeAccumulator -= (numSimulations * PHYSICS_SIMULATION_STEP);
+        mSimulationTimeAccumulator -= (numSimulations * mSimulationStepTime);
         numSimulations = glm::min(numSimulations, MaxSimulationStepsPerFrame);
     }
     debug_assert(numSimulations <= MaxSimulationStepsPerFrame);
-    debug_assert(mSimulationTimeAccumulator < PHYSICS_SIMULATION_STEP && mSimulationTimeAccumulator > -0.01f);
+    debug_assert(mSimulationTimeAccumulator < mSimulationStepTime && mSimulationTimeAccumulator > -0.01f);
 
     for (int icurrStep = 0; icurrStep < numSimulations; ++icurrStep)
     {
@@ -94,7 +100,7 @@ void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
         }  
     }
 
-    mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
+    mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
     // process cars physics components
     for (CarPhysicsComponent* currComponent: mCarsBodiesList)
@@ -113,7 +119,7 @@ void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
 
 void PhysicsManager::ProcessInterpolation()
 {
-    float mixFactor = mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP;
+    float mixFactor = mSimulationTimeAccumulator / mSimulationStepTime;
 
     for (CarPhysicsComponent* currComponent: mCarsBodiesList)
     {
@@ -189,10 +195,10 @@ void PhysicsManager::CreateMapCollisionShape()
 
         b2PolygonShape b2shapeDef;
         b2Vec2 center { 
-            ((x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE, 
-            ((y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE
+            (x + 0.5f) * PHYSICS_SCALE, 
+            (y + 0.5f) * PHYSICS_SCALE
         };
-        b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, center, 0.0f);
+        b2shapeDef.SetAsBox(0.5f * PHYSICS_SCALE, 0.5f * PHYSICS_SCALE, center, 0.0f);
 
         b2FixtureData_map fixtureData;
         fixtureData.mX = x;
@@ -355,7 +361,7 @@ void PhysicsManager::FixedStepGravity()
         bool onTheGround = newHeight > (position.y - 0.01f);
         if (!onTheGround)
         {
-            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (mSimulationStepTime * 0.5f);
         }
         else
         {
@@ -403,7 +409,7 @@ void PhysicsManager::FixedStepGravity()
         else
         {
             float distanceToGround = position.y - newHeight;
-            if (distanceToGround > (MAP_BLOCK_LENGTH - 0.01f))
+            if (distanceToGround > 0.99f)
             {
                 physicsComponent->HandleFallBegin(distanceToGround);
             }
@@ -411,7 +417,7 @@ void PhysicsManager::FixedStepGravity()
 
         if (!onTheGround && physicsComponent->mFalling)
         {
-            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (mSimulationStepTime * 0.5f);
         }
         else
         {
@@ -564,8 +570,8 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             }
             if (currHit)
             {
-                currHit->mIntersectionPoint.x = ConvertPhysicsToMap(point.x);
-                currHit->mIntersectionPoint.y = ConvertPhysicsToMap(point.y);
+                currHit->mIntersectionPoint.x = (point.x / PHYSICS_SCALE);
+                currHit->mIntersectionPoint.y = (point.y / PHYSICS_SCALE);
                 currHit->mNormal.x = normal.x;
                 currHit->mNormal.y = normal.y;
             }

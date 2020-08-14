@@ -1,38 +1,31 @@
 #pragma once
 
-const int SysMemoryFrameHeapSize = 12 * 1024 * 1024;
-const int DefaultScreenResolutionX = 1024;
-const int DefaultScreenResolutionY = 768;
-
 // defines system configuration
 class SystemConfig
 {
 public:
-    SystemConfig() = default;
-    SystemConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
+    SystemConfig();
 
-    // set config default params
-    void SetDefaultParams();
+    // reset config to defaults
+    void SetToDefaults();
 
-    // Set screen dimensions and automatically compute aspect ratio
-    // @param screenSizex, screenSizey: Dimensions
-    void SetScreenSize(int screenSizex, int screenSizey);
-
-    // Set screen dimensions and automatically compute aspect ratio
-    // @param screenSizex, screenSizey: Dimensions
-    void SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync);
+    void InitFromJsonDocument(const cxx::json_document& sourceDocument);
+    void ExportToJsonDocument(cxx::json_document& sourceDocument);
 
 public:
-    // graphics settings
-    int mScreenSizex = DefaultScreenResolutionX; // screen dimensions
-    int mScreenSizey = DefaultScreenResolutionY; 
-    bool mFullscreen = false; // enable full screen mode
-    bool mEnableVSync = false; // enable vertical synchronization
-    float mScreenAspectRatio = 1.0f;
-    // memory settings
-    bool mEnableFrameHeapAllocator = true;
-    // debug settings
-    bool mShowImguiDemoWindow = false;
+    // graphics
+    int mScreenSizex, mScreenSizey; // screen dimensions
+    bool mFullscreen; // enable full screen mode
+    bool mEnableVSync; // enable vertical synchronization
+
+    // physics
+    float mPhysicsFramerate;
+
+    // memory
+    bool mEnableFrameHeapAllocator;
+
+    // debug
+    bool mShowImguiDemoWindow;
 };
 
 //////////////////////////////////////////////////////////////////////////

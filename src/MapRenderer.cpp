@@ -161,10 +161,10 @@ void MapRenderer::BuildMapMesh()
             unsigned int prevIndicesCount = blocksMesh.mBlocksIndices.size();
 
             MapBlocksChunk& currChunk = mMapBlocksChunks[batchy * BlocksBatchesPerSide + batchx];
-            currChunk.mBounds.mMin = glm::vec3 { mapArea.x * MAP_BLOCK_LENGTH, 0, mapArea.y * MAP_BLOCK_LENGTH };
+            currChunk.mBounds.mMin = glm::vec3 { mapArea.x, 0, mapArea.y };
             currChunk.mBounds.mMax = glm::vec3 { 
-                (mapArea.x + mapArea.w) * MAP_BLOCK_LENGTH, MAP_LAYERS_COUNT * MAP_BLOCK_LENGTH, 
-                (mapArea.y + mapArea.h) * MAP_BLOCK_LENGTH };
+                (mapArea.x + mapArea.w), MAP_LAYERS_COUNT * 1.0f, 
+                (mapArea.y + mapArea.h) };
 
             currChunk.mVerticesStart = prevVerticesCount;
             currChunk.mIndicesStart = prevIndicesCount;

@@ -670,7 +670,7 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
     {
         // force current position to underwater
         glm::vec3 currentPosition = mPedestrian->mPhysicsComponent->GetPosition();
-        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, MAP_BLOCK_LENGTH * 2.0f, 0.0f});
+        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
         mPedestrian->Die(ePedestrianDeathReason_Drowned, nullptr);
         return;

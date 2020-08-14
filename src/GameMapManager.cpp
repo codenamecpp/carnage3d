@@ -239,17 +239,17 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool exclud
 
         if (slope) // compute slope height
         {
-            int cx = ConvertMapToPixels(position.x - mapcoordx);
-            int cy = ConvertMapToPixels(position.z - mapcoordy);
+            int cx = Convert::MapUnitsToPixels(position.x - mapcoordx);
+            int cy = Convert::MapUnitsToPixels(position.z - mapcoordy);
 
             int pix_height = GameMapHelpers::GetSlopeHeight(slope, cx, cy);
-            height += ConvertPixelsToMap(pix_height);
+            height += Convert::PixelsToMapUnits(pix_height);
             break;
         }
 
         if (blockData->mGroundType == eGroundType_Air || (blockData->mGroundType == eGroundType_Water && excludeWater)) // fall through non solid block
         {
-            height -= MAP_BLOCK_LENGTH;
+            height -= 1.0f;
             --maplayer;
             continue;
         }

@@ -4,6 +4,7 @@
 #include "Pedestrian.h"
 #include "Vehicle.h"
 #include "PhysicsManager.h"
+#include "TimeManager.h"
 
 PhysicsComponent::PhysicsComponent(b2World* physicsWorld)
     : mHeight()
@@ -153,7 +154,7 @@ PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3&
     debug_assert(mPhysicsBody);
     
     b2CircleShape shapeDef;
-    shapeDef.m_radius = PHYSICS_PED_BOUNDING_SPHERE_RADIUS * PHYSICS_SCALE;
+    shapeDef.m_radius = gGameParams.mPedestrianBoundsSphereRadius * PHYSICS_SCALE;
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
@@ -164,7 +165,7 @@ PedPhysicsComponent::PedPhysicsComponent(b2World* physicsWorld, const glm::vec3&
     debug_assert(b2fixture);
 
     // create sensor
-    shapeDef.m_radius = PHYSICS_PED_SENSOR_SPHERE_RADIUS * PHYSICS_SCALE;
+    shapeDef.m_radius = gGameParams.mPedestrianBoundsSphereRadius * PHYSICS_SCALE;
     fixtureDef.shape = &shapeDef;
     fixtureDef.isSensor = true;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PED_SENSOR;
@@ -306,8 +307,8 @@ CarPhysicsComponent::CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, 
     debug_assert(mPhysicsBody);
     //physicsObject->mDepth = (1.0f * desc->mDepth) / MAP_PIXELS_PER_TILE;
     
-    float shape_size_w = ((1.0f * desc->mWidth) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;
-    float shape_size_h = ((1.0f * desc->mHeight) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;
+    float shape_size_w = ((1.0f * desc->mWidth) / PIXELS_PER_MAP_UNIT) * 0.5f * PHYSICS_SCALE;
+    float shape_size_h = ((1.0f * desc->mHeight) / PIXELS_PER_MAP_UNIT) * 0.5f * PHYSICS_SCALE;
 
     b2PolygonShape shapeDef;
     shapeDef.SetAsBox(shape_size_h, shape_size_w); // swap h and w
@@ -349,7 +350,7 @@ void CarPhysicsComponent::HandleWaterContact()
     if (mReferenceCar->mCarStyle->mVType == eCarVType_Boat)
         return;
 
-    mHeight -= (MAP_BLOCK_LENGTH * 2.0f); // force position underwater
+    mHeight -= 2.0f; // force position underwater
     ClearForces();
     // notify
     mReferenceCar->ReceiveDamageFromWater();
@@ -559,11 +560,11 @@ void CarPhysicsComponent::CreateWheel(eCarWheelID wheelID)
     // fix position
     if (wheelID == eCarWheelID_Steering)
     {
-        bodyDef.position.x = ((1.0f * mCarDesc->mSteeringWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x = ((1.0f * mCarDesc->mSteeringWheelOffset) / PIXELS_PER_MAP_UNIT) * PHYSICS_SCALE;
     }
     else if (wheelID == eCarWheelID_Drive)
     {
-        bodyDef.position.x = ((1.0f * mCarDesc->mDriveWheelOffset) / MAP_PIXELS_PER_TILE) * PHYSICS_SCALE;
+        bodyDef.position.x = ((1.0f * mCarDesc->mDriveWheelOffset) / PIXELS_PER_MAP_UNIT) * PHYSICS_SCALE;
     }
     else
     {
@@ -576,8 +577,8 @@ void CarPhysicsComponent::CreateWheel(eCarWheelID wheelID)
     debug_assert(wheel.mBody);
     wheel.mBody->SetTransform(bodyDef.position, mPhysicsBody->GetAngle());
 
-    float wheel_size_w = ((1.0f * wheel_pixels_w) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;
-    float wheel_size_h = ((1.0f * wheel_pixels_h) / MAP_PIXELS_PER_TILE) * 0.5f * PHYSICS_SCALE;
+    float wheel_size_w = ((1.0f * wheel_pixels_w) / PIXELS_PER_MAP_UNIT) * 0.5f * PHYSICS_SCALE;
+    float wheel_size_h = ((1.0f * wheel_pixels_h) / PIXELS_PER_MAP_UNIT) * 0.5f * PHYSICS_SCALE;
     
     b2PolygonShape shapeDef;
     shapeDef.SetAsBox(wheel_size_h, wheel_size_w); // swap h and w
@@ -595,7 +596,7 @@ void CarPhysicsComponent::UpdateSteering()
 {
     float lockAngle = glm::radians(32.0f);
     float turnSpeedPerSec = glm::radians(mCarDesc->mTurning * 1.0f);
-    float turnPerTimeStep = (turnSpeedPerSec * PHYSICS_SIMULATION_STEP);
+    float turnPerTimeStep = (turnSpeedPerSec * gTimeManager.mGameFrameDelta);
 
     float desiredAngle = lockAngle * mSteeringDirection;
 

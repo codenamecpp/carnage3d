@@ -23,7 +23,7 @@ bool CarnageGame::Initialize()
 
     SetInputActionsFromConfig();
 
-    gGameParams.LoadDefaults();
+    gGameParams.SetToDefaults();
 
     if (gSystem.mStartupParams.mDebugMapName.empty())
     {
@@ -342,8 +342,8 @@ bool CarnageGame::StartScenario(const std::string& mapName)
                 currBlock->mGroundType == eGroundType_Pawement ||
                 currBlock->mGroundType == eGroundType_Road)
             {
-                pos[currFindPosIter].x += MAP_BLOCK_LENGTH * 0.5f;
-                pos[currFindPosIter].z += MAP_BLOCK_LENGTH * 0.5f;
+                pos[currFindPosIter].x += 0.5f;
+                pos[currFindPosIter].z += 0.5f;
                 pos[currFindPosIter].y = currHeight;
                 ++currFindPosIter;
             }
