@@ -79,11 +79,9 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Separator();
 
         // get block location
-        int mapcoordx = (int) pedPosition.x;
-        int mapcoordy = (int) pedPosition.z;
-        int maplayer = (int) pedPosition.y;
+        glm::ivec3 blockPosition = Convert::MetersToMapUnits(pedPosition);
 
-        BlockStyle* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, maplayer);
+        BlockStyle* currBlock = gGameMap.GetBlockClamp(blockPosition.x, blockPosition.z, blockPosition.y);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
         ImGui::Text("b slope: %d", currBlock->mSlopeType);

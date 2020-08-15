@@ -33,6 +33,7 @@ PhysicsManager gPhysics;
 PhysicsManager::PhysicsManager()
     : mMapCollisionShape()
     , mPhysicsWorld()
+    , mGravityForce()
 {
 }
 
@@ -47,6 +48,8 @@ bool PhysicsManager::InitPhysicsWorld()
 
     mSimulationStepTime = (float) (1.0 / physicsFramerate);
     debug_assert(mSimulationStepTime > 0.0);
+
+    mGravityForce = Convert::MapUnitsToMeters(0.5f);
 
     CreateMapCollisionShape();
     return true;
@@ -422,7 +425,7 @@ void PhysicsManager::FixedStepGravity()
 
         if (!onTheGround && physicsComponent->mFalling)
         {
-            physicsComponent->mHeight -= (mSimulationStepTime * 0.5f);
+            physicsComponent->mHeight -= (mSimulationStepTime * mGravityForce);
         }
         else
         {

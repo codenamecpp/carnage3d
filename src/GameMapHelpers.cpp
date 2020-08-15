@@ -252,104 +252,101 @@ void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshDa
     meshData.mBlocksIndices[baseIndex + 5] = baseVertexIndex + 1;
 }
 
-int GameMapHelpers::GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y)
+float GameMapHelpers::GetSlopeHeight(int slopeType, float coord_x, float coord_y)
 {
-    return 0.0f; // todo: redo
+    debug_assert(coord_x >= 0.0f && coord_x <= 1.0f);
+    debug_assert(coord_y >= 0.0f && coord_y <= 1.0f);
 
-    debug_assert(pxcoord_x >= 0 && pxcoord_x < PIXELS_PER_MAP_UNIT);
-    debug_assert(pxcoord_y >= 0 && pxcoord_y < PIXELS_PER_MAP_UNIT);
+    // all values and calculations are in map units
 
-    int pixmin = 0;
-    int pixmax = 0;
-    int pixcoord = 0;
+    float min_evelation = 0.0f;
+    float max_evelation = 0.0f;
+    float lerp_factor = 0.0f;
 
     switch (slopeType)
     {
-        case 0: return 0;
+        case 0: return 0.0f;
+
         // N, 26 low, high
         case 1: case 2:
-            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 1 + 1);
-            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 1 + 0);
-            pixcoord = pxcoord_y;
+            min_evelation = (1.0f / 2) * (slopeType - 1 + 1);
+            max_evelation = (1.0f / 2) * (slopeType - 1 + 0);
+            lerp_factor = coord_y;
         break;
         // S, 26 low, high
         case 3: case 4:
-            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 3 + 0);
-            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 3 + 1);
-            pixcoord = pxcoord_y;
+            min_evelation = (1.0f / 2) * (slopeType - 3 + 0);
+            max_evelation = (1.0f / 2) * (slopeType - 3 + 1);
+            lerp_factor = coord_y;
         break;
         // W, 26 low, high
         case 5: case 6:
-            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 5 + 1);
-            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 5 + 0);
-            pixcoord = pxcoord_x;
+            min_evelation = (1.0f / 2) * (slopeType - 5 + 1);
+            max_evelation = (1.0f / 2) * (slopeType - 5 + 0);
+            lerp_factor = coord_x;
         break;
         // E, 26 low, high
         case 7: case 8:
-            pixmin = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 7 + 0);
-            pixmax = (PIXELS_PER_MAP_UNIT / 2) * (slopeType - 7 + 1);
-            pixcoord = pxcoord_x;
+            min_evelation = (1.0f / 2) * (slopeType - 7 + 0);
+            max_evelation = (1.0f / 2) * (slopeType - 7 + 1);
+            lerp_factor = coord_x;
         break;
         // N, 7 low - high
         case 9: case 10: case 11: case 12:
         case 13: case 14: case 15: case 16:
-            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 9 + 1);
-            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 9 + 0);
-            pixcoord = pxcoord_y;
+            min_evelation = (1.0f / 8) * (slopeType - 9 + 1);
+            max_evelation = (1.0f / 8) * (slopeType - 9 + 0);
+            lerp_factor = coord_y;
         break;
         // S, 7 low - high
         case 17: case 18: case 19: case 20:
         case 21: case 22: case 23: case 24:
-            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 17 + 0);
-            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 17 + 1);
-            pixcoord = pxcoord_y;
+            min_evelation = (1.0f / 8) * (slopeType - 17 + 0);
+            max_evelation = (1.0f / 8) * (slopeType - 17 + 1);
+            lerp_factor = coord_y;
         break;
         // W, 7 low - high
         case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32:
-            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 25 + 1);
-            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 25 + 0);
-            pixcoord = pxcoord_x;
+            min_evelation = (1.0f / 8) * (slopeType - 25 + 1);
+            max_evelation = (1.0f / 8) * (slopeType - 25 + 0);
+            lerp_factor = coord_x;
         break;
         // E, 7 low - high
         case 33: case 34: case 35: case 36:
         case 37: case 38: case 39: case 40:
-            pixmin = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 33 + 0);
-            pixmax = (PIXELS_PER_MAP_UNIT / 8) * (slopeType - 33 + 1);
-            pixcoord = pxcoord_x;
+            min_evelation = (1.0f / 8) * (slopeType - 33 + 0);
+            max_evelation = (1.0f / 8) * (slopeType - 33 + 1);
+            lerp_factor = coord_x;
         break;
         // 41 - 44 = 45 N,S,W,E
         case 41: 
-            pixmin = PIXELS_PER_MAP_UNIT;
-            pixmax = 0;
-            pixcoord = pxcoord_y;
+            min_evelation = 1.0f;
+            max_evelation = 0;
+            lerp_factor = coord_y;
         break;
         case 42: 
-            pixmin = 0;
-            pixmax = PIXELS_PER_MAP_UNIT;
-            pixcoord = pxcoord_y;
+            min_evelation = 0;
+            max_evelation = 1.0f;
+            lerp_factor = coord_y;
         break;
         case 43: 
-            pixmin = PIXELS_PER_MAP_UNIT;
-            pixmax = 0;
-            pixcoord = pxcoord_x;
+            min_evelation = 1.0f;
+            max_evelation = 0;
+            lerp_factor = coord_x;
         break;
         case 44: 
-            pixmin = 0;
-            pixmax = PIXELS_PER_MAP_UNIT;
-            pixcoord = pxcoord_x;
+            min_evelation = 0;
+            max_evelation = 1.0f;
+            lerp_factor = coord_x;
         break;
 
         default:
         {
             debug_assert(false);
-            return 0;
+            return 0.0f;
         }
     }
-
-    float t = (pixcoord * 1.0f) / (PIXELS_PER_MAP_UNIT - 1);
-
-    // linear interpolate point
-    int pixheight = static_cast<int>(glm::lerp(pixmin * 1.0f, pixmax * 1.0f, t));
-    return pixheight;
+    // linear interpolate elevation
+    return glm::lerp(min_evelation, max_evelation, lerp_factor);
 }

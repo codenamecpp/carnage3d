@@ -16,9 +16,9 @@ public:
 
     // compute height for specific block slope type
     // @param slopeType: Slope type
-    // @param pxcoord_x, pxcoord_y: Position within block specified in pixels [0, MAP_PIXELS_PER_TILE)
-    // @return slope height specified in pixels [0, MAP_PIXELS_PER_TILE]
-    static int GetSlopeHeight(int slopeType, int pxcoord_x, int pxcoord_y);
+    // @param x, y: Position within block [0, 1]
+    // @return slope height specified in map units [0, 1]
+    static float GetSlopeHeight(int slopeType, float x, float y);
 
 private:
     // internals

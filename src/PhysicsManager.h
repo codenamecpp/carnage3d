@@ -75,6 +75,8 @@ private:
     float mSimulationTimeAccumulator;
     float mSimulationStepTime;
 
+    float mGravityForce; // meters per second
+
     // physics components pools
     cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;
     cxx::object_pool<CarPhysicsComponent> mCarsBodiesPool;
