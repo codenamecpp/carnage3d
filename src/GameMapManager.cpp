@@ -225,8 +225,11 @@ void GameMapManager::FixShiftedBits()
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
 {
     // get map block position in which we are located
-    glm::ivec3 mapBlock = Convert::MetersToMapUnits(position);
-
+    glm::ivec3 mapBlock {
+        Convert::MetersToMapUnits(position.x),
+        Convert::MetersToMapUnits(position.y) + 0.5f,
+        Convert::MetersToMapUnits(position.z)
+    };
     float currentHeight = (float) mapBlock.y; // set current height to ground, map units
     for (; currentHeight > 0.0f;)
     {

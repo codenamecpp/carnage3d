@@ -21,9 +21,11 @@
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 #define SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
-
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
-#define PED_SPRITE_DRAW_BOX_SIZE ((1.0f * PED_SPRITE_DRAW_BOX_SIZE_PX) / MAP_BLOCK_TEXTURE_DIMS)
+
+// in original gta1 map height levels is counting from top to bottom - 
+// 0 is highest and 5 is lowest level
+#define INVERT_MAP_LAYER(index) (MAP_LAYERS_COUNT - (index) - 1)
 
 #define GAME_MAX_PLAYERS 4
 

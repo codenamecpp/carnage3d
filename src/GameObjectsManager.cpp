@@ -248,13 +248,13 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-            int mapBlock = (int) Convert::PixelsToMapUnits(currObject.mZ);
-            int mapLevel = ConvertMapLevel(mapBlock);
+            int mapLevel = (int) Convert::PixelsToMapUnits(currObject.mZ);
+            mapLevel = INVERT_MAP_LAYER(mapLevel);
             glm::vec3 carPosition 
             { 
-                Convert::PixelsToMapUnits(currObject.mX),
-                mapLevel * 1.0f,
-                Convert::PixelsToMapUnits(currObject.mY) 
+                Convert::PixelsToMeters(currObject.mX),
+                Convert::MapUnitsToMeters(mapLevel * 1.0f),
+                Convert::PixelsToMeters(currObject.mY) 
             };
 
             cxx::angle_t rotationDegrees = Convert::Fix16ToAngle(currObject.mRotation);

@@ -325,6 +325,7 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
             b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
             PhysicsComponent* physicsObject = (PhysicsComponent*) fixturePed->GetBody()->GetUserData();
             debug_assert(physicsObject);
+
             // detect height
             float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
             hasCollision = HasCollisionPedestrianVsMap(fxdata.mX, fxdata.mZ, height);
@@ -406,7 +407,7 @@ void PhysicsManager::FixedStepGravity()
         // process fall
         float newHeight = gGameMap.GetHeightAtPosition(position, false);
 
-        bool onTheGround = newHeight > (position.y - 0.01f);
+        bool onTheGround = newHeight > (position.y - 0.00f);
         if (physicsComponent->mFalling)
         {
             if (onTheGround)
@@ -452,11 +453,11 @@ bool PhysicsManager::CollidePedVsPed(b2Contact* contact, PedPhysicsComponent* pe
 
 bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const
 {
-    int map_layer = (int) (height + 0.5f);
+    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -464,11 +465,12 @@ bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixture
 {
     CarPhysicsComponent* carPhysicsComponent = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
     debug_assert(carPhysicsComponent);
-    int map_layer = (int) (carPhysicsComponent->mHeight + 0.5f);
+
+    int mapLayer = (int) (Convert::MetersToMapUnits(carPhysicsComponent->mHeight) + 0.5f);
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 

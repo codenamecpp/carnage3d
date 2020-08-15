@@ -144,7 +144,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     float maxHeight = position.y;
     if (!mPhysicsComponent->mFalling)
     {
-        float halfBox = PED_SPRITE_DRAW_BOX_SIZE * 0.5f;
+        float halfBox = Convert::PixelsToMeters(PED_SPRITE_DRAW_BOX_SIZE_PX) * 0.5f;
         //glm::vec3 points[4] = {
         //    { 0.0f,     position.y + 0.01f, -halfBox },
         //    { halfBox,  position.y + 0.01f, 0.0f },

@@ -137,13 +137,3 @@ public:
         };
     }
 };
-
-// in original gta1 map height levels is counting from top to bottom - 
-// 0 is highest and 5 is lowest level
-inline int ConvertMapLevel(int tileLayer)
-{
-    tileLayer = MAP_LAYERS_COUNT - tileLayer - 1;
-    debug_assert(tileLayer > -1 && tileLayer < MAP_LAYERS_COUNT);
-
-    return tileLayer;
-}
