@@ -22,6 +22,8 @@
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 #define SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
+#define CAR_WHEEL_SIZE_W_PX         6
+#define CAR_WHEEL_SIZE_H_PX         12
 
 // in original gta1 map height levels is counting from top to bottom - 
 // 0 is highest and 5 is lowest level
@@ -565,30 +567,42 @@ struct CarStyle
 public:
     short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
     short mSprNum; // first sprite number offset for this car
-    short mWeight;	
-    short mMaxSpeed, mMinSpeed;
-    short mAcceleration, mBraking;
-    short mGrip, mHandling;
+
+    struct // specs, usage is unknown
+    { 
+        short mWeight;	
+        short mMaxSpeed, mMinSpeed;
+        short mAcceleration, mBraking;
+        short mGrip, mHandling;
+    };
+
     short mRemapsBaseIndex;
     HLSRemap mRemap[MAX_CAR_REMAPS];
     eCarVType mVType; // is a descriptor of the type of car / vehicle
     eCarModel mModelId;
+
     int mTurning;
+
     int mDamagable;
     int mValue[4];
-    char mCx, mCy; // pixel co-ordinates of the centre of mass of the car, relative to the graphical centre
-    int mMoment;
-    float mRbpMass;
-    float mG1Thrust;
-    float mTyreAdhesionX, mTyreAdhesionY;
-    float mHandbrakeFriction;
-    float mFootbrakeFriction;
-    float mFrontBrakeBias;
-    short mTurnRatio;
-    short mDriveWheelOffset;
-    short mSteeringWheelOffset;
-    float mBackEndSlideValue;
-    float mHandbrakeSlideValue;
+
+    struct // physics props
+    {
+        char mCx, mCy; // pixel co-ordinates of the centre of mass of the car, relative to the graphical centre
+        int mMoment; // moment of inertia
+        float mMass;
+        float mThrust; // 1st gear thrust
+        float mTyreAdhesionX, mTyreAdhesionY;
+        float mHandbrakeFriction;
+        float mFootbrakeFriction;
+        float mFrontBrakeBias;
+        short mTurnRatio;
+        short mDriveWheelOffset;
+        short mSteeringWheelOffset;
+        float mBackEndSlideValue;
+        float mHandbrakeSlideValue;
+    };
+
     eCarConvertible mConvertible;
     int mEngine;
     int mRadio;

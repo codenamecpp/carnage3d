@@ -116,11 +116,12 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 
 void Pedestrian::DrawDebug(DebugRenderer& debugRender)
 {
-    glm::vec3 position = mPhysicsComponent->GetPosition();
-
-    glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
-
-    debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
+    if (mCurrentCar == nullptr)
+    {
+        glm::vec3 position = mPhysicsComponent->GetPosition();
+        glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
+        debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
+    }
 }
 
 void Pedestrian::ComputeDrawHeight(const glm::vec3& position)

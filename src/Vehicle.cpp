@@ -111,12 +111,15 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
         debugRender.DrawCube(glm::vec3(seatpos.x, position.y + 0.15f, seatpos.y), glm::vec3(0.15f, 0.15f, 0.15f), Color32_Green, false);
     }
 
-    // draw wheels
-    for (eCarWheelID currID: {eCarWheelID_Drive, eCarWheelID_Steering})
-    {
-        if (!mPhysicsComponent->HasWheel(currID))
-            continue;
+    // draw body velocity
+    glm::vec2 bodyLinearVelocity = mPhysicsComponent->GetLinearVelocity();
+    debugRender.DrawLine(
+        glm::vec3 {position.x, mDrawHeight, position.z},
+        glm::vec3 {position.x + bodyLinearVelocity.x, mDrawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
 
+    // draw wheels
+    for (eCarWheelID currID: {eCarWheelID_Drive, eCarWheelID_Steer})
+    {
         mPhysicsComponent->GetWheelCorners(currID, corners);
 
         for (int i = 0; i < 4; ++i)
@@ -138,7 +141,12 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
             glm::vec3 {wheelPosition.x + forwardVelocity.x, mDrawHeight, wheelPosition.y + forwardVelocity.y}, Color32_Green, false);
         debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
-            glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, Color32_SkyBlue, false);
+            glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, Color32_Red, false);
+
+        glm::vec2 signDirection = mPhysicsComponent->GetWheelDirection(currID);
+        debugRender.DrawLine(
+            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + signDirection.x, mDrawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);
     }
 }
 

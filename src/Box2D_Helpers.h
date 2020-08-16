@@ -25,6 +25,10 @@ namespace box2d
         {
             return {x, y};
         }
+        inline vec2 operator * (float scalar) const
+        {
+            return {x * scalar, y * scalar};
+        }
     };
 
 

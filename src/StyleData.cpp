@@ -756,8 +756,8 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         READ_SI8(file, carInfo.mCy);
         READ_SI32(file, carInfo.mMoment);
 
-        READ_FIXEDF32(file, carInfo.mRbpMass);
-        READ_FIXEDF32(file, carInfo.mG1Thrust);
+        READ_FIXEDF32(file, carInfo.mMass);
+        READ_FIXEDF32(file, carInfo.mThrust);
         READ_FIXEDF32(file, carInfo.mTyreAdhesionX);
         READ_FIXEDF32(file, carInfo.mTyreAdhesionY);
         READ_FIXEDF32(file, carInfo.mHandbrakeFriction);
