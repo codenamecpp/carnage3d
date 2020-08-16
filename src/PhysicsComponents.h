@@ -122,11 +122,11 @@ private:
     cxx::intrusive_node<PedPhysicsComponent> mPhysicsComponentsListNode;
 };
 
-enum eCarWheelID
+enum eCarWheel
 {
-    eCarWheelID_Steer,
-    eCarWheelID_Drive,
-    eCarWheelID_COUNT
+    eCarWheel_Steer,
+    eCarWheel_Drive,
+    eCarWheel_COUNT
 };
 
 const int CarSteeringDirectionLeft = -1; 
@@ -153,7 +153,7 @@ public:
 
     void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;
-    void GetWheelCorners(eCarWheelID wheelID, glm::vec2 corners[4]) const;
+    void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
 
     // steering
     // @param steerDirection: see CarSteeringDirection* constants
@@ -163,29 +163,33 @@ public:
     void SetDeceleration(bool isEnabled);
     void SetHandBrake(bool isEnabled);
     
-    glm::vec2 GetWheelLateralVelocity(eCarWheelID wheelID) const;
-    glm::vec2 GetWheelForwardVelocity(eCarWheelID wheelID) const;
-    // get wheel direction and position in world space
-    glm::vec2 GetWheelPosition(eCarWheelID wheelID) const;
-    glm::vec2 GetWheelDirection(eCarWheelID wheelID) const;
+    // Get wheel velocities
+    glm::vec2 GetWheelLateralVelocity(eCarWheel wheelID) const;
+    glm::vec2 GetWheelForwardVelocity(eCarWheel wheelID) const;
 
-    float GetCurrentVelocity() const;
+    // Get wheel forward direction and position in world space
+    glm::vec2 GetWheelPosition(eCarWheel wheelID) const;
+    glm::vec2 GetWheelDirection(eCarWheel wheelID) const;
+
+    // Get current vehicle speed
+    float GetCurrentSpeed() const;
 
 private:
     void SetupWheels();
     void UpdateSteer();
-    void UpdateWheelFriction(eCarWheelID wheelID);
+    void UpdateFriction();
     void UpdateDrive();
-    void KillOrthogonalVelocity(float drift);
 
     // helpers, world space
-    b2Vec2 b2GetWheelLateralVelocity(eCarWheelID wheelID) const;
-    b2Vec2 b2GetWheelForwardVelocity(eCarWheelID wheelID) const;
+    b2Vec2 b2GetWheelLateralVelocity(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelForwardVelocity(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelForwardVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLateralVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelPoint(eCarWheel wheelID) const;
     // helpers, local space
-    b2Vec2 b2GetWheelLocalPosition(eCarWheelID wheelID) const;
-    b2Vec2 b2GetWheelLocalForwardVector(eCarWheelID wheelID) const;
-    b2Vec2 b2GetWheelLocalLateralVector(eCarWheelID wheelID) const;
-
+    b2Vec2 b2GetWheelLocalPoint(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLocalForwardVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLocalLateralVector(eCarWheel wheelID) const;
 private:
     CarStyle* mCarDesc = nullptr;
     b2Fixture* mChassisFixture = nullptr;

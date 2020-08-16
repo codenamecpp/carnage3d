@@ -189,7 +189,11 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 ImGui::TextColored(physicsPropsColor, "Front Brake Bias : %.3f", carInformation->mFrontBrakeBias);
                 ImGui::HorzSpacing();
 
-                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsComponent->GetCurrentVelocity());
+                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsComponent->GetCurrentSpeed());
+                if (ImGui::Button("Clear forces"))
+                {
+                    currCar->mPhysicsComponent->ClearForces();
+                }
             }
         }
     }

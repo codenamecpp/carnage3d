@@ -118,7 +118,7 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
         glm::vec3 {position.x + bodyLinearVelocity.x, mDrawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
 
     // draw wheels
-    for (eCarWheelID currID: {eCarWheelID_Drive, eCarWheelID_Steer})
+    for (eCarWheel currID: {eCarWheel_Drive, eCarWheel_Steer})
     {
         mPhysicsComponent->GetWheelCorners(currID, corners);
 
