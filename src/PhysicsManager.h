@@ -59,14 +59,17 @@ private:
 	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 
-    bool CollidePedVsPed(b2Contact* contact, PedPhysicsComponent* pedA, PedPhysicsComponent* pedB);
-    bool HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const;
+    // pre solve collisions
+    bool HasCollisionPedVsPed(b2Contact* contact, PedPhysicsComponent* pedA, PedPhysicsComponent* pedB) const;
+    bool HasCollisionCarVsCar(b2Contact* contact, CarPhysicsComponent* carA, CarPhysicsComponent* carB) const;
+    bool HasCollisionPedVsMap(int mapx, int mapz, float height) const;
     bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const;
-    bool HasCollisionPedestrianVsCar(b2Contact* contact, b2Fixture* fixturePed, b2Fixture* fixtureCar);
+    bool HasCollisionPedVsCar(b2Contact* contact, PedPhysicsComponent* ped, CarPhysicsComponent* car) const;
+
+    // post solve collisions
+    void HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsComponent* ped, CarPhysicsComponent* car);
 
     bool ProcessSensorContact(b2Contact* contact, bool onBegin);
-
-    bool GetContactComponents(b2Contact* contact, PedPhysicsComponent*& pedPhysicsObject, CarPhysicsComponent*& carPhysicsObject) const;
 
 private:
     b2Body* mMapCollisionShape;

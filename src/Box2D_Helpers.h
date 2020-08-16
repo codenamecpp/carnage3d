@@ -31,7 +31,7 @@ namespace box2d
         }
     };
 
-
+    // vectors
     static const vec2 NullVector { 0.0f, 0.0f };
     static const vec2 ForwardVector (1.0f, 0.0f);
     static const vec2 LateralVector (0.0f, 1.0f);
