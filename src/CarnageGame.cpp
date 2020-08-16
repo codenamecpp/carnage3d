@@ -337,7 +337,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
                     currBlock->mGroundType == eGroundType_Pawement ||
                     currBlock->mGroundType == eGroundType_Road)
                 {
-                    pos[currFindPosIter++] = Convert::MapUnitsToMeters(glm::ivec3(xBlock, zBlock, yBlock));
+                    pos[currFindPosIter++] = Convert::MapUnitsToMeters(glm::vec3(xBlock, zBlock, yBlock));
                     break;
                 }
             }
