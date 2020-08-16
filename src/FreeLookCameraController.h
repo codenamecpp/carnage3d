@@ -24,4 +24,5 @@ private:
     int mLastMouseX, mLastMouseY;
     int mRotateDeltaX, mRotateDeltaY;
     bool mMouseDragCamera;
+    float mMoveSpeed = 20.0f; // meters per second
 };

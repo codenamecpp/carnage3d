@@ -23,7 +23,7 @@ bool CarnageGame::Initialize()
 
     SetInputActionsFromConfig();
 
-    gGameParams.LoadDefaults();
+    gGameParams.SetToDefaults();
 
     if (gSystem.mStartupParams.mDebugMapName.empty())
     {
@@ -330,22 +330,16 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     {
         for (int xBlock = 10; xBlock < 20 && currFindPosIter < mNumPlayers; ++xBlock)
         {
-            pos[currFindPosIter] = glm::ivec3(xBlock, MAP_LAYERS_COUNT - 1, yBlock);
-
-            float currHeight = gGameMap.GetHeightAtPosition(pos[currFindPosIter]);
-            int zBlock = static_cast<int>(currHeight);
-            if (zBlock > MAP_LAYERS_COUNT - 1)
-                continue;
-
-            BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
-            if (currBlock->mGroundType == eGroundType_Field ||
-                currBlock->mGroundType == eGroundType_Pawement ||
-                currBlock->mGroundType == eGroundType_Road)
+            for (int zBlock = MAP_LAYERS_COUNT - 1; zBlock > -1; --zBlock)
             {
-                pos[currFindPosIter].x += MAP_BLOCK_LENGTH * 0.5f;
-                pos[currFindPosIter].z += MAP_BLOCK_LENGTH * 0.5f;
-                pos[currFindPosIter].y = currHeight;
-                ++currFindPosIter;
+                BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
+                if (currBlock->mGroundType == eGroundType_Field ||
+                    currBlock->mGroundType == eGroundType_Pawement ||
+                    currBlock->mGroundType == eGroundType_Road)
+                {
+                    pos[currFindPosIter++] = Convert::MapUnitsToMeters(glm::ivec3(xBlock, zBlock, yBlock));
+                    break;
+                }
             }
         }
     }

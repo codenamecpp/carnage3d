@@ -24,10 +24,10 @@ public:
 
 private:
     // parameters
-    float mStartupCameraHeight;
-    float mFollowPedCameraHeight;
-    float mScrollHeightOffset;
-    float mFollowPedCameraCatchSpeed;
+    float mStartupCameraHeight; // meters
+    float mFollowPedCameraHeight; // meters
+    float mScrollHeightOffset; // meters
+    float mFollowPedCameraCatchSpeed; // meters per second
 
     Pedestrian* mFollowPedestrian = nullptr;
 };

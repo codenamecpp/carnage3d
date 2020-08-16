@@ -4,12 +4,6 @@
 class PedPhysicsComponent;
 class CarPhysicsComponent;
 
-#define PHYSICS_PED_BOUNDING_SPHERE_RADIUS 0.10f
-#define PHYSICS_PED_SENSOR_SPHERE_RADIUS (PHYSICS_PED_BOUNDING_SPHERE_RADIUS)
-#define PHYSICS_SIMULATION_STEP (1.0f / 60.0f)
-#define PHYSICS_GRAVITY (9.8f)
-#define PHYSICS_SCALE 10.0f
-
 // physics objects categories
 enum
 {

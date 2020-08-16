@@ -4,6 +4,8 @@
 #include "GameDefs.h"
 #include "PhysicsComponents.h"
 
+// note that the physics only works with meter units (Mt) rather then map units
+
 // this class manages physics and collision detections for map and objects
 class PhysicsManager final: private b2ContactListener
 {
@@ -17,13 +19,13 @@ public:
 
     // create pedestrian specific physical body
     // @param pedestrian: Reference ped
-    // @param position: Coord in world
+    // @param position: World position, meters
     // @param rotationAngle: Heading
     PedPhysicsComponent* CreatePhysicsComponent(Pedestrian* pedestrian, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // create car specific physical body
     // @param car: Reference car
-    // @param position: Coord in world
+    // @param position: World position, meters
     // @param rotationAngle: Heading
     // @param desc: Car class description
     CarPhysicsComponent* CreatePhysicsComponent(Vehicle* car, const glm::vec3& position, cxx::angle_t rotationAngle, CarStyle* desc);
@@ -71,6 +73,9 @@ private:
     b2World* mPhysicsWorld;
 
     float mSimulationTimeAccumulator;
+    float mSimulationStepTime;
+
+    float mGravityForce; // meters per second
 
     // physics components pools
     cxx::object_pool<PedPhysicsComponent> mPedsBodiesPool;

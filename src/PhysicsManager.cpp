@@ -5,6 +5,7 @@
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
+#include "Box2D_Helpers.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,7 @@ PhysicsManager gPhysics;
 PhysicsManager::PhysicsManager()
     : mMapCollisionShape()
     , mPhysicsWorld()
+    , mGravityForce()
 {
 }
 
@@ -40,6 +42,15 @@ bool PhysicsManager::InitPhysicsWorld()
     b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetContactListener(this);
+
+    double physicsFramerate = gSystem.mConfig.mPhysicsFramerate;
+    debug_assert(physicsFramerate > 0.0);
+
+    mSimulationStepTime = (float) (1.0 / physicsFramerate);
+    debug_assert(mSimulationStepTime > 0.0);
+
+    mGravityForce = Convert::MapUnitsToMeters(0.5f);
+
     CreateMapCollisionShape();
     return true;
 }
@@ -59,14 +70,14 @@ void PhysicsManager::UpdateFrame()
     mSimulationTimeAccumulator += gTimeManager.mGameFrameDelta;
 
     const int MaxSimulationStepsPerFrame = 5;
-    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP);
+    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / mSimulationStepTime);
     if (numSimulations > 0)
     {
-        mSimulationTimeAccumulator -= (numSimulations * PHYSICS_SIMULATION_STEP);
+        mSimulationTimeAccumulator -= (numSimulations * mSimulationStepTime);
         numSimulations = glm::min(numSimulations, MaxSimulationStepsPerFrame);
     }
     debug_assert(numSimulations <= MaxSimulationStepsPerFrame);
-    debug_assert(mSimulationTimeAccumulator < PHYSICS_SIMULATION_STEP && mSimulationTimeAccumulator > -0.01f);
+    debug_assert(mSimulationTimeAccumulator < mSimulationStepTime && mSimulationTimeAccumulator > -0.01f);
 
     for (int icurrStep = 0; icurrStep < numSimulations; ++icurrStep)
     {
@@ -94,7 +105,7 @@ void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
         }  
     }
 
-    mPhysicsWorld->Step(PHYSICS_SIMULATION_STEP, velocityIterations, positionIterations);
+    mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
     // process cars physics components
     for (CarPhysicsComponent* currComponent: mCarsBodiesList)
@@ -113,7 +124,7 @@ void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
 
 void PhysicsManager::ProcessInterpolation()
 {
-    float mixFactor = mSimulationTimeAccumulator / PHYSICS_SIMULATION_STEP;
+    float mixFactor = mSimulationTimeAccumulator / mSimulationStepTime;
 
     for (CarPhysicsComponent* currComponent: mCarsBodiesList)
     {
@@ -188,11 +199,14 @@ void PhysicsManager::CreateMapCollisionShape()
         }
 
         b2PolygonShape b2shapeDef;
-        b2Vec2 center { 
-            ((x * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE, 
-            ((y * MAP_BLOCK_LENGTH) + (MAP_BLOCK_LENGTH * 0.5f)) * PHYSICS_SCALE
-        };
-        b2shapeDef.SetAsBox(MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, MAP_BLOCK_LENGTH * 0.5f * PHYSICS_SCALE, center, 0.0f);
+
+        box2d::vec2 shapeCenter (x + 0.5f, y + 0.5f);
+        shapeCenter = Convert::MapUnitsToMeters(shapeCenter);
+       
+        box2d::vec2 shapeLength (0.5f, 0.5f);
+        shapeLength = Convert::MapUnitsToMeters(shapeLength);
+        
+        b2shapeDef.SetAsBox(shapeLength.x, shapeLength.y, shapeCenter, 0.0f);
 
         b2FixtureData_map fixtureData;
         fixtureData.mX = x;
@@ -311,6 +325,7 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
             b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
             PhysicsComponent* physicsObject = (PhysicsComponent*) fixturePed->GetBody()->GetUserData();
             debug_assert(physicsObject);
+
             // detect height
             float height = gGameMap.GetHeightAtPosition(physicsObject->GetPosition());
             hasCollision = HasCollisionPedestrianVsMap(fxdata.mX, fxdata.mZ, height);
@@ -355,7 +370,7 @@ void PhysicsManager::FixedStepGravity()
         bool onTheGround = newHeight > (position.y - 0.01f);
         if (!onTheGround)
         {
-            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (mSimulationStepTime * 0.5f);
         }
         else
         {
@@ -392,7 +407,7 @@ void PhysicsManager::FixedStepGravity()
         // process fall
         float newHeight = gGameMap.GetHeightAtPosition(position, false);
 
-        bool onTheGround = newHeight > (position.y - 0.01f);
+        bool onTheGround = newHeight > (position.y - 0.00f);
         if (physicsComponent->mFalling)
         {
             if (onTheGround)
@@ -403,7 +418,7 @@ void PhysicsManager::FixedStepGravity()
         else
         {
             float distanceToGround = position.y - newHeight;
-            if (distanceToGround > (MAP_BLOCK_LENGTH - 0.01f))
+            if (distanceToGround > 0.99f)
             {
                 physicsComponent->HandleFallBegin(distanceToGround);
             }
@@ -411,7 +426,7 @@ void PhysicsManager::FixedStepGravity()
 
         if (!onTheGround && physicsComponent->mFalling)
         {
-            physicsComponent->mHeight -= (PHYSICS_SIMULATION_STEP / 2.0f);
+            physicsComponent->mHeight -= (mSimulationStepTime * mGravityForce);
         }
         else
         {
@@ -438,11 +453,11 @@ bool PhysicsManager::CollidePedVsPed(b2Contact* contact, PedPhysicsComponent* pe
 
 bool PhysicsManager::HasCollisionPedestrianVsMap(int mapx, int mapz, float height) const
 {
-    int map_layer = (int) (height + 0.5f);
+    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -450,11 +465,12 @@ bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixture
 {
     CarPhysicsComponent* carPhysicsComponent = (CarPhysicsComponent*) fixtureCar->GetBody()->GetUserData();
     debug_assert(carPhysicsComponent);
-    int map_layer = (int) (carPhysicsComponent->mHeight + 0.5f);
+
+    int mapLayer = (int) (Convert::MetersToMapUnits(carPhysicsComponent->mHeight) + 0.5f);
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, map_layer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -564,8 +580,8 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             }
             if (currHit)
             {
-                currHit->mIntersectionPoint.x = ConvertPhysicsToMap(point.x);
-                currHit->mIntersectionPoint.y = ConvertPhysicsToMap(point.y);
+                currHit->mIntersectionPoint.x = point.x;
+                currHit->mIntersectionPoint.y = point.y;
                 currHit->mNormal.x = normal.x;
                 currHit->mNormal.y = normal.y;
             }
@@ -576,8 +592,8 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
     };
 
     _raycast_callback raycast_callback {outputResult};
-    b2Vec2 p1 { pointA.x * PHYSICS_SCALE, pointA.y * PHYSICS_SCALE };
-    b2Vec2 p2 { pointB.x * PHYSICS_SCALE, pointB.y * PHYSICS_SCALE };
+    box2d::vec2 p1 = pointA;
+    box2d::vec2 p2 = pointB;
     mPhysicsWorld->RayCast(&raycast_callback, p1, p2);
 }
 
@@ -617,9 +633,9 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
     _query_callback query_callback {outputResult};
 
     b2AABB aabb;
-    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x) * PHYSICS_SCALE;
-    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y) * PHYSICS_SCALE;
-    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x) * PHYSICS_SCALE;
-    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y) * PHYSICS_SCALE;
+    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x);
+    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y);
+    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x);
+    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y);
     mPhysicsWorld->QueryAABB(&query_callback, aabb);
 }

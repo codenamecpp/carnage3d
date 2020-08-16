@@ -248,17 +248,18 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-            int mapLevel = ConvertMapLevel(ConvertPixelsToTilePos(currObject.mZ));
+            int mapLevel = (int) Convert::PixelsToMapUnits(currObject.mZ);
+            mapLevel = INVERT_MAP_LAYER(mapLevel);
             glm::vec3 carPosition 
             { 
-                ConvertPixelsToMap(currObject.mX),
-                mapLevel * 1.0f,
-                ConvertPixelsToMap(currObject.mY) 
+                Convert::PixelsToMeters(currObject.mX),
+                Convert::MapUnitsToMeters(mapLevel * 1.0f),
+                Convert::PixelsToMeters(currObject.mY) 
             };
 
-            float rotationDegrees = ConvertFixAngleToDegs(currObject.mRotation);
+            cxx::angle_t rotationDegrees = Convert::Fix16ToAngle(currObject.mRotation);
 
-            Vehicle* startupCar = CreateCar(carPosition, cxx::angle_t::from_degrees(rotationDegrees), carModel);
+            Vehicle* startupCar = CreateCar(carPosition, rotationDegrees, carModel);
             debug_assert(startupCar);
 
             ++numCars;

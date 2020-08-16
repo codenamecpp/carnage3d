@@ -25,46 +25,65 @@ public:
     glm::vec3 mSmoothPosition; // for rendering only
 
 public:
-    // set/get object's world position and rotation angle
-    // @param position: Coordinate
-    // @param rotationAngle: Rotation, optional
+    virtual ~PhysicsComponent();
+
+    // Set or get object's world position and rotation angle
+    // @param position: Coordinate, meters
+    // @param rotationAngle: Angle
     void SetPosition(const glm::vec3& position);
     void SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle);
     glm::vec3 GetPosition() const;
-    // set/get object's heading angle 
-    // @param rotationAngle: Angle value
+
+    // Set or get object's heading angle 
+    // @param rotationAngle: Angle
     void SetRotationAngle(cxx::angle_t rotationAngle);
     cxx::angle_t GetRotationAngle() const;
-    // set/get current angular velocity
-    // @param velocity: new angular velocity in degrees/second
-    void SetAngularVelocity(float angularVelocity);
-    float GetAngularVelocity() const;
-	/// set/get the linear velocity of the center of mass
-	/// @param velocity: new linear velocity of the center of mass
+
+    // Set or get current angular velocity
+    // @param velocity: New angular velocity in degrees/second
+    void SetAngularVelocity(cxx::angle_t angularVelocity);
+    cxx::angle_t GetAngularVelocity() const;
+
+	/// Set or get the linear velocity of the center of mass
+	/// @param velocity: New linear velocity of the center of mass, meters per second
     void SetLinearVelocity(const glm::vec2& velocity);
     glm::vec2 GetLinearVelocity() const;
     glm::vec2 GetSignVector() const;
-    // convert coordinate from local to world space and vice versa
+
+    // Convert coordinate from local to world space and vice versa
+    // @param localPosition, worldPosition: Coordinate in meters
     glm::vec2 GetWorldPoint(const glm::vec2& localPosition) const;
     glm::vec2 GetLocalPoint(const glm::vec2& worldPosition) const;
-    // apply an impulse to the center of mass
+
+    // Convert vector from local to world space and vice versa
+    glm::vec2 GetWorldVector(const glm::vec2& localVector) const;
+    glm::vec2 GetLocalVector(const glm::vec2& worldVector) const;
+    
+    // Apply an impulse to the center of mass
     // @param impulse: The world impulse vector, usually in N-seconds or kg-m/s
+    // @param position: World position, meters
     void AddLinearImpulse(const glm::vec2& impulse);
-	// apply a force to the center of mass
+    void AddLinearImpulse(const glm::vec2& impulse, const glm::vec2& position);
+
+	// Apply a force to the center of mass
     // @param force: Force, the world force vector, usually in Newtons (N)
+    // @param position: World position, meters
     void AddForce(const glm::vec2& force);
-	// apply an angular impulse
+    void AddForce(const glm::vec2& force, const glm::vec2& position);
+
+	// Apply an angular impulse
 	// @param impulse the angular impulse in units of kg*m*m/s
     void AddAngularImpulse(float impulse);
-    // cancel currently active forces
+
+    // Cancel currently active forces
     void ClearForces();
-    // clear state
+
+    // Clear state
     void SetRespawned();
 
 protected:
     // only derived classes could be instantiated
     PhysicsComponent(b2World* physicsWorld);
-    virtual ~PhysicsComponent();
 
 protected:
     b2World* mPhysicsWorld;
@@ -103,11 +122,11 @@ private:
     cxx::intrusive_node<PedPhysicsComponent> mPhysicsComponentsListNode;
 };
 
-enum eCarWheelID
+enum eCarWheel
 {
-    eCarWheelID_Steering,
-    eCarWheelID_Drive,
-    eCarWheelID_COUNT
+    eCarWheel_Steer,
+    eCarWheel_Drive,
+    eCarWheel_COUNT
 };
 
 const int CarSteeringDirectionLeft = -1; 
@@ -134,9 +153,7 @@ public:
 
     void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;
-    void GetWheelCorners(eCarWheelID wheelID, glm::vec2 corners[4]) const;
-    // test whether specific wheel exists
-    bool HasWheel(eCarWheelID wheelID) const;
+    void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
 
     // steering
     // @param steerDirection: see CarSteeringDirection* constants
@@ -146,51 +163,47 @@ public:
     void SetDeceleration(bool isEnabled);
     void SetHandBrake(bool isEnabled);
     
-    glm::vec2 GetWheelLateralVelocity(eCarWheelID wheelID) const;
-    glm::vec2 GetWheelForwardVelocity(eCarWheelID wheelID) const;
-    glm::vec2 GetWheelPosition(eCarWheelID wheelID) const;
+    // Get wheel velocities
+    glm::vec2 GetWheelLateralVelocity(eCarWheel wheelID) const;
+    glm::vec2 GetWheelForwardVelocity(eCarWheel wheelID) const;
+
+    // Get wheel forward direction and position in world space
+    glm::vec2 GetWheelPosition(eCarWheel wheelID) const;
+    glm::vec2 GetWheelDirection(eCarWheel wheelID) const;
+
+    // Get current vehicle speed
+    float GetCurrentSpeed() const;
 
 private:
-
-    // helpers
-    static const b2Vec2 B2ForwardVector;
-    static const b2Vec2 B2LateralVector;
-
-    // car internals wheel data
-    struct WheelData
-    {
-    public:
-        WheelData() = default;
-    public:
-        b2Body* mBody = nullptr;
-        b2Fixture* mFixture = nullptr;
-    };
-
     void SetupWheels();
-    void FreeWheels();
-    void CreateWheel(eCarWheelID wheelID);
-    void UpdateSteering();
-    void UpdateWheelFriction(eCarWheelID wheelID);
-    void UpdateWheelDrive(eCarWheelID wheelID);
+    void UpdateSteer();
+    void UpdateFriction();
+    void UpdateDrive();
 
-    b2Vec2 GetWheelLateralVelocity(b2Body* carWheel) const;
-    b2Vec2 GetWheelForwardVelocity(b2Body* carWheel) const;
-
+    // helpers, world space
+    b2Vec2 b2GetWheelLateralVelocity(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelForwardVelocity(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelForwardVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLateralVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelPoint(eCarWheel wheelID) const;
+    // helpers, local space
+    b2Vec2 b2GetWheelLocalPoint(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLocalForwardVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetWheelLocalLateralVector(eCarWheel wheelID) const;
 private:
     CarStyle* mCarDesc = nullptr;
-
     b2Fixture* mChassisFixture = nullptr;
-    b2RevoluteJoint* mFrontWheelJoint = nullptr;
-    b2RevoluteJoint* mRearWheelJoint = nullptr;
-    WheelData mCarWheels[eCarWheelID_COUNT];
+
+    // wheels
+    float mSteerWheelPosition = 0.0f; // front
+    float mDriveWheelPosition = 0.0f; // rear
+    float mSteeringAngleRadians = 0.0f;
 
     // current drive state
     int mSteeringDirection;
-    bool mAccelerationEnabled : 1;
-    bool mDecelerationEnabled : 1;
-    bool mHandBrakeEnabled : 1;
-
-    float mCurrentTraction;
+    bool mAccelerationEnabled = false;
+    bool mDecelerationEnabled = false;
+    bool mHandBrakeEnabled = false;
 
     // internal stuff that can be touched only by PhysicsManager
     cxx::intrusive_node<CarPhysicsComponent> mPhysicsComponentsListNode;

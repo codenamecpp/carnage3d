@@ -329,6 +329,9 @@
     <ClInclude Include="math_utils.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="Box2D_Helpers.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

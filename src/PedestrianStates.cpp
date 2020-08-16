@@ -129,12 +129,13 @@ void PedestrianStatesManager::ProcessRotateActions()
             turnSpeed = gGameParams.mPedestrianTurnSpeedSlideOnCar;
         }
 
-        float angularVelocity = turnSpeed * (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f);
+        cxx::angle_t angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f));
         mPedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
     else
     {
-        mPedestrian->mPhysicsComponent->SetAngularVelocity(0.0f);
+        cxx::angle_t angularVelocity;
+        mPedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
     }
 }
 
@@ -145,10 +146,10 @@ void PedestrianStatesManager::ProcessMotionActions()
     {
         glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * mPedestrian->mPhysicsComponent->GetSignVector();
         mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
-
         return;
     }
 
+    glm::vec2 linearVelocity {};
     // generic case
     if (mPedestrian->mCtlActions[ePedestrianAction_WalkForward] || 
         mPedestrian->mCtlActions[ePedestrianAction_WalkBackward] || 
@@ -156,7 +157,7 @@ void PedestrianStatesManager::ProcessMotionActions()
     {
         float moveSpeed = gGameParams.mPedestrianWalkSpeed;
 
-        glm::vec2 linearVelocity = mPedestrian->mPhysicsComponent->GetSignVector();
+        linearVelocity = mPedestrian->mPhysicsComponent->GetSignVector();
         if (mPedestrian->mCtlActions[ePedestrianAction_Run])
         {
             moveSpeed = gGameParams.mPedestrianRunSpeed;
@@ -165,12 +166,14 @@ void PedestrianStatesManager::ProcessMotionActions()
         {
             linearVelocity = -linearVelocity;
         }
-        mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity * moveSpeed);
+
+        linearVelocity *= moveSpeed;
     }
     else
     {
-        mPedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
+        // force stop
     }
+    mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity); 
 }
 
 bool PedestrianStatesManager::TryToShoot()
@@ -670,7 +673,7 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
     {
         // force current position to underwater
         glm::vec3 currentPosition = mPedestrian->mPhysicsComponent->GetPosition();
-        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, MAP_BLOCK_LENGTH * 2.0f, 0.0f});
+        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
         mPedestrian->Die(ePedestrianDeathReason_Drowned, nullptr);
         return;

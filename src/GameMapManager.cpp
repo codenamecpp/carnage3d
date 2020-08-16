@@ -224,39 +224,39 @@ void GameMapManager::FixShiftedBits()
 
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
 {
-    int mapcoordx = (int) position.x;
-    int mapcoordy = (int) position.z;
-    int maplayer = (int) (position.y + 0.5f);
-
-    float height = maplayer * 1.0f; // reset height to ground
-
-    for (;height > 0.0f;)
+    // get map block position in which we are located
+    glm::ivec3 mapBlock {
+        Convert::MetersToMapUnits(position.x),
+        Convert::MetersToMapUnits(position.y) + 0.5f,
+        Convert::MetersToMapUnits(position.z)
+    };
+    float currentHeight = (float) mapBlock.y; // set current height to ground, map units
+    for (; currentHeight > 0.0f;)
     {
-        BlockStyle* blockData = GetBlockClamp(mapcoordx, mapcoordy, maplayer);
+        BlockStyle* blockData = GetBlockClamp(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
 
-        // slope
-        int slope = blockData->mSlopeType;
-
-        if (slope) // compute slope height
+        // compute slope height
+        if (blockData->mSlopeType) 
         {
-            int cx = ConvertMapToPixels(position.x - mapcoordx);
-            int cy = ConvertMapToPixels(position.z - mapcoordy);
+            // subposition within block
+            float cx = Convert::MetersToMapUnits(position.x) - mapBlock.x;
+            float cy = Convert::MetersToMapUnits(position.z) - mapBlock.z;
 
-            int pix_height = GameMapHelpers::GetSlopeHeight(slope, cx, cy);
-            height += ConvertPixelsToMap(pix_height);
+            currentHeight += GameMapHelpers::GetSlopeHeight(blockData->mSlopeType, cx, cy);
+
             break;
         }
 
         if (blockData->mGroundType == eGroundType_Air || (blockData->mGroundType == eGroundType_Water && excludeWater)) // fall through non solid block
         {
-            height -= MAP_BLOCK_LENGTH;
-            --maplayer;
+            currentHeight -= 1.0f;
+            mapBlock.y -= 1;
             continue;
         }
 
-        break;
+        break; // bail out
     }
-    return height;
+    return Convert::MapUnitsToMeters(currentHeight);
 }
 
 bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& destination, float height, glm::vec2& outPoint)

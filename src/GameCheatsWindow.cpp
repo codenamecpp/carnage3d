@@ -6,6 +6,18 @@
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 
+namespace ImGui
+{
+    inline void HorzSpacing(float spacingSize = 10.0f)
+    {
+        Dummy(ImVec2(0.0f, spacingSize));
+    }
+    inline void VertSpacing(float spacingSize = 10.0f)
+    {
+        Dummy(ImVec2(spacingSize, 0.0f)); 
+    }
+}
+
 GameCheatsWindow gGameCheatsWindow;
 
 GameCheatsWindow::GameCheatsWindow()
@@ -66,29 +78,29 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     // pedestrian stats
     if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
     {
-        ImGui::Separator();
+        ImGui::HorzSpacing();
         glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
-        ImGui::Text("pos: %f, %f, %f", pedPosition.x, pedPosition.y, pedPosition.z);
+        ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
+        glm::vec3 logicalPosition = Convert::MetersToMapUnits(pedPosition);
+        ImGui::Text("logical pos: %.3f, %.3f, %.3f", logicalPosition.x, logicalPosition.y, logicalPosition.z);
 
         cxx::angle_t pedHeading = pedestrian->mPhysicsComponent->GetRotationAngle();
         ImGui::Text("heading: %f", pedHeading.mDegrees);
         ImGui::Text("weapon: %s", cxx::enum_to_string(pedestrian->mCurrentWeapon));
         ImGui::Text("state: %s", cxx::enum_to_string(pedestrian->GetCurrentStateID()));
-        ImGui::Separator();
+        ImGui::HorzSpacing();
 
         // get block location
-        int mapcoordx = (int) pedPosition.x;
-        int mapcoordy = (int) pedPosition.z;
-        int maplayer = (int) pedPosition.y;
+        glm::ivec3 blockPosition = Convert::MetersToMapUnits(pedPosition);
 
-        BlockStyle* currBlock = gGameMap.GetBlockClamp(mapcoordx, mapcoordy, maplayer);
+        BlockStyle* currBlock = gGameMap.GetBlockClamp(blockPosition.x, blockPosition.z, blockPosition.y);
 
         ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
         ImGui::Text("b slope: %d", currBlock->mSlopeType);
         ImGui::Text("b directions: %d, %d, %d, %d", currBlock->mUpDirection, currBlock->mRightDirection, 
             currBlock->mDownDirection, currBlock->mLeftDirection);
 
-        ImGui::Separator();
+        ImGui::HorzSpacing();
         ImGui::SliderInt("ped remap", &pedestrian->mRemapIndex, -1, MAX_PED_REMAPS - 1);
 
         if (pedestrian->IsCarPassenger())
@@ -131,12 +143,11 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::EndCombo();
     }
 
-    if (ImGui::CollapsingHeader("Physics"))
-    {
-        ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
-        ImGui::Checkbox("Enable gravity", &mEnableGravity);
-        ImGui::Separator();
-    }
+    //if (ImGui::CollapsingHeader("Physics"))
+    //{
+    //    ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
+    //    ImGui::Checkbox("Enable gravity", &mEnableGravity);
+    //}
 
     if (ImGui::CollapsingHeader("Map Draw"))
     {
@@ -146,9 +157,45 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     if (ImGui::CollapsingHeader("Ped"))
     {
-        ImGui::SliderFloat("Turn speed", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
-        ImGui::SliderFloat("Run speed", &gGameParams.mPedestrianRunSpeed, 0.1f, 16.0f, "%.2f");
-        ImGui::SliderFloat("Walk speed", &gGameParams.mPedestrianWalkSpeed, 0.1f, 16.0f, "%.2f");
+        ImGui::SliderFloat("Turn speed (degs/s)", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
+        ImGui::SliderFloat("Run speed (m/s)", &gGameParams.mPedestrianRunSpeed, 
+            Convert::MapUnitsToMeters(0.1f), 
+            Convert::MapUnitsToMeters(16.0f), "%.2f");
+        ImGui::SliderFloat("Walk speed (m/s)", &gGameParams.mPedestrianWalkSpeed, 
+            Convert::MapUnitsToMeters(0.1f), 
+            Convert::MapUnitsToMeters(16.0f), "%.2f");
+    }
+
+    if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
+    {
+        if (Vehicle* currCar = pedestrian->mCurrentCar)
+        {
+            CarStyle* carInformation = currCar->mCarStyle;
+
+            if (ImGui::CollapsingHeader("Vehicle Info"))
+            {
+                ImVec4 physicsPropsColor(0.75f, 0.75f, 0.75f, 1.0f);
+                ImGui::Text("VType - %s", cxx::enum_to_string(carInformation->mVType));
+                ImGui::HorzSpacing();
+                ImGui::TextColored(physicsPropsColor, "Turning : %d", carInformation->mTurning);
+                ImGui::TextColored(physicsPropsColor, "Turn Ratio : %d", carInformation->mTurnRatio);
+                ImGui::TextColored(physicsPropsColor, "Moment : %d", carInformation->mMoment);
+                ImGui::TextColored(physicsPropsColor, "Mass : %.3f", carInformation->mMass);
+                ImGui::TextColored(physicsPropsColor, "Thurst : %.3f", carInformation->mThrust);
+                ImGui::TextColored(physicsPropsColor, "Tyre Adhesion X/Y : %.3f / %.3f", carInformation->mTyreAdhesionX, carInformation->mTyreAdhesionY);
+                ImGui::HorzSpacing();
+                ImGui::TextColored(physicsPropsColor, "Handbrake Friction : %.3f", carInformation->mHandbrakeFriction);
+                ImGui::TextColored(physicsPropsColor, "Footbrake Friction : %.3f", carInformation->mFootbrakeFriction);
+                ImGui::TextColored(physicsPropsColor, "Front Brake Bias : %.3f", carInformation->mFrontBrakeBias);
+                ImGui::HorzSpacing();
+
+                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsComponent->GetCurrentSpeed());
+                if (ImGui::Button("Clear forces"))
+                {
+                    currCar->mPhysicsComponent->ClearForces();
+                }
+            }
+        }
     }
 
     if (ImGui::CollapsingHeader("Graphics"))
@@ -173,8 +220,8 @@ void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestria
         return;
 
     glm::vec3 currPosition = pedestrian->mPhysicsComponent->GetPosition();
-    currPosition.x += MAP_BLOCK_LENGTH * 0.5f;
-    currPosition.z += MAP_BLOCK_LENGTH * 0.5f;
+    currPosition.x += 0.5f;
+    currPosition.z += 0.5f;
 
     gGameObjectsManager.CreateCar(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
 }

@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
+    <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
     <ClInclude Include="game_version.h" />

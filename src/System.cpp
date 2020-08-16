@@ -13,38 +13,58 @@ static const char* SysConfigPath = "config/sys_config.json";
 
 //////////////////////////////////////////////////////////////////////////
 
-SystemConfig::SystemConfig(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
-    : mScreenSizex(screenSizex)
-    , mScreenSizey(screenSizey)
-    , mFullscreen(fullscreen)
-    , mEnableVSync(vsync)
-    , mScreenAspectRatio(1.0f)
+const int DefaultScreenResolutionX = 1024;
+const int DefaultScreenResolutionY = 768;
+const float DefaultPhysicsFramerate = 60.0f;
+
+SystemConfig::SystemConfig()
 {
-    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
+    SetToDefaults();
 }
 
-void SystemConfig::SetDefaultParams()
+void SystemConfig::SetToDefaults()
 {
     mEnableFrameHeapAllocator = true;
     mShowImguiDemoWindow = false;
-
-    SetParams(DefaultScreenResolutionX, DefaultScreenResolutionY, false, false);
+    mEnableVSync = false;
+    mFullscreen = false;
+    mScreenSizex = DefaultScreenResolutionX;
+    mScreenSizey = DefaultScreenResolutionY;
+    mPhysicsFramerate = 60.0f;
 }
 
-void SystemConfig::SetScreenSize(int screenSizex, int screenSizey)
+void SystemConfig::InitFromJsonDocument(const cxx::json_document& sourceDocument)
 {
-    mScreenSizex = screenSizex;
-    mScreenSizey = screenSizey;
-    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
+    cxx::json_document_node configRootNode = sourceDocument.get_root_node();
+
+    if (cxx::json_document_node screenConfig = configRootNode["screen"])
+    {
+        if (cxx::json_document_node screenResolution = screenConfig["resolution"])
+        {
+            cxx::json_get_attribute(screenResolution, 0, mScreenSizex);
+            cxx::json_get_attribute(screenResolution, 1, mScreenSizey);
+        }
+
+        cxx::json_get_attribute(screenConfig, "fullscreen", mFullscreen);
+        cxx::json_get_attribute(screenConfig, "vsync", mEnableVSync);
+    }
+
+    // memory
+    if (cxx::json_document_node memConfig = configRootNode["memory"])
+    {
+        cxx::json_get_attribute(memConfig, "enable_frame_heap_allocator", mEnableFrameHeapAllocator);
+    }
+
+    // debug
+    if (cxx::json_document_node memConfig = configRootNode["debug"])
+    {
+        cxx::json_get_attribute(memConfig, "show_imgui_demo_window", mShowImguiDemoWindow);
+    }
 }
 
-void SystemConfig::SetParams(int screenSizex, int screenSizey, bool fullscreen, bool vsync)
+void SystemConfig::ExportToJsonDocument(cxx::json_document& sourceDocument)
 {
-    mEnableVSync = vsync;
-    mFullscreen = fullscreen;
-    mScreenSizex = screenSizex;
-    mScreenSizey = screenSizey;
-    mScreenAspectRatio = (mScreenSizey > 0) ? ((mScreenSizex * 1.0f) / (mScreenSizey * 1.0f)) : 1.0f;
+    // todo
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -205,7 +225,7 @@ void System::QuitRequest()
 
 bool System::LoadConfiguration()
 {
-    mConfig.SetDefaultParams();
+    mConfig.SetToDefaults();
 
     // read config
     std::string jsonContent;
@@ -223,42 +243,10 @@ bool System::LoadConfiguration()
     }
 
     cxx::json_document_node configRootNode = configDocument.get_root_node();
-    if (cxx::json_document_node screenConfig = configRootNode["screen"])
-    {
-        int screen_sizex = DefaultScreenResolutionX;
-        int screen_sizey = DefaultScreenResolutionY;
-        if (cxx::json_document_node screenResolution = screenConfig["resolution"])
-        {
-            cxx::json_get_attribute(screenResolution, 0, screen_sizex);
-            cxx::json_get_attribute(screenResolution, 1, screen_sizey);
-        }
-
-        bool fullscreen_mode = mConfig.mFullscreen; 
-        cxx::json_get_attribute(screenConfig, "fullscreen", fullscreen_mode);
-
-        bool vsync_mode = mConfig.mEnableVSync;
-        cxx::json_get_attribute(screenConfig, "vsync", vsync_mode);
-
-        bool hardware_cursor = false;
-        cxx::json_get_attribute(screenConfig, "hardware_cursor", hardware_cursor);
-
-        mConfig.SetParams(screen_sizex, screen_sizey, fullscreen_mode, vsync_mode);
-    }
+    mConfig.InitFromJsonDocument(configDocument);
 
     // gta1 data files location
     cxx::json_get_attribute(configRootNode, "gta_gamedata_location", gFiles.mGTADataDirectoryPath);
-
-    // memory
-    if (cxx::json_document_node memConfig = configRootNode["memory"])
-    {
-        cxx::json_get_attribute(memConfig, "enable_frame_heap_allocator", mConfig.mEnableFrameHeapAllocator);
-    }
-
-    // debug
-    if (cxx::json_document_node memConfig = configRootNode["debug"])
-    {
-        cxx::json_get_attribute(memConfig, "show_imgui_demo_window", mConfig.mShowImguiDemoWindow);
-    }
     return true;
 }
 
