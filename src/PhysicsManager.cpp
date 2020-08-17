@@ -659,5 +659,8 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
 
 void PhysicsManager::HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsComponent* ped, CarPhysicsComponent* car)
 {
+    if (!ped->ShouldCollideWith(PHYSICS_OBJCAT_CAR))
+        return;
 
+    ped->mReferencePed->ReceiveHitByCar(car->mReferenceCar, impulse);
 }

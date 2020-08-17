@@ -87,8 +87,8 @@ glm::vec3 PhysicsComponent::GetPosition() const
 
 glm::vec2 PhysicsComponent::GetLinearVelocity() const
 {
-    const b2Vec2& b2position = mPhysicsBody->GetLinearVelocity();
-    return { b2position.x, b2position.y };
+    const b2Vec2& b2velocity = mPhysicsBody->GetLinearVelocity();
+    return { b2velocity.x, b2velocity.y };
 }
 
 cxx::angle_t PhysicsComponent::GetAngularVelocity() const

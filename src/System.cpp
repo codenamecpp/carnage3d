@@ -73,7 +73,7 @@ bool SystemStartupParams::ParseStartupParams(int argc, char *argv[])
 {
     ClearParams();
 
-    for (int iarg = 1; iarg < argc; )
+    for (int iarg = 0; iarg < argc; )
     {
         if (cxx_stricmp(argv[iarg], "-mapname") == 0 && (argc > iarg + 1))
         {

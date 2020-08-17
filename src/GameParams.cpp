@@ -10,7 +10,7 @@ GameParams::GameParams()
 
 void GameParams::SetToDefaults()
 {
-    mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.15f);
+    mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.13f);
 
     mPedestrianTurnSpeed = 260.0f;
     mPedestrianTurnSpeedSlideOnCar = 120.0f;
@@ -30,7 +30,7 @@ void GameParams::SetToDefaults()
     mWeaponsRechargeTime[eWeaponType_RocketLauncher] = 1.0f * 3.0f;
 
     // weapons distance todo
-    mWeaponsDistance[eWeaponType_Fists] = mPedestrianBoundsSphereRadius + Convert::MapUnitsToMeters(0.6f);
+    mWeaponsDistance[eWeaponType_Fists] = mPedestrianBoundsSphereRadius + 0.2f;
     mWeaponsDistance[eWeaponType_Pistol] = Convert::MapUnitsToMeters(1.0f);
     mWeaponsDistance[eWeaponType_Machinegun] = Convert::MapUnitsToMeters(1.0f);
     mWeaponsDistance[eWeaponType_Flamethrower] = Convert::MapUnitsToMeters(1.0f);

@@ -810,7 +810,7 @@ enum ePedestrianDeathReason
     ePedestrianDeathReason_Fried,
     ePedestrianDeathReason_Electrocuted,
     ePedestrianDeathReason_Drowned,
-    ePedestrianDeathReason_HitByCar, // blown in car
+    ePedestrianDeathReason_HitByCar,
 };
 
 decl_enum_strings(ePedestrianDeathReason);

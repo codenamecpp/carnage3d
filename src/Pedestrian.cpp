@@ -181,7 +181,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     }
 
     float drawOffset = 0.02f; // todo: magic numbers
-    if (IsUnconscious())
+    if (IsUnconscious() || IsDead())
     {
         drawOffset = 0.001f; // todo: magic numbers
     }
@@ -379,5 +379,22 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     {
         mController->HandleCharacterDeath(this);
     }
+}
+
+void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
+{
+    debug_assert(targetCar);
+
+    if (IsDead())
+        return;
+
+    // todo: magic numbers
+    if (impulse > 4.0f)
+    {
+        Die(ePedestrianDeathReason_HitByCar, nullptr);
+        return;
+    }
+
+    // todo
 }
 

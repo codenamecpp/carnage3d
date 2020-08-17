@@ -324,6 +324,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
     mPedestrian->SetDead(stateEvent.mDeathReason);
+    mPedestrian->mPhysicsComponent->ClearForces();
 }
 
 //////////////////////////////////////////////////////////////////////////

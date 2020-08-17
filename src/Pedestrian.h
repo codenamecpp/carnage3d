@@ -66,6 +66,10 @@ public:
     // get damage from weapon, it may be ignored depending on its current state
     void ReceiveDamage(eWeaponType weapon, Pedestrian* attacker);
 
+    // get damage from vehicle, it may be ignored depending on its current state
+    // @param impulse: Impact value
+    void ReceiveHitByCar(Vehicle* targetCar, float impulse);
+
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;
     bool IsCarDriver() const;
