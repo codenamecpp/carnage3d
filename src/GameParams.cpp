@@ -10,7 +10,7 @@ GameParams::GameParams()
 
 void GameParams::SetToDefaults()
 {
-    mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.13f);
+    mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);
 
     mPedestrianTurnSpeed = 260.0f;
     mPedestrianTurnSpeedSlideOnCar = 120.0f;

@@ -388,13 +388,18 @@ void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
     if (IsDead())
         return;
 
-    // todo: magic numbers
-    if (impulse > 4.0f)
+    if (impulse > 4.0f || IsUnconscious()) // todo: magic numbers
     {
         Die(ePedestrianDeathReason_HitByCar, nullptr);
         return;
     }
 
-    // todo
+    // jump over
+    if (mStatesManager.CanStartSlideOnCarState())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_PushByCar };
+        mStatesManager.ChangeState(ePedestrianState_SlideOnCar, evData);
+        return;
+    }
 }
 

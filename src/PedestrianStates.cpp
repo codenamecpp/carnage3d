@@ -530,7 +530,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStat
         mPedestrian->SetCarExited();
     }
 
-    float impulse = 0.6f;
+    float impulse = 0.5f; // todo: magic numbers
 
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
     mPedestrian->mPhysicsComponent->AddLinearImpulse(-mPedestrian->mPhysicsComponent->GetSignVector() * impulse);

@@ -16,6 +16,7 @@ enum ePedestrianStateEvent
     ePedestrianStateEvent_FallFromHeightEnd,
     ePedestrianStateEvent_WeaponChange, 
     ePedestrianStateEvent_WaterContact,
+    ePedestrianStateEvent_PushByCar,
 };
 
 // defines state event
@@ -58,6 +59,8 @@ public:
     // update current state
     void ProcessFrame();
 
+    bool CanStartSlideOnCarState() const;
+
 private:
     void InitFuncsTable();
     
@@ -71,7 +74,6 @@ private:
     // anims helpers
     eSpriteAnimID DetectIdleAnimation() const;
 
-    bool CanStartSlideOnCarState() const;
     void SetInCarPositionToDoor();
     void SetInCarPositionToSeat();
 
