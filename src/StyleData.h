@@ -14,6 +14,7 @@ public:
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
+    std::vector<ProjectileStyle> mProjectiles;
 
     // CLUT data :
     //  tiles
@@ -117,6 +118,7 @@ private:
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
     void InitSpriteAnimations();
+    void InitProjectiles();
     bool DoDataIntegrityCheck() const;
 
 private:

@@ -332,6 +332,9 @@
     <ClInclude Include="Box2D_Helpers.h">
       <Filter>Game\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="Projectile.h">
+      <Filter>Game\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -518,6 +521,9 @@
     </ClCompile>
     <ClCompile Include="TimeManager.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Game\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -61,8 +61,10 @@
 #define CANONICAL_FPS 25 // gta1 game speed
 
 // forwards
+
 class Pedestrian;
 class Vehicle;
+class Projectile;
 
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
@@ -716,6 +718,11 @@ enum eSpriteAnimID
     eSpriteAnimID_Ped_ShootRPGWhileRunning,
     // cops
 
+    // projectiles
+    eSpriteAnimID_Projectile_Rocket,
+    eSpriteAnimID_Projectile_Bullet,
+    eSpriteAnimID_Projectile_Flame,
+
     eSpriteAnimID_COUNT
 };
 
@@ -814,3 +821,27 @@ enum ePedestrianDeathReason
 };
 
 decl_enum_strings(ePedestrianDeathReason);
+
+enum eProjectileType
+{
+    eProjectileType_Bullet, // pistol, machinegun
+    eProjectileType_Flame, // flamethrower
+    eProjectileType_Rocket, // rocket launcher, tank rocket
+    eProjectileType_COUNT
+};
+decl_enum_strings(eProjectileType);
+
+// projectile type info
+struct ProjectileStyle
+{
+public:
+    eProjectileType mTypeID;
+    eSpriteAnimID mAnimID;
+    float mBaseDistance; // how far projectile can fly, meters
+    float mProjectileRadius; // size, meters
+    float mSpeed; // how fast projectile moves, meters
+    float mBasePrimaryDamageRadius; // how far projectile can impact, meters
+    float mBaseSecondaryDamageRadius; // // how far projectile can impact, meters
+    // todo: damage
+    // todo: impact type
+};

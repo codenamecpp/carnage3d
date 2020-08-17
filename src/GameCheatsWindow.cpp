@@ -79,12 +79,12 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
     {
         ImGui::HorzSpacing();
-        glm::vec3 pedPosition = pedestrian->mPhysicsComponent->GetPosition();
+        glm::vec3 pedPosition = pedestrian->mPhysicsBody->GetPosition();
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
         glm::vec3 logicalPosition = Convert::MetersToMapUnits(pedPosition);
         ImGui::Text("logical pos: %.3f, %.3f, %.3f", logicalPosition.x, logicalPosition.y, logicalPosition.z);
 
-        cxx::angle_t pedHeading = pedestrian->mPhysicsComponent->GetRotationAngle();
+        cxx::angle_t pedHeading = pedestrian->mPhysicsBody->GetRotationAngle();
         ImGui::Text("heading: %f", pedHeading.mDegrees);
         ImGui::Text("weapon: %s", cxx::enum_to_string(pedestrian->mCurrentWeapon));
         ImGui::Text("state: %s", cxx::enum_to_string(pedestrian->GetCurrentStateID()));
@@ -189,10 +189,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 ImGui::TextColored(physicsPropsColor, "Front Brake Bias : %.3f", carInformation->mFrontBrakeBias);
                 ImGui::HorzSpacing();
 
-                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsComponent->GetCurrentSpeed());
+                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsBody->GetCurrentSpeed());
                 if (ImGui::Button("Clear forces"))
                 {
-                    currCar->mPhysicsComponent->ClearForces();
+                    currCar->mPhysicsBody->ClearForces();
                 }
             }
         }
@@ -219,7 +219,7 @@ void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestria
     if (carStyle == nullptr || pedestrian == nullptr)
         return;
 
-    glm::vec3 currPosition = pedestrian->mPhysicsComponent->GetPosition();
+    glm::vec3 currPosition = pedestrian->mPhysicsBody->GetPosition();
     currPosition.x += 0.5f;
     currPosition.z += 0.5f;
 

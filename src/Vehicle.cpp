@@ -10,7 +10,7 @@
 #include "TimeManager.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
-    , mPhysicsComponent()
+    , mPhysicsBody()
     , mDead()
     , mCarStyle()
     , mDamageDeltaBits()
@@ -23,9 +23,9 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
 Vehicle::~Vehicle()
 {
     debug_assert(mPassengers.empty());
-    if (mPhysicsComponent)
+    if (mPhysicsBody)
     {
-        gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
+        gPhysics.DestroyPhysicsBody(mPhysicsBody);
     }
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
@@ -34,13 +34,14 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
     debug_assert(mCarStyle);
     
-    if (mPhysicsComponent == nullptr)
+    if (mPhysicsBody == nullptr)
     {
-        mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation, mCarStyle);
-        debug_assert(mPhysicsComponent);
+        mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
+        debug_assert(mPhysicsBody);
     }
     else
-    {   mPhysicsComponent->SetPosition(startPosition, startRotation);
+    {   
+        mPhysicsBody->SetPosition(startPosition, startRotation);
     }
 
     mDead = false;
@@ -60,8 +61,8 @@ void Vehicle::UpdateFrame()
 void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 {   
     // sync sprite transformation with physical body
-    cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    glm::vec3 position = mPhysicsComponent->mSmoothPosition;
+    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
@@ -79,10 +80,10 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
 
 void Vehicle::DrawDebug(DebugRenderer& debugRender)
 {
-    glm::vec3 position = mPhysicsComponent->GetPosition();
+    glm::vec3 position = mPhysicsBody->GetPosition();
 
     glm::vec2 corners[4];
-    mPhysicsComponent->GetChassisCorners(corners);
+    mPhysicsBody->GetChassisCorners(corners);
 
     glm::vec3 points[4];
     for (int i = 0; i < 4; ++i)
@@ -112,7 +113,7 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
     }
 
     // draw body velocity
-    glm::vec2 bodyLinearVelocity = mPhysicsComponent->GetLinearVelocity();
+    glm::vec2 bodyLinearVelocity = mPhysicsBody->GetLinearVelocity();
     debugRender.DrawLine(
         glm::vec3 {position.x, mDrawHeight, position.z},
         glm::vec3 {position.x + bodyLinearVelocity.x, mDrawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
@@ -120,7 +121,7 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
     // draw wheels
     for (eCarWheel currID: {eCarWheel_Drive, eCarWheel_Steer})
     {
-        mPhysicsComponent->GetWheelCorners(currID, corners);
+        mPhysicsBody->GetWheelCorners(currID, corners);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -132,9 +133,9 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
         {
             debugRender.DrawLine(points[i], points[(i + 1) % 4], Color32_Yellow, false);
         }
-        glm::vec2 forwardVelocity = mPhysicsComponent->GetWheelForwardVelocity(currID);
-        glm::vec2 lateralVelocity = mPhysicsComponent->GetWheelLateralVelocity(currID);
-        glm::vec2 wheelPosition = mPhysicsComponent->GetWheelPosition(currID);
+        glm::vec2 forwardVelocity = mPhysicsBody->GetWheelForwardVelocity(currID);
+        glm::vec2 lateralVelocity = mPhysicsBody->GetWheelLateralVelocity(currID);
+        glm::vec2 wheelPosition = mPhysicsBody->GetWheelPosition(currID);
 
         debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
@@ -143,7 +144,7 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, Color32_Red, false);
 
-        glm::vec2 signDirection = mPhysicsComponent->GetWheelDirection(currID);
+        glm::vec2 signDirection = mPhysicsBody->GetWheelDirection(currID);
         debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + signDirection.x, mDrawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);
@@ -153,7 +154,7 @@ void Vehicle::DrawDebug(DebugRenderer& debugRender)
 void Vehicle::ComputeDrawHeight(const glm::vec3& position)
 {
     glm::vec2 corners[4];
-    mPhysicsComponent->GetChassisCorners(corners);
+    mPhysicsBody->GetChassisCorners(corners);
 
     float maxHeight = position.y;
 
@@ -375,7 +376,7 @@ bool Vehicle::GetDoorPos(int doorIndex, glm::vec2& out) const
 {
     if (GetDoorPosLocal(doorIndex, out))
     {
-        out = mPhysicsComponent->GetWorldPoint(out);
+        out = mPhysicsBody->GetWorldPoint(out);
         return true;
     }
 
@@ -409,7 +410,7 @@ bool Vehicle::GetSeatPos(eCarSeat carSeat, glm::vec2& out) const
 {
     if (GetSeatPosLocal(carSeat, out))
     {
-        out = mPhysicsComponent->GetWorldPoint(out);
+        out = mPhysicsBody->GetWorldPoint(out);
         return true;
     }
 
@@ -475,13 +476,13 @@ void Vehicle::UpdateDriving()
     Pedestrian* carDriver = GetCarDriver();
     if (carDriver == nullptr || ePedestrianState_DrivingCar != carDriver->GetCurrentStateID())
     {
-        mPhysicsComponent->ResetDriveState();
+        mPhysicsBody->ResetDriveState();
         return;
     }
 
-    mPhysicsComponent->SetHandBrake(carDriver->mCtlActions[ePedestrianAction_HandBrake]);
-    mPhysicsComponent->SetAcceleration(carDriver->mCtlActions[ePedestrianAction_Accelerate]);
-    mPhysicsComponent->SetDeceleration(carDriver->mCtlActions[ePedestrianAction_Reverse]);
+    mPhysicsBody->SetHandBrake(carDriver->mCtlActions[ePedestrianAction_HandBrake]);
+    mPhysicsBody->SetAcceleration(carDriver->mCtlActions[ePedestrianAction_Accelerate]);
+    mPhysicsBody->SetDeceleration(carDriver->mCtlActions[ePedestrianAction_Reverse]);
 
     // steering
     int currentSteering = CarSteeringDirectionNone;
@@ -493,7 +494,7 @@ void Vehicle::UpdateDriving()
     {
         currentSteering = CarSteeringDirectionRight;
     }
-    mPhysicsComponent->SetSteering(currentSteering);
+    mPhysicsBody->SetSteering(currentSteering);
 }
 
 void Vehicle::ReceiveDamageFromWater()

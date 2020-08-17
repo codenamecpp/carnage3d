@@ -5,9 +5,6 @@
 #include "GameObject.h"
 #include "Sprite2D.h"
 
-class SpriteBatch;
-class DebugRenderer;
-
 // defines vehicle instance
 class Vehicle final: public GameObject
 {
@@ -15,7 +12,7 @@ class Vehicle final: public GameObject
 
 public:
     // public for convenience, should not be modified directly
-    CarPhysicsComponent* mPhysicsComponent;
+    CarPhysicsBody* mPhysicsBody;
 
     bool mDead;
 
@@ -104,6 +101,5 @@ private:
 
     int mChassisSpriteIndex = 0;
 
-    // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Vehicle> mCarsListNode;
 };

@@ -30,11 +30,21 @@ public:
     {
     }
 
+    // schedule object to despawn
+    void MarkForDeletion();
+
+    // shortcuts
+    inline bool IsPedestrianObject() const { return mObjectTypeID == eGameObjectType_Pedestrian; }
+    inline bool IsProjectileObject() const { return mObjectTypeID == eGameObjectType_Projectile; }
+    inline bool IsDecorationObject() const { return mObjectTypeID == eGameObjectType_Decoration; }
+    inline bool IsCarObject() const { return mObjectTypeID == eGameObjectType_Car; }
+    inline bool IsPowerupObject() const { return mObjectTypeID == eGameObjectType_Powerup; }
+    inline bool IsObstacleObject() const { return mObjectTypeID == eGameObjectType_Obstacle; }
+
 protected:
     GameObject(eGameObjectType objectTypeID, GameObjectID uniqueID);
     
 private:
-    // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<GameObject> mObjectsNode; // updatable and drawable entities
     cxx::intrusive_node<GameObject> mDeleteObjectsNode; // to remove queue
 };

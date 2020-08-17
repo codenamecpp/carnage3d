@@ -347,16 +347,16 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 
     PhysicsLinecastResult linecastResult;
 
-    glm::vec3 pos = mCharacter->mPhysicsComponent->GetPosition();
+    glm::vec3 pos = mCharacter->mPhysicsBody->GetPosition();
     glm::vec2 posA { pos.x, pos.z };
-    glm::vec2 posB = posA + (mCharacter->mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance);
+    glm::vec2 posB = posA + (mCharacter->mPhysicsBody->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance);
 
     gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
 
     // process all cars
     for (int icar = 0; icar < linecastResult.mHitsCount; ++icar)
     {
-        CarPhysicsComponent* carBody = linecastResult.mHits[icar].mCarComponent;
+        CarPhysicsBody* carBody = linecastResult.mHits[icar].mCarComponent;
         if (carBody == nullptr)
             continue;
 
@@ -386,5 +386,5 @@ void HumanCharacterController::Respawn()
 
     // todo : exit from car
 
-    mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsComponent->GetRotationAngle());
+    mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsBody->GetRotationAngle());
 }

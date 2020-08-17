@@ -4,6 +4,7 @@
 #include "Pedestrian.h"
 #include "PhysicsComponents.h"
 #include "GameMapManager.h"
+#include "Projectile.h"
 
 GameObjectsManager gGameObjectsManager;
 
@@ -40,21 +41,30 @@ void GameObjectsManager::UpdateFrame()
     DestroyPendingObjects();
     
     // update pedestrians
-    for (Pedestrian* currentPed: mPedestriansList) // warning: dont add or remove peds during this loop
+    for (Pedestrian* currObject: mPedestriansList) // warning: dont add or remove peds during this loop
     {
-        if (mDeleteList.contains(&currentPed->mDeleteObjectsNode))
+        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
             continue;
 
-        currentPed->UpdateFrame();
+        currObject->UpdateFrame();
     }
 
     // update cars    
-    for (Vehicle* currentCar: mCarsList) // warning: dont add or remove cars during this loop
+    for (Vehicle* currObject: mCarsList) // warning: dont add or remove cars during this loop
     {
-        if (mDeleteList.contains(&currentCar->mDeleteObjectsNode))
+        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
             continue;
 
-        currentCar->UpdateFrame();
+        currObject->UpdateFrame();
+    }
+
+    // update projectiles    
+    for (Projectile* currObject: mProjectilesList) // warning: dont add or remove cars during this loop
+    {
+        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
+            continue;
+
+        currObject->UpdateFrame();
     }
 }
 
@@ -62,7 +72,7 @@ void GameObjectsManager::DebugDraw()
 {
 }
 
-Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& startPosition, cxx::angle_t startRotation)
+Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx::angle_t heading)
 {
     GameObjectID pedestrianID = GenerateUniqueID();
 
@@ -73,15 +83,14 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& startPosition,
     mObjectsList.insert(&instance->mObjectsNode);
 
     // init
-    instance->Spawn(startPosition, startRotation);
+    instance->Spawn(position, heading);
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& startPosition, cxx::angle_t carRotation, CarStyle* carStyle)
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t heading, CarStyle* carStyle)
 {
-    StyleData& styleData = gGameMap.mStyleData;
-
-    debug_assert(styleData.IsLoaded());
+    debug_assert(gGameMap.mStyleData.IsLoaded());
+    debug_assert(carStyle);
     GameObjectID carID = GenerateUniqueID();
 
     Vehicle* instance = mCarsPool.create(carID);
@@ -92,22 +101,53 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& startPosition, cxx::angl
 
     // init
     instance->mCarStyle = carStyle;
-    instance->Spawn(startPosition, carRotation);
+    instance->Spawn(position, heading);
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t carRotation, eCarModel carModel)
+Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel)
 {
-    StyleData& styleData = gGameMap.mStyleData;
-    debug_assert(styleData.IsLoaded());
-
-    for (CarStyle& currStyle: styleData.mCars)
+    Vehicle* vehicle = nullptr;
+    for (CarStyle& currStyle: gGameMap.mStyleData.mCars)
     {
         if (currStyle.mModelId == carModel)
-            return CreateCar(position, carRotation, &currStyle);
+        {
+            vehicle = CreateCar(position, heading, &currStyle);
+            break;
+        }
     }
-    debug_assert(false);
-    return nullptr;
+    debug_assert(vehicle);
+    return vehicle;
+}
+
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, eProjectileType typeID)
+{
+    Projectile* projectile = nullptr;
+    debug_assert(typeID < eProjectileType_COUNT);
+    for (ProjectileStyle& currStyle: gGameMap.mStyleData.mProjectiles)
+    {
+        if (currStyle.mTypeID == typeID)
+        {
+            projectile = CreateProjectile(position, heading, &currStyle);
+            break;
+        }
+    }
+    debug_assert(projectile);
+    return projectile;
+}
+
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, ProjectileStyle* desc)
+{
+    debug_assert(gGameMap.mStyleData.IsLoaded());
+    debug_assert(desc);
+
+    Projectile* instance = mProjectilesPool.create(desc);
+    debug_assert(instance);
+    mObjectsList.insert(&instance->mObjectsNode);
+    mProjectilesList.insert(&instance->mProjectilesListNode);
+    // init
+    instance->Spawn(position, heading);
+    return instance;
 }
 
 Vehicle* GameObjectsManager::GetCarByID(GameObjectID objectID) const
@@ -185,14 +225,21 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
 
         case eGameObjectType_Car:
         {
-            Vehicle* car = static_cast<Vehicle*>(object);
+            Vehicle* vehicle = static_cast<Vehicle*>(object);
 
-            mCarsList.remove(&car->mCarsListNode);
-            mCarsPool.destroy(car);
+            mCarsList.remove(&vehicle->mCarsListNode);
+            mCarsPool.destroy(vehicle);
         }
         break;
 
         case eGameObjectType_Projectile:
+        {
+            Projectile* projectile = static_cast<Projectile*>(object);
+
+            mProjectilesList.remove(&projectile->mProjectilesListNode);
+            mProjectilesPool.destroy(projectile);
+        }
+        break;
         case eGameObjectType_Powerup:
         case eGameObjectType_Decoration:
         case eGameObjectType_Obstacle:

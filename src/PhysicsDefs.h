@@ -1,8 +1,8 @@
 #pragma once
 
 // forwards
-class PedPhysicsComponent;
-class CarPhysicsComponent;
+class PedPhysicsBody;
+class CarPhysicsBody;
 
 // physics objects categories
 enum
@@ -15,6 +15,7 @@ enum
 
     // sensors
     PHYSICS_OBJCAT_PED_SENSOR = (1 << 5),
+    PHYSICS_OBJCAT_PROJECTILE_SENSOR = (1 << 6),
 };
 
 const int MaxPhysicsQueryElements = 32;
@@ -31,8 +32,8 @@ public:
     }
 public:
     // ped or car physical object
-    PedPhysicsComponent* mPedComponent = nullptr;
-    CarPhysicsComponent* mCarComponent = nullptr;
+    PedPhysicsBody* mPedComponent = nullptr;
+    CarPhysicsBody* mCarComponent = nullptr;
 
     glm::vec2 mNormal;
     glm::vec2 mIntersectionPoint;
@@ -50,8 +51,8 @@ public:
     }
 public:
     // ped or car physical object
-    PedPhysicsComponent* mPedComponent = nullptr;
-    CarPhysicsComponent* mCarComponent = nullptr;
+    PedPhysicsBody* mPedComponent = nullptr;
+    CarPhysicsBody* mCarComponent = nullptr;
 };
 
 // linecast result

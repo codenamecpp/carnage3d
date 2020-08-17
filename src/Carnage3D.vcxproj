@@ -182,6 +182,7 @@
     <ClInclude Include="MapRenderer.h" />
     <ClInclude Include="GameMapManager.h" />
     <ClInclude Include="HumanCharacterController.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="RenderView.h" />
     <ClInclude Include="rtti.h" />
     <ClInclude Include="Sprite2D.h" />
@@ -264,6 +265,7 @@
     <ClCompile Include="GameMapHelpers.cpp" />
     <ClCompile Include="GameMapManager.cpp" />
     <ClCompile Include="HumanCharacterController.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RenderView.cpp" />
     <ClCompile Include="Sprite2D.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />

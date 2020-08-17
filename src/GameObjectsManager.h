@@ -2,6 +2,7 @@
 
 #include "Pedestrian.h"
 #include "Vehicle.h"
+#include "Projectile.h"
 
 // define game objects manager class
 class GameObjectsManager final: public cxx::noncopyable
@@ -12,6 +13,7 @@ public:
     cxx::intrusive_list<GameObject> mDeleteList;
     cxx::intrusive_list<Pedestrian> mPedestriansList;
     cxx::intrusive_list<Vehicle> mCarsList;
+    cxx::intrusive_list<Projectile> mProjectilesList;
 
 public:
     ~GameObjectsManager();
@@ -22,18 +24,22 @@ public:
     void UpdateFrame();
     void DebugDraw();
 
-    // add pedestrian to map at specific location
+    // Add new pedestrian instance to map at specific location
     // @param position: Real world position
-    // @param startRotation: Initial rotation
-    Pedestrian* CreatePedestrian(const glm::vec3& startPosition, cxx::angle_t startRotation);
+    // @param heading: Initial rotation
+    Pedestrian* CreatePedestrian(const glm::vec3& position, cxx::angle_t heading);
 
-    // add car instance to map at specific location
-    // @param startPosition: Initial world position
-    // @param startRotation: Initial rotation
-    // @param carStyle: Car style
+    // Add new car instance to map at specific location
+    // @param position: Initial world position
+    // @param heading: Initial rotation
+    // @param desc: Car style
     // @param carModel: Car model identifier
-    Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, CarStyle* carStyle);
-    Vehicle* CreateCar(const glm::vec3& startPosition, cxx::angle_t startRotation, eCarModel carModel);
+    Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, CarStyle* desc);
+    Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel);
+
+    // New projectile instance to map at specific location
+    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, eProjectileType typeID);
+    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, ProjectileStyle* desc);
 
     // find gameobject by its unique identifier
     // @param objectID: Unique identifier
@@ -61,6 +67,7 @@ private:
     // objects pools
     cxx::object_pool<Pedestrian> mPedestriansPool;
     cxx::object_pool<Vehicle> mCarsPool;
+    cxx::object_pool<Projectile> mProjectilesPool;
 };
 
 extern GameObjectsManager gGameObjectsManager;

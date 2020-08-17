@@ -7,16 +7,17 @@
 #include "Sprite2D.h"
 #include "PedestrianStates.h"
 
-class SpriteBatch;
-class DebugRenderer;
-
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
 {
+    friend class GameObjectsManager;
+    friend class PedPhysicsBody;
+    friend class PedestrianStatesManager;
+
 public:
     // public for convenience, should not be modified directly
     CharacterController* mController; // controls pedestrian actions
-    PedPhysicsComponent* mPhysicsComponent;
+    PedPhysicsBody* mPhysicsBody;
 
     float mCurrentStateTime; // time since current state has started
     float mWeaponRechargeTime; // next time weapon can be used again
@@ -96,17 +97,12 @@ private:
     void SetCarExited();
 
 private:
-    friend class GameObjectsManager;
-    friend class PedPhysicsComponent;
-    friend class PedestrianStatesManager;
-
     eSpriteAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianStatesManager mStatesManager;
 
     Sprite2D mDrawSprite;
 
-    // internal stuff that can be touched only by PedestrianManager
     cxx::intrusive_node<Pedestrian> mPedsListNode;
 };
 

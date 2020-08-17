@@ -94,6 +94,11 @@ void MapRenderer::RenderFrame(RenderView* renderview)
         currGameObject->DrawFrame(mSpriteBatch);
     }
 
+    for (Projectile* currGameObject: gGameObjectsManager.mProjectilesList)
+    {
+        currGameObject->DrawFrame(mSpriteBatch);
+    }
+
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
 

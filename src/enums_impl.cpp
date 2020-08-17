@@ -321,6 +321,7 @@ impl_enum_strings(eCarVType)
 impl_enum_strings(eSpriteAnimID)
 {
     {eSpriteAnimID_Null, "null"},
+    // pedestrians
     {eSpriteAnimID_Ped_Walk, "ped_walk"},
     {eSpriteAnimID_Ped_Run, "ped_run"},
     {eSpriteAnimID_Ped_ExitCar, "ped_exit_car"},
@@ -352,6 +353,10 @@ impl_enum_strings(eSpriteAnimID)
     {eSpriteAnimID_Ped_ShootRPGWhileStanding, "ped_shoot_rpg_while_standing"},
     {eSpriteAnimID_Ped_ShootRPGWhileWalking, "ped_shoot_rpg_while_walking"},
     {eSpriteAnimID_Ped_ShootRPGWhileRunning, "ped_shoot_rpg_while_running"},
+    // projectiles
+    {eSpriteAnimID_Projectile_Rocket, "projectile_rocket"},
+    {eSpriteAnimID_Projectile_Bullet, "projectile_bullet"},
+    {eSpriteAnimID_Projectile_Flame, "projectile_flame"},
 };
 
 impl_enum_strings(eWeaponType)
@@ -549,4 +554,11 @@ impl_enum_strings(ePedestrianDeathReason)
     {ePedestrianDeathReason_Electrocuted, "Electrocuted"},
     {ePedestrianDeathReason_Drowned, "Drowned"},
     {ePedestrianDeathReason_HitByCar, "HitByCar"},
+};
+
+impl_enum_strings(eProjectileType)
+{
+    {eProjectileType_Bullet, "bullet"},
+    {eProjectileType_Flame, "flame"},
+    {eProjectileType_Rocket, "rocket"},
 };

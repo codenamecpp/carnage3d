@@ -3,15 +3,16 @@
 #include "GameDefs.h"
 
 // defines body that exists in physics world and can be collided
-class PhysicsComponent: public cxx::noncopyable
+class PhysicsBody: public cxx::noncopyable
 {
     friend class PhysicsManager;
 
-    friend class PedPhysicsComponent;
-    friend class CarPhysicsComponent;
+    friend class PedPhysicsBody;
+    friend class CarPhysicsBody;
+    friend class ProjectilePhysicsBody;
 
 public:    
-    // public for convenience, should not be modified directly
+    // readonly
 
     float mHeight; // world y coord
         // since game using 2d physics engine, the forces and impulses are not affected on 3rd dimension
@@ -25,7 +26,9 @@ public:
     glm::vec3 mSmoothPosition; // for rendering only
 
 public:
-    virtual ~PhysicsComponent();
+    virtual ~PhysicsBody();
+
+    virtual void SimulationStep() = 0;
 
     // Set or get object's world position and rotation angle
     // @param position: Coordinate, meters
@@ -33,6 +36,7 @@ public:
     void SetPosition(const glm::vec3& position);
     void SetPosition(const glm::vec3& position, cxx::angle_t rotationAngle);
     glm::vec3 GetPosition() const;
+    glm::vec2 GetPosition2() const;
 
     // Set or get object's heading angle 
     // @param rotationAngle: Angle
@@ -83,31 +87,35 @@ public:
 
 protected:
     // only derived classes could be instantiated
-    PhysicsComponent(b2World* physicsWorld);
+    PhysicsBody(b2World* physicsWorld);
 
 protected:
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
+    cxx::intrusive_node<PhysicsBody> mPhysicsBodiesListNode;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 // pedestrian physics component
-class PedPhysicsComponent: public PhysicsComponent
+class PedPhysicsBody: public PhysicsBody
 {
     friend class PhysicsManager;
 
 public:
+    // readonly
     Pedestrian* mReferencePed = nullptr;
 
     glm::vec2 mCarPointLocal; // when driving car, pedestrian body will be attached to that point
     int mContactingCars = 0; // number of contacting cars
 
 public:
-    // @param startPosition: Initial world position
-    // @param startRotation: Initial rotation
-    PedPhysicsComponent(b2World* physicsWorld, const glm::vec3& startPosition, cxx::angle_t startRotation);
-    ~PedPhysicsComponent();
+    PedPhysicsBody(b2World* physicsWorld, Pedestrian* object);
+    ~PedPhysicsBody();
 
-    void SimulationStep();
+    // override PhysicsComponent methods
+    void SimulationStep() override;
+
     void HandleFallBegin(float fallDistance);
     void HandleFallEnd();
     void HandleCarContactBegin();
@@ -116,11 +124,9 @@ public:
     // test whether pedestrian should collide with other objects depending on its current state
     // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
     bool ShouldCollideWith(unsigned int objCatBits) const;
-
-private:
-    // internal stuff that can be touched only by PhysicsManager
-    cxx::intrusive_node<PedPhysicsComponent> mPhysicsComponentsListNode;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 enum eCarWheel
 {
@@ -134,24 +140,24 @@ const int CarSteeringDirectionRight = 1;
 const int CarSteeringDirectionNone = 0; 
 
 // car chassis physics component
-class CarPhysicsComponent: public PhysicsComponent
+class CarPhysicsBody: public PhysicsBody
 {
     friend class PhysicsManager;
 
 public:
+    // readonly
     Vehicle* mReferenceCar = nullptr;
 
 public:
-    // @param desc: Car style description, cannot be null
-    // @param startPosition: Initial world position
-    // @param startRotation: Initial rotation
-    CarPhysicsComponent(b2World* physicsWorld, CarStyle* desc, const glm::vec3& startPosition, cxx::angle_t startRotation);
-    ~CarPhysicsComponent();
+    CarPhysicsBody(b2World* physicsWorld, Vehicle* object);
+    ~CarPhysicsBody();
+
+    // override PhysicsComponent methods
+    void SimulationStep() override;
 
     void ResetDriveState();
     void HandleWaterContact();
 
-    void SimulationStep();
     void GetChassisCorners(glm::vec2 corners[4]) const;
     void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
 
@@ -204,7 +210,22 @@ private:
     bool mAccelerationEnabled = false;
     bool mDecelerationEnabled = false;
     bool mHandBrakeEnabled = false;
+};
 
-    // internal stuff that can be touched only by PhysicsManager
-    cxx::intrusive_node<CarPhysicsComponent> mPhysicsComponentsListNode;
+//////////////////////////////////////////////////////////////////////////
+
+class ProjectilePhysicsBody: public PhysicsBody
+{
+    friend class PhysicsManager;
+
+public:
+    // readonly
+    Projectile* mReferenceProjectile = nullptr;
+
+public:
+    ProjectilePhysicsBody(b2World* physicsWorld, Projectile* object);
+    ~ProjectilePhysicsBody();
+
+    // override PhysicsComponent methods
+    void SimulationStep() override;
 };

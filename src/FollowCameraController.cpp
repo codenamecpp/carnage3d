@@ -27,7 +27,7 @@ void FollowCameraController::Setup(GameCamera* gameCamera)
     
     if (mFollowPedestrian)
     {
-        glm::vec3 position = mFollowPedestrian->mPhysicsComponent->GetPosition();
+        glm::vec3 position = mFollowPedestrian->mPhysicsBody->GetPosition();
         mCamera->SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
     }
     else
@@ -42,14 +42,14 @@ void FollowCameraController::UpdateFrame()
     if (mFollowPedestrian == nullptr)
         return;
 
-    glm::vec3 position = mFollowPedestrian->mPhysicsComponent->GetPosition();
+    glm::vec3 position = mFollowPedestrian->mPhysicsBody->GetPosition();
     position.y = position.y + (mFollowPedCameraHeight + mScrollHeightOffset);
 
     float catchSpeed = mFollowPedCameraCatchSpeed;
     // todo: temporary implementation
     if (mFollowPedestrian->IsCarPassenger())
     {
-        glm::vec2 carVelocity = mFollowPedestrian->mCurrentCar->mPhysicsComponent->GetLinearVelocity();
+        glm::vec2 carVelocity = mFollowPedestrian->mCurrentCar->mPhysicsBody->GetLinearVelocity();
         float carSpeed = glm::length(carVelocity);
         carVelocity = glm::normalize(carVelocity);
         position.x += (carVelocity.x * carSpeed * 0.35f);

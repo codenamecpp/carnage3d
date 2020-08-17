@@ -130,12 +130,12 @@ void PedestrianStatesManager::ProcessRotateActions()
         }
 
         cxx::angle_t angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (mPedestrian->mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f));
-        mPedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
+        mPedestrian->mPhysicsBody->SetAngularVelocity(angularVelocity);
     }
     else
     {
         cxx::angle_t angularVelocity;
-        mPedestrian->mPhysicsComponent->SetAngularVelocity(angularVelocity);
+        mPedestrian->mPhysicsBody->SetAngularVelocity(angularVelocity);
     }
 }
 
@@ -144,8 +144,8 @@ void PedestrianStatesManager::ProcessMotionActions()
     // while slding on car
     if (mCurrentStateID == ePedestrianState_SlideOnCar)
     {
-        glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * mPedestrian->mPhysicsComponent->GetSignVector();
-        mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity);
+        glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * mPedestrian->mPhysicsBody->GetSignVector();
+        mPedestrian->mPhysicsBody->SetLinearVelocity(linearVelocity);
         return;
     }
 
@@ -157,7 +157,7 @@ void PedestrianStatesManager::ProcessMotionActions()
     {
         float moveSpeed = gGameParams.mPedestrianWalkSpeed;
 
-        linearVelocity = mPedestrian->mPhysicsComponent->GetSignVector();
+        linearVelocity = mPedestrian->mPhysicsBody->GetSignVector();
         if (mPedestrian->mCtlActions[ePedestrianAction_Run])
         {
             moveSpeed = gGameParams.mPedestrianRunSpeed;
@@ -173,7 +173,7 @@ void PedestrianStatesManager::ProcessMotionActions()
     {
         // force stop
     }
-    mPedestrian->mPhysicsComponent->SetLinearVelocity(linearVelocity); 
+    mPedestrian->mPhysicsBody->SetLinearVelocity(linearVelocity); 
 }
 
 bool PedestrianStatesManager::TryToShoot()
@@ -185,17 +185,17 @@ bool PedestrianStatesManager::TryToShoot()
         return false;
     }
 
+    glm::vec3 currPosition = mPedestrian->mPhysicsBody->GetPosition();
     if (mPedestrian->mCurrentWeapon == eWeaponType_Fists)
     {
-        glm::vec3 pos = mPedestrian->mPhysicsComponent->GetPosition();
-        glm::vec2 posA { pos.x, pos.z };
-        glm::vec2 posB = posA + (mPedestrian->mPhysicsComponent->GetSignVector() * gGameParams.mWeaponsDistance[mPedestrian->mCurrentWeapon]);
+        glm::vec2 posA { currPosition.x, currPosition.z };
+        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * gGameParams.mPedestrianFistsHitDistance);
         // find candidates
         PhysicsLinecastResult linecastResult;
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
         for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
         {
-            PedPhysicsComponent* pedBody = linecastResult.mHits[icurr].mPedComponent;
+            PedPhysicsBody* pedBody = linecastResult.mHits[icurr].mPedComponent;
             if (pedBody == nullptr || pedBody->mReferencePed == mPedestrian) // ignore self
                 continue; 
 
@@ -204,9 +204,24 @@ bool PedestrianStatesManager::TryToShoot()
             pedBody->mReferencePed->ReceiveDamage(mPedestrian->mCurrentWeapon, mPedestrian);
         }
     }
-    else
+    else // create projectile
     {
-        // todo: add projectiles
+        glm::vec2 signVector = mPedestrian->mPhysicsBody->GetSignVector();       
+        glm::vec2 offset = (signVector * 1.0f); //todo: magic numbers
+        glm::vec3 projectilePos {
+            currPosition.x + offset.x, 
+            currPosition.y, 
+            currPosition.z + offset.y
+        };
+        eProjectileType projectileTypeID = eProjectileType_Bullet; // todo: add weapon desc with projectile type
+        switch (mPedestrian->mCurrentWeapon)
+        {
+            case eWeaponType_Flamethrower: projectileTypeID = eProjectileType_Flame;
+            break;
+            case eWeaponType_RocketLauncher: projectileTypeID = eProjectileType_Rocket;
+            break;
+        }
+        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), projectileTypeID);
     }    
 
     // setup cooldown time for weapons
@@ -303,18 +318,18 @@ eSpriteAnimID PedestrianStatesManager::DetectIdleAnimation() const
 
 bool PedestrianStatesManager::CanStartSlideOnCarState() const
 {
-    return mPedestrian->mPhysicsComponent->mContactingCars > 0;
+    return mPedestrian->mPhysicsBody->mContactingCars > 0;
 }
 
 void PedestrianStatesManager::SetInCarPositionToDoor()
 {
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
-    mPedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, mPedestrian->mPhysicsComponent->mCarPointLocal);
+    mPedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, mPedestrian->mPhysicsBody->mCarPointLocal);
 }
 
 void PedestrianStatesManager::SetInCarPositionToSeat()
 {
-    mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, mPedestrian->mPhysicsComponent->mCarPointLocal);
+    mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, mPedestrian->mPhysicsBody->mCarPointLocal);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -324,7 +339,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
     mPedestrian->SetDead(stateEvent.mDeathReason);
-    mPedestrian->mPhysicsComponent->ClearForces();
+    mPedestrian->mPhysicsBody->ClearForces();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -383,9 +398,9 @@ void PedestrianStatesManager::StateExitCar_ProcessExit()
 {
     if (mPedestrian->mCurrentCar)
     {
-        cxx::angle_t currentCarAngle = mPedestrian->mCurrentCar->mPhysicsComponent->GetRotationAngle();
+        cxx::angle_t currentCarAngle = mPedestrian->mCurrentCar->mPhysicsBody->GetRotationAngle();
 
-        mPedestrian->mPhysicsComponent->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        mPedestrian->mPhysicsBody->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
         mPedestrian->SetCarExited();
     }
 }
@@ -419,7 +434,7 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
     debug_assert(stateEvent.mTargetCar);
 
     mPedestrian->SetCarEntered(stateEvent.mTargetCar, stateEvent.mTargetSeat);
-    mPedestrian->mPhysicsComponent->ClearForces();
+    mPedestrian->mPhysicsBody->ClearForces();
 
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_EnterBike : eSpriteAnimID_Ped_EnterCar, eSpriteAnimLoop_None);
@@ -504,7 +519,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessFrame()
     {
         if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
         {
-            mPedestrian->mPhysicsComponent->ClearForces();
+            mPedestrian->mPhysicsBody->ClearForces();
             mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
             return;
         }
@@ -533,7 +548,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStat
     float impulse = 0.5f; // todo: magic numbers
 
     mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
-    mPedestrian->mPhysicsComponent->AddLinearImpulse(-mPedestrian->mPhysicsComponent->GetSignVector() * impulse);
+    mPedestrian->mPhysicsBody->AddLinearImpulse(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
 }
 
 bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -562,7 +577,7 @@ void PedestrianStatesManager::StateFalling_ProcessEnter(const PedestrianStateEve
 
 void PedestrianStatesManager::StateFalling_ProcessExit()
 {
-    mPedestrian->mPhysicsComponent->SetLinearVelocity({}); // force stop
+    mPedestrian->mPhysicsBody->SetLinearVelocity({}); // force stop
 }
 
 bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -570,7 +585,7 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
     {
         // die
-        if (mPedestrian->mPhysicsComponent->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
+        if (mPedestrian->mPhysicsBody->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
         {
             mPedestrian->Die(ePedestrianDeathReason_FallFromHeight, nullptr);
             return true;
@@ -673,8 +688,8 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
     if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime)
     {
         // force current position to underwater
-        glm::vec3 currentPosition = mPedestrian->mPhysicsComponent->GetPosition();
-        mPedestrian->mPhysicsComponent->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
+        glm::vec3 currentPosition = mPedestrian->mPhysicsBody->GetPosition();
+        mPedestrian->mPhysicsBody->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
         mPedestrian->Die(ePedestrianDeathReason_Drowned, nullptr);
         return;

@@ -18,3 +18,8 @@ GameObject::GameObject(eGameObjectType objectTypeID, GameObjectID uniqueID)
 GameObject::~GameObject()
 {
 }
+
+void GameObject::MarkForDeletion()
+{
+    gGameObjectsManager.MarkForDeletion(this);
+}

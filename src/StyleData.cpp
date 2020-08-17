@@ -166,6 +166,7 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
     debug_assert(currentPos == fileSize);
 
     InitSpriteAnimations();
+    InitProjectiles();
 
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
@@ -934,6 +935,10 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileStanding].Setup(170, 2);
     mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileWalking].Setup(154, 8);
     mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileRunning].Setup(162, 8);
+
+    mSpriteAnimations[eSpriteAnimID_Projectile_Rocket].Setup(178, 4);
+    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1); // not sure
+    mSpriteAnimations[eSpriteAnimID_Projectile_Flame].Setup(393, 11, 24.0f);
 }
 
 int StyleData::GetPedestrianRemapsBaseIndex() const
@@ -942,4 +947,47 @@ int StyleData::GetPedestrianRemapsBaseIndex() const
     debug_assert(remapsBaseIndex > -1);
 
     return remapsBaseIndex;
+}
+
+void StyleData::InitProjectiles()
+{
+    mProjectiles.resize(eProjectileType_COUNT);
+
+    // todo: move to config
+
+    // bullet
+    {
+        ProjectileStyle& projectile = mProjectiles[eProjectileType_Bullet];
+        projectile.mTypeID = eProjectileType_Bullet;
+        projectile.mAnimID = eSpriteAnimID_Projectile_Bullet;
+        projectile.mProjectileRadius = 0.1f;
+        projectile.mBaseDistance = Convert::MapUnitsToMeters(4.5f);
+        projectile.mBasePrimaryDamageRadius = 0.0f;
+        projectile.mBaseSecondaryDamageRadius = 0.0f;
+        projectile.mSpeed = Convert::MapUnitsToMeters(8.0f);
+    }
+
+    // flame
+    {
+        ProjectileStyle& projectile = mProjectiles[eProjectileType_Flame];
+        projectile.mTypeID = eProjectileType_Flame;
+        projectile.mAnimID = eSpriteAnimID_Projectile_Flame;
+        projectile.mProjectileRadius = 0.1f;
+        projectile.mBaseDistance = Convert::MapUnitsToMeters(1.5f);
+        projectile.mBasePrimaryDamageRadius = 0.0f;
+        projectile.mBaseSecondaryDamageRadius = 0.0f;
+        projectile.mSpeed = Convert::MapUnitsToMeters(2.8f);
+    }
+
+    // rocket
+    {
+        ProjectileStyle& projectile = mProjectiles[eProjectileType_Rocket];
+        projectile.mTypeID = eProjectileType_Rocket;
+        projectile.mAnimID = eSpriteAnimID_Projectile_Rocket;
+        projectile.mProjectileRadius = 0.1f;
+        projectile.mBaseDistance = Convert::MapUnitsToMeters(20.0f);
+        projectile.mBasePrimaryDamageRadius = 0.0f; // todo
+        projectile.mBaseSecondaryDamageRadius = 0.0f; // todo
+        projectile.mSpeed = Convert::MapUnitsToMeters(4.4f);
+    }
 }

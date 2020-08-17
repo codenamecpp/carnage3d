@@ -10,7 +10,7 @@
 #include "TimeManager.h"
 
 Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian, id)
-    , mPhysicsComponent()
+    , mPhysicsBody()
     , mCurrentAnimID(eSpriteAnimID_Null)
     , mController()
     , mDrawHeight()
@@ -24,9 +24,9 @@ Pedestrian::~Pedestrian()
 {
     SetCarExited();
 
-    if (mPhysicsComponent)
+    if (mPhysicsBody)
     {
-        gPhysics.DestroyPhysicsComponent(mPhysicsComponent);
+        gPhysics.DestroyPhysicsBody(mPhysicsBody);
     }
 }
 
@@ -49,15 +49,15 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mWeaponsAmmo[eWeaponType_Fists] = -1;
     mCurrentWeapon = eWeaponType_Fists;
     
-    if (mPhysicsComponent == nullptr)
+    if (mPhysicsBody == nullptr)
     {
-        mPhysicsComponent = gPhysics.CreatePhysicsComponent(this, startPosition, startRotation);
-        debug_assert(mPhysicsComponent);
+        mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
+        debug_assert(mPhysicsBody);
     }
     else
     {
-        mPhysicsComponent->SetRespawned();
-        mPhysicsComponent->SetPosition(startPosition, startRotation);
+        mPhysicsBody->SetRespawned();
+        mPhysicsBody->SetPosition(startPosition, startRotation);
     }
 
     mDeathReason = ePedestrianDeathReason_null;
@@ -88,7 +88,7 @@ void Pedestrian::UpdateFrame()
 
 void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 {
-    glm::vec3 position = mPhysicsComponent->mSmoothPosition;
+    glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
     ePedestrianState currState = GetCurrentStateID();
@@ -99,7 +99,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
             return;
     }
 
-    cxx::angle_t rotationAngle = mPhysicsComponent->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
 
@@ -118,9 +118,12 @@ void Pedestrian::DrawDebug(DebugRenderer& debugRender)
 {
     if (mCurrentCar == nullptr)
     {
-        glm::vec3 position = mPhysicsComponent->GetPosition();
-        glm::vec2 signVector = mPhysicsComponent->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance;
+        glm::vec3 position = mPhysicsBody->GetPosition();
+        glm::vec2 signVector = mPhysicsBody->GetSignVector() * gGameParams.mPedestrianFistsHitDistance;
         debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
+
+        cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), gGameParams.mPedestrianBoundsSphereRadius);
+        debugRender.DrawSphere(bsphere, Color32_Orange, false);
     }
 }
 
@@ -143,7 +146,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     }
     
     float maxHeight = position.y;
-    if (!mPhysicsComponent->mFalling)
+    if (!mPhysicsBody->mFalling)
     {
         float halfBox = Convert::PixelsToMeters(PED_SPRITE_DRAW_BOX_SIZE_PX) * 0.5f;
         //glm::vec3 points[4] = {
@@ -388,7 +391,7 @@ void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
     if (IsDead())
         return;
 
-    if (impulse > 4.0f || IsUnconscious()) // todo: magic numbers
+    if (impulse > 2.6f || IsUnconscious()) // todo: magic numbers
     {
         Die(ePedestrianDeathReason_HitByCar, nullptr);
         return;

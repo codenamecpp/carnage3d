@@ -226,7 +226,7 @@ void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
     {
         pedestrian->mRemapIndex = humanIndex - 1;
     }
-    mHumanSlot[humanIndex].mCharController.mSpawnPosition = pedestrian->mPhysicsComponent->GetPosition();
+    mHumanSlot[humanIndex].mCharController.mSpawnPosition = pedestrian->mPhysicsBody->GetPosition();
     mHumanSlot[humanIndex].mCharPedestrian = pedestrian;
     mHumanSlot[humanIndex].mCharController.SetCharacter(pedestrian);
     mHumanSlot[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);
