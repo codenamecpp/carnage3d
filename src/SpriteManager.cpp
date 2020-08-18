@@ -385,7 +385,7 @@ void SpriteManager::DumpSpriteTextures(const std::string& outputLocation)
             cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
             // dump to file
-            cxx::va("%s/%s_%d.png", outputLocation.c_str(), cxx::enum_to_string(sprite_type), iSpriteId);
+            pathBuffer = cxx::va("%s/%s_%d.png", outputLocation.c_str(), cxx::enum_to_string(sprite_type), iSpriteId);
             if (!spriteBitmap.SaveToFile(pathBuffer))
             {
                 debug_assert(false);
@@ -412,7 +412,7 @@ void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
         cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
         // dump to file
-        cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelId, 
+        pathBuffer = cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelId, 
             cxx::enum_to_string(currCar.mModelId), 
             cxx::enum_to_string(currCar.mVType));
 
@@ -445,7 +445,7 @@ void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation)
             }
 
             // dump to file
-            cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), isprite, idelta);
+            pathBuffer = cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), isprite, idelta);
             if (!spriteBitmap.SaveToFile(pathBuffer))
             {
                 debug_assert(false);
@@ -474,7 +474,7 @@ void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation, int spri
         }
 
         // dump to file
-        cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), spriteIndex, idelta);
+        pathBuffer = cxx::va("%s/sprite_%d_delta_%d.png", outputLocation.c_str(), spriteIndex, idelta);
         if (!spriteBitmap.SaveToFile(pathBuffer))
         {
             debug_assert(false);
