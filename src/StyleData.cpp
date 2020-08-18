@@ -3,31 +3,13 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-// read distance in meters (m) or map units (u)
-// @param output_value: Always in meters
-inline bool ParseMetersOrMapUnits(cxx::json_document_node parentNode, const std::string& attribute_name, float& output_value)
+// read distance in map units and convert it to meters
+inline bool ParseMapUnits(cxx::json_document_node node, const std::string& attribute, float& output)
 {
-    cxx::json_document_node attribute_node = parentNode[attribute_name];
-    if (cxx::json_node_string string_node = attribute_node)
-    {
-        std::string string_value = string_node.get_value();
-        bool mapUnits = cxx::has_suffix(string_value.c_str(), "u");
-
-        if (::sscanf(string_value.c_str(), "%f", &output_value) > 0)
-        {
-            if (mapUnits)
-            {
-                output_value = Convert::MapUnitsToMeters(output_value);
-            }
-            return true;
-        }
-        debug_assert(false);
-        return false;
-    }
-    // meters
+    cxx::json_document_node attribute_node = node[attribute];
     if (cxx::json_node_numeric numeric_node = attribute_node)
     {
-        output_value = numeric_node.get_value_float();
+        output = Convert::MapUnitsToMeters(numeric_node.get_value_float());
         return true;
     }
     return false;
@@ -1046,11 +1028,11 @@ void StyleData::InitProjectiles(cxx::json_document_node configNode)
         cxx::json_get_attribute(currentNode, "anim_loop", projectile.mAnimLoop);
 
         // distances
-        ParseMetersOrMapUnits(currentNode, "radius", projectile.mProjectileRadius);
-        ParseMetersOrMapUnits(currentNode, "base_distance", projectile.mBaseDistance);
-        ParseMetersOrMapUnits(currentNode, "base_primary_damage_radius", projectile.mBasePrimaryDamageRadius);
-        ParseMetersOrMapUnits(currentNode, "base_secondary_damage_radius", projectile.mBaseSecondaryDamageRadius);
-        ParseMetersOrMapUnits(currentNode, "speed", projectile.mSpeed);
+        ParseMapUnits(currentNode, "radius", projectile.mProjectileRadius);
+        ParseMapUnits(currentNode, "base_distance", projectile.mBaseDistance);
+        ParseMapUnits(currentNode, "base_primary_damage_radius", projectile.mBasePrimaryDamageRadius);
+        ParseMapUnits(currentNode, "base_secondary_damage_radius", projectile.mBaseSecondaryDamageRadius);
+        ParseMapUnits(currentNode, "speed", projectile.mSpeed);
     }
 }
 
@@ -1083,6 +1065,6 @@ void StyleData::InitWeapons(cxx::json_document_node configNode)
         cxx::json_get_attribute(currentNode, "base_ammo_limit", weapon.mBaseAmmoLimit);
 
         // distances
-        ParseMetersOrMapUnits(currentNode, "base_melee_hit_distance", weapon.mBaseMeleeHitDistance);
+        ParseMapUnits(currentNode, "base_melee_hit_distance", weapon.mBaseMeleeHitDistance);
     }
 }

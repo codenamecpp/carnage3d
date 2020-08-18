@@ -6,7 +6,7 @@
             "fire_type": "melee",
             "base_fire_rate": 2.0,
             "base_ammo_limit": 0,
-            "base_melee_hit_distance": "0.2u"
+            "base_melee_hit_distance": 0.2
         },
         "pistol":
         {
@@ -48,31 +48,25 @@
         {
             "anim_id": "projectile_bullet",
             "anim_loop": "from_start",
-            "radius": 0.1,
-            "base_distance": "4.5u",
-            "base_primary_damage_radius": 0.0,
-            "base_secondary_damage_radius": 0.0,
-            "speed": "8.0u"
+            "radius": 0.025,
+            "base_distance": 4.5,
+            "speed": 8.0
         },
         "flame":
         {
             "anim_id": "projectile_flame",
             "anim_loop": "none",
-            "radius": 0.3,
-            "base_distance": "1.1u",
-            "base_primary_damage_radius": 0.0,
-            "base_secondary_damage_radius": 0.0,
-            "speed": "2.75u"
+            "radius": 0.075,
+            "base_distance": 1.1,
+            "speed": 2.75
         },
         "rocket":
         {
             "anim_id": "projectile_rocket",
             "anim_loop": "from_start",
-            "radius": 0.1,
-            "base_distance": "20.0u",
-            "base_primary_damage_radius": 0.0,
-            "base_secondary_damage_radius": 0.0,
-            "speed": "4.4u"
+            "radius": 0.03,
+            "base_distance": 20.0,
+            "speed": 4.4
         }
     }
 }
