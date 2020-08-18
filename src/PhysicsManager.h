@@ -68,14 +68,18 @@ private:
     // pre solve collisions
     bool HasCollisionPedVsPed(b2Contact* contact, PedPhysicsBody* pedA, PedPhysicsBody* pedB) const;
     bool HasCollisionCarVsCar(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB) const;
-    bool HasCollisionPedVsMap(int mapx, int mapz, float height) const;
-    bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const;
+    bool HasCollisionPedVsMap(int mapx, int mapy, float height) const;
+    bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapy) const;
     bool HasCollisionPedVsCar(b2Contact* contact, PedPhysicsBody* ped, CarPhysicsBody* car) const;
 
     // post solve collisions
     void HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsBody* ped, CarPhysicsBody* car);
 
+    // sensors
     bool ProcessSensorContact(b2Contact* contact, bool onBegin);
+    bool ProcessSensorProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const;
+    bool ProcessSensorProjectileVsCar(b2Contact* contact, ProjectilePhysicsBody* projectile, CarPhysicsBody* car) const;
+    bool ProcessSensorProjectileVsPed(b2Contact* contact, ProjectilePhysicsBody* projectile, PedPhysicsBody* ped) const;
 
 private:
     b2Body* mMapCollisionShape;

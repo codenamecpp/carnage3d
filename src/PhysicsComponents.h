@@ -30,6 +30,10 @@ public:
 
     virtual void SimulationStep() = 0;
 
+    // test whether object should contact with other objects depending on its current state
+    // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
+    virtual bool ShouldContactWith(unsigned int objCatBits) const = 0;
+
     // Set or get object's world position and rotation angle
     // @param position: Coordinate, meters
     // @param rotationAngle: Angle
@@ -115,15 +119,13 @@ public:
 
     // override PhysicsComponent methods
     void SimulationStep() override;
+    bool ShouldContactWith(unsigned int objCatBits) const override;
 
     void HandleFallBegin(float fallDistance);
     void HandleFallEnd();
     void HandleCarContactBegin();
     void HandleCarContactEnd();
     void HandleWaterContact();
-    // test whether pedestrian should collide with other objects depending on its current state
-    // @param objCatBits: object categories bits see PHYSICS_OBJCAT_* bits
-    bool ShouldCollideWith(unsigned int objCatBits) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,6 +156,7 @@ public:
 
     // override PhysicsComponent methods
     void SimulationStep() override;
+    bool ShouldContactWith(unsigned int objCatBits) const override;
 
     void ResetDriveState();
     void HandleWaterContact();
@@ -228,4 +231,5 @@ public:
 
     // override PhysicsComponent methods
     void SimulationStep() override;
+    bool ShouldContactWith(unsigned int objCatBits) const override;
 };

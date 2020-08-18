@@ -14,7 +14,6 @@ public:
 public:
     // pedestrians
     float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters
-    float mPedestrianFistsHitDistance; // meters
     float mPedestrianTurnSpeed; // degrees per second
     float mPedestrianTurnSpeedSlideOnCar; // degrees per second
     float mPedestrianSlideOnCarSpeed; // meters per second
@@ -24,7 +23,6 @@ public:
     float mPedestrianSpotTheCarDistance; // max distance to detect the car, meters
     float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, meters
     float mPedestrianDrowningTime; // seconds
-    float mWeaponsRechargeTime[eWeaponType_COUNT]; // weapons reload time, seconds
 };
 
 extern GameParams gGameParams;

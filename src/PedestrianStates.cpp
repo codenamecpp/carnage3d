@@ -178,18 +178,24 @@ void PedestrianStatesManager::ProcessMotionActions()
 
 bool PedestrianStatesManager::TryToShoot()
 {
+    debug_assert(mPedestrian->mCurrentWeapon < eWeaponType_COUNT);
+
     float currGameTime = gTimeManager.mGameTime;
-    if (mPedestrian->mWeaponRechargeTime > currGameTime ||
+    if (mPedestrian->mWeaponRechargeTime >= currGameTime ||
         mPedestrian->mWeaponsAmmo[mPedestrian->mCurrentWeapon] == 0)
     {
         return false;
     }
 
     glm::vec3 currPosition = mPedestrian->mPhysicsBody->GetPosition();
-    if (mPedestrian->mCurrentWeapon == eWeaponType_Fists)
+
+    // get weapon params
+    WeaponStyle& weaponParams = gGameMap.mStyleData.mWeapons[mPedestrian->mCurrentWeapon];
+
+    if (weaponParams.mFireTypeID == eWeaponFireType_Melee)
     {
         glm::vec2 posA { currPosition.x, currPosition.z };
-        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * gGameParams.mPedestrianFistsHitDistance);
+        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * weaponParams.mBaseMeleeHitDistance);
         // find candidates
         PhysicsLinecastResult linecastResult;
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
@@ -204,7 +210,7 @@ bool PedestrianStatesManager::TryToShoot()
             pedBody->mReferencePed->ReceiveDamage(mPedestrian->mCurrentWeapon, mPedestrian);
         }
     }
-    else // create projectile
+    else if (weaponParams.mFireTypeID == eWeaponFireType_Projectile)
     {
         glm::vec2 signVector = mPedestrian->mPhysicsBody->GetSignVector();       
         glm::vec2 offset = (signVector * 1.0f); //todo: magic numbers
@@ -213,20 +219,17 @@ bool PedestrianStatesManager::TryToShoot()
             currPosition.y, 
             currPosition.z + offset.y
         };
-        eProjectileType projectileTypeID = eProjectileType_Bullet; // todo: add weapon desc with projectile type
-        switch (mPedestrian->mCurrentWeapon)
-        {
-            case eWeaponType_Flamethrower: projectileTypeID = eProjectileType_Flame;
-            break;
-            case eWeaponType_RocketLauncher: projectileTypeID = eProjectileType_Rocket;
-            break;
-        }
-        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), projectileTypeID);
-    }    
+        debug_assert(weaponParams.mProjectileID < eProjectileType_COUNT);
+        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), weaponParams.mProjectileID);
+    }
+    else
+    {
+        debug_assert(false);
+    }
 
     // setup cooldown time for weapons
-    float rechargeTime = gGameParams.mWeaponsRechargeTime[mPedestrian->mCurrentWeapon];
-    mPedestrian->mWeaponRechargeTime = currGameTime + rechargeTime;
+    float rechargeTime = (1.0f / weaponParams.mBaseFireRate);
+    mPedestrian->mWeaponRechargeTime = (currGameTime + rechargeTime);
     return true;
 }
 

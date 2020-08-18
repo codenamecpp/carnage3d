@@ -294,7 +294,7 @@ void PedPhysicsBody::HandleWaterContact()
     mReferencePed->mStatesManager.ProcessEvent(evData);
 }
 
-bool PedPhysicsBody::ShouldCollideWith(unsigned int bits) const
+bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
 {
     if (mReferencePed->IsDead())
     {
@@ -399,6 +399,11 @@ void CarPhysicsBody::SimulationStep()
     UpdateFriction();
     UpdateDrive();
     UpdateSteer();
+}
+
+bool CarPhysicsBody::ShouldContactWith(unsigned int objCatBits) const
+{
+    return true; // todo
 }
 
 void CarPhysicsBody::GetChassisCorners(glm::vec2 corners[4]) const
@@ -726,4 +731,9 @@ void ProjectilePhysicsBody::SimulationStep()
         mReferenceProjectile->mDead = true;
         mReferenceProjectile->MarkForDeletion();
     }
+}
+
+bool ProjectilePhysicsBody::ShouldContactWith(unsigned int objCatBits) const
+{
+    return true; // todo
 }

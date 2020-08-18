@@ -119,7 +119,10 @@ void Pedestrian::DrawDebug(DebugRenderer& debugRender)
     if (mCurrentCar == nullptr)
     {
         glm::vec3 position = mPhysicsBody->GetPosition();
-        glm::vec2 signVector = mPhysicsBody->GetSignVector() * gGameParams.mPedestrianFistsHitDistance;
+
+        WeaponStyle& meleeWeapon = gGameMap.mStyleData.mWeapons[eWeaponFireType_Melee];
+
+        glm::vec2 signVector = mPhysicsBody->GetSignVector() * meleeWeapon.mBaseMeleeHitDistance;
         debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
 
         cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), gGameParams.mPedestrianBoundsSphereRadius);

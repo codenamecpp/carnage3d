@@ -1,0 +1,78 @@
+{
+    "weapons":
+    {
+        "fists":
+        {
+            "fire_type": "melee",
+            "base_fire_rate": 2.0,
+            "base_ammo_limit": 0,
+            "base_melee_hit_distance": "0.2u"
+        },
+        "pistol":
+        {
+            "fire_type": "projectile",
+            "projectile": "bullet",
+            "base_fire_rate": 2.0,
+            "sprite_index": 30,
+            "base_ammo_limit": 999
+        },
+        "machinegun":
+        {
+            "fire_type": "projectile",
+            "projectile": "bullet",
+            "base_fire_rate": 8.0,
+            "sprite_index": 31,
+            "base_ammo_limit": 999
+        },
+        "flamethrower":
+        {
+            "fire_type": "projectile",
+            "projectile": "flame",
+            "base_fire_rate": 16.0,
+            "sprite_index": 33,
+            "base_ammo_limit": 999
+        },
+        "rocket_launcher":
+        {
+            "fire_type": "projectile",
+            "projectile": "rocket",
+            "base_fire_rate": 1.0,
+            "sprite_index": 32,
+            "base_ammo_limit": 999
+        }
+    },
+
+    "projectiles":
+    {
+        "bullet":
+        {
+            "anim_id": "projectile_bullet",
+            "anim_loop": "from_start",
+            "radius": 0.1,
+            "base_distance": "4.5u",
+            "base_primary_damage_radius": 0.0,
+            "base_secondary_damage_radius": 0.0,
+            "speed": "8.0u"
+        },
+        "flame":
+        {
+            "anim_id": "projectile_flame",
+            "anim_loop": "none",
+            "radius": 0.3,
+            "base_distance": "1.1u",
+            "base_primary_damage_radius": 0.0,
+            "base_secondary_damage_radius": 0.0,
+            "speed": "2.75u"
+        },
+        "rocket":
+        {
+            "anim_id": "projectile_rocket",
+            "anim_loop": "from_start",
+            "radius": 0.1,
+            "base_distance": "20.0u",
+            "base_primary_damage_radius": 0.0,
+            "base_secondary_damage_radius": 0.0,
+            "speed": "4.4u"
+        }
+    }
+}

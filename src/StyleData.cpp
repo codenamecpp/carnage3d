@@ -1,6 +1,40 @@
 #include "stdafx.h"
 #include "StyleData.h"
 
+//////////////////////////////////////////////////////////////////////////
+
+// read distance in meters (m) or map units (u)
+// @param output_value: Always in meters
+inline bool ParseMetersOrMapUnits(cxx::json_document_node parentNode, const std::string& attribute_name, float& output_value)
+{
+    cxx::json_document_node attribute_node = parentNode[attribute_name];
+    if (cxx::json_node_string string_node = attribute_node)
+    {
+        std::string string_value = string_node.get_value();
+        bool mapUnits = cxx::has_suffix(string_value.c_str(), "u");
+
+        if (::sscanf(string_value.c_str(), "%f", &output_value) > 0)
+        {
+            if (mapUnits)
+            {
+                output_value = Convert::MapUnitsToMeters(output_value);
+            }
+            return true;
+        }
+        debug_assert(false);
+        return false;
+    }
+    // meters
+    if (cxx::json_node_numeric numeric_node = attribute_node)
+    {
+        output_value = numeric_node.get_value_float();
+        return true;
+    }
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 enum 
 {
     GTA_G24FILE_VERSION_CODE = 336,
@@ -166,7 +200,7 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
     debug_assert(currentPos == fileSize);
 
     InitSpriteAnimations();
-    InitProjectiles();
+    InitEntitiesData();
 
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
@@ -937,7 +971,7 @@ void StyleData::InitSpriteAnimations()
     mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileRunning].Setup(162, 8);
 
     mSpriteAnimations[eSpriteAnimID_Projectile_Rocket].Setup(178, 4);
-    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1); // not sure
+    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1);
     mSpriteAnimations[eSpriteAnimID_Projectile_Flame].Setup(393, 11, 24.0f);
 }
 
@@ -949,45 +983,106 @@ int StyleData::GetPedestrianRemapsBaseIndex() const
     return remapsBaseIndex;
 }
 
-void StyleData::InitProjectiles()
+void StyleData::InitEntitiesData()
+{
+    std::string configContent;
+    if (!gFiles.ReadTextFile("entities/common.json", configContent))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load common entities config");
+        return;
+    }
+
+    cxx::json_document configDocument;
+    if (!configDocument.parse_document(configContent))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse common entities config");
+        return;
+    }
+
+    cxx::json_document_node rootNode = configDocument.get_root_node();
+    // get projectiles
+    if (cxx::json_document_node projectilesNode = rootNode["projectiles"])
+    {
+        InitProjectiles(projectilesNode);
+    }
+    else
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load projectiles config");
+    }
+    // get weapons
+    if (cxx::json_document_node weaponsNode = rootNode["weapons"])
+    {
+        InitWeapons(weaponsNode);
+    }
+    else
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load weapons config");
+    }
+}
+
+void StyleData::InitProjectiles(cxx::json_document_node configNode)
 {
     mProjectiles.resize(eProjectileType_COUNT);
 
-    // todo: move to config
-
-    // bullet
+    std::string currProjectileName;
+    for (cxx::json_node_object currentNode = configNode.first_child();
+        currentNode; currentNode = currentNode.next_sibling())
     {
-        ProjectileStyle& projectile = mProjectiles[eProjectileType_Bullet];
-        projectile.mTypeID = eProjectileType_Bullet;
-        projectile.mAnimID = eSpriteAnimID_Projectile_Bullet;
-        projectile.mProjectileRadius = 0.1f;
-        projectile.mBaseDistance = Convert::MapUnitsToMeters(4.5f);
-        projectile.mBasePrimaryDamageRadius = 0.0f;
-        projectile.mBaseSecondaryDamageRadius = 0.0f;
-        projectile.mSpeed = Convert::MapUnitsToMeters(8.0f);
+        currProjectileName = currentNode.get_element_name();
+
+        // parse id
+        eProjectileType projectileType = eProjectileType_COUNT;
+        if (!cxx::parse_enum(currProjectileName.c_str(), projectileType))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown projectile id '%s'", currProjectileName.c_str());
+            continue;
+        }
+
+        ProjectileStyle& projectile = mProjectiles[projectileType];
+        projectile = ProjectileStyle(); // reset to defaults
+        projectile.mTypeID = projectileType;
+
+        cxx::json_get_attribute(currentNode, "anim_id", projectile.mAnimID);
+        cxx::json_get_attribute(currentNode, "anim_loop", projectile.mAnimLoop);
+
+        // distances
+        ParseMetersOrMapUnits(currentNode, "radius", projectile.mProjectileRadius);
+        ParseMetersOrMapUnits(currentNode, "base_distance", projectile.mBaseDistance);
+        ParseMetersOrMapUnits(currentNode, "base_primary_damage_radius", projectile.mBasePrimaryDamageRadius);
+        ParseMetersOrMapUnits(currentNode, "base_secondary_damage_radius", projectile.mBaseSecondaryDamageRadius);
+        ParseMetersOrMapUnits(currentNode, "speed", projectile.mSpeed);
     }
+}
 
-    // flame
-    {
-        ProjectileStyle& projectile = mProjectiles[eProjectileType_Flame];
-        projectile.mTypeID = eProjectileType_Flame;
-        projectile.mAnimID = eSpriteAnimID_Projectile_Flame;
-        projectile.mProjectileRadius = 0.1f;
-        projectile.mBaseDistance = Convert::MapUnitsToMeters(1.5f);
-        projectile.mBasePrimaryDamageRadius = 0.0f;
-        projectile.mBaseSecondaryDamageRadius = 0.0f;
-        projectile.mSpeed = Convert::MapUnitsToMeters(2.8f);
-    }
+void StyleData::InitWeapons(cxx::json_document_node configNode)
+{
+    mWeapons.resize(eWeaponType_COUNT);
 
-    // rocket
+    std::string currWeaponName;
+    for (cxx::json_node_object currentNode = configNode.first_child();
+        currentNode; currentNode = currentNode.next_sibling())
     {
-        ProjectileStyle& projectile = mProjectiles[eProjectileType_Rocket];
-        projectile.mTypeID = eProjectileType_Rocket;
-        projectile.mAnimID = eSpriteAnimID_Projectile_Rocket;
-        projectile.mProjectileRadius = 0.1f;
-        projectile.mBaseDistance = Convert::MapUnitsToMeters(20.0f);
-        projectile.mBasePrimaryDamageRadius = 0.0f; // todo
-        projectile.mBaseSecondaryDamageRadius = 0.0f; // todo
-        projectile.mSpeed = Convert::MapUnitsToMeters(4.4f);
+        currWeaponName = currentNode.get_element_name();
+
+        // parse id
+        eWeaponType weaponType = eWeaponType_COUNT;
+        if (!cxx::parse_enum(currWeaponName.c_str(), weaponType))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown weapon id '%s'", currWeaponName.c_str());
+            continue;
+        }
+
+        WeaponStyle& weapon = mWeapons[weaponType];
+        weapon = WeaponStyle(); // reset to defaults
+        weapon.mTypeID = weaponType;
+
+        cxx::json_get_attribute(currentNode, "fire_type", weapon.mFireTypeID);
+        cxx::json_get_attribute(currentNode, "projectile", weapon.mProjectileID);
+        cxx::json_get_attribute(currentNode, "base_fire_rate", weapon.mBaseFireRate);
+        cxx::json_get_attribute(currentNode, "sprite_index", weapon.mSpriteIndex);
+        cxx::json_get_attribute(currentNode, "base_ammo_limit", weapon.mBaseAmmoLimit);
+
+        // distances
+        ParseMetersOrMapUnits(currentNode, "base_melee_hit_distance", weapon.mBaseMeleeHitDistance);
     }
 }

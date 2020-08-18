@@ -327,6 +327,7 @@
   <ItemGroup>
     <None Include="..\gamedata\config\inputs.json.default" />
     <None Include="..\gamedata\config\sys_config.json.default" />
+    <None Include="..\gamedata\entities\common.json" />
     <None Include="..\gamedata\shaders\city_mesh.glsl" />
     <None Include="..\gamedata\shaders\debug.glsl" />
     <None Include="..\gamedata\shaders\gui.glsl" />

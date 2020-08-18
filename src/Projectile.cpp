@@ -47,7 +47,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     {
         debug_assert(false);
     }
-    mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart); // todo loop mode
+    mAnimationState.PlayAnimation(mProjectileStyle->mAnimLoop);
 
     // setup sprite rotation and scale
     cxx::angle_t rotationAngle = startRotation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
@@ -77,7 +77,7 @@ void Projectile::DrawFrame(SpriteBatch& spriteBatch)
 
 void Projectile::DrawDebug(DebugRenderer& debugRender)
 {   
-    cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), 0.5f);
+    cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), mProjectileStyle->mProjectileRadius);
     debugRender.DrawSphere(bsphere, Color32_Orange, false);
 }
 

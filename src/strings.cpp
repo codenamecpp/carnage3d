@@ -42,10 +42,17 @@ bool has_prefix(const char* string_a, const char* prefix_string)
 
 bool has_suffix(const char* string_a, const char* suffix_string)
 {
-    if (string_a == nullptr || suffix_string == nullptr)
+    if (string_a == nullptr || *string_a == 0 || 
+        suffix_string == nullptr ||  *suffix_string == 0)
+    {
         return false;
+    }
 
-    debug_assert(!"not implemented");// todo
+    for (; *string_a; ++string_a)
+    {
+        if (strcmp(string_a, suffix_string) == 0)
+            return true;
+    }
     return false;
 }
 

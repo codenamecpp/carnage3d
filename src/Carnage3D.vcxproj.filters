@@ -62,6 +62,9 @@
     <Filter Include="Game\DebugWindows">
       <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\entities">
+      <UniqueIdentifier>{ba5abb24-45fc-4800-b80d-acbc30a9f820}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -547,6 +550,9 @@
     </None>
     <None Include="..\gamedata\config\inputs.json.default">
       <Filter>Data\config</Filter>
+    </None>
+    <None Include="..\gamedata\entities\common.json">
+      <Filter>Data\entities</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -374,14 +374,14 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
                 b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
      
                 float height = gGameMap.GetHeightAtPosition(pedPhysicsObject->GetPosition());
-                hasCollision = pedPhysicsObject->ShouldCollideWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK) &&
+                hasCollision = pedPhysicsObject->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK) &&
                     HasCollisionPedVsMap(fxdata.mX, fxdata.mZ, height);
             }
             // ped vs car
             else if (fixtureCar)
             {
                 CarPhysicsBody* carPhysicsObject = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
-                hasCollision = pedPhysicsObject->ShouldCollideWith(PHYSICS_OBJCAT_CAR) &&
+                hasCollision = pedPhysicsObject->ShouldContactWith(PHYSICS_OBJCAT_CAR) &&
                     HasCollisionPedVsCar(contact, pedPhysicsObject, carPhysicsObject);
             }
         }
@@ -546,17 +546,17 @@ bool PhysicsManager::HasCollisionCarVsCar(b2Contact* contact, CarPhysicsBody* ca
     return carLayerA == carLayerB;
 }
 
-bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapz, float height) const
+bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapy, float height) const
 {
     int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
-bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapz) const
+bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapy) const
 {
     CarPhysicsBody* carPhysicsComponent = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
     debug_assert(carPhysicsComponent);
@@ -565,7 +565,7 @@ bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixture
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapz, mapLayer);
+    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -590,6 +590,8 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
 
     b2Fixture* pedFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_PED_SENSOR);
     b2Fixture* carFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_CAR);
+    b2Fixture* projectileFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PROJECTILE_SENSOR);
+    b2Fixture* mapSolidBlockFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
     if (pedFixture && carFixture)
     {
         PedPhysicsBody* pedPhysicsComponent = CastBodyData<PedPhysicsBody>(pedFixture->GetBody());
@@ -603,6 +605,31 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
             pedPhysicsComponent->HandleCarContactEnd();
         }
         return true;
+    }
+
+    if (projectileFixture)
+    {
+        ProjectilePhysicsBody* projectileObject = CastBodyData<ProjectilePhysicsBody>(projectileFixture->GetBody());
+        if (projectileObject->mReferenceProjectile->mDead)
+            return false;
+
+        if (pedFixture)
+        {
+            PedPhysicsBody* pedObject = CastBodyData<PedPhysicsBody>(pedFixture->GetBody());
+            return ProcessSensorProjectileVsPed(contact, projectileObject, pedObject);
+        }
+
+        if (carFixture)
+        {
+            CarPhysicsBody* carObject = CastBodyData<CarPhysicsBody>(carFixture->GetBody());
+            return ProcessSensorProjectileVsCar(contact, projectileObject, carObject);
+        }
+
+        if (mapSolidBlockFixture)
+        {
+            b2FixtureData_map fxdata = mapSolidBlockFixture->GetUserData();
+            return ProcessSensorProjectileVsMap(contact, projectileObject, fxdata.mX, fxdata.mZ);
+        }
     }
     return false;
 }
@@ -701,8 +728,35 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
 
 void PhysicsManager::HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsBody* ped, CarPhysicsBody* car)
 {
-    if (!ped->ShouldCollideWith(PHYSICS_OBJCAT_CAR))
+    if (!ped->ShouldContactWith(PHYSICS_OBJCAT_CAR))
         return;
 
     ped->mReferencePed->ReceiveHitByCar(car->mReferenceCar, impulse);
+}
+
+bool PhysicsManager::ProcessSensorProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const
+{
+    // check same height
+
+
+    return false;
+}
+
+bool PhysicsManager::ProcessSensorProjectileVsCar(b2Contact* contact, ProjectilePhysicsBody* projectile, CarPhysicsBody* car) const
+{
+
+
+    // check same height
+
+    return false;
+}
+
+bool PhysicsManager::ProcessSensorProjectileVsPed(b2Contact* contact, ProjectilePhysicsBody* projectile, PedPhysicsBody* ped) const
+{
+    if (!ped->ShouldContactWith(PHYSICS_OBJCAT_PROJECTILE_SENSOR))
+        return false;
+
+    // check same height
+
+    return false;
 }

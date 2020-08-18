@@ -15,6 +15,7 @@ public:
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
     std::vector<ProjectileStyle> mProjectiles;
+    std::vector<WeaponStyle> mWeapons;
 
     // CLUT data :
     //  tiles
@@ -118,7 +119,9 @@ private:
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
     void InitSpriteAnimations();
-    void InitProjectiles();
+    void InitEntitiesData();
+    void InitProjectiles(cxx::json_document_node configNode);
+    void InitWeapons(cxx::json_document_node configNode);
     bool DoDataIntegrityCheck() const;
 
 private:
