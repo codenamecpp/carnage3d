@@ -9,6 +9,10 @@ public:
     bool mEnableGravity;
     bool mEnableBlocksAnimation;
     bool mEnableDebugDraw;
+    bool mEnableDrawDecorations = true;
+    bool mEnableDrawPedestrians = true;
+    bool mEnableDrawVehicles = true;
+    bool mEnableDrawCityMesh = true;
 
 public:
     GameCheatsWindow();

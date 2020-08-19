@@ -11,7 +11,6 @@ Projectile::Projectile(ProjectileStyle* style)
     , mProjectileStyle(style)
     , mDrawHeight()
     , mStartPosition()
-    , mDead()
 {
     debug_assert(style);
 }
@@ -51,7 +50,6 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     // setup sprite rotation and scale
     cxx::angle_t rotationAngle = startRotation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mRotateAngle = rotationAngle;
-    mDrawSprite.mScale = SPRITE_SCALE;
 }
 
 void Projectile::UpdateFrame()

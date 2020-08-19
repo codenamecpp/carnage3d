@@ -35,9 +35,12 @@ public:
     Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, CarStyle* desc);
     Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel);
 
-    // New projectile instance to map at specific location
+    // Add new projectile instance to map at specific location
     Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, eProjectileType typeID);
     Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, ProjectileStyle* desc);
+
+    // Add new decoration instance to map at specific location
+    Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
 
     // find gameobject by its unique identifier
     // @param objectID: Unique identifier

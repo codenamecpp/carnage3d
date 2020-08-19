@@ -129,6 +129,26 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
     return instance;
 }
 
+Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc)
+{
+    Decoration* instance = nullptr;
+    debug_assert(gGameMap.mStyleData.IsLoaded());
+    debug_assert(desc);
+    debug_assert(desc->mClassID == eGameObjectClass_Decoration);
+    if (desc->mClassID == eGameObjectClass_Decoration)
+    {
+        GameObjectID objectID = GenerateUniqueID();
+
+        instance = mDecorationsPool.create(objectID, desc);
+        debug_assert(instance);
+
+        mAllObjectsList.push_back(instance);
+        // init
+        instance->Spawn(position, heading);
+    }
+    return instance;
+}
+
 Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
 {
     for (GameObject* currentObject: mAllObjectsList)
@@ -231,8 +251,15 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
             mProjectilesPool.destroy(projectile);
         }
         break;
-        case eGameObjectClass_Powerup:
+
         case eGameObjectClass_Decoration:
+        {
+            Decoration* decoration = static_cast<Decoration*>(object);
+            mDecorationsPool.destroy(decoration);
+        }
+        break;
+
+        case eGameObjectClass_Powerup:
         case eGameObjectClass_Obstacle:
         default:
         {
@@ -276,14 +303,14 @@ bool GameObjectsManager::CreateStartupObjects()
     {
         int mapLevel = (int) Convert::PixelsToMapUnits(currObject.mZ);
         mapLevel = INVERT_MAP_LAYER(mapLevel);
-        glm::vec3 carPosition 
+        glm::vec3 start_position 
         { 
             Convert::PixelsToMeters(currObject.mX),
             Convert::MapUnitsToMeters(mapLevel * 1.0f),
             Convert::PixelsToMeters(currObject.mY) 
         };
 
-        cxx::angle_t rotationDegrees = Convert::Fix16ToAngle(currObject.mRotation);
+        cxx::angle_t start_rotation = Convert::Fix16ToAngle(currObject.mRotation);
 
         // create startup cars
         if (currObject.IsCarObject())
@@ -294,7 +321,7 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-            Vehicle* startupCar = CreateCar(carPosition, rotationDegrees, carModel);
+            Vehicle* startupCar = CreateCar(start_position, start_rotation, carModel);
             debug_assert(startupCar);
             continue;
         }
@@ -306,9 +333,14 @@ bool GameObjectsManager::CreateStartupObjects()
         GameObjectStyle& objectType = styleData.mGameObjects[objectTypeIndex];
         switch (objectType.mClassID)
         {
+            case eGameObjectClass_Decoration: 
+            {
+                Decoration* startupDecoration = CreateDecoration(start_position, start_rotation, &objectType);
+                debug_assert(startupDecoration);
+            }
+            break;
             case eGameObjectClass_Projectile: break;
             case eGameObjectClass_Powerup: break;
-            case eGameObjectClass_Decoration: break;
             case eGameObjectClass_Obstacle: break;
             default:
                 debug_assert(false);

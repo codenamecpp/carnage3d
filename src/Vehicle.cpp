@@ -8,6 +8,7 @@
 #include "SpriteManager.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
+#include "GameCheatsWindow.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
@@ -64,12 +65,14 @@ void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
+    if (!gGameCheatsWindow.mEnableDrawVehicles)
+        return;
+
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
     gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mChassisDrawSprite);
 
     mChassisDrawSprite.mPosition.x = position.x;
     mChassisDrawSprite.mPosition.y = position.z;
-    mChassisDrawSprite.mScale = SPRITE_SCALE;
     mChassisDrawSprite.mRotateAngle = rotationAngle;
     mChassisDrawSprite.mHeight = mDrawHeight;
     mChassisDrawSprite.SetOriginToCenter();

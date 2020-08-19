@@ -22,7 +22,7 @@
 #define METERS_PER_MAP_UNIT (4.0f)
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
-#define SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
+#define MAP_SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
 #define CAR_WHEEL_SIZE_W_PX         6
 #define CAR_WHEEL_SIZE_H_PX         12

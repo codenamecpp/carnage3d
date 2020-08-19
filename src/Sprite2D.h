@@ -31,7 +31,7 @@ public:
     glm::vec2 mPosition;
 
     float mHeight = 0.0f; // z order
-    float mScale = 1.0f;
+    float mScale = MAP_SPRITE_SCALE;
 
     cxx::angle_t mRotateAngle;
 

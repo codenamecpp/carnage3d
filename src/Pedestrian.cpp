@@ -8,6 +8,7 @@
 #include "PedestrianStates.h"
 #include "Vehicle.h"
 #include "TimeManager.h"
+#include "GameCheatsWindow.h"
 
 Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian, id)
     , mPhysicsBody()
@@ -90,6 +91,9 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
+    if (!gGameCheatsWindow.mEnableDrawPedestrians)
+        return;
+
     ePedestrianState currState = GetCurrentStateID();
     if (currState == ePedestrianState_DrivingCar)
     {
@@ -106,7 +110,6 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
-    mDrawSprite.mScale = SPRITE_SCALE;
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();

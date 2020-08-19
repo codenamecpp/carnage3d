@@ -9,15 +9,19 @@ class Decoration final: public GameObject
     decl_rtti(Decoration, GameObject)
 
 public:
-    Decoration(GameObjectID id);
+    Decoration(GameObjectID id, GameObjectStyle* desc);
     ~Decoration();
 
     // override GameObject
-    void DrawFrame(SpriteBatch& spriteBatch);
-    void UpdateFrame();
-    void DrawDebug(DebugRenderer& debugRender);
+    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void UpdateFrame() override;
+    void DrawDebug(DebugRenderer& debugRender) override;
+
+    // Setup initial state when spawned or respawned on level
+    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
 private:
     SpriteAnimation mAnimationState;
-    Sprite2D mSprite;
+    Sprite2D mDrawSprite;
+    GameObjectStyle* mGameObjectDesc = nullptr;
 };

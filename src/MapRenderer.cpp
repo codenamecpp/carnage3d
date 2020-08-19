@@ -78,7 +78,10 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gGraphicsDevice.BindTexture(eTextureUnit_3, gSpriteManager.mPalettesTable);
     gGraphicsDevice.BindTexture(eTextureUnit_2, gSpriteManager.mPaletteIndicesTable);
 
-    DrawCityMesh(renderview);
+    if (gGameCheatsWindow.mEnableDrawCityMesh)
+    {
+        DrawCityMesh(renderview);
+    }
 
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y);
 
