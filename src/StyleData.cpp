@@ -181,8 +181,14 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
     std::streampos currentPos = file.tellg();
     debug_assert(currentPos == fileSize);
 
-    InitSpriteAnimations();
-    InitEntitiesData();
+    ReadSpriteAnimations();
+    ReadCommons();
+    ReadPedestrianAnimations();
+
+    if (!InitGameObjectsList())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Fail to initialize game objects");
+    }
 
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
@@ -216,12 +222,15 @@ bool StyleData::DoDataIntegrityCheck() const
 
 void StyleData::Cleanup()
 {
+    mObjectsRaw.clear();
+    mWeapons.clear();
+    mProjectiles.clear();
     mBlockTexturesRaw.clear();
     mPaletteIndices.clear();
     mPalettes.clear();
     mBlocksAnimations.clear();
     mCars.clear();
-    mObjects.clear();
+    mGameObjects.clear();
     mSprites.clear();
     mSpriteGraphicsRaw.clear();
     mLidBlocksCount = 0;
@@ -239,7 +248,7 @@ void StyleData::Cleanup()
     // reset all sprite animations
     for (int ianim = 0; ianim < CountOf(mSpriteAnimations); ++ianim)
     {
-        mSpriteAnimations[ianim].SetNull();
+        mSpriteAnimations[ianim].Clear();
     }
 }
 
@@ -662,24 +671,17 @@ bool StyleData::ReadAnimations(std::ifstream& file, int dataLength)
 
 bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
 {
-    for (; dataLength > 0;)
+    for (int icurrentObject = 0; dataLength > 0; ++icurrentObject)
     {
-        ObjectStyle objectInfo;
+        ObjectRawData objectRawData;
 
-        READ_SI32(file, objectInfo.mWidth);
-        READ_SI32(file, objectInfo.mHeight);
-        READ_SI32(file, objectInfo.mDepth);
-        READ_I16(file, objectInfo.mBaseSprite);
-        READ_I16(file, objectInfo.mWeight);
-        READ_I16(file, objectInfo.mAux);
-
-        unsigned char objStatus;
-        READ_I8(file, objStatus);
-
-        if (!cxx::parse_enum_int(objStatus, objectInfo.mStatus))
-        {
-            debug_assert(false);
-        }
+        READ_SI32(file, objectRawData.mWidth);
+        READ_SI32(file, objectRawData.mHeight);
+        READ_SI32(file, objectRawData.mDepth);
+        READ_I16(file, objectRawData.mBaseSprite);
+        READ_I16(file, objectRawData.mWeight);
+        READ_I16(file, objectRawData.mAux);
+        READ_I8(file, objectRawData.mStatus);
 
         int numInto;
         READ_I8(file, numInto);
@@ -696,7 +698,7 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
                 return false;
         }
 
-        mObjects.push_back(objectInfo);
+        mObjectsRaw.push_back(objectRawData);
     }
     debug_assert(dataLength == 0);
     return dataLength == 0;
@@ -893,68 +895,36 @@ int StyleData::GetNumSprites(eSpriteType spriteType) const
     return mSpriteNumbers[spriteType];
 }
 
-bool StyleData::GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimDesc& animationData) const
+bool StyleData::GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimData& animationData) const
 {
     debug_assert(animationID < eSpriteAnimID_COUNT);
     if (animationID < eSpriteAnimID_COUNT)
     {
         animationData = mSpriteAnimations[animationID];
-        debug_assert(animationData.NonNull());
+        debug_assert(animationData.mFramesCount > 0);
         return true;
     }
     return false;
 }
 
-void StyleData::InitSpriteAnimations()
+bool StyleData::GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnimData& animationData) const
 {
-    mSpriteAnimations[eSpriteAnimID_Ped_Walk].Setup(0, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_Run].Setup(8, 8);
+    if (animationID < ePedestrianAnim_COUNT)
+    {
+        animationData = mPedestrianAnimations[animationID];
+        debug_assert(animationData.mFramesCount > 0);
+        return true;
+    }
+    debug_assert(false);
+    return false;
+}
 
-    mSpriteAnimations[eSpriteAnimID_Ped_ExitCar].Setup(16, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_EnterCar].SetupFrames(
-        {
-            26, 26, 26,
-            25, 25,
-            29, 30, 31, 32, 33
-        });
+void StyleData::ReadSpriteAnimations()
+{
 
-    mSpriteAnimations[eSpriteAnimID_Ped_SittingInCar].Setup(97, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_ExitBike].Setup(85, 4);
-    mSpriteAnimations[eSpriteAnimID_Ped_EnterBike].Setup(80, 4);
-    mSpriteAnimations[eSpriteAnimID_Ped_SittingOnBike].Setup(84, 1, 1.0f);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_FallLong].Setup(38, 3);
-    mSpriteAnimations[eSpriteAnimID_Ped_SlideUnderTheCar].Setup(41, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_StandingStill].Setup(98, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_JumpOntoCar].Setup(91, 3);
-    mSpriteAnimations[eSpriteAnimID_Ped_SlideOnCar].Setup(94, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_DropOffCarSliding].Setup(95, 2);
-    mSpriteAnimations[eSpriteAnimID_Ped_FallShort].Setup(38, 2, 8.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_LiesOnFloor].Setup(42, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_Drowning].Setup(47, 1, 1.0f);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_PunchingWhileStanding].Setup(50, 6);
-    mSpriteAnimations[eSpriteAnimID_Ped_PunchingWhileRunning].Setup(181, 8);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileStanding].Setup(89, 1, 1.0f);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileWalking].Setup(99, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootPistolWhileRunning].Setup(107, 8);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileStanding].Setup(152, 2);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileWalking].Setup(136, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootMachinegunWhileRunning].Setup(144, 8);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding].Setup(134, 2);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking].Setup(118, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning].Setup(126, 8);
-
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileStanding].Setup(170, 2);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileWalking].Setup(154, 8);
-    mSpriteAnimations[eSpriteAnimID_Ped_ShootRPGWhileRunning].Setup(162, 8);
-
-    mSpriteAnimations[eSpriteAnimID_Projectile_Rocket].Setup(178, 4);
-    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1);
-    mSpriteAnimations[eSpriteAnimID_Projectile_Flame].Setup(393, 11, 24.0f);
+    mSpriteAnimations[eSpriteAnimID_Projectile_Missile].Setup(178, 4); // todo: remove
+    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1); // todo: remove
+    mSpriteAnimations[eSpriteAnimID_Projectile_Flame].Setup(393, 11, 24.0f); // todo: remove
 }
 
 int StyleData::GetPedestrianRemapsBaseIndex() const
@@ -965,19 +935,12 @@ int StyleData::GetPedestrianRemapsBaseIndex() const
     return remapsBaseIndex;
 }
 
-void StyleData::InitEntitiesData()
+void StyleData::ReadCommons()
 {
-    std::string configContent;
-    if (!gFiles.ReadTextFile("entities/common.json", configContent))
+    cxx::json_document configDocument;
+    if (!gFiles.ReadConfig("entities/common.json", configDocument))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot load common entities config");
-        return;
-    }
-
-    cxx::json_document configDocument;
-    if (!configDocument.parse_document(configContent))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse common entities config");
         return;
     }
 
@@ -985,7 +948,7 @@ void StyleData::InitEntitiesData()
     // get projectiles
     if (cxx::json_document_node projectilesNode = rootNode["projectiles"])
     {
-        InitProjectiles(projectilesNode);
+        ReadProjectiles(projectilesNode);
     }
     else
     {
@@ -994,7 +957,7 @@ void StyleData::InitEntitiesData()
     // get weapons
     if (cxx::json_document_node weaponsNode = rootNode["weapons"])
     {
-        InitWeapons(weaponsNode);
+        ReadWeapons(weaponsNode);
     }
     else
     {
@@ -1002,7 +965,7 @@ void StyleData::InitEntitiesData()
     }
 }
 
-void StyleData::InitProjectiles(cxx::json_document_node configNode)
+void StyleData::ReadProjectiles(cxx::json_document_node configNode)
 {
     mProjectiles.resize(eProjectileType_COUNT);
 
@@ -1036,7 +999,7 @@ void StyleData::InitProjectiles(cxx::json_document_node configNode)
     }
 }
 
-void StyleData::InitWeapons(cxx::json_document_node configNode)
+void StyleData::ReadWeapons(cxx::json_document_node configNode)
 {
     mWeapons.resize(eWeaponType_COUNT);
 
@@ -1067,4 +1030,156 @@ void StyleData::InitWeapons(cxx::json_document_node configNode)
         // distances
         ParseMapUnits(currentNode, "base_melee_hit_distance", weapon.mBaseMeleeHitDistance);
     }
+}
+
+void StyleData::ReadPedestrianAnimations()
+{
+    cxx::json_document configDocument;
+    if (!gFiles.ReadConfig("entities/ped_animations.json", configDocument))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load ped animations config");
+        return;
+    }
+
+    std::string currAnimName;
+    for (cxx::json_node_object currentNode = configDocument.get_root_node().first_child();
+        currentNode; currentNode = currentNode.next_sibling())
+    {
+        currAnimName = currentNode.get_element_name();
+
+        // parse id
+        ePedestrianAnimID animID = ePedestrianAnim_Null;
+        if (!cxx::parse_enum(currAnimName.c_str(), animID))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown ped anim id '%s'", currAnimName.c_str());
+            continue;
+        }
+        SpriteAnimData& animDesc = mPedestrianAnimations[animID];
+        animDesc.Clear();
+
+        float framesPerSecond = SPRITES_ANIM_DEFAULT_FPS;
+        cxx::json_get_attribute(currentNode, "fps", framesPerSecond);
+
+        if (cxx::json_node_array framesNode = currentNode["frames"])
+        {
+            int numFrames = std::min(MaxSpriteAnimationFrames, framesNode.get_elements_count());
+            animDesc.mFramesCount = numFrames;
+            animDesc.mFramesPerSecond = framesPerSecond;
+            // get frames
+            for (int icurrFrame = 0; icurrFrame < numFrames; ++icurrFrame)
+            {
+                if (!cxx::json_get_attribute(framesNode, icurrFrame, animDesc.mFrames[icurrFrame]))
+                {
+                    debug_assert(false);
+                }
+            }
+        }
+        else
+        {
+            int numFrames = 0;
+            int baseFrame = 0;
+            if (!cxx::json_get_attribute(currentNode, "start_frame", baseFrame) ||
+                !cxx::json_get_attribute(currentNode, "num_frames", numFrames))
+            {
+                debug_assert(false);
+            }
+            animDesc.Setup(baseFrame, numFrames, framesPerSecond);
+        }
+
+        // convert to absolute sprite index
+        for (int iframe = 0; iframe < animDesc.mFramesCount; ++iframe)
+        {
+            int spriteId = animDesc.mFrames[iframe];
+            animDesc.mFrames[iframe] = GetSpriteIndex(eSpriteType_Ped, spriteId);
+        }
+    }
+}
+
+bool StyleData::InitGameObjectsList()
+{
+    int rawObjectsCount = (int) mObjectsRaw.size();
+
+    if (rawObjectsCount != GameObjectIndex_MAX)
+    {
+        gConsole.LogMessage(eLogMessage_Info, "Found %d gameobjects which is odd, normal value is %d", rawObjectsCount, GameObjectIndex_MAX);
+    }
+
+    cxx::json_document gameobjects_config;
+    if (!gFiles.ReadConfig("entities/gta_objects.json", gameobjects_config))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load gta objects config");
+        return false;
+    }
+
+    cxx::json_node_array arrayNode = gameobjects_config.get_root_node();
+    int arrayElements = arrayNode.get_elements_count();
+
+    if (arrayElements != rawObjectsCount)
+    {
+        gConsole.LogMessage(eLogMessage_Info, "Found %d gameobjects but %d is expected", rawObjectsCount, arrayElements);
+    }
+
+    int numElementsToLoad = std::min(arrayElements, rawObjectsCount);
+
+    // default init objects
+    mGameObjects.clear();
+    mGameObjects.resize(GameObjectIndex_MAX);
+    for (int icurr = 0; icurr < numElementsToLoad; ++icurr)
+    {
+        GameObjectStyle& currObject = mGameObjects[icurr];
+        currObject.mGameObjectIndex = icurr;
+
+        ObjectRawData& objectRaw = mObjectsRaw[icurr];
+
+        cxx::json_node_object currObjectNode = arrayNode[icurr];
+        if (!currObjectNode)
+        {
+            debug_assert(false);
+            continue;
+        }
+
+        if (!cxx::json_get_attribute(currObjectNode, "class", currObject.mClassID))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Unknown gameobject classid");
+            continue;
+        }
+
+        int frameCount = 0;
+        cxx::json_get_attribute(currObjectNode, "frameCount", frameCount);
+
+        if (frameCount > 0)
+        {
+            int startSpriteIndex = GetSpriteIndex(eSpriteType_Object, objectRaw.mBaseSprite);
+            currObject.mAnimationData.Setup(startSpriteIndex, frameCount);
+        }
+
+        // parse flags
+        if (cxx::json_node_array flagsNode = currObjectNode["flags"])
+        {
+            for (cxx::json_node_string currFlag = flagsNode.first_child();
+                currFlag; currFlag = currFlag.next_sibling())
+            {
+                if (currFlag.get_element_name() == "invisible")
+                {
+                    currObject.mFlags = (currObject.mFlags | eGameObjectFlags_Invisible);
+                }
+            }
+        }
+
+        // convert object dimensions pixels to meters
+
+        // todo: 
+        // as cds says, 
+        // Animated objects are a special case. They cannot be involved in collisions and are there for graphical
+        //    effect only. The same data structure is used, with the following differences :
+        //      * height - stores the number of game cycles per frame
+        //      * width - stores the number of frames
+        //      * depth - stores a life descriptor ( 0 for infinite, non-zero n for n animation cycles )
+
+        currObject.mHeight = Convert::PixelsToMeters(objectRaw.mHeight);
+        currObject.mWidth = Convert::PixelsToMeters(objectRaw.mWidth);
+        currObject.mDepth = Convert::PixelsToMeters(objectRaw.mDepth);
+    }
+
+    return true;
 }

@@ -3,6 +3,7 @@
 class TimeManager: public cxx::noncopyable
 {
 public:
+    // readonly
     float mSystemTime = 0.0f;
     float mSystemFrameDelta = 0.0f;
 
@@ -14,7 +15,7 @@ public:
     float mUiFrameDelta = 0.0f;
     float mUiTimeScale = 1.0f;
 
-    float mMinFramerate = 20.0f;
+    float mMinFramerate = 25.0f; // gta1 game speed
     float mMaxFramerate = 120.0f;
 
 public:

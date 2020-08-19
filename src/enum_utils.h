@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-#define decl_enum_bitwise_operators(TEnum) \
+#define decl_enum_as_flags(TEnum) \
 \
     inline TEnum operator | (TEnum lhs, TEnum rhs) \
     { \

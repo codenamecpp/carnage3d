@@ -227,18 +227,10 @@ bool System::LoadConfiguration()
 {
     mConfig.SetToDefaults();
 
-    // read config
-    std::string jsonContent;
-    if (!gFiles.ReadTextFile(SysConfigPath, jsonContent))
+    cxx::json_document configDocument;
+    if (!gFiles.ReadConfig(SysConfigPath, configDocument))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot load config '%s'", SysConfigPath);
-        return false;
-    }
-
-    cxx::json_document configDocument;
-    if (!configDocument.parse_document(jsonContent))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config '%s'", SysConfigPath);
         return false;
     }
 

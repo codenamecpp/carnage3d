@@ -72,7 +72,7 @@ private:
     ePedestrianState GetNextIdleState();
 
     // anims helpers
-    eSpriteAnimID DetectIdleAnimation() const;
+    ePedestrianAnimID DetectIdleAnimation() const;
 
     void SetInCarPositionToDoor();
     void SetInCarPositionToSeat();

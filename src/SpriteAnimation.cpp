@@ -13,7 +13,7 @@ void SpriteAnimation::SetNull()
     mFrameCursor = 0;
     mCyclesCounter = 0;
 
-    mAnimDesc.SetNull();
+    mAnimDesc.Clear();
 }
 
 bool SpriteAnimation::IsAnimationActive() const
@@ -33,7 +33,7 @@ bool SpriteAnimation::IsLastFrame() const
 
 bool SpriteAnimation::IsNull() const
 {
-    return mAnimDesc.IsNull();
+    return mAnimDesc.mFramesCount == 0;
 }
 
 bool SpriteAnimation::IsRunsForwards() const

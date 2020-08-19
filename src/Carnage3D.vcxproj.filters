@@ -338,6 +338,9 @@
     <ClInclude Include="Projectile.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjectDefs.h">
+      <Filter>Game\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -554,6 +557,12 @@
     <None Include="..\gamedata\entities\common.json">
       <Filter>Data\entities</Filter>
     </None>
+    <None Include="..\gamedata\entities\ped_animations.json">
+      <Filter>Data\entities</Filter>
+    </None>
+    <None Include="..\gamedata\entities\gta_objects.json">
+      <Filter>Data\entities</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\docs\CorrectionsToCDS.txt">
@@ -563,6 +572,12 @@
       <Filter>Docs</Filter>
     </Text>
     <Text Include="..\docs\ped.txt">
+      <Filter>Docs</Filter>
+    </Text>
+    <Text Include="..\docs\miami_objects.txt">
+      <Filter>Docs</Filter>
+    </Text>
+    <Text Include="..\docs\nyc_objects.txt">
       <Filter>Docs</Filter>
     </Text>
   </ItemGroup>

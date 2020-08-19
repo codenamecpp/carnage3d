@@ -1,0 +1,130 @@
+{
+    "walk": 
+    {
+        "start_frame": 0, "num_frames": 8
+    },
+    "run": 
+    {
+        "start_frame": 8, "num_frames": 8
+    },
+    "exit_car": 
+    {
+        "start_frame": 16, "num_frames": 8
+    },
+    "enter_car":
+    {
+        "frames": [
+            26, 26, 26,
+            25, 25,
+            29, 30, 31, 32, 33
+        ]
+    },
+    "sitting_in_car":
+    {
+        "start_frame": 97, "num_frames": 1, "fps": 1.0
+    },
+    "exit_bike":
+    {
+        "start_frame": 85, "num_frames": 4
+    },
+    "enter_bike":
+    {
+        "start_frame": 80, "num_frames": 4
+    },
+    "sitting_on_bike":
+    {
+        "start_frame": 84, "num_frames": 1, "fps": 1.0
+    },
+    "fall_long":
+    {
+        "start_frame": 38, "num_frames": 3
+    },
+    "slide_under_the_car":
+    {
+        "start_frame": 41, "num_frames": 1, "fps": 1.0
+    },
+    "standing_still":
+    {
+        "start_frame": 98, "num_frames": 1, "fps": 1.0
+    },
+    "jump_onto_car":
+    {
+        "start_frame": 91, "num_frames": 3
+    },
+    "slide_on_car":
+    {
+        "start_frame": 94, "num_frames": 1, "fps": 1.0
+    },
+    "drop_off_car_sliding":
+    {
+        "start_frame": 95, "num_frames": 2
+    },
+    "fall_short":
+    {
+        "start_frame": 38, "num_frames": 2, "fps": 8.0
+    },
+    "lies_on_floor":
+    {
+        "start_frame": 42, "num_frames": 1, "fps": 1.0
+    },
+    "drowning":
+    {
+        "start_frame": 47, "num_frames": 1, "fps": 1.0
+    },
+    "punching_while_standing":
+    {
+        "start_frame": 50, "num_frames": 6
+    },
+    "punching_while_running":
+    {
+        "start_frame": 181, "num_frames": 8
+    },
+    "shoot_pistol_while_standing":
+    {
+        "start_frame": 89, "num_frames": 1, "fps": 1.0
+    },
+    "shoot_pistol_while_walking":
+    {
+        "start_frame": 99, "num_frames": 8
+    },
+    "shoot_pistol_while_running":
+    {
+        "start_frame": 107, "num_frames": 8
+    },
+    "shoot_machinegun_while_standing":
+    {
+        "start_frame": 152, "num_frames": 2
+    },
+    "shoot_machinegun_while_walking":
+    {
+        "start_frame": 136, "num_frames": 8
+    },
+    "shoot_machinegun_while_running":
+    {
+        "start_frame": 144, "num_frames": 8
+    },
+    "shoot_flamethrower_while_standing":
+    {
+        "start_frame": 134, "num_frames": 2
+    },
+    "shoot_flamethrower_while_walking":
+    {
+        "start_frame": 118, "num_frames": 8
+    },
+    "shoot_flamethrower_while_running":
+    {
+        "start_frame": 126, "num_frames": 8
+    },
+    "shoot_rpg_while_standing":
+    {
+        "start_frame": 170, "num_frames": 2
+    },
+    "shoot_rpg_while_walking":
+    {
+        "start_frame": 154, "num_frames": 8
+    },
+    "shoot_rpg_while_running":
+    {
+        "start_frame": 162, "num_frames": 8
+    }
+}

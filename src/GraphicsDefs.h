@@ -526,11 +526,11 @@ decl_enum_strings(eBufferUsage);
 
 using BufferAccessBits = unsigned int;
 
-const BufferAccessBits BufferAccess_Read  = (1 << 0);
-const BufferAccessBits BufferAccess_Write = (1 << 1);
-const BufferAccessBits BufferAccess_Unsynchronized = (1 << 2); // client must to guarantee that mapped buffer region is doesn't used by the GPU
-const BufferAccessBits BufferAccess_InvalidateRange = (1 << 3); // have meaning only for range lock
-const BufferAccessBits BufferAccess_InvalidateBuffer = (1 << 4); // orphan whole buffer
+const BufferAccessBits BufferAccess_Read  = BIT(0);
+const BufferAccessBits BufferAccess_Write = BIT(1);
+const BufferAccessBits BufferAccess_Unsynchronized = BIT(2); // client must to guarantee that mapped buffer region is doesn't used by the GPU
+const BufferAccessBits BufferAccess_InvalidateRange = BIT(3); // have meaning only for range lock
+const BufferAccessBits BufferAccess_InvalidateBuffer = BIT(4); // orphan whole buffer
 const BufferAccessBits BufferAccess_UnsynchronizedWrite = (BufferAccess_Unsynchronized | BufferAccess_Write);
 
 enum eRenderUniform
@@ -591,11 +591,11 @@ decl_enum_strings(eFillMode);
 
 using RenderStateFlags = unsigned short;
 
-const RenderStateFlags RenderStateFlags_AlphaBlend = (1 << 0);
-const RenderStateFlags RenderStateFlags_ColorWrite = (1 << 1);
-const RenderStateFlags RenderStateFlags_DepthWrite = (1 << 2);
-const RenderStateFlags RenderStateFlags_DepthTest = (1 << 3);
-const RenderStateFlags RenderStateFlags_FaceCulling = (1 << 4);
+const RenderStateFlags RenderStateFlags_AlphaBlend = BIT(0);
+const RenderStateFlags RenderStateFlags_ColorWrite = BIT(1);
+const RenderStateFlags RenderStateFlags_DepthWrite = BIT(2);
+const RenderStateFlags RenderStateFlags_DepthTest = BIT(3);
+const RenderStateFlags RenderStateFlags_FaceCulling = BIT(4);
 const RenderStateFlags RenderStateFlags_Defaults = RenderStateFlags_ColorWrite | 
     RenderStateFlags_DepthWrite | 
     RenderStateFlags_DepthTest | 

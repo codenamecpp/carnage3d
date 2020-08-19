@@ -36,6 +36,9 @@ public:
     // @param objectName: File name
     // @param output: Content
     bool ReadTextFile(const std::string& objectName, std::string& output);
+    
+    // Load json config document
+    bool ReadConfig(const std::string& jsonName, cxx::json_document& output);
 
     // Test whether file exists
     // @param objectName: File name

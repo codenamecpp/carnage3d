@@ -214,7 +214,7 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
 
     switch (object->mObjectTypeID)
     {
-        case eGameObjectType_Pedestrian:
+        case eGameObjectClass_Pedestrian:
         {
             Pedestrian* pedestrian = static_cast<Pedestrian*>(object);
 
@@ -223,7 +223,7 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         }
         break;
 
-        case eGameObjectType_Car:
+        case eGameObjectClass_Car:
         {
             Vehicle* vehicle = static_cast<Vehicle*>(object);
 
@@ -232,7 +232,7 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         }
         break;
 
-        case eGameObjectType_Projectile:
+        case eGameObjectClass_Projectile:
         {
             Projectile* projectile = static_cast<Projectile*>(object);
 
@@ -240,9 +240,9 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
             mProjectilesPool.destroy(projectile);
         }
         break;
-        case eGameObjectType_Powerup:
-        case eGameObjectType_Decoration:
-        case eGameObjectType_Obstacle:
+        case eGameObjectClass_Powerup:
+        case eGameObjectClass_Decoration:
+        case eGameObjectClass_Obstacle:
         default:
         {
             debug_assert(false);

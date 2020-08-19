@@ -7,7 +7,7 @@
 #include "DebugRenderer.h"
 
 Projectile::Projectile(ProjectileStyle* style) 
-    : GameObject(eGameObjectType_Projectile, GAMEOBJECT_ID_NULL)
+    : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
     , mProjectileStyle(style)
     , mProjectilesListNode(this)
     , mDrawHeight()

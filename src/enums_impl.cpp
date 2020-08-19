@@ -318,43 +318,46 @@ impl_enum_strings(eCarVType)
     {eCarVType_Tank, "tank"},
 };
 
+impl_enum_strings(ePedestrianAnimID)
+{
+    {ePedestrianAnim_Null, "null"},
+    {ePedestrianAnim_Walk, "walk"},
+    {ePedestrianAnim_Run, "run"},
+    {ePedestrianAnim_ExitCar, "exit_car"},
+    {ePedestrianAnim_EnterCar, "enter_car"},
+    {ePedestrianAnim_SittingInCar, "sitting_in_car"},
+    {ePedestrianAnim_ExitBike, "exit_bike"},
+    {ePedestrianAnim_Drowning, "drowning"},
+    {ePedestrianAnim_EnterBike, "enter_bike"},
+    {ePedestrianAnim_SittingOnBike, "sitting_on_bike"},
+    {ePedestrianAnim_FallLong, "fall_long"},
+    {ePedestrianAnim_SlideUnderTheCar, "slide_under_the_car"},
+    {ePedestrianAnim_StandingStill, "standing_still"},
+    {ePedestrianAnim_JumpOntoCar, "jump_onto_car"},
+    {ePedestrianAnim_SlideOnCar, "slide_on_car"},
+    {ePedestrianAnim_DropOffCarSliding, "drop_off_car_sliding"},
+    {ePedestrianAnim_FallShort, "fall_short"},
+    {ePedestrianAnim_LiesOnFloor, "lies_on_floor"},
+    {ePedestrianAnim_PunchingWhileStanding, "punching_while_standing"},
+    {ePedestrianAnim_PunchingWhileRunning, "punching_while_running"},
+    {ePedestrianAnim_ShootPistolWhileStanding, "shoot_pistol_while_standing"},
+    {ePedestrianAnim_ShootPistolWhileWalking, "shoot_pistol_while_walking"},
+    {ePedestrianAnim_ShootPistolWhileRunning, "shoot_pistol_while_running"},
+    {ePedestrianAnim_ShootMachinegunWhileStanding, "shoot_machinegun_while_standing"},
+    {ePedestrianAnim_ShootMachinegunWhileWalking, "shoot_machinegun_while_walking"},
+    {ePedestrianAnim_ShootMachinegunWhileRunning, "shoot_machinegun_while_running"},
+    {ePedestrianAnim_ShootFlamethrowerWhileStanding, "shoot_flamethrower_while_standing"},
+    {ePedestrianAnim_ShootFlamethrowerWhileWalking, "shoot_flamethrower_while_walking"},
+    {ePedestrianAnim_ShootFlamethrowerWhileRunning, "shoot_flamethrower_while_running"},
+    {ePedestrianAnim_ShootRPGWhileStanding, "shoot_rpg_while_standing"},
+    {ePedestrianAnim_ShootRPGWhileWalking, "shoot_rpg_while_walking"},
+    {ePedestrianAnim_ShootRPGWhileRunning, "shoot_rpg_while_running"},
+};
+
 impl_enum_strings(eSpriteAnimID)
 {
-    {eSpriteAnimID_Null, "null"},
-    // pedestrians
-    {eSpriteAnimID_Ped_Walk, "ped_walk"},
-    {eSpriteAnimID_Ped_Run, "ped_run"},
-    {eSpriteAnimID_Ped_ExitCar, "ped_exit_car"},
-    {eSpriteAnimID_Ped_EnterCar, "ped_enter_car"},
-    {eSpriteAnimID_Ped_SittingInCar, "ped_sitting_in_car"},
-    {eSpriteAnimID_Ped_ExitBike, "ped_exit_bike"},
-    {eSpriteAnimID_Ped_Drowning, "drowning"},
-    {eSpriteAnimID_Ped_EnterBike, "ped_enter_bike"},
-    {eSpriteAnimID_Ped_SittingOnBike, "ped_sitting_on_bike"},
-    {eSpriteAnimID_Ped_FallLong, "ped_fall_long"},
-    {eSpriteAnimID_Ped_SlideUnderTheCar, "ped_slide_under_the_car"},
-    {eSpriteAnimID_Ped_StandingStill, "ped_standing_still"},
-    {eSpriteAnimID_Ped_JumpOntoCar, "ped_jump_onto_car"},
-    {eSpriteAnimID_Ped_SlideOnCar, "ped_slide_on_car"},
-    {eSpriteAnimID_Ped_DropOffCarSliding, "ped_drop_off_car_sliding"},
-    {eSpriteAnimID_Ped_FallShort, "ped_fall_short"},
-    {eSpriteAnimID_Ped_LiesOnFloor, "ped_lies_on_floor"},
-    {eSpriteAnimID_Ped_PunchingWhileStanding, "ped_punching_while_standing"},
-    {eSpriteAnimID_Ped_PunchingWhileRunning, "ped_punching_while_running"},
-    {eSpriteAnimID_Ped_ShootPistolWhileStanding, "ped_shoot_pistol_while_standing"},
-    {eSpriteAnimID_Ped_ShootPistolWhileWalking, "ped_shoot_pistol_while_walking"},
-    {eSpriteAnimID_Ped_ShootPistolWhileRunning, "ped_shoot_pistol_while_running"},
-    {eSpriteAnimID_Ped_ShootMachinegunWhileStanding, "ped_shoot_machinegun_while_standing"},
-    {eSpriteAnimID_Ped_ShootMachinegunWhileWalking, "ped_shoot_machinegun_while_walking"},
-    {eSpriteAnimID_Ped_ShootMachinegunWhileRunning, "ped_shoot_machinegun_while_running"},
-    {eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding, "ped_shoot_flamethrower_while_standing"},
-    {eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking, "ped_shoot_flamethrower_while_walking"},
-    {eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning, "ped_shoot_flamethrower_while_running"},
-    {eSpriteAnimID_Ped_ShootRPGWhileStanding, "ped_shoot_rpg_while_standing"},
-    {eSpriteAnimID_Ped_ShootRPGWhileWalking, "ped_shoot_rpg_while_walking"},
-    {eSpriteAnimID_Ped_ShootRPGWhileRunning, "ped_shoot_rpg_while_running"},
     // projectiles
-    {eSpriteAnimID_Projectile_Rocket, "projectile_rocket"},
+    {eSpriteAnimID_Projectile_Missile, "projectile_missile"},
     {eSpriteAnimID_Projectile_Bullet, "projectile_bullet"},
     {eSpriteAnimID_Projectile_Flame, "projectile_flame"},
 };
@@ -521,27 +524,14 @@ impl_enum_strings(eCarConvertible)
     {eCarConvertible_OpenTopAnimated, "open_top_animated"},
 };
 
-impl_enum_strings(eGameObjectType)
+impl_enum_strings(eGameObjectClass)
 {
-    {eGameObjectType_Pedestrian, "pedestrian"},
-    {eGameObjectType_Car, "car"},
-    {eGameObjectType_Projectile, "projectile"},
-    {eGameObjectType_Powerup, "powerup"},
-    {eGameObjectType_Decoration, "decoration"},
-    {eGameObjectType_Obstacle, "obstacle"},
-};
-
-impl_enum_strings(eObjectStatus)
-{
-    {eObjectStatus_Normal, "normal"},
-    {eObjectStatus_Ignorable, "ignorable"},
-    {eObjectStatus_Smashable, "smashable"},
-    {eObjectStatus_Invisible, "invisible"},
-    {eObjectStatus_Particle, "particle"},
-    {eObjectStatus_CarObject, "carobject"},
-    {eObjectStatus_Scenery, "scenery"},
-    {eObjectStatus_Unknown, "unknown"},
-    {eObjectStatus_Powerup, "powerup"},
+    {eGameObjectClass_Pedestrian, "pedestrian"},
+    {eGameObjectClass_Car, "car"},
+    {eGameObjectClass_Projectile, "projectile"},
+    {eGameObjectClass_Powerup, "powerup"},
+    {eGameObjectClass_Decoration, "decoration"},
+    {eGameObjectClass_Obstacle, "obstacle"},
 };
 
 impl_enum_strings(ePedestrianDeathReason)
@@ -560,7 +550,7 @@ impl_enum_strings(eProjectileType)
 {
     {eProjectileType_Bullet, "bullet"},
     {eProjectileType_Flame, "flame"},
-    {eProjectileType_Rocket, "rocket"},
+    {eProjectileType_Rocket, "missile"},
 };
 
 impl_enum_strings(eWeaponFireType)

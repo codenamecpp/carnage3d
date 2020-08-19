@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameObjectDefs.h"
+
 // most of game constants is mapped to GTA files format so don't change
 
 // side length of block cube, do not change
@@ -58,32 +60,28 @@
 
 #define CAR_DELTA_ANIMS_SPEED 10.0f
 
-#define CANONICAL_FPS 25 // gta1 game speed
-
 // forwards
 
 class Pedestrian;
 class Vehicle;
 class Projectile;
 
-// some game objects has null identifier, they are dacals, projectiles and short-lived effects
-#define GAMEOBJECT_ID_NULL 0
-
-using GameObjectID = unsigned int;
-
-// enums all possible gameobject types
-enum eGameObjectType
+// define generic gameobject information
+struct GameObjectStyle
 {
-    eGameObjectType_Pedestrian,
-    eGameObjectType_Car,
-    eGameObjectType_Projectile,
-    eGameObjectType_Powerup,
-    eGameObjectType_Decoration,
-    eGameObjectType_Obstacle,
-    eGameObjectType_COUNT,
-};
+    eGameObjectClass mClassID = eGameObjectClass_COUNT;
+    eGameObjectFlags mFlags = eGameObjectFlags_None;
 
-decl_enum_strings(eGameObjectType);
+    int mGameObjectIndex = 0; // index within loaded styles
+
+    // width, height and depth store the dimensions of the object with respect to collision checking
+    // specified in meters
+    float mWidth = 0.0f;
+    float mHeight = 0.0f;
+    float mDepth = 0.0f;
+
+    SpriteAnimData mAnimationData; // optional
+};
 
 // map block lid rotation
 enum eLidRotation : unsigned char
@@ -382,7 +380,6 @@ public:
 // define map block information
 struct BlockStyle
 {
-public:
     unsigned char mRemap;
 
     eGroundType mGroundType;
@@ -420,7 +417,6 @@ const unsigned int Sizeof_BlockStyle = sizeof(BlockStyle);
 // define map block anim information
 struct BlockAnimationStyle
 {
-public:
     int mBlock = 0; // the block number
     int mWhich = 0; // the area type ( 0 for side, 1 for lid )
     int mSpeed = 0; // the number of game cycles to display each frame
@@ -428,39 +424,9 @@ public:
     int mFrames[MAX_MAP_BLOCK_ANIM_FRAMES]; // an array of block numbers, these refer to aux_block
 };
 
-// warning - these values are mapped to gta1, so don't change it
-enum eObjectStatus
-{
-    eObjectStatus_Normal    = 0,
-    eObjectStatus_Ignorable = 1, // can drive over
-    eObjectStatus_Smashable = 2, // breaks on landing
-    eObjectStatus_Invisible = 3,
-    eObjectStatus_Particle  = 5, // fire, water, smoke etc
-    eObjectStatus_CarObject = 6, // tank gun, water gun, train doors etc
-    eObjectStatus_Unknown   = 7,
-    eObjectStatus_Scenery   = 8, // not sure
-    eObjectStatus_Powerup   = 9,
-};
-
-decl_enum_strings(eObjectStatus);
-
-// define map object information
-struct ObjectStyle
-{
-public:
-    int mWidth;
-    int mHeight; 
-    int mDepth;
-    int mBaseSprite;
-    int mWeight;
-    int mAux;
-    eObjectStatus mStatus;
-};
-
 // define car door information
 struct CarDoorStyle
 {
-public:
 	short mRpx, mRpy;
 	short mObject;
 	short mDelta;
@@ -566,7 +532,6 @@ decl_enum_strings(eCarConvertible);
 // define car class information
 struct CarStyle
 {
-public:
     short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
     short mSprNum; // first sprite number offset for this car
 
@@ -618,7 +583,6 @@ public:
 // define sprite information
 struct SpriteStyle
 {
-public:
     int mWidth;
     int mHeight;
     int mSize; // bytes per frame w x h
@@ -680,46 +644,54 @@ public:
     unsigned short mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
 };
 
+// pedestrian animations
+enum ePedestrianAnimID
+{
+    ePedestrianAnim_Null, // dummy animation
+    // pedestrians
+    ePedestrianAnim_Walk,
+    ePedestrianAnim_Run,
+    ePedestrianAnim_ExitCar,
+    ePedestrianAnim_EnterCar,
+    ePedestrianAnim_SittingInCar,
+    ePedestrianAnim_ExitBike,
+    ePedestrianAnim_EnterBike,
+    ePedestrianAnim_SittingOnBike,
+    ePedestrianAnim_FallLong,
+    ePedestrianAnim_SlideUnderTheCar,
+    ePedestrianAnim_StandingStill, // no weapons
+    ePedestrianAnim_Drowning,
+    ePedestrianAnim_JumpOntoCar,
+    ePedestrianAnim_SlideOnCar,
+    ePedestrianAnim_DropOffCarSliding,
+    ePedestrianAnim_FallShort,
+    ePedestrianAnim_LiesOnFloor,
+    ePedestrianAnim_PunchingWhileStanding,
+    ePedestrianAnim_PunchingWhileRunning,
+    ePedestrianAnim_ShootPistolWhileStanding,
+    ePedestrianAnim_ShootPistolWhileWalking,
+    ePedestrianAnim_ShootPistolWhileRunning,
+    ePedestrianAnim_ShootMachinegunWhileStanding,
+    ePedestrianAnim_ShootMachinegunWhileWalking,
+    ePedestrianAnim_ShootMachinegunWhileRunning,
+    ePedestrianAnim_ShootFlamethrowerWhileStanding,
+    ePedestrianAnim_ShootFlamethrowerWhileWalking,
+    ePedestrianAnim_ShootFlamethrowerWhileRunning,
+    ePedestrianAnim_ShootRPGWhileStanding,
+    ePedestrianAnim_ShootRPGWhileWalking,
+    ePedestrianAnim_ShootRPGWhileRunning,
+    ePedestrianAnim_COUNT
+};
+
+decl_enum_strings(ePedestrianAnimID);
+
 // various sprites animations
 enum eSpriteAnimID
 {
-    eSpriteAnimID_Null, // dummy animation
-    // pedestrians
-    eSpriteAnimID_Ped_Walk,
-    eSpriteAnimID_Ped_Run,
-    eSpriteAnimID_Ped_ExitCar,
-    eSpriteAnimID_Ped_EnterCar,
-    eSpriteAnimID_Ped_SittingInCar,
-    eSpriteAnimID_Ped_ExitBike,
-    eSpriteAnimID_Ped_EnterBike,
-    eSpriteAnimID_Ped_SittingOnBike,
-    eSpriteAnimID_Ped_FallLong,
-    eSpriteAnimID_Ped_SlideUnderTheCar,
-    eSpriteAnimID_Ped_StandingStill, // no weapons
-    eSpriteAnimID_Ped_Drowning,
-    eSpriteAnimID_Ped_JumpOntoCar,
-    eSpriteAnimID_Ped_SlideOnCar,
-    eSpriteAnimID_Ped_DropOffCarSliding,
-    eSpriteAnimID_Ped_FallShort,
-    eSpriteAnimID_Ped_LiesOnFloor,
-    eSpriteAnimID_Ped_PunchingWhileStanding,
-    eSpriteAnimID_Ped_PunchingWhileRunning,
-    eSpriteAnimID_Ped_ShootPistolWhileStanding,
-    eSpriteAnimID_Ped_ShootPistolWhileWalking,
-    eSpriteAnimID_Ped_ShootPistolWhileRunning,
-    eSpriteAnimID_Ped_ShootMachinegunWhileStanding,
-    eSpriteAnimID_Ped_ShootMachinegunWhileWalking,
-    eSpriteAnimID_Ped_ShootMachinegunWhileRunning,
-    eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding,
-    eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking,
-    eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning,
-    eSpriteAnimID_Ped_ShootRPGWhileStanding,
-    eSpriteAnimID_Ped_ShootRPGWhileWalking,
-    eSpriteAnimID_Ped_ShootRPGWhileRunning,
     // cops
 
     // projectiles
-    eSpriteAnimID_Projectile_Rocket,
+    eSpriteAnimID_Projectile_Missile,
     eSpriteAnimID_Projectile_Bullet,
     eSpriteAnimID_Projectile_Flame,
 
@@ -844,7 +816,6 @@ decl_enum_strings(eProjectileType);
 // projectile type data
 struct ProjectileStyle
 {
-public:
     eProjectileType mTypeID = eProjectileType_Bullet;
 
     eSpriteAnimID mAnimID = eSpriteAnimID_Projectile_Bullet;
@@ -860,7 +831,6 @@ public:
 // weapon type data
 struct WeaponStyle
 {
-public:
     eWeaponType mTypeID = eWeaponType_Fists;
 
     eWeaponFireType mFireTypeID = eWeaponFireType_Melee;

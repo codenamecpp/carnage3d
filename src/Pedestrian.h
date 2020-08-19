@@ -88,7 +88,7 @@ public:
     ePedestrianState GetCurrentStateID() const;
 
 private:
-    void SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode);
+    void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
 
     void SetDead(ePedestrianDeathReason deathReason);
@@ -97,7 +97,7 @@ private:
     void SetCarExited();
 
 private:
-    eSpriteAnimID mCurrentAnimID;
+    ePedestrianAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianStatesManager mStatesManager;
 

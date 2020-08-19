@@ -157,6 +157,7 @@
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="GameObjectDefs.h" />
     <ClInclude Include="game_version.h" />
     <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />
@@ -328,6 +329,8 @@
     <None Include="..\gamedata\config\inputs.json.default" />
     <None Include="..\gamedata\config\sys_config.json.default" />
     <None Include="..\gamedata\entities\common.json" />
+    <None Include="..\gamedata\entities\gta_objects.json" />
+    <None Include="..\gamedata\entities\ped_animations.json" />
     <None Include="..\gamedata\shaders\city_mesh.glsl" />
     <None Include="..\gamedata\shaders\debug.glsl" />
     <None Include="..\gamedata\shaders\gui.glsl" />
@@ -336,6 +339,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\docs\CorrectionsToCDS.txt" />
+    <Text Include="..\docs\miami_objects.txt" />
+    <Text Include="..\docs\nyc_objects.txt" />
     <Text Include="..\docs\ped.txt" />
     <Text Include="..\docs\Sprites.txt" />
   </ItemGroup>

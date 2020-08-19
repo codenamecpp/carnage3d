@@ -259,30 +259,30 @@ ePedestrianState PedestrianStatesManager::GetNextIdleState()
     return ePedestrianState_StandingStill;
 }
 
-eSpriteAnimID PedestrianStatesManager::DetectIdleAnimation() const
+ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation() const
 {
     if (mCurrentStateID == ePedestrianState_StandingStill)
-        return eSpriteAnimID_Ped_StandingStill;
+        return ePedestrianAnim_StandingStill;
 
     if (mCurrentStateID == ePedestrianState_Walks)
-        return eSpriteAnimID_Ped_Walk;
+        return ePedestrianAnim_Walk;
 
     if (mCurrentStateID == ePedestrianState_Runs)
-        return eSpriteAnimID_Ped_Run;
+        return ePedestrianAnim_Run;
 
     // stands and shoots
     if (mCurrentStateID == ePedestrianState_StandsAndShoots)
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileStanding;
-            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileStanding;
-            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileStanding;
-            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileStanding;
-            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileStanding;
+            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileStanding;
+            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileStanding;
+            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
+            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
+            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
         }
         debug_assert(false);
-        return eSpriteAnimID_Ped_StandingStill;
+        return ePedestrianAnim_StandingStill;
     }
 
     // walks and shoots
@@ -290,14 +290,14 @@ eSpriteAnimID PedestrianStatesManager::DetectIdleAnimation() const
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
-            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileWalking;
-            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileWalking;
-            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileWalking;
-            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileWalking;
+            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileRunning;
+            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileWalking;
+            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
+            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
+            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
         }
         debug_assert(false);
-        return eSpriteAnimID_Ped_Walk;
+        return ePedestrianAnim_Walk;
     }
 
     // runs and shoots
@@ -305,18 +305,18 @@ eSpriteAnimID PedestrianStatesManager::DetectIdleAnimation() const
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return eSpriteAnimID_Ped_PunchingWhileRunning;
-            case eWeaponType_Pistol: return eSpriteAnimID_Ped_ShootPistolWhileRunning;
-            case eWeaponType_Machinegun: return eSpriteAnimID_Ped_ShootMachinegunWhileRunning;
-            case eWeaponType_Flamethrower: return eSpriteAnimID_Ped_ShootFlamethrowerWhileRunning;
-            case eWeaponType_RocketLauncher: return eSpriteAnimID_Ped_ShootRPGWhileRunning;
+            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileRunning;
+            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileRunning;
+            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
+            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
+            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
         }
         debug_assert(false);
-        return eSpriteAnimID_Ped_Run;
+        return ePedestrianAnim_Run;
     }
 
     debug_assert(false);
-    return eSpriteAnimID_Ped_StandingStill;
+    return ePedestrianAnim_StandingStill;
 }
 
 bool PedestrianStatesManager::CanStartSlideOnCarState() const
@@ -340,7 +340,7 @@ void PedestrianStatesManager::SetInCarPositionToSeat()
 void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
-    mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+    mPedestrian->SetAnimation(ePedestrianAnim_LiesOnFloor, eSpriteAnimLoop_FromStart);
     mPedestrian->SetDead(stateEvent.mDeathReason);
     mPedestrian->mPhysicsBody->ClearForces();
 }
@@ -351,7 +351,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_SittingOnBike : eSpriteAnimID_Ped_SittingInCar, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(isBike ? ePedestrianAnim_SittingOnBike : ePedestrianAnim_SittingInCar, eSpriteAnimLoop_None);
 }
 
 bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -386,7 +386,7 @@ void PedestrianStatesManager::StateExitCar_ProcessFrame()
 void PedestrianStatesManager::StateExitCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_ExitBike : eSpriteAnimID_Ped_ExitCar, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(isBike ? ePedestrianAnim_ExitBike : ePedestrianAnim_ExitCar, eSpriteAnimLoop_None);
 
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
     if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex))
@@ -440,7 +440,7 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
     mPedestrian->mPhysicsBody->ClearForces();
 
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
-    mPedestrian->SetAnimation(isBike ? eSpriteAnimID_Ped_EnterBike : eSpriteAnimID_Ped_EnterCar, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(isBike ? ePedestrianAnim_EnterBike : ePedestrianAnim_EnterCar, eSpriteAnimLoop_None);
 
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
     SetInCarPositionToDoor();
@@ -465,21 +465,21 @@ void PedestrianStatesManager::StateSlideCar_ProcessFrame()
     ProcessRotateActions();
     ProcessMotionActions();
 
-    if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_JumpOntoCar)
+    if (mPedestrian->mCurrentAnimID == ePedestrianAnim_JumpOntoCar)
     {
         if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
         {
-            mPedestrian->SetAnimation(eSpriteAnimID_Ped_SlideOnCar, eSpriteAnimLoop_FromStart);
+            mPedestrian->SetAnimation(ePedestrianAnim_SlideOnCar, eSpriteAnimLoop_FromStart);
         }
     }
-    else if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_SlideOnCar)
+    else if (mPedestrian->mCurrentAnimID == ePedestrianAnim_SlideOnCar)
     {
         if (!CanStartSlideOnCarState()) // check if no car to slide over
         {
-            mPedestrian->SetAnimation(eSpriteAnimID_Ped_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
+            mPedestrian->SetAnimation(ePedestrianAnim_DropOffCarSliding, eSpriteAnimLoop_None); // end slide
         }
     }
-    else if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_DropOffCarSliding)
+    else if (mPedestrian->mCurrentAnimID == ePedestrianAnim_DropOffCarSliding)
     {
         // check can finish current state
         if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
@@ -494,7 +494,7 @@ void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 
 void PedestrianStatesManager::StateSlideCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    mPedestrian->SetAnimation(eSpriteAnimID_Ped_JumpOntoCar, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(ePedestrianAnim_JumpOntoCar, eSpriteAnimLoop_None);
 }
 
 bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -520,15 +520,15 @@ void PedestrianStatesManager::StateKnockedDown_ProcessFrame()
 {
     if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
     {
-        if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_FallShort)
+        if (mPedestrian->mCurrentAnimID == ePedestrianAnim_FallShort)
         {
             mPedestrian->mPhysicsBody->ClearForces();
-            mPedestrian->SetAnimation(eSpriteAnimID_Ped_LiesOnFloor, eSpriteAnimLoop_FromStart);
+            mPedestrian->SetAnimation(ePedestrianAnim_LiesOnFloor, eSpriteAnimLoop_FromStart);
             return;
         }
     }
 
-    if (mPedestrian->mCurrentAnimID == eSpriteAnimID_Ped_LiesOnFloor)
+    if (mPedestrian->mCurrentAnimID == ePedestrianAnim_LiesOnFloor)
     {
         if (mPedestrian->mCurrentStateTime >= gGameParams.mPedestrianKnockedDownTime)
         {
@@ -550,7 +550,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStat
 
     float impulse = 0.5f; // todo: magic numbers
 
-    mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallShort, eSpriteAnimLoop_None);
+    mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
     mPedestrian->mPhysicsBody->AddLinearImpulse(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
 }
 
@@ -575,7 +575,7 @@ bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStat
 
 void PedestrianStatesManager::StateFalling_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    mPedestrian->SetAnimation(eSpriteAnimID_Ped_FallLong, eSpriteAnimLoop_FromStart);
+    mPedestrian->SetAnimation(ePedestrianAnim_FallLong, eSpriteAnimLoop_FromStart);
 }
 
 void PedestrianStatesManager::StateFalling_ProcessExit()
@@ -650,7 +650,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
 
 void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    eSpriteAnimID animID = DetectIdleAnimation();
+    ePedestrianAnimID animID = DetectIdleAnimation();
     mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -658,7 +658,7 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 {
     if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
     {
-        eSpriteAnimID animID = DetectIdleAnimation();
+        ePedestrianAnimID animID = DetectIdleAnimation();
         mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         return true;
     }
@@ -701,5 +701,5 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
 
 void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    mPedestrian->SetAnimation(eSpriteAnimID_Ped_Drowning, eSpriteAnimLoop_FromStart);
+    mPedestrian->SetAnimation(ePedestrianAnim_Drowning, eSpriteAnimLoop_FromStart);
 }

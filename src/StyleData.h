@@ -8,13 +8,13 @@ class PixelsArray;
 class StyleData final
 {
 public:
-    // public for convenience, should not be modified directly
-    std::vector<ObjectStyle> mObjects;
+    // readonly
+    std::vector<GameObjectStyle> mGameObjects;
     std::vector<SpriteStyle> mSprites;
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
-    std::vector<ProjectileStyle> mProjectiles;
+    std::vector<ProjectileStyle> mProjectiles; // todo: remove!
     std::vector<WeaponStyle> mWeapons;
 
     // CLUT data :
@@ -97,7 +97,8 @@ public:
     // Read speicic sprite animation data
     // @param animationID: Animation identifier
     // @param animationData: Output data
-    bool GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimDesc& animationData) const;
+    bool GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimData& animationData) const;
+    bool GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnimData& animationData) const;
 
     // Get base clut index for pedestrian sprites
     int GetPedestrianRemapsBaseIndex() const;
@@ -118,18 +119,54 @@ private:
     bool ReadSpriteGraphics(std::ifstream& file, int dataLength);
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
-    void InitSpriteAnimations();
-    void InitEntitiesData();
-    void InitProjectiles(cxx::json_document_node configNode);
-    void InitWeapons(cxx::json_document_node configNode);
+    void ReadSpriteAnimations();
+    void ReadPedestrianAnimations();
+    void ReadCommons();
+    void ReadProjectiles(cxx::json_document_node configNode);
+    void ReadWeapons(cxx::json_document_node configNode);
+
+    bool InitGameObjectsList();
+
     bool DoDataIntegrityCheck() const;
 
 private:
+
+    struct ObjectRawData
+    {
+        int mWidth = 0;
+        int mHeight = 0;
+        int mDepth = 0;
+        int mBaseSprite = 0;
+        int mWeight = 0;
+        int mAux = 0;
+        int mStatus = 0; // type
+                            // 0 - normal
+                            // 1 - ignorable, can drive over
+                            // 2 - smashable, breaks on landing
+                            // 3 - invisible
+                            // 4 - ?
+                            // 5 - particle
+                            // 6 - carobject
+                            // 7 - ?
+                            // 8 - scenery, not sure
+                            // 9 - powerup
+    };
+
+    std::vector<ObjectRawData> mObjectsRaw;
+
     std::vector<unsigned char> mBlockTexturesRaw;
     std::vector<unsigned char> mSpriteGraphicsRaw;
-    SpriteAnimDesc mSpriteAnimations[eSpriteAnimID_COUNT];
 
-    int mTileClutsCount, mSpriteClutsCount, mRemapClutsCount, mFontClutsCount;
-    int mSideBlocksCount, mLidBlocksCount, mAuxBlocksCount;
+    SpriteAnimData mSpriteAnimations[eSpriteAnimID_COUNT]; // todo: remove
+    SpriteAnimData mPedestrianAnimations[ePedestrianAnim_COUNT];
+
+    // counters
+    int mTileClutsCount; 
+    int mSpriteClutsCount; 
+    int mRemapClutsCount;
+    int mFontClutsCount;
+    int mSideBlocksCount;
+    int mLidBlocksCount;
+    int mAuxBlocksCount;
     int mSpriteNumbers[eSpriteType_COUNT];
 };

@@ -201,6 +201,7 @@ namespace cxx
     template<typename TEnumClass>
     inline bool json_get_attribute(json_node_object json_node, const std::string& attribute_name, TEnumClass& output)
     {
+        static_assert(std::is_enum<TEnumClass>::value, "Enum expected");
         if (json_node_enum<TEnumClass> enumNode = json_node[attribute_name])
         {
             output = enumNode.get_value();
@@ -221,6 +222,7 @@ namespace cxx
     template<typename TEnumClass>
     inline bool json_get_attribute(json_node_array json_node, int item_index, TEnumClass& output)
     {
+        static_assert(std::is_enum<TEnumClass>::value, "Enum expected");
         if (json_node_enum<TEnumClass> enumNode = json_node[item_index])
         {
             output = enumNode.get_value();

@@ -12,7 +12,7 @@ class GameObject: public cxx::noncopyable
 
 public:
     const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
-    const eGameObjectType mObjectTypeID;
+    const eGameObjectClass mObjectTypeID;
 
 public:
     virtual ~GameObject();
@@ -34,15 +34,15 @@ public:
     void MarkForDeletion();
 
     // shortcuts
-    inline bool IsPedestrianObject() const { return mObjectTypeID == eGameObjectType_Pedestrian; }
-    inline bool IsProjectileObject() const { return mObjectTypeID == eGameObjectType_Projectile; }
-    inline bool IsDecorationObject() const { return mObjectTypeID == eGameObjectType_Decoration; }
-    inline bool IsCarObject() const { return mObjectTypeID == eGameObjectType_Car; }
-    inline bool IsPowerupObject() const { return mObjectTypeID == eGameObjectType_Powerup; }
-    inline bool IsObstacleObject() const { return mObjectTypeID == eGameObjectType_Obstacle; }
+    inline bool IsPedestrianObject() const { return mObjectTypeID == eGameObjectClass_Pedestrian; }
+    inline bool IsProjectileObject() const { return mObjectTypeID == eGameObjectClass_Projectile; }
+    inline bool IsDecorationObject() const { return mObjectTypeID == eGameObjectClass_Decoration; }
+    inline bool IsCarObject() const { return mObjectTypeID == eGameObjectClass_Car; }
+    inline bool IsPowerupObject() const { return mObjectTypeID == eGameObjectClass_Powerup; }
+    inline bool IsObstacleObject() const { return mObjectTypeID == eGameObjectClass_Obstacle; }
 
 protected:
-    GameObject(eGameObjectType objectTypeID, GameObjectID uniqueID);
+    GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
     
 private:
     cxx::intrusive_node<GameObject> mObjectsNode; // updatable and drawable entities

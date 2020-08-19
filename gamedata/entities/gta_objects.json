@@ -1,0 +1,514 @@
+[
+    {
+        "name": "tire1",
+        "class": "obstacle",
+        "frameCount": 8
+    },
+    {
+        "name": "tire2",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "bin_lid",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "bin",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "cone",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "flowers",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "barrier",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "gravestone1",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "bench",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "gravestone2",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "smoke1",
+        "class": "decoration",
+        "frameCount": 11
+    },
+    {
+        "name": "skid_mark",
+        "class": "decoration",
+        "frameCount": 4
+    },
+    {
+        "name": "blood_skid",
+        "class": "decoration",
+        "frameCount": 4
+    },
+    {
+        "name": "spark",
+        "class": "decoration",
+        "frameCount": 5
+    },
+    {
+        "name": "train_doors",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "blood",
+        "class": "decoration",
+        "frameCount": 6
+    },
+    {
+        "name": "junction1",
+        "class": "decoration",
+        "frameCount": 1,
+        "flags": ["invisible"]
+    },
+    {
+        "name": "junction2",
+        "class": "decoration",
+        "frameCount": 1,
+        "flags": ["invisible"]
+    },
+    {
+        "name": "fire1",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "fire2",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "water",
+        "class": "decoration",
+        "frameCount": 7
+    },
+    {
+        "name": "skid_dirt1",
+        "class": "decoration",
+        "frameCount": 3
+    },
+    {
+        "name": "skid_dirt2",
+        "class": "decoration",
+        "frameCount": 2
+    },
+    {
+        "name": "skid_dirt3",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "barrier3",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "bumper",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tree1",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tree2",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tree3",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown29",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "crane",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "missile",
+        "class": "projectile",
+        "frameCount": 4
+    },
+    {
+        "name": "turret",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tank_gun",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "tank_gun_barrel",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "coffin",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "xcrate",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "missile_crate",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tank_gun_wrecked",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "tank_gun_barrel_wrecked",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "phone",
+        "class": "decoration",
+        "frameCount": 3
+    },
+    {
+        "name": "briefcase",
+        "class": "decoration",
+        "frameCount": 13
+    },
+    {
+        "name": "Unknown42",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "rubble3",
+        "class": "decoration",
+        "frameCount": 7
+    },
+    {
+        "name": "rubble2",
+        "class": "decoration",
+        "frameCount": 7
+    },
+    {
+        "name": "rubble1",
+        "class": "decoration",
+        "frameCount": 7
+    },
+    {
+        "name": "lfire",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "dropoff_point",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "water_jet",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "water_jet_end",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "firehose",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "big_smoke",
+        "class": "decoration",
+        "frameCount": 12
+    },
+    {
+        "name": "unknown52",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "exhaust",
+        "class": "decoration",
+        "frameCount": 11
+    },
+    {
+        "name": "splash",
+        "class": "decoration",
+        "frameCount": 12
+    },
+    {
+        "name": "fire_truck_arm1",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "fire_truck_arm2",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "fire_truck_arm3",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "fire_truck_arm4",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "swat_gun",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "check_flag",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown61",
+        "class": "decoration",
+        "frameCount": 11
+    },
+    {
+        "name": "unknown62",
+        "class": "decoration",
+        "frameCount": 11
+    },
+    {
+        "name": "first_blood",
+        "class": "decoration",
+        "frameCount": 12
+    },
+    {
+        "name": "body",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown65",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown66",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "smoke2",
+        "class": "decoration",
+        "frameCount": 11
+    },
+    {
+        "name": "unknown68",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "barrel2",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "tv_camera",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown71",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown72",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown73",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "bullet",
+        "class": "projectile",
+        "frameCount": 1
+    },
+    {
+        "name": "fireball",
+        "class": "projectile",
+        "frameCount": 11
+    },
+    {
+        "name": "gas_can",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "blood_smear",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "powerup_pistol",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_machinegun",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_rocket_launcher",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_flamethrower",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_gas_can",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_question_mark",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "Crate",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "crate_exploding",
+        "class": "decoration",
+        "frameCount": 13
+    },
+    {
+        "name": "beachball",
+        "class": "obstacle",
+        "frameCount": 13
+    },
+    {
+        "name": "bollard",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "flag_waving",
+        "class": "decoration",
+        "frameCount": 8
+    },
+    {
+        "name": "rubbish",
+        "class": "obstacle",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown90",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "unknown91",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "helicopter_blade",
+        "class": "obstacle",
+        "frameCount": 8
+    },
+    {
+        "name": "rubbish_exploding",
+        "class": "decoration",
+        "frameCount": 13
+    },
+    {
+        "name": "helipad",
+        "class": "decoration",
+        "frameCount": 1
+    },
+    {
+        "name": "powerup_info",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_shield",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_lightning",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_key",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_heart",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_extra",
+        "class": "powerup",
+        "frameCount": 8
+    },
+    {
+        "name": "powerup_coin",
+        "class": "powerup",
+        "frameCount": 8
+    }
+]

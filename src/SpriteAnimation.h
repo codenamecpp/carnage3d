@@ -1,5 +1,7 @@
 #pragma once
 
+#define SPRITES_ANIM_DEFAULT_FPS 12.0f
+
 const int MaxSpriteAnimationFrames = 64;
 
 enum eSpriteAnimStatus
@@ -21,11 +23,11 @@ enum eSpriteAnimLoop
 decl_enum_strings(eSpriteAnimLoop);
 
 // defines sprite animation data
-struct SpriteAnimDesc
+struct SpriteAnimData
 {
 public:
-    SpriteAnimDesc() = default;
-    inline void Setup(int startFrame, int numFrames, float fps = 12.0f)
+    SpriteAnimData() = default;
+    inline void Setup(int startFrame, int numFrames, float fps = SPRITES_ANIM_DEFAULT_FPS)
     {
         mFramesCount = numFrames;
         debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
@@ -35,7 +37,7 @@ public:
         }
         mFramesPerSecond = fps;
     }
-    inline void SetupFrames(std::initializer_list<int> frames, float fps = 12.0f)
+    inline void SetupFrames(std::initializer_list<int> frames, float fps = SPRITES_ANIM_DEFAULT_FPS)
     {
         mFramesCount = frames.size();
         debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
@@ -45,14 +47,11 @@ public:
         }
         mFramesPerSecond = fps;
     }
-    inline void SetNull()
+    inline void Clear()
     {
         mFramesCount = 0;
         mFramesPerSecond = 0.0f;
     }
-    inline bool IsNull() const { return mFramesCount == 0; }
-    inline bool NonNull() const { return mFramesCount > 0; }
-
 public:
     int mFrames[MaxSpriteAnimationFrames];
     int mFramesCount = 0;
@@ -94,7 +93,7 @@ public:
     
 public:
     // public for convenience, should not be modified directly
-    SpriteAnimDesc mAnimDesc;
+    SpriteAnimData mAnimDesc;
     eSpriteAnimStatus mStatus;
     eSpriteAnimLoop mLoopMode;
 

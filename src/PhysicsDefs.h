@@ -7,15 +7,15 @@ class CarPhysicsBody;
 // physics objects categories
 enum
 {
-    PHYSICS_OBJCAT_MAP_SOLID_BLOCK = (1 << 0), // solid map block
-    PHYSICS_OBJCAT_WALL = (1 << 1), // thin fence
-    PHYSICS_OBJCAT_PED = (1 << 2),
-    PHYSICS_OBJCAT_CAR = (1 << 3),
-    PHYSICS_OBJCAT_MAPOBJECT = (1 << 4),
+    PHYSICS_OBJCAT_MAP_SOLID_BLOCK = BIT(0), // solid map block
+    PHYSICS_OBJCAT_WALL = BIT(1), // thin fence
+    PHYSICS_OBJCAT_PED = BIT(2),
+    PHYSICS_OBJCAT_CAR = BIT(3),
+    PHYSICS_OBJCAT_MAPOBJECT = BIT(4),
 
     // sensors
-    PHYSICS_OBJCAT_PED_SENSOR = (1 << 5),
-    PHYSICS_OBJCAT_PROJECTILE_SENSOR = (1 << 6),
+    PHYSICS_OBJCAT_PED_SENSOR = BIT(5),
+    PHYSICS_OBJCAT_PROJECTILE_SENSOR = BIT(6),
 };
 
 const int MaxPhysicsQueryElements = 32;

@@ -183,17 +183,10 @@ bool CarnageGame::SetInputActionsFromConfig()
     }
 
     // open config document
-    std::string jsonContent;
-    if (!gFiles.ReadTextFile(InputsConfigPath, jsonContent))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load input config from '%s'", InputsConfigPath);
-        return false;
-    }
-
     cxx::json_document configDocument;
-    if (!configDocument.parse_document(jsonContent))
+    if (!gFiles.ReadConfig(InputsConfigPath, configDocument))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse input config document");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load inputs config from '%s'", InputsConfigPath);
         return false;
     }
 

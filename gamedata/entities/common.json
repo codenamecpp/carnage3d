@@ -35,7 +35,7 @@
         "rocket_launcher":
         {
             "fire_type": "projectile",
-            "projectile": "rocket",
+            "projectile": "missile",
             "base_fire_rate": 1.0,
             "sprite_index": 32,
             "base_ammo_limit": 999
@@ -60,9 +60,9 @@
             "base_distance": 1.1,
             "speed": 2.75
         },
-        "rocket":
+        "missile":
         {
-            "anim_id": "projectile_rocket",
+            "anim_id": "projectile_missile",
             "anim_loop": "from_start",
             "radius": 0.03,
             "base_distance": 20.0,

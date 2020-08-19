@@ -9,9 +9,9 @@
 #include "Vehicle.h"
 #include "TimeManager.h"
 
-Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectType_Pedestrian, id)
+Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian, id)
     , mPhysicsBody()
-    , mCurrentAnimID(eSpriteAnimID_Null)
+    , mCurrentAnimID(ePedestrianAnim_Null)
     , mController()
     , mDrawHeight()
     , mPedsListNode(this)
@@ -62,7 +62,7 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
 
     mDeathReason = ePedestrianDeathReason_null;
 
-    mCurrentAnimID = eSpriteAnimID_Null;
+    mCurrentAnimID = ePedestrianAnim_Null;
 
     PedestrianStateEvent evData { ePedestrianStateEvent_Spawn };
     mStatesManager.ChangeState(ePedestrianState_StandingStill, evData); // force idle state
@@ -101,10 +101,10 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
 
     cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
-    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Ped, mCurrentAnimState.GetCurrentFrame());
+    int spriteIndex = mCurrentAnimState.GetCurrentFrame();
 
-    int remapClut = mRemapIndex == NO_REMAP ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, remapClut, mDrawSprite);
+    int remapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mScale = SPRITE_SCALE;
@@ -251,12 +251,12 @@ void Pedestrian::ReceiveDamage(eWeaponType weapon, Pedestrian* attacker)
     mStatesManager.ProcessEvent(evData);
 }
 
-void Pedestrian::SetAnimation(eSpriteAnimID animation, eSpriteAnimLoop loopMode)
+void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode)
 {
     if (mCurrentAnimID != animation)
     {
         mCurrentAnimState.SetNull();
-        if (!gGameMap.mStyleData.GetSpriteAnimation(animation, mCurrentAnimState.mAnimDesc)) // todo
+        if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
         {
             debug_assert(false);
         }

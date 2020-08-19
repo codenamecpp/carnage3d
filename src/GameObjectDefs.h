@@ -1,0 +1,37 @@
+#pragma once
+
+// some game objects has null identifier, they are dacals, projectiles and short-lived effects
+#define GAMEOBJECT_ID_NULL 0
+
+using GameObjectID = unsigned int; // unique id of gameobject instance in world
+
+// gameobject class identifiers
+enum eGameObjectClass
+{
+    eGameObjectClass_Pedestrian,
+    eGameObjectClass_Car,
+    eGameObjectClass_Projectile,
+    eGameObjectClass_Powerup,
+    eGameObjectClass_Decoration,
+    eGameObjectClass_Obstacle,
+    eGameObjectClass_COUNT,
+};
+
+decl_enum_strings(eGameObjectClass);
+
+enum eGameObjectFlags: unsigned int
+{
+    eGameObjectFlags_None = 0,
+    eGameObjectFlags_Invisible = BIT(0),
+};
+
+decl_enum_as_flags(eGameObjectFlags);
+
+// game object indices
+enum
+{
+    //GameObjectIndex_
+
+
+    GameObjectIndex_MAX = 102
+};

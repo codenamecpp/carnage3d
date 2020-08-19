@@ -217,3 +217,17 @@ bool FileSystem::ScanGtaMaps()
 
     return !mGameMapsList.empty();
 }
+
+bool FileSystem::ReadConfig(const std::string& jsonName, cxx::json_document& output)
+{
+    std::string configContent;
+    if (!ReadTextFile(jsonName, configContent))
+        return false;
+
+    if (!output.parse_document(configContent))
+    {
+        debug_assert(false);
+        return false;
+    }
+    return true;
+}

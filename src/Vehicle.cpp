@@ -9,7 +9,7 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 
-Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectType_Car, id)
+Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
     , mDead()
     , mCarStyle()
