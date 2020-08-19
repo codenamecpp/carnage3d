@@ -16,7 +16,7 @@ namespace cxx
         }
     
     private:
-        // override streambuf methods
+        // override streambuf
         pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which) override
         {
             switch (dir)

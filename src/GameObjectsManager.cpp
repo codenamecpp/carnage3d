@@ -5,6 +5,7 @@
 #include "PhysicsComponents.h"
 #include "GameMapManager.h"
 #include "Projectile.h"
+#include "RenderingManager.h"
 
 GameObjectsManager gGameObjectsManager;
 
@@ -12,6 +13,8 @@ GameObjectsManager::~GameObjectsManager()
 {
     mPedestriansPool.cleanup();
     mCarsPool.cleanup();
+    mProjectilesPool.cleanup();
+    mDecorationsPool.cleanup();
 }
 
 bool GameObjectsManager::InitGameObjects()
@@ -29,42 +32,20 @@ bool GameObjectsManager::InitGameObjects()
 
 void GameObjectsManager::FreeGameObjects()
 {
-    DestroyObjectsInList(mDeleteList);
-    DestroyObjectsInList(mObjectsList);
-
-    debug_assert(!mCarsList.has_elements());
-    debug_assert(!mPedestriansList.has_elements());
+    DestroyAllObjects();
 }
 
 void GameObjectsManager::UpdateFrame()
 {
-    DestroyPendingObjects();
-    
-    // update pedestrians
-    for (Pedestrian* currObject: mPedestriansList) // warning: dont add or remove peds during this loop
+    DestroyMarkedForDeletionObjects();
+
+    // if is safe to add new objects during loop by adding them to the end of the list
+
+    const size_t allObjectsCount = mAllObjectsList.size();
+    for (size_t iobject = 0; iobject < allObjectsCount; ++iobject)
     {
-        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
-            continue;
-
-        currObject->UpdateFrame();
-    }
-
-    // update cars    
-    for (Vehicle* currObject: mCarsList) // warning: dont add or remove cars during this loop
-    {
-        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
-            continue;
-
-        currObject->UpdateFrame();
-    }
-
-    // update projectiles    
-    for (Projectile* currObject: mProjectilesList) // warning: dont add or remove cars during this loop
-    {
-        if (mDeleteList.contains(&currObject->mDeleteObjectsNode))
-            continue;
-
-        currObject->UpdateFrame();
+        GameObject* currentObject = mAllObjectsList[iobject];
+        currentObject->UpdateFrame();
     }
 }
 
@@ -79,8 +60,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     Pedestrian* instance = mPedestriansPool.create(pedestrianID);
     debug_assert(instance);
 
-    mPedestriansList.insert(&instance->mPedsListNode);
-    mObjectsList.insert(&instance->mObjectsNode);
+    mAllObjectsList.push_back(instance);
 
     // init
     instance->Spawn(position, heading);
@@ -96,8 +76,7 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t h
     Vehicle* instance = mCarsPool.create(carID);
     debug_assert(instance);
 
-    mCarsList.insert(&instance->mCarsListNode);
-    mObjectsList.insert(&instance->mObjectsNode);
+    mAllObjectsList.push_back(instance);
 
     // init
     instance->mCarStyle = carStyle;
@@ -143,55 +122,80 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
 
     Projectile* instance = mProjectilesPool.create(desc);
     debug_assert(instance);
-    mObjectsList.insert(&instance->mObjectsNode);
-    mProjectilesList.insert(&instance->mProjectilesListNode);
+
+    mAllObjectsList.push_back(instance);
     // init
     instance->Spawn(position, heading);
     return instance;
 }
 
-Vehicle* GameObjectsManager::GetCarByID(GameObjectID objectID) const
+Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
 {
-    for (const Vehicle* curr: mCarsList)
+    for (GameObject* currentObject: mAllObjectsList)
     {
-        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
-        {
-            return const_cast<Vehicle*>(curr);
-        }
+        if (currentObject->mObjectID != objectID)
+            continue;
+
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsCarObject())
+            return nullptr;
+
+        return static_cast<Vehicle*>(currentObject);
+    }
+    return nullptr;
+}
+
+Decoration* GameObjectsManager::GetDecorationByID(GameObjectID objectID) const
+{
+    for (GameObject* currentObject: mAllObjectsList)
+    {
+        if (currentObject->mObjectID != objectID)
+            continue;
+
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsDecorationObject())
+            return nullptr;
+
+        return static_cast<Decoration*>(currentObject);
     }
     return nullptr;
 }
 
 Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
 {
-    for (const Pedestrian* curr: mPedestriansList)
+    for (GameObject* currentObject: mAllObjectsList)
     {
-        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
-        {
-            return const_cast<Pedestrian*>(curr);
-        }
+        if (currentObject->mObjectID != objectID)
+            continue;
+
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsPedestrianObject())
+            return nullptr;
+
+        return static_cast<Pedestrian*>(currentObject);
     }
     return nullptr;
 }
 
 GameObject* GameObjectsManager::GetGameObjectByID(GameObjectID objectID) const
 {
-    for (const GameObject* curr: mObjectsList)
+    for (GameObject* currentObject: mAllObjectsList)
     {
-        if (curr->mObjectID == objectID && !mDeleteList.contains(&curr->mDeleteObjectsNode))
-        {
-            return const_cast<GameObject*>(curr);
-        }
+        if (currentObject->mObjectID != objectID)
+            continue;
+
+        if (currentObject->IsMarkedForDeletion())
+            return nullptr;
+
+        return currentObject;
     }
     return nullptr;
 }
 
 void GameObjectsManager::MarkForDeletion(GameObject* object)
 {
-    if (!mDeleteList.contains(&object->mDeleteObjectsNode))
-    {
-        mDeleteList.insert(&object->mDeleteObjectsNode);
-    }
+    if (object->IsMarkedForDeletion())
+        return;
+
+    mDeleteObjectsList.push_back(object);
+    object->mMarkedForDeletion = true;
 }
 
 void GameObjectsManager::DestroyGameObject(GameObject* object)
@@ -202,23 +206,14 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         return;
     }
 
-    if (mDeleteList.contains(&object->mDeleteObjectsNode))
-    {
-        mDeleteList.remove(&object->mDeleteObjectsNode);
-    }
-
-    if (mObjectsList.contains(&object->mObjectsNode))
-    {
-        mObjectsList.remove(&object->mObjectsNode);
-    }
+    cxx::erase_elements(mDeleteObjectsList, object);
+    cxx::erase_elements(mAllObjectsList, object);
 
     switch (object->mObjectTypeID)
     {
         case eGameObjectClass_Pedestrian:
         {
             Pedestrian* pedestrian = static_cast<Pedestrian*>(object);
-
-            mPedestriansList.remove(&pedestrian->mPedsListNode);
             mPedestriansPool.destroy(pedestrian);
         }
         break;
@@ -226,8 +221,6 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         case eGameObjectClass_Car:
         {
             Vehicle* vehicle = static_cast<Vehicle*>(object);
-
-            mCarsList.remove(&vehicle->mCarsListNode);
             mCarsPool.destroy(vehicle);
         }
         break;
@@ -235,8 +228,6 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         case eGameObjectClass_Projectile:
         {
             Projectile* projectile = static_cast<Projectile*>(object);
-
-            mProjectilesList.remove(&projectile->mProjectilesListNode);
             mProjectilesPool.destroy(projectile);
         }
         break;
@@ -246,25 +237,24 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         default:
         {
             debug_assert(false);
-            return;
         }
     }
 }
 
-void GameObjectsManager::DestroyObjectsInList(cxx::intrusive_list<GameObject>& objectsList)
+void GameObjectsManager::DestroyAllObjects()
 {
-    while (objectsList.has_elements())
+    while (!mAllObjectsList.empty())
     {
-        cxx::intrusive_node<GameObject>* pedestrianNode = objectsList.get_head_node();
-        objectsList.remove(pedestrianNode);
-        
-        DestroyGameObject(pedestrianNode->get_element());
+        DestroyGameObject(mAllObjectsList[0]);
     }
 }
 
-void GameObjectsManager::DestroyPendingObjects()
+void GameObjectsManager::DestroyMarkedForDeletionObjects()
 {
-    DestroyObjectsInList(mDeleteList);
+    while (!mDeleteObjectsList.empty())
+    {
+        DestroyGameObject(mDeleteObjectsList[0]);
+    }
 }
 
 GameObjectID GameObjectsManager::GenerateUniqueID()
@@ -282,10 +272,19 @@ bool GameObjectsManager::CreateStartupObjects()
     debug_assert(gGameMap.IsLoaded());
 
     StyleData& styleData = gGameMap.mStyleData;
-
-    int numCars = 0;
     for (const StartupObjectPosStruct& currObject: gGameMap.mStartupObjects)
     {
+        int mapLevel = (int) Convert::PixelsToMapUnits(currObject.mZ);
+        mapLevel = INVERT_MAP_LAYER(mapLevel);
+        glm::vec3 carPosition 
+        { 
+            Convert::PixelsToMeters(currObject.mX),
+            Convert::MapUnitsToMeters(mapLevel * 1.0f),
+            Convert::PixelsToMeters(currObject.mY) 
+        };
+
+        cxx::angle_t rotationDegrees = Convert::Fix16ToAngle(currObject.mRotation);
+
         // create startup cars
         if (currObject.IsCarObject())
         {
@@ -295,21 +294,25 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-            int mapLevel = (int) Convert::PixelsToMapUnits(currObject.mZ);
-            mapLevel = INVERT_MAP_LAYER(mapLevel);
-            glm::vec3 carPosition 
-            { 
-                Convert::PixelsToMeters(currObject.mX),
-                Convert::MapUnitsToMeters(mapLevel * 1.0f),
-                Convert::PixelsToMeters(currObject.mY) 
-            };
-
-            cxx::angle_t rotationDegrees = Convert::Fix16ToAngle(currObject.mRotation);
-
             Vehicle* startupCar = CreateCar(carPosition, rotationDegrees, carModel);
             debug_assert(startupCar);
+            continue;
+        }
 
-            ++numCars;
+        int objectTypeIndex = currObject.mType;
+
+        debug_assert(objectTypeIndex < GameObjectType_MAX);
+
+        GameObjectStyle& objectType = styleData.mGameObjects[objectTypeIndex];
+        switch (objectType.mClassID)
+        {
+            case eGameObjectClass_Projectile: break;
+            case eGameObjectClass_Powerup: break;
+            case eGameObjectClass_Decoration: break;
+            case eGameObjectClass_Obstacle: break;
+            default:
+                debug_assert(false);
+            break;
         }
     }
     return true;

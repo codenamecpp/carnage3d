@@ -14,7 +14,6 @@ Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian
     , mCurrentAnimID(ePedestrianAnim_Null)
     , mController()
     , mDrawHeight()
-    , mPedsListNode(this)
     , mRemapIndex(NO_REMAP)
     , mStatesManager(this)
 {

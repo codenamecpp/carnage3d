@@ -83,21 +83,22 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y);
 
     // collect and render game objects sprites - the order matters
+    mGameObjectsDrawList = gGameObjectsManager.mAllObjectsList;
+    // the whole point of this sorting is to make sure to draw cars before peds
+    std::sort(mGameObjectsDrawList.begin(), mGameObjectsDrawList.end(),
+        [](GameObject* lhs, GameObject* rhs)
+        {
+            if (lhs->mObjectTypeID == rhs->mObjectTypeID)
+                return (lhs->mObjectID < rhs->mObjectID);
 
-    for (Vehicle* currGameObject: gGameObjectsManager.mCarsList)
-    {
-        currGameObject->DrawFrame(mSpriteBatch);
-    }
+            return (lhs->mObjectTypeID < rhs->mObjectTypeID);
+        });
 
-    for (Pedestrian* currGameObject: gGameObjectsManager.mPedestriansList)
+    for (GameObject* currentObject: mGameObjectsDrawList)
     {
-        currGameObject->DrawFrame(mSpriteBatch);
+        currentObject->DrawFrame(mSpriteBatch);
     }
-
-    for (Projectile* currGameObject: gGameObjectsManager.mProjectilesList)
-    {
-        currGameObject->DrawFrame(mSpriteBatch);
-    }
+    mGameObjectsDrawList.clear();
 
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
@@ -113,7 +114,7 @@ void MapRenderer::RenderFrame(RenderView* renderview)
 void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
 {
     debug_assert(renderview);
-    for (GameObject* currGameObject: gGameObjectsManager.mObjectsList)
+    for (GameObject* currGameObject: gGameObjectsManager.mAllObjectsList)
     {
         currGameObject->DrawDebug(debugRender);
     }

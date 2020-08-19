@@ -117,7 +117,7 @@ public:
     PedPhysicsBody(b2World* physicsWorld, Pedestrian* object);
     ~PedPhysicsBody();
 
-    // override PhysicsComponent methods
+    // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
 
@@ -154,7 +154,7 @@ public:
     CarPhysicsBody(b2World* physicsWorld, Vehicle* object);
     ~CarPhysicsBody();
 
-    // override PhysicsComponent methods
+    // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
 
@@ -229,7 +229,7 @@ public:
     ProjectilePhysicsBody(b2World* physicsWorld, Projectile* object);
     ~ProjectilePhysicsBody();
 
-    // override PhysicsComponent methods
+    // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
 };

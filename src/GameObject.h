@@ -2,13 +2,14 @@
 
 #include "GameDefs.h"
 
-class SpriteBatch;
 class DebugRenderer;
 
 // defines base class of game entity
 class GameObject: public cxx::noncopyable
 {
     friend class GameObjectsManager;
+
+    decl_rtti_base(GameObject)
 
 public:
     const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
@@ -30,8 +31,10 @@ public:
     {
     }
 
-    // schedule object to despawn
+    // schedule object to delete from game
     void MarkForDeletion();
+
+    bool IsMarkedForDeletion() const;
 
     // shortcuts
     inline bool IsPedestrianObject() const { return mObjectTypeID == eGameObjectClass_Pedestrian; }
@@ -43,8 +46,8 @@ public:
 
 protected:
     GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
-    
+
 private:
-    cxx::intrusive_node<GameObject> mObjectsNode; // updatable and drawable entities
-    cxx::intrusive_node<GameObject> mDeleteObjectsNode; // to remove queue
+    // marked object will be destroyed next game frame
+    bool mMarkedForDeletion = false;
 };

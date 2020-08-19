@@ -57,4 +57,6 @@ private:
     GpuBuffer* mCityMeshBufferI;
 
     SpriteBatch mSpriteBatch;
+
+    std::vector<GameObject*> mGameObjectsDrawList;
 };

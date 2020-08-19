@@ -7,6 +7,8 @@ class Projectile final: public GameObject
 {
     friend class GameObjectsManager;
 
+    decl_rtti(Projectile, GameObject)
+
 public:
     // readonly
     ProjectileStyle* mProjectileStyle = nullptr;
@@ -20,7 +22,7 @@ public:
     Projectile(ProjectileStyle* style);
     ~Projectile();
 
-    // override GameObject methods
+    // override GameObject
     void UpdateFrame() override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
@@ -34,6 +36,4 @@ private:
 private:
     SpriteAnimation mAnimationState;
     Sprite2D mDrawSprite;
-
-    cxx::intrusive_node<Projectile> mProjectilesListNode;
 };

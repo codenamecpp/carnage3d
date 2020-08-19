@@ -15,7 +15,6 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarStyle()
     , mDamageDeltaBits()
     , mDrawHeight()
-    , mCarsListNode(this)
     , mRemapIndex(NO_REMAP)
 {
 }

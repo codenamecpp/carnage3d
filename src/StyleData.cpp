@@ -1099,9 +1099,9 @@ bool StyleData::InitGameObjectsList()
 {
     int rawObjectsCount = (int) mObjectsRaw.size();
 
-    if (rawObjectsCount != GameObjectIndex_MAX)
+    if (rawObjectsCount != GameObjectType_MAX)
     {
-        gConsole.LogMessage(eLogMessage_Info, "Found %d gameobjects which is odd, normal value is %d", rawObjectsCount, GameObjectIndex_MAX);
+        gConsole.LogMessage(eLogMessage_Info, "Found %d gameobjects which is odd, normal value is %d", rawObjectsCount, GameObjectType_MAX);
     }
 
     cxx::json_document gameobjects_config;
@@ -1123,7 +1123,7 @@ bool StyleData::InitGameObjectsList()
 
     // default init objects
     mGameObjects.clear();
-    mGameObjects.resize(GameObjectIndex_MAX);
+    mGameObjects.resize(GameObjectType_MAX);
     for (int icurr = 0; icurr < numElementsToLoad; ++icurr)
     {
         GameObjectStyle& currObject = mGameObjects[icurr];

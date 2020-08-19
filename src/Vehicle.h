@@ -10,6 +10,8 @@ class Vehicle final: public GameObject
 {
     friend class GameObjectsManager;
 
+    decl_rtti(Vehicle, GameObject)
+
 public:
     // public for convenience, should not be modified directly
     CarPhysicsBody* mPhysicsBody;
@@ -27,6 +29,7 @@ public:
     Vehicle(GameObjectID id);
     ~Vehicle();
 
+    // override GameObject
     void UpdateFrame() override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
@@ -100,6 +103,4 @@ private:
     SpriteDeltaBits mDamageDeltaBits;
 
     int mChassisSpriteIndex = 0;
-
-    cxx::intrusive_node<Vehicle> mCarsListNode;
 };

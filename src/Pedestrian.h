@@ -14,6 +14,8 @@ class Pedestrian final: public GameObject
     friend class PedPhysicsBody;
     friend class PedestrianStatesManager;
 
+    decl_rtti(Pedestrian, GameObject)
+
 public:
     // public for convenience, should not be modified directly
     CharacterController* mController; // controls pedestrian actions
@@ -42,6 +44,7 @@ public:
     Pedestrian(GameObjectID id);
     ~Pedestrian();
 
+    // override GameObject
     void UpdateFrame() override;
     void DrawFrame(SpriteBatch& spriteBatch) override;
     void DrawDebug(DebugRenderer& debugRender) override;
@@ -102,8 +105,6 @@ private:
     PedestrianStatesManager mStatesManager;
 
     Sprite2D mDrawSprite;
-
-    cxx::intrusive_node<Pedestrian> mPedsListNode;
 };
 
 const int Sizeof_Pedestrian = sizeof(Pedestrian);

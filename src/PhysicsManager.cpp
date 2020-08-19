@@ -440,9 +440,10 @@ void PhysicsManager::FixedStepGravity()
     // todo: cleanup this mess
 
     // cars
-    for (Vehicle* currCar: gGameObjectsManager.mCarsList)
+    for (PhysicsBody* currPhysicsBody: mCarsBodiesList)
     {
-        CarPhysicsBody* physicsComponent = currCar->mPhysicsBody;
+        CarPhysicsBody* physicsComponent = static_cast<CarPhysicsBody*>(currPhysicsBody);
+        Vehicle* currCar = physicsComponent->mReferenceCar;       
 
         if (physicsComponent->mWaterContact)
             continue;
@@ -473,9 +474,11 @@ void PhysicsManager::FixedStepGravity()
     }
 
     // pedestrians
-    for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
+    for (PhysicsBody* currPhysicsBody: mPedsBodiesList)
     {
-        PedPhysicsBody* physicsComponent = currPedestrian->mPhysicsBody;
+        PedPhysicsBody* physicsComponent = static_cast<PedPhysicsBody*>(currPhysicsBody);
+        Pedestrian* currPedestrian = physicsComponent->mReferencePed;
+
         if (currPedestrian->mCurrentCar)
         {
             glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsBody->GetPosition();

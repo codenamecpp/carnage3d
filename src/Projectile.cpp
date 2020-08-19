@@ -9,7 +9,6 @@
 Projectile::Projectile(ProjectileStyle* style) 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
     , mProjectileStyle(style)
-    , mProjectilesListNode(this)
     , mDrawHeight()
     , mStartPosition()
     , mDead()

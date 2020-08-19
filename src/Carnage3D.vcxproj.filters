@@ -341,6 +341,9 @@
     <ClInclude Include="GameObjectDefs.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Decoration.h">
+      <Filter>Game\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -529,6 +532,9 @@
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
+      <Filter>Game\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Decoration.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>

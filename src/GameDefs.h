@@ -60,12 +60,6 @@
 
 #define CAR_DELTA_ANIMS_SPEED 10.0f
 
-// forwards
-
-class Pedestrian;
-class Vehicle;
-class Projectile;
-
 // define generic gameobject information
 struct GameObjectStyle
 {

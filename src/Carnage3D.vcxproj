@@ -157,6 +157,7 @@
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="Decoration.h" />
     <ClInclude Include="GameObjectDefs.h" />
     <ClInclude Include="game_version.h" />
     <ClInclude Include="GtaFontData.h" />
@@ -249,6 +250,7 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="CommonTypes.cpp" />
+    <ClCompile Include="Decoration.cpp" />
     <ClCompile Include="enums_impl.cpp" />
     <ClCompile Include="GtaFontData.cpp" />
     <ClCompile Include="GameObject.cpp" />
