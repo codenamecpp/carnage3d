@@ -125,19 +125,18 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
         gameObject->PreDrawFrame();
 
         // detect if gameobject is visible on screen
-        static glm::vec2 points[2];
-        gameObject->mDrawSprite.GetMaxRectPoints(points);
-
-        static cxx::aabbox_t bounds;
-        bounds.clear();
-        bounds.extend(points[0].x, 1.0f, points[0].y);
-        bounds.extend(points[1].x, 1.0f, points[1].y);
-
-        if (renderview->mCamera.mFrustum.contains(bounds))
+        const glm::vec2 spritePosition = (gameObject->mDrawSprite.mPosition + gameObject->mDrawSprite.mOrigin);
+        float maxdistance = Convert::MapUnitsToMeters(10.0f); // todo: magic numbers
+        if (fabs(renderview->mCamera.mPosition.x - spritePosition.x) > maxdistance ||
+            fabs(renderview->mCamera.mPosition.z - spritePosition.y) > maxdistance)
+        {
+            // skip
+        }
+        else
         {
             mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
-            ++mRenderStats.mSpritesDrawnCount;
 
+            ++mRenderStats.mSpritesDrawnCount;
             gameObject->mLastRenderFrame = mRenderStats.mRenderFramesCounter;
         }
     }

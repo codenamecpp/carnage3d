@@ -94,13 +94,6 @@ void PhysicsManager::UpdateFrame()
         ProcessSimulationStep();
         mSimulationTimeAccumulator -= mSimulationStepTime;
     }
-
-    if (mSimulationTimeAccumulator > 0.0f)
-    {
-        ProcessSimulationStep();
-        mSimulationTimeAccumulator = 0.0;
-    }
-
     ProcessInterpolation();
 }
 
