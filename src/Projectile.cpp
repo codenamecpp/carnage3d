@@ -58,7 +58,7 @@ void Projectile::UpdateFrame()
     mAnimationState.AdvanceAnimation(deltaTime);
 }
 
-void Projectile::DrawFrame(SpriteBatch& spriteBatch)
+void Projectile::PreDrawFrame()
 {
     int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Object, mAnimationState.GetCurrentFrame());
     gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, 0, mDrawSprite);
@@ -69,7 +69,6 @@ void Projectile::DrawFrame(SpriteBatch& spriteBatch)
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
     mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();
-    spriteBatch.DrawSprite(mDrawSprite);
 }
 
 void Projectile::DrawDebug(DebugRenderer& debugRender)

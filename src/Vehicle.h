@@ -32,7 +32,7 @@ public:
 
     // override GameObject
     void UpdateFrame() override;
-    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void PreDrawFrame() override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
     // setup initial state when spawned or respawned on level
@@ -62,6 +62,8 @@ public:
     bool IsDoorClosed(int doorIndex) const;
     bool IsDoorOpening(int doorIndex) const;
     bool IsDoorClosing(int doorIndex) const;
+
+    bool HasHardTop() const;
 
     // emergency lights animation
     bool HasEmergencyLightsAnimation() const;
@@ -97,8 +99,6 @@ private:
     SpriteDeltaBits GetSpriteDeltas() const;
 
 private:
-    Sprite2D mChassisDrawSprite;
-
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
     SpriteDeltaBits mDamageDeltaBits;

@@ -8,7 +8,6 @@
 #include "SpriteManager.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
-#include "GameCheatsWindow.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
@@ -58,26 +57,21 @@ void Vehicle::UpdateFrame()
     UpdateDriving();
 }
 
-void Vehicle::DrawFrame(SpriteBatch& spriteBatch)
+void Vehicle::PreDrawFrame()
 {   
     // sync sprite transformation with physical body
     cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
-    if (!gGameCheatsWindow.mEnableDrawVehicles)
-        return;
-
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
-    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mChassisDrawSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
 
-    mChassisDrawSprite.mPosition.x = position.x;
-    mChassisDrawSprite.mPosition.y = position.z;
-    mChassisDrawSprite.mRotateAngle = rotationAngle;
-    mChassisDrawSprite.mHeight = mDrawHeight;
-    mChassisDrawSprite.SetOriginToCenter();
-
-    spriteBatch.DrawSprite(mChassisDrawSprite);
+    mDrawSprite.mPosition.x = position.x;
+    mDrawSprite.mPosition.y = position.z;
+    mDrawSprite.mRotateAngle = rotationAngle;
+    mDrawSprite.mHeight = mDrawHeight;
+    mDrawSprite.SetOriginToCenter();
 }
 
 void Vehicle::DrawDebug(DebugRenderer& debugRender)
@@ -512,4 +506,14 @@ void Vehicle::ReceiveDamageFromWater()
     {
         currentPed->Die(ePedestrianDeathReason_Drowned, nullptr);
     }
+}
+
+bool Vehicle::HasHardTop() const
+{
+    if ((mCarStyle->mConvertible == eCarConvertible_HardTop || mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && 
+        (mCarStyle->mVType != eCarVType_Motorcycle))
+    {
+        return true;
+    }
+    return false;
 }

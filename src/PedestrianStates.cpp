@@ -91,7 +91,7 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateDummy_ProcessEvent};
 
     mFuncsTable[ePedestrianState_DrivingCar] = {&PedestrianStatesManager::StateDriveCar_ProcessEnter, 
-        &PedestrianStatesManager::StateDummy_ProcessExit, 
+        &PedestrianStatesManager::StateDriveCar_ProcessExit, 
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
         &PedestrianStatesManager::StateDriveCar_ProcessEvent};
 
@@ -347,11 +347,27 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 
 //////////////////////////////////////////////////////////////////////////
 
-
 void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
     mPedestrian->SetAnimation(isBike ? ePedestrianAnim_SittingOnBike : ePedestrianAnim_SittingInCar, eSpriteAnimLoop_None);
+
+    // dont draw pedestrian if it in car with hard top
+    if (mPedestrian->mCurrentCar->HasHardTop())
+    {
+        eGameObjectFlags flags = mPedestrian->mFlags | eGameObjectFlags_Invisible;
+        mPedestrian->mFlags = flags;
+    }
+}
+
+void PedestrianStatesManager::StateDriveCar_ProcessExit()
+{
+    // show ped
+    if (mPedestrian->mCurrentCar->HasHardTop())
+    {
+        eGameObjectFlags flags = mPedestrian->mFlags ^ eGameObjectFlags_Invisible;
+        mPedestrian->mFlags = flags;
+    }
 }
 
 bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)

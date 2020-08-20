@@ -111,7 +111,17 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
         return;
 
-    gameObject->DrawFrame(mSpriteBatch);
+    bool dbgSkipDraw = 
+        (!gGameCheatsWindow.mEnableDrawPedestrians && gameObject->IsPedestrianClass()) ||
+        (!gGameCheatsWindow.mEnableDrawVehicles && gameObject->IsVehicleClass()) ||
+        (!gGameCheatsWindow.mEnableDrawObstacles && gameObject->IsObstacleClass()) ||
+        (!gGameCheatsWindow.mEnableDrawDecorations && gameObject->IsDecorationClass());
+
+    if (!dbgSkipDraw)
+    {
+        gameObject->PreDrawFrame();
+        mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
+    }
 
     if (!gameObject->HasAttachedObjects())
         return;

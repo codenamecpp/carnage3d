@@ -47,7 +47,7 @@ public:
 
     // override GameObject
     void UpdateFrame() override;
-    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void PreDrawFrame() override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
     // setup initial state when spawned or respawned on level
@@ -104,8 +104,6 @@ private:
     ePedestrianAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianStatesManager mStatesManager;
-
-    Sprite2D mDrawSprite;
 };
 
 const int Sizeof_Pedestrian = sizeof(Pedestrian);

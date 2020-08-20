@@ -8,6 +8,7 @@ class DebugRenderer;
 class GameObject: public cxx::noncopyable
 {
     friend class GameObjectsManager;
+    friend class MapRenderer;
 
     // add runtime information support for gameobject
     decl_rtti_base(GameObject)
@@ -22,8 +23,8 @@ public:
 public:
     virtual ~GameObject();
 
-    // draw gameobject
-    virtual void DrawFrame(SpriteBatch& spriteBatch)
+    // update drawing sprite
+    virtual void PreDrawFrame()
     {
     }
     // process logic
@@ -73,6 +74,9 @@ protected:
 
     GameObject* mParentObject = nullptr;
     std::vector<GameObject*> mAttachedObjects;
+
+    // drawing spricific data
+    Sprite2D mDrawSprite;
 
 private:
     // marked object will be destroyed next game frame

@@ -8,7 +8,6 @@
 #include "PedestrianStates.h"
 #include "Vehicle.h"
 #include "TimeManager.h"
-#include "GameCheatsWindow.h"
 
 Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian, id)
     , mPhysicsBody()
@@ -86,21 +85,10 @@ void Pedestrian::UpdateFrame()
     mStatesManager.ProcessFrame();
 }
 
-void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
+void Pedestrian::PreDrawFrame()
 {
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
-
-    if (!gGameCheatsWindow.mEnableDrawPedestrians)
-        return;
-
-    ePedestrianState currState = GetCurrentStateID();
-    if (currState == ePedestrianState_DrivingCar)
-    {
-        // dont draw pedestrian if it in car with hard top
-        if (mDrawHeight < mCurrentCar->mDrawHeight) // todo: check car props
-            return;
-    }
 
     cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
@@ -113,7 +101,6 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();
-    spriteBatch.DrawSprite(mDrawSprite);
 }
 
 void Pedestrian::DrawDebug(DebugRenderer& debugRender)
@@ -136,10 +123,8 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
     if (mCurrentCar)
     {
-        bool isBike = (mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
         // dont draw pedestrian if it in car with hard top
-        if ((mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTop ||
-            mCurrentCar->mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && !isBike)
+        if (mCurrentCar->HasHardTop())
         {
             mDrawHeight = mCurrentCar->mDrawHeight - 0.01f; // todo: magic numbers
         }

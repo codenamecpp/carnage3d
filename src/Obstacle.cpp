@@ -2,7 +2,6 @@
 #include "Obstacle.h"
 #include "TimeManager.h"
 #include "SpriteManager.h"
-#include "GameCheatsWindow.h"
 
 Obstacle::Obstacle(GameObjectID id, GameObjectStyle* desc) 
     : GameObject(eGameObjectClass_Obstacle, id)
@@ -15,14 +14,10 @@ Obstacle::~Obstacle()
 {
 }
 
-void Obstacle::DrawFrame(SpriteBatch& spriteBatch)
+void Obstacle::PreDrawFrame()
 {
-    if (!gGameCheatsWindow.mEnableDrawObstacles)
-        return;
-
     gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
     mDrawSprite.SetOriginToCenter();
-    spriteBatch.DrawSprite(mDrawSprite);
 }
 
 void Obstacle::UpdateFrame()

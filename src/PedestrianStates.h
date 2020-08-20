@@ -88,6 +88,7 @@ private:
 
     // state driving car
     void StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateDriveCar_ProcessExit();
     bool StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // state exit car

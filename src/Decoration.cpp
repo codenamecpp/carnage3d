@@ -2,7 +2,6 @@
 #include "Decoration.h"
 #include "TimeManager.h"
 #include "SpriteManager.h"
-#include "GameCheatsWindow.h"
 
 Decoration::Decoration(GameObjectID id, GameObjectStyle* desc) 
     : GameObject(eGameObjectClass_Decoration, id)
@@ -15,14 +14,10 @@ Decoration::~Decoration()
 {
 }
 
-void Decoration::DrawFrame(SpriteBatch& spriteBatch)
+void Decoration::PreDrawFrame()
 {
-    if (!gGameCheatsWindow.mEnableDrawDecorations)
-        return;
-
     gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
     mDrawSprite.SetOriginToCenter();
-    spriteBatch.DrawSprite(mDrawSprite);
 }
 
 void Decoration::UpdateFrame()

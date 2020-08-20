@@ -14,7 +14,7 @@ public:
     ~Decoration();
 
     // override GameObject
-    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void PreDrawFrame() override;
     void UpdateFrame() override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
@@ -23,6 +23,5 @@ public:
 
 private:
     SpriteAnimation mAnimationState;
-    Sprite2D mDrawSprite;
     GameObjectStyle* mGameObjectDesc = nullptr;
 };

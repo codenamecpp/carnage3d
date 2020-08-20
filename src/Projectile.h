@@ -25,7 +25,7 @@ public:
 
     // override GameObject
     void UpdateFrame() override;
-    void DrawFrame(SpriteBatch& spriteBatch) override;
+    void PreDrawFrame() override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
     // Setup initial state when spawned or respawned on level
@@ -36,5 +36,4 @@ private:
 
 private:
     SpriteAnimation mAnimationState;
-    Sprite2D mDrawSprite;
 };
