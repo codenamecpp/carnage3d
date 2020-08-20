@@ -344,6 +344,9 @@
     <ClInclude Include="Decoration.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Obstacle.h">
+      <Filter>Game\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -535,6 +538,9 @@
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="Decoration.cpp">
+      <Filter>Game\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Obstacle.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>

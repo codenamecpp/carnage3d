@@ -10,6 +10,7 @@ public:
     bool mEnableBlocksAnimation;
     bool mEnableDebugDraw;
     bool mEnableDrawDecorations = true;
+    bool mEnableDrawObstacles = true;
     bool mEnableDrawPedestrians = true;
     bool mEnableDrawVehicles = true;
     bool mEnableDrawCityMesh = true;

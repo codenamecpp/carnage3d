@@ -433,23 +433,27 @@ void Vehicle::PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
         debug_assert(false);
         return;
     }
-    // check is already added
-    if (std::find(mPassengers.begin(), mPassengers.end(), pedestrian) == mPassengers.end())
-    {
-        mPassengers.push_back(pedestrian);
-    }
-    else
+
+    if (pedestrian->IsAttachedToObject(this)) // already attached
     {
         debug_assert(false);
+        return;
     }
+
+    pedestrian->SetAttachedToObject(this);
+    mPassengers.push_back(pedestrian);
 }
 
 void Vehicle::RemovePassenger(Pedestrian* pedestrian)
 {
-    auto ifound = std::find(mPassengers.begin(), mPassengers.end(), pedestrian);
-    if (ifound != mPassengers.end())
+    if (pedestrian->IsAttachedToObject(this))
     {
-        mPassengers.erase(ifound);
+        pedestrian->SetDetached();
+        cxx::erase_elements(mPassengers, pedestrian);
+    }
+    else
+    {
+        debug_assert(false);
     }
 }
 

@@ -27,14 +27,6 @@ void SpriteBatch::Clear()
     mBatchesList.clear();
 }
 
-void SpriteBatch::SortSpritesList()
-{
-    //std::sort(mSpritesList.begin(), mSpritesList.end(), [](const Sprite& lhs, const Sprite& rhs)
-    //    {
-    //        return lhs.mTexture < rhs.mTexture;
-    //    });
-}
-
 void SpriteBatch::DrawSprite(const Sprite2D& sourceSprite)
 {
     mSpritesList.push_back(sourceSprite);
@@ -44,7 +36,6 @@ void SpriteBatch::Flush()
 {
     if (!mSpritesList.empty())
     {
-        SortSpritesList();
         GenerateSpritesBatches();
         RenderSpritesBatches();
     }

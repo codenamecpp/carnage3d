@@ -7,6 +7,7 @@ class Projectile final: public GameObject
 {
     friend class GameObjectsManager;
 
+    // add runtime information support for gameobject
     decl_rtti(Projectile, GameObject)
 
 public:

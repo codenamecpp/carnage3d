@@ -4,6 +4,7 @@
 #include "Vehicle.h"
 #include "Projectile.h"
 #include "Decoration.h"
+#include "Obstacle.h"
 
 // define game objects manager class
 class GameObjectsManager final: public cxx::noncopyable
@@ -42,9 +43,13 @@ public:
     // Add new decoration instance to map at specific location
     Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
 
+    // Add new obstacle instance to map at specific location
+    Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
+
     // find gameobject by its unique identifier
     // @param objectID: Unique identifier
     Vehicle* GetVehicleByID(GameObjectID objectID) const;
+    Obstacle* GetObstacleByID(GameObjectID objectID) const;
     Decoration* GetDecorationByID(GameObjectID objectID) const;
     Pedestrian* GetPedestrianByID(GameObjectID objectID) const;
     GameObject* GetGameObjectByID(GameObjectID objectID) const;
@@ -71,6 +76,7 @@ private:
     cxx::object_pool<Vehicle> mCarsPool;
     cxx::object_pool<Projectile> mProjectilesPool;
     cxx::object_pool<Decoration> mDecorationsPool;
+    cxx::object_pool<Obstacle> mObstaclesPool;
 };
 
 extern GameObjectsManager gGameObjectsManager;

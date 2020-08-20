@@ -14,6 +14,7 @@ class Pedestrian final: public GameObject
     friend class PedPhysicsBody;
     friend class PedestrianStatesManager;
 
+    // add runtime information support for gameobject
     decl_rtti(Pedestrian, GameObject)
 
 public:

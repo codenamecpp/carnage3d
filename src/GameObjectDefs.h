@@ -7,6 +7,7 @@ class Pedestrian;
 class Vehicle;
 class Projectile;
 class Decoration;
+class Obstacle;
 
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
@@ -27,10 +28,11 @@ enum eGameObjectClass
 
 decl_enum_strings(eGameObjectClass);
 
-enum eGameObjectFlags: unsigned int
+enum eGameObjectFlags: unsigned short
 {
     eGameObjectFlags_None = 0,
     eGameObjectFlags_Invisible = BIT(0),
+    eGameObjectFlags_CarObject = BIT(1),
 };
 
 decl_enum_as_flags(eGameObjectFlags);

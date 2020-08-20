@@ -15,6 +15,34 @@ inline bool ParseMapUnits(cxx::json_document_node node, const std::string& attri
     return false;
 }
 
+// read gameobject flags
+inline bool ParseObjectFlags(cxx::json_document_node node, const std::string& attribute, eGameObjectFlags& flags)
+{
+    if (cxx::json_node_array flagsNode = node[attribute])
+    {
+        for (cxx::json_node_string currFlag = flagsNode.first_child();
+            currFlag; currFlag = currFlag.next_sibling())
+        {
+            std::string flag_string = currFlag.get_value();
+            if (flag_string == "invisible")
+            {
+                flags = (flags | eGameObjectFlags_Invisible);
+                continue;
+            }
+
+            if (flag_string == "carobject")
+            {
+                flags = (flags | eGameObjectFlags_CarObject);
+                continue;
+            }
+
+            debug_assert(false);
+        }
+        return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 enum 
@@ -1153,21 +1181,10 @@ bool StyleData::InitGameObjectsList()
             currObject.mAnimationData.Setup(startSpriteIndex, frameCount);
         }
 
-        // parse flags
-        if (cxx::json_node_array flagsNode = currObjectNode["flags"])
-        {
-            for (cxx::json_node_string currFlag = flagsNode.first_child();
-                currFlag; currFlag = currFlag.next_sibling())
-            {
-                if (currFlag.get_element_name() == "invisible")
-                {
-                    currObject.mFlags = (currObject.mFlags | eGameObjectFlags_Invisible);
-                }
-            }
-        }
+        ParseObjectFlags(currObjectNode, "flags", currObject.mFlags);
 
         // convert object dimensions pixels to meters
-
+        
         // todo: 
         // as cds says, 
         // Animated objects are a special case. They cannot be involved in collisions and are there for graphical
@@ -1175,10 +1192,12 @@ bool StyleData::InitGameObjectsList()
         //      * height - stores the number of game cycles per frame
         //      * width - stores the number of frames
         //      * depth - stores a life descriptor ( 0 for infinite, non-zero n for n animation cycles )
-
-        currObject.mHeight = Convert::PixelsToMeters(objectRaw.mHeight);
-        currObject.mWidth = Convert::PixelsToMeters(objectRaw.mWidth);
-        currObject.mDepth = Convert::PixelsToMeters(objectRaw.mDepth);
+        if (currObject.mClassID != eGameObjectClass_Decoration)
+        {
+            currObject.mHeight = Convert::PixelsToMeters(objectRaw.mHeight);
+            currObject.mWidth = Convert::PixelsToMeters(objectRaw.mWidth);
+            currObject.mDepth = Convert::PixelsToMeters(objectRaw.mDepth);
+        }
     }
 
     return true;

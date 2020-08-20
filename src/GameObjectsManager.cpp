@@ -15,6 +15,7 @@ GameObjectsManager::~GameObjectsManager()
     mCarsPool.cleanup();
     mProjectilesPool.cleanup();
     mDecorationsPool.cleanup();
+    mObstaclesPool.cleanup();
 }
 
 bool GameObjectsManager::InitGameObjects()
@@ -129,6 +130,26 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
     return instance;
 }
 
+Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc)
+{
+    Obstacle* instance = nullptr;
+    debug_assert(gGameMap.mStyleData.IsLoaded());
+    debug_assert(desc);
+    debug_assert(desc->mClassID == eGameObjectClass_Obstacle);
+    if (desc->mClassID == eGameObjectClass_Obstacle)
+    {
+        GameObjectID objectID = GenerateUniqueID();
+
+        instance = mObstaclesPool.create(objectID, desc);
+        debug_assert(instance);
+
+        mAllObjectsList.push_back(instance);
+        // init
+        instance->Spawn(position, heading);
+    }
+    return instance;
+}
+
 Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc)
 {
     Decoration* instance = nullptr;
@@ -149,6 +170,21 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
     return instance;
 }
 
+Obstacle* GameObjectsManager::GetObstacleByID(GameObjectID objectID) const
+{
+    for (GameObject* currentObject: mAllObjectsList)
+    {
+        if (currentObject->mObjectID != objectID)
+            continue;
+
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsObstacleClass())
+            return nullptr;
+
+        return static_cast<Obstacle*>(currentObject);
+    }
+    return nullptr;
+}
+
 Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
 {
     for (GameObject* currentObject: mAllObjectsList)
@@ -156,7 +192,7 @@ Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
         if (currentObject->mObjectID != objectID)
             continue;
 
-        if (currentObject->IsMarkedForDeletion() || !currentObject->IsCarObject())
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsVehicleClass())
             return nullptr;
 
         return static_cast<Vehicle*>(currentObject);
@@ -171,7 +207,7 @@ Decoration* GameObjectsManager::GetDecorationByID(GameObjectID objectID) const
         if (currentObject->mObjectID != objectID)
             continue;
 
-        if (currentObject->IsMarkedForDeletion() || !currentObject->IsDecorationObject())
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsDecorationClass())
             return nullptr;
 
         return static_cast<Decoration*>(currentObject);
@@ -186,7 +222,7 @@ Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
         if (currentObject->mObjectID != objectID)
             continue;
 
-        if (currentObject->IsMarkedForDeletion() || !currentObject->IsPedestrianObject())
+        if (currentObject->IsMarkedForDeletion() || !currentObject->IsPedestrianClass())
             return nullptr;
 
         return static_cast<Pedestrian*>(currentObject);
@@ -259,8 +295,14 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         }
         break;
 
-        case eGameObjectClass_Powerup:
         case eGameObjectClass_Obstacle:
+        {
+            Obstacle* obstacle = static_cast<Obstacle*>(object);
+            mObstaclesPool.destroy(obstacle);
+        }
+        break;
+
+        case eGameObjectClass_Powerup:
         default:
         {
             debug_assert(false);
@@ -339,9 +381,17 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(startupDecoration);
             }
             break;
+
+            case eGameObjectClass_Obstacle: 
+            {
+                Obstacle* startupObstacle = CreateObstacle(start_position, start_rotation, &objectType);
+                debug_assert(startupObstacle);
+            }            
+            break;
+
             case eGameObjectClass_Projectile: break;
             case eGameObjectClass_Powerup: break;
-            case eGameObjectClass_Obstacle: break;
+
             default:
                 debug_assert(false);
             break;

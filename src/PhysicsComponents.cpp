@@ -707,7 +707,7 @@ ProjectilePhysicsBody::ProjectilePhysicsBody(b2World* physicsWorld, Projectile* 
     fixtureDef.shape = &shapeDef;
     fixtureDef.isSensor = true;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PROJECTILE_SENSOR;
-    fixtureDef.filter.maskBits = PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_CAR | PHYSICS_OBJCAT_MAPOBJECT | PHYSICS_OBJCAT_MAP_SOLID_BLOCK;
+    fixtureDef.filter.maskBits = PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_CAR | PHYSICS_OBJCAT_OBSTACLE | PHYSICS_OBJCAT_MAP_SOLID_BLOCK;
 
     b2Fixture* b2fixture = mPhysicsBody->CreateFixture(&fixtureDef);
     debug_assert(b2fixture);

@@ -9,11 +9,15 @@ class GameObject: public cxx::noncopyable
 {
     friend class GameObjectsManager;
 
+    // add runtime information support for gameobject
     decl_rtti_base(GameObject)
 
 public:
     const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
     const eGameObjectClass mObjectTypeID;
+
+    // readonly
+    eGameObjectFlags mFlags = eGameObjectFlags_None;
 
 public:
     virtual ~GameObject();
@@ -36,16 +40,39 @@ public:
 
     bool IsMarkedForDeletion() const;
 
-    // shortcuts
-    inline bool IsPedestrianObject() const { return mObjectTypeID == eGameObjectClass_Pedestrian; }
-    inline bool IsProjectileObject() const { return mObjectTypeID == eGameObjectClass_Projectile; }
-    inline bool IsDecorationObject() const { return mObjectTypeID == eGameObjectClass_Decoration; }
-    inline bool IsCarObject() const { return mObjectTypeID == eGameObjectClass_Car; }
-    inline bool IsPowerupObject() const { return mObjectTypeID == eGameObjectClass_Powerup; }
-    inline bool IsObstacleObject() const { return mObjectTypeID == eGameObjectClass_Obstacle; }
+    // Attach or detach object to other object
+    void SetAttachedToObject(GameObject* parentObject);
+    void SetDetached();
+
+    // Inspect hierarchy
+    bool IsAttachedToObject() const;
+    bool IsAttachedToObject(GameObject* parentObject) const;
+    bool HasAttachedObjects();
+
+    // Inspect hierarchy
+    GameObject* GetParentObject() const;
+    GameObject* GetAttachedObject(int index) const;
+
+    // class shortcuts
+    inline bool IsPedestrianClass() const { return mObjectTypeID == eGameObjectClass_Pedestrian; }
+    inline bool IsProjectileClass() const { return mObjectTypeID == eGameObjectClass_Projectile; }
+    inline bool IsDecorationClass() const { return mObjectTypeID == eGameObjectClass_Decoration; }
+    inline bool IsVehicleClass() const { return mObjectTypeID == eGameObjectClass_Car; }
+    inline bool IsPowerupClass() const { return mObjectTypeID == eGameObjectClass_Powerup; }
+    inline bool IsObstacleClass() const { return mObjectTypeID == eGameObjectClass_Obstacle; }
+
+    // flag shortcuts
+    inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
+    inline bool IsCarObjectFlag() const { return (mFlags & eGameObjectFlags_CarObject) != 0; }
 
 protected:
     GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
+
+protected:
+    // todo: add attachment point and angle
+
+    GameObject* mParentObject = nullptr;
+    std::vector<GameObject*> mAttachedObjects;
 
 private:
     // marked object will be destroyed next game frame

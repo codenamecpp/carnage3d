@@ -98,7 +98,7 @@ void Pedestrian::DrawFrame(SpriteBatch& spriteBatch)
     if (currState == ePedestrianState_DrivingCar)
     {
         // dont draw pedestrian if it in car with hard top
-        if (mDrawHeight < mCurrentCar->mDrawHeight)
+        if (mDrawHeight < mCurrentCar->mDrawHeight) // todo: check car props
             return;
     }
 

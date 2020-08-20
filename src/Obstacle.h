@@ -2,16 +2,16 @@
 
 #include "GameObject.h"
 
-class Decoration final: public GameObject
+class Obstacle final: public GameObject
 {
     friend class GameObjectsManager;
 
     // add runtime information support for gameobject
-    decl_rtti(Decoration, GameObject)
+    decl_rtti(Obstacle, GameObject)
 
 public:
-    Decoration(GameObjectID id, GameObjectStyle* desc);
-    ~Decoration();
+    Obstacle(GameObjectID id, GameObjectStyle* desc);
+    ~Obstacle();
 
     // override GameObject
     void DrawFrame(SpriteBatch& spriteBatch) override;

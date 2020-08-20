@@ -155,6 +155,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Checkbox("Enable debug draw", &mEnableDebugDraw);
 
         ImGui::Checkbox("Draw decorations", &mEnableDrawDecorations);
+        ImGui::Checkbox("Draw obstacles", &mEnableDrawObstacles);
         ImGui::Checkbox("Draw pedestrians", &mEnableDrawPedestrians);
         ImGui::Checkbox("Draw vehicles", &mEnableDrawVehicles);
         ImGui::Checkbox("Draw city mesh", &mEnableDrawCityMesh);

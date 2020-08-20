@@ -1,23 +1,23 @@
 #include "stdafx.h"
-#include "Decoration.h"
+#include "Obstacle.h"
 #include "TimeManager.h"
 #include "SpriteManager.h"
 #include "GameCheatsWindow.h"
 
-Decoration::Decoration(GameObjectID id, GameObjectStyle* desc) 
-    : GameObject(eGameObjectClass_Decoration, id)
+Obstacle::Obstacle(GameObjectID id, GameObjectStyle* desc) 
+    : GameObject(eGameObjectClass_Obstacle, id)
     , mGameObjectDesc(desc)
 {
     debug_assert(mGameObjectDesc);
 }
 
-Decoration::~Decoration()
+Obstacle::~Obstacle()
 {
 }
 
-void Decoration::DrawFrame(SpriteBatch& spriteBatch)
+void Obstacle::DrawFrame(SpriteBatch& spriteBatch)
 {
-    if (!gGameCheatsWindow.mEnableDrawDecorations)
+    if (!gGameCheatsWindow.mEnableDrawObstacles)
         return;
 
     gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
@@ -25,17 +25,17 @@ void Decoration::DrawFrame(SpriteBatch& spriteBatch)
     spriteBatch.DrawSprite(mDrawSprite);
 }
 
-void Decoration::UpdateFrame()
+void Obstacle::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     mAnimationState.AdvanceAnimation(deltaTime);
 }
 
-void Decoration::DrawDebug(DebugRenderer& debugRender)
+void Obstacle::DrawDebug(DebugRenderer& debugRender)
 {
 }
 
-void Decoration::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Obstacle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
     debug_assert(mGameObjectDesc);
 

@@ -85,23 +85,15 @@ void MapRenderer::RenderFrame(RenderView* renderview)
 
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y);
 
-    // collect and render game objects sprites - the order matters
-    mGameObjectsDrawList = gGameObjectsManager.mAllObjectsList;
-    // the whole point of this sorting is to make sure to draw cars before peds
-    std::sort(mGameObjectsDrawList.begin(), mGameObjectsDrawList.end(),
-        [](GameObject* lhs, GameObject* rhs)
-        {
-            if (lhs->mObjectTypeID == rhs->mObjectTypeID)
-                return (lhs->mObjectID < rhs->mObjectID);
-
-            return (lhs->mObjectTypeID < rhs->mObjectTypeID);
-        });
-
-    for (GameObject* currentObject: mGameObjectsDrawList)
+    // collect and render game objects sprites
+    for (GameObject* currObject: gGameObjectsManager.mAllObjectsList)
     {
-        currentObject->DrawFrame(mSpriteBatch);
+        // attached objects must be drawn after the object to which they are attached
+        if (currObject->IsAttachedToObject())
+            continue;
+
+        DrawGameObject(renderview, currObject);
     }
-    mGameObjectsDrawList.clear();
 
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
@@ -112,6 +104,27 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     mSpriteBatch.Flush();
 
     gRenderManager.mSpritesProgram.Deactivate();
+}
+
+void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
+{
+    if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
+        return;
+
+    gameObject->DrawFrame(mSpriteBatch);
+
+    if (!gameObject->HasAttachedObjects())
+        return;
+
+    // draw attached objects
+    for (int ichild = 0; ; ++ichild)
+    {
+        GameObject* currentChild = gameObject->GetAttachedObject(ichild);
+        if (currentChild == nullptr)
+            break;
+
+        DrawGameObject(renderview, currentChild);
+    }
 }
 
 void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)

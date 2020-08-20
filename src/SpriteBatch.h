@@ -28,7 +28,6 @@ public:
     void DrawSprite(const Sprite2D& sourceSprite);
 
 private:
-    void SortSpritesList();
     void GenerateSpritesBatches();
     void RenderSpritesBatches();
 
@@ -49,7 +48,7 @@ private:
     std::vector<SpriteVertex3D> mDrawVertices;
     std::vector<DrawIndex> mDrawIndices;
 
-    std::list<DrawSpriteBatch> mBatchesList;
+    std::vector<DrawSpriteBatch> mBatchesList;
     TrimeshBuffer mTrimeshBuffer;
 
     DepthAxis mDepthAxis = DepthAxis_Y;

@@ -176,6 +176,7 @@
     <ClInclude Include="GameObjectsManager.h" />
     <ClInclude Include="GpuBufferTexture.h" />
     <ClInclude Include="CharacterController.h" />
+    <ClInclude Include="Obstacle.h" />
     <ClInclude Include="PedestrianStates.h" />
     <ClInclude Include="PhysicsDefs.h" />
     <ClInclude Include="PhysicsManager.h" />
@@ -261,6 +262,7 @@
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="mem_allocators.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="path_utils.cpp" />
     <ClCompile Include="PedestrianStates.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />

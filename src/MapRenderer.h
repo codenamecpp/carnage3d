@@ -35,6 +35,7 @@ public:
 
 private:
     void DrawCityMesh(RenderView* renderview);
+    void DrawGameObject(RenderView* renderview, GameObject* gameObject);
 
 private:
     enum
@@ -57,6 +58,4 @@ private:
     GpuBuffer* mCityMeshBufferI;
 
     SpriteBatch mSpriteBatch;
-
-    std::vector<GameObject*> mGameObjectsDrawList;
 };

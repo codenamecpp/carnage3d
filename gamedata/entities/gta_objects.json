@@ -72,7 +72,8 @@
     {
         "name": "train_doors",
         "class": "decoration",
-        "frameCount": 8
+        "frameCount": 8,
+        "flags": ["carobject"]
     },
     {
         "name": "blood",
@@ -109,7 +110,8 @@
     {
         "name": "skid_dirt1",
         "class": "decoration",
-        "frameCount": 3
+        "frameCount": 3,
+        "flags": ["carobject"]
     },
     {
         "name": "skid_dirt2",
@@ -169,12 +171,14 @@
     {
         "name": "tank_gun",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "tank_gun_barrel",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "coffin",
@@ -194,12 +198,14 @@
     {
         "name": "tank_gun_wrecked",
         "class": "obstacle",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "tank_gun_barrel_wrecked",
         "class": "obstacle",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "phone",
@@ -244,17 +250,20 @@
     {
         "name": "water_jet",
         "class": "decoration",
-        "frameCount": 8
+        "frameCount": 8,
+        "flags": ["carobject"]
     },
     {
         "name": "water_jet_end",
         "class": "decoration",
-        "frameCount": 8
+        "frameCount": 8,
+        "flags": ["carobject"]
     },
     {
         "name": "firehose",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "big_smoke",
@@ -264,12 +273,14 @@
     {
         "name": "unknown52",
         "class": "obstacle",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "exhaust",
         "class": "decoration",
-        "frameCount": 11
+        "frameCount": 11,
+        "flags": ["carobject"]
     },
     {
         "name": "splash",
@@ -279,27 +290,32 @@
     {
         "name": "fire_truck_arm1",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "fire_truck_arm2",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "fire_truck_arm3",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "fire_truck_arm4",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "swat_gun",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "check_flag",
@@ -354,7 +370,8 @@
     {
         "name": "tv_camera",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "unknown71",
@@ -454,12 +471,14 @@
     {
         "name": "unknown90",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "unknown91",
         "class": "decoration",
-        "frameCount": 1
+        "frameCount": 1,
+        "flags": ["carobject"]
     },
     {
         "name": "helicopter_blade",
