@@ -78,7 +78,10 @@ protected:
     // drawing spricific data
     Sprite2D mDrawSprite;
 
+
 private:
     // marked object will be destroyed next game frame
     bool mMarkedForDeletion = false;
+
+    unsigned int mLastRenderFrame = 0; // render frames counter
 };

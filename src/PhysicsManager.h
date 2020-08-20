@@ -56,7 +56,7 @@ private:
     // apply gravity forces and correct y coord for objects
     void FixedStepGravity();
 
-    void ProcessSimulationStep(bool resetPreviousState);
+    void ProcessSimulationStep();
     void ProcessInterpolation();
 
     // override b2ContactFilter

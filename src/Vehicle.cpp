@@ -21,7 +21,8 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
 
 Vehicle::~Vehicle()
 {
-    debug_assert(mPassengers.empty());
+    // todo: remove all passengers
+    
     if (mPhysicsBody)
     {
         gPhysics.DestroyPhysicsBody(mPhysicsBody);

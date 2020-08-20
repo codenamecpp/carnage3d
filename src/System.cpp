@@ -30,7 +30,7 @@ void SystemConfig::SetToDefaults()
     mFullscreen = false;
     mScreenSizex = DefaultScreenResolutionX;
     mScreenSizey = DefaultScreenResolutionY;
-    mPhysicsFramerate = 60.0f;
+    mPhysicsFramerate = DefaultPhysicsFramerate;
 }
 
 void SystemConfig::InitFromJsonDocument(const cxx::json_document& sourceDocument)

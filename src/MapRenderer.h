@@ -15,7 +15,11 @@ public:
     void FrameEnd();
 
 public:
-    int mBlockChunksDrawnCount = 0; // per frame
+    unsigned int mRenderFramesCounter = 0; // gets incremented on every frame
+
+    // per frame
+    int mBlockChunksDrawnCount = 0; 
+    int mSpritesDrawnCount = 0;
 };
 
 // renders map mesh, peds, cars and map objects

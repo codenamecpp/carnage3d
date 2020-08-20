@@ -68,12 +68,7 @@ bool PhysicsManager::InitPhysicsWorld()
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetContactListener(this);
 
-    double physicsFramerate = gSystem.mConfig.mPhysicsFramerate;
-    debug_assert(physicsFramerate > 0.0);
-
-    mSimulationStepTime = (float) (1.0 / physicsFramerate);
-    debug_assert(mSimulationStepTime > 0.0);
-
+    mSimulationStepTime = 1.0f / std::max(gSystem.mConfig.mPhysicsFramerate, 1.0f);
     mGravityForce = Convert::MapUnitsToMeters(0.5f);
 
     CreateMapCollisionShape();
@@ -94,62 +89,51 @@ void PhysicsManager::UpdateFrame()
 {
     mSimulationTimeAccumulator += gTimeManager.mGameFrameDelta;
 
-    const int MaxSimulationStepsPerFrame = 5;
-    int numSimulations = static_cast<int>(mSimulationTimeAccumulator / mSimulationStepTime);
-    if (numSimulations > 0)
+    while (mSimulationTimeAccumulator >= mSimulationStepTime)
     {
-        mSimulationTimeAccumulator -= (numSimulations * mSimulationStepTime);
-        numSimulations = glm::min(numSimulations, MaxSimulationStepsPerFrame);
+        ProcessSimulationStep();
+        mSimulationTimeAccumulator -= mSimulationStepTime;
     }
-    debug_assert(numSimulations <= MaxSimulationStepsPerFrame);
-    debug_assert(mSimulationTimeAccumulator < mSimulationStepTime && mSimulationTimeAccumulator > -0.01f);
 
-    for (int icurrStep = 0; icurrStep < numSimulations; ++icurrStep)
+    if (mSimulationTimeAccumulator > 0.0f)
     {
-        ProcessSimulationStep(icurrStep == (numSimulations - 1));
+        ProcessSimulationStep();
+        mSimulationTimeAccumulator = 0.0;
     }
 
     ProcessInterpolation();
 }
 
-void PhysicsManager::ProcessSimulationStep(bool resetPreviousState)
+void PhysicsManager::ProcessSimulationStep()
 {
-    const int velocityIterations = 4;
-    const int positionIterations = 4;
+    const int velocityIterations = 6;
+    const int positionIterations = 2;
 
-    if (resetPreviousState)
+    // get previous position
+    for (PhysicsBody* currComponent: mCarsBodiesList)
     {
-        for (PhysicsBody* currComponent: mCarsBodiesList)
-        {
-            currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        }
-
-        for (PhysicsBody* currComponent: mPedsBodiesList)
-        {
-            currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        }
-
-        for (PhysicsBody* currComponent: mProjectileBodiesList)
-        {
-            currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        }
+        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+    }
+    for (PhysicsBody* currComponent: mPedsBodiesList)
+    {
+        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+    }
+    for (PhysicsBody* currComponent: mProjectileBodiesList)
+    {
+        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
     }
 
     mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
-    // process cars physics components
+    // process physics components
     for (PhysicsBody* currComponent: mCarsBodiesList)
     {
         currComponent->SimulationStep();
     }
-
-    // process peds physics components
     for (PhysicsBody* currComponent: mPedsBodiesList)
     {
         currComponent->SimulationStep();
     }
-
-    // process projectiles
     for (PhysicsBody* currComponent: mProjectileBodiesList)
     {
         currComponent->SimulationStep();

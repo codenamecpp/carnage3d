@@ -59,33 +59,42 @@ void TimeManager::Deinit()
 
 void TimeManager::UpdateFrame()
 {
-    double currentTimestamp = gSystem.GetSystemSeconds();
-    double systemDeltaTime = (currentTimestamp - mLastFrameTimestamp);
+    double frameTimestamp = gSystem.GetSystemSeconds();
+    double frameDelta = (frameTimestamp - mLastFrameTimestamp);
     // limit fps 
-    while (systemDeltaTime < mMinFrameDelta)
+    while (frameDelta < mMinFrameDelta)
     {
         std::this_thread::sleep_for(std::chrono::seconds(0));
-        currentTimestamp = gSystem.GetSystemSeconds();
-        systemDeltaTime = (currentTimestamp - mLastFrameTimestamp);
+
+        double subFrameTimestamp = gSystem.GetSystemSeconds();
+        double subFrameDelta = (subFrameTimestamp - frameTimestamp);
+
+        frameDelta += subFrameDelta;
+        frameTimestamp = subFrameTimestamp;
     }
 
-    if (systemDeltaTime > mMaxFrameDelta)
+    if (frameDelta > mMaxFrameDelta)
     {
-        systemDeltaTime = mMaxFrameDelta;
+        frameDelta = mMaxFrameDelta;
+    }
+
+    if (frameDelta < 0.0f)
+    {
+        debug_assert(false);
+        frameDelta = 0.0f;
     }
 
     // update timers
-    debug_assert(systemDeltaTime >= 0.0);
-    mSystemFrameDelta = (float) std::max(systemDeltaTime, 0.0);
+    mSystemFrameDelta = (float) frameDelta;
     mSystemTime += mSystemFrameDelta;
 
-    mGameFrameDelta = (float) (mGameTimeScale * systemDeltaTime);
+    mGameFrameDelta = (float) (mGameTimeScale * frameDelta);
     mGameTime += mGameFrameDelta;
     
-    mUiFrameDelta = (float) (mUiTimeScale * systemDeltaTime);
+    mUiFrameDelta = (float) (mUiTimeScale * frameDelta);
     mUiTime += mUiFrameDelta;
 
-    mLastFrameTimestamp = currentTimestamp;
+    mLastFrameTimestamp = frameTimestamp;
 }
 
 void TimeManager::SetGameTimeScale(float timeScale)

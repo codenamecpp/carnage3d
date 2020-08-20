@@ -16,8 +16,9 @@ public:
     }
 
     // compute corners of the sprite
-    // @param points: Output points
-    void GetCorners(glm::vec2 points[4]) const;
+    // @param positions: Output points
+    void GetCorners(glm::vec2 positions[4]) const;
+    void GetMaxRectPoints(glm::vec2 positions[2]) const;
 
     // clear sprite data
     void SetNull();

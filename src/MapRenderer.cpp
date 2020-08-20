@@ -17,6 +17,9 @@
 void MapRenderStats::FrameBegin()
 {
     mBlockChunksDrawnCount = 0;
+    mSpritesDrawnCount = 0;
+
+    ++mRenderFramesCounter;
 }
 
 void MapRenderStats::FrameEnd()
@@ -120,7 +123,23 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     if (!dbgSkipDraw)
     {
         gameObject->PreDrawFrame();
-        mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
+
+        // detect if gameobject is visible on screen
+        static glm::vec2 points[2];
+        gameObject->mDrawSprite.GetMaxRectPoints(points);
+
+        static cxx::aabbox_t bounds;
+        bounds.clear();
+        bounds.extend(points[0].x, 1.0f, points[0].y);
+        bounds.extend(points[1].x, 1.0f, points[1].y);
+
+        if (renderview->mCamera.mFrustum.contains(bounds))
+        {
+            mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
+            ++mRenderStats.mSpritesDrawnCount;
+
+            gameObject->mLastRenderFrame = mRenderStats.mRenderFramesCounter;
+        }
     }
 
     if (!gameObject->HasAttachedObjects())
@@ -140,9 +159,13 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
 void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
 {
     debug_assert(renderview);
-    for (GameObject* currGameObject: gGameObjectsManager.mAllObjectsList)
+    for (GameObject* gameObject: gGameObjectsManager.mAllObjectsList)
     {
-        currGameObject->DrawDebug(debugRender);
+        // check if gameobject was on screen in current frame
+        if (gameObject->mLastRenderFrame != mRenderStats.mRenderFramesCounter)
+            continue;
+
+        gameObject->DrawDebug(debugRender);
     }
 }
 

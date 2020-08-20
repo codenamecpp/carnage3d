@@ -5,6 +5,7 @@
 #include "PhysicsManager.h"
 #include "CarnageGame.h"
 #include "Pedestrian.h"
+#include "TimeManager.h"
 
 namespace ImGui
 {
@@ -72,8 +73,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::EndMenuBar();
     }
 
+    ImGui::HorzSpacing();
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Frame Time: %.3f ms (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-    ImGui::Text("Block chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
+    ImGui::Text("Map chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
+    ImGui::Text("Sprites drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mSpritesDrawnCount);
     
     // pedestrian stats
     if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
@@ -109,39 +112,43 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         }
     }
 
-    const char* modeStrings[] = { "Follow", "Free Look" };
-    CameraController* modeControllers[] =
-    {
-        &gCarnageGame.mHumanSlot[0].mCharView.mFollowCameraController, 
-        &gCarnageGame.mHumanSlot[0].mCharView.mFreeLookCameraController,
-    }; 
-    int currentCameraMode = 0;
-    for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
-    {
-        if (gCarnageGame.mHumanSlot[0].mCharView.mCameraController == modeControllers[i])
+    { // choose camera modes
+        const char* modeStrings[] = { "Follow", "Free Look" };
+        CameraController* modeControllers[] =
         {
-            currentCameraMode = i;
-            break;
-        }
-    }
-    const char* item_current = modeStrings[currentCameraMode];
-    if (ImGui::BeginCombo("Camera mode", item_current))
-    {
-        for (int n = 0; n < IM_ARRAYSIZE(modeStrings); n++)
+            &gCarnageGame.mHumanSlot[0].mCharView.mFollowCameraController, 
+            &gCarnageGame.mHumanSlot[0].mCharView.mFreeLookCameraController,
+        }; 
+        int currentCameraMode = 0;
+        for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
         {
-            bool is_selected = (item_current == modeStrings[n]);
-            if (ImGui::Selectable(modeStrings[n], is_selected))
+            if (gCarnageGame.mHumanSlot[0].mCharView.mCameraController == modeControllers[i])
             {
-                item_current = modeStrings[n];
-                gCarnageGame.mHumanSlot[0].mCharView.SetCameraController(modeControllers[n]);
-            }
-            if (is_selected)
-            {
-                ImGui::SetItemDefaultFocus();
+                currentCameraMode = i;
+                break;
             }
         }
-        ImGui::EndCombo();
+        const char* item_current = modeStrings[currentCameraMode];
+        if (ImGui::BeginCombo("Camera mode", item_current))
+        {
+            for (int n = 0; n < IM_ARRAYSIZE(modeStrings); n++)
+            {
+                bool is_selected = (currentCameraMode == n);
+                if (ImGui::Selectable(modeStrings[n], is_selected))
+                {
+                    currentCameraMode = n;
+                    gCarnageGame.mHumanSlot[0].mCharView.SetCameraController(modeControllers[n]);
+                }
+                if (is_selected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
     }
+
+    ImGui::HorzSpacing();
 
     //if (ImGui::CollapsingHeader("Physics"))
     //{
@@ -153,7 +160,6 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);
         ImGui::Checkbox("Enable debug draw", &mEnableDebugDraw);
-
         ImGui::Checkbox("Draw decorations", &mEnableDrawDecorations);
         ImGui::Checkbox("Draw obstacles", &mEnableDrawObstacles);
         ImGui::Checkbox("Draw pedestrians", &mEnableDrawPedestrians);
@@ -214,6 +220,31 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         {
             gGraphicsDevice.EnableFullscreen(gSystem.mConfig.mFullscreen);
             gGraphicsDevice.EnableVSync(gSystem.mConfig.mEnableVSync); // set vsync param as fullcreen mode changes
+        }
+
+        ImGui::HorzSpacing();
+
+        { // choose desired framerate
+            static const char* framerates_str[] = {"24", "30", "60", "120", "240"};
+            static int framerates[] = {24, 30, 60, 120, 240};
+            static int framerate_index = 3;
+            if (ImGui::BeginCombo("Framerate", framerates_str[framerate_index]))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(framerates_str); ++n)
+                {
+                    bool is_selected = (n == framerate_index);
+                    if (ImGui::Selectable(framerates_str[n], is_selected))
+                    {
+                        framerate_index = n;
+                        gTimeManager.SetMaxFramerate(framerates[framerate_index] * 1.0f);
+                    }
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
         }
     }
 
