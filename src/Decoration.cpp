@@ -16,14 +16,16 @@ Decoration::~Decoration()
 
 void Decoration::PreDrawFrame()
 {
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
-    mDrawSprite.SetOriginToCenter();
 }
 
 void Decoration::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    mAnimationState.AdvanceAnimation(deltaTime);
+    if (mAnimationState.AdvanceAnimation(deltaTime))
+    {
+        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+        mDrawSprite.SetOriginToCenter();
+    }
 }
 
 void Decoration::DrawDebug(DebugRenderer& debugRender)
@@ -42,4 +44,9 @@ void Decoration::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mAnimationState.SetNull();
     mAnimationState.mAnimDesc = mGameObjectDesc->mAnimationData;
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
+}
+
+void Decoration::SetLifeDuration(int numAnimationCycles)
+{
+    mLifeDuration = numAnimationCycles;
 }

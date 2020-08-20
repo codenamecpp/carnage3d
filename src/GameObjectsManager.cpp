@@ -389,7 +389,6 @@ bool GameObjectsManager::CreateStartupObjects()
             }            
             break;
 
-            case eGameObjectClass_Projectile: break;
             case eGameObjectClass_Powerup: break;
 
             default:

@@ -28,7 +28,7 @@
         {
             "fire_type": "projectile",
             "projectile": "flame",
-            "base_fire_rate": 16.0,
+            "base_fire_rate": 15.0,
             "sprite_index": 33,
             "base_ammo_limit": 999
         },
@@ -58,7 +58,7 @@
             "anim_loop": "none",
             "radius": 0.075,
             "base_distance": 1.1,
-            "speed": 2.75
+            "speed": 3.0
         },
         "missile":
         {

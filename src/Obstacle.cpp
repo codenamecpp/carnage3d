@@ -16,14 +16,16 @@ Obstacle::~Obstacle()
 
 void Obstacle::PreDrawFrame()
 {
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
-    mDrawSprite.SetOriginToCenter();
 }
 
 void Obstacle::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    mAnimationState.AdvanceAnimation(deltaTime);
+    if (mAnimationState.AdvanceAnimation(deltaTime))
+    {
+        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+        mDrawSprite.SetOriginToCenter();
+    }
 }
 
 void Obstacle::DrawDebug(DebugRenderer& debugRender)
