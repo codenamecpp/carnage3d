@@ -14,9 +14,7 @@ public:
     // readonly
     ProjectileStyle* mProjectileStyle = nullptr;
     ProjectilePhysicsBody* mPhysicsBody = nullptr;
-    float mDrawHeight;
     
-    bool mDead; // whether projectile should be removed from map
     glm::vec3 mStartPosition;
 
 public:
@@ -31,9 +29,18 @@ public:
     // Setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
+    // @param gameObject: null if contacting with map
+    void SetContactDetected(const glm::vec3& position, GameObject* gameObject);
+    bool IsContactDetected() const;
+
 private:
     void ComputeDrawHeight(const glm::vec3& position);
 
 private:
     SpriteAnimation mAnimationState;
+
+    // collision contact info
+    glm::vec3 mContactPoint;
+    GameObject* mContactObject = nullptr;
+    bool mContactDetected = false;
 };

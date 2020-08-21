@@ -339,11 +339,45 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         b2Fixture* fixtureMapSolidBlock = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
         b2Fixture* fixturePed = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PED);
         b2Fixture* fixtureCar = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_CAR);
+        b2Fixture* fixtureProjectile = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PROJECTILE);
 
-        if (fixturePed)
+        if (fixtureProjectile)
+        {
+            hasCollision = false; // projectiles doesnt collide
+
+            ProjectilePhysicsBody* projectileObject = CastBodyData<ProjectilePhysicsBody>(fixtureProjectile->GetBody());
+
+            // projectile vs map solid block
+            if (fixtureMapSolidBlock)
+            {
+                b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
+                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK))
+                {
+                    ProcessProjectileVsMap(contact, projectileObject, fxdata.mX, fxdata.mZ);
+                }
+            }
+            // projectile vs car
+            else if (fixtureCar)
+            {
+                CarPhysicsBody* carPhysicsObject = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
+                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_CAR))
+                {
+                    ProcessProjectileVsCar(contact, projectileObject, carPhysicsObject);
+                }
+            }
+            // projectile vs ped
+            else if (fixturePed)
+            {
+                PedPhysicsBody* pedPhysicsObject = CastBodyData<PedPhysicsBody>(fixturePed->GetBody());
+                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_PED))
+                {
+                    ProcessProjectileVsPed(contact, projectileObject, pedPhysicsObject);
+                }
+            }
+        }
+        else if (fixturePed)
         {
             PedPhysicsBody* pedPhysicsObject = CastBodyData<PedPhysicsBody>(fixturePed->GetBody());
-            debug_assert(pedPhysicsObject);
 
             // ped vs map solid block
             if (fixtureMapSolidBlock)
@@ -570,7 +604,6 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
 
     b2Fixture* pedFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_PED_SENSOR);
     b2Fixture* carFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_CAR);
-    b2Fixture* projectileFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PROJECTILE_SENSOR);
     b2Fixture* mapSolidBlockFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
     if (pedFixture && carFixture)
     {
@@ -585,31 +618,6 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
             pedPhysicsComponent->HandleCarContactEnd();
         }
         return true;
-    }
-
-    if (projectileFixture)
-    {
-        ProjectilePhysicsBody* projectileObject = CastBodyData<ProjectilePhysicsBody>(projectileFixture->GetBody());
-        if (projectileObject->mReferenceProjectile->mDead)
-            return false;
-
-        if (pedFixture)
-        {
-            PedPhysicsBody* pedObject = CastBodyData<PedPhysicsBody>(pedFixture->GetBody());
-            return ProcessSensorProjectileVsPed(contact, projectileObject, pedObject);
-        }
-
-        if (carFixture)
-        {
-            CarPhysicsBody* carObject = CastBodyData<CarPhysicsBody>(carFixture->GetBody());
-            return ProcessSensorProjectileVsCar(contact, projectileObject, carObject);
-        }
-
-        if (mapSolidBlockFixture)
-        {
-            b2FixtureData_map fxdata = mapSolidBlockFixture->GetUserData();
-            return ProcessSensorProjectileVsMap(contact, projectileObject, fxdata.mX, fxdata.mZ);
-        }
     }
     return false;
 }
@@ -714,29 +722,82 @@ void PhysicsManager::HandleContactPedVsCar(b2Contact* contact, float impulse, Pe
     ped->mReferencePed->ReceiveHitByCar(car->mReferenceCar, impulse);
 }
 
-bool PhysicsManager::ProcessSensorProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const
+bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const
 {
     // check same height
+    int layer = (int) (Convert::MetersToMapUnits(projectile->mHeight) + 0.5f);
 
-
-    return false;
-}
-
-bool PhysicsManager::ProcessSensorProjectileVsCar(b2Contact* contact, ProjectilePhysicsBody* projectile, CarPhysicsBody* car) const
-{
-
-
-    // check same height
-
-    return false;
-}
-
-bool PhysicsManager::ProcessSensorProjectileVsPed(b2Contact* contact, ProjectilePhysicsBody* projectile, PedPhysicsBody* ped) const
-{
-    if (!ped->ShouldContactWith(PHYSICS_OBJCAT_PROJECTILE_SENSOR))
+    BlockStyle* mapBlock = gGameMap.GetBlockClamp(mapx, mapy, layer);
+    if (mapBlock->mGroundType != eGroundType_Building)
         return false;
 
-    // check same height
+    // get collision point
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
 
+    int pointsCount = contact->GetManifold()->pointCount;
+    if (pointsCount > 0)
+    {
+        glm::vec3 contactPoint( 
+            wmanifold.points[0].x, projectile->mHeight, 
+            wmanifold.points[0].y );
+
+        projectile->mReferenceProjectile->SetContactDetected(contactPoint, nullptr);
+        return true;
+    }
+    return false;
+}
+
+bool PhysicsManager::ProcessProjectileVsCar(b2Contact* contact, ProjectilePhysicsBody* projectile, CarPhysicsBody* car) const
+{
+    // check car bounds height
+    // todo: get car height!
+    bool hasContact = ((projectile->mHeight >= car->mHeight) && 
+        (projectile->mHeight <= (car->mHeight + 2.0f)));
+
+    if (!hasContact)
+        return false;
+
+    // get collision point
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    int pointsCount = contact->GetManifold()->pointCount;
+    if (pointsCount > 0)
+    {
+        glm::vec3 contactPoint( 
+            wmanifold.points[0].x, projectile->mHeight, 
+            wmanifold.points[0].y );
+
+        projectile->mReferenceProjectile->SetContactDetected(contactPoint, car->mReferenceCar);
+        return true;
+    }
+    return false;
+}
+
+bool PhysicsManager::ProcessProjectileVsPed(b2Contact* contact, ProjectilePhysicsBody* projectile, PedPhysicsBody* ped) const
+{
+    // check ped bounds height
+    // todo: get car height!
+    bool hasContact = ((projectile->mHeight >= ped->mHeight) && 
+        (projectile->mHeight <= (ped->mHeight + 2.0f)));
+
+    if (!hasContact)
+        return false;
+
+    // get collision point
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    int pointsCount = contact->GetManifold()->pointCount;
+    if (pointsCount > 0)
+    {
+        glm::vec3 contactPoint( 
+            wmanifold.points[0].x, projectile->mHeight, 
+            wmanifold.points[0].y );
+
+        projectile->mReferenceProjectile->SetContactDetected(contactPoint, ped->mReferencePed);
+        return true;
+    }
     return false;
 }

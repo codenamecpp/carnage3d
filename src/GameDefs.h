@@ -800,7 +800,7 @@ enum eProjectileType
 {
     eProjectileType_Bullet, // pistol, machinegun
     eProjectileType_Flame, // flamethrower
-    eProjectileType_Rocket, // rocket launcher, tank rocket
+    eProjectileType_Missile, // rocket launcher, tank rocket
     eProjectileType_COUNT
 };
 decl_enum_strings(eProjectileType);

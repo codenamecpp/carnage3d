@@ -5,11 +5,11 @@
 #include "GameMapManager.h"
 #include "TimeManager.h"
 #include "DebugRenderer.h"
+#include "GameObjectsManager.h"
 
 Projectile::Projectile(ProjectileStyle* style) 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
     , mProjectileStyle(style)
-    , mDrawHeight()
     , mStartPosition()
 {
     debug_assert(style);
@@ -28,7 +28,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     debug_assert(mProjectileStyle);
 
     mStartPosition = startPosition;
-    mDead = false;
+    mContactDetected = false;
     if (mPhysicsBody == nullptr)
     {
         mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
@@ -56,6 +56,13 @@ void Projectile::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     mAnimationState.AdvanceAnimation(deltaTime);
+
+    if (IsContactDetected())
+    {
+        MarkForDeletion();
+
+        Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+    }
 }
 
 void Projectile::PreDrawFrame()
@@ -67,7 +74,6 @@ void Projectile::PreDrawFrame()
     ComputeDrawHeight(position);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
-    mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.SetOriginToCenter();
 }
 
@@ -92,5 +98,26 @@ void Projectile::ComputeDrawHeight(const glm::vec3& position)
         }
     }
 
-    mDrawHeight = maxHeight + 0.1f; // todo: magic numbers
+    mDrawSprite.mHeight = maxHeight + 0.1f; // todo: magic numbers
+}
+
+void Projectile::SetContactDetected(const glm::vec3& position, GameObject* gameObject)
+{
+    mContactDetected = true;
+    mContactObject = gameObject;
+    mContactPoint = position;
+
+    if (gameObject == nullptr)
+    {
+        mContactPoint.y += Convert::MapUnitsToMeters(1.0f); // todo: magic numbers
+    }
+    else 
+    {
+        mContactPoint.y += 0.1f; // todo: magic numbers
+    }
+}
+
+bool Projectile::IsContactDetected() const
+{
+    return mContactDetected;
 }

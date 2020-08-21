@@ -705,8 +705,7 @@ ProjectilePhysicsBody::ProjectilePhysicsBody(b2World* physicsWorld, Projectile* 
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
-    fixtureDef.isSensor = true;
-    fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PROJECTILE_SENSOR;
+    fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_PROJECTILE;
     fixtureDef.filter.maskBits = PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_CAR | PHYSICS_OBJCAT_OBSTACLE | PHYSICS_OBJCAT_MAP_SOLID_BLOCK;
 
     b2Fixture* b2fixture = mPhysicsBody->CreateFixture(&fixtureDef);
@@ -719,6 +718,9 @@ ProjectilePhysicsBody::~ProjectilePhysicsBody()
 
 void ProjectilePhysicsBody::SimulationStep()
 {
+    if (mReferenceProjectile->IsContactDetected() || mReferenceProjectile->IsMarkedForDeletion())
+        return;
+
     // setup physics
     glm::vec2 velocity = GetSignVector();
     SetLinearVelocity(velocity * mReferenceProjectile->mProjectileStyle->mSpeed);
@@ -728,12 +730,14 @@ void ProjectilePhysicsBody::SimulationStep()
 
     if (glm::distance(startPosition, currPosition) >= mReferenceProjectile->mProjectileStyle->mBaseDistance)
     {
-        mReferenceProjectile->mDead = true;
         mReferenceProjectile->MarkForDeletion();
     }
 }
 
 bool ProjectilePhysicsBody::ShouldContactWith(unsigned int objCatBits) const
 {
-    return true; // todo
+    if (mReferenceProjectile->IsContactDetected() || mReferenceProjectile->IsMarkedForDeletion())
+        return false;
+
+    return true;
 }

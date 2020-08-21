@@ -42,8 +42,7 @@ decl_enum_as_flags(eGameObjectFlags);
 // game object type indices
 enum
 {
-    //GameObjectIndex_
-
-
+    GameObjectType_Null = 0,
+    // todo...
     GameObjectType_MAX = 102
 };

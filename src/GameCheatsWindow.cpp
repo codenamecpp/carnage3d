@@ -93,17 +93,6 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Text("state: %s", cxx::enum_to_string(pedestrian->GetCurrentStateID()));
         ImGui::HorzSpacing();
 
-        // get block location
-        glm::ivec3 blockPosition = Convert::MetersToMapUnits(pedPosition);
-
-        BlockStyle* currBlock = gGameMap.GetBlockClamp(blockPosition.x, blockPosition.z, blockPosition.y);
-
-        ImGui::Text("b ground: %s", cxx::enum_to_string(currBlock->mGroundType));
-        ImGui::Text("b slope: %d", currBlock->mSlopeType);
-        ImGui::Text("b directions: %d, %d, %d, %d", currBlock->mUpDirection, currBlock->mRightDirection, 
-            currBlock->mDownDirection, currBlock->mLeftDirection);
-
-        ImGui::HorzSpacing();
         ImGui::SliderInt("ped remap", &pedestrian->mRemapIndex, -1, MAX_PED_REMAPS - 1);
 
         if (pedestrian->IsCarPassenger())

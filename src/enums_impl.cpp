@@ -551,7 +551,7 @@ impl_enum_strings(eProjectileType)
 {
     {eProjectileType_Bullet, "bullet"},
     {eProjectileType_Flame, "flame"},
-    {eProjectileType_Rocket, "missile"},
+    {eProjectileType_Missile, "missile"},
 };
 
 impl_enum_strings(eWeaponFireType)
