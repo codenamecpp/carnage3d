@@ -274,16 +274,14 @@ public:
 struct MapMeshData
 {
 public:
-    using TVertexType = CityVertex3D;
     MapMeshData() = default;
-
-    inline void SetNull()
+    inline void Clear()
     {
         mBlocksVertices.clear();
         mBlocksIndices.clear();
     }
-
 public:
+    using TVertexType = CityVertex3D;
     std::vector<TVertexType> mBlocksVertices;
     std::vector<DrawIndex> mBlocksIndices;
 };
@@ -329,7 +327,7 @@ public:
         mV1 = 1.0f;
     }
     // clear texture region
-    inline void SetNull()
+    inline void Clear()
     {
         mRectangle.SetNull();
     }
@@ -346,7 +344,7 @@ class Spritesheet final
 public:
     Spritesheet() = default;
     // clear spritesheet
-    inline void SetNull()
+    inline void Clear()
     {
         mSpritesheetTexture = nullptr;
         mEntries.clear();

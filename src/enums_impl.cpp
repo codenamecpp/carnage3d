@@ -532,6 +532,7 @@ impl_enum_strings(eGameObjectClass)
     {eGameObjectClass_Powerup, "powerup"},
     {eGameObjectClass_Decoration, "decoration"},
     {eGameObjectClass_Obstacle, "obstacle"},
+    {eGameObjectClass_Explosion, "explosion"},
 };
 
 impl_enum_strings(ePedestrianDeathReason)

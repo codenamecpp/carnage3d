@@ -8,6 +8,7 @@ class Vehicle;
 class Projectile;
 class Decoration;
 class Obstacle;
+class Explosion;
 
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
@@ -23,6 +24,7 @@ enum eGameObjectClass
     eGameObjectClass_Powerup,
     eGameObjectClass_Decoration,
     eGameObjectClass_Obstacle,
+    eGameObjectClass_Explosion,
     eGameObjectClass_COUNT,
 };
 

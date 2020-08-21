@@ -40,7 +40,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     }
 
     // setup animation
-    mAnimationState.SetNull();
+    mAnimationState.Clear();
     if (!gGameMap.mStyleData.GetSpriteAnimation(mProjectileStyle->mAnimID, mAnimationState.mAnimDesc))
     {
         debug_assert(false);

@@ -65,7 +65,7 @@ public:
     SpriteAnimation();
     // advance animation state, returns true on frame changes
     bool AdvanceAnimation(float deltaTime);
-    void SetNull();
+    void Clear();
 
     // animation control
 
@@ -75,6 +75,7 @@ public:
     // play animation from current position
     void PlayAnimation(eSpriteAnimLoop animLoop);
     void PlayAnimation(eSpriteAnimLoop animLoop, float fps);
+    void SetMaxRepeatCycles(int numCycles);
     void PlayAnimationBackwards(eSpriteAnimLoop animLoop);
     void PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps);
 
@@ -101,5 +102,6 @@ public:
     float mAnimationStartTime;
     
     int mCyclesCounter;
+    int mCyclesCountMax = 0;
     int mFrameCursor; // current offset in mAnimData.Frames
 };

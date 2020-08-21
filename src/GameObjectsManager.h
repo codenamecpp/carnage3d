@@ -5,6 +5,7 @@
 #include "Projectile.h"
 #include "Decoration.h"
 #include "Obstacle.h"
+#include "Explosion.h"
 
 // define game objects manager class
 class GameObjectsManager final: public cxx::noncopyable
@@ -43,6 +44,9 @@ public:
     // Add new decoration instance to map at specific location
     Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
 
+    // Add explosion instance to map at specific location 
+    Explosion* CreateExplosion(const glm::vec3& position);
+
     // Add new obstacle instance to map at specific location
     Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
 
@@ -77,6 +81,7 @@ private:
     cxx::object_pool<Projectile> mProjectilesPool;
     cxx::object_pool<Decoration> mDecorationsPool;
     cxx::object_pool<Obstacle> mObstaclesPool;
+    cxx::object_pool<Explosion> mExplosionsPool;
 };
 
 extern GameObjectsManager gGameObjectsManager;

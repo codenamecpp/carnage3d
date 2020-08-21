@@ -58,10 +58,10 @@ static const DefaultActionMapping gDefaultActionsMapping[] =
 
 InputActionsMapping::InputActionsMapping()
 {
-    SetNull();
+    Clear();
 }
 
-void InputActionsMapping::SetNull()
+void InputActionsMapping::Clear()
 {
     mControllerType = eInputControllerType_None;
 

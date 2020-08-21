@@ -40,6 +40,7 @@ bool SpriteManager::InitLevelSprites()
 
     InitPalettesTable();
     InitBlocksAnimations();
+    InitExplosionFrames();
     return true;
 }
 
@@ -47,6 +48,7 @@ void SpriteManager::Cleanup()
 {
     FlushSpritesCache();
     DestroySpriteTextures();
+    FreeExplosionFrames();
     mIndicesTableChanged = false;
     if (mBlocksTextureArray)
     {
@@ -650,4 +652,85 @@ GpuTexture2D* SpriteManager::GetFreeSpriteTexture(const Point& dimensions, eText
 
     GpuTexture2D* texture = gGraphicsDevice.CreateTexture2D(format, dimensions.x, dimensions.y, nullptr);
     return texture;
+}
+
+void SpriteManager::InitExplosionFrames()
+{
+    StyleData& cityStyle = gGameMap.mStyleData;
+
+    int explosionSpriteIndex = cityStyle.GetSpriteIndex(eSpriteType_Ex, 0);
+    int explosionSpritesCount = cityStyle.GetNumSprites(eSpriteType_Ex);
+
+    debug_assert(cxx::is_even(explosionSpritesCount));
+
+    int framesCount = (explosionSpritesCount / 4); // single explosion frame consists of four smaller parts
+    if (framesCount < 1)
+        return;
+
+    SpriteStyle& sprite = cityStyle.mSprites[explosionSpriteIndex];
+
+    int textureSizex = sprite.mWidth * 2;
+    int textureSizey = sprite.mHeight * 2;
+
+    PixelsArray pixels;
+    if (!pixels.Create(eTextureFormat_R8UI, textureSizex, textureSizey, 
+        gMemoryManager.mFrameHeapAllocator))
+    {
+        debug_assert(false);
+        return;
+    }
+
+    for (int iframe = 0; iframe < framesCount; ++iframe)
+    {
+        // copy data
+        for (int ipiece = 0; ipiece < 4; ++ipiece)
+        {
+            int destx = (ipiece % 2);
+            int desty = (ipiece / 2);
+
+            int currSpriteIndex = explosionSpriteIndex + iframe + (ipiece * framesCount);
+            if (!cityStyle.GetSpriteTexture(currSpriteIndex, &pixels, sprite.mWidth * destx, sprite.mHeight * desty))
+            {
+                debug_assert(false);
+            }
+        }
+
+        // upload pixels to gpu
+        GpuTexture2D* texture = gGraphicsDevice.CreateTexture2D(pixels.mFormat, pixels.mSizex, pixels.mSizey, pixels.mData);
+        if (texture)
+        {
+            mExplosionFrames.push_back(texture);
+            continue;
+        }
+        debug_assert(texture);
+    }
+    
+    mExplosionPaletteIndex = cityStyle.GetSpritePaletteIndex(sprite.mClut, 0);
+}
+
+void SpriteManager::FreeExplosionFrames()
+{
+    for (GpuTexture2D* currTexure: mExplosionFrames)
+    {
+        gGraphicsDevice.DestroyTexture(currTexure);
+    }
+    mExplosionFrames.clear();
+}
+
+bool SpriteManager::GetExplosionTexture(int frameIndex, Sprite2D& sourceSprite) const
+{
+    int framesCount = GetExplosionFramesCount();
+    if (frameIndex < framesCount)
+    {
+        sourceSprite.mPaletteIndex = mExplosionPaletteIndex;
+        sourceSprite.mTexture = mExplosionFrames[frameIndex];
+        sourceSprite.mTextureRegion.SetRegion(sourceSprite.mTexture->mSize);
+        return true;
+    }
+    return false;
+}
+
+int SpriteManager::GetExplosionFramesCount() const
+{
+    return (int) mExplosionFrames.size();
 }

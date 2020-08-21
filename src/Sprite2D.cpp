@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Sprite2D.h"
 
-void Sprite2D::SetNull()
+void Sprite2D::Clear()
 {
     mTexture = nullptr;
 
-    mTextureRegion.SetNull();
+    mTextureRegion.Clear();
 
     mOrigin.x = 0.0f;
     mOrigin.y = 0.0f;

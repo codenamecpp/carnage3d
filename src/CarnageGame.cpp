@@ -175,7 +175,7 @@ bool CarnageGame::SetInputActionsFromConfig()
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
         HumanCharacterSlot& currentChar = mHumanSlot[ihuman];
-        currentChar.mCharController.mInputs.SetNull();
+        currentChar.mCharController.mInputs.Clear();
         if (ihuman == 0) 
         {
             currentChar.mCharController.mInputs.SetDefaults();

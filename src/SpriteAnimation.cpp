@@ -3,10 +3,10 @@
 
 SpriteAnimation::SpriteAnimation(): mFrameCursor(), mCyclesCounter()
 {
-    SetNull();
+    Clear();
 }
 
-void SpriteAnimation::SetNull()
+void SpriteAnimation::Clear()
 {
     mStatus = eSpriteAnimStatus_Stop;
     mLoopMode = eSpriteAnimLoop_None;
@@ -57,6 +57,7 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
         return;
     }
 
+    mCyclesCountMax = 0;
     mFrameStartTime = 0.0;
     mAnimationStartTime = 0.0;
     mCyclesCounter = 0;
@@ -69,6 +70,16 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop, float fps)
     mAnimDesc.mFramesPerSecond = fps;
 
     PlayAnimation(animLoop);
+}
+
+void SpriteAnimation::SetMaxRepeatCycles(int numCycles)
+{
+    mCyclesCountMax = numCycles;
+    if (mCyclesCountMax < 0)
+    {
+        debug_assert(false);
+        mCyclesCountMax = 0; // infinite
+    }
 }
 
 void SpriteAnimation::PlayAnimationBackwards(eSpriteAnimLoop animLoop)
@@ -127,6 +138,12 @@ bool SpriteAnimation::AdvanceAnimation(float deltaTime)
     {
         if (mFrameCursor == (mAnimDesc.mFramesCount - 1)) // end
         {
+            ++mCyclesCounter;
+            if (mCyclesCountMax > 0 && (mCyclesCounter >= mCyclesCountMax))
+            {
+                mLoopMode = eSpriteAnimLoop_None;
+            }
+
             switch (mLoopMode)
             {
                 case eSpriteAnimLoop_None:
@@ -142,7 +159,6 @@ bool SpriteAnimation::AdvanceAnimation(float deltaTime)
                     NextFrame(false);
                 break;
             }
-            ++mCyclesCounter;
         }
         else
         {
@@ -153,6 +169,12 @@ bool SpriteAnimation::AdvanceAnimation(float deltaTime)
     {
         if (mFrameCursor == 0) // end
         {
+            ++mCyclesCounter;
+            if (mCyclesCountMax > 0 && (mCyclesCounter >= mCyclesCountMax))
+            {
+                mLoopMode = eSpriteAnimLoop_None;
+            }
+
             switch (mLoopMode)
             {
                 case eSpriteAnimLoop_None:
@@ -166,14 +188,13 @@ bool SpriteAnimation::AdvanceAnimation(float deltaTime)
                     mStatus = eSpriteAnimStatus_PlayForward;
                     NextFrame(true);
                 break;
-            } 
-            ++mCyclesCounter;
+            }
         }
         else
         {
             NextFrame(false);
         }
-    }        
+    }
     return true;
 }
 

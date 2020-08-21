@@ -41,7 +41,7 @@ void Decoration::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mDrawSprite.mHeight = startPosition.y;
     mDrawSprite.mRotateAngle = startRotation;
 
-    mAnimationState.SetNull();
+    mAnimationState.Clear();
     mAnimationState.mAnimDesc = mGameObjectDesc->mAnimationData;
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
 }

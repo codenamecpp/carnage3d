@@ -39,13 +39,21 @@ public:
     void FlushSpritesCache();
     void FlushSpritesCache(GameObjectID objectID);
 
-    // create sprite texture with deltas specified
+    // Create sprite texture with deltas specified
     // @param objectID: Game object that owns sprite or GAMEOBJECT_ID_NULL
     // @param spriteIndex: Sprite index, linear
     // @param deltaBits: Sprite delta bits
-    // @param sourceSprite: Sprite data
+    // @param sourceSprite: Output sprite data
     void GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, SpriteDeltaBits deltaBits, Sprite2D& sourceSprite);
     void GetSpriteTexture(GameObjectID objectID, int spriteIndex, int remap, Sprite2D& sourceSprite);
+
+    // Get explosion sprite texture
+    // @param frameIndex: Frame index
+    // @param sourceSprite: Output sprite data
+    bool GetExplosionTexture(int frameIndex, Sprite2D& sourceSprite) const;
+
+    // Get explosion frames count
+    int GetExplosionFramesCount() const;
 
     // save all blocks textures to hard drive
     void DumpBlocksTexture(const std::string& outputLocation);
@@ -60,6 +68,9 @@ private:
     bool InitObjectsSpritesheet();
     void InitPalettesTable();
     void InitBlocksAnimations();
+
+    void InitExplosionFrames();
+    void FreeExplosionFrames();
 
     // find texture with required size and format or create new if nothing found
     GpuTexture2D* GetFreeSpriteTexture(const Point& dimensions, eTextureFormat format);
@@ -79,6 +90,11 @@ private:
 
     // usused sprite textures
     std::vector<GpuTexture2D*> mFreeSpriteTextures;
+
+    // explosion sprite is huge and it was originally split into four pieces, 
+    // so it must be assembled in one piece again before use
+    std::vector<GpuTexture2D*> mExplosionFrames;
+    int mExplosionPaletteIndex = 0;
 
     // cached sprite textures with deltas
     struct SpriteCacheElement

@@ -242,7 +242,7 @@ void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopM
 {
     if (mCurrentAnimID != animation)
     {
-        mCurrentAnimState.SetNull();
+        mCurrentAnimState.Clear();
         if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
         {
             debug_assert(false);

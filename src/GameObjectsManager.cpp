@@ -16,6 +16,7 @@ GameObjectsManager::~GameObjectsManager()
     mProjectilesPool.cleanup();
     mDecorationsPool.cleanup();
     mObstaclesPool.cleanup();
+    mExplosionsPool.cleanup();
 }
 
 bool GameObjectsManager::InitGameObjects()
@@ -147,6 +148,19 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
         // init
         instance->Spawn(position, heading);
     }
+    return instance;
+}
+
+Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
+{
+    GameObjectID objectID = GenerateUniqueID();
+
+    Explosion* instance = mExplosionsPool.create(objectID);
+    debug_assert(instance);
+
+    mAllObjectsList.push_back(instance);
+    // init
+    instance->Spawn(position);
     return instance;
 }
 
@@ -299,6 +313,13 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         {
             Obstacle* obstacle = static_cast<Obstacle*>(object);
             mObstaclesPool.destroy(obstacle);
+        }
+        break;
+
+        case eGameObjectClass_Explosion:
+        {
+            Explosion* explosion = static_cast<Explosion*>(object);
+            mExplosionsPool.destroy(explosion);
         }
         break;
 

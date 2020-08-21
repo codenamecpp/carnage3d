@@ -61,6 +61,7 @@ public:
     inline bool IsVehicleClass() const { return mObjectTypeID == eGameObjectClass_Car; }
     inline bool IsPowerupClass() const { return mObjectTypeID == eGameObjectClass_Powerup; }
     inline bool IsObstacleClass() const { return mObjectTypeID == eGameObjectClass_Obstacle; }
+    inline bool IsExplosionClass() const { return mObjectTypeID == eGameObjectClass_Explosion; }
 
     // flag shortcuts
     inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
@@ -77,7 +78,6 @@ protected:
 
     // drawing spricific data
     Sprite2D mDrawSprite;
-
 
 private:
     // marked object will be destroyed next game frame

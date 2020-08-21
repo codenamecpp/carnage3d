@@ -616,7 +616,7 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
 
 void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsLinecastResult& outputResult) const
 {
-    outputResult.SetNull();
+    outputResult.Clear();
 
     struct _raycast_callback: public b2RayCastCallback
     {
@@ -665,7 +665,7 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
 
 void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const glm::vec2& aabboxExtents, PhysicsQueryResult& outputResult) const
 {
-    outputResult.SetNull();
+    outputResult.Clear();
 
     struct _query_callback: public b2QueryCallback
     {

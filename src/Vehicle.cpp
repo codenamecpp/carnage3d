@@ -196,16 +196,16 @@ void Vehicle::SetupDeltaAnimations()
 {
     SpriteDeltaBits deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
 
-    mEmergLightsAnim.SetNull();
+    mEmergLightsAnim.Clear();
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
     {
-        mDoorsAnims[idoor].SetNull();
+        mDoorsAnims[idoor].Clear();
     }
 
     SpriteDeltaBits maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
     if ((deltaBits & maskBits) == maskBits)
     {
-        mEmergLightsAnim.SetNull();
+        mEmergLightsAnim.Clear();
         mEmergLightsAnim.mAnimDesc.SetupFrames(
         {
             BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0),

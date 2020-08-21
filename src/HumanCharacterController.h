@@ -20,7 +20,7 @@ public:
     void SetFromConfig(cxx::json_document_node& configNode);
 
     void SetDefaults();
-    void SetNull();
+    void Clear();
 
     // get action mapped to input keycode or gamepad button
     // @returns ePedestrianAction_null if no action

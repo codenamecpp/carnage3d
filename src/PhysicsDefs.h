@@ -44,7 +44,7 @@ struct PhysicsQueryElement
 {
 public:
     PhysicsQueryElement() = default;
-    inline void SetNull()
+    inline void Clear()
     {
         mPedComponent = nullptr;
         mCarComponent = nullptr;
@@ -60,7 +60,7 @@ struct PhysicsLinecastResult
 {
 public:
     PhysicsLinecastResult() = default;
-    inline void SetNull() { mHitsCount = 0; }
+    inline void Clear() { mHitsCount = 0; }
     inline bool IsNull() const { return mHitsCount == 0; }
     inline bool IsFull() const { return mHitsCount == MaxPhysicsQueryElements; }
 public:
@@ -73,7 +73,7 @@ struct PhysicsQueryResult
 {
 public:
     PhysicsQueryResult() = default;
-    inline void SetNull() { mElementsCount = 0; }
+    inline void Clear() { mElementsCount = 0; }
     inline bool IsNull() const { return mElementsCount == 0; }
     inline bool IsFull() const { return mElementsCount == MaxPhysicsQueryElements; }
 public:
