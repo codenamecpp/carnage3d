@@ -381,18 +381,33 @@ void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
     if (IsDead())
         return;
 
-    if (impulse > 2.6f || IsUnconscious()) // todo: magic numbers
+    if (IsUnconscious())
     {
         Die(ePedestrianDeathReason_HitByCar, nullptr);
         return;
     }
 
-    // jump over
-    if (mStatesManager.CanStartSlideOnCarState())
+    glm::vec2 carPosition = targetCar->mPhysicsBody->GetPosition2();
+    glm::vec2 pedPosition = mPhysicsBody->GetPosition2();
+    glm::vec2 directionNormal = glm::normalize(pedPosition - carPosition);
+    glm::vec2 directionVelocity = glm::dot(directionNormal, targetCar->mPhysicsBody->GetLinearVelocity()) * directionNormal;
+    float speedInDirection = glm::dot(directionVelocity, directionNormal);
+    speedInDirection = fabs(speedInDirection);
+
+    float killSpeed = 6.0f; // todo: magic numbers
+    if (speedInDirection > killSpeed)
     {
-        PedestrianStateEvent evData { ePedestrianStateEvent_PushByCar };
-        mStatesManager.ChangeState(ePedestrianState_SlideOnCar, evData);
-        return;
+        Die(ePedestrianDeathReason_HitByCar, nullptr);
+    }
+    else if (speedInDirection > 1.0f)// todo: magic numbers
+    {
+        // jump over
+        if (mStatesManager.CanStartSlideOnCarState())
+        {
+            PedestrianStateEvent evData { ePedestrianStateEvent_PushByCar };
+            mStatesManager.ChangeState(ePedestrianState_SlideOnCar, evData);
+            return;
+        } 
     }
 }
 

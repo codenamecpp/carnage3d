@@ -49,15 +49,15 @@
     },
     "jump_onto_car":
     {
-        "start_frame": 91, "num_frames": 3
+        "start_frame": 91, "num_frames": 3, "fps": 12.0
     },
     "slide_on_car":
     {
-        "start_frame": 94, "num_frames": 1, "fps": 1.0
+        "start_frame": 94, "num_frames": 1, "fps": 8.0
     },
     "drop_off_car_sliding":
     {
-        "start_frame": 95, "num_frames": 2
+        "start_frame": 95, "num_frames": 2, "fps": 12.0
     },
     "fall_short":
     {
