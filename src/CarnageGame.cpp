@@ -68,29 +68,38 @@ void CarnageGame::UpdateFrame()
     }
 }
 
+void CarnageGame::InputEventLost()
+{
+    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    {
+        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+            continue;
+
+        mHumanSlot[ihuman].mCharController.InputEventLost();
+        mHumanSlot[ihuman].mCharView.InputEventLost();
+    }
+}
+
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 {
-    if (inputEvent.mConsumed)
-        return;
-
-    if (inputEvent.mKeycode == eKeycode_TILDE && inputEvent.mPressed) // show debug console
+    if (inputEvent.HasPressed(eKeycode_TILDE)) // show debug console
     {
         gDebugConsoleWindow.mWindowShown = !gDebugConsoleWindow.mWindowShown;
         return;
     }
-    if (inputEvent.mKeycode == eKeycode_F3 && inputEvent.mPressed)
+    if (inputEvent.HasPressed(eKeycode_F3))
     {
         gRenderManager.ReloadRenderPrograms();
         return;
     }
 
-    if (inputEvent.mKeycode == eKeycode_ESCAPE && inputEvent.mPressed)
+    if (inputEvent.HasPressed(eKeycode_ESCAPE))
     {
         gSystem.QuitRequest();
         return;
     }
 
-    if (inputEvent.mKeycode == eKeycode_C && inputEvent.mPressed)
+    if (inputEvent.HasPressed(eKeycode_C))
     {
         gGameCheatsWindow.mWindowShown = !gGameCheatsWindow.mWindowShown;
         return;
@@ -103,9 +112,6 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 
         mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
         mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
-
-        if (inputEvent.mConsumed)
-            break;
     }
 }
 
@@ -117,9 +123,6 @@ void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)
             continue;
 
         mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
-
-        if (inputEvent.mConsumed)
-            break;
     }
 }
 
@@ -131,9 +134,6 @@ void CarnageGame::InputEvent(MouseMovedInputEvent& inputEvent)
             continue;
 
         mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
-
-        if (inputEvent.mConsumed)
-            break;
     }
 }
 
@@ -145,9 +145,6 @@ void CarnageGame::InputEvent(MouseScrollInputEvent& inputEvent)
             continue;
 
         mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
-
-        if (inputEvent.mConsumed)
-            break;
     }
 }
 
@@ -163,9 +160,6 @@ void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
             continue;
 
         mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
-
-        if (inputEvent.mConsumed)
-            break;
     }
 }
 

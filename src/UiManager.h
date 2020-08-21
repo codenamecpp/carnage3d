@@ -4,7 +4,7 @@
 #include "SpriteBatch.h"
 
 // manages all graphical user interface operation
-class UiManager final: public cxx::noncopyable
+class UiManager final: public InputEventsHandler
 {
 public:
     // setup/free internal resources
@@ -14,14 +14,13 @@ public:
     void RenderFrame();
     void UpdateFrame();
 
-    // process input events
-    // @param inputEvent: Input event data
-    void InputEvent(MouseMovedInputEvent& inputEvent);
-    void InputEvent(MouseScrollInputEvent& inputEvent);
-    void InputEvent(MouseButtonInputEvent& inputEvent);
-    void InputEvent(KeyInputEvent& inputEvent);
-    void InputEvent(KeyCharEvent& inputEvent);
-    void InputEvent(GamepadInputEvent& inputEvent);
+    // override InputEventsHandler
+    void InputEvent(MouseMovedInputEvent& inputEvent) override;
+    void InputEvent(MouseScrollInputEvent& inputEvent) override;
+    void InputEvent(MouseButtonInputEvent& inputEvent) override;
+    void InputEvent(KeyInputEvent& inputEvent) override;
+    void InputEvent(KeyCharEvent& inputEvent) override;
+    void InputEvent(GamepadInputEvent& inputEvent) override;
 
 private:
     SpriteBatch mSpriteBatch;

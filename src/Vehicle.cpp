@@ -481,17 +481,18 @@ void Vehicle::UpdateDriving()
         return;
     }
 
-    mPhysicsBody->SetHandBrake(carDriver->mCtlActions[ePedestrianAction_HandBrake]);
-    mPhysicsBody->SetAcceleration(carDriver->mCtlActions[ePedestrianAction_Accelerate]);
-    mPhysicsBody->SetDeceleration(carDriver->mCtlActions[ePedestrianAction_Reverse]);
+    const PedestrianCtlState& ctlState = carDriver->mCtlState;
+    mPhysicsBody->SetHandBrake(ctlState.mCtlActions[ePedestrianAction_HandBrake]);
+    mPhysicsBody->SetAcceleration(ctlState.mCtlActions[ePedestrianAction_Accelerate]);
+    mPhysicsBody->SetDeceleration(ctlState.mCtlActions[ePedestrianAction_Reverse]);
 
     // steering
     int currentSteering = CarSteeringDirectionNone;
-    if (carDriver->mCtlActions[ePedestrianAction_SteerLeft])
+    if (ctlState.mCtlActions[ePedestrianAction_SteerLeft])
     {
         currentSteering = CarSteeringDirectionLeft;
     }
-    if (carDriver->mCtlActions[ePedestrianAction_SteerRight])
+    if (ctlState.mCtlActions[ePedestrianAction_SteerRight])
     {
         currentSteering = CarSteeringDirectionRight;
     }

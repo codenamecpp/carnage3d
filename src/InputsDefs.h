@@ -253,3 +253,38 @@ public:
     eGamepadButton mButton;
     bool mPressed;
 };
+
+// Input events handler interfacce
+class InputEventsHandler
+{
+public:
+    virtual ~InputEventsHandler()
+    {
+    }
+
+    // Process input event
+    // @param inputEvent: Event data
+    virtual void InputEvent(MouseButtonInputEvent& inputEvent)
+    {
+    }
+    virtual void InputEvent(MouseMovedInputEvent& inputEvent)
+    {
+    }
+    virtual void InputEvent(MouseScrollInputEvent& inputEvent)
+    {
+    }
+    virtual void InputEvent(KeyInputEvent& inputEvent)
+    {
+    }
+    virtual void InputEvent(KeyCharEvent& inputEvent)
+    {
+    }
+    virtual void InputEvent(GamepadInputEvent& inputEvent)
+    {
+    }
+
+    // Process the special case when recent input event was intercepted by someone else
+    virtual void InputEventLost()
+    {
+    }
+};

@@ -17,12 +17,7 @@ void FreeLookCameraController::Setup(GameCamera* gameCamera)
     mCamera->SetTopDownOrientation();
     mCamera->SetPosition(cameraPosition);
 
-    // reset controls flags
-    mMoveLeft = false;
-    mMoveRight = false;
-    mMoveForward = false;
-    mMoveBackward = false;
-    mMouseDragCamera = false;
+    ClearConstrols();
 }
 
 void FreeLookCameraController::UpdateFrame()
@@ -145,4 +140,18 @@ void FreeLookCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
     glm::vec3 position = mCamera->mPosition;
     position.y = glm::max(position.y + (0.5f * -inputEvent.mScrollY), MAP_LAYERS_COUNT * 1.0f);
     mCamera->SetPosition(position);
+}
+
+void FreeLookCameraController::InputEventLost()
+{
+    ClearConstrols();
+}
+
+void FreeLookCameraController::ClearConstrols()
+{
+    mMoveLeft = false;
+    mMoveRight = false;
+    mMoveForward = false;
+    mMoveBackward = false;
+    mMouseDragCamera = false;
 }

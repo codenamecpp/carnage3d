@@ -22,10 +22,10 @@ public:
     CharacterController* mController; // controls pedestrian actions
     PedPhysicsBody* mPhysicsBody;
 
+    PedestrianCtlState mCtlState;
+
     float mCurrentStateTime; // time since current state has started
     float mWeaponRechargeTime; // next time weapon can be used again
-
-    bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 
     float mDrawHeight;
     int mRemapIndex;

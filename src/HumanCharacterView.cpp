@@ -43,6 +43,14 @@ void HumanCharacterView::InputEvent(MouseScrollInputEvent& inputEvent)
     }
 }
 
+void HumanCharacterView::InputEventLost()
+{
+    if (mCameraController)
+    {
+        mCameraController->InputEventLost();
+    }
+}
+
 void HumanCharacterView::SetCameraController(CameraController* controller)
 {
     if (mCameraController == controller)

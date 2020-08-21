@@ -6,7 +6,7 @@
 #include "HumanCharacterView.h"
 
 // top level game application controller
-class CarnageGame final: public cxx::noncopyable
+class CarnageGame final: public InputEventsHandler
 {
 public:
     // temporary
@@ -35,12 +35,15 @@ public:
 
     // Common processing
     void UpdateFrame();
-    void InputEvent(KeyInputEvent& inputEvent);
-    void InputEvent(MouseButtonInputEvent& inputEvent);
-    void InputEvent(MouseMovedInputEvent& inputEvent);
-    void InputEvent(MouseScrollInputEvent& inputEvent);
-    void InputEvent(KeyCharEvent& inputEvent);
-    void InputEvent(GamepadInputEvent& inputEvent);
+
+    // override InputEventsHandler
+    void InputEvent(KeyInputEvent& inputEvent) override;
+    void InputEvent(MouseButtonInputEvent& inputEvent) override;
+    void InputEvent(MouseMovedInputEvent& inputEvent) override;
+    void InputEvent(MouseScrollInputEvent& inputEvent) override;
+    void InputEvent(KeyCharEvent& inputEvent) override;
+    void InputEvent(GamepadInputEvent& inputEvent) override;
+    void InputEventLost() override;
 
     // Initialize player data
     void SetupHumanCharacter(int playerIndex, Pedestrian* pedestrian);

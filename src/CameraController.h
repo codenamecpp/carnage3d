@@ -31,6 +31,9 @@ public:
     virtual void InputEvent(MouseScrollInputEvent& inputEvent)
     {
     }
+    virtual void InputEventLost()
+    {
+    }
 
 public:
     GameCamera* mCamera = nullptr;

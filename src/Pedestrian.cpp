@@ -35,10 +35,7 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mWeaponRechargeTime = 0;
 
     // reset actions
-    for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
-    {
-        mCtlActions[iaction] = false;
-    }
+    mCtlState.Clear();
 
     // reset weapon ammo
     for (int iweapon = 0; iweapon < eWeaponType_COUNT; ++iweapon)
@@ -335,13 +332,13 @@ void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
     mCurrentCar->PutPassenger(this, mCurrentSeat);
 
     // reset actions
-    mCtlActions[ePedestrianAction_TurnLeft] = false;
-    mCtlActions[ePedestrianAction_TurnRight] = false;
-    mCtlActions[ePedestrianAction_Jump] = false;
-    mCtlActions[ePedestrianAction_WalkForward] = false;
-    mCtlActions[ePedestrianAction_WalkBackward] = false;
-    mCtlActions[ePedestrianAction_Run] = false;
-    mCtlActions[ePedestrianAction_Shoot] = false;
+    mCtlState.mCtlActions[ePedestrianAction_TurnLeft] = false;
+    mCtlState.mCtlActions[ePedestrianAction_TurnRight] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Jump] = false;
+    mCtlState.mCtlActions[ePedestrianAction_WalkForward] = false;
+    mCtlState.mCtlActions[ePedestrianAction_WalkBackward] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Run] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Shoot] = false;
 }
 
 void Pedestrian::SetCarExited()
@@ -353,12 +350,12 @@ void Pedestrian::SetCarExited()
     }
 
     // reset actions
-    mCtlActions[ePedestrianAction_HandBrake] = false;
-    mCtlActions[ePedestrianAction_Accelerate] = false;
-    mCtlActions[ePedestrianAction_Reverse] = false;
-    mCtlActions[ePedestrianAction_SteerLeft] = false;
-    mCtlActions[ePedestrianAction_SteerRight] = false;
-    mCtlActions[ePedestrianAction_Horn] = false;
+    mCtlState.mCtlActions[ePedestrianAction_HandBrake] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Accelerate] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Reverse] = false;
+    mCtlState.mCtlActions[ePedestrianAction_SteerLeft] = false;
+    mCtlState.mCtlActions[ePedestrianAction_SteerRight] = false;
+    mCtlState.mCtlActions[ePedestrianAction_Horn] = false;
 }
 
 void Pedestrian::SetDead(ePedestrianDeathReason deathReason)

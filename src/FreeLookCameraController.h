@@ -17,6 +17,10 @@ public:
     void InputEvent(MouseButtonInputEvent& inputEvent) override;
     void InputEvent(MouseMovedInputEvent& inputEvent) override;
     void InputEvent(MouseScrollInputEvent& inputEvent) override;
+    void InputEventLost() override;
+
+private:
+    void ClearConstrols();
 
 private:
     bool mMoveLeft, mMoveRight;

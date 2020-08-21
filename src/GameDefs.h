@@ -805,6 +805,22 @@ enum eProjectileType
 };
 decl_enum_strings(eProjectileType);
 
+// Pedestrian control actions status
+struct PedestrianCtlState
+{
+public:
+    // Reset current state
+    inline void Clear()
+    {
+        for (int icurrent = 0; icurrent < ePedestrianAction_COUNT; ++icurrent)
+        {
+            mCtlActions[icurrent] = false;
+        }
+    }
+public:
+    bool mCtlActions[ePedestrianAction_COUNT]; // control actions
+};
+
 // projectile type data
 struct ProjectileStyle
 {

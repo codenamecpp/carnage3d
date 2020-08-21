@@ -16,6 +16,7 @@ public:
     void InputEvent(MouseButtonInputEvent& inputEvent);
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
+    void InputEventLost();
 
     // public for debug purposes
     void SetCameraController(CameraController* controller);

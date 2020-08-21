@@ -20,6 +20,8 @@ public:
 public:
     InputsManager();
 
+    void UpdateFrame();
+
     // Process input event
     // @param inputEvent: Event data
     void InputEvent(MouseButtonInputEvent& inputEvent);
@@ -75,6 +77,13 @@ public:
     }
 
     void SetGamepadPresent(int gamepad, bool isPresent);
+
+private:
+    void InputEventConsumed(InputEventsHandler* handler);
+
+private:
+    InputEventsHandler* mLastInputsHandler = nullptr;
+    std::vector<InputEventsHandler*> mInputHandlers;
 };
 
 extern InputsManager gInputs;

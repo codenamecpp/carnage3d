@@ -85,3 +85,7 @@ void FollowCameraController::SetFollowTarget(Pedestrian* pedestrian)
 {
     mFollowPedestrian = pedestrian;
 }
+
+void FollowCameraController::InputEventLost()
+{
+}

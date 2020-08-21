@@ -16,7 +16,7 @@ void CharacterController::ResetControlState(Pedestrian* pedestrian)
     // reset control actions
     for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
     {
-        pedestrian->mCtlActions[iaction] = false;
+        pedestrian->mCtlState.Clear();
     }
 }
 

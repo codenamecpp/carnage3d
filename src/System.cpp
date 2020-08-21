@@ -203,6 +203,7 @@ void System::Execute()
     // main loop
     for (; !mQuitRequested; )
     {
+        gInputs.UpdateFrame();
         gTimeManager.UpdateFrame();
         gMemoryManager.FlushFrameHeapMemory();
         gImGuiManager.UpdateFrame();

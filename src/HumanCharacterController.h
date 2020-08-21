@@ -56,6 +56,7 @@ public:
     // @param inputEvent: Event data
     void InputEvent(KeyInputEvent& inputEvent);
     void InputEvent(GamepadInputEvent& inputEvent);
+    void InputEventLost();
 
 private:
     bool HandleInputAction(ePedestrianAction action, bool isActivated);

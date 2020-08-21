@@ -14,19 +14,14 @@ void InputsManager::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     mMouseButtons[inputEvent.mButton] = inputEvent.mPressed;
 
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
@@ -35,37 +30,27 @@ void InputsManager::InputEvent(MouseMovedInputEvent& inputEvent)
     mCursorPositionX = inputEvent.mCursorPositionX;
     mCursorPositionY = inputEvent.mCursorPositionY;
 
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
 void InputsManager::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
@@ -75,19 +60,14 @@ void InputsManager::InputEvent(GamepadInputEvent& inputEvent)
     debug_assert(inputEvent.mButton < eGamepadButton_COUNT);
     mGamepadsState[inputEvent.mGamepad].mButtons[inputEvent.mButton] = inputEvent.mPressed;
 
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
@@ -95,37 +75,27 @@ void InputsManager::InputEvent(KeyInputEvent& inputEvent)
 {
     mKeyboardKeys[inputEvent.mKeycode] = inputEvent.mPressed;
 
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
 void InputsManager::InputEvent(KeyCharEvent& inputEvent)
 {
-    if (gImGuiManager.IsInitialized())
+    for (InputEventsHandler* currentHandler: mInputHandlers)
     {
-        gImGuiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gUiManager.InputEvent(inputEvent);
-    }
-
-    if (!inputEvent.mConsumed)
-    {
-        gCarnageGame.InputEvent(inputEvent);
+        currentHandler->InputEvent(inputEvent);
+        if (inputEvent.mConsumed)
+        {
+            InputEventConsumed(currentHandler);
+            break;
+        }
     }
 }
 
@@ -134,6 +104,9 @@ void InputsManager::Cleanup()
     ::memset(mMouseButtons, 0, sizeof(mMouseButtons));
     ::memset(mKeyboardKeys, 0, sizeof(mKeyboardKeys));
     ::memset(mGamepadsState, 0, sizeof(mGamepadsState));
+
+    mLastInputsHandler = nullptr;
+    mInputHandlers.clear();
 }
 
 void InputsManager::SetGamepadPresent(int gamepad, bool isPresent)
@@ -142,4 +115,30 @@ void InputsManager::SetGamepadPresent(int gamepad, bool isPresent)
 
     mGamepadsState[gamepad].mPresent = isPresent;
     ::memset(mGamepadsState[gamepad].mButtons, 0, sizeof(mGamepadsState[gamepad].mButtons));
+}
+
+void InputsManager::InputEventConsumed(InputEventsHandler* handler)
+{
+    if (mLastInputsHandler == handler)
+        return;
+
+    if (mLastInputsHandler)
+    {
+        mLastInputsHandler->InputEventLost();
+    }
+    mLastInputsHandler = handler;
+}
+
+void InputsManager::UpdateFrame()
+{
+    // update input handlers
+
+    mInputHandlers.clear();
+
+    if (gImGuiManager.IsInitialized())
+    {
+        mInputHandlers.push_back(&gImGuiManager);
+    }
+    mInputHandlers.push_back(&gUiManager);
+    mInputHandlers.push_back(&gCarnageGame);
 }

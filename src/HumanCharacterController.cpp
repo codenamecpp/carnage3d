@@ -234,8 +234,18 @@ void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
     }
 }
 
+void HumanCharacterController::InputEventLost()
+{
+    if (mCharacter)
+    {
+        // reset actions
+        mCharacter->mCtlState.Clear();
+    }
+}
+
 bool HumanCharacterController::HandleInputAction(ePedestrianAction action, bool isActivated)
 {    
+    PedestrianCtlState& ctlState = mCharacter->mCtlState;
     switch (action)
     {
         case ePedestrianAction_SteerLeft:
@@ -250,13 +260,13 @@ bool HumanCharacterController::HandleInputAction(ePedestrianAction action, bool 
         case ePedestrianAction_Jump:
         case ePedestrianAction_HandBrake:
         case ePedestrianAction_Shoot:
-            mCharacter->mCtlActions[action] = isActivated;
+            ctlState.mCtlActions[action] = isActivated;
         break;
 
         case ePedestrianAction_Horn:
             if (mCharacter->IsCarPassenger())
             {
-                mCharacter->mCtlActions[ePedestrianAction_Horn] = isActivated;
+                ctlState.mCtlActions[ePedestrianAction_Horn] = isActivated;
                 if (mCharacter->mCurrentCar->HasEmergencyLightsAnimation())
                 {
                     mCharacter->mCurrentCar->EnableEmergencyLights(isActivated);
