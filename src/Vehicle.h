@@ -38,8 +38,9 @@ public:
     // setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
-    // todo: implement car damage system
+    // process damages
     void ReceiveDamageFromWater();
+    void ReceiveDamageFromProjectile(int damage);
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null
@@ -91,6 +92,7 @@ public:
     bool IsSeatPresent(eCarSeat carSeat) const;
 
 private:
+    void Explode();
     void UpdateDriving();
     void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
@@ -104,4 +106,5 @@ private:
     SpriteDeltaBits mDamageDeltaBits;
 
     int mChassisSpriteIndex = 0;
+    int mHitpoints = 20;
 };

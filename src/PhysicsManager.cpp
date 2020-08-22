@@ -119,17 +119,17 @@ void PhysicsManager::ProcessSimulationStep()
     mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
     // process physics components
-    for (PhysicsBody* currComponent: mCarsBodiesList)
+    for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
     {
-        currComponent->SimulationStep();
+        mCarsBodiesList[i]->SimulationStep();
     }
-    for (PhysicsBody* currComponent: mPedsBodiesList)
+    for (size_t i = 0, NumElements = mPedsBodiesList.size(); i < NumElements; ++i)
     {
-        currComponent->SimulationStep();
+        mPedsBodiesList[i]->SimulationStep();
     }
-    for (PhysicsBody* currComponent: mProjectileBodiesList)
+    for (size_t i = 0, NumElements = mProjectileBodiesList.size(); i < NumElements; ++i)
     {
-        currComponent->SimulationStep();
+        mProjectileBodiesList[i]->SimulationStep();
     }
 
     FixedStepGravity();
@@ -162,7 +162,7 @@ PedPhysicsBody* PhysicsManager::CreatePhysicsBody(Pedestrian* object, const glm:
     PedPhysicsBody* physicsObject = mPedsBodiesPool.create(mPhysicsWorld, object);
     physicsObject->SetPosition(position, rotationAngle);
 
-    mPedsBodiesList.insert(&physicsObject->mPhysicsBodiesListNode);
+    mPedsBodiesList.push_back(physicsObject);
     return physicsObject;
 }
 
@@ -174,7 +174,7 @@ CarPhysicsBody* PhysicsManager::CreatePhysicsBody(Vehicle* object, const glm::ve
     CarPhysicsBody* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, object);
     physicsObject->SetPosition(position, rotationAngle);
 
-    mCarsBodiesList.insert(&physicsObject->mPhysicsBodiesListNode);
+    mCarsBodiesList.push_back(physicsObject);
     return physicsObject;
 }
 
@@ -185,7 +185,7 @@ ProjectilePhysicsBody* PhysicsManager::CreatePhysicsBody(Projectile* object, con
     ProjectilePhysicsBody* physicsObject = mProjectileBodiesPool.create(mPhysicsWorld, object);
     physicsObject->SetPosition(position, rotationAngle);
 
-    mProjectileBodiesList.insert(&physicsObject->mPhysicsBodiesListNode);
+    mProjectileBodiesList.push_back(physicsObject);
     return physicsObject;
 }
 
@@ -258,42 +258,24 @@ void PhysicsManager::CreateMapCollisionShape()
 void PhysicsManager::DestroyPhysicsBody(PedPhysicsBody* object)
 {
     debug_assert(object);
-    if (mPedsBodiesList.contains(&object->mPhysicsBodiesListNode))
-    {
-        mPedsBodiesList.remove(&object->mPhysicsBodiesListNode);
-    }
-    else
-    {
-        debug_assert(false);
-    }
+    cxx::erase_elements(mPedsBodiesList, object);
+
     mPedsBodiesPool.destroy(object);
 }
 
 void PhysicsManager::DestroyPhysicsBody(CarPhysicsBody* object)
 {
     debug_assert(object);
-    if (mCarsBodiesList.contains(&object->mPhysicsBodiesListNode))
-    {
-        mCarsBodiesList.remove(&object->mPhysicsBodiesListNode);
-    }
-    else
-    {
-        debug_assert(false);
-    }
+    cxx::erase_elements(mCarsBodiesList, object);
+
     mCarsBodiesPool.destroy(object);
 }
 
 void PhysicsManager::DestroyPhysicsBody(ProjectilePhysicsBody* object)
 {
     debug_assert(object);
-    if (mProjectileBodiesList.contains(&object->mPhysicsBodiesListNode))
-    {
-        mProjectileBodiesList.remove(&object->mPhysicsBodiesListNode);
-    }
-    else
-    {
-        debug_assert(false);
-    }
+    cxx::erase_elements(mProjectileBodiesList, object);
+
     mProjectileBodiesPool.destroy(object);
 }
 
@@ -450,11 +432,10 @@ void PhysicsManager::FixedStepGravity()
     // todo: cleanup this mess
 
     // cars
-    for (PhysicsBody* currPhysicsBody: mCarsBodiesList)
+    for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
     {
-        CarPhysicsBody* physicsComponent = static_cast<CarPhysicsBody*>(currPhysicsBody);
-        Vehicle* currCar = physicsComponent->mReferenceCar;       
 
+        CarPhysicsBody* physicsComponent = static_cast<CarPhysicsBody*>(mCarsBodiesList[i]);
         if (physicsComponent->mWaterContact)
             continue;
 
@@ -484,9 +465,9 @@ void PhysicsManager::FixedStepGravity()
     }
 
     // pedestrians
-    for (PhysicsBody* currPhysicsBody: mPedsBodiesList)
+    for (size_t i = 0, NumElements = mPedsBodiesList.size(); i < NumElements; ++i)
     {
-        PedPhysicsBody* physicsComponent = static_cast<PedPhysicsBody*>(currPhysicsBody);
+        PedPhysicsBody* physicsComponent = static_cast<PedPhysicsBody*>(mPedsBodiesList[i]);
         Pedestrian* currPedestrian = physicsComponent->mReferencePed;
 
         if (currPedestrian->mCurrentCar)

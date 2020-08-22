@@ -14,7 +14,6 @@ PhysicsBody::PhysicsBody(b2World* physicsWorld)
     , mPhysicsBody()
     , mPreviousPosition()
     , mSmoothPosition()
-    , mPhysicsBodiesListNode(this)
 {
     debug_assert(physicsWorld);
 }

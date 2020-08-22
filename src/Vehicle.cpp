@@ -8,6 +8,7 @@
 #include "SpriteManager.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
+#include "GameObjectsManager.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
@@ -45,6 +46,8 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     }
 
     mDead = false;
+    mHitpoints = gGameObjectsManager.GetBaseHitpointsForCar(mCarStyle->mVType);
+
     mDamageDeltaBits = 0;
     mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
 
@@ -53,6 +56,17 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 
 void Vehicle::UpdateFrame()
 {
+    if (mDead)
+        return;
+
+    // check if car dead
+    mDead = (mHitpoints <= 0);
+    if (mDead)
+    {
+        Explode();
+        return;
+    }
+
     UpdateDeltaAnimations();
 
     UpdateDriving();
@@ -507,6 +521,34 @@ void Vehicle::ReceiveDamageFromWater()
     for (Pedestrian* currentPed: mPassengers)
     {
         currentPed->Die(ePedestrianDeathReason_Drowned, nullptr);
+    }
+}
+
+void Vehicle::ReceiveDamageFromProjectile(int damage)
+{
+    if (mDead)
+        return;
+
+    debug_assert(damage > 0);
+
+    if (damage > 0)
+    {
+        mHitpoints -= damage;
+    }
+}
+
+void Vehicle::Explode()
+{
+    glm::vec3 explosionPos = mPhysicsBody->GetPosition();
+    explosionPos.y = mDrawHeight + 0.2f; // todo: magic numbers
+
+    Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
+    debug_assert(explosion);
+
+    // kill passengers inside
+    for (Pedestrian* currentPed: mPassengers)
+    {
+        currentPed->Die(ePedestrianDeathReason_BlownUp, nullptr);
     }
 }
 

@@ -405,3 +405,24 @@ bool GameObjectsManager::CreateStartupObjects()
     }
     return true;
 }
+
+int GameObjectsManager::GetBaseHitpointsForCar(eCarVType carType) const
+{
+    // todo: move to settings
+    // todo: find out correct values
+
+    switch (carType)
+    {
+        case eCarVType_Bus:
+        case eCarVType_FrontOfJuggernaut:
+        case eCarVType_BackOfJuggernaut:
+            return 29; 
+        case eCarVType_Motorcycle:
+        case eCarVType_StandardCar:
+            return 16;
+        case eCarVType_Train:
+        case eCarVType_Tank:
+            return 62;
+    }
+    return 10;
+}

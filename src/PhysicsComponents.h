@@ -96,7 +96,6 @@ protected:
 protected:
     b2World* mPhysicsWorld;
     b2Body* mPhysicsBody;
-    cxx::intrusive_node<PhysicsBody> mPhysicsBodiesListNode;
 };
 
 //////////////////////////////////////////////////////////////////////////

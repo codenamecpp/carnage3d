@@ -47,6 +47,7 @@ public:
     int mProjectileHitEffect = GameObjectType_Null;
     int mProjectileObject = GameObjectType_BulletProjectile;
     int mBaseAmmoLimit = 0; // max ammo, 0 is unlimited
+    int mBaseDamage = 1; // hp
 
     int mSpriteIndex = 0;
 };

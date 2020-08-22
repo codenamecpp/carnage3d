@@ -97,9 +97,9 @@ private:
     cxx::object_pool<ProjectilePhysicsBody> mProjectileBodiesPool;
 
     // bodies lists
-    cxx::intrusive_list<PhysicsBody> mPedsBodiesList;
-    cxx::intrusive_list<PhysicsBody> mCarsBodiesList;
-    cxx::intrusive_list<PhysicsBody> mProjectileBodiesList;
+    std::vector<PhysicsBody*> mPedsBodiesList;
+    std::vector<PhysicsBody*> mCarsBodiesList;
+    std::vector<PhysicsBody*> mProjectileBodiesList;
 };
 
 extern PhysicsManager gPhysics;

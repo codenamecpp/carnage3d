@@ -94,6 +94,12 @@ void Projectile::UpdateFrame()
                     hitEffect->SetLifeDuration(1);
                 }
             }
+
+            if (mContactObject && mContactObject->IsVehicleClass())
+            {
+                Vehicle* carObject = static_cast<Vehicle*>(mContactObject);
+                carObject->ReceiveDamageFromProjectile(mWeaponInfo->mBaseDamage);
+            }
         }
     }
 }

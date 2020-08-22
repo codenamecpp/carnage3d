@@ -50,7 +50,7 @@ public:
     // Add new obstacle instance to map at specific location
     Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
 
-    // find gameobject by its unique identifier
+    // Find gameobject by its unique identifier
     // @param objectID: Unique identifier
     Vehicle* GetVehicleByID(GameObjectID objectID) const;
     Obstacle* GetObstacleByID(GameObjectID objectID) const;
@@ -58,11 +58,15 @@ public:
     Pedestrian* GetPedestrianByID(GameObjectID objectID) const;
     GameObject* GetGameObjectByID(GameObjectID objectID) const;
 
-    // will immediately destroy gameobject, don't call this mehod during UpdateFrame
+    // Get base hp points for specific car type
+    // @param carType: Identifier
+    int GetBaseHitpointsForCar(eCarVType carType) const;
+
+    // Will immediately destroy gameobject, don't call this mehod during UpdateFrame
     // @param object: Object to destroy
     void DestroyGameObject(GameObject* object);
 
-    // queue gameobject for deletion, it will be destroyed next frame
+    // Queue gameobject for deletion, it will be destroyed next frame
     // @param object: Object to queue
     void MarkForDeletion(GameObject* object);
 
