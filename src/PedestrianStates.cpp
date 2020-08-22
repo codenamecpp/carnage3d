@@ -181,7 +181,7 @@ void PedestrianStatesManager::ProcessMotionActions()
 
 bool PedestrianStatesManager::TryToShoot()
 {
-    debug_assert(mPedestrian->mCurrentWeapon < eWeaponType_COUNT);
+    debug_assert(mPedestrian->mCurrentWeapon < eWeapon_COUNT);
 
     float currGameTime = gTimeManager.mGameTime;
     if (mPedestrian->mWeaponRechargeTime >= currGameTime ||
@@ -193,12 +193,12 @@ bool PedestrianStatesManager::TryToShoot()
     glm::vec3 currPosition = mPedestrian->mPhysicsBody->GetPosition();
 
     // get weapon params
-    WeaponStyle& weaponParams = gGameMap.mStyleData.mWeapons[mPedestrian->mCurrentWeapon];
+    WeaponInfo& weaponParams = gGameMap.mStyleData.mWeapons[mPedestrian->mCurrentWeapon];
 
-    if (weaponParams.mFireTypeID == eWeaponFireType_Melee)
+    if (weaponParams.IsMelee())
     {
         glm::vec2 posA { currPosition.x, currPosition.z };
-        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * weaponParams.mBaseMeleeHitDistance);
+        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * weaponParams.mBaseHitRange);
         // find candidates
         PhysicsLinecastResult linecastResult;
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
@@ -213,7 +213,7 @@ bool PedestrianStatesManager::TryToShoot()
             pedBody->mReferencePed->ReceiveDamage(mPedestrian->mCurrentWeapon, mPedestrian);
         }
     }
-    else if (weaponParams.mFireTypeID == eWeaponFireType_Projectile)
+    else if (weaponParams.IsRange())
     {
         glm::vec2 signVector = mPedestrian->mPhysicsBody->GetSignVector();       
         glm::vec2 offset = (signVector * 1.0f); //todo: magic numbers
@@ -222,8 +222,8 @@ bool PedestrianStatesManager::TryToShoot()
             currPosition.y, 
             currPosition.z + offset.y
         };
-        debug_assert(weaponParams.mProjectileID < eProjectileType_COUNT);
-        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), weaponParams.mProjectileID);
+        debug_assert(weaponParams.mProjectileTypeID < eProjectileType_COUNT);
+        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), &weaponParams);
     }
     else
     {
@@ -251,7 +251,7 @@ ePedestrianState PedestrianStatesManager::GetNextIdleState()
         ctlState.mCtlActions[ePedestrianAction_WalkForward])
     {
         // cannot walk and use fists simultaneously
-        if (ctlState.mCtlActions[ePedestrianAction_Shoot] && mPedestrian->mCurrentWeapon != eWeaponType_Fists)
+        if (ctlState.mCtlActions[ePedestrianAction_Shoot] && mPedestrian->mCurrentWeapon != eWeapon_Fists)
             return ePedestrianState_WalksAndShoots;
 
         return ePedestrianState_Walks;
@@ -279,11 +279,11 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation() const
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileStanding;
-            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileStanding;
-            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
-            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
-            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
+            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileStanding;
+            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileStanding;
+            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
+            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
+            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
         }
         debug_assert(false);
         return ePedestrianAnim_StandingStill;
@@ -294,11 +294,11 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation() const
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileRunning;
-            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileWalking;
-            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
-            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
-            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
+            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
+            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileWalking;
+            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
+            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
+            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
         }
         debug_assert(false);
         return ePedestrianAnim_Walk;
@@ -309,11 +309,11 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation() const
     {
         switch (mPedestrian->mCurrentWeapon)
         {
-            case eWeaponType_Fists: return ePedestrianAnim_PunchingWhileRunning;
-            case eWeaponType_Pistol: return ePedestrianAnim_ShootPistolWhileRunning;
-            case eWeaponType_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
-            case eWeaponType_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
-            case eWeaponType_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
+            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
+            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileRunning;
+            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
+            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
+            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
         }
         debug_assert(false);
         return ePedestrianAnim_Run;

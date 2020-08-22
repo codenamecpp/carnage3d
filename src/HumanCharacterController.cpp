@@ -321,29 +321,29 @@ void HumanCharacterController::SetCharacter(Pedestrian* character)
 
 void HumanCharacterController::SwitchNextWeapon()
 {
-    int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeaponType_COUNT;
+    int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
+            mCharacter->ChangeWeapon((eWeaponID) nextWeaponIndex);
             return;
         }
-        nextWeaponIndex = (nextWeaponIndex + 1) % eWeaponType_COUNT;
+        nextWeaponIndex = (nextWeaponIndex + 1) % eWeapon_COUNT;
     }
 }
 
 void HumanCharacterController::SwitchPrevWeapon()
 {
-    int nextWeaponIndex = mCharacter->mCurrentWeapon == 0 ? (eWeaponType_COUNT - 1) : (mCharacter->mCurrentWeapon - 1);
+    int nextWeaponIndex = mCharacter->mCurrentWeapon == 0 ? (eWeapon_COUNT - 1) : (mCharacter->mCurrentWeapon - 1);
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
         if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
         {
-            mCharacter->ChangeWeapon((eWeaponType) nextWeaponIndex);
+            mCharacter->ChangeWeapon((eWeaponID) nextWeaponIndex);
             return;
         }
-        nextWeaponIndex = nextWeaponIndex == 0 ? (eWeaponType_COUNT - 1) : (nextWeaponIndex - 1);
+        nextWeaponIndex = nextWeaponIndex == 0 ? (eWeapon_COUNT - 1) : (nextWeaponIndex - 1);
     }
 }
 

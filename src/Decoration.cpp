@@ -26,6 +26,11 @@ void Decoration::UpdateFrame()
         gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
         mDrawSprite.SetOriginToCenter();
     }
+
+    if (mLifeDuration > 0 && !mAnimationState.IsAnimationActive())
+    {
+        MarkForDeletion();
+    }
 }
 
 void Decoration::DrawDebug(DebugRenderer& debugRender)
@@ -49,4 +54,5 @@ void Decoration::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
 void Decoration::SetLifeDuration(int numAnimationCycles)
 {
     mLifeDuration = numAnimationCycles;
+    mAnimationState.SetMaxRepeatCycles(numAnimationCycles);
 }

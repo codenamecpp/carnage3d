@@ -38,8 +38,8 @@ public:
     Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel);
 
     // Add new projectile instance to map at specific location
-    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, eProjectileType typeID);
-    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, ProjectileStyle* desc);
+    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading);
+    Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo);
 
     // Add new decoration instance to map at specific location
     Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);

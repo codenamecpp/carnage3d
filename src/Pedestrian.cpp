@@ -38,12 +38,12 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mCtlState.Clear();
 
     // reset weapon ammo
-    for (int iweapon = 0; iweapon < eWeaponType_COUNT; ++iweapon)
+    for (int iweapon = 0; iweapon < eWeapon_COUNT; ++iweapon)
     {
         mWeaponsAmmo[iweapon] = -1; // temporary
     }
-    mWeaponsAmmo[eWeaponType_Fists] = -1;
-    mCurrentWeapon = eWeaponType_Fists;
+    mWeaponsAmmo[eWeapon_Fists] = -1;
+    mCurrentWeapon = eWeapon_Fists;
     
     if (mPhysicsBody == nullptr)
     {
@@ -106,9 +106,9 @@ void Pedestrian::DrawDebug(DebugRenderer& debugRender)
     {
         glm::vec3 position = mPhysicsBody->GetPosition();
 
-        WeaponStyle& meleeWeapon = gGameMap.mStyleData.mWeapons[eWeaponFireType_Melee];
+        WeaponInfo& meleeWeapon = gGameMap.mStyleData.mWeapons[eWeaponFireType_Melee];
 
-        glm::vec2 signVector = mPhysicsBody->GetSignVector() * meleeWeapon.mBaseMeleeHitDistance;
+        glm::vec2 signVector = mPhysicsBody->GetSignVector() * meleeWeapon.mBaseHitRange;
         debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
 
         cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), gGameParams.mPedestrianBoundsSphereRadius);
@@ -179,7 +179,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     mDrawHeight = maxHeight + drawOffset;
 }
 
-void Pedestrian::ChangeWeapon(eWeaponType weapon)
+void Pedestrian::ChangeWeapon(eWeaponID weapon)
 {
     if (mCurrentWeapon == weapon)
         return;
@@ -227,7 +227,7 @@ void Pedestrian::ExitCar()
     }
 }
 
-void Pedestrian::ReceiveDamage(eWeaponType weapon, Pedestrian* attacker)
+void Pedestrian::ReceiveDamage(eWeaponID weapon, Pedestrian* attacker)
 {
     PedestrianStateEvent evData { ePedestrianStateEvent_DamageFromWeapon };
     evData.mAttacker = attacker;

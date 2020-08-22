@@ -1,5 +1,6 @@
 #pragma once
 
+#include "WeaponInfo.h"
 #include "GameObject.h"
 #include "PhysicsComponents.h"
 
@@ -12,13 +13,13 @@ class Projectile final: public GameObject
 
 public:
     // readonly
-    ProjectileStyle* mProjectileStyle = nullptr;
+    WeaponInfo* mWeaponInfo = nullptr;
     ProjectilePhysicsBody* mPhysicsBody = nullptr;
     
     glm::vec3 mStartPosition;
 
 public:
-    Projectile(ProjectileStyle* style);
+    Projectile();
     ~Projectile();
 
     // override GameObject
@@ -27,7 +28,7 @@ public:
     void DrawDebug(DebugRenderer& debugRender) override;
 
     // Setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
+    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation, WeaponInfo* weaponInfo);
 
     // @param gameObject: null if contacting with map
     void SetContactDetected(const glm::vec3& position, GameObject* gameObject);

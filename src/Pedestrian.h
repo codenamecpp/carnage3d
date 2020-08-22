@@ -37,8 +37,8 @@ public:
     eCarSeat mCurrentSeat;
 
     // inventory
-    eWeaponType mCurrentWeapon;
-    int mWeaponsAmmo[eWeaponType_COUNT]; // -1 means infinite, 'fists' is good example
+    eWeaponID mCurrentWeapon;
+    int mWeaponsAmmo[eWeapon_COUNT]; // -1 means infinite, 'fists' is good example
 
 public:
     // @param id: Unique object identifier, constant
@@ -54,7 +54,7 @@ public:
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
     // set current weapon type
-    void ChangeWeapon(eWeaponType weapon);
+    void ChangeWeapon(eWeaponID weapon);
 
     // instant kill, pedestrian will remain in dead state until respawn
     // @param attacker: Optional
@@ -69,7 +69,7 @@ public:
     void ExitCar();
 
     // get damage from weapon, it may be ignored depending on its current state
-    void ReceiveDamage(eWeaponType weapon, Pedestrian* attacker);
+    void ReceiveDamage(eWeaponID weapon, Pedestrian* attacker);
 
     // get damage from vehicle, it may be ignored depending on its current state
     // @param impulse: Impact value

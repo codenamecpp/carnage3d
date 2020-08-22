@@ -33,7 +33,7 @@ public:
     eCarSeat mTargetSeat;
 
     Pedestrian* mAttacker = nullptr;
-    eWeaponType mWeaponType;
+    eWeaponID mWeaponType;
 
     ePedestrianDeathReason mDeathReason;
 };

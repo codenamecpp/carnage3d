@@ -354,21 +354,13 @@ impl_enum_strings(ePedestrianAnimID)
     {ePedestrianAnim_ShootRPGWhileRunning, "shoot_rpg_while_running"},
 };
 
-impl_enum_strings(eSpriteAnimID)
+impl_enum_strings(eWeaponID)
 {
-    // projectiles
-    {eSpriteAnimID_Projectile_Missile, "projectile_missile"},
-    {eSpriteAnimID_Projectile_Bullet, "projectile_bullet"},
-    {eSpriteAnimID_Projectile_Flame, "projectile_flame"},
-};
-
-impl_enum_strings(eWeaponType)
-{
-    {eWeaponType_Fists, "fists"},
-    {eWeaponType_Pistol, "pistol"},
-    {eWeaponType_Machinegun, "machinegun"},
-    {eWeaponType_Flamethrower, "flamethrower"},
-    {eWeaponType_RocketLauncher, "rocket_launcher"},
+    {eWeapon_Fists, "fists"},
+    {eWeapon_Pistol, "pistol"},
+    {eWeapon_Machinegun, "machinegun"},
+    {eWeapon_Flamethrower, "flamethrower"},
+    {eWeapon_RocketLauncher, "rocket_launcher"},
 };
 
 impl_enum_strings(ePedestrianAction)

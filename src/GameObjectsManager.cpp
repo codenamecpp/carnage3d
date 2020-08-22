@@ -101,33 +101,19 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t h
     return vehicle;
 }
 
-Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, eProjectileType typeID)
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading)
 {
-    Projectile* projectile = nullptr;
-    debug_assert(typeID < eProjectileType_COUNT);
-    for (ProjectileStyle& currStyle: gGameMap.mStyleData.mProjectiles)
-    {
-        if (currStyle.mTypeID == typeID)
-        {
-            projectile = CreateProjectile(position, heading, &currStyle);
-            break;
-        }
-    }
-    debug_assert(projectile);
-    return projectile;
+    return CreateProjectile(position, heading, nullptr);
 }
 
-Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, ProjectileStyle* desc)
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo)
 {
-    debug_assert(gGameMap.mStyleData.IsLoaded());
-    debug_assert(desc);
-
-    Projectile* instance = mProjectilesPool.create(desc);
+    Projectile* instance = mProjectilesPool.create();
     debug_assert(instance);
 
     mAllObjectsList.push_back(instance);
     // init
-    instance->Spawn(position, heading);
+    instance->Spawn(position, heading, weaponInfo);
     return instance;
 }
 

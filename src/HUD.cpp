@@ -22,9 +22,9 @@ void HUD::DrawFrame(UiContext& uiContext)
         return;
 
     // temporary
-    if (mCharacter->mCurrentWeapon != eWeaponType_Fists)
+    if (mCharacter->mCurrentWeapon != eWeapon_Fists)
     {
-        WeaponStyle& weapon = gGameMap.mStyleData.mWeapons[mCharacter->mCurrentWeapon];
+        WeaponInfo& weapon = gGameMap.mStyleData.mWeapons[mCharacter->mCurrentWeapon];
         int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weapon.mSpriteIndex);
 
         Sprite2D sprite;

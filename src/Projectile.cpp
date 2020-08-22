@@ -7,12 +7,10 @@
 #include "DebugRenderer.h"
 #include "GameObjectsManager.h"
 
-Projectile::Projectile(ProjectileStyle* style) 
+Projectile::Projectile() 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
-    , mProjectileStyle(style)
     , mStartPosition()
 {
-    debug_assert(style);
 }
 
 Projectile::~Projectile()
@@ -23,10 +21,9 @@ Projectile::~Projectile()
     }
 }
 
-void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation, WeaponInfo* weaponInfo)
 {
-    debug_assert(mProjectileStyle);
-
+    mWeaponInfo = weaponInfo;
     mStartPosition = startPosition;
     mContactDetected = false;
     if (mPhysicsBody == nullptr)
@@ -41,11 +38,29 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
 
     // setup animation
     mAnimationState.Clear();
-    if (!gGameMap.mStyleData.GetSpriteAnimation(mProjectileStyle->mAnimID, mAnimationState.mAnimDesc))
+
+    if (weaponInfo)
     {
-        debug_assert(false);
+        StyleData& cityStyle = gGameMap.mStyleData;
+
+        int objectindex = weaponInfo->mProjectileObject;
+        if (objectindex > 0 && objectindex < (int) cityStyle.mGameObjects.size())
+        {
+            GameObjectStyle& objectInfo = cityStyle.mGameObjects[objectindex];
+
+            debug_assert(objectInfo.mClassID == eGameObjectClass_Projectile);
+            
+            mAnimationState.Clear();
+            mAnimationState.mAnimDesc = objectInfo.mAnimationData;
+
+            eSpriteAnimLoop loopType = eSpriteAnimLoop_FromStart;
+            if (!weaponInfo->IsFireDamage()) // todo: move to configs
+            {
+                loopType = eSpriteAnimLoop_None;
+            }
+            mAnimationState.PlayAnimation(loopType, 24.0f); // todo: move to config
+        }
     }
-    mAnimationState.PlayAnimation(mProjectileStyle->mAnimLoop);
 
     // setup sprite rotation and scale
     cxx::angle_t rotationAngle = startRotation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
@@ -61,14 +76,32 @@ void Projectile::UpdateFrame()
     {
         MarkForDeletion();
 
-        Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+        if (mWeaponInfo)
+        {
+            if (mWeaponInfo->IsExplosionDamage())
+            {
+                Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+            }
+
+            if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
+            {
+                GameObjectStyle& objectInfo = gGameMap.mStyleData.mGameObjects[mWeaponInfo->mProjectileHitEffect];
+                Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
+                debug_assert(hitEffect);
+
+                if (hitEffect)
+                {
+                    hitEffect->SetLifeDuration(1);
+                }
+            }
+        }
     }
 }
 
 void Projectile::PreDrawFrame()
 {
-    int spriteLinearIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Object, mAnimationState.GetCurrentFrame());
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteLinearIndex, 0, mDrawSprite);
+    int spriteIndex = mAnimationState.GetCurrentFrame();
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, 0, mDrawSprite);
 
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
@@ -79,8 +112,11 @@ void Projectile::PreDrawFrame()
 
 void Projectile::DrawDebug(DebugRenderer& debugRender)
 {   
-    cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), mProjectileStyle->mProjectileRadius);
-    debugRender.DrawSphere(bsphere, Color32_Orange, false);
+    if (mWeaponInfo)
+    {
+        cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), mWeaponInfo->mProjectileSize);
+        debugRender.DrawSphere(bsphere, Color32_Orange, false);
+    }
 }
 
 void Projectile::ComputeDrawHeight(const glm::vec3& position)

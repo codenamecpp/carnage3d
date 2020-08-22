@@ -677,33 +677,18 @@ enum ePedestrianAnimID
 
 decl_enum_strings(ePedestrianAnimID);
 
-// various sprites animations
-enum eSpriteAnimID
-{
-    // cops
-
-    // projectiles
-    eSpriteAnimID_Projectile_Missile,
-    eSpriteAnimID_Projectile_Bullet,
-    eSpriteAnimID_Projectile_Flame,
-
-    eSpriteAnimID_COUNT
-};
-
-decl_enum_strings(eSpriteAnimID);
-
 // pedestrian weapon
-enum eWeaponType
+enum eWeaponID
 {
-    eWeaponType_Fists,
-    eWeaponType_Pistol,
-    eWeaponType_Machinegun,
-    eWeaponType_Flamethrower,
-    eWeaponType_RocketLauncher,
-    eWeaponType_COUNT
+    eWeapon_Fists,
+    eWeapon_Pistol,
+    eWeapon_Machinegun,
+    eWeapon_Flamethrower,
+    eWeapon_RocketLauncher,
+    eWeapon_COUNT
 };
 
-decl_enum_strings(eWeaponType);
+decl_enum_strings(eWeaponID);
 
 // weapon fire type
 enum eWeaponFireType
@@ -819,34 +804,4 @@ public:
     }
 public:
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
-};
-
-// projectile type data
-struct ProjectileStyle
-{
-    eProjectileType mTypeID = eProjectileType_Bullet;
-
-    eSpriteAnimID mAnimID = eSpriteAnimID_Projectile_Bullet;
-    eSpriteAnimLoop mAnimLoop = eSpriteAnimLoop_FromStart;
-
-    float mBaseDistance = 1.0f; // how far projectile can fly, meters
-    float mProjectileRadius = 1.0f; // size, meters
-    float mSpeed = 1.0f; // how fast projectile moves, meters
-    float mBasePrimaryDamageRadius = 0.0f; // how far projectile can impact, meters
-    float mBaseSecondaryDamageRadius = 0.0f; // // how far projectile can impact, meters
-};
-
-// weapon type data
-struct WeaponStyle
-{
-    eWeaponType mTypeID = eWeaponType_Fists;
-
-    eWeaponFireType mFireTypeID = eWeaponFireType_Melee;
-    eProjectileType mProjectileID = eProjectileType_Bullet; // has meaning only if mFireTypeID is projectile
-
-    float mBaseFireRate = 1.0f; // num shots per seconds
-    float mBaseMeleeHitDistance = 1.0f; // has meaning only of mFireTypeID is melee
-
-    int mSpriteIndex = 0; // hud sprite
-    int mBaseAmmoLimit = 0; // max ammo, 0 is unlimited
 };

@@ -44,5 +44,10 @@ enum
 {
     GameObjectType_Null = 0,
     // todo...
+    GameObjectType_MissileProjectile = 31,
+    GameObjectType_BulletProjectile = 74,
+    GameObjectType_FireballProjectile = 75,
+
+    // todo...
     GameObjectType_MAX = 102
 };

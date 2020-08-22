@@ -699,9 +699,19 @@ ProjectilePhysicsBody::ProjectilePhysicsBody(b2World* physicsWorld, Projectile* 
 
     mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
     debug_assert(mPhysicsBody);
+    
+    debug_assert(object->mWeaponInfo);
 
     b2CircleShape shapeDef;
-    shapeDef.m_radius = object->mProjectileStyle->mProjectileRadius;
+    if (object->mWeaponInfo)
+    {
+        shapeDef.m_radius = object->mWeaponInfo->mProjectileSize;
+    }
+    else
+    {
+        debug_assert(false);
+        shapeDef.m_radius = 0.1f;
+    }
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;
@@ -721,14 +731,20 @@ void ProjectilePhysicsBody::SimulationStep()
     if (mReferenceProjectile->IsContactDetected() || mReferenceProjectile->IsMarkedForDeletion())
         return;
 
+    if (mReferenceProjectile->mWeaponInfo == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
+
     // setup physics
     glm::vec2 velocity = GetSignVector();
-    SetLinearVelocity(velocity * mReferenceProjectile->mProjectileStyle->mSpeed);
+    SetLinearVelocity(velocity * mReferenceProjectile->mWeaponInfo->mProjectileSpeed);
 
     glm::vec2 currPosition = GetPosition2();
     glm::vec2 startPosition(mReferenceProjectile->mStartPosition.x, mReferenceProjectile->mStartPosition.z);
 
-    if (glm::distance(startPosition, currPosition) >= mReferenceProjectile->mProjectileStyle->mBaseDistance)
+    if (glm::distance(startPosition, currPosition) >= mReferenceProjectile->mWeaponInfo->mBaseHitRange)
     {
         mReferenceProjectile->MarkForDeletion();
     }

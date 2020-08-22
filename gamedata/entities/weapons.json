@@ -1,0 +1,75 @@
+[
+    {
+        "weapon_type": "fists",
+        "fire_type": "melee",
+        // base params
+        "base_hit_range": 0.2,
+        "base_fire_rate": 2.0
+    },
+
+    {
+        "weapon_type": "pistol",
+        "fire_type": "projectile",
+        // projectile data
+        "projectile_type": "bullet",
+        "projectile_size": 0.025,
+        "projectile_speed": 8.0,
+        "projectile_object": 74,
+        "projectile_hit_effect": 13, // spark
+        // base params
+        "base_hit_range": 4.5,
+        "base_fire_rate": 2.0,
+        "base_ammo_limit": 999,
+
+        "hud_sprite": 30
+    },
+
+    {
+        "weapon_type": "machinegun",
+        "fire_type": "projectile",
+        // projectile data
+        "projectile_type": "bullet",
+        "projectile_size": 0.025,
+        "projectile_speed": 8.0,
+        "projectile_object": 74,
+        "projectile_hit_effect": 13, // spark
+        // base params
+        "base_hit_range": 4.5,
+        "base_fire_rate": 8.0,
+        "base_ammo_limit": 999,
+
+        "hud_sprite": 31
+    },
+
+    {
+        "weapon_type": "flamethrower",
+        "fire_type": "projectile",
+        // projectile data
+        "projectile_type": "flame",
+        "projectile_size": 0.075,
+        "projectile_speed": 3.1,
+        "projectile_object": 75,
+        // base params
+        "base_hit_range": 1.1,
+        "base_fire_rate": 15.0,
+        "base_ammo_limit": 999,
+
+        "hud_sprite": 33
+    },
+
+    {
+        "weapon_type": "rocket_launcher",
+        "fire_type": "projectile",
+        // projectile data
+        "projectile_type": "missile",
+        "projectile_size": 0.03,
+        "projectile_speed": 4.4,
+        "projectile_object": 31,
+        // base params
+        "base_hit_range": 20.0,
+        "base_fire_rate": 1.0,
+        "base_ammo_limit": 999,
+
+        "hud_sprite": 32
+    }
+]

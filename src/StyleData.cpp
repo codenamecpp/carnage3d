@@ -208,15 +208,15 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
 
     std::streampos currentPos = file.tellg();
     debug_assert(currentPos == fileSize);
-
-    ReadSpriteAnimations();
-    ReadCommons();
-    ReadPedestrianAnimations();
+    file.close();
 
     if (!InitGameObjectsList())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Fail to initialize game objects");
     }
+
+    ReadPedestrianAnimations();
+    ReadWeapons();
 
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
@@ -252,7 +252,6 @@ void StyleData::Cleanup()
 {
     mObjectsRaw.clear();
     mWeapons.clear();
-    mProjectiles.clear();
     mBlockTexturesRaw.clear();
     mPaletteIndices.clear();
     mPalettes.clear();
@@ -272,11 +271,6 @@ void StyleData::Cleanup()
     for (int isprite = 0; isprite < CountOf(mSpriteNumbers); ++isprite)
     {
         mSpriteNumbers[isprite] = 0;
-    }
-    // reset all sprite animations
-    for (int ianim = 0; ianim < CountOf(mSpriteAnimations); ++ianim)
-    {
-        mSpriteAnimations[ianim].Clear();
     }
 }
 
@@ -923,18 +917,6 @@ int StyleData::GetNumSprites(eSpriteType spriteType) const
     return mSpriteNumbers[spriteType];
 }
 
-bool StyleData::GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimData& animationData) const
-{
-    debug_assert(animationID < eSpriteAnimID_COUNT);
-    if (animationID < eSpriteAnimID_COUNT)
-    {
-        animationData = mSpriteAnimations[animationID];
-        debug_assert(animationData.mFramesCount > 0);
-        return true;
-    }
-    return false;
-}
-
 bool StyleData::GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnimData& animationData) const
 {
     if (animationID < ePedestrianAnim_COUNT)
@@ -947,14 +929,6 @@ bool StyleData::GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnim
     return false;
 }
 
-void StyleData::ReadSpriteAnimations()
-{
-
-    mSpriteAnimations[eSpriteAnimID_Projectile_Missile].Setup(178, 4); // todo: remove
-    mSpriteAnimations[eSpriteAnimID_Projectile_Bullet].Setup(392, 1); // todo: remove
-    mSpriteAnimations[eSpriteAnimID_Projectile_Flame].Setup(393, 11, 24.0f); // todo: remove
-}
-
 int StyleData::GetPedestrianRemapsBaseIndex() const
 {
     int remapsBaseIndex = (mRemapClutsCount - MAX_PED_REMAPS);
@@ -963,100 +937,31 @@ int StyleData::GetPedestrianRemapsBaseIndex() const
     return remapsBaseIndex;
 }
 
-void StyleData::ReadCommons()
+void StyleData::ReadWeapons()
 {
-    cxx::json_document configDocument;
-    if (!gFiles.ReadConfig("entities/common.json", configDocument))
+    mWeapons.resize(eWeapon_COUNT);
+
+    cxx::json_document weaponsConfig;
+    if (!gFiles.ReadConfig("entities/weapons.json", weaponsConfig))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load common entities config");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read weapons config");
         return;
     }
 
-    cxx::json_document_node rootNode = configDocument.get_root_node();
-    // get projectiles
-    if (cxx::json_document_node projectilesNode = rootNode["projectiles"])
-    {
-        ReadProjectiles(projectilesNode);
-    }
-    else
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load projectiles config");
-    }
-    // get weapons
-    if (cxx::json_document_node weaponsNode = rootNode["weapons"])
-    {
-        ReadWeapons(weaponsNode);
-    }
-    else
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load weapons config");
-    }
-}
-
-void StyleData::ReadProjectiles(cxx::json_document_node configNode)
-{
-    mProjectiles.resize(eProjectileType_COUNT);
-
-    std::string currProjectileName;
-    for (cxx::json_node_object currentNode = configNode.first_child();
-        currentNode; currentNode = currentNode.next_sibling())
-    {
-        currProjectileName = currentNode.get_element_name();
-
-        // parse id
-        eProjectileType projectileType = eProjectileType_COUNT;
-        if (!cxx::parse_enum(currProjectileName.c_str(), projectileType))
-        {
-            gConsole.LogMessage(eLogMessage_Warning, "Unknown projectile id '%s'", currProjectileName.c_str());
-            continue;
-        }
-
-        ProjectileStyle& projectile = mProjectiles[projectileType];
-        projectile = ProjectileStyle(); // reset to defaults
-        projectile.mTypeID = projectileType;
-
-        cxx::json_get_attribute(currentNode, "anim_id", projectile.mAnimID);
-        cxx::json_get_attribute(currentNode, "anim_loop", projectile.mAnimLoop);
-
-        // distances
-        ParseMapUnits(currentNode, "radius", projectile.mProjectileRadius);
-        ParseMapUnits(currentNode, "base_distance", projectile.mBaseDistance);
-        ParseMapUnits(currentNode, "base_primary_damage_radius", projectile.mBasePrimaryDamageRadius);
-        ParseMapUnits(currentNode, "base_secondary_damage_radius", projectile.mBaseSecondaryDamageRadius);
-        ParseMapUnits(currentNode, "speed", projectile.mSpeed);
-    }
-}
-
-void StyleData::ReadWeapons(cxx::json_document_node configNode)
-{
-    mWeapons.resize(eWeaponType_COUNT);
+    cxx::json_node_array configRootNode = weaponsConfig.get_root_node();
 
     std::string currWeaponName;
-    for (cxx::json_node_object currentNode = configNode.first_child();
+    for (cxx::json_node_object currentNode = configRootNode.first_child();
         currentNode; currentNode = currentNode.next_sibling())
     {
-        currWeaponName = currentNode.get_element_name();
-
-        // parse id
-        eWeaponType weaponType = eWeaponType_COUNT;
-        if (!cxx::parse_enum(currWeaponName.c_str(), weaponType))
+        WeaponInfo currentWeapon;
+        if (!currentWeapon.SetupFromConfg(currentNode))
         {
-            gConsole.LogMessage(eLogMessage_Warning, "Unknown weapon id '%s'", currWeaponName.c_str());
+            debug_assert(false);
             continue;
         }
 
-        WeaponStyle& weapon = mWeapons[weaponType];
-        weapon = WeaponStyle(); // reset to defaults
-        weapon.mTypeID = weaponType;
-
-        cxx::json_get_attribute(currentNode, "fire_type", weapon.mFireTypeID);
-        cxx::json_get_attribute(currentNode, "projectile", weapon.mProjectileID);
-        cxx::json_get_attribute(currentNode, "base_fire_rate", weapon.mBaseFireRate);
-        cxx::json_get_attribute(currentNode, "sprite_index", weapon.mSpriteIndex);
-        cxx::json_get_attribute(currentNode, "base_ammo_limit", weapon.mBaseAmmoLimit);
-
-        // distances
-        ParseMapUnits(currentNode, "base_melee_hit_distance", weapon.mBaseMeleeHitDistance);
+        mWeapons[currentWeapon.mWeaponID] = currentWeapon;
     }
 }
 

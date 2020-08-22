@@ -350,6 +350,9 @@
     <ClInclude Include="Explosion.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="WeaponInfo.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -549,6 +552,9 @@
     <ClCompile Include="Explosion.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
+    <ClCompile Include="WeaponInfo.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">
@@ -572,13 +578,13 @@
     <None Include="..\gamedata\config\inputs.json.default">
       <Filter>Data\config</Filter>
     </None>
-    <None Include="..\gamedata\entities\common.json">
-      <Filter>Data\entities</Filter>
-    </None>
     <None Include="..\gamedata\entities\ped_animations.json">
       <Filter>Data\entities</Filter>
     </None>
     <None Include="..\gamedata\entities\gta_objects.json">
+      <Filter>Data\entities</Filter>
+    </None>
+    <None Include="..\gamedata\entities\weapons.json">
       <Filter>Data\entities</Filter>
     </None>
   </ItemGroup>

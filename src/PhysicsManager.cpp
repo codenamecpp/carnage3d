@@ -181,7 +181,6 @@ CarPhysicsBody* PhysicsManager::CreatePhysicsBody(Vehicle* object, const glm::ve
 ProjectilePhysicsBody* PhysicsManager::CreatePhysicsBody(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(object);
-    debug_assert(object->mProjectileStyle);
 
     ProjectilePhysicsBody* physicsObject = mProjectileBodiesPool.create(mPhysicsWorld, object);
     physicsObject->SetPosition(position, rotationAngle);

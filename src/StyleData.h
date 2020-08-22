@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
+#include "WeaponInfo.h"
 
 class PixelsArray;
 
@@ -14,8 +15,7 @@ public:
     std::vector<CarStyle> mCars;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
-    std::vector<ProjectileStyle> mProjectiles; // todo: remove!
-    std::vector<WeaponStyle> mWeapons;
+    std::vector<WeaponInfo> mWeapons;
 
     // CLUT data :
     //  tiles
@@ -97,7 +97,6 @@ public:
     // Read speicic sprite animation data
     // @param animationID: Animation identifier
     // @param animationData: Output data
-    bool GetSpriteAnimation(eSpriteAnimID animationID, SpriteAnimData& animationData) const;
     bool GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnimData& animationData) const;
 
     // Get base clut index for pedestrian sprites
@@ -119,11 +118,8 @@ private:
     bool ReadSpriteGraphics(std::ifstream& file, int dataLength);
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
-    void ReadSpriteAnimations();
     void ReadPedestrianAnimations();
-    void ReadCommons();
-    void ReadProjectiles(cxx::json_document_node configNode);
-    void ReadWeapons(cxx::json_document_node configNode);
+    void ReadWeapons();
 
     bool InitGameObjectsList();
 
@@ -157,7 +153,7 @@ private:
     std::vector<unsigned char> mBlockTexturesRaw;
     std::vector<unsigned char> mSpriteGraphicsRaw;
 
-    SpriteAnimData mSpriteAnimations[eSpriteAnimID_COUNT]; // todo: remove
+    // sprites animations
     SpriteAnimData mPedestrianAnimations[ePedestrianAnim_COUNT];
 
     // counters

@@ -248,6 +248,7 @@
     <ClInclude Include="PixelsArray.h" />
     <ClInclude Include="TrimeshBuffer.h" />
     <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
@@ -322,6 +323,7 @@
     <ClCompile Include="PixelsArray.cpp" />
     <ClCompile Include="TrimeshBuffer.cpp" />
     <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="WeaponInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Box2D\Box2D.vcxproj">
@@ -334,7 +336,7 @@
   <ItemGroup>
     <None Include="..\gamedata\config\inputs.json.default" />
     <None Include="..\gamedata\config\sys_config.json.default" />
-    <None Include="..\gamedata\entities\common.json" />
+    <None Include="..\gamedata\entities\weapons.json" />
     <None Include="..\gamedata\entities\gta_objects.json" />
     <None Include="..\gamedata\entities\ped_animations.json" />
     <None Include="..\gamedata\shaders\city_mesh.glsl" />
