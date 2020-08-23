@@ -17,7 +17,7 @@ Projectile::~Projectile()
 {
     if (mPhysicsBody)
     {
-        gPhysics.DestroyPhysicsBody(mPhysicsBody);
+        gPhysics.DestroyPhysicsObject(mPhysicsBody);
     }
 }
 
@@ -28,7 +28,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mContactDetected = false;
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
         debug_assert(mPhysicsBody);
     }
     else

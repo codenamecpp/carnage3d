@@ -22,6 +22,26 @@ public:
 
     Rect mViewportRect;
 
+    // projection parameters
+
+    struct PerspectiveParams
+    {
+        float mAspect = 1.0f;
+        float mFovy = 1.0f;
+        float mNearPlane = 1.0;
+        float mFarPlane = 1.0;
+    };
+    PerspectiveParams mPerspectiveParams;
+
+    struct OrthographicParams
+    {
+        float mLeftP = 1.0f;
+        float mRightP = 1.0;
+        float mBottomP = 1.0;
+        float mTopP = 1.0;
+    };
+    OrthographicParams mOrthographicParams;
+
 public:
     GameCamera();
 
@@ -75,26 +95,6 @@ public:
 private:
     bool mProjMatrixDirty; // projection matrix need recomputation
     bool mViewMatrixDirty; // view matrix need recomputation
-
-    // projection parameters
-
-    struct PerspectiveParams
-    {
-        float mAspect = 1.0f;
-        float mFovy = 1.0f;
-        float mNearPlane = 1.0;
-        float mFarPlane = 1.0;
-    };
-    PerspectiveParams mPerspectiveParams;
-
-    struct OrthographicParams
-    {
-        float mLeftP = 1.0f;
-        float mRightP = 1.0;
-        float mBottomP = 1.0;
-        float mTopP = 1.0;
-    };
-    OrthographicParams mOrthographicParams;
 };
 
 // defines ui camera

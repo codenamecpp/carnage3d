@@ -21,25 +21,25 @@ public:
     // @param object: Reference object
     // @param position: World position, meters
     // @param rotationAngle: Heading
-    PedPhysicsBody* CreatePhysicsBody(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    PedPhysicsBody* CreatePhysicsObject(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // Create car specific physical body
     // @param object: Reference object
     // @param position: World position, meters
     // @param rotationAngle: Heading
-    CarPhysicsBody* CreatePhysicsBody(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    CarPhysicsBody* CreatePhysicsObject(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // Create projectile specific physical body
     // @param object: Reference object
     // @param position: World position, meters
     // @param rotationAngle: Heading
-    ProjectilePhysicsBody* CreatePhysicsBody(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    ProjectilePhysicsBody* CreatePhysicsObject(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle);
 
     // Free physics object
     // @param object: Object to destroy, pointer becomes invalid
-    void DestroyPhysicsBody(PedPhysicsBody* object);
-    void DestroyPhysicsBody(CarPhysicsBody* object);
-    void DestroyPhysicsBody(ProjectilePhysicsBody* object);
+    void DestroyPhysicsObject(PedPhysicsBody* object);
+    void DestroyPhysicsObject(CarPhysicsBody* object);
+    void DestroyPhysicsObject(ProjectilePhysicsBody* object);
 
     // query all physics objects that intersects with line
     // note that depth is ignored so pointA and pointB has only 2 components
@@ -77,7 +77,8 @@ private:
     bool ProcessProjectileVsPed(b2Contact* contact, ProjectilePhysicsBody* projectile, PedPhysicsBody* ped) const;
 
     // post solve collisions
-    void HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsBody* ped, CarPhysicsBody* car);
+    void HandleCollision(b2Contact* contact, PedPhysicsBody* ped, CarPhysicsBody* car, const b2ContactImpulse* impulse);
+    void HandleCollision(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB, const b2ContactImpulse* impulse);
 
     // sensors
     bool ProcessSensorContact(b2Contact* contact, bool onBegin);

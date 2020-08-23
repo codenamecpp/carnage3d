@@ -25,7 +25,7 @@ Pedestrian::~Pedestrian()
 
     if (mPhysicsBody)
     {
-        gPhysics.DestroyPhysicsBody(mPhysicsBody);
+        gPhysics.DestroyPhysicsObject(mPhysicsBody);
     }
 }
 
@@ -47,7 +47,7 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
         debug_assert(mPhysicsBody);
     }
     else
@@ -370,7 +370,7 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     }
 }
 
-void Pedestrian::ReceiveDamageFromCar(Vehicle* targetCar, float impulse)
+void Pedestrian::ReceiveDamageFromCar(Vehicle* targetCar)
 {
     debug_assert(targetCar); 
 

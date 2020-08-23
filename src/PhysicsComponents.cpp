@@ -104,6 +104,20 @@ glm::vec2 PhysicsBody::GetLinearVelocity() const
     return { b2velocity.x, b2velocity.y };
 }
 
+glm::vec2 PhysicsBody::GetLinearVelocityFromWorldPoint(const glm::vec2& worldPosition) const
+{
+    box2d::vec2 b2point = worldPosition;
+    box2d::vec2 b2vec = mPhysicsBody->GetLinearVelocityFromWorldPoint(b2point);
+    return b2vec;
+}
+
+glm::vec2 PhysicsBody::GetLinearVelocityFromLocalPoint(const glm::vec2& localPosition) const
+{
+    box2d::vec2 b2point = localPosition;
+    box2d::vec2 b2vec = mPhysicsBody->GetLinearVelocityFromLocalPoint(b2point);
+    return b2vec;
+}
+
 cxx::angle_t PhysicsBody::GetAngularVelocity() const
 {
     cxx::angle_t angularVelocity = cxx::angle_t::from_radians(mPhysicsBody->GetAngularVelocity());
@@ -352,6 +366,7 @@ CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     fixtureDef.shape = &shapeDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.0f;
+    fixtureDef.restitution = 0.4f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_CAR;
 
     mChassisFixture = mPhysicsBody->CreateFixture(&fixtureDef);
@@ -413,6 +428,17 @@ void CarPhysicsBody::GetChassisCorners(glm::vec2 corners[4]) const
     for (int icorner = 0; icorner < 4; ++icorner)
     {
         box2d::vec2 point = mPhysicsBody->GetWorldPoint(shape->m_vertices[icorner]);
+        corners[icorner] = point;
+    }
+}
+
+void CarPhysicsBody::GetLocalChassisCorners(glm::vec2 corners[4]) const
+{
+    const b2PolygonShape* shape = (const b2PolygonShape*) mChassisFixture->GetShape();
+    debug_assert(shape->m_count == 4);
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        box2d::vec2 point = shape->m_vertices[icorner];
         corners[icorner] = point;
     }
 }

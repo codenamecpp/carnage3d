@@ -71,7 +71,7 @@ public:
 
     // Get damage from vehicle, it may be ignored depending on its current state
     // @param impulse: Impact value
-    void ReceiveDamageFromCar(Vehicle* targetCar, float impulse);
+    void ReceiveDamageFromCar(Vehicle* targetCar);
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;

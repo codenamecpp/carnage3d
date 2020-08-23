@@ -26,7 +26,7 @@ Vehicle::~Vehicle()
     
     if (mPhysicsBody)
     {
-        gPhysics.DestroyPhysicsBody(mPhysicsBody);
+        gPhysics.DestroyPhysicsObject(mPhysicsBody);
     }
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
@@ -37,7 +37,7 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsBody(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
         debug_assert(mPhysicsBody);
     }
     else
@@ -567,4 +567,80 @@ bool Vehicle::HasHardTop() const
 bool Vehicle::IsWrecked() const
 {
     return mCarWrecked;
+}
+
+void Vehicle::ReceiveDamageFromCrash(const glm::vec3& crashPoint, float crashImpactForce)
+{
+    if (IsWrecked())
+        return;
+
+    glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(glm::vec2(crashPoint.x, crashPoint.z));
+
+    // clockwise from top left corner
+    glm::vec2 chassisCorners[4];
+    mPhysicsBody->GetLocalChassisCorners(chassisCorners);
+
+    float miny = chassisCorners[1].y;
+    float maxy = chassisCorners[2].y;
+    float minx = chassisCorners[0].x;
+    float maxx = chassisCorners[1].x;
+
+    /*
+                            Left
+                     _______________________
+                    |  |        |        |  |
+                    |  |        |        |  |
+            Rear    | --------- O --------- |    Front
+                    |  |        |        |  |
+                    |__|________|________|__|
+
+                            Right
+    */
+
+    float fr_bias = (maxx / 3.0f); // front-rear offset from corners
+
+    if (maxx - fabs(localPoint.x) < fr_bias)
+    {
+        if (localPoint.x > 0.0f)
+        {
+            // front left
+            if (localPoint.y < 0.0f)
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FL);
+            }
+            // front right
+            else
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FR);
+            }
+        }
+        else
+        {
+            // rear left
+            if (localPoint.y < 0.0f)
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BL);
+            }
+            // rear right
+            else
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BR);
+            }
+        }
+    }
+    else
+    {
+        // middle left
+        if (localPoint.y < 0.0f)
+        {
+            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_ML);
+        }
+        // middle right
+        else
+        {
+            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_MR);
+        }
+    }
+
+    --mHitpoints;
 }

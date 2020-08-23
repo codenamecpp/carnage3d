@@ -36,6 +36,7 @@ public:
     // process damages
     void ReceiveDamageFromWater();
     void ReceiveDamage(int damage);
+    void ReceiveDamageFromCrash(const glm::vec3& crashPoint, float crashImpactForce);
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null

@@ -56,6 +56,8 @@ public:
 	/// @param velocity: New linear velocity of the center of mass, meters per second
     void SetLinearVelocity(const glm::vec2& velocity);
     glm::vec2 GetLinearVelocity() const;
+    glm::vec2 GetLinearVelocityFromWorldPoint(const glm::vec2& worldPosition) const;
+    glm::vec2 GetLinearVelocityFromLocalPoint(const glm::vec2& localPosition) const;
     glm::vec2 GetSignVector() const;
 
     // Convert coordinate from local to world space and vice versa
@@ -161,6 +163,7 @@ public:
     void HandleWaterContact();
 
     void GetChassisCorners(glm::vec2 corners[4]) const;
+    void GetLocalChassisCorners(glm::vec2 corners[4]) const;
     void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
 
     // steering
@@ -198,6 +201,7 @@ private:
     b2Vec2 b2GetWheelLocalPoint(eCarWheel wheelID) const;
     b2Vec2 b2GetWheelLocalForwardVector(eCarWheel wheelID) const;
     b2Vec2 b2GetWheelLocalLateralVector(eCarWheel wheelID) const;
+
 private:
     CarStyle* mCarDesc = nullptr;
     b2Fixture* mChassisFixture = nullptr;

@@ -41,13 +41,13 @@ inline b2Fixture* FilterFixture(b2Fixture* fixtureA, b2Fixture* fixtureB, unsign
 }
 
 template<typename TUserDataClass>
-inline TUserDataClass* CastBodyData(b2Body* physicsBody)
+inline TUserDataClass* CastFixtureBody(b2Fixture* fixture)
 {
-    debug_assert(physicsBody);
+    debug_assert(fixture);
+    const b2Body* physicsBody = fixture->GetBody();
 
     void* userdata = physicsBody->GetUserData();
     debug_assert(userdata);
-
     return (TUserDataClass*) userdata;
 }
 
@@ -155,7 +155,7 @@ void PhysicsManager::ProcessInterpolation()
     }
 }
 
-PedPhysicsBody* PhysicsManager::CreatePhysicsBody(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle)
+PedPhysicsBody* PhysicsManager::CreatePhysicsObject(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(object);
 
@@ -166,7 +166,7 @@ PedPhysicsBody* PhysicsManager::CreatePhysicsBody(Pedestrian* object, const glm:
     return physicsObject;
 }
 
-CarPhysicsBody* PhysicsManager::CreatePhysicsBody(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle)
+CarPhysicsBody* PhysicsManager::CreatePhysicsObject(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(object);
     debug_assert(object->mCarStyle);
@@ -178,7 +178,7 @@ CarPhysicsBody* PhysicsManager::CreatePhysicsBody(Vehicle* object, const glm::ve
     return physicsObject;
 }
 
-ProjectilePhysicsBody* PhysicsManager::CreatePhysicsBody(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle)
+ProjectilePhysicsBody* PhysicsManager::CreatePhysicsObject(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(object);
 
@@ -255,7 +255,7 @@ void PhysicsManager::CreateMapCollisionShape()
     }
 }
 
-void PhysicsManager::DestroyPhysicsBody(PedPhysicsBody* object)
+void PhysicsManager::DestroyPhysicsObject(PedPhysicsBody* object)
 {
     debug_assert(object);
     cxx::erase_elements(mPedsBodiesList, object);
@@ -263,7 +263,7 @@ void PhysicsManager::DestroyPhysicsBody(PedPhysicsBody* object)
     mPedsBodiesPool.destroy(object);
 }
 
-void PhysicsManager::DestroyPhysicsBody(CarPhysicsBody* object)
+void PhysicsManager::DestroyPhysicsObject(CarPhysicsBody* object)
 {
     debug_assert(object);
     cxx::erase_elements(mCarsBodiesList, object);
@@ -271,7 +271,7 @@ void PhysicsManager::DestroyPhysicsBody(CarPhysicsBody* object)
     mCarsBodiesPool.destroy(object);
 }
 
-void PhysicsManager::DestroyPhysicsBody(ProjectilePhysicsBody* object)
+void PhysicsManager::DestroyPhysicsObject(ProjectilePhysicsBody* object)
 {
     debug_assert(object);
     cxx::erase_elements(mProjectileBodiesList, object);
@@ -303,16 +303,16 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         // ped vs ped
         if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED)
         {
-            PedPhysicsBody* physicsComponentA = CastBodyData<PedPhysicsBody>(fixtureA->GetBody());
-            PedPhysicsBody* physicsComponentB = CastBodyData<PedPhysicsBody>(fixtureB->GetBody());
-            hasCollision = HasCollisionPedVsPed(contact, physicsComponentA, physicsComponentB);
+            PedPhysicsBody* pedA = CastFixtureBody<PedPhysicsBody>(fixtureA);
+            PedPhysicsBody* pedB = CastFixtureBody<PedPhysicsBody>(fixtureB);
+            hasCollision = HasCollisionPedVsPed(contact, pedA, pedB);
         }
         // car vs car
         if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
         {
-            CarPhysicsBody* physicsComponentA = CastBodyData<CarPhysicsBody>(fixtureA->GetBody());
-            CarPhysicsBody* physicsComponentB = CastBodyData<CarPhysicsBody>(fixtureB->GetBody());
-            hasCollision = HasCollisionCarVsCar(contact, physicsComponentA, physicsComponentB);
+            CarPhysicsBody* carA = CastFixtureBody<CarPhysicsBody>(fixtureA);
+            CarPhysicsBody* carB = CastFixtureBody<CarPhysicsBody>(fixtureB);
+            hasCollision = HasCollisionCarVsCar(contact, carA, carB);
         }
     }
     else
@@ -326,55 +326,55 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         {
             hasCollision = false; // projectiles doesnt collide
 
-            ProjectilePhysicsBody* projectileObject = CastBodyData<ProjectilePhysicsBody>(fixtureProjectile->GetBody());
+            ProjectilePhysicsBody* projectile = CastFixtureBody<ProjectilePhysicsBody>(fixtureProjectile);
 
             // projectile vs map solid block
             if (fixtureMapSolidBlock)
             {
                 b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
-                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK))
+                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK))
                 {
-                    ProcessProjectileVsMap(contact, projectileObject, fxdata.mX, fxdata.mZ);
+                    ProcessProjectileVsMap(contact, projectile, fxdata.mX, fxdata.mZ);
                 }
             }
             // projectile vs car
             else if (fixtureCar)
             {
-                CarPhysicsBody* carPhysicsObject = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
-                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_CAR))
+                CarPhysicsBody* car = CastFixtureBody<CarPhysicsBody>(fixtureCar);
+                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_CAR))
                 {
-                    ProcessProjectileVsCar(contact, projectileObject, carPhysicsObject);
+                    ProcessProjectileVsCar(contact, projectile, car);
                 }
             }
             // projectile vs ped
             else if (fixturePed)
             {
-                PedPhysicsBody* pedPhysicsObject = CastBodyData<PedPhysicsBody>(fixturePed->GetBody());
-                if (projectileObject->ShouldContactWith(PHYSICS_OBJCAT_PED))
+                PedPhysicsBody* ped = CastFixtureBody<PedPhysicsBody>(fixturePed);
+                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_PED))
                 {
-                    ProcessProjectileVsPed(contact, projectileObject, pedPhysicsObject);
+                    ProcessProjectileVsPed(contact, projectile, ped);
                 }
             }
         }
         else if (fixturePed)
         {
-            PedPhysicsBody* pedPhysicsObject = CastBodyData<PedPhysicsBody>(fixturePed->GetBody());
+            PedPhysicsBody* ped = CastFixtureBody<PedPhysicsBody>(fixturePed);
 
             // ped vs map solid block
             if (fixtureMapSolidBlock)
             {
                 b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
      
-                float height = gGameMap.GetHeightAtPosition(pedPhysicsObject->GetPosition());
-                hasCollision = pedPhysicsObject->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK) &&
+                float height = gGameMap.GetHeightAtPosition(ped->GetPosition());
+                hasCollision = ped->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK) &&
                     HasCollisionPedVsMap(fxdata.mX, fxdata.mZ, height);
             }
             // ped vs car
             else if (fixtureCar)
             {
-                CarPhysicsBody* carPhysicsObject = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
-                hasCollision = pedPhysicsObject->ShouldContactWith(PHYSICS_OBJCAT_CAR) &&
-                    HasCollisionPedVsCar(contact, pedPhysicsObject, carPhysicsObject);
+                CarPhysicsBody* car = CastFixtureBody<CarPhysicsBody>(fixtureCar);
+                hasCollision = ped->ShouldContactWith(PHYSICS_OBJCAT_CAR) &&
+                    HasCollisionPedVsCar(contact, ped, car);
             }
         }
         // car vs map solid block
@@ -390,40 +390,34 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 
 void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
+    if (impulse->count < 1 || contact->GetManifold()->pointCount < 1)
+        return;
+
     b2Fixture* fixtureA = contact->GetFixtureA();
     b2Fixture* fixtureB = contact->GetFixtureB();
-
     // check car vs car
     if (fixtureA->GetFilterData().categoryBits == 
         fixtureB->GetFilterData().categoryBits)
     {
         if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
         {
-            // todo
+            CarPhysicsBody* carA = CastFixtureBody<CarPhysicsBody>(fixtureA);
+            CarPhysicsBody* carB = CastFixtureBody<CarPhysicsBody>(fixtureB);
+            HandleCollision(contact, carA, carB, impulse);
         }
-
-        return;
     }
-
-    // find impulse
-    float maxImpulse = 0.0f;
-    for (int icurr = 0; icurr < impulse->count; ++icurr)
+    else
     {
-        maxImpulse = glm::max(maxImpulse, fabs(impulse->normalImpulses[icurr]));
-    }
+        b2Fixture* fixtureMapSolidBlock = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
+        b2Fixture* fixturePed = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PED);
+        b2Fixture* fixtureCar = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_CAR);
 
-    if (maxImpulse < 0.01f) // impact is too small, ignore
-        return;
-
-    b2Fixture* fixtureMapSolidBlock = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
-    b2Fixture* fixturePed = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PED);
-    b2Fixture* fixtureCar = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_CAR);
-
-    if (fixtureCar && fixturePed)
-    {
-        CarPhysicsBody* physicsComponentCar = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
-        PedPhysicsBody* physicsComponentPed = CastBodyData<PedPhysicsBody>(fixturePed->GetBody());
-        HandleContactPedVsCar(contact, maxImpulse, physicsComponentPed, physicsComponentCar);
+        if (fixtureCar && fixturePed)
+        {
+            CarPhysicsBody* car = CastFixtureBody<CarPhysicsBody>(fixtureCar);
+            PedPhysicsBody* ped = CastFixtureBody<PedPhysicsBody>(fixturePed);
+            HandleCollision(contact, ped, car, impulse);
+        }
     }
 }
 
@@ -552,7 +546,7 @@ bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapy, float height) cons
 
 bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapy) const
 {
-    CarPhysicsBody* carPhysicsComponent = CastBodyData<CarPhysicsBody>(fixtureCar->GetBody());
+    CarPhysicsBody* carPhysicsComponent = CastFixtureBody<CarPhysicsBody>(fixtureCar);
     debug_assert(carPhysicsComponent);
 
     int mapLayer = (int) (Convert::MetersToMapUnits(carPhysicsComponent->mHeight) + 0.5f);
@@ -588,8 +582,8 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
     
     if (pedFixture && carFixture)
     {
-        PedPhysicsBody* pedPhysicsComponent = CastBodyData<PedPhysicsBody>(pedFixture->GetBody());
-        CarPhysicsBody* carPhysicsComponent = CastBodyData<CarPhysicsBody>(carFixture->GetBody());
+        PedPhysicsBody* pedPhysicsComponent = CastFixtureBody<PedPhysicsBody>(pedFixture);
+        CarPhysicsBody* carPhysicsComponent = CastFixtureBody<CarPhysicsBody>(carFixture);
         if (onBegin)
         {
             pedPhysicsComponent->HandleCarContactBegin();
@@ -625,13 +619,13 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
             {
                 currHit = &mOutput.mHits[mOutput.mHitsCount++];
-                currHit->mCarComponent = CastBodyData<CarPhysicsBody>(fixture->GetBody());
+                currHit->mCarComponent = CastFixtureBody<CarPhysicsBody>(fixture);
 
             }
             if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
             {
                 currHit = &mOutput.mHits[mOutput.mHitsCount++];
-                currHit->mPedComponent = CastBodyData<PedPhysicsBody>(fixture->GetBody());
+                currHit->mPedComponent = CastFixtureBody<PedPhysicsBody>(fixture);
             }
             if (currHit)
             {
@@ -672,13 +666,13 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
             if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
             {
                 PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
-                currElement.mCarComponent = CastBodyData<CarPhysicsBody>(fixture->GetBody());
+                currElement.mCarComponent = CastFixtureBody<CarPhysicsBody>(fixture);
             }
 
             if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
             {
                 PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
-                currElement.mPedComponent = CastBodyData<PedPhysicsBody>(fixture->GetBody());
+                currElement.mPedComponent = CastFixtureBody<PedPhysicsBody>(fixture);
             }
             return true;
         }
@@ -695,12 +689,36 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
     mPhysicsWorld->QueryAABB(&query_callback, aabb);
 }
 
-void PhysicsManager::HandleContactPedVsCar(b2Contact* contact, float impulse, PedPhysicsBody* ped, CarPhysicsBody* car)
+void PhysicsManager::HandleCollision(b2Contact* contact, PedPhysicsBody* ped, CarPhysicsBody* car, const b2ContactImpulse* impulse)
 {
     if (!ped->ShouldContactWith(PHYSICS_OBJCAT_CAR))
         return;
 
-    ped->mReferencePed->ReceiveDamageFromCar(car->mReferenceCar, impulse);
+    ped->mReferencePed->ReceiveDamageFromCar(car->mReferenceCar);
+}
+
+void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB, const b2ContactImpulse* impulse)
+{
+    int pointCount = contact->GetManifold()->pointCount;
+    float maxImpulse = 0.0f;
+    for (int i = 0; i < pointCount; ++i) 
+    {
+        maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+    }
+
+    if (maxImpulse < 62.0f) // todo: magic numbers
+        return;
+
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
+
+    for (CarPhysicsBody* currCar: {carA, carB})
+    {
+        glm::vec3 crashPoint ( contactPoint.x, currCar->mHeight, contactPoint.y );
+        currCar->mReferenceCar->ReceiveDamageFromCrash(crashPoint, maxImpulse);
+    }
 }
 
 bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const
