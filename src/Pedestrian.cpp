@@ -209,6 +209,9 @@ void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
     debug_assert(targetSeat != eCarSeat_Any);
     debug_assert(targetCar);
 
+    if (targetCar->IsWrecked())
+        return;
+
     if (IsIdle())
     {
         PedestrianStateEvent evData { ePedestrianStateEvent_EnterCar };
@@ -227,11 +230,13 @@ void Pedestrian::ExitCar()
     }
 }
 
-void Pedestrian::ReceiveDamage(eWeaponID weapon, Pedestrian* attacker)
+void Pedestrian::ReceiveDamage(WeaponInfo* weapon, Pedestrian* attacker)
 {
+    debug_assert(weapon);
+
     PedestrianStateEvent evData { ePedestrianStateEvent_DamageFromWeapon };
     evData.mAttacker = attacker;
-    evData.mWeaponType = weapon;
+    evData.mWeapon = weapon;
     mStatesManager.ProcessEvent(evData);
 }
 
@@ -371,9 +376,11 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     }
 }
 
-void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
+void Pedestrian::ReceiveDamageFromCar(Vehicle* targetCar, float impulse)
 {
-    debug_assert(targetCar);
+    debug_assert(targetCar); 
+
+    // todo: hit processing logic should be moved to states manager !
 
     if (IsDead())
         return;
@@ -406,5 +413,15 @@ void Pedestrian::ReceiveHitByCar(Vehicle* targetCar, float impulse)
             return;
         } 
     }
+}
+
+void Pedestrian::ReceiveDamageFromExplosion(Explosion* explosion)
+{
+    // todo: hit processing logic should be moved to states manager !
+
+    if (IsDead())
+        return;
+
+    Die(ePedestrianDeathReason_BlownUp, nullptr);
 }
 

@@ -6,9 +6,6 @@ class Obstacle final: public GameObject
 {
     friend class GameObjectsManager;
 
-    // add runtime information support for gameobject
-    decl_rtti(Obstacle, GameObject)
-
 public:
     Obstacle(GameObjectID id, GameObjectStyle* desc);
     ~Obstacle();

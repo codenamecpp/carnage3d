@@ -14,9 +14,6 @@ class Pedestrian final: public GameObject
     friend class PedPhysicsBody;
     friend class PedestrianStatesManager;
 
-    // add runtime information support for gameobject
-    decl_rtti(Pedestrian, GameObject)
-
 public:
     // public for convenience, should not be modified directly
     CharacterController* mController; // controls pedestrian actions
@@ -68,12 +65,13 @@ public:
     // gracefully leave current vehicle
     void ExitCar();
 
-    // get damage from weapon, it may be ignored depending on its current state
-    void ReceiveDamage(eWeaponID weapon, Pedestrian* attacker);
+    // Get damage from weapon, it may be ignored depending on its current state
+    void ReceiveDamage(WeaponInfo* weapon, Pedestrian* attacker);
+    void ReceiveDamageFromExplosion(Explosion* explosion);
 
-    // get damage from vehicle, it may be ignored depending on its current state
+    // Get damage from vehicle, it may be ignored depending on its current state
     // @param impulse: Impact value
-    void ReceiveHitByCar(Vehicle* targetCar, float impulse);
+    void ReceiveDamageFromCar(Vehicle* targetCar, float impulse);
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;

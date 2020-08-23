@@ -12,7 +12,7 @@
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
-    , mDead()
+    , mCarWrecked()
     , mCarStyle()
     , mDamageDeltaBits()
     , mDrawHeight()
@@ -45,7 +45,7 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
         mPhysicsBody->SetPosition(startPosition, startRotation);
     }
 
-    mDead = false;
+    mCarWrecked = false;
     mHitpoints = gGameObjectsManager.GetBaseHitpointsForCar(mCarStyle->mVType);
 
     mDamageDeltaBits = 0;
@@ -56,12 +56,12 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 
 void Vehicle::UpdateFrame()
 {
-    if (mDead)
+    if (mCarWrecked)
         return;
 
     // check if car dead
-    mDead = (mHitpoints <= 0);
-    if (mDead)
+    mCarWrecked = (mHitpoints <= 0);
+    if (mCarWrecked)
     {
         Explode();
         return;
@@ -515,7 +515,7 @@ void Vehicle::UpdateDriving()
 
 void Vehicle::ReceiveDamageFromWater()
 {
-    mDead = true;
+    mCarWrecked = true;
 
     // kill passengers inside
     for (Pedestrian* currentPed: mPassengers)
@@ -524,9 +524,9 @@ void Vehicle::ReceiveDamageFromWater()
     }
 }
 
-void Vehicle::ReceiveDamageFromProjectile(int damage)
+void Vehicle::ReceiveDamage(int damage)
 {
-    if (mDead)
+    if (mCarWrecked)
         return;
 
     debug_assert(damage > 0);
@@ -541,6 +541,8 @@ void Vehicle::Explode()
 {
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
     explosionPos.y = mDrawHeight + 0.2f; // todo: magic numbers
+
+    mChassisSpriteIndex = gGameMap.mStyleData.GetWreckedCarSpriteIndex(mCarStyle->mVType);
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
@@ -560,4 +562,9 @@ bool Vehicle::HasHardTop() const
         return true;
     }
     return false;
+}
+
+bool Vehicle::IsWrecked() const
+{
+    return mCarWrecked;
 }

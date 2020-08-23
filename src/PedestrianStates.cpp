@@ -210,7 +210,7 @@ bool PedestrianStatesManager::TryToShoot()
 
             // todo: check distance in y direction
 
-            pedBody->mReferencePed->ReceiveDamage(mPedestrian->mCurrentWeapon, mPedestrian);
+            pedBody->mReferencePed->ReceiveDamage(&weaponParams, mPedestrian);
         }
     }
     else if (weaponParams.IsRange())
@@ -687,7 +687,20 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 
     if (stateEvent.mID == ePedestrianStateEvent_DamageFromWeapon)
     {
-        ChangeState(ePedestrianState_KnockedDown, stateEvent);
+        if (stateEvent.mWeapon == nullptr)
+        {
+            debug_assert(false);
+            return false;
+        }
+
+        if (!stateEvent.mWeapon->IsLethal())
+        {
+            ChangeState(ePedestrianState_KnockedDown, stateEvent);
+            return true;
+        }
+
+        // todo: correct death type with weapon type
+        mPedestrian->Die(ePedestrianDeathReason_Shot, nullptr);
         return true;
     }
 

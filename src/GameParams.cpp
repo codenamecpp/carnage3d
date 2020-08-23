@@ -10,6 +10,9 @@ GameParams::GameParams()
 
 void GameParams::SetToDefaults()
 {
+    // todo: move to config
+
+    // pedestrians
     mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);
     mPedestrianTurnSpeed = 260.0f;
     mPedestrianTurnSpeedSlideOnCar = 120.0f;
@@ -20,4 +23,9 @@ void GameParams::SetToDefaults()
     mPedestrianKnockedDownTime = 3.0f;
     mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
     mPedestrianDrowningTime = 0.05f;
+    // etc
+    mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.7f);
+    mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(1.2f);
+    mExplosionPrimaryDamage = 100;
+    mExplosionSecondaryDamage = 20;
 }

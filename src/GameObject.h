@@ -10,9 +10,6 @@ class GameObject: public cxx::noncopyable
     friend class GameObjectsManager;
     friend class MapRenderer;
 
-    // add runtime information support for gameobject
-    decl_rtti_base(GameObject)
-
 public:
     const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
     const eGameObjectClass mObjectTypeID;

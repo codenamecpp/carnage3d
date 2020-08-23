@@ -1107,3 +1107,39 @@ bool StyleData::InitGameObjectsList()
 
     return true;
 }
+
+int StyleData::GetWreckedCarSpriteIndex(eCarVType carVType) const
+{
+    int spriteID = 0;
+    switch (carVType)
+    {
+        case eCarVType_Bus:
+        case eCarVType_Train:
+        case eCarVType_Tram:
+            spriteID = 3;
+        break;
+
+        case eCarVType_FrontOfJuggernaut:
+        case eCarVType_BackOfJuggernaut:
+        case eCarVType_StandardCar: 
+            spriteID = 0;
+        break;
+
+        case eCarVType_Motorcycle:
+            spriteID = 5;
+        break;
+
+        case eCarVType_Boat:
+            spriteID = 2; // actually there is no sprite for wrecked boat
+        break;
+
+        case eCarVType_Tank:
+            spriteID = 4;
+        break;
+
+        default:
+            debug_assert(false);
+        break;
+    }
+    return GetSpriteIndex(eSpriteType_WBus, spriteID);
+}

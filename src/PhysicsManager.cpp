@@ -585,6 +585,7 @@ bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
     b2Fixture* pedFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_PED_SENSOR);
     b2Fixture* carFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_CAR);
     b2Fixture* mapSolidBlockFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
+    
     if (pedFixture && carFixture)
     {
         PedPhysicsBody* pedPhysicsComponent = CastBodyData<PedPhysicsBody>(pedFixture->GetBody());
@@ -699,7 +700,7 @@ void PhysicsManager::HandleContactPedVsCar(b2Contact* contact, float impulse, Pe
     if (!ped->ShouldContactWith(PHYSICS_OBJCAT_CAR))
         return;
 
-    ped->mReferencePed->ReceiveHitByCar(car->mReferenceCar, impulse);
+    ped->mReferencePed->ReceiveDamageFromCar(car->mReferenceCar, impulse);
 }
 
 bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const

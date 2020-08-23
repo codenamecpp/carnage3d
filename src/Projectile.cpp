@@ -98,7 +98,13 @@ void Projectile::UpdateFrame()
             if (mContactObject && mContactObject->IsVehicleClass())
             {
                 Vehicle* carObject = static_cast<Vehicle*>(mContactObject);
-                carObject->ReceiveDamageFromProjectile(mWeaponInfo->mBaseDamage);
+                carObject->ReceiveDamage(mWeaponInfo->mBaseDamage);
+            }
+
+            if (mContactObject && mContactObject->IsPedestrianClass())
+            {
+                Pedestrian* pedObject = static_cast<Pedestrian*>(mContactObject);
+                pedObject->ReceiveDamage(mWeaponInfo, nullptr);
             }
         }
     }

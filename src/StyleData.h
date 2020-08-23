@@ -90,6 +90,10 @@ public:
     // @para spriteId: Sprite id
     int GetCarSpriteIndex(eCarVType carVType, int spriteId) const;
 
+    // Get sprite index for wrecked car of cpecific vtype
+    // @param carVType: Car vtype
+    int GetWreckedCarSpriteIndex(eCarVType carVType) const;
+
     // Get number of sprites for specific type 
     // @param spriteType: Sprite type
     int GetNumSprites(eSpriteType spriteType) const;

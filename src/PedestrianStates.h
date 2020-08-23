@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
+#include "WeaponInfo.h"
 
 enum ePedestrianStateEvent
 {
@@ -33,7 +34,7 @@ public:
     eCarSeat mTargetSeat;
 
     Pedestrian* mAttacker = nullptr;
-    eWeaponID mWeaponType;
+    WeaponInfo* mWeapon = nullptr;
 
     ePedestrianDeathReason mDeathReason;
 };

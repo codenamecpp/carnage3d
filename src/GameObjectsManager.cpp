@@ -43,10 +43,9 @@ void GameObjectsManager::UpdateFrame()
 
     // if is safe to add new objects during loop by adding them to the end of the list
 
-    const size_t allObjectsCount = mAllObjectsList.size();
-    for (size_t iobject = 0; iobject < allObjectsCount; ++iobject)
+    for (size_t i = 0, NumElements = mAllObjectsList.size(); i < NumElements; ++i)
     {
-        GameObject* currentObject = mAllObjectsList[iobject];
+        GameObject* currentObject = mAllObjectsList[i];
         currentObject->UpdateFrame();
     }
 }

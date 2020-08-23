@@ -4,6 +4,7 @@
 #include "Pedestrian.h"
 #include "Vehicle.h"
 #include "Projectile.h"
+#include "Explosion.h"
 #include "PhysicsManager.h"
 #include "TimeManager.h"
 #include "Box2D_Helpers.h"
@@ -379,7 +380,7 @@ void CarPhysicsBody::ResetDriveState()
 
 void CarPhysicsBody::HandleWaterContact()
 {
-    if (mWaterContact || mReferenceCar->mDead) // todo
+    if (mWaterContact || mReferenceCar->IsWrecked()) // todo
         return;
 
     mWaterContact = true;

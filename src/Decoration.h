@@ -6,9 +6,6 @@ class Decoration final: public GameObject
 {
     friend class GameObjectsManager;
 
-    // add runtime information support for gameobject
-    decl_rtti(Decoration, GameObject)
-
 public:
     Decoration(GameObjectID id, GameObjectStyle* desc);
     ~Decoration();

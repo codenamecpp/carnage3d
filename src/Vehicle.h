@@ -10,14 +10,9 @@ class Vehicle final: public GameObject
 {
     friend class GameObjectsManager;
 
-    // add runtime information support for gameobject
-    decl_rtti(Vehicle, GameObject)
-
 public:
     // public for convenience, should not be modified directly
     CarPhysicsBody* mPhysicsBody;
-
-    bool mDead;
 
     float mDrawHeight;
     int mRemapIndex;
@@ -40,7 +35,7 @@ public:
 
     // process damages
     void ReceiveDamageFromWater();
-    void ReceiveDamageFromProjectile(int damage);
+    void ReceiveDamage(int damage);
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null
@@ -91,6 +86,9 @@ public:
     
     bool IsSeatPresent(eCarSeat carSeat) const;
 
+    // Test whether vehicle is wrecked
+    bool IsWrecked() const;
+
 private:
     void Explode();
     void UpdateDriving();
@@ -107,4 +105,6 @@ private:
 
     int mChassisSpriteIndex = 0;
     int mHitpoints = 20;
+
+    bool mCarWrecked = false;
 };
