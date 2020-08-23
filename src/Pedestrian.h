@@ -53,7 +53,7 @@ public:
     // set current weapon type
     void ChangeWeapon(eWeaponID weapon);
 
-    // instant kill, pedestrian will remain in dead state until respawn
+    // Instant kill, pedestrian will remain in dead state until respawn
     // @param attacker: Optional
     void Die(ePedestrianDeathReason deathReason, Pedestrian* attacker);
 

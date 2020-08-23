@@ -116,7 +116,7 @@ enum eSpriteType : unsigned short
     eSpriteType_TrDoor,
     eSpriteType_Bike,
     eSpriteType_Tram,
-    eSpriteType_WCar,
+    eSpriteType_WreckedCar,
     eSpriteType_WBus,
     eSpriteType_Ex,
     eSpriteType_TumCar,
@@ -424,92 +424,92 @@ struct CarDoorStyle
 	short mDelta;
 };
 
-enum eCarVType
+enum eVehicleClass
 {
-    eCarVType_Bus,
-    eCarVType_FrontOfJuggernaut,
-    eCarVType_BackOfJuggernaut,
-    eCarVType_Motorcycle,
-    eCarVType_StandardCar,
-    eCarVType_Train,
-    eCarVType_Tram,
-    eCarVType_Boat,
-    eCarVType_Tank,
-    eCarVType_COUNT
+    eVehicleClass_Bus,
+    eVehicleClass_FrontOfJuggernaut,
+    eVehicleClass_BackOfJuggernaut,
+    eVehicleClass_Motorcycle,
+    eVehicleClass_StandardCar,
+    eVehicleClass_Train,
+    eVehicleClass_Tram,
+    eVehicleClass_Boat,
+    eVehicleClass_Tank,
+    eVehicleClass_COUNT
 };
 
-decl_enum_strings(eCarVType);
+decl_enum_strings(eVehicleClass);
 
 // warning - these values are mapped to gta1, so don't change it
-enum eCarModel
+enum eVehicleModel
 {
-    eCarModel_BeastGTS_1    = 0,
-    eCarModel_Bug           = 1,
-    eCarModel_Counthash     = 2,
-    eCarModel_Bike          = 3,
-    eCarModel_Police        = 4,
-    eCarModel_Ambulance     = 5,
-    eCarModel_RepairVan     = 6,
-    eCarModel_Juggernaut    = 7,
-    eCarModel_Coach         = 9,
-    eCarModel_Train         = 11,
-    eCarModel_Tram          = 12,
-    eCarModel_Boat          = 13,
-    eCarModel_Penetrator_1  = 14,
-    eCarModel_Itali         = 17,
-    eCarModel_Mundano_1     = 18,
-    eCarModel_4x4           = 19,
-    eCarModel_Stallion      = 21,
-    eCarModel_Taxi          = 22,
-    eCarModel_Impaler_1     = 25,
-    eCarModel_Jugular       = 26,
-    eCarModel_Pickup_1      = 27,
-    eCarModel_PorkaTurbo    = 28,
-    eCarModel_Cossie        = 29,
-    eCarModel_Bulldog       = 31,
-    eCarModel_Challenger    = 34,
-    eCarModel_Limousine_1   = 35,
-    eCarModel_Tank          = 37,
-    eCarModel_Superbike     = 41,
-    eCarModel_FireTruck     = 42,
-    eCarModel_Bus           = 43,
-    eCarModel_Tanker        = 44,
-    eCarModel_TVVan         = 45,
-    eCarModel_TransitVan    = 46,
-    eCarModel_ModelCar      = 47,
-    eCarModel_Roadster      = 50,
-    eCarModel_LoveWagon     = 51,
-    eCarModel_BeastGTS_2    = 53,
-    eCarModel_Mundano_2     = 54,
-    eCarModel_Mamba         = 55,
-    eCarModel_Portsmouth    = 58,
-    eCarModel_Speeder       = 61,
-    eCarModel_Porka         = 62,
-    eCarModel_Flamer        = 63,
-    eCarModel_Vulture       = 64,
-    eCarModel_Pickup_2      = 65,
-    eCarModel_ItaliGTO      = 66,
-    eCarModel_Regal         = 70,
-    eCarModel_MonsterBug    = 71,
-    eCarModel_Thunderhead   = 72,
-    eCarModel_Panther       = 73,
-    eCarModel_Penetrator_2  = 74,
-    eCarModel_LeBonham      = 75,
-    eCarModel_Stinger       = 76,
-    eCarModel_F19           = 77,
-    eCarModel_Brigham       = 78,
-    eCarModel_StingerZ29    = 79,
-    eCarModel_Classic       = 80,
-    eCarModel_29Special     = 81,
-    eCarModel_ItaliGTB      = 82,
-    eCarModel_Hotrod        = 83,
-    eCarModel_Limousine_2   = 86,
-    eCarModel_Impaler_2     = 87,
-    eCarModel_Helicopter    = 88,
-    eCarModel_COUNT
+    eVehicle_BeastGTS_1     = 0,
+    eVehicle_Bug            = 1,
+    eVehicle_Counthash      = 2,
+    eVehicle_Bike           = 3,
+    eVehicle_Police         = 4,
+    eVehicle_Ambulance      = 5,
+    eVehicle_RepairVan      = 6,
+    eVehicle_Juggernaut     = 7,
+    eVehicle_Coach          = 9,
+    eVehicle_Train          = 11,
+    eVehicle_Tram           = 12,
+    eVehicle_Boat           = 13,
+    eVehicle_Penetrator_1   = 14,
+    eVehicle_Itali          = 17,
+    eVehicle_Mundano_1      = 18,
+    eVehicle_4x4            = 19,
+    eVehicle_Stallion       = 21,
+    eVehicle_Taxi           = 22,
+    eVehicle_Impaler_1      = 25,
+    eVehicle_Jugular        = 26,
+    eVehicle_Pickup_1       = 27,
+    eVehicle_PorkaTurbo     = 28,
+    eVehicle_Cossie         = 29,
+    eVehicle_Bulldog        = 31,
+    eVehicle_Challenger     = 34,
+    eVehicle_Limousine_1    = 35,
+    eVehicle_Tank           = 37,
+    eVehicle_Superbike      = 41,
+    eVehicle_FireTruck      = 42,
+    eVehicle_Bus            = 43,
+    eVehicle_Tanker         = 44,
+    eVehicle_TVVan          = 45,
+    eVehicle_TransitVan     = 46,
+    eVehicle_ModelCar       = 47,
+    eVehicle_Roadster       = 50,
+    eVehicle_LoveWagon      = 51,
+    eVehicle_BeastGTS_2     = 53,
+    eVehicle_Mundano_2      = 54,
+    eVehicle_Mamba          = 55,
+    eVehicle_Portsmouth     = 58,
+    eVehicle_Speeder        = 61,
+    eVehicle_Porka          = 62,
+    eVehicle_Flamer         = 63,
+    eVehicle_Vulture        = 64,
+    eVehicle_Pickup_2       = 65,
+    eVehicle_ItaliGTO       = 66,
+    eVehicle_Regal          = 70,
+    eVehicle_MonsterBug     = 71,
+    eVehicle_Thunderhead    = 72,
+    eVehicle_Panther        = 73,
+    eVehicle_Penetrator_2   = 74,
+    eVehicle_LeBonham       = 75,
+    eVehicle_Stinger        = 76,
+    eVehicle_F19            = 77,
+    eVehicle_Brigham        = 78,
+    eVehicle_StingerZ29     = 79,
+    eVehicle_Classic        = 80,
+    eVehicle_29Special      = 81,
+    eVehicle_ItaliGTB       = 82,
+    eVehicle_Hotrod         = 83,
+    eVehicle_Limousine_2    = 86,
+    eVehicle_Impaler_2      = 87,
+    eVehicle_Helicopter     = 88,
+    eVehicle_COUNT
 };
 
-decl_enum_strings(eCarModel);
+decl_enum_strings(eVehicleModel);
 
 // warning - these values are mapped to gta1, so don't change it
 enum eCarConvertible
@@ -537,8 +537,8 @@ struct CarStyle
 
     short mRemapsBaseIndex;
     HLSRemap mRemap[MAX_CAR_REMAPS];
-    eCarVType mVType; // is a descriptor of the type of car / vehicle
-    eCarModel mModelId;
+    eVehicleClass mClassID; // is a descriptor of the type of car / vehicle
+    eVehicleModel mModelId;
 
     int mTurning;
 

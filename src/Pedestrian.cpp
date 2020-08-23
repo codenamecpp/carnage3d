@@ -192,12 +192,6 @@ void Pedestrian::ChangeWeapon(eWeaponID weapon)
 
 void Pedestrian::Die(ePedestrianDeathReason deathReason, Pedestrian* attacker)
 {
-    if (IsDead())
-    {
-        debug_assert(false);
-        return;
-    }
-
     PedestrianStateEvent evData { ePedestrianStateEvent_Die };
     evData.mDeathReason = deathReason;
     evData.mAttacker = attacker;
@@ -424,4 +418,3 @@ void Pedestrian::ReceiveDamageFromExplosion(Explosion* explosion)
 
     Die(ePedestrianDeathReason_BlownUp, nullptr);
 }
-

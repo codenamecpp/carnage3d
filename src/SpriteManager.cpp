@@ -403,9 +403,9 @@ void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
     std::string pathBuffer;
-    for (const CarStyle& currCar: cityStyle.mCars)
+    for (const CarStyle& currCar: cityStyle.mVehicles)
     {
-        int sprite_index = cityStyle.GetCarSpriteIndex(currCar.mVType, currCar.mSprNum);
+        int sprite_index = cityStyle.GetVehicleSpriteIndex(currCar.mClassID, currCar.mSprNum);
 
         PixelsArray spriteBitmap;
         spriteBitmap.Create(eTextureFormat_RGBA8, 
@@ -416,7 +416,7 @@ void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
         // dump to file
         pathBuffer = cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelId, 
             cxx::enum_to_string(currCar.mModelId), 
-            cxx::enum_to_string(currCar.mVType));
+            cxx::enum_to_string(currCar.mClassID));
 
         if (!spriteBitmap.SaveToFile(pathBuffer))
         {

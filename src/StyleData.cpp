@@ -182,7 +182,7 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
         return false;
     }
 
-    if (!ReadCars(file, header.car_size))
+    if (!ReadVehicles(file, header.car_size))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read cars data from style file '%s'", stylesName.c_str());
         return false;
@@ -231,7 +231,7 @@ bool StyleData::DoDataIntegrityCheck() const
 {
     bool allChecksPassed = true;
 
-    int expectRemapsClutCount = mCars.size() * MAX_CAR_REMAPS + MAX_PED_REMAPS;
+    int expectRemapsClutCount = mVehicles.size() * MAX_CAR_REMAPS + MAX_PED_REMAPS;
     if (expectRemapsClutCount != mRemapClutsCount)
     {
         gConsole.LogMessage(eLogMessage_Warning, "Miscalculation for RemapClutsCount (expect %d but read %d)", expectRemapsClutCount, mRemapClutsCount);
@@ -256,7 +256,7 @@ void StyleData::Cleanup()
     mPaletteIndices.clear();
     mPalettes.clear();
     mBlocksAnimations.clear();
-    mCars.clear();
+    mVehicles.clear();
     mGameObjects.clear();
     mSprites.clear();
     mSpriteGraphicsRaw.clear();
@@ -549,36 +549,36 @@ int StyleData::GetSpriteIndex(eSpriteType spriteType, int spriteId) const
     return offset + spriteId;
 }
 
-int StyleData::GetCarSpriteIndex(eCarVType carVType, int spriteId) const
+int StyleData::GetVehicleSpriteIndex(eVehicleClass vehicleClass, int spriteId) const
 {
-    debug_assert(carVType < eCarVType_COUNT);
+    debug_assert(vehicleClass < eVehicleClass_COUNT);
 
     eSpriteType spriteType = eSpriteType_Car;
-    switch (carVType)
+    switch (vehicleClass)
     {
-        case eCarVType_Bus: 
+        case eVehicleClass_Bus: 
                 spriteType = eSpriteType_Bus;
             break;
-        case eCarVType_FrontOfJuggernaut:
-        case eCarVType_BackOfJuggernaut:
+        case eVehicleClass_FrontOfJuggernaut:
+        case eVehicleClass_BackOfJuggernaut:
                 spriteType = eSpriteType_Car;
             break;
-        case eCarVType_Motorcycle:
+        case eVehicleClass_Motorcycle:
                 spriteType = eSpriteType_Bike;
             break;
-        case eCarVType_StandardCar:
+        case eVehicleClass_StandardCar:
                 spriteType = eSpriteType_Car;
             break;
-        case eCarVType_Train:
+        case eVehicleClass_Train:
                 spriteType = eSpriteType_Train;
             break;
-        case eCarVType_Tram:
+        case eVehicleClass_Tram:
                 spriteType = eSpriteType_Tram;
             break;
-        case eCarVType_Boat:
+        case eVehicleClass_Boat:
                 spriteType = eSpriteType_Boat;
             break;
-        case eCarVType_Tank:
+        case eVehicleClass_Tank:
                 spriteType = eSpriteType_Tank;
             break;
         default:
@@ -726,7 +726,7 @@ bool StyleData::ReadObjects(std::ifstream& file, int dataLength)
     return dataLength == 0;
 }
 
-bool StyleData::ReadCars(std::ifstream& file, int dataLength)
+bool StyleData::ReadVehicles(std::ifstream& file, int dataLength)
 {
     for (int icurrent = 0; dataLength > 0; ++icurrent)
     {
@@ -762,15 +762,15 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
         READ_I8(file, vtype);
         switch(vtype)
         {
-            case 0: carInfo.mVType = eCarVType_Bus; break;
-            case 1: carInfo.mVType = eCarVType_FrontOfJuggernaut; break;
-            case 2: carInfo.mVType = eCarVType_BackOfJuggernaut; break;
-            case 3: carInfo.mVType = eCarVType_Motorcycle; break; 
-            case 4: carInfo.mVType = eCarVType_StandardCar; break;
-            case 8: carInfo.mVType = eCarVType_Train; break;
-            case 9: carInfo.mVType = eCarVType_Tram; break;
-            case 13: carInfo.mVType = eCarVType_Boat; break;
-            case 14: carInfo.mVType = eCarVType_Tank; break;
+            case 0: carInfo.mClassID = eVehicleClass_Bus; break;
+            case 1: carInfo.mClassID = eVehicleClass_FrontOfJuggernaut; break;
+            case 2: carInfo.mClassID = eVehicleClass_BackOfJuggernaut; break;
+            case 3: carInfo.mClassID = eVehicleClass_Motorcycle; break; 
+            case 4: carInfo.mClassID = eVehicleClass_StandardCar; break;
+            case 8: carInfo.mClassID = eVehicleClass_Train; break;
+            case 9: carInfo.mClassID = eVehicleClass_Tram; break;
+            case 13: carInfo.mClassID = eVehicleClass_Boat; break;
+            case 14: carInfo.mClassID = eVehicleClass_Tank; break;
             default: debug_assert(false);
                 break;
         };
@@ -837,7 +837,7 @@ bool StyleData::ReadCars(std::ifstream& file, int dataLength)
             READ_SI16(file, carInfo.mDoors[idoor].mObject);
             READ_SI16(file, carInfo.mDoors[idoor].mDelta);
         }
-        mCars.push_back(carInfo);
+        mVehicles.push_back(carInfo);
 
         const std::streampos endStreamPos = file.tellg();
 
@@ -1108,32 +1108,36 @@ bool StyleData::InitGameObjectsList()
     return true;
 }
 
-int StyleData::GetWreckedCarSpriteIndex(eCarVType carVType) const
+int StyleData::GetWreckedVehicleSpriteIndex(eVehicleClass vehicleClass) const
 {
+    static unsigned int StandardCarSpriteVariationCounter = 0;
+    const unsigned int StandardCarSpriteVariationsCount = 2;
+
     int spriteID = 0;
-    switch (carVType)
+    switch (vehicleClass)
     {
-        case eCarVType_Bus:
-        case eCarVType_Train:
-        case eCarVType_Tram:
+        case eVehicleClass_Bus:
+        case eVehicleClass_Train:
+        case eVehicleClass_Tram:
             spriteID = 3;
         break;
 
-        case eCarVType_FrontOfJuggernaut:
-        case eCarVType_BackOfJuggernaut:
-        case eCarVType_StandardCar: 
-            spriteID = 0;
+        case eVehicleClass_FrontOfJuggernaut:
+        case eVehicleClass_BackOfJuggernaut:
+        case eVehicleClass_StandardCar: 
+            // tiny randomness
+            spriteID = 0 + ((StandardCarSpriteVariationCounter++) % StandardCarSpriteVariationsCount);
         break;
 
-        case eCarVType_Motorcycle:
+        case eVehicleClass_Motorcycle:
             spriteID = 5;
         break;
 
-        case eCarVType_Boat:
+        case eVehicleClass_Boat:
             spriteID = 2; // actually there is no sprite for wrecked boat
         break;
 
-        case eCarVType_Tank:
+        case eVehicleClass_Tank:
             spriteID = 4;
         break;
 

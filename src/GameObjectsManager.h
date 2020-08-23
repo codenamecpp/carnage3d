@@ -34,8 +34,8 @@ public:
     // @param heading: Initial rotation
     // @param desc: Car style
     // @param carModel: Car model identifier
-    Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, CarStyle* desc);
-    Vehicle* CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel);
+    Vehicle* CreateVehicle(const glm::vec3& position, cxx::angle_t heading, CarStyle* desc);
+    Vehicle* CreateVehicle(const glm::vec3& position, cxx::angle_t heading, eVehicleModel carModel);
 
     // Add new projectile instance to map at specific location
     Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading);
@@ -43,6 +43,7 @@ public:
 
     // Add new decoration instance to map at specific location
     Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
+    Decoration* CreateFirstBlood(const glm::vec3& position);
 
     // Add explosion instance to map at specific location 
     Explosion* CreateExplosion(const glm::vec3& position);
@@ -60,7 +61,7 @@ public:
 
     // Get base hp points for specific car type
     // @param carType: Identifier
-    int GetBaseHitpointsForCar(eCarVType carType) const;
+    int GetBaseHitpointsForVehicle(eVehicleClass carType) const;
 
     // Will immediately destroy gameobject, don't call this mehod during UpdateFrame
     // @param object: Object to destroy

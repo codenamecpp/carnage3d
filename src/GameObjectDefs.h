@@ -43,6 +43,9 @@ decl_enum_as_flags(eGameObjectFlags);
 enum
 {
     GameObjectType_Null = 0,
+
+    GameObjectType_FirstBlood = 63,
+    GameObjectType_Body = 64,
     // todo...
     GameObjectType_MissileProjectile = 31,
     GameObjectType_BulletProjectile = 74,

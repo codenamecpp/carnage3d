@@ -68,7 +68,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t heading, CarStyle* carStyle)
+Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle_t heading, CarStyle* carStyle)
 {
     debug_assert(gGameMap.mStyleData.IsLoaded());
     debug_assert(carStyle);
@@ -85,14 +85,14 @@ Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t h
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateCar(const glm::vec3& position, cxx::angle_t heading, eCarModel carModel)
+Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle_t heading, eVehicleModel carModel)
 {
     Vehicle* vehicle = nullptr;
-    for (CarStyle& currStyle: gGameMap.mStyleData.mCars)
+    for (CarStyle& currStyle: gGameMap.mStyleData.mVehicles)
     {
         if (currStyle.mModelId == carModel)
         {
-            vehicle = CreateCar(position, heading, &currStyle);
+            vehicle = CreateVehicle(position, heading, &currStyle);
             break;
         }
     }
@@ -167,6 +167,19 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
         instance->Spawn(position, heading);
     }
     return instance;
+}
+
+Decoration* GameObjectsManager::CreateFirstBlood(const glm::vec3& position)
+{
+    GameObjectStyle& objectInfo = gGameMap.mStyleData.mGameObjects[GameObjectType_FirstBlood];
+
+    cxx::angle_t rotation;
+    Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
+    debug_assert(decoration);
+    if (decoration)
+    {
+    }
+    return decoration;
 }
 
 Obstacle* GameObjectsManager::GetObstacleByID(GameObjectID objectID) const
@@ -264,7 +277,7 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
     cxx::erase_elements(mDeleteObjectsList, object);
     cxx::erase_elements(mAllObjectsList, object);
 
-    switch (object->mObjectTypeID)
+    switch (object->mClassID)
     {
         case eGameObjectClass_Pedestrian:
         {
@@ -363,13 +376,13 @@ bool GameObjectsManager::CreateStartupObjects()
         // create startup cars
         if (currObject.IsCarObject())
         {
-            eCarModel carModel;
+            eVehicleModel carModel;
             if (!cxx::parse_enum_int(currObject.mType, carModel))
             {
                 debug_assert(false);
                 continue;
             }
-            Vehicle* startupCar = CreateCar(start_position, start_rotation, carModel);
+            Vehicle* startupCar = CreateVehicle(start_position, start_rotation, carModel);
             debug_assert(startupCar);
             continue;
         }
@@ -405,22 +418,22 @@ bool GameObjectsManager::CreateStartupObjects()
     return true;
 }
 
-int GameObjectsManager::GetBaseHitpointsForCar(eCarVType carType) const
+int GameObjectsManager::GetBaseHitpointsForVehicle(eVehicleClass carType) const
 {
     // todo: move to settings
     // todo: find out correct values
 
     switch (carType)
     {
-        case eCarVType_Bus:
-        case eCarVType_FrontOfJuggernaut:
-        case eCarVType_BackOfJuggernaut:
+        case eVehicleClass_Bus:
+        case eVehicleClass_FrontOfJuggernaut:
+        case eVehicleClass_BackOfJuggernaut:
             return 29; 
-        case eCarVType_Motorcycle:
-        case eCarVType_StandardCar:
+        case eVehicleClass_Motorcycle:
+        case eVehicleClass_StandardCar:
             return 16;
-        case eCarVType_Train:
-        case eCarVType_Tank:
+        case eVehicleClass_Train:
+        case eVehicleClass_Tank:
             return 62;
     }
     return 10;

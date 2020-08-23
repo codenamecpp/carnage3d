@@ -12,7 +12,7 @@ class GameObject: public cxx::noncopyable
 
 public:
     const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
-    const eGameObjectClass mObjectTypeID;
+    const eGameObjectClass mClassID;
 
     // readonly
     eGameObjectFlags mFlags = eGameObjectFlags_None;
@@ -52,13 +52,13 @@ public:
     GameObject* GetAttachedObject(int index) const;
 
     // class shortcuts
-    inline bool IsPedestrianClass() const { return mObjectTypeID == eGameObjectClass_Pedestrian; }
-    inline bool IsProjectileClass() const { return mObjectTypeID == eGameObjectClass_Projectile; }
-    inline bool IsDecorationClass() const { return mObjectTypeID == eGameObjectClass_Decoration; }
-    inline bool IsVehicleClass() const { return mObjectTypeID == eGameObjectClass_Car; }
-    inline bool IsPowerupClass() const { return mObjectTypeID == eGameObjectClass_Powerup; }
-    inline bool IsObstacleClass() const { return mObjectTypeID == eGameObjectClass_Obstacle; }
-    inline bool IsExplosionClass() const { return mObjectTypeID == eGameObjectClass_Explosion; }
+    inline bool IsPedestrianClass() const { return mClassID == eGameObjectClass_Pedestrian; }
+    inline bool IsProjectileClass() const { return mClassID == eGameObjectClass_Projectile; }
+    inline bool IsDecorationClass() const { return mClassID == eGameObjectClass_Decoration; }
+    inline bool IsVehicleClass() const { return mClassID == eGameObjectClass_Car; }
+    inline bool IsPowerupClass() const { return mClassID == eGameObjectClass_Powerup; }
+    inline bool IsObstacleClass() const { return mClassID == eGameObjectClass_Obstacle; }
+    inline bool IsExplosionClass() const { return mClassID == eGameObjectClass_Explosion; }
 
     // flag shortcuts
     inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }

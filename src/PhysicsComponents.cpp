@@ -385,7 +385,7 @@ void CarPhysicsBody::HandleWaterContact()
 
     mWaterContact = true;
     // boats aren't receive damage from water
-    if (mReferenceCar->mCarStyle->mVType == eCarVType_Boat)
+    if (mReferenceCar->mCarStyle->mClassID == eVehicleClass_Boat)
         return;
 
     mHeight -= 2.0f; // force position underwater

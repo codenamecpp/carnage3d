@@ -46,10 +46,10 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     }
 
     mCarWrecked = false;
-    mHitpoints = gGameObjectsManager.GetBaseHitpointsForCar(mCarStyle->mVType);
+    mHitpoints = gGameObjectsManager.GetBaseHitpointsForVehicle(mCarStyle->mClassID);
 
     mDamageDeltaBits = 0;
-    mChassisSpriteIndex = gGameMap.mStyleData.GetCarSpriteIndex(mCarStyle->mVType, mCarStyle->mSprNum); // todo: handle bike fallen state 
+    mChassisSpriteIndex = gGameMap.mStyleData.GetVehicleSpriteIndex(mCarStyle->mClassID, mCarStyle->mSprNum); // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
 }
@@ -402,7 +402,7 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
     glm::vec2 doorLocalPos;
     if (GetDoorPosLocal(doorIndex, doorLocalPos))
     {
-        bool isBike = (mCarStyle->mVType == eCarVType_Motorcycle);
+        bool isBike = (mCarStyle->mClassID == eVehicleClass_Motorcycle);
         if (isBike)
         {
             out.y = 0.0f; // dead center
@@ -542,7 +542,7 @@ void Vehicle::Explode()
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
     explosionPos.y = mDrawHeight + 0.2f; // todo: magic numbers
 
-    mChassisSpriteIndex = gGameMap.mStyleData.GetWreckedCarSpriteIndex(mCarStyle->mVType);
+    mChassisSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
@@ -557,7 +557,7 @@ void Vehicle::Explode()
 bool Vehicle::HasHardTop() const
 {
     if ((mCarStyle->mConvertible == eCarConvertible_HardTop || mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && 
-        (mCarStyle->mVType != eCarVType_Motorcycle))
+        (mCarStyle->mClassID != eVehicleClass_Motorcycle))
     {
         return true;
     }

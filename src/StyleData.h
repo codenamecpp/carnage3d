@@ -12,7 +12,7 @@ public:
     // readonly
     std::vector<GameObjectStyle> mGameObjects;
     std::vector<SpriteStyle> mSprites;
-    std::vector<CarStyle> mCars;
+    std::vector<CarStyle> mVehicles;
     std::vector<BlockAnimationStyle> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
     std::vector<WeaponInfo> mWeapons;
@@ -47,7 +47,7 @@ public:
 
     // Get palette index for sprite
     // @param spriteClut: Sprite clut index
-    // @param remap: Remap index, can only be used for pedestrian and car sprites
+    // @param remap: Remap index, can only be used for pedestrian and vehicle sprites
     int GetSpritePaletteIndex(int spriteClut, int remapClut) const;
 
     // Get number of textures total or for specific block type only
@@ -86,13 +86,13 @@ public:
     int GetSpriteIndex(eSpriteType spriteType, int spriteId) const;
 
     // Map car vtype and model identifier to sprite index
-    // @param carVType: Car vtype
+    // @param vehicleClass: Vehicle class identifier
     // @para spriteId: Sprite id
-    int GetCarSpriteIndex(eCarVType carVType, int spriteId) const;
+    int GetVehicleSpriteIndex(eVehicleClass vehicleClass, int spriteId) const;
 
     // Get sprite index for wrecked car of cpecific vtype
-    // @param carVType: Car vtype
-    int GetWreckedCarSpriteIndex(eCarVType carVType) const;
+    // @param vehicleClass: Vehicle class identifier
+    int GetWreckedVehicleSpriteIndex(eVehicleClass vehicleClass) const;
 
     // Get number of sprites for specific type 
     // @param spriteType: Sprite type
@@ -117,7 +117,7 @@ private:
     bool ReadPaletteIndices(std::ifstream& file, int dataLength);
     bool ReadAnimations(std::ifstream& file, int dataLength);
     bool ReadObjects(std::ifstream& file, int dataLength);
-    bool ReadCars(std::ifstream& file, int dataLength);
+    bool ReadVehicles(std::ifstream& file, int dataLength);
     bool ReadSprites(std::ifstream& file, int dataLength);
     bool ReadSpriteGraphics(std::ifstream& file, int dataLength);
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);

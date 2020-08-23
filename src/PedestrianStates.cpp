@@ -347,13 +347,25 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     mPedestrian->SetAnimation(ePedestrianAnim_LiesOnFloor, eSpriteAnimLoop_FromStart);
     mPedestrian->SetDead(stateEvent.mDeathReason);
     mPedestrian->mPhysicsBody->ClearForces();
+
+    // create effects
+    bool createBlood = (stateEvent.mDeathReason != ePedestrianDeathReason_Drowned) &&
+        (stateEvent.mDeathReason != ePedestrianDeathReason_Electrocuted) &&
+        (stateEvent.mDeathReason != ePedestrianDeathReason_null);
+
+    if (!mPedestrian->IsCarPassenger())
+    {
+        glm::vec3 position = mPedestrian->mPhysicsBody->GetPosition();
+        position.y = mPedestrian->mDrawHeight - 0.01f; // todo: magic numbers
+        gGameObjectsManager.CreateFirstBlood(position);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mClassID == eVehicleClass_Motorcycle);
     mPedestrian->SetAnimation(isBike ? ePedestrianAnim_SittingOnBike : ePedestrianAnim_SittingInCar, eSpriteAnimLoop_None);
 
     // dont draw pedestrian if it in car with hard top
@@ -405,7 +417,7 @@ void PedestrianStatesManager::StateExitCar_ProcessFrame()
 
 void PedestrianStatesManager::StateExitCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mClassID == eVehicleClass_Motorcycle);
     mPedestrian->SetAnimation(isBike ? ePedestrianAnim_ExitBike : ePedestrianAnim_ExitCar, eSpriteAnimLoop_None);
 
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
@@ -459,7 +471,7 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
     mPedestrian->SetCarEntered(stateEvent.mTargetCar, stateEvent.mTargetSeat);
     mPedestrian->mPhysicsBody->ClearForces();
 
-    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mVType == eCarVType_Motorcycle);
+    bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mClassID == eVehicleClass_Motorcycle);
     mPedestrian->SetAnimation(isBike ? ePedestrianAnim_EnterBike : ePedestrianAnim_EnterCar, eSpriteAnimLoop_None);
 
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);

@@ -46,12 +46,12 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         if (ImGui::BeginMenu("[ Create Car ]"))
         {
-            for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mCars.size(); ++icurr)
+            for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mVehicles.size(); ++icurr)
             {
                 ImGui::PushID(icurr);
-                if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mCars[icurr].mModelId))) 
+                if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mVehicles[icurr].mModelId))) 
                 {
-                    CreateCarNearby(&gGameMap.mStyleData.mCars[icurr], gCarnageGame.mHumanSlot[0].mCharPedestrian);
+                    CreateCarNearby(&gGameMap.mStyleData.mVehicles[icurr], gCarnageGame.mHumanSlot[0].mCharPedestrian);
                 }
                 ImGui::PopID();
             }
@@ -176,7 +176,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             if (ImGui::CollapsingHeader("Vehicle Info"))
             {
                 ImVec4 physicsPropsColor(0.75f, 0.75f, 0.75f, 1.0f);
-                ImGui::Text("VType - %s", cxx::enum_to_string(carInformation->mVType));
+                ImGui::Text("VType - %s", cxx::enum_to_string(carInformation->mClassID));
                 ImGui::HorzSpacing();
                 ImGui::TextColored(physicsPropsColor, "Turning : %d", carInformation->mTurning);
                 ImGui::TextColored(physicsPropsColor, "Turn Ratio : %d", carInformation->mTurnRatio);
@@ -249,5 +249,5 @@ void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestria
     currPosition.x += 0.5f;
     currPosition.z += 0.5f;
 
-    gGameObjectsManager.CreateCar(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
+    gGameObjectsManager.CreateVehicle(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
 }

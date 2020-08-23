@@ -4,7 +4,7 @@
 
 GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     : mObjectID(uniqueID)
-    , mObjectTypeID(objectTypeID)
+    , mClassID(objectTypeID)
 {
     if (uniqueID == GAMEOBJECT_ID_NULL || 
         objectTypeID == eGameObjectClass_Projectile)
