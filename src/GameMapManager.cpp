@@ -77,7 +77,7 @@ void GameMapManager::Cleanup()
     {
         for (int tilez = 0; tilez < MAP_LAYERS_COUNT; ++tilez)
         {
-            memset(&mMapTiles[tilez][tiley][tilex], 0, Sizeof_BlockStyle);
+            memset(&mMapTiles[tilez][tiley][tilex], 0, Sizeof_BlockInfo);
         }
     }
     mStartupObjects.clear();
@@ -106,7 +106,7 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
             return false;
     }
 
-    std::vector<BlockStyle> blocksData;
+    std::vector<MapBlockInfo> blocksData;
 
     const int blockSize = sizeof(unsigned short) + sizeof(unsigned char) * 6;
     if (blocksLength)
@@ -114,7 +114,7 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
         assert((blocksLength % blockSize) == 0);
         blocksData.resize(blocksLength / blockSize);
 
-        for (BlockStyle& blockInfo: blocksData)
+        for (MapBlockInfo& blockInfo: blocksData)
         {
             unsigned short type_map;
             READ_I16(file, type_map);
@@ -164,22 +164,22 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
     return true;
 }
 
-BlockStyle* GameMapManager::GetBlock(int coordx, int coordy, int layer) const
+MapBlockInfo* GameMapManager::GetBlock(int coordx, int coordy, int layer) const
 {
     debug_assert(layer > -1 && layer < MAP_LAYERS_COUNT);
     debug_assert(coordx > -1 && coordx < MAP_DIMENSIONS);
     debug_assert(coordy > -1 && coordy < MAP_DIMENSIONS);
     // remember kids, don't try this at home!
-    return const_cast<BlockStyle*> (&mMapTiles[layer][coordy][coordx]);
+    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordy][coordx]);
 }
 
-BlockStyle* GameMapManager::GetBlockClamp(int coordx, int coordy, int layer) const
+MapBlockInfo* GameMapManager::GetBlockClamp(int coordx, int coordy, int layer) const
 {
     layer = glm::clamp(layer, 0, MAP_LAYERS_COUNT - 1);
     coordx = glm::clamp(coordx, 0, MAP_DIMENSIONS - 1);
     coordy = glm::clamp(coordy, 0, MAP_DIMENSIONS - 1);
     // remember kids, don't try this at home!
-    return const_cast<BlockStyle*> (&mMapTiles[layer][coordy][coordx]);
+    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordy][coordx]);
 }
 
 void GameMapManager::FixShiftedBits()
@@ -200,8 +200,8 @@ void GameMapManager::FixShiftedBits()
     {
         for (int tilez = 0; tilez < MAP_LAYERS_COUNT - 2; ++tilez)
         {
-            BlockStyle& currBlock = mMapTiles[tilez][tiley][tilex];
-            BlockStyle& aboveBlock = mMapTiles[tilez + 1][tiley][tilex];
+            MapBlockInfo& currBlock = mMapTiles[tilez][tiley][tilex];
+            MapBlockInfo& aboveBlock = mMapTiles[tilez + 1][tiley][tilex];
 
             currBlock.mLeftDirection = aboveBlock.mLeftDirection;
             currBlock.mRightDirection = aboveBlock.mRightDirection;
@@ -212,7 +212,7 @@ void GameMapManager::FixShiftedBits()
         }
 
         // top most block set to air
-        BlockStyle& topBlock = mMapTiles[MAP_LAYERS_COUNT - 1][tiley][tilex];
+        MapBlockInfo& topBlock = mMapTiles[MAP_LAYERS_COUNT - 1][tiley][tilex];
         topBlock.mLeftDirection = 0;
         topBlock.mRightDirection = 0;
         topBlock.mDownDirection = 0;
@@ -233,7 +233,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool exclud
     float currentHeight = (float) mapBlock.y; // set current height to ground, map units
     for (; currentHeight > 0.0f;)
     {
-        BlockStyle* blockData = GetBlockClamp(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
+        MapBlockInfo* blockData = GetBlockClamp(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
 
         // compute slope height
         if (blockData->mSlopeType) 
@@ -333,7 +333,7 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
         }
 
         // detect hit
-        BlockStyle* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
+        MapBlockInfo* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
         if (blockData->mGroundType == eGroundType_Building)
         {
             float perpWallDist;

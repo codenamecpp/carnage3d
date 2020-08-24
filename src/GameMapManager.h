@@ -50,8 +50,8 @@ public:
     // get map block info at specific location
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for layer
     // @param coordx, coordy, layer: Block location
-    BlockStyle* GetBlock(int coordx, int coordy, int layer) const;
-    BlockStyle* GetBlockClamp(int coordx, int coordy, int layer) const;
+    MapBlockInfo* GetBlock(int coordx, int coordy, int layer) const;
+    MapBlockInfo* GetBlockClamp(int coordx, int coordy, int layer) const;
 
     // Get real height at specified map point
     // @param position: Current position on map
@@ -73,7 +73,7 @@ private:
     void FixShiftedBits();
 
 private:
-    BlockStyle mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
+    MapBlockInfo mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
 };
 

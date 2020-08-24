@@ -15,7 +15,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, i
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyle* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, layerIndex))
+        if (MapBlockInfo* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, layerIndex))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -41,7 +41,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, M
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (BlockStyle* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, tilez))
+        if (MapBlockInfo* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, tilez))
         {
             for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
             {
@@ -56,7 +56,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, M
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, int x, int y, int z, eBlockFace face, BlockStyle* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, int x, int y, int z, eBlockFace face, MapBlockInfo* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;

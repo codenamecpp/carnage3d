@@ -356,11 +356,8 @@ CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     mPhysicsBody = mPhysicsWorld->CreateBody(&bodyDef);
     debug_assert(mPhysicsBody);
     
-    float shape_size_w = Convert::PixelsToMeters(mCarDesc->mWidth) * 0.5f;
-    float shape_size_h = Convert::PixelsToMeters(mCarDesc->mHeight) * 0.5f;
-
     b2PolygonShape shapeDef;
-    shapeDef.SetAsBox(shape_size_h, shape_size_w); // swap h and w
+    shapeDef.SetAsBox(mCarDesc->mDimensions.z * 0.5f, mCarDesc->mDimensions.x * 0.5f); // swap z and x
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shapeDef;

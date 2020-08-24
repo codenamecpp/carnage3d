@@ -319,7 +319,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         {
             for (int zBlock = MAP_LAYERS_COUNT - 1; zBlock > -1; --zBlock)
             {
-                BlockStyle* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
+                MapBlockInfo* currBlock = gGameMap.GetBlock(xBlock, yBlock, zBlock);
                 if (currBlock->mGroundType == eGroundType_Field ||
                     currBlock->mGroundType == eGroundType_Pawement ||
                     currBlock->mGroundType == eGroundType_Road)

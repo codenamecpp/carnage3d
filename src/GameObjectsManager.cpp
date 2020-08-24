@@ -68,7 +68,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     return instance;
 }
 
-Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle_t heading, CarStyle* carStyle)
+Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle_t heading, VehicleInfo* carStyle)
 {
     debug_assert(gGameMap.mStyleData.IsLoaded());
     debug_assert(carStyle);
@@ -88,7 +88,7 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
 Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle_t heading, eVehicleModel carModel)
 {
     Vehicle* vehicle = nullptr;
-    for (CarStyle& currStyle: gGameMap.mStyleData.mVehicles)
+    for (VehicleInfo& currStyle: gGameMap.mStyleData.mVehicles)
     {
         if (currStyle.mModelId == carModel)
         {
@@ -116,7 +116,7 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
     return instance;
 }
 
-Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc)
+Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc)
 {
     Obstacle* instance = nullptr;
     debug_assert(gGameMap.mStyleData.IsLoaded());
@@ -149,7 +149,7 @@ Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
     return instance;
 }
 
-Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc)
+Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc)
 {
     Decoration* instance = nullptr;
     debug_assert(gGameMap.mStyleData.IsLoaded());
@@ -170,7 +170,7 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
 
 Decoration* GameObjectsManager::CreateFirstBlood(const glm::vec3& position)
 {
-    GameObjectStyle& objectInfo = gGameMap.mStyleData.mGameObjects[GameObjectType_FirstBlood];
+    GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_FirstBlood];
 
     cxx::angle_t rotation;
     Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
@@ -390,7 +390,7 @@ bool GameObjectsManager::CreateStartupObjects()
 
         debug_assert(objectTypeIndex < GameObjectType_MAX);
 
-        GameObjectStyle& objectType = styleData.mGameObjects[objectTypeIndex];
+        GameObjectInfo& objectType = styleData.mObjects[objectTypeIndex];
         switch (objectType.mClassID)
         {
             case eGameObjectClass_Decoration: 

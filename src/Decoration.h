@@ -7,7 +7,7 @@ class Decoration final: public GameObject
     friend class GameObjectsManager;
 
 public:
-    Decoration(GameObjectID id, GameObjectStyle* desc);
+    Decoration(GameObjectID id, GameObjectInfo* desc);
     ~Decoration();
 
     // override GameObject
@@ -22,7 +22,7 @@ public:
 
 private:
     SpriteAnimation mAnimationState;
-    GameObjectStyle* mGameObjectDesc = nullptr;
+    GameObjectInfo* mGameObjectDesc = nullptr;
 
     int mLifeDuration = 0; // number of animation cycles before decoration will be deleted, or 0 for endless lifetime
 };

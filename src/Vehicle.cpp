@@ -49,7 +49,7 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     mHitpoints = gGameObjectsManager.GetBaseHitpointsForVehicle(mCarStyle->mClassID);
 
     mDamageDeltaBits = 0;
-    mChassisSpriteIndex = gGameMap.mStyleData.GetVehicleSpriteIndex(mCarStyle->mClassID, mCarStyle->mSprNum); // todo: handle bike fallen state 
+    mSpriteIndex = mCarStyle->mSpriteIndex; // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
 }
@@ -80,7 +80,7 @@ void Vehicle::PreDrawFrame()
     ComputeDrawHeight(position);
 
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
-    gSpriteManager.GetSpriteTexture(mObjectID, mChassisSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
 
     mDrawSprite.mPosition.x = position.x;
     mDrawSprite.mPosition.y = position.z;
@@ -208,7 +208,8 @@ SpriteDeltaBits Vehicle::GetSpriteDeltas() const
 
 void Vehicle::SetupDeltaAnimations()
 {
-    SpriteDeltaBits deltaBits = gGameMap.mStyleData.mSprites[mChassisSpriteIndex].GetDeltaBits();
+    SpriteInfo& spriteInfo = gGameMap.mStyleData.mSprites[mSpriteIndex];
+    SpriteDeltaBits deltaBits = spriteInfo.GetDeltaBits();
 
     mEmergLightsAnim.Clear();
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
@@ -409,7 +410,7 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
         }
         else
         {
-            out.y = -Convert::PixelsToMeters(mCarStyle->mWidth) * 0.25f * -glm::sign(doorLocalPos.y);
+            out.y = -mCarStyle->mDimensions.x * 0.25f * -glm::sign(doorLocalPos.y);
         }
         out.x = doorLocalPos.x;
         return true;
@@ -542,8 +543,7 @@ void Vehicle::Explode()
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
     explosionPos.y = mDrawHeight + 0.2f; // todo: magic numbers
 
-    mChassisSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
-
+    mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
 

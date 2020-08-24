@@ -3,7 +3,7 @@
 #include "TimeManager.h"
 #include "SpriteManager.h"
 
-Decoration::Decoration(GameObjectID id, GameObjectStyle* desc) 
+Decoration::Decoration(GameObjectID id, GameObjectInfo* desc) 
     : GameObject(eGameObjectClass_Decoration, id)
     , mGameObjectDesc(desc)
 {

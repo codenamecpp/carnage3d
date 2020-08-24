@@ -171,7 +171,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         if (Vehicle* currCar = pedestrian->mCurrentCar)
         {
-            CarStyle* carInformation = currCar->mCarStyle;
+            VehicleInfo* carInformation = currCar->mCarStyle;
 
             if (ImGui::CollapsingHeader("Vehicle Info"))
             {
@@ -240,7 +240,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     ImGui::End();
 }
 
-void GameCheatsWindow::CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestrian)
+void GameCheatsWindow::CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedestrian)
 {
     if (carStyle == nullptr || pedestrian == nullptr)
         return;

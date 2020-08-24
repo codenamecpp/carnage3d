@@ -338,9 +338,6 @@
     <ClInclude Include="Projectile.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjectDefs.h">
-      <Filter>Game\GameObjects</Filter>
-    </ClInclude>
     <ClInclude Include="Decoration.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>

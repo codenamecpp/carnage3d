@@ -17,7 +17,7 @@ public:
     float mDrawHeight;
     int mRemapIndex;
 
-    CarStyle* mCarStyle; // cannot be null
+    VehicleInfo* mCarStyle; // cannot be null
     std::vector<Pedestrian*> mPassengers;
 
 public:
@@ -104,7 +104,7 @@ private:
     SpriteAnimation mEmergLightsAnim;
     SpriteDeltaBits mDamageDeltaBits;
 
-    int mChassisSpriteIndex = 0;
+    int mSpriteIndex = 0;
     int mHitpoints = 20;
 
     bool mCarWrecked = false;

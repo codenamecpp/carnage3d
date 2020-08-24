@@ -7,7 +7,7 @@ class Obstacle final: public GameObject
     friend class GameObjectsManager;
 
 public:
-    Obstacle(GameObjectID id, GameObjectStyle* desc);
+    Obstacle(GameObjectID id, GameObjectInfo* desc);
     ~Obstacle();
 
     // override GameObject
@@ -20,5 +20,5 @@ public:
 
 private:
     SpriteAnimation mAnimationState;
-    GameObjectStyle* mGameObjectDesc = nullptr;
+    GameObjectInfo* mGameObjectDesc = nullptr;
 };

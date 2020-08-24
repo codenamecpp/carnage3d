@@ -203,7 +203,7 @@ private:
     b2Vec2 b2GetWheelLocalLateralVector(eCarWheel wheelID) const;
 
 private:
-    CarStyle* mCarDesc = nullptr;
+    VehicleInfo* mCarDesc = nullptr;
     b2Fixture* mChassisFixture = nullptr;
 
     // wheels

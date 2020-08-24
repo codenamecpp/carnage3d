@@ -298,7 +298,7 @@ void SpriteManager::InitBlocksAnimations()
     StyleData& cityStyle = gGameMap.mStyleData;
 
     mBlocksAnimations.clear();
-    for (const BlockAnimationStyle& currAnim: cityStyle.mBlocksAnimations)
+    for (const BlockAnimationInfo& currAnim: cityStyle.mBlocksAnimations)
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
@@ -403,9 +403,9 @@ void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
     debug_assert(cityStyle.IsLoaded());
     cxx::ensure_path_exists(outputLocation);
     std::string pathBuffer;
-    for (const CarStyle& currCar: cityStyle.mVehicles)
+    for (const VehicleInfo& currCar: cityStyle.mVehicles)
     {
-        int sprite_index = cityStyle.GetVehicleSpriteIndex(currCar.mClassID, currCar.mSprNum);
+        int sprite_index = currCar.mSpriteIndex;
 
         PixelsArray spriteBitmap;
         spriteBitmap.Create(eTextureFormat_RGBA8, 
@@ -435,7 +435,7 @@ void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation)
 
     for (int isprite = 0, Num = gGameMap.mStyleData.mSprites.size(); isprite < Num; ++isprite)
     {
-        SpriteStyle& sprite = gGameMap.mStyleData.mSprites[isprite];
+        SpriteInfo& sprite = gGameMap.mStyleData.mSprites[isprite];
 
         PixelsArray spriteBitmap;
         spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight, gMemoryManager.mFrameHeapAllocator);
@@ -464,7 +464,7 @@ void SpriteManager::DumpSpriteDeltas(const std::string& outputLocation, int spri
     cxx::ensure_path_exists(outputLocation);
     std::string pathBuffer;
 
-    SpriteStyle& sprite = cityStyle.mSprites[spriteIndex];
+    SpriteInfo& sprite = cityStyle.mSprites[spriteIndex];
 
     PixelsArray spriteBitmap;
     spriteBitmap.Create(eTextureFormat_RGBA8, sprite.mWidth, sprite.mHeight, gMemoryManager.mFrameHeapAllocator);
@@ -532,7 +532,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
 
     // filter out present delta bits
-    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
+    SpriteInfo& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
     deltaBits &= spriteStyle.GetDeltaBits();
 
     debug_assert(remap >= 0);
@@ -630,7 +630,7 @@ void SpriteManager::GetSpriteTexture(GameObjectID objectID, int spriteIndex, int
     debug_assert(remap >= 0);
 
     debug_assert(spriteIndex < (int) mObjectsSpritesheet.mEntries.size());
-    SpriteStyle& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
+    SpriteInfo& spriteStyle = gGameMap.mStyleData.mSprites[spriteIndex];
 
     sourceSprite.mPaletteIndex = gGameMap.mStyleData.GetSpritePaletteIndex(spriteStyle.mClut, remap);
     sourceSprite.mTexture = mObjectsSpritesheet.mSpritesheetTexture;
@@ -667,7 +667,7 @@ void SpriteManager::InitExplosionFrames()
     if (framesCount < 1)
         return;
 
-    SpriteStyle& sprite = cityStyle.mSprites[explosionSpriteIndex];
+    SpriteInfo& sprite = cityStyle.mSprites[explosionSpriteIndex];
 
     int textureSizex = sprite.mWidth * 2;
     int textureSizey = sprite.mHeight * 2;

@@ -44,10 +44,9 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
         StyleData& cityStyle = gGameMap.mStyleData;
 
         int objectindex = weaponInfo->mProjectileObject;
-        if (objectindex > 0 && objectindex < (int) cityStyle.mGameObjects.size())
+        if (objectindex > 0 && objectindex < (int) cityStyle.mObjects.size())
         {
-            GameObjectStyle& objectInfo = cityStyle.mGameObjects[objectindex];
-
+            GameObjectInfo& objectInfo = cityStyle.mObjects[objectindex];
             debug_assert(objectInfo.mClassID == eGameObjectClass_Projectile);
             
             mAnimationState.Clear();
@@ -85,7 +84,7 @@ void Projectile::UpdateFrame()
 
             if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
             {
-                GameObjectStyle& objectInfo = gGameMap.mStyleData.mGameObjects[mWeaponInfo->mProjectileHitEffect];
+                GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
                 Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
                 debug_assert(hitEffect);
 

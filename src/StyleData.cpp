@@ -150,11 +150,35 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
     mRemapClutsCount = header.newcarclut_size / sizeof(Palette256);
     mFontClutsCount = header.fontclut_size / sizeof(Palette256);
 
+    // clut_size, rounded up to 64K
+    int clutsDataLength = cxx::round_up_to(header.clut_size, 64 * 1024);
+
     if (!ReadBlockTextures(file))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read block textures from style file '%s'", stylesName.c_str());
         return false;
     }
+
+    // read the sprite numbers first
+    std::streampos currentPos = file.tellg();
+
+    std::streamoff spriteNumbersDataOffset = clutsDataLength + 
+        header.anim_size + 
+        header.palette_index_size + 
+        header.object_info_size + 
+        header.car_size +
+        header.sprite_info_size + 
+        header.sprite_graphics_size;
+
+    file.seekg(spriteNumbersDataOffset, std::ios::cur);
+
+    if (!ReadSpriteNumbers(file, header.sprite_numbers_size))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite numbers from style file '%s'", stylesName.c_str());
+        return false;
+    }
+
+    file.seekg(currentPos);
 
     if (!ReadAnimations(file, header.anim_size))
     {
@@ -162,8 +186,6 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
         return false;
     }
 
-    // clut_size, rounded up to 64K
-    int clutsDataLength = cxx::round_up_to(header.clut_size, 64 * 1024);
     if (!ReadCLUTs(file, clutsDataLength))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot read palette data from style file '%s'", stylesName.c_str());
@@ -200,14 +222,6 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
         return false;
     }
 
-    if (!ReadSpriteNumbers(file, header.sprite_numbers_size))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read sprite numbers from style file '%s'", stylesName.c_str());
-        return false;
-    }
-
-    std::streampos currentPos = file.tellg();
-    debug_assert(currentPos == fileSize);
     file.close();
 
     if (!InitGameObjectsList())
@@ -257,7 +271,7 @@ void StyleData::Cleanup()
     mPalettes.clear();
     mBlocksAnimations.clear();
     mVehicles.clear();
-    mGameObjects.clear();
+    mObjects.clear();
     mSprites.clear();
     mSpriteGraphicsRaw.clear();
     mLidBlocksCount = 0;
@@ -279,10 +293,10 @@ bool StyleData::IsLoaded() const
     return (mLidBlocksCount + mSideBlocksCount + mAuxBlocksCount) > 0;
 }
 
-bool StyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyle* animationInfo)
+bool StyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationInfo* animationInfo)
 {
     debug_assert(animationInfo);
-    for (const BlockAnimationStyle& currAnim: mBlocksAnimations)
+    for (const BlockAnimationInfo& currAnim: mBlocksAnimations)
     {
         if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
         {
@@ -296,7 +310,7 @@ bool StyleData::GetBlockAnimationInfo(eBlockType blockType, int blockIndex, Bloc
 
 bool StyleData::HasBlockAnimation(eBlockType blockType, int blockIndex) const
 {
-    for (const BlockAnimationStyle& currAnim: mBlocksAnimations)
+    for (const BlockAnimationInfo& currAnim: mBlocksAnimations)
     {
         if (currAnim.mBlock == blockIndex && currAnim.mWhich == blockType)
             return true;
@@ -428,7 +442,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, PixelsArray* bitmap, int destP
         return false;
     }
 
-    const SpriteStyle& sprite = mSprites[spriteIndex];
+    const SpriteInfo& sprite = mSprites[spriteIndex];
 
     unsigned char* srcPixels = mSpriteGraphicsRaw.data() + GTA_SPRITE_PAGE_SIZE * sprite.mPageNumber;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
@@ -467,7 +481,7 @@ bool StyleData::GetSpriteTexture(int spriteIndex, SpriteDeltaBits deltas, Pixels
     if (!GetSpriteTexture(spriteIndex, bitmap, destPositionY, destPositionY))
         return false;
 
-    SpriteStyle& sprite = mSprites[spriteIndex];
+    SpriteInfo& sprite = mSprites[spriteIndex];
     if (deltas > 0 && sprite.mDeltaCount > 0)
     {
         for (int idelta = 0; idelta < MAX_SPRITE_DELTAS && idelta < sprite.mDeltaCount; ++idelta)
@@ -475,14 +489,14 @@ bool StyleData::GetSpriteTexture(int spriteIndex, SpriteDeltaBits deltas, Pixels
             if ((deltas & BIT(idelta)) == 0)
                 continue;
 
-            SpriteStyle::DeltaInfo& delta = sprite.mDeltas[idelta];
+            SpriteInfo::DeltaInfo& delta = sprite.mDeltas[idelta];
             ApplySpriteDelta(sprite, delta, bitmap, destPositionX, destPositionY);
         }
     }
     return true;
 }
 
-void StyleData::ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* bitmap, int positionX, int positionY)
+void StyleData::ApplySpriteDelta(SpriteInfo& sprite, SpriteInfo::DeltaInfo& spriteDelta, PixelsArray* bitmap, int positionX, int positionY)
 {
     unsigned char* srcData = mSpriteGraphicsRaw.data() + spriteDelta.mOffset;
     int bpp = NumBytesPerPixel(bitmap->mFormat);
@@ -661,14 +675,13 @@ bool StyleData::ReadPaletteIndices(std::ifstream& file, int dataLength)
 
 bool StyleData::ReadAnimations(std::ifstream& file, int dataLength)
 {
-    (void)dataLength;
     unsigned char numAnimationBlocks = 0;
     if (!cxx::read_from_stream(file, numAnimationBlocks))
         return false;
 
     for (int ianimation = 0; ianimation < numAnimationBlocks; ++ianimation)
     {
-        BlockAnimationStyle animation;
+        BlockAnimationInfo animation;
 
         READ_I8(file, animation.mBlock);
         READ_I8(file, animation.mWhich);
@@ -732,13 +745,22 @@ bool StyleData::ReadVehicles(std::ifstream& file, int dataLength)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        CarStyle carInfo;
+        VehicleInfo carInfo;
         carInfo.mRemapsBaseIndex = icurrent * MAX_CAR_REMAPS;
 
-        READ_SI16(file, carInfo.mWidth);
-        READ_SI16(file, carInfo.mHeight);
-        READ_SI16(file, carInfo.mDepth);
-        READ_SI16(file, carInfo.mSprNum);
+        short dims_width;
+        short dims_height;
+        short dims_depth;
+
+        READ_SI16(file, dims_width);
+        READ_SI16(file, dims_height);
+        READ_SI16(file, dims_depth);
+
+        carInfo.mDimensions = Convert::PixelsToMeters({dims_width, dims_depth, dims_height});
+
+        short sprNum;
+        READ_SI16(file, sprNum);
+
         READ_SI16(file, carInfo.mWeight);
         READ_SI16(file, carInfo.mMaxSpeed);
         READ_SI16(file, carInfo.mMinSpeed);
@@ -760,23 +782,28 @@ bool StyleData::ReadVehicles(std::ifstream& file, int dataLength)
 
         unsigned char vtype = 0;
         READ_I8(file, vtype);
-        switch(vtype)
+
+        eVehicleClass classID = eVehicleClass_COUNT;
+        switch (vtype)
         {
-            case 0: carInfo.mClassID = eVehicleClass_Bus; break;
-            case 1: carInfo.mClassID = eVehicleClass_FrontOfJuggernaut; break;
-            case 2: carInfo.mClassID = eVehicleClass_BackOfJuggernaut; break;
-            case 3: carInfo.mClassID = eVehicleClass_Motorcycle; break; 
-            case 4: carInfo.mClassID = eVehicleClass_StandardCar; break;
-            case 8: carInfo.mClassID = eVehicleClass_Train; break;
-            case 9: carInfo.mClassID = eVehicleClass_Tram; break;
-            case 13: carInfo.mClassID = eVehicleClass_Boat; break;
-            case 14: carInfo.mClassID = eVehicleClass_Tank; break;
-            default: debug_assert(false);
-                break;
+            case 0: classID = eVehicleClass_Bus; break;
+            case 1: classID = eVehicleClass_FrontOfJuggernaut; break;
+            case 2: classID = eVehicleClass_BackOfJuggernaut; break;
+            case 3: classID = eVehicleClass_Motorcycle; break; 
+            case 4: classID = eVehicleClass_StandardCar; break;
+            case 8: classID = eVehicleClass_Train; break;
+            case 9: classID = eVehicleClass_Tram; break;
+            case 13: classID = eVehicleClass_Boat; break;
+            case 14: classID = eVehicleClass_Tank; break;
         };
+
+        debug_assert(classID < eVehicleClass_COUNT);
+        carInfo.mClassID = classID;
 
         int modelId;
         READ_I8(file, modelId);
+
+        carInfo.mSpriteIndex = GetVehicleSpriteIndex(classID, sprNum); 
 
         // parse model id
         if (!cxx::parse_enum_int(modelId, carInfo.mModelId))
@@ -854,7 +881,7 @@ bool StyleData::ReadSprites(std::ifstream& file, int dataLength)
     {
         const std::streampos startStreamPos = file.tellg();
 
-        SpriteStyle spriteInfo;
+        SpriteInfo spriteInfo;
         READ_I8(file, spriteInfo.mWidth);
         READ_I8(file, spriteInfo.mHeight);
         READ_I8(file, spriteInfo.mDeltaCount);
@@ -1055,12 +1082,12 @@ bool StyleData::InitGameObjectsList()
     int numElementsToLoad = std::min(arrayElements, rawObjectsCount);
 
     // default init objects
-    mGameObjects.clear();
-    mGameObjects.resize(GameObjectType_MAX);
+    mObjects.clear();
+    mObjects.resize(GameObjectType_MAX);
     for (int icurr = 0; icurr < numElementsToLoad; ++icurr)
     {
-        GameObjectStyle& currObject = mGameObjects[icurr];
-        currObject.mGameObjectIndex = icurr;
+        GameObjectInfo& currObject = mObjects[icurr];
+        currObject.mObjectType = icurr;
         currObject.mLifeDuration = 0;
 
         ObjectRawData& objectRaw = mObjectsRaw[icurr];

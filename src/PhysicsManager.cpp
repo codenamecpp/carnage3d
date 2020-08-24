@@ -202,7 +202,7 @@ void PhysicsManager::CreateMapCollisionShape()
     for (int y = 0; y < MAP_DIMENSIONS; ++y)
     for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
     {
-        BlockStyle* blockData = gGameMap.GetBlock(x, y, layer);
+        MapBlockInfo* blockData = gGameMap.GetBlock(x, y, layer);
         debug_assert(blockData);
 
         if (blockData->mGroundType != eGroundType_Building)
@@ -210,10 +210,10 @@ void PhysicsManager::CreateMapCollisionShape()
 
         // checek blox is inner
         {
-            BlockStyle* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
-            BlockStyle* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
-            BlockStyle* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
-            BlockStyle* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
+            MapBlockInfo* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
+            MapBlockInfo* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
+            MapBlockInfo* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
+            MapBlockInfo* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
 
             auto is_walkable = [](eGroundType gtype)
             {
@@ -450,7 +450,7 @@ void PhysicsManager::FixedStepGravity()
 
         // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();
-        BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
+        MapBlockInfo* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
 
         if (currentTile->mGroundType == eGroundType_Water)
         {
@@ -508,7 +508,7 @@ void PhysicsManager::FixedStepGravity()
 
         // handle water contact
         glm::ivec3 iposition = physicsComponent->GetPosition();
-        BlockStyle* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
+        MapBlockInfo* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
 
         if (currentTile->mGroundType == eGroundType_Water)
         {
@@ -540,7 +540,7 @@ bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapy, float height) cons
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
+    MapBlockInfo* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -553,7 +553,7 @@ bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixture
 
     // todo: temporary implementation
 
-    BlockStyle* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
+    MapBlockInfo* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -726,7 +726,7 @@ bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysic
     // check same height
     int layer = (int) (Convert::MetersToMapUnits(projectile->mHeight) + 0.5f);
 
-    BlockStyle* mapBlock = gGameMap.GetBlockClamp(mapx, mapy, layer);
+    MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(mapx, mapy, layer);
     if (mapBlock->mGroundType != eGroundType_Building)
         return false;
 

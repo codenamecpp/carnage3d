@@ -34,7 +34,7 @@ public:
     // @param heading: Initial rotation
     // @param desc: Car style
     // @param carModel: Car model identifier
-    Vehicle* CreateVehicle(const glm::vec3& position, cxx::angle_t heading, CarStyle* desc);
+    Vehicle* CreateVehicle(const glm::vec3& position, cxx::angle_t heading, VehicleInfo* desc);
     Vehicle* CreateVehicle(const glm::vec3& position, cxx::angle_t heading, eVehicleModel carModel);
 
     // Add new projectile instance to map at specific location
@@ -42,14 +42,14 @@ public:
     Projectile* CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo);
 
     // Add new decoration instance to map at specific location
-    Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
+    Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc);
     Decoration* CreateFirstBlood(const glm::vec3& position);
 
     // Add explosion instance to map at specific location 
     Explosion* CreateExplosion(const glm::vec3& position);
 
     // Add new obstacle instance to map at specific location
-    Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectStyle* desc);
+    Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc);
 
     // Find gameobject by its unique identifier
     // @param objectID: Unique identifier

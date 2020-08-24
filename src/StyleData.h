@@ -10,10 +10,10 @@ class StyleData final
 {
 public:
     // readonly
-    std::vector<GameObjectStyle> mGameObjects;
-    std::vector<SpriteStyle> mSprites;
-    std::vector<CarStyle> mVehicles;
-    std::vector<BlockAnimationStyle> mBlocksAnimations;
+    std::vector<GameObjectInfo> mObjects;
+    std::vector<SpriteInfo> mSprites;
+    std::vector<VehicleInfo> mVehicles;
+    std::vector<BlockAnimationInfo> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
     std::vector<WeaponInfo> mWeapons;
 
@@ -64,7 +64,7 @@ public:
     // @param blockType: Source block area type
     // @param blockIndex: Target block index
     // @param animationInfo: Output info
-    bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationStyle* animationInfo);
+    bool GetBlockAnimationInfo(eBlockType blockType, int blockIndex, BlockAnimationInfo* animationInfo);
     bool HasBlockAnimation(eBlockType blockType, int blockIndex) const;
 
     // Read sprite bitmap to specific location at target texture
@@ -108,7 +108,7 @@ public:
 
 private:
     // apply single delta on sprite
-    void ApplySpriteDelta(SpriteStyle& sprite, SpriteStyle::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
+    void ApplySpriteDelta(SpriteInfo& sprite, SpriteInfo::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
 
     // Reading style data internals
     // @param file: Source stream

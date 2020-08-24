@@ -159,7 +159,6 @@
     <ClInclude Include="Convert.h" />
     <ClInclude Include="Decoration.h" />
     <ClInclude Include="Explosion.h" />
-    <ClInclude Include="GameObjectDefs.h" />
     <ClInclude Include="game_version.h" />
     <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GameObjectDefs.h"
-
 // most of game constants is mapped to GTA files format so don't change
 
 // side length of block cube, do not change
@@ -24,10 +22,10 @@
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 #define MAP_SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
-#define CAR_WHEEL_SIZE_W_PX         6
-#define CAR_WHEEL_SIZE_H_PX         12
+#define CAR_WHEEL_SIZE_W_PX 6
+#define CAR_WHEEL_SIZE_H_PX 12
 
-#define GTA_CYCLES_PER_FRAME        24
+#define GTA_CYCLES_PER_FRAME 24
 
 // in original gta1 map height levels is counting from top to bottom - 
 // 0 is highest and 5 is lowest level
@@ -62,13 +60,68 @@
 
 #define CAR_DELTA_ANIMS_SPEED 10.0f
 
-// define generic gameobject information
-struct GameObjectStyle
+// forwards
+class GameObject;
+class Pedestrian;
+class Vehicle;
+class Projectile;
+class Decoration;
+class Obstacle;
+class Explosion;
+
+// some game objects has null identifier, they are dacals, projectiles and short-lived effects
+#define GAMEOBJECT_ID_NULL 0
+
+using GameObjectID = unsigned int; // unique id of gameobject instance in world
+
+// gameobject class identifiers
+enum eGameObjectClass
+{
+    eGameObjectClass_Car,
+    eGameObjectClass_Pedestrian,
+    eGameObjectClass_Projectile,
+    eGameObjectClass_Powerup,
+    eGameObjectClass_Decoration,
+    eGameObjectClass_Obstacle,
+    eGameObjectClass_Explosion,
+    eGameObjectClass_COUNT,
+};
+
+decl_enum_strings(eGameObjectClass);
+
+enum eGameObjectFlags: unsigned short
+{
+    eGameObjectFlags_None = 0,
+    eGameObjectFlags_Invisible = BIT(0),
+    eGameObjectFlags_CarObject = BIT(1),
+};
+
+decl_enum_as_flags(eGameObjectFlags);
+
+// game object type indices
+enum
+{
+    GameObjectType_Null = 0,
+
+    GameObjectType_FirstBlood = 63,
+    GameObjectType_Body = 64,
+    // todo...
+    GameObjectType_MissileProjectile = 31,
+    GameObjectType_BulletProjectile = 74,
+    GameObjectType_FireballProjectile = 75,
+
+    // todo...
+    GameObjectType_MAX = 102
+};
+
+// define gameobject type information
+struct GameObjectInfo
 {
     eGameObjectClass mClassID = eGameObjectClass_COUNT;
     eGameObjectFlags mFlags = eGameObjectFlags_None;
 
-    int mGameObjectIndex = 0; // index within loaded styles
+    // index in the gameobject types table that are loaded with the style data
+    int mObjectType = GameObjectType_Null;
 
     // width, height and depth store the dimensions of the object with respect to collision checking
     // specified in meters
@@ -374,7 +427,7 @@ public:
 };
 
 // define map block information
-struct BlockStyle
+struct MapBlockInfo
 {
     unsigned char mRemap;
 
@@ -408,10 +461,10 @@ struct BlockStyle
     bool mIsRailway : 1;
 };
 
-const unsigned int Sizeof_BlockStyle = sizeof(BlockStyle);
+const unsigned int Sizeof_BlockInfo = sizeof(MapBlockInfo);
 
 // define map block anim information
-struct BlockAnimationStyle
+struct BlockAnimationInfo
 {
     int mBlock = 0; // the block number
     int mWhich = 0; // the area type ( 0 for side, 1 for lid )
@@ -421,7 +474,7 @@ struct BlockAnimationStyle
 };
 
 // define car door information
-struct CarDoorStyle
+struct CarDoorInfo
 {
 	short mRpx, mRpy;
 	short mObject;
@@ -525,11 +578,12 @@ enum eCarConvertible
 };
 decl_enum_strings(eCarConvertible);
 
-// define car class information
-struct CarStyle
+// define vehicle type information
+struct VehicleInfo
 {
-    short mWidth, mHeight, mDepth;  // dimensions of the car with respect to collision checking, x, y, z
-    short mSprNum; // first sprite number offset for this car
+    glm::vec3 mDimensions; // dimensions of the car with respect to collision checking, meters
+
+    int mSpriteIndex;
 
     struct // specs, usage is unknown
     { 
@@ -572,12 +626,12 @@ struct CarStyle
     int mHorn;
     int mSoundFunction;
     int mFastChangeFlag;
-    short mDoorsCount;
-    CarDoorStyle mDoors[MAX_CAR_DOORS];
+    int mDoorsCount;
+    CarDoorInfo mDoors[MAX_CAR_DOORS];
 };
 
 // define sprite information
-struct SpriteStyle
+struct SpriteInfo
 {
     int mWidth;
     int mHeight;

@@ -3,7 +3,7 @@
 #include "TimeManager.h"
 #include "SpriteManager.h"
 
-Obstacle::Obstacle(GameObjectID id, GameObjectStyle* desc) 
+Obstacle::Obstacle(GameObjectID id, GameObjectInfo* desc) 
     : GameObject(eGameObjectClass_Obstacle, id)
     , mGameObjectDesc(desc)
 {

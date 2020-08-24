@@ -23,7 +23,7 @@ private:
     // @param deltaTime: Time since last frame
     void DoUI(ImGuiIO& imguiContext) override;
 
-    void CreateCarNearby(CarStyle* carStyle, Pedestrian* pedestrian);
+    void CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedestrian);
 };
 
 extern GameCheatsWindow gGameCheatsWindow;
