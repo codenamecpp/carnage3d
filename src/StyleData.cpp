@@ -1061,6 +1061,7 @@ bool StyleData::InitGameObjectsList()
     {
         GameObjectStyle& currObject = mGameObjects[icurr];
         currObject.mGameObjectIndex = icurr;
+        currObject.mLifeDuration = 0;
 
         ObjectRawData& objectRaw = mObjectsRaw[icurr];
 
@@ -1080,25 +1081,29 @@ bool StyleData::InitGameObjectsList()
         int frameCount = 0;
         cxx::json_get_attribute(currObjectNode, "frameCount", frameCount);
 
-        if (frameCount > 0)
-        {
-            int startSpriteIndex = GetSpriteIndex(eSpriteType_Object, objectRaw.mBaseSprite);
-            currObject.mAnimationData.Setup(startSpriteIndex, frameCount);
-        }
-
         ParseObjectFlags(currObjectNode, "flags", currObject.mFlags);
 
-        // convert object dimensions pixels to meters
-        
-        // todo: 
+        int startSpriteIndex = GetSpriteIndex(eSpriteType_Object, objectRaw.mBaseSprite);
+
         // as cds says, 
         // Animated objects are a special case. They cannot be involved in collisions and are there for graphical
         //    effect only. The same data structure is used, with the following differences :
         //      * height - stores the number of game cycles per frame
         //      * width - stores the number of frames
         //      * depth - stores a life descriptor ( 0 for infinite, non-zero n for n animation cycles )
-        if (currObject.mClassID != eGameObjectClass_Decoration)
+        if (objectRaw.mStatus == 5)
         {
+            float fps = (GTA_CYCLES_PER_FRAME * 1.0f) / objectRaw.mHeight;
+            currObject.mAnimationData.Setup(startSpriteIndex, objectRaw.mWidth, fps);
+            currObject.mLifeDuration = objectRaw.mDepth;
+        }
+        else
+        {
+            if (frameCount > 0)
+            {
+                currObject.mAnimationData.Setup(startSpriteIndex, frameCount);
+            }
+            // convert object dimensions pixels to meters
             currObject.mHeight = Convert::PixelsToMeters(objectRaw.mHeight);
             currObject.mWidth = Convert::PixelsToMeters(objectRaw.mWidth);
             currObject.mDepth = Convert::PixelsToMeters(objectRaw.mDepth);

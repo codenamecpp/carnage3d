@@ -155,17 +155,16 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
     debug_assert(gGameMap.mStyleData.IsLoaded());
     debug_assert(desc);
     debug_assert(desc->mClassID == eGameObjectClass_Decoration);
-    if (desc->mClassID == eGameObjectClass_Decoration)
-    {
-        GameObjectID objectID = GenerateUniqueID();
 
-        instance = mDecorationsPool.create(objectID, desc);
-        debug_assert(instance);
+    GameObjectID objectID = GenerateUniqueID();
 
-        mAllObjectsList.push_back(instance);
-        // init
-        instance->Spawn(position, heading);
-    }
+    instance = mDecorationsPool.create(objectID, desc);
+    debug_assert(instance);
+
+    mAllObjectsList.push_back(instance);
+    // init
+    instance->Spawn(position, heading);
+    instance->SetLifeDuration(desc->mLifeDuration);
     return instance;
 }
 

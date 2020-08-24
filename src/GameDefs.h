@@ -27,6 +27,8 @@
 #define CAR_WHEEL_SIZE_W_PX         6
 #define CAR_WHEEL_SIZE_H_PX         12
 
+#define GTA_CYCLES_PER_FRAME        24
+
 // in original gta1 map height levels is counting from top to bottom - 
 // 0 is highest and 5 is lowest level
 #define INVERT_MAP_LAYER(index) (MAP_LAYERS_COUNT - (index) - 1)
@@ -73,6 +75,8 @@ struct GameObjectStyle
     float mWidth = 0.0f;
     float mHeight = 0.0f;
     float mDepth = 0.0f;
+
+    int mLifeDuration = 0; // 0 for infinite, non-zero n for n animation cycles
 
     SpriteAnimData mAnimationData; // optional
 };

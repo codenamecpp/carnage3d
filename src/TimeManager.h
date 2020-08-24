@@ -15,7 +15,7 @@ public:
     float mUiFrameDelta = 0.0f;
     float mUiTimeScale = 1.0f;
 
-    float mMinFramerate = 25.0f; // gta1 game speed
+    float mMinFramerate = 24.0f; // gta1 game speed
     float mMaxFramerate = 120.0f;
 
 public:
