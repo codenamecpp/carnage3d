@@ -18,6 +18,27 @@ GameObject::~GameObject()
     SetDetached();
 }
 
+void GameObject::PreDrawFrame()
+{
+    // do nothing
+}
+
+void GameObject::UpdateFrame()
+{
+    // do nothing
+}
+
+void GameObject::DrawDebug(DebugRenderer& debugRender)
+{
+    // do nothing
+}
+
+bool GameObject::ReceiveDamage(const DamageInfo& damageInfo)
+{
+    // do nothing
+    return false;
+}
+
 void GameObject::MarkForDeletion()
 {
     gGameObjectsManager.MarkForDeletion(this);

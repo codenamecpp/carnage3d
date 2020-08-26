@@ -33,10 +33,9 @@ public:
     // setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
-    // process damages
-    void ReceiveDamageFromWater();
-    void ReceiveDamage(int damage);
-    void ReceiveDamageFromCrash(const glm::vec3& crashPoint, float crashImpactForce);
+    // Process damage, it may be ignored depending on type of damage and objects current state
+    // @param damageInfo: Damage details
+    bool ReceiveDamage(const DamageInfo& damageInfo) override;
 
     // adds passenger into the car
     // @param pedestrian: Pedestrian, cannot be null

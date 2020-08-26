@@ -8,6 +8,7 @@
 #include "PedestrianStates.h"
 #include "Vehicle.h"
 #include "TimeManager.h"
+#include "GameObjectsManager.h"
 
 Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian, id)
     , mPhysicsBody()
@@ -31,8 +32,9 @@ Pedestrian::~Pedestrian()
 
 void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
 {
-    mCurrentStateTime = 0;
-    mWeaponRechargeTime = 0;
+    mCurrentStateTime = 0.0f;
+    mWeaponRechargeTime = 0.0f;
+    mBurnStartTime = 0.0f;
 
     // reset actions
     mCtlState.Clear();
@@ -64,6 +66,7 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     mStatesManager.ChangeState(ePedestrianState_StandingStill, evData); // force idle state
 
     SetCarExited();
+    SetBurnEffectActive(false);
 }
 
 void Pedestrian::UpdateFrame()
@@ -80,6 +83,8 @@ void Pedestrian::UpdateFrame()
     mCurrentStateTime += deltaTime;
     // update current state logic
     mStatesManager.ProcessFrame();
+
+    UpdateBurnEffect();
 }
 
 void Pedestrian::PreDrawFrame()
@@ -87,7 +92,7 @@ void Pedestrian::PreDrawFrame()
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
-    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() ;
 
     int spriteIndex = mCurrentAnimState.GetCurrentFrame();
 
@@ -95,9 +100,16 @@ void Pedestrian::PreDrawFrame()
     gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
-    mDrawSprite.mRotateAngle = rotationAngle;
+    mDrawSprite.mRotateAngle = rotationAngle - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mHeight = mDrawHeight;
-    mDrawSprite.SetOriginToCenter();
+
+    // update fire effect draw pos
+    // todo: refactore
+    if (mFireEffect)
+    {
+        position.y = mDrawHeight + 0.01f; // todo: magic value
+        mFireEffect->SetTransform(position, rotationAngle);
+    }
 }
 
 void Pedestrian::DrawDebug(DebugRenderer& debugRender)
@@ -190,20 +202,15 @@ void Pedestrian::ChangeWeapon(eWeaponID weapon)
     mStatesManager.ProcessEvent(evData);
 }
 
-void Pedestrian::Die(ePedestrianDeathReason deathReason, Pedestrian* attacker)
-{
-    PedestrianStateEvent evData { ePedestrianStateEvent_Die };
-    evData.mDeathReason = deathReason;
-    evData.mAttacker = attacker;
-    mStatesManager.ChangeState(ePedestrianState_Dead, evData);
-}
-
 void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
 {
     debug_assert(targetSeat != eCarSeat_Any);
     debug_assert(targetCar);
 
     if (targetCar->IsWrecked())
+        return;
+
+    if (IsBurn()) // cannot enter vehicle while burn
         return;
 
     if (IsIdle())
@@ -224,14 +231,11 @@ void Pedestrian::ExitCar()
     }
 }
 
-void Pedestrian::ReceiveDamage(WeaponInfo* weapon, Pedestrian* attacker)
+bool Pedestrian::ReceiveDamage(const DamageInfo& damageInfo)
 {
-    debug_assert(weapon);
-
-    PedestrianStateEvent evData { ePedestrianStateEvent_DamageFromWeapon };
-    evData.mAttacker = attacker;
-    evData.mWeapon = weapon;
-    mStatesManager.ProcessEvent(evData);
+    PedestrianStateEvent evData { ePedestrianStateEvent_ReceiveDamage };
+    evData.mDamageInfo = damageInfo;
+    return mStatesManager.ProcessEvent(evData);
 }
 
 void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode)
@@ -370,51 +374,90 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     }
 }
 
-void Pedestrian::ReceiveDamageFromCar(Vehicle* targetCar)
+void Pedestrian::DieFromDamage(eDamageCause damageCause)
 {
-    debug_assert(targetCar); 
+    PedestrianStateEvent evData { ePedestrianStateEvent_Die };
+    evData.mDeathReason = ePedestrianDeathReason_Unknown;
 
-    // todo: hit processing logic should be moved to states manager !
-
-    if (IsDead())
-        return;
-
-    if (IsUnconscious())
+    switch (damageCause)
     {
-        Die(ePedestrianDeathReason_HitByCar, nullptr);
-        return;
+        case eDamageCause_Gravity: 
+            evData.mDeathReason = ePedestrianDeathReason_FallFromHeight;
+        break;
+        case eDamageCause_Electricity: 
+            evData.mDeathReason = ePedestrianDeathReason_Electrocuted;
+        break;
+        case eDamageCause_Burning: 
+            evData.mDeathReason = ePedestrianDeathReason_Fried;
+        break;
+        case eDamageCause_Drowning: 
+            evData.mDeathReason = ePedestrianDeathReason_Drowned;
+        break;
+        case eDamageCause_CarCrash: 
+            evData.mDeathReason = ePedestrianDeathReason_Smashed;
+        break;
+        case eDamageCause_Explosion: 
+            evData.mDeathReason = ePedestrianDeathReason_BlownUp;
+        break;
+        case eDamageCause_Bullet: 
+            evData.mDeathReason = ePedestrianDeathReason_Shot;
+        break;
+        case eDamageCause_Punch: 
+            evData.mDeathReason = ePedestrianDeathReason_Beaten;
+        break;
     }
 
-    glm::vec2 carPosition = targetCar->mPhysicsBody->GetPosition2();
-    glm::vec2 pedPosition = mPhysicsBody->GetPosition2();
-    glm::vec2 directionNormal = glm::normalize(pedPosition - carPosition);
-    glm::vec2 directionVelocity = glm::dot(directionNormal, targetCar->mPhysicsBody->GetLinearVelocity()) * directionNormal;
-    float speedInDirection = glm::dot(directionVelocity, directionNormal);
-    speedInDirection = fabs(speedInDirection);
+    mStatesManager.ChangeState(ePedestrianState_Dead, evData);
+}
 
-    float killSpeed = 6.0f; // todo: magic numbers
-    if (speedInDirection > killSpeed)
+void Pedestrian::SetBurnEffectActive(bool activate)
+{
+    if (activate == IsBurn())
+        return;
+
+    if (activate)
     {
-        Die(ePedestrianDeathReason_HitByCar, nullptr);
-    }
-    else if (speedInDirection > 1.0f)// todo: magic numbers
-    {
-        // jump over
-        if (mStatesManager.CanStartSlideOnCarState())
+        debug_assert(mFireEffect == nullptr);
+        GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_LFire];
+        mFireEffect = gGameObjectsManager.CreateDecoration(
+            mPhysicsBody->GetPosition(), 
+            mPhysicsBody->GetRotationAngle(), &objectInfo);
+        debug_assert(mFireEffect);
+        if (mFireEffect)
         {
-            PedestrianStateEvent evData { ePedestrianStateEvent_PushByCar };
-            mStatesManager.ChangeState(ePedestrianState_SlideOnCar, evData);
-            return;
-        } 
+            mFireEffect->SetLifeDuration(0);
+            mFireEffect->SetAttachedToObject(this);
+        }
+        mBurnStartTime = gTimeManager.mGameTime;
+    }
+    else
+    {
+        debug_assert(mFireEffect);
+        if (mFireEffect)
+        {
+            mFireEffect->SetDetached();
+        }
+        mFireEffect->MarkForDeletion();
+        mFireEffect = nullptr;
     }
 }
 
-void Pedestrian::ReceiveDamageFromExplosion(Explosion* explosion)
+void Pedestrian::UpdateBurnEffect()
 {
-    // todo: hit processing logic should be moved to states manager !
+    if (mFireEffect == nullptr)
+        return;
 
     if (IsDead())
         return;
 
-    Die(ePedestrianDeathReason_BlownUp, nullptr);
+    if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mPedestrianBurnDuration))
+    {
+        DieFromDamage(eDamageCause_Burning);
+        return;
+    }
+}
+
+bool Pedestrian::IsBurn() const
+{
+    return (mFireEffect != nullptr);
 }

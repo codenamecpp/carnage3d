@@ -402,6 +402,7 @@ impl_enum_strings(ePedestrianState)
     {ePedestrianState_ExitingCar, "exiting_car"},
     {ePedestrianState_DrivingCar, "driving_car"},
     {ePedestrianState_SlideOnCar, "slide_on_car"},
+    {ePedestrianState_Dies, "dies"},
     {ePedestrianState_Dead, "dead"},
     {ePedestrianState_KnockedDown, "knocked_down"},
     {ePedestrianState_Drowning, "drowning"},
@@ -536,7 +537,9 @@ impl_enum_strings(ePedestrianDeathReason)
     {ePedestrianDeathReason_Fried, "Fried"},
     {ePedestrianDeathReason_Electrocuted, "Electrocuted"},
     {ePedestrianDeathReason_Drowned, "Drowned"},
-    {ePedestrianDeathReason_HitByCar, "HitByCar"},
+    {ePedestrianDeathReason_Smashed, "Smashed"},
+    {ePedestrianDeathReason_Beaten, "Beaten"},
+    {ePedestrianDeathReason_Unknown, "Unknown"},    
 };
 
 impl_enum_strings(eProjectileType)

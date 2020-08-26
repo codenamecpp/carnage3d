@@ -114,6 +114,11 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateDrowning_ProcessFrame, 
         &PedestrianStatesManager::StateDummy_ProcessEvent};
+
+    mFuncsTable[ePedestrianState_Dies] = {&PedestrianStatesManager::StateDies_ProcessEnter, 
+        &PedestrianStatesManager::StateDies_ProcessExit, 
+        &PedestrianStatesManager::StateDies_ProcessFrame, 
+        &PedestrianStatesManager::StateDies_ProcessEvent};
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -209,8 +214,9 @@ bool PedestrianStatesManager::TryToShoot()
                 continue; 
 
             // todo: check distance in y direction
-
-            pedBody->mReferencePed->ReceiveDamage(&weaponParams, mPedestrian);
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromWeapon(weaponParams, mPedestrian);         
+            pedBody->mReferencePed->ReceiveDamage(damageInfo);
         }
     }
     else if (weaponParams.IsRange())
@@ -337,6 +343,99 @@ void PedestrianStatesManager::SetInCarPositionToDoor()
 void PedestrianStatesManager::SetInCarPositionToSeat()
 {
     mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, mPedestrian->mPhysicsBody->mCarPointLocal);
+}
+
+bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
+{
+    PedestrianStateEvent eventData(ePedestrianStateEvent_ReceiveDamage);
+    eventData.mDamageInfo = damageInfo;
+
+    // handle punch
+    if (damageInfo.mDamageCause == eDamageCause_Punch)
+    {
+        ChangeState(ePedestrianState_KnockedDown, eventData);
+        return true;
+    }
+
+    // handle fall from height
+    if (damageInfo.mDamageCause == eDamageCause_Gravity)
+    {
+        // todo: check height
+        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        return true;
+    }
+
+    // handle high voltage
+    if (damageInfo.mDamageCause == eDamageCause_Electricity)
+    {
+        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        return true;
+    }
+
+    // handle fireball
+    if (damageInfo.mDamageCause == eDamageCause_Burning)
+    {
+        if (mPedestrian->IsBurn()) // already burning
+            return false;
+        mPedestrian->SetBurnEffectActive(true);
+        return true;
+    }
+
+    // handle water contact
+    if (damageInfo.mDamageCause == eDamageCause_Drowning)
+    {
+        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        return true;
+    }
+
+    // handle boom
+    if (damageInfo.mDamageCause == eDamageCause_Explosion)
+    {
+        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        return true;
+    }
+
+    // handle bullet
+    if (damageInfo.mDamageCause == eDamageCause_Bullet)
+    {
+        // todo: hitpoints/armor
+        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        return true;
+    }
+
+    // handle car hit
+    if (damageInfo.mDamageCause == eDamageCause_CarCrash)
+    {
+        if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
+            return false;
+
+        Vehicle* vehicle = (Vehicle*)damageInfo.mSourceObject;
+
+        glm::vec2 carPosition = vehicle->mPhysicsBody->GetPosition2();
+        glm::vec2 pedPosition = mPedestrian->mPhysicsBody->GetPosition2();
+        glm::vec2 directionNormal = glm::normalize(pedPosition - carPosition);
+        glm::vec2 directionVelocity = glm::dot(directionNormal, vehicle->mPhysicsBody->GetLinearVelocity()) * directionNormal;
+        float speedInDirection = glm::dot(directionVelocity, directionNormal);
+        speedInDirection = fabs(speedInDirection);
+
+        float killSpeed = 6.0f; // todo: magic numbers
+        if (speedInDirection > killSpeed)
+        {
+            mPedestrian->DieFromDamage(eDamageCause_CarCrash);
+        }
+        else if (speedInDirection > 1.0f)// todo: magic numbers
+        {
+            // jump over
+            if (CanStartSlideOnCarState())
+            {
+                ChangeState(ePedestrianState_SlideOnCar, eventData);
+            } 
+        }
+        return true;
+    }
+
+    debug_assert(false);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -543,6 +642,11 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
         return true;
     }
 
+    if (stateEvent.mID == ePedestrianStateEvent_ReceiveDamage)
+    {
+        return TryProcessDamage(stateEvent.mDamageInfo);
+    }
+
     return false;
 }
 
@@ -600,6 +704,11 @@ bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStat
         return true;
     }
 
+    if (stateEvent.mID == ePedestrianStateEvent_ReceiveDamage)
+    {
+        return TryProcessDamage(stateEvent.mDamageInfo);
+    }
+
     return false;
 }
 
@@ -622,7 +731,7 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
         // die
         if (mPedestrian->mPhysicsBody->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
         {
-            mPedestrian->Die(ePedestrianDeathReason_FallFromHeight, nullptr);
+            mPedestrian->DieFromDamage(eDamageCause_Gravity);
             return true;
         }
 
@@ -697,23 +806,9 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
         return true;
     }
 
-    if (stateEvent.mID == ePedestrianStateEvent_DamageFromWeapon)
+    if (stateEvent.mID == ePedestrianStateEvent_ReceiveDamage)
     {
-        if (stateEvent.mWeapon == nullptr)
-        {
-            debug_assert(false);
-            return false;
-        }
-
-        if (!stateEvent.mWeapon->IsLethal())
-        {
-            ChangeState(ePedestrianState_KnockedDown, stateEvent);
-            return true;
-        }
-
-        // todo: correct death type with weapon type
-        mPedestrian->Die(ePedestrianDeathReason_Shot, nullptr);
-        return true;
+        return TryProcessDamage(stateEvent.mDamageInfo);
     }
 
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
@@ -741,7 +836,7 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
         glm::vec3 currentPosition = mPedestrian->mPhysicsBody->GetPosition();
         mPedestrian->mPhysicsBody->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
-        mPedestrian->Die(ePedestrianDeathReason_Drowned, nullptr);
+        mPedestrian->DieFromDamage(eDamageCause_Drowning);
         return;
     }
 }
@@ -749,4 +844,23 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
 void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     mPedestrian->SetAnimation(ePedestrianAnim_Drowning, eSpriteAnimLoop_FromStart);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PedestrianStatesManager::StateDies_ProcessFrame()
+{
+}
+
+void PedestrianStatesManager::StateDies_ProcessEnter(const PedestrianStateEvent& stateEvent)
+{
+}
+
+void PedestrianStatesManager::StateDies_ProcessExit()
+{
+}
+
+bool PedestrianStatesManager::StateDies_ProcessEvent(const PedestrianStateEvent& stateEvent)
+{
+    return false;
 }

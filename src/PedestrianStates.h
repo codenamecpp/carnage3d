@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
-#include "WeaponInfo.h"
+#include "DamageInfo.h"
 
 enum ePedestrianStateEvent
 {
@@ -10,14 +10,13 @@ enum ePedestrianStateEvent
     ePedestrianStateEvent_Spawn,
     ePedestrianStateEvent_EnterCar,
     ePedestrianStateEvent_ExitCar,
-    ePedestrianStateEvent_DamageFromWeapon,
+    ePedestrianStateEvent_ReceiveDamage,
     ePedestrianStateEvent_PullOutFromCar,
     ePedestrianStateEvent_Die,
     ePedestrianStateEvent_FallFromHeightStart,
     ePedestrianStateEvent_FallFromHeightEnd,
     ePedestrianStateEvent_WeaponChange, 
     ePedestrianStateEvent_WaterContact,
-    ePedestrianStateEvent_PushByCar,
 };
 
 // defines state event
@@ -33,10 +32,9 @@ public:
     Vehicle* mTargetCar = nullptr;
     eCarSeat mTargetSeat;
 
-    Pedestrian* mAttacker = nullptr;
-    WeaponInfo* mWeapon = nullptr;
+    DamageInfo mDamageInfo; // specified for ReceiveDamage event
 
-    ePedestrianDeathReason mDeathReason;
+    ePedestrianDeathReason mDeathReason; // specified for Die event
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,6 +75,8 @@ private:
 
     void SetInCarPositionToDoor();
     void SetInCarPositionToSeat();
+
+    bool TryProcessDamage(const DamageInfo& damageInfo);
 
     // state unspecified
     void StateDummy_ProcessFrame() {}
@@ -124,6 +124,12 @@ private:
     // states drowning
     void StateDrowning_ProcessFrame();
     void StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent);
+
+    // state dies
+    void StateDies_ProcessFrame();
+    void StateDies_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StateDies_ProcessExit();
+    bool StateDies_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
 private:
 

@@ -23,9 +23,10 @@ void GameParams::SetToDefaults()
     mPedestrianKnockedDownTime = 3.0f;
     mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
     mPedestrianDrowningTime = 0.05f;
+    mPedestrianBurnDuration = 4.0f;
     // etc
     mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.7f);
-    mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(1.2f);
+    mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(1.0f);
     mExplosionPrimaryDamage = 100;
     mExplosionSecondaryDamage = 20;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefs.h"
+#include "DamageInfo.h"
 
 class DebugRenderer;
 
@@ -21,17 +22,18 @@ public:
     virtual ~GameObject();
 
     // update drawing sprite
-    virtual void PreDrawFrame()
-    {
-    }
+    virtual void PreDrawFrame();
+
     // process logic
-    virtual void UpdateFrame()
-    {
-    }
+    virtual void UpdateFrame();
+
     // draw debug info
-    virtual void DrawDebug(DebugRenderer& debugRender)
-    {
-    }
+    virtual void DrawDebug(DebugRenderer& debugRender);
+
+    // Process damage, it may be ignored depending on type of damage and objects current state
+    // @param damageInfo: Damage details
+    // @returns false if damage is ignored
+    virtual bool ReceiveDamage(const DamageInfo& damageInfo);
 
     // schedule object to delete from game
     void MarkForDeletion();

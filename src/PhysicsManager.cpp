@@ -694,7 +694,25 @@ void PhysicsManager::HandleCollision(b2Contact* contact, PedPhysicsBody* ped, Ca
     if (!ped->ShouldContactWith(PHYSICS_OBJCAT_CAR))
         return;
 
-    ped->mReferencePed->ReceiveDamageFromCar(car->mReferenceCar);
+    int pointCount = contact->GetManifold()->pointCount;
+    float maxImpulse = 0.0f;
+    for (int i = 0; i < pointCount; ++i) 
+    {
+        maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+    }
+
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
+
+    DamageInfo damageInfo;
+    damageInfo.mDamageCause = eDamageCause_CarCrash;
+    damageInfo.mSourceObject = car->mReferenceCar;
+    damageInfo.mContactImpulse = maxImpulse;
+    damageInfo.mContactPoint = glm::vec3 ( contactPoint.x, ped->mHeight, contactPoint.y );
+
+    ped->mReferencePed->ReceiveDamage(damageInfo);
 }
 
 void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB, const b2ContactImpulse* impulse)
@@ -716,8 +734,13 @@ void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysicsBody* carA, C
 
     for (CarPhysicsBody* currCar: {carA, carB})
     {
-        glm::vec3 crashPoint ( contactPoint.x, currCar->mHeight, contactPoint.y );
-        currCar->mReferenceCar->ReceiveDamageFromCrash(crashPoint, maxImpulse);
+        DamageInfo damageInfo;
+        damageInfo.mDamageCause = eDamageCause_CarCrash;
+        damageInfo.mSourceObject = (currCar == carA) ? carB->mReferenceCar : carA->mReferenceCar;
+        damageInfo.mContactImpulse = maxImpulse;
+        damageInfo.mContactPoint = glm::vec3 ( contactPoint.x, currCar->mHeight, contactPoint.y );
+
+        currCar->mReferenceCar->ReceiveDamage(damageInfo);
     }
 }
 

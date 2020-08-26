@@ -8,12 +8,16 @@ SpriteAnimation::SpriteAnimation(): mFrameCursor(), mCyclesCounter()
 
 void SpriteAnimation::Clear()
 {
+    ClearState();
+    mAnimDesc.Clear();
+}
+
+void SpriteAnimation::ClearState()
+{
     mStatus = eSpriteAnimStatus_Stop;
     mLoopMode = eSpriteAnimLoop_None;
     mFrameCursor = 0;
     mCyclesCounter = 0;
-
-    mAnimDesc.Clear();
 }
 
 bool SpriteAnimation::IsAnimationActive() const

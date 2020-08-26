@@ -350,6 +350,12 @@
     <ClInclude Include="WeaponInfo.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="VertexFormats.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageInfo.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -550,6 +556,9 @@
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="WeaponInfo.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageInfo.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,7 +24,6 @@ void Obstacle::UpdateFrame()
     if (mAnimationState.AdvanceAnimation(deltaTime))
     {
         gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
-        mDrawSprite.SetOriginToCenter();
     }
 }
 

@@ -21,17 +21,22 @@ public:
     // causes death 
     bool IsLethal() const { return mWeaponID != eWeapon_Fists; }
 
-    bool IsBulletDamage() const { return mProjectileTypeID == eProjectileType_Bullet; }
+    bool IsBulletDamage() const 
+    { 
+        return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Bullet); 
+    }
     // burn rather kill instantly
-    bool IsFireDamage() const { return mProjectileTypeID == eProjectileType_Flame; }
+    bool IsFireDamage() const 
+    { 
+        return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Flame); 
+    }
     // explode when hit
-    bool IsExplosionDamage() const { return mProjectileTypeID == eProjectileType_Missile; }
-    bool HasExplosiveProjectiles() const
-    {
-        return mProjectileObject == GameObjectType_MissileProjectile; 
+    bool IsExplosionDamage() const 
+    { 
+        return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Missile); 
     }
     // has unlimited ammo
-    bool IsUnlimited() const { return mBaseAmmoLimit == 0; }
+    bool IsUnlimited() const { return (mBaseMaxAmmo == 0); }
 
 public:
     eWeaponID mWeaponID = eWeapon_Fists;
@@ -46,7 +51,7 @@ public:
 
     int mProjectileHitEffect = GameObjectType_Null;
     int mProjectileObject = GameObjectType_BulletProjectile;
-    int mBaseAmmoLimit = 0; // max ammo, 0 is unlimited
+    int mBaseMaxAmmo = 0; // max ammo, 0 is unlimited
     int mBaseDamage = 1; // hp
 
     int mSpriteIndex = 0;

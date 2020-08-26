@@ -125,7 +125,7 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
         gameObject->PreDrawFrame();
 
         // detect if gameobject is visible on screen
-        const glm::vec2 spritePosition = (gameObject->mDrawSprite.mPosition + gameObject->mDrawSprite.mOrigin);
+        const glm::vec2 spritePosition = (gameObject->mDrawSprite.mPosition + gameObject->mDrawSprite.GetOriginPoint());
         float maxdistance = Convert::MapUnitsToMeters(10.0f); // todo: magic numbers
         if (fabs(renderview->mCamera.mPosition.x - spritePosition.x) > maxdistance ||
             fabs(renderview->mCamera.mPosition.z - spritePosition.y) > maxdistance)
@@ -200,7 +200,7 @@ void MapRenderer::DrawCityMesh(RenderView* renderview)
 
 void MapRenderer::BuildMapMesh()
 {
-    MapMeshData blocksMesh;
+    CityMeshData blocksMesh;
     for (int batchy = 0; batchy < BlocksBatchesPerSide; ++batchy)
     {
         for (int batchx = 0; batchx < BlocksBatchesPerSide; ++batchx)

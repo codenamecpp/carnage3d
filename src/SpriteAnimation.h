@@ -66,6 +66,7 @@ public:
     // advance animation state, returns true on frame changes
     bool AdvanceAnimation(float deltaTime);
     void Clear();
+    void ClearState();
 
     // animation control
 

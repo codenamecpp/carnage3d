@@ -23,12 +23,15 @@ public:
     float mPedestrianSpotTheCarDistance; // max distance to detect the car, meters
     float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, meters
     float mPedestrianDrowningTime; // seconds
+    float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
 
     // etc
     float mExplosionPrimaryDamageDistance; // how far explosion can do maximum damage, meters
     float mExplosionSecondaryDamageDistance; // how far explosion can do significant damage, meters
     int mExplosionPrimaryDamage; // hit points to injure at Primary Damage Distance
     int mExplosionSecondaryDamage; // hit points to injure at Secondary Damage Distance
+
+
    
 };
 

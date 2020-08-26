@@ -73,39 +73,41 @@ void Projectile::UpdateFrame()
 
     if (IsContactDetected())
     {
-        MarkForDeletion();
-
-        if (mWeaponInfo)
+        if (mWeaponInfo == nullptr)
         {
-            if (mWeaponInfo->IsExplosionDamage())
-            {
-                Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
-            }
+            MarkForDeletion();
+            return;
+        }
 
-            if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
+        if (mContactObject && !mWeaponInfo->IsExplosionDamage())
+        {
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
+            if (!mContactObject->ReceiveDamage(damageInfo))
             {
-                GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
-                Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
-                debug_assert(hitEffect);
-
-                if (hitEffect)
-                {
-                    hitEffect->SetLifeDuration(1);
-                }
-            }
-
-            if (mContactObject && mContactObject->IsVehicleClass())
-            {
-                Vehicle* carObject = static_cast<Vehicle*>(mContactObject);
-                carObject->ReceiveDamage(mWeaponInfo->mBaseDamage);
-            }
-
-            if (mContactObject && mContactObject->IsPedestrianClass())
-            {
-                Pedestrian* pedObject = static_cast<Pedestrian*>(mContactObject);
-                pedObject->ReceiveDamage(mWeaponInfo, nullptr);
+                mContactDetected = false;
+                return; // ignore contact
             }
         }
+
+        if (mWeaponInfo->IsExplosionDamage())
+        {
+            Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+        }
+
+        if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
+        {
+            GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
+            Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
+            debug_assert(hitEffect);
+
+            if (hitEffect)
+            {
+                hitEffect->SetLifeDuration(1);
+            }
+        }
+
+        MarkForDeletion();
     }
 }
 
@@ -118,7 +120,6 @@ void Projectile::PreDrawFrame()
     ComputeDrawHeight(position);
 
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
-    mDrawSprite.SetOriginToCenter();
 }
 
 void Projectile::DrawDebug(DebugRenderer& debugRender)

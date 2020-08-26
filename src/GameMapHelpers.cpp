@@ -3,7 +3,7 @@
 #include "SpriteManager.h"
 #include "GameMapManager.h"
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, int layerIndex, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, int layerIndex, CityMeshData& meshData)
 {
     debug_assert(layerIndex > -1 && layerIndex < MAP_LAYERS_COUNT);
 
@@ -30,7 +30,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, i
     return true;
 }
 
-bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, MapMeshData& meshData)
+bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, CityMeshData& meshData)
 {
     // preallocate
     meshData.mBlocksIndices.reserve(4 * 1024 * 1024);
@@ -56,7 +56,7 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, M
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, MapMeshData& meshData, int x, int y, int z, eBlockFace face, MapBlockInfo* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, CityMeshData& meshData, int x, int y, int z, eBlockFace face, MapBlockInfo* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;

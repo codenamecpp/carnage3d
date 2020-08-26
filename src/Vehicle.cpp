@@ -86,7 +86,6 @@ void Vehicle::PreDrawFrame()
     mDrawSprite.mPosition.y = position.z;
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mHeight = mDrawHeight;
-    mDrawSprite.SetOriginToCenter();
 }
 
 void Vehicle::DrawDebug(DebugRenderer& debugRender)
@@ -514,30 +513,6 @@ void Vehicle::UpdateDriving()
     mPhysicsBody->SetSteering(currentSteering);
 }
 
-void Vehicle::ReceiveDamageFromWater()
-{
-    mCarWrecked = true;
-
-    // kill passengers inside
-    for (Pedestrian* currentPed: mPassengers)
-    {
-        currentPed->Die(ePedestrianDeathReason_Drowned, nullptr);
-    }
-}
-
-void Vehicle::ReceiveDamage(int damage)
-{
-    if (mCarWrecked)
-        return;
-
-    debug_assert(damage > 0);
-
-    if (damage > 0)
-    {
-        mHitpoints -= damage;
-    }
-}
-
 void Vehicle::Explode()
 {
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
@@ -550,7 +525,7 @@ void Vehicle::Explode()
     // kill passengers inside
     for (Pedestrian* currentPed: mPassengers)
     {
-        currentPed->Die(ePedestrianDeathReason_BlownUp, nullptr);
+        currentPed->DieFromDamage(eDamageCause_Explosion);
     }
 }
 
@@ -569,78 +544,117 @@ bool Vehicle::IsWrecked() const
     return mCarWrecked;
 }
 
-void Vehicle::ReceiveDamageFromCrash(const glm::vec3& crashPoint, float crashImpactForce)
+bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 {
     if (IsWrecked())
-        return;
+        return false;
 
-    glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(glm::vec2(crashPoint.x, crashPoint.z));
-
-    // clockwise from top left corner
-    glm::vec2 chassisCorners[4];
-    mPhysicsBody->GetLocalChassisCorners(chassisCorners);
-
-    float miny = chassisCorners[1].y;
-    float maxy = chassisCorners[2].y;
-    float minx = chassisCorners[0].x;
-    float maxx = chassisCorners[1].x;
-
-    /*
-                            Left
-                     _______________________
-                    |  |        |        |  |
-                    |  |        |        |  |
-            Rear    | --------- O --------- |    Front
-                    |  |        |        |  |
-                    |__|________|________|__|
-
-                            Right
-    */
-
-    float fr_bias = (maxx / 3.0f); // front-rear offset from corners
-
-    if (maxx - fabs(localPoint.x) < fr_bias)
+    if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
-        if (localPoint.x > 0.0f)
+        // todo
+        return false;
+    }
+
+    if (damageInfo.mDamageCause == eDamageCause_Explosion)
+    {
+        mHitpoints -= mHitpoints;
+        return true;
+    }
+
+    if (damageInfo.mDamageCause == eDamageCause_Drowning)
+    {
+        mCarWrecked = true;
+        // kill passengers inside
+        for (Pedestrian* currentPed: mPassengers)
         {
-            // front left
-            if (localPoint.y < 0.0f)
+            currentPed->DieFromDamage(eDamageCause_Drowning);
+        }
+        return true;
+    }
+
+    if (damageInfo.mDamageCause == eDamageCause_Bullet ||
+        damageInfo.mDamageCause == eDamageCause_Burning)
+    {
+        mHitpoints -= damageInfo.mHitPoints;
+        return true;
+    }
+
+    if (damageInfo.mDamageCause == eDamageCause_CarCrash)
+    {
+        if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
+            return false;
+
+        glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(glm::vec2(damageInfo.mContactPoint.x, damageInfo.mContactPoint.z));
+
+        // clockwise from top left corner
+        glm::vec2 chassisCorners[4];
+        mPhysicsBody->GetLocalChassisCorners(chassisCorners);
+
+        float miny = chassisCorners[1].y;
+        float maxy = chassisCorners[2].y;
+        float minx = chassisCorners[0].x;
+        float maxx = chassisCorners[1].x;
+
+        /*
+                                Left
+                         _______________________
+                        |  |        |        |  |
+                        |  |        |        |  |
+                Rear    | --------- O --------- |    Front
+                        |  |        |        |  |
+                        |__|________|________|__|
+
+                                Right
+        */
+
+        float fr_bias = (maxx / 3.0f); // front-rear offset from corners
+
+        if (maxx - fabs(localPoint.x) < fr_bias)
+        {
+            if (localPoint.x > 0.0f)
             {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FL);
+                // front left
+                if (localPoint.y < 0.0f)
+                {
+                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FL);
+                }
+                // front right
+                else
+                {
+                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FR);
+                }
             }
-            // front right
             else
             {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FR);
+                // rear left
+                if (localPoint.y < 0.0f)
+                {
+                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BL);
+                }
+                // rear right
+                else
+                {
+                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BR);
+                }
             }
         }
         else
         {
-            // rear left
+            // middle left
             if (localPoint.y < 0.0f)
             {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BL);
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_ML);
             }
-            // rear right
+            // middle right
             else
             {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BR);
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_MR);
             }
         }
-    }
-    else
-    {
-        // middle left
-        if (localPoint.y < 0.0f)
-        {
-            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_ML);
-        }
-        // middle right
-        else
-        {
-            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_MR);
-        }
+
+        --mHitpoints;
+        return true;
     }
 
-    --mHitpoints;
+    return false;
 }

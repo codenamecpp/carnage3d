@@ -403,7 +403,10 @@ void CarPhysicsBody::HandleWaterContact()
     mHeight -= 2.0f; // force position underwater
     ClearForces();
     // notify
-    mReferenceCar->ReceiveDamageFromWater();
+
+    DamageInfo damageInfo;
+    damageInfo.mDamageCause = eDamageCause_Drowning;
+    mReferenceCar->ReceiveDamage(damageInfo);
 }
 
 void CarPhysicsBody::SimulationStep()
@@ -751,9 +754,6 @@ ProjectilePhysicsBody::~ProjectilePhysicsBody()
 
 void ProjectilePhysicsBody::SimulationStep()
 {
-    if (mReferenceProjectile->IsContactDetected() || mReferenceProjectile->IsMarkedForDeletion())
-        return;
-
     if (mReferenceProjectile->mWeaponInfo == nullptr)
     {
         debug_assert(false);

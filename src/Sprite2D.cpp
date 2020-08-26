@@ -7,15 +7,14 @@ void Sprite2D::Clear()
 
     mTextureRegion.Clear();
 
-    mOrigin.x = 0.0f;
-    mOrigin.y = 0.0f;
+    mOriginMode = eOriginMode_Center;
     mPosition.x = 0.0f;
     mPosition.y = 0.0f;
     mHeight = 0.0f;
     mScale = 1.0f;
     mPaletteIndex = 0;
 
-    mRotateAngle = cxx::angle_t::from_degrees(0.0f);
+    mRotateAngle.set_zero();
 }
 
 void Sprite2D::GetCorners(glm::vec2 positions[4]) const
@@ -23,13 +22,13 @@ void Sprite2D::GetCorners(glm::vec2 positions[4]) const
     float rectw = mTextureRegion.mRectangle.w * mScale;
     float recth = mTextureRegion.mRectangle.h * mScale;
 
-    positions[0] = mOrigin;
+    positions[0] = GetOriginPoint();
 
-    positions[1].x = mOrigin.x + rectw;
-    positions[1].y = mOrigin.y;
+    positions[1].x = positions[0].x + rectw;
+    positions[1].y = positions[0].y;
 
-    positions[2].x = mOrigin.x;
-    positions[2].y = mOrigin.y + recth;
+    positions[2].x = positions[0].x;
+    positions[2].y = positions[0].y + recth;
 
     positions[3].x = positions[1].x;
     positions[3].y = positions[2].y;
@@ -57,7 +56,7 @@ void Sprite2D::GetMaxRectPoints(glm::vec2 positions[2]) const
     float recth = (mTextureRegion.mRectangle.h * mScale);
     float maxside = std::max(rectw, recth);
 
-    positions[0] = mOrigin + mPosition;
+    positions[0] = mPosition + GetOriginPoint();
     positions[1].x = positions[0].x + maxside;
     positions[1].y = positions[0].y + maxside;
 }

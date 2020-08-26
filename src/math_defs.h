@@ -438,6 +438,12 @@ namespace cxx
             outCos = cos(angleRadians);
         }
 
+        // clear angle
+        inline void set_zero()
+        {
+            mDegrees = 0.0f;
+        }
+
         // test whether angle is nearly zero
         inline bool is_zero() const { return fabs(mDegrees) < 0.01f; }
         inline bool non_zero() const { return fabs(mDegrees) >= 0.01f; }

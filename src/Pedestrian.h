@@ -21,8 +21,9 @@ public:
 
     PedestrianCtlState mCtlState;
 
-    float mCurrentStateTime; // time since current state has started
-    float mWeaponRechargeTime; // next time weapon can be used again
+    float mCurrentStateTime = 0.0f; // time since current state has started
+    float mWeaponRechargeTime = 0.0f; // next time weapon can be used again
+    float mBurnStartTime = 0.0f;
 
     float mDrawHeight;
     int mRemapIndex;
@@ -47,6 +48,10 @@ public:
     void PreDrawFrame() override;
     void DrawDebug(DebugRenderer& debugRender) override;
 
+    // Process damage, it may be ignored depending on type of damage and objects current state
+    // @param damageInfo: Damage details
+    bool ReceiveDamage(const DamageInfo& damageInfo) override;
+
     // setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
 
@@ -54,8 +59,7 @@ public:
     void ChangeWeapon(eWeaponID weapon);
 
     // Instant kill, pedestrian will remain in dead state until respawn
-    // @param attacker: Optional
-    void Die(ePedestrianDeathReason deathReason, Pedestrian* attacker);
+    void DieFromDamage(eDamageCause damageCause);
 
     // get seat in car, pedestrian should be on foot
     // @param targetCar: Cannot be null
@@ -64,14 +68,6 @@ public:
 
     // gracefully leave current vehicle
     void ExitCar();
-
-    // Get damage from weapon, it may be ignored depending on its current state
-    void ReceiveDamage(WeaponInfo* weapon, Pedestrian* attacker);
-    void ReceiveDamageFromExplosion(Explosion* explosion);
-
-    // Get damage from vehicle, it may be ignored depending on its current state
-    // @param impulse: Impact value
-    void ReceiveDamageFromCar(Vehicle* targetCar);
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;
@@ -85,6 +81,7 @@ public:
     bool IsWalking() const;
     bool IsUnconscious() const;
     bool IsDead() const;
+    bool IsBurn() const;
 
     // detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
@@ -98,10 +95,15 @@ private:
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();
 
+    void SetBurnEffectActive(bool isActive);
+    void UpdateBurnEffect();
+
 private:
     ePedestrianAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianStatesManager mStatesManager;
+    // active effects
+    Decoration* mFireEffect = nullptr;
 };
 
 const int Sizeof_Pedestrian = sizeof(Pedestrian);

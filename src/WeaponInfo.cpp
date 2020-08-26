@@ -42,7 +42,7 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
         mBaseHitRange = Convert::MapUnitsToMeters(mBaseHitRange);
     }
     cxx::json_get_attribute(configNode, "base_fire_rate", mBaseFireRate);
-    cxx::json_get_attribute(configNode, "base_ammo_limit", mBaseAmmoLimit);
+    cxx::json_get_attribute(configNode, "base_ammo_limit", mBaseMaxAmmo);
     cxx::json_get_attribute(configNode, "hud_sprite", mSpriteIndex);
     return true;
 }
@@ -60,6 +60,6 @@ void WeaponInfo::Clear()
     mProjectileSpeed = 1.0f; 
 
     mProjectileObject = GameObjectType_BulletProjectile;
-    mBaseAmmoLimit = 0;
+    mBaseMaxAmmo = 0;
     mSpriteIndex = 0;
 }

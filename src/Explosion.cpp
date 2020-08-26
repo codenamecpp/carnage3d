@@ -26,7 +26,6 @@ void Explosion::UpdateFrame()
     if (mAnimationState.AdvanceAnimation(deltaTime))
     {
         gSpriteManager.GetExplosionTexture(mAnimationState.GetCurrentFrame(), mDrawSprite);
-        mDrawSprite.SetOriginToCenter();
     }
 
     if (!IsDamageDone())
@@ -66,7 +65,6 @@ void Explosion::Spawn(const glm::vec3& startPosition)
     {
         debug_assert(false);
     }
-    mDrawSprite.SetOriginToCenter();
 
     mExplosionEpicentre = startPosition;
 }
@@ -78,42 +76,71 @@ bool Explosion::IsDamageDone() const
 
 void Explosion::ProcessDamage()
 {
-    float maxImpactRadius = gGameParams.mExplosionPrimaryDamageDistance;
-    float minImpactRadius = gGameParams.mExplosionSecondaryDamageDistance;
+    float maxImpactRadius = std::max(gGameParams.mExplosionPrimaryDamageDistance, gGameParams.mExplosionSecondaryDamageDistance);
+    float minImpactRadius = std::min(gGameParams.mExplosionPrimaryDamageDistance, gGameParams.mExplosionSecondaryDamageDistance);
 
-    float impactRadius = std::max(maxImpactRadius, minImpactRadius);
-
-    glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
-    glm::vec2 extents (
-        impactRadius,
-        impactRadius
-    );
-
-    // single shot
     mDamageDone = true;
 
-    // todo: fix distance to target
+    // primary damage
+    glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
+    glm::vec2 extents (
+        minImpactRadius,
+        minImpactRadius
+    );
+
     PhysicsQueryResult queryResult;
     gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
-
-    if (queryResult.IsNull())
-        return;
 
     for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)
     {
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
+        DamageInfo damageInfo;
+        damageInfo.mDamageCause = eDamageCause_Explosion;
+        damageInfo.mSourceObject = this;
+        damageInfo.mHitPoints = gGameParams.mExplosionPrimaryDamage;
+
         if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
         {
             // todo: temporary implementation
-            carPhysics->mReferenceCar->ReceiveDamage(gGameParams.mExplosionPrimaryDamage);
+            carPhysics->mReferenceCar->ReceiveDamage(damageInfo);
             continue;
         }
 
         if (PedPhysicsBody* pedPhysics = currElement.mPedComponent)
         {
             // todo: temporary implementation
-            pedPhysics->mReferencePed->ReceiveDamageFromExplosion(this);
+            pedPhysics->mReferencePed->ReceiveDamage(damageInfo);
+            continue;
+        }
+    }
+
+    // secondary damage
+    extents = glm::vec2(
+        maxImpactRadius,
+        maxImpactRadius
+    );
+    gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
+
+    for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)
+    {
+        PhysicsQueryElement& currElement = queryResult.mElements[icurr];
+
+        DamageInfo damageInfo;
+        damageInfo.mDamageCause = eDamageCause_Burning;
+        damageInfo.mSourceObject = this;
+
+        if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
+        {
+            // todo: temporary implementation
+            carPhysics->mReferenceCar->ReceiveDamage(damageInfo);
+            continue;
+        }
+
+        if (PedPhysicsBody* pedPhysics = currElement.mPedComponent)
+        {
+            // todo: temporary implementation
+            pedPhysics->mReferencePed->ReceiveDamage(damageInfo);
             continue;
         }
     }

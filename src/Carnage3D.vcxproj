@@ -157,6 +157,7 @@
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="DamageInfo.h" />
     <ClInclude Include="Decoration.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="game_version.h" />
@@ -247,11 +248,13 @@
     <ClInclude Include="PixelsArray.h" />
     <ClInclude Include="TrimeshBuffer.h" />
     <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="VertexFormats.h" />
     <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="CommonTypes.cpp" />
+    <ClCompile Include="DamageInfo.cpp" />
     <ClCompile Include="Decoration.cpp" />
     <ClCompile Include="enums_impl.cpp" />
     <ClCompile Include="Explosion.cpp" />

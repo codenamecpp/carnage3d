@@ -30,10 +30,11 @@ void HUD::DrawFrame(UiContext& uiContext)
         Sprite2D sprite;
         gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, sprite);
 
-        sprite.mPosition.x = 0.0f;
-        sprite.mPosition.y = 0.0f;
+        sprite.mPosition.x = 10.0f;
+        sprite.mPosition.y = 10.0f;
         sprite.mHeight = 0.0f;
         sprite.mScale = 1.0f;
+        sprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
 
         uiContext.mSpriteBatch.DrawSprite(sprite);
     }
