@@ -752,15 +752,19 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
 
 void PedestrianStatesManager::StateIdle_ProcessFrame()
 {
+    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
+
     if (mPedestrian->IsShooting())
     {
-        TryToShoot();
+        // pedestrian is in shooting state but does he really want to shoot?
+        if (ctlState.mCtlActions[ePedestrianAction_Shoot])
+        {
+            TryToShoot();
+        } 
     }
 
     ProcessRotateActions();
     ProcessMotionActions();
-
-    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
 
     // slide over car
     if (ctlState.mCtlActions[ePedestrianAction_Run] || ctlState.mCtlActions[ePedestrianAction_WalkForward])
