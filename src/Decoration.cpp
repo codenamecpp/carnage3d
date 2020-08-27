@@ -64,3 +64,8 @@ void Decoration::SetTransform(const glm::vec3& position, cxx::angle_t heading)
     mDrawSprite.mHeight = position.y;
     mDrawSprite.mRotateAngle = decoRotation;
 }
+
+void Decoration::SetDrawOrder(eSpriteDrawOrder drawOrder)
+{
+    mDrawSprite.mDrawOrder = drawOrder;
+}

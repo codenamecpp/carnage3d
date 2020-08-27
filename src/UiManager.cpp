@@ -29,7 +29,7 @@ void UiManager::Deinit()
 
 void UiManager::RenderFrame()
 {
-    mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Z);
+    mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Z, eSpritesSortMode_None);
 
     Rect prevScreenRect = gGraphicsDevice.mViewportRect;
     Rect prevScissorsBox = gGraphicsDevice.mScissorBox;

@@ -107,7 +107,6 @@ void Pedestrian::PreDrawFrame()
     // todo: refactore
     if (mFireEffect)
     {
-        position.y = mDrawHeight + 0.01f; // todo: magic value
         mFireEffect->SetTransform(position, rotationAngle);
     }
 }
@@ -132,15 +131,14 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
 {
     if (mCurrentCar)
     {
-        // dont draw pedestrian if it in car with hard top
-        if (mCurrentCar->HasHardTop())
+        mDrawHeight = mCurrentCar->mDrawHeight;
+
+        eSpriteDrawOrder drawOrder = eSpriteDrawOrder_CarPassenger;
+        if (!mCurrentCar->HasHardTop())
         {
-            mDrawHeight = mCurrentCar->mDrawHeight - 0.01f; // todo: magic numbers
+            drawOrder = eSpriteDrawOrder_ConvetibleCarPassenger;
         }
-        else
-        {
-            mDrawHeight = mCurrentCar->mDrawHeight + 0.01f; // todo: magic numbers
-        }
+        SetDrawOrder(drawOrder);
         return;
     }
     
@@ -176,19 +174,20 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
         }
     }
 
-    // todo: get rid of magic numbers
+    eSpriteDrawOrder drawOrder = eSpriteDrawOrder_Pedestrian;
+
     if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
     {
-        maxHeight += 0.35f; // todo: magic numbers
+        drawOrder = eSpriteDrawOrder_JumpingPedestrian;
     }
 
-    float drawOffset = 0.02f; // todo: magic numbers
     if (IsUnconscious() || IsDead())
     {
-        drawOffset = 0.001f; // todo: magic numbers
+        drawOrder = eSpriteDrawOrder_Corpse;
     }
 
-    mDrawHeight = maxHeight + drawOffset;
+    SetDrawOrder(drawOrder);
+    mDrawHeight = maxHeight;
 }
 
 void Pedestrian::ChangeWeapon(eWeaponID weapon)
@@ -460,4 +459,14 @@ void Pedestrian::UpdateBurnEffect()
 bool Pedestrian::IsBurn() const
 {
     return (mFireEffect != nullptr);
+}
+
+void Pedestrian::SetDrawOrder(eSpriteDrawOrder drawOrder)
+{
+    if (mFireEffect)
+    {
+        mFireEffect->SetDrawOrder(drawOrder);
+    }
+
+    mDrawSprite.mDrawOrder = drawOrder;
 }

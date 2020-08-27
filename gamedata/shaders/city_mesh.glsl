@@ -15,16 +15,16 @@ in int in_color1; // transparency flag
 
 // pass to fragment shader
 out vec3 Texcoord;
-out vec3 Position;
 flat out float Transparency;
 flat out float BlockTextureIndex;
 flat out float PaletteIndex;
+
+const float MeshHeightModifier = -0.15; // shift the geometry level slightly below the sprites to remove the zfighting
 
 // entry point
 void main() 
 {
 	Texcoord = in_texcoord0;
-    Position = in_pos0;
     Transparency = in_color1;
 
     // get real block tile index
@@ -33,7 +33,11 @@ void main()
     // get palette index for block tile
     PaletteIndex = texelFetch(tex_2, int(4.0 * BlockTextureIndex + in_color0)).r;
 
-    vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0f);
+    vec4 vertexPosition = view_projection_matrix * vec4(
+		in_pos0.x, 
+		in_pos0.y + MeshHeightModifier, 
+		in_pos0.z, 1.0f);
+
     gl_Position = vertexPosition;
 }
 
@@ -47,7 +51,6 @@ uniform sampler2D tex_3; // palettes table
 
 // passed from vertex shader
 in vec3 Texcoord;
-in vec3 Position;
 flat in float Transparency;
 flat in float BlockTextureIndex;
 flat in float PaletteIndex;

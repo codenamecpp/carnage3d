@@ -52,6 +52,7 @@ public:
         eOriginMode_Center,
     };
     eOriginMode mOriginMode = eOriginMode_Center;
+    eSpriteDrawOrder mDrawOrder = eSpriteDrawOrder_Background;
 };
 
 const int Sizeof_Sprite2D = sizeof(Sprite2D);

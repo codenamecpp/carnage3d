@@ -98,6 +98,8 @@ private:
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
 
+    void SetDrawOrder(eSpriteDrawOrder drawOrder);
+
 private:
     ePedestrianAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;

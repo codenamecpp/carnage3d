@@ -53,6 +53,7 @@ void Explosion::Spawn(const glm::vec3& startPosition)
     mDrawSprite.mPosition.x = startPosition.x;
     mDrawSprite.mPosition.y = startPosition.z;
     mDrawSprite.mHeight = startPosition.y;
+    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;
 
     mAnimationState.Clear();
     // todo
@@ -116,10 +117,7 @@ void Explosion::ProcessDamage()
     }
 
     // secondary damage
-    extents = glm::vec2(
-        maxImpactRadius,
-        maxImpactRadius
-    );
+    extents = glm::vec2( maxImpactRadius, maxImpactRadius );
     gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
 
     for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)

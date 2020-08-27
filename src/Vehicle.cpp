@@ -86,6 +86,7 @@ void Vehicle::PreDrawFrame()
     mDrawSprite.mPosition.y = position.z;
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mHeight = mDrawHeight;
+    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
 }
 
 void Vehicle::DrawDebug(DebugRenderer& debugRender)
@@ -178,7 +179,7 @@ void Vehicle::ComputeDrawHeight(const glm::vec3& position)
         }
     }
 
-    mDrawHeight = maxHeight + 0.02f; // todo: magic numbers
+    mDrawHeight = maxHeight;
 }
 
 SpriteDeltaBits Vehicle::GetSpriteDeltas() const
@@ -516,7 +517,7 @@ void Vehicle::UpdateDriving()
 void Vehicle::Explode()
 {
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
-    explosionPos.y = mDrawHeight + 0.2f; // todo: magic numbers
+    explosionPos.y = mDrawHeight;
 
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);

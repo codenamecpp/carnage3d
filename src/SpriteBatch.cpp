@@ -36,6 +36,7 @@ void SpriteBatch::Flush()
 {
     if (!mSpritesList.empty())
     {
+        SortSprites();
         GenerateSpritesBatches();
         RenderSpritesBatches();
     }
@@ -161,9 +162,50 @@ void SpriteBatch::RenderSpritesBatches()
     }
 }
 
-void SpriteBatch::BeginBatch(DepthAxis depthAxis)
+void SpriteBatch::BeginBatch(DepthAxis depthAxis, eSpritesSortMode sortMode)
 {
     Clear();
 
     mDepthAxis = depthAxis;
+    mSortMode = sortMode;
+}
+
+void SpriteBatch::SortSprites()
+{
+    if (mSortMode == eSpritesSortMode_None)
+        return;
+
+    if (mSortMode == eSpritesSortMode_Height)
+    {
+        static auto SortProc = [](const Sprite2D& lhs, const Sprite2D& rhs)
+        {
+            return lhs.mHeight < rhs.mHeight;
+        };
+        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        return;
+    }
+
+    if (mSortMode == eSpritesSortMode_DrawOrder)
+    {
+        static auto SortProc = [](const Sprite2D& lhs, const Sprite2D& rhs)
+        {
+            return lhs.mDrawOrder < rhs.mDrawOrder;
+        };
+        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        return;
+    }
+
+    if (mSortMode == eSpritesSortMode_HeightAndDrawOrder)
+    {
+        static auto SortProc = [](const Sprite2D& lhs, const Sprite2D& rhs)
+        {
+            if (lhs.mHeight != rhs.mHeight)
+            {
+                return (lhs.mHeight < rhs.mHeight);
+            }
+            return (lhs.mDrawOrder < rhs.mDrawOrder);
+        };  
+        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        return;
+    }
 }

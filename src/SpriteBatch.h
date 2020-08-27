@@ -4,6 +4,14 @@
 #include "TrimeshBuffer.h"
 #include "Sprite2D.h"
 
+enum eSpritesSortMode
+{
+    eSpritesSortMode_None,
+    eSpritesSortMode_Height,
+    eSpritesSortMode_DrawOrder,
+    eSpritesSortMode_HeightAndDrawOrder,
+};
+
 // defines renderer class for 2d sprites
 class SpriteBatch final: public cxx::noncopyable
 {
@@ -15,9 +23,9 @@ public:
     bool Initialize();
     void Deinit();
 
-    void BeginBatch(DepthAxis depthAxis);
+    void BeginBatch(DepthAxis depthAxis, eSpritesSortMode sortMode);
 
-    // render all batched sprites
+    // sort and then render all sprites in current batch
     void Flush();
 
     // discard all batched sprites
@@ -30,6 +38,7 @@ public:
 private:
     void GenerateSpritesBatches();
     void RenderSpritesBatches();
+    void SortSprites();
 
 private:
     // single batch of drawing sprites
@@ -52,4 +61,5 @@ private:
     TrimeshBuffer mTrimeshBuffer;
 
     DepthAxis mDepthAxis = DepthAxis_Y;
+    eSpritesSortMode mSortMode = eSpritesSortMode_None;
 };

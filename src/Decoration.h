@@ -28,6 +28,9 @@ public:
 
     void SetLifeDuration(int numAnimationCycles);
 
+    // Change current draw order for decoration object
+    void SetDrawOrder(eSpriteDrawOrder drawOrder);
+
 private:
     SpriteAnimation mAnimationState;
 

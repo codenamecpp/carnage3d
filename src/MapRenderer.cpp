@@ -86,7 +86,7 @@ void MapRenderer::RenderFrame(RenderView* renderview)
         DrawCityMesh(renderview);
     }
 
-    mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y);
+    mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y, eSpritesSortMode_HeightAndDrawOrder);
 
     // collect and render game objects sprites
     for (GameObject* currObject: gGameObjectsManager.mAllObjectsList)
@@ -101,7 +101,9 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
 
-    RenderStates guiRenderStates = RenderStates().Disable(RenderStateFlags_FaceCulling);
+    RenderStates guiRenderStates = RenderStates()
+        .Disable(RenderStateFlags_FaceCulling)
+        .Disable(RenderStateFlags_DepthWrite);
     gGraphicsDevice.SetRenderStates(guiRenderStates);
 
     mSpriteBatch.Flush();

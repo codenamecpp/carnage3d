@@ -736,3 +736,23 @@ public:
 public:
     bool mCtlActions[ePedestrianAction_COUNT]; // control actions
 };
+
+// Object sprites draw prioriry
+enum eSpriteDrawOrder
+{
+    eSpriteDrawOrder_Background,
+    
+    eSpriteDrawOrder_GroundDecals,
+    eSpriteDrawOrder_Corpse,
+    eSpriteDrawOrder_TireMarks,
+    eSpriteDrawOrder_MapObject,
+    eSpriteDrawOrder_Pedestrian,
+    eSpriteDrawOrder_CarPassenger,
+    eSpriteDrawOrder_Car,
+    eSpriteDrawOrder_ConvetibleCarPassenger,
+    eSpriteDrawOrder_JumpingPedestrian,
+    eSpriteDrawOrder_Projectiles,
+    eSpriteDrawOrder_Explosion,
+
+    eSpriteDrawOrder_Foreground,
+};

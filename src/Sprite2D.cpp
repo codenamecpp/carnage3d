@@ -8,6 +8,7 @@ void Sprite2D::Clear()
     mTextureRegion.Clear();
 
     mOriginMode = eOriginMode_Center;
+    mDrawOrder = eSpriteDrawOrder_Background;
     mPosition.x = 0.0f;
     mPosition.y = 0.0f;
     mHeight = 0.0f;

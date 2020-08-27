@@ -64,6 +64,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     // setup sprite rotation and scale
     cxx::angle_t rotationAngle = startRotation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mRotateAngle = rotationAngle;
+    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Projectiles;
 }
 
 void Projectile::UpdateFrame()
@@ -71,44 +72,51 @@ void Projectile::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     mAnimationState.AdvanceAnimation(deltaTime);
 
-    if (IsContactDetected())
+    if (!IsContactDetected())
+        return;
+
+    if (mWeaponInfo == nullptr)
     {
-        if (mWeaponInfo == nullptr)
-        {
-            MarkForDeletion();
-            return;
-        }
-
-        if (mContactObject && !mWeaponInfo->IsExplosionDamage())
-        {
-            DamageInfo damageInfo;
-            damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
-            if (!mContactObject->ReceiveDamage(damageInfo))
-            {
-                mContactDetected = false;
-                return; // ignore contact
-            }
-        }
-
-        if (mWeaponInfo->IsExplosionDamage())
-        {
-            Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
-        }
-
-        if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
-        {
-            GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
-            Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
-            debug_assert(hitEffect);
-
-            if (hitEffect)
-            {
-                hitEffect->SetLifeDuration(1);
-            }
-        }
-
         MarkForDeletion();
+        return;
     }
+
+    if (mContactObject && !mWeaponInfo->IsExplosionDamage())
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
+        if (!mContactObject->ReceiveDamage(damageInfo) && mWeaponInfo->IsFireDamage())
+        {
+            mContactDetected = false;
+            return; // ignore contact
+        }
+    }
+
+    if (mWeaponInfo->IsExplosionDamage())
+    {
+        if (mContactObject == nullptr)
+        {
+            mContactPoint.y += Convert::MapUnitsToMeters(1.0f);
+        }
+
+        Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+        debug_assert(explosion);
+    }
+
+    if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
+    {
+        GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
+        Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
+        debug_assert(hitEffect);
+
+        if (hitEffect)
+        {
+            hitEffect->SetDrawOrder(eSpriteDrawOrder_Projectiles);
+            hitEffect->SetLifeDuration(1);
+        }
+    }
+
+    MarkForDeletion();
 }
 
 void Projectile::PreDrawFrame()
@@ -146,7 +154,7 @@ void Projectile::ComputeDrawHeight(const glm::vec3& position)
         }
     }
 
-    mDrawSprite.mHeight = maxHeight + 0.1f; // todo: magic numbers
+    mDrawSprite.mHeight = maxHeight;
 }
 
 void Projectile::SetContactDetected(const glm::vec3& position, GameObject* gameObject)
@@ -154,15 +162,6 @@ void Projectile::SetContactDetected(const glm::vec3& position, GameObject* gameO
     mContactDetected = true;
     mContactObject = gameObject;
     mContactPoint = position;
-
-    if (gameObject == nullptr)
-    {
-        mContactPoint.y += Convert::MapUnitsToMeters(1.0f); // todo: magic numbers
-    }
-    else 
-    {
-        mContactPoint.y += 0.1f; // todo: magic numbers
-    }
 }
 
 bool Projectile::IsContactDetected() const

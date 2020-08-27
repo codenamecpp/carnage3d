@@ -455,8 +455,11 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     if (!mPedestrian->IsCarPassenger())
     {
         glm::vec3 position = mPedestrian->mPhysicsBody->GetPosition();
-        position.y = mPedestrian->mDrawHeight - 0.01f; // todo: magic numbers
-        gGameObjectsManager.CreateFirstBlood(position);
+        Decoration* decoration = gGameObjectsManager.CreateFirstBlood(position);
+        if (decoration)
+        {
+            decoration->SetDrawOrder(eSpriteDrawOrder_GroundDecals);
+        }
     }
 }
 
