@@ -28,10 +28,8 @@ public:
     // etc
     float mExplosionPrimaryDamageDistance; // how far explosion can do maximum damage, meters
     float mExplosionSecondaryDamageDistance; // how far explosion can do significant damage, meters
-    float mExplosionSecondaryDamgeImpactsLag; // delay time between impacts of explosion secondary damage, seconds
     int mExplosionPrimaryDamage; // hit points to injure at Primary Damage Distance
     int mExplosionSecondaryDamage; // hit points to injure at Secondary Damage Distance
-    int mExplosionSecondaryDamageImpactsCount; // num secondary damage impacts
 
     // vehicles
     float mVehicleBurnDuration; // time before flame will go out by itself, seconds

@@ -69,9 +69,6 @@ void Explosion::Spawn(const glm::vec3& startPosition)
     }
 
     mExplosionEpicentre = startPosition;
-
-    mSecondaryDamageNextTime = 0.0f;
-    mSecondaryDamageNumImpacts = 0;
     mPrimaryDamageDone = false;
     mSecondaryDamageDone = false;
 }
@@ -127,18 +124,6 @@ void Explosion::ProcessSecondaryDamage()
 {
     if (mSecondaryDamageDone)
         return;
-
-    if (mSecondaryDamageNumImpacts >= gGameParams.mExplosionSecondaryDamageImpactsCount)
-    {
-        mSecondaryDamageDone = true;
-        return;
-    }
-
-    if (mSecondaryDamageNextTime && (mSecondaryDamageNextTime > gTimeManager.mGameTime))
-        return;
-
-    mSecondaryDamageNumImpacts++;
-    mSecondaryDamageNextTime = gTimeManager.mGameTime + gGameParams.mExplosionSecondaryDamgeImpactsLag;
 
     // do secondary damage
     glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);

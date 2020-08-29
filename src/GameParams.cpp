@@ -25,13 +25,10 @@ void GameParams::SetToDefaults()
     mPedestrianDrowningTime = 0.05f;
     mPedestrianBurnDuration = 4.0f;
     // etc
-    mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.2f);
-    mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(0.8f);
+    mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.25f);
+    mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(0.75f);
     mExplosionPrimaryDamage = 100;
-    mExplosionSecondaryDamage = 4;
-    mExplosionSecondaryDamageImpactsCount = 5;
-    mExplosionSecondaryDamgeImpactsLag = 0.4f;
-
+    mExplosionSecondaryDamage = 1;
 
     // vehicles
     mVehicleBurnDuration = 20.0f;

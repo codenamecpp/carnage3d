@@ -32,9 +32,7 @@ private:
 private:
     SpriteAnimation mAnimationState;
     glm::vec3 mExplosionEpicentre;
-
-    float mSecondaryDamageNextTime = 0.0f;
-    int mSecondaryDamageNumImpacts = 0;
+   
     bool mPrimaryDamageDone = false;
     bool mSecondaryDamageDone = false;
 };
