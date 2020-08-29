@@ -65,6 +65,9 @@
     <Filter Include="Data\entities">
       <UniqueIdentifier>{ba5abb24-45fc-4800-b80d-acbc30a9f820}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\AI">
+      <UniqueIdentifier>{6c26b4d0-cfc7-4af8-a22a-6acc7c3fb8ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -359,6 +362,9 @@
     <ClInclude Include="TrafficManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="AIManager.h">
+      <Filter>Game\AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -566,6 +572,9 @@
     </ClCompile>
     <ClCompile Include="TrafficManager.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="AIManager.cpp">
+      <Filter>Game\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

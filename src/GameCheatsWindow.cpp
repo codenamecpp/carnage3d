@@ -42,18 +42,38 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         return;
     }
 
+    Pedestrian* playerChar = gCarnageGame.mHumanSlot[0].mCharPedestrian;
+
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::BeginMenu("[ Create Car ]"))
+        if (ImGui::BeginMenu("[ Create Cars ]"))
         {
             for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mVehicles.size(); ++icurr)
             {
                 ImGui::PushID(icurr);
                 if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mVehicles[icurr].mModelId))) 
                 {
-                    CreateCarNearby(&gGameMap.mStyleData.mVehicles[icurr], gCarnageGame.mHumanSlot[0].mCharPedestrian);
+                    CreateCarNearby(&gGameMap.mStyleData.mVehicles[icurr], playerChar);
                 }
                 ImGui::PopID();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("[ Create Peds ]"))
+        {
+            if (ImGui::MenuItem("Basic standing"))
+            {
+                glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
+                pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 0);
+            }
+            if (ImGui::MenuItem("Basic walking"))
+            {
+                glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
+                pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 1);
             }
             ImGui::EndMenu();
         }
@@ -79,25 +99,25 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     ImGui::Text("Sprites drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mSpritesDrawnCount);
     
     // pedestrian stats
-    if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
+    if (playerChar)
     {
         ImGui::HorzSpacing();
-        glm::vec3 pedPosition = pedestrian->mPhysicsBody->GetPosition();
+        glm::vec3 pedPosition = playerChar->mPhysicsBody->GetPosition();
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
         glm::vec3 logicalPosition = Convert::MetersToMapUnits(pedPosition);
         ImGui::Text("logical pos: %.3f, %.3f, %.3f", logicalPosition.x, logicalPosition.y, logicalPosition.z);
 
-        cxx::angle_t pedHeading = pedestrian->mPhysicsBody->GetRotationAngle();
+        cxx::angle_t pedHeading = playerChar->mPhysicsBody->GetRotationAngle();
         ImGui::Text("heading: %f", pedHeading.mDegrees);
-        ImGui::Text("weapon: %s", cxx::enum_to_string(pedestrian->mCurrentWeapon));
-        ImGui::Text("state: %s", cxx::enum_to_string(pedestrian->GetCurrentStateID()));
+        ImGui::Text("weapon: %s", cxx::enum_to_string(playerChar->mCurrentWeapon));
+        ImGui::Text("state: %s", cxx::enum_to_string(playerChar->GetCurrentStateID()));
         ImGui::HorzSpacing();
 
-        ImGui::SliderInt("ped remap", &pedestrian->mRemapIndex, -1, MAX_PED_REMAPS - 1);
+        ImGui::SliderInt("ped remap", &playerChar->mRemapIndex, -1, MAX_PED_REMAPS - 1);
 
-        if (pedestrian->IsCarPassenger())
+        if (playerChar->IsCarPassenger())
         {
-            ImGui::SliderInt("car remap", &pedestrian->mCurrentCar->mRemapIndex, -1, MAX_CAR_REMAPS - 1);
+            ImGui::SliderInt("car remap", &playerChar->mCurrentCar->mRemapIndex, -1, MAX_CAR_REMAPS - 1);
         }
 
         static glm::vec3 setLocalPosition = logicalPosition;
@@ -113,13 +133,13 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             ImGui::InputFloat3("Logical position (x, y, z)", &setLocalPosition[0]);
             if (ImGui::Button("Set Position"))
             {
-                if (pedestrian->IsCarPassenger())
+                if (playerChar->IsCarPassenger())
                 {
-                    pedestrian->mCurrentCar->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                    playerChar->mCurrentCar->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
                 }
                 else
                 {
-                    pedestrian->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                    playerChar->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
                 }
             }
             ImGui::EndPopup();
@@ -192,9 +212,9 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             Convert::MapUnitsToMeters(16.0f), "%.2f");
     }
 
-    if (Pedestrian* pedestrian = gCarnageGame.mHumanSlot[0].mCharPedestrian)
+    if (playerChar)
     {
-        if (Vehicle* currCar = pedestrian->mCurrentCar)
+        if (Vehicle* currCar = playerChar->mCurrentCar)
         {
             VehicleInfo* carInformation = currCar->mCarStyle;
 

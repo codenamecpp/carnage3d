@@ -28,7 +28,8 @@ public:
     // Add new pedestrian instance to map at specific location
     // @param position: Real world position
     // @param heading: Initial rotation
-    Pedestrian* CreatePedestrian(const glm::vec3& position, cxx::angle_t heading);
+    // @param remap: Remap
+    Pedestrian* CreatePedestrian(const glm::vec3& position, cxx::angle_t heading, int remap = NO_REMAP);
 
     // Add new car instance to map at specific location
     // @param position: Initial world position

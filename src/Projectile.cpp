@@ -81,7 +81,7 @@ void Projectile::UpdateFrame()
         return;
     }
 
-    if (mContactObject && !mWeaponInfo->IsExplosionDamage())
+    if (mContactObject)
     {
         DamageInfo damageInfo;
         damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);

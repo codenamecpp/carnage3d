@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
+    <ClInclude Include="AIManager.h" />
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
@@ -254,6 +255,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
+    <ClCompile Include="AIManager.cpp" />
     <ClCompile Include="CommonTypes.cpp" />
     <ClCompile Include="DamageInfo.cpp" />
     <ClCompile Include="Decoration.cpp" />
