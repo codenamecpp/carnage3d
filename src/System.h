@@ -79,7 +79,6 @@ private:
 
 private:
     bool mQuitRequested;
-    double mStartSystemTime = 0.0;
 };
 
 extern System gSystem;

@@ -58,7 +58,7 @@ PhysicsManager gPhysics;
 PhysicsManager::PhysicsManager()
     : mMapCollisionShape()
     , mPhysicsWorld()
-    , mGravityForce()
+    , mGravity()
 {
 }
 
@@ -69,7 +69,7 @@ bool PhysicsManager::InitPhysicsWorld()
     mPhysicsWorld->SetContactListener(this);
 
     mSimulationStepTime = 1.0f / std::max(gSystem.mConfig.mPhysicsFramerate, 1.0f);
-    mGravityForce = Convert::MapUnitsToMeters(0.5f);
+    mGravity = Convert::MapUnitsToMeters(0.5f);
 
     CreateMapCollisionShape();
     return true;
@@ -132,7 +132,7 @@ void PhysicsManager::ProcessSimulationStep()
         mProjectileBodiesList[i]->SimulationStep();
     }
 
-    FixedStepGravity();
+    ProcessGravityStep();
 }
 
 void PhysicsManager::ProcessInterpolation()
@@ -421,100 +421,97 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
     }
 }
 
-void PhysicsManager::FixedStepGravity()
+void PhysicsManager::ProcessGravityStep()
 {
-    // todo: cleanup this mess
-
-    // cars
+    // process vihicles
     for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
     {
-
-        CarPhysicsBody* physicsComponent = static_cast<CarPhysicsBody*>(mCarsBodiesList[i]);
-        if (physicsComponent->mWaterContact)
-            continue;
-
-        glm::vec3 position = physicsComponent->GetPosition();
-
-        // process falling
-        float newHeight = gGameMap.GetHeightAtPosition(position, false);
-
-        bool onTheGround = newHeight > (position.y - 0.01f);
-        if (!onTheGround)
-        {
-            physicsComponent->mHeight -= (mSimulationStepTime * 0.5f);
-        }
-        else
-        {
-            physicsComponent->mHeight = newHeight;
-        }
-
-        // handle water contact
-        glm::ivec3 iposition = physicsComponent->GetPosition();
-        MapBlockInfo* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
-
-        if (currentTile->mGroundType == eGroundType_Water)
-        {
-            physicsComponent->HandleWaterContact();
-        }
+        CarPhysicsBody* currentBody = static_cast<CarPhysicsBody*>(mCarsBodiesList[i]);
+        ProcessGravityStep(currentBody);
     }
-
-    // pedestrians
+    // process pedestrians
     for (size_t i = 0, NumElements = mPedsBodiesList.size(); i < NumElements; ++i)
     {
-        PedPhysicsBody* physicsComponent = static_cast<PedPhysicsBody*>(mPedsBodiesList[i]);
-        Pedestrian* currPedestrian = physicsComponent->mReferencePed;
+        PedPhysicsBody* currentBody = static_cast<PedPhysicsBody*>(mPedsBodiesList[i]);
+        ProcessGravityStep(currentBody);
+    }
+}
 
-        if (currPedestrian->mCurrentCar)
+void PhysicsManager::ProcessGravityStep(CarPhysicsBody* physicsBody)
+{
+    glm::vec2 posSteerWheel = physicsBody->GetWheelPosition(eCarWheel_Steer);
+    glm::vec2 posDriveWheel = physicsBody->GetWheelPosition(eCarWheel_Drive);
+
+    float heightSteerWheel = gGameMap.GetHeightAtPosition(glm::vec3(posSteerWheel.x, physicsBody->mHeight, posSteerWheel.y), false);
+    float heightDriveWheel = gGameMap.GetHeightAtPosition(glm::vec3(posDriveWheel.x, physicsBody->mHeight, posDriveWheel.y), false);
+
+    float groundHeight = std::max(heightSteerWheel, heightDriveWheel);
+
+    if (physicsBody->mFalling)
+    {
+        // whether falling ends
+        float fallingDistance = mGravity * mSimulationStepTime * 8.0f; // todo: magic numbers
+        physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
+        if (physicsBody->mHeight == groundHeight)
         {
-            glm::vec3 carPosition = currPedestrian->mCurrentCar->mPhysicsBody->GetPosition();
-
-            physicsComponent->mHeight = carPosition.y;
-            continue;
-        }
-
-        if (physicsComponent->mWaterContact)
-            continue;
-
-        glm::vec3 position = physicsComponent->GetPosition();
-
-        // process fall
-        float newHeight = gGameMap.GetHeightAtPosition(position, false);
-
-        bool onTheGround = newHeight > (position.y - 0.00f);
-        if (physicsComponent->mFalling)
-        {
-            if (onTheGround)
-            {
-                physicsComponent->HandleFallEnd();
-            }
-        }
-        else
-        {
-            float distanceToGround = position.y - newHeight;
-            if (distanceToGround > 0.99f)
-            {
-                physicsComponent->HandleFallBegin(distanceToGround);
-            }
-        }
-
-        if (!onTheGround && physicsComponent->mFalling)
-        {
-            physicsComponent->mHeight -= (mSimulationStepTime * mGravityForce);
-        }
-        else
-        {
-            physicsComponent->mHeight = newHeight;
-        }
-
-        // handle water contact
-        glm::ivec3 iposition = physicsComponent->GetPosition();
-        MapBlockInfo* currentTile = gGameMap.GetBlockClamp(iposition.x, iposition.z, iposition.y);
-
-        if (currentTile->mGroundType == eGroundType_Water)
-        {
-            physicsComponent->HandleWaterContact();
+            physicsBody->HandleFallEnd();
         }
     }
+    else
+    {
+        const float fallThresholdDistance = 0.1f;
+        bool onTheGround = fabsf(groundHeight - physicsBody->mHeight) <= fallThresholdDistance;
+        // whether falling starts
+        if (onTheGround)
+        {
+            physicsBody->mHeight = groundHeight;
+        }
+        else 
+        {
+            physicsBody->HandleFallBegin();
+        }
+    }
+
+    //todo: handle water contact
+}
+
+void PhysicsManager::ProcessGravityStep(PedPhysicsBody* physicsBody)
+{
+    Pedestrian* currPedestrian = physicsBody->mReferencePed;
+    if (currPedestrian->mCurrentCar)
+    {
+        physicsBody->mHeight = currPedestrian->mCurrentCar->mPhysicsBody->mHeight;
+        return;
+    }
+
+    float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
+
+    if (physicsBody->mFalling)
+    {
+        // whether falling ends
+        float fallingDistance = mGravity * mSimulationStepTime;
+        physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
+        if (physicsBody->mHeight == groundHeight)
+        {
+            physicsBody->HandleFallEnd();
+        }
+    }
+    else
+    {
+        const float fallThresholdDistance = 0.1f;
+        bool onTheGround = fabsf(groundHeight - physicsBody->mHeight) <= fallThresholdDistance;
+        // whether falling starts
+        if (onTheGround)
+        {
+            physicsBody->mHeight = groundHeight;
+        }
+        else 
+        {
+            physicsBody->HandleFallBegin();
+        }
+    }
+
+    //todo: handle water contact
 }
 
 bool PhysicsManager::HasCollisionPedVsPed(b2Contact* contact, PedPhysicsBody* pedA, PedPhysicsBody* pedB) const

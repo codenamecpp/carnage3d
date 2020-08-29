@@ -31,6 +31,8 @@ public:
     int mExplosionPrimaryDamage; // hit points to injure at Primary Damage Distance
     int mExplosionSecondaryDamage; // hit points to injure at Secondary Damage Distance
 
+    // vehicles
+    float mVehicleBurnDuration; // time before flame will go out by itself, seconds
 
    
 };

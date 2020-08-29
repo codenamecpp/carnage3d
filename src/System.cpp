@@ -151,9 +151,6 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
-    mStartSystemTime = ::glfwGetTime();
-    debug_assert(mStartSystemTime > 0.0);
-
     if (!gImGuiManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize debug ui system");
@@ -252,5 +249,5 @@ bool System::SaveConfiguration()
 double System::GetSystemSeconds() const
 {
     double currentTime = ::glfwGetTime();
-    return (currentTime - mStartSystemTime);
+    return currentTime;
 }

@@ -50,7 +50,7 @@ void GameObjectsManager::UpdateFrame()
     }
 }
 
-void GameObjectsManager::DebugDraw()
+void GameObjectsManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
@@ -62,6 +62,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     debug_assert(instance);
 
     mAllObjectsList.push_back(instance);
+    mPedestriansList.push_back(instance);
 
     // init
     instance->Spawn(position, heading);
@@ -282,6 +283,8 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         {
             Pedestrian* pedestrian = static_cast<Pedestrian*>(object);
             mPedestriansPool.destroy(pedestrian);
+
+            cxx::erase_elements(mPedestriansList, object);
         }
         break;
 

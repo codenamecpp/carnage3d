@@ -213,6 +213,7 @@
     <ClInclude Include="GraphicsDefs.h" />
     <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="TrafficManager.h" />
     <ClInclude Include="UiContext.h" />
     <ClInclude Include="UiManager.h" />
     <ClInclude Include="handle.h" />
@@ -292,6 +293,7 @@
     <ClCompile Include="GameParams.cpp" />
     <ClCompile Include="GpuTextureArray2D.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="TrafficManager.cpp" />
     <ClCompile Include="UiManager.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="ConsoleWindow.cpp" />

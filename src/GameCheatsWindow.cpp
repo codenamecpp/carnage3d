@@ -99,6 +99,31 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         {
             ImGui::SliderInt("car remap", &pedestrian->mCurrentCar->mRemapIndex, -1, MAX_CAR_REMAPS - 1);
         }
+
+        static glm::vec3 setLocalPosition = logicalPosition;
+        if (ImGui::Button("Set position..."))
+        {
+            ImGui::OpenPopup("Set player position");
+
+            setLocalPosition = logicalPosition;
+        }
+
+        if (ImGui::BeginPopup("Set player position"))
+        {
+            ImGui::InputFloat3("Logical position (x, y, z)", &setLocalPosition[0]);
+            if (ImGui::Button("Set Position"))
+            {
+                if (pedestrian->IsCarPassenger())
+                {
+                    pedestrian->mCurrentCar->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                }
+                else
+                {
+                    pedestrian->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                }
+            }
+            ImGui::EndPopup();
+        }
     }
 
     { // choose camera modes

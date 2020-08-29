@@ -85,10 +85,13 @@ void Projectile::UpdateFrame()
     {
         DamageInfo damageInfo;
         damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
-        if (!mContactObject->ReceiveDamage(damageInfo) && mWeaponInfo->IsFireDamage())
+        if (!mContactObject->ReceiveDamage(damageInfo))
         {
-            mContactDetected = false;
-            return; // ignore contact
+            if (mWeaponInfo->IsFireDamage() || mContactObject->IsPedestrianClass()) // todo: fix!
+            {
+                mContactDetected = false;
+                return; // ignore contact
+            }
         }
     }
 

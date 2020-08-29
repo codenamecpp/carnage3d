@@ -52,10 +52,13 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     mSpriteIndex = mCarStyle->mSpriteIndex; // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
+    SetBurnEffectActive(false);
 }
 
 void Vehicle::UpdateFrame()
 {
+    UpdateBurnEffect();
+
     if (mCarWrecked)
         return;
 
@@ -75,7 +78,7 @@ void Vehicle::UpdateFrame()
 void Vehicle::PreDrawFrame()
 {   
     // sync sprite transformation with physical body
-    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle();
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
@@ -84,9 +87,16 @@ void Vehicle::PreDrawFrame()
 
     mDrawSprite.mPosition.x = position.x;
     mDrawSprite.mPosition.y = position.z;
-    mDrawSprite.mRotateAngle = rotationAngle;
+    mDrawSprite.mRotateAngle = rotationAngle - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mHeight = mDrawHeight;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
+
+    // update fire effect draw pos
+    // todo: refactore
+    if (mFireEffect)
+    {
+        mFireEffect->SetTransform(position, rotationAngle);
+    }
 }
 
 void Vehicle::DrawDebug(DebugRenderer& debugRender)
@@ -523,6 +533,8 @@ void Vehicle::Explode()
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
 
+    SetBurnEffectActive(true);
+
     // kill passengers inside
     for (Pedestrian* currentPed: mPassengers)
     {
@@ -552,8 +564,13 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
-        // todo
-        return false;
+        float damageHeight = Convert::MapUnitsToMeters(1.3f); // todo: move to config
+        if (damageInfo.mFallHeight >= damageHeight)
+        {
+            mDamageDeltaBits = CAR_DAMAGE_SPRITE_DELTA_MASK; // set all damages
+            mHitpoints -= 5; // todo: magic numbers
+        }
+        return true;
     }
 
     if (damageInfo.mDamageCause == eDamageCause_Explosion)
@@ -658,4 +675,54 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
     }
 
     return false;
+}
+
+bool Vehicle::IsBurn() const
+{
+    return mFireEffect != nullptr;
+}
+
+void Vehicle::SetBurnEffectActive(bool activate)
+{
+    if (activate == IsBurn())
+        return;
+
+    if (activate)
+    {
+        debug_assert(mFireEffect == nullptr);
+        GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_Fire1];
+        mFireEffect = gGameObjectsManager.CreateDecoration(
+            mPhysicsBody->GetPosition(), 
+            mPhysicsBody->GetRotationAngle(), &objectInfo);
+        debug_assert(mFireEffect);
+        if (mFireEffect)
+        {
+            mFireEffect->SetLifeDuration(0);
+            mFireEffect->SetAttachedToObject(this);
+        }
+        mFireEffect->SetDrawOrder(eSpriteDrawOrder_Car);
+        mBurnStartTime = gTimeManager.mGameTime;
+    }
+    else
+    {
+        debug_assert(mFireEffect);
+        if (mFireEffect)
+        {
+            mFireEffect->SetDetached();
+        }
+        mFireEffect->MarkForDeletion();
+        mFireEffect = nullptr;
+    }
+}
+
+void Vehicle::UpdateBurnEffect()
+{
+    if (!IsBurn())
+        return;
+
+    if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mVehicleBurnDuration))
+    {
+        SetBurnEffectActive(false);
+        return;
+    }
 }

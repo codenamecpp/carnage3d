@@ -54,7 +54,7 @@ public:
     MapBlockInfo* GetBlockClamp(int coordx, int coordy, int layer) const;
 
     // Get real height at specified map point
-    // @param position: Current position on map
+    // @param position: Current position on map, meters
     float GetHeightAtPosition(const glm::vec3& position, bool excludeWater = true) const;
 
     // get intersection with solid blocks on specific map layer, ignores slopes

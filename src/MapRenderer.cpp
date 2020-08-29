@@ -11,6 +11,7 @@
 #include "Pedestrian.h"
 #include "Vehicle.h"
 #include "RenderView.h"
+#include "TrafficManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -168,6 +169,8 @@ void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender
 
         gameObject->DrawDebug(debugRender);
     }
+
+    gTrafficManager.DrawDebug(debugRender);
 }
 
 void MapRenderer::DrawCityMesh(RenderView* renderview)

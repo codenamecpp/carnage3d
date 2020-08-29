@@ -356,6 +356,9 @@
     <ClInclude Include="DamageInfo.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="TrafficManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -559,6 +562,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="DamageInfo.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TrafficManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

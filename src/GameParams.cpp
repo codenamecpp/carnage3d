@@ -29,4 +29,7 @@ void GameParams::SetToDefaults()
     mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(1.0f);
     mExplosionPrimaryDamage = 100;
     mExplosionSecondaryDamage = 20;
+
+    // vehicles
+    mVehicleBurnDuration = 20.0f;
 }

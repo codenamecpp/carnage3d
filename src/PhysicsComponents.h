@@ -20,7 +20,7 @@ public:
 
     bool mWaterContact = false; // fall into water
     bool mFalling = false; // falling from a height
-    float mFallDistance = 0.0f; // specified if mFalling is set
+    float mFallStartHeight = 0.0f; // specified if mFalling is set
 
     glm::vec3 mPreviousPosition;
     glm::vec3 mSmoothPosition; // for rendering only
@@ -122,7 +122,7 @@ public:
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
 
-    void HandleFallBegin(float fallDistance);
+    void HandleFallBegin();
     void HandleFallEnd();
     void HandleCarContactBegin();
     void HandleCarContactEnd();
@@ -184,6 +184,9 @@ public:
 
     // Get current vehicle speed
     float GetCurrentSpeed() const;
+
+    void HandleFallBegin();
+    void HandleFallEnd();
 
 private:
     void SetupWheels();

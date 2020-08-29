@@ -14,6 +14,7 @@ public:
     // readonly
     std::vector<GameObject*> mAllObjectsList;
     std::vector<GameObject*> mDeleteObjectsList;
+    std::vector<Pedestrian*> mPedestriansList;
 
 public:
     ~GameObjectsManager();
@@ -22,7 +23,7 @@ public:
     void FreeGameObjects();
 
     void UpdateFrame();
-    void DebugDraw();
+    void DebugDraw(DebugRenderer& debugRender);
 
     // Add new pedestrian instance to map at specific location
     // @param position: Real world position

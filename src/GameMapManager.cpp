@@ -164,22 +164,22 @@ bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength
     return true;
 }
 
-MapBlockInfo* GameMapManager::GetBlock(int coordx, int coordy, int layer) const
+MapBlockInfo* GameMapManager::GetBlock(int coordx, int coordz, int layer) const
 {
     debug_assert(layer > -1 && layer < MAP_LAYERS_COUNT);
     debug_assert(coordx > -1 && coordx < MAP_DIMENSIONS);
-    debug_assert(coordy > -1 && coordy < MAP_DIMENSIONS);
+    debug_assert(coordz > -1 && coordz < MAP_DIMENSIONS);
     // remember kids, don't try this at home!
-    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordy][coordx]);
+    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordz][coordx]);
 }
 
-MapBlockInfo* GameMapManager::GetBlockClamp(int coordx, int coordy, int layer) const
+MapBlockInfo* GameMapManager::GetBlockClamp(int coordx, int coordz, int layer) const
 {
     layer = glm::clamp(layer, 0, MAP_LAYERS_COUNT - 1);
     coordx = glm::clamp(coordx, 0, MAP_DIMENSIONS - 1);
-    coordy = glm::clamp(coordy, 0, MAP_DIMENSIONS - 1);
+    coordz = glm::clamp(coordz, 0, MAP_DIMENSIONS - 1);
     // remember kids, don't try this at home!
-    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordy][coordx]);
+    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordz][coordx]);
 }
 
 void GameMapManager::FixShiftedBits()

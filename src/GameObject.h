@@ -65,6 +65,7 @@ public:
     // flag shortcuts
     inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
     inline bool IsCarObjectFlag() const { return (mFlags & eGameObjectFlags_CarObject) != 0; }
+    inline bool IsTrafficFlag() const { return (mFlags & eGameObjectFlags_Traffic) != 0; }
 
 protected:
     GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);

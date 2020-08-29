@@ -191,7 +191,7 @@ void PhysicsBody::SetRespawned()
 {
     mFalling = false;
     mWaterContact = false;
-    mFallDistance = 0.0f;
+    mFallStartHeight = 0.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -249,13 +249,13 @@ void PedPhysicsBody::SimulationStep()
     }
 }
 
-void PedPhysicsBody::HandleFallBegin(float fallDistance)
+void PedPhysicsBody::HandleFallBegin()
 {
     if (mFalling)
         return;
 
     mFalling = true;
-    mFallDistance = fallDistance;
+    mFallStartHeight = mHeight;
 
     b2Vec2 velocity = mPhysicsBody->GetLinearVelocity();
     velocity.Normalize();
@@ -278,6 +278,14 @@ void PedPhysicsBody::HandleFallEnd()
     // notify
     PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightEnd };
     mReferencePed->mStatesManager.ProcessEvent(evData);
+
+    // damage
+    if (mFallStartHeight > mHeight)
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromFall(mFallStartHeight - mHeight);
+        mReferencePed->ReceiveDamage(damageInfo);
+    }
 }
 
 void PedPhysicsBody::HandleCarContactBegin()
@@ -543,6 +551,23 @@ void CarPhysicsBody::SetupWheels()
 {
     mDriveWheelPosition = Convert::PixelsToMeters(mCarDesc->mDriveWheelOffset);
     mSteerWheelPosition = Convert::PixelsToMeters(mCarDesc->mSteeringWheelOffset);
+}
+
+void CarPhysicsBody::HandleFallBegin()
+{
+    mFalling = true;
+    mFallStartHeight = mHeight;
+}
+
+void CarPhysicsBody::HandleFallEnd()
+{
+    if (mFallStartHeight > mHeight)
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromFall(mFallStartHeight - mHeight);
+        mReferenceCar->ReceiveDamage(damageInfo);
+    }
+    mFalling = false;
 }
 
 void CarPhysicsBody::UpdateSteer()

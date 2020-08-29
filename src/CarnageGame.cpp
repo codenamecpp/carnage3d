@@ -8,6 +8,7 @@
 #include "Pedestrian.h"
 #include "MemoryManager.h"
 #include "TimeManager.h"
+#include "TrafficManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
@@ -66,6 +67,8 @@ void CarnageGame::UpdateFrame()
         mHumanSlot[ihuman].mCharController.UpdateFrame(mHumanSlot[ihuman].mCharPedestrian);
         mHumanSlot[ihuman].mCharView.UpdateFrame();
     }
+
+    gTrafficManager.UpdateFrame();
 }
 
 void CarnageGame::InputEventLost()
@@ -338,6 +341,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
         SetupHumanCharacter(icurr, pedestrian);
     }
+    gTrafficManager.StartupTraffic();
 
     SetupScreenLayout(mNumPlayers);
     return true;
@@ -356,6 +360,7 @@ void CarnageGame::ShutdownCurrentScenario()
         mHumanSlot[ihuman].mCharView.SetCameraController(nullptr);
         mHumanSlot[ihuman].mCharPedestrian = nullptr;
     }
+    gTrafficManager.CleanupTraffic();
     gGameObjectsManager.FreeGameObjects();
     gPhysics.FreePhysicsWorld();
     gGameMap.Cleanup();

@@ -360,9 +360,12 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     // handle fall from height
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
-        // todo: check height
-        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
-        return true;
+        if (damageInfo.mFallHeight >= gGameParams.mPedestrianFallDeathHeight)
+        {
+            mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+            return true;
+        }
+        return false;
     }
 
     // handle high voltage
@@ -731,13 +734,6 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
 {    
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightEnd)
     {
-        // die
-        if (mPedestrian->mPhysicsBody->mFallDistance > gGameParams.mPedestrianFallDeathHeight - 0.001f)
-        {
-            mPedestrian->DieFromDamage(eDamageCause_Gravity);
-            return true;
-        }
-
         ChangeState(ePedestrianState_StandingStill, stateEvent);
         return true;
     }

@@ -88,6 +88,7 @@ public:
 
     // Test whether vehicle is wrecked
     bool IsWrecked() const;
+    bool IsBurn() const;
 
 private:
     void Explode();
@@ -96,12 +97,19 @@ private:
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations();
 
+    void SetBurnEffectActive(bool isActive);
+    void UpdateBurnEffect();
+
     SpriteDeltaBits GetSpriteDeltas() const;
 
 private:
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
     SpriteDeltaBits mDamageDeltaBits;
+
+    // active effects
+    Decoration* mFireEffect = nullptr;
+    float mBurnStartTime = 0.0f;
 
     int mSpriteIndex = 0;
     int mHitpoints = 20;

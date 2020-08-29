@@ -54,7 +54,9 @@ private:
     void CreateMapCollisionShape();
 
     // apply gravity forces and correct y coord for objects
-    void FixedStepGravity();
+    void ProcessGravityStep();
+    void ProcessGravityStep(CarPhysicsBody* body);
+    void ProcessGravityStep(PedPhysicsBody* body);
 
     void ProcessSimulationStep();
     void ProcessInterpolation();
@@ -90,7 +92,7 @@ private:
     float mSimulationTimeAccumulator;
     float mSimulationStepTime;
 
-    float mGravityForce; // meters per second
+    float mGravity; // meters per second
 
     // bodies pools
     cxx::object_pool<PedPhysicsBody> mPedsBodiesPool;

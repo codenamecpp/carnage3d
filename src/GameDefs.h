@@ -41,6 +41,13 @@
 #define CAR_DAMAGE_SPRITE_DELTA_BR 4 // back right
 #define CAR_DAMAGE_SPRITE_DELTA_MR 5 // middle right
 #define CAR_DAMAGE_SPRITE_DELTA_WS 10 // windshield broken
+#define CAR_DAMAGE_SPRITE_DELTA_MASK \
+    ( \
+        BIT(CAR_DAMAGE_SPRITE_DELTA_FR) | BIT(CAR_DAMAGE_SPRITE_DELTA_BL) | \
+        BIT(CAR_DAMAGE_SPRITE_DELTA_ML) | BIT(CAR_DAMAGE_SPRITE_DELTA_FL) | \
+        BIT(CAR_DAMAGE_SPRITE_DELTA_BR) | BIT(CAR_DAMAGE_SPRITE_DELTA_MR) | \
+        BIT(CAR_DAMAGE_SPRITE_DELTA_WS) \
+    )
 
 // car sprite deltas - door 1
 #define CAR_DOOR1_SPRITE_DELTA_0 6 // first frame
@@ -89,19 +96,21 @@ enum eGameObjectClass
 
 decl_enum_strings(eGameObjectClass);
 
-enum eGameObjectFlags: unsigned short
+enum eGameObjectFlags: unsigned int
 {
     eGameObjectFlags_None = 0,
     eGameObjectFlags_Invisible = BIT(0),
     eGameObjectFlags_CarObject = BIT(1),
+    eGameObjectFlags_Traffic = BIT(2), // temporary lifetime
 };
 
 decl_enum_as_flags(eGameObjectFlags);
 
-// game object type indices
+// game object type indices, mapped to gta1 values
 enum
 {
     GameObjectType_Null = 0,
+    GameObjectType_Fire1 = 18,
     GameObjectType_LFire = 46,
     GameObjectType_FirstBlood = 63,
     GameObjectType_Body = 64,
