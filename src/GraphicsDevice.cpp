@@ -30,6 +30,8 @@ static eKeycode GlfwKeycodeToNative(int keycode)
         case GLFW_KEY_ENTER: return eKeycode_ENTER;
         case GLFW_KEY_TAB: return eKeycode_TAB;
         case GLFW_KEY_GRAVE_ACCENT: return eKeycode_TILDE;
+        case GLFW_KEY_LEFT_SHIFT: return eKeycode_SHIFT;
+        case GLFW_KEY_RIGHT_SHIFT: return eKeycode_SHIFT;
         case GLFW_KEY_F1: return eKeycode_F1;
         case GLFW_KEY_F2: return eKeycode_F2;
         case GLFW_KEY_F3: return eKeycode_F3;
@@ -42,17 +44,34 @@ static eKeycode GlfwKeycodeToNative(int keycode)
         case GLFW_KEY_F10: return eKeycode_F10;
         case GLFW_KEY_F11: return eKeycode_F11;
         case GLFW_KEY_F12: return eKeycode_F12;
+
         case GLFW_KEY_A: return eKeycode_A;
+        case GLFW_KEY_B: return eKeycode_B;
         case GLFW_KEY_C: return eKeycode_C;
-        case GLFW_KEY_F: return eKeycode_F;
-        case GLFW_KEY_V: return eKeycode_V;
-        case GLFW_KEY_X: return eKeycode_X;
-        case GLFW_KEY_W: return eKeycode_W;
         case GLFW_KEY_D: return eKeycode_D;
+        case GLFW_KEY_E: return eKeycode_E;
+        case GLFW_KEY_F: return eKeycode_F;
+        case GLFW_KEY_G: return eKeycode_G;
+        case GLFW_KEY_H: return eKeycode_H;
+        case GLFW_KEY_I: return eKeycode_I;
+        case GLFW_KEY_J: return eKeycode_J;
+        case GLFW_KEY_K: return eKeycode_K;
+        case GLFW_KEY_L: return eKeycode_L;
+        case GLFW_KEY_M: return eKeycode_M;
+        case GLFW_KEY_N: return eKeycode_N;
+        case GLFW_KEY_O: return eKeycode_O;
+        case GLFW_KEY_P: return eKeycode_P;
+        case GLFW_KEY_Q: return eKeycode_Q;
+        case GLFW_KEY_R: return eKeycode_R;
         case GLFW_KEY_S: return eKeycode_S;
+        case GLFW_KEY_T: return eKeycode_T;
+        case GLFW_KEY_U: return eKeycode_U;
+        case GLFW_KEY_V: return eKeycode_V;
+        case GLFW_KEY_W: return eKeycode_W;
+        case GLFW_KEY_X: return eKeycode_X;
         case GLFW_KEY_Y: return eKeycode_Y;
         case GLFW_KEY_Z: return eKeycode_Z;
-        case GLFW_KEY_R: return eKeycode_R;
+
         case GLFW_KEY_0: return eKeycode_0;
         case GLFW_KEY_1: return eKeycode_1;
         case GLFW_KEY_2: return eKeycode_2;
