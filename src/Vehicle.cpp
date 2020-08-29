@@ -532,6 +532,10 @@ void Vehicle::Explode()
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
+    if (explosion)
+    {
+        explosion->DisablePrimaryDamage();
+    }
 
     SetBurnEffectActive(true);
 
@@ -575,7 +579,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 
     if (damageInfo.mDamageCause == eDamageCause_Explosion)
     {
-        mHitpoints -= mHitpoints;
+        mHitpoints -= damageInfo.mHitPoints;
         return true;
     }
 

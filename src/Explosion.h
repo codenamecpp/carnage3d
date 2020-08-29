@@ -18,14 +18,23 @@ public:
     // Setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition);
 
+    // Disable primary of secondary damage of explosion
+    void DisablePrimaryDamage();
+    void DisableSecondaryDamage();
+
     // Test whether explosion did its damage and can't hurt
     bool IsDamageDone() const;
 
 private:
-    void ProcessDamage();
+    void ProcessPrimaryDamage();
+    void ProcessSecondaryDamage();
 
 private:
     SpriteAnimation mAnimationState;
     glm::vec3 mExplosionEpicentre;
-    bool mDamageDone = false;
+
+    float mSecondaryDamageNextTime = 0.0f;
+    int mSecondaryDamageNumImpacts = 0;
+    bool mPrimaryDamageDone = false;
+    bool mSecondaryDamageDone = false;
 };

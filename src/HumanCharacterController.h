@@ -39,7 +39,7 @@ public:
 class HumanCharacterController final: public CharacterController
 {
 public:
-    // public for convenience
+    // readonly
     InputActionsMapping mInputs;
 
     Pedestrian* mCharacter = nullptr;

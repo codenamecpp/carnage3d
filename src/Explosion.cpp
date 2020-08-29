@@ -30,7 +30,8 @@ void Explosion::UpdateFrame()
 
     if (!IsDamageDone())
     {
-        ProcessDamage();
+        ProcessPrimaryDamage();
+        ProcessSecondaryDamage();
     }
 
     if (!mAnimationState.IsAnimationActive())
@@ -68,25 +69,30 @@ void Explosion::Spawn(const glm::vec3& startPosition)
     }
 
     mExplosionEpicentre = startPosition;
+
+    mSecondaryDamageNextTime = 0.0f;
+    mSecondaryDamageNumImpacts = 0;
+    mPrimaryDamageDone = false;
+    mSecondaryDamageDone = false;
 }
 
 bool Explosion::IsDamageDone() const
 {
-    return mDamageDone;
+    return mPrimaryDamageDone && mSecondaryDamageDone;
 }
 
-void Explosion::ProcessDamage()
+void Explosion::ProcessPrimaryDamage()
 {
-    float maxImpactRadius = std::max(gGameParams.mExplosionPrimaryDamageDistance, gGameParams.mExplosionSecondaryDamageDistance);
-    float minImpactRadius = std::min(gGameParams.mExplosionPrimaryDamageDistance, gGameParams.mExplosionSecondaryDamageDistance);
+    if (mPrimaryDamageDone)
+        return;
 
-    mDamageDone = true;
+    mPrimaryDamageDone = true;
 
     // primary damage
     glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
     glm::vec2 extents (
-        minImpactRadius,
-        minImpactRadius
+        gGameParams.mExplosionPrimaryDamageDistance,
+        gGameParams.mExplosionPrimaryDamageDistance
     );
 
     PhysicsQueryResult queryResult;
@@ -97,9 +103,7 @@ void Explosion::ProcessDamage()
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
         DamageInfo damageInfo;
-        damageInfo.mDamageCause = eDamageCause_Explosion;
-        damageInfo.mSourceObject = this;
-        damageInfo.mHitPoints = gGameParams.mExplosionPrimaryDamage;
+        damageInfo.SetDamageFromExplosion(gGameParams.mExplosionPrimaryDamage, this);
 
         if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
         {
@@ -116,8 +120,34 @@ void Explosion::ProcessDamage()
         }
     }
 
-    // secondary damage
-    extents = glm::vec2( maxImpactRadius, maxImpactRadius );
+    queryResult.Clear();
+}
+
+void Explosion::ProcessSecondaryDamage()
+{
+    if (mSecondaryDamageDone)
+        return;
+
+    if (mSecondaryDamageNumImpacts >= gGameParams.mExplosionSecondaryDamageImpactsCount)
+    {
+        mSecondaryDamageDone = true;
+        return;
+    }
+
+    if (mSecondaryDamageNextTime && (mSecondaryDamageNextTime > gTimeManager.mGameTime))
+        return;
+
+    mSecondaryDamageNumImpacts++;
+    mSecondaryDamageNextTime = gTimeManager.mGameTime + gGameParams.mExplosionSecondaryDamgeImpactsLag;
+
+    // do secondary damage
+    glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
+    glm::vec2 extents (
+        gGameParams.mExplosionSecondaryDamageDistance,
+        gGameParams.mExplosionSecondaryDamageDistance
+    );
+
+    PhysicsQueryResult queryResult;
     gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
 
     for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)
@@ -125,8 +155,7 @@ void Explosion::ProcessDamage()
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
         DamageInfo damageInfo;
-        damageInfo.mDamageCause = eDamageCause_Burning;
-        damageInfo.mSourceObject = this;
+        damageInfo.SetDamageFromFire(gGameParams.mExplosionSecondaryDamage, this);
 
         if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
         {
@@ -142,4 +171,16 @@ void Explosion::ProcessDamage()
             continue;
         }
     }
+
+    queryResult.Clear();
+}
+
+void Explosion::DisablePrimaryDamage()
+{
+    mPrimaryDamageDone = true;
+}
+
+void Explosion::DisableSecondaryDamage()
+{
+    mSecondaryDamageDone = true;
 }

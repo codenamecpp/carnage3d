@@ -253,9 +253,6 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Game\CharacterControllers</Filter>
     </ClInclude>
-    <ClInclude Include="AiCharacterController.h">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClInclude>
     <ClInclude Include="HumanCharacterController.h">
       <Filter>Game\CharacterControllers</Filter>
     </ClInclude>
@@ -363,6 +360,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="AIManager.h">
+      <Filter>Game\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AICharacterController.h">
       <Filter>Game\AI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -491,9 +491,6 @@
     <ClCompile Include="CharacterController.cpp">
       <Filter>Game\CharacterControllers</Filter>
     </ClCompile>
-    <ClCompile Include="AiCharacterController.cpp">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClCompile>
     <ClCompile Include="HumanCharacterController.cpp">
       <Filter>Game\CharacterControllers</Filter>
     </ClCompile>
@@ -574,6 +571,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="AIManager.cpp">
+      <Filter>Game\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="AICharacterController.cpp">
       <Filter>Game\AI</Filter>
     </ClCompile>
   </ItemGroup>
