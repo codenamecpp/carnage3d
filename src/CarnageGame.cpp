@@ -172,10 +172,10 @@ bool CarnageGame::SetInputActionsFromConfig()
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
         HumanCharacterSlot& currentChar = mHumanSlot[ihuman];
-        currentChar.mCharController.mInputs.Clear();
+        currentChar.mCharController.mActionsMapping.Clear();
         if (ihuman == 0) 
         {
-            currentChar.mCharController.mInputs.SetDefaults();
+            currentChar.mCharController.mActionsMapping.SetDefaults();
         }  
     }
 
@@ -196,7 +196,7 @@ bool CarnageGame::SetInputActionsFromConfig()
 
         cxx::json_document_node rootNode = configDocument.get_root_node();
         cxx::json_document_node configNode = rootNode[tempString];
-        currentChar.mInputs.SetFromConfig(configNode);
+        currentChar.mActionsMapping.LoadConfig(configNode);
     }
 
     return true;

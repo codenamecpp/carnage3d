@@ -1,38 +1,7 @@
 #pragma once
 
 #include "CharacterController.h"
-
-enum ePedActionsGroup
-{
-    ePedActionsGroup_Common,
-    ePedActionsGroup_InCar,
-    ePedActionsGroup_OnFoot,
-    ePedActionsGroup_COUNT
-};
-
-// defines input actions mapping for human player
-class InputActionsMapping
-{
-public:
-    InputActionsMapping();
-
-    // setup actions mapping from config node
-    void SetFromConfig(cxx::json_document_node& configNode);
-
-    void SetDefaults();
-    void Clear();
-
-    // get action mapped to input keycode or gamepad button
-    // @returns ePedestrianAction_null if no action
-    ePedestrianAction GetAction(ePedActionsGroup group, eKeycode keycode) const;
-    ePedestrianAction GetAction(ePedActionsGroup group, eGamepadButton gpButton) const;
-
-public:
-    eInputControllerType mControllerType = eInputControllerType_None;
-
-    eKeycode mKeycodes[ePedestrianAction_COUNT];
-    eGamepadButton mGpButtons[ePedestrianAction_COUNT];
-};
+#include "InputActionsMapping.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +9,7 @@ class HumanCharacterController final: public CharacterController
 {
 public:
     // readonly
-    InputActionsMapping mInputs;
+    InputActionsMapping mActionsMapping;
 
     Pedestrian* mCharacter = nullptr;
     glm::vec3 mSpawnPosition;
@@ -59,13 +28,17 @@ public:
     void InputEventLost();
 
 private:
-    bool HandleInputAction(ePedestrianAction action, bool isActivated);
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
     void EnterOrExitCar(bool alternative);
 
     void Respawn();
 
+    void ProcessRepetitiveActions();
+    void ProcessInputAction(eInputAction action, bool isActivated);
+    void SyncActionState(eInputAction action, bool& stateFlag) const;
+
 private:
     float mRespawnTime;
+    bool mUpdateInputs = false;
 };

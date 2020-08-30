@@ -126,8 +126,7 @@ void PedestrianStatesManager::InitFuncsTable()
 void PedestrianStatesManager::ProcessRotateActions()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
-    if (ctlState.mCtlActions[ePedestrianAction_TurnLeft] || 
-        ctlState.mCtlActions[ePedestrianAction_TurnRight])
+    if (ctlState.mTurnLeft || ctlState.mTurnRight)
     {
         float turnSpeed = gGameParams.mPedestrianTurnSpeed;
         if (mCurrentStateID == ePedestrianState_SlideOnCar)
@@ -135,7 +134,7 @@ void PedestrianStatesManager::ProcessRotateActions()
             turnSpeed = gGameParams.mPedestrianTurnSpeedSlideOnCar;
         }
 
-        cxx::angle_t angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (ctlState.mCtlActions[ePedestrianAction_TurnLeft] ? -1.0f : 1.0f));
+        cxx::angle_t angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (ctlState.mTurnLeft ? -1.0f : 1.0f));
         mPedestrian->mPhysicsBody->SetAngularVelocity(angularVelocity);
     }
     else
@@ -159,18 +158,16 @@ void PedestrianStatesManager::ProcessMotionActions()
 
     glm::vec2 linearVelocity {};
     // generic case
-    if (ctlState.mCtlActions[ePedestrianAction_WalkForward] || 
-        ctlState.mCtlActions[ePedestrianAction_WalkBackward] || 
-        ctlState.mCtlActions[ePedestrianAction_Run])
+    if (ctlState.mWalkForward || ctlState.mWalkBackward || ctlState.mRun)
     {
         float moveSpeed = gGameParams.mPedestrianWalkSpeed;
 
         linearVelocity = mPedestrian->mPhysicsBody->GetSignVector();
-        if (ctlState.mCtlActions[ePedestrianAction_Run])
+        if (ctlState.mRun)
         {
             moveSpeed = gGameParams.mPedestrianRunSpeed;
         }
-        else if (ctlState.mCtlActions[ePedestrianAction_WalkBackward])
+        else if (ctlState.mWalkBackward)
         {
             linearVelocity = -linearVelocity;
         }
@@ -245,25 +242,24 @@ bool PedestrianStatesManager::TryToShoot()
 ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
-    if (ctlState.mCtlActions[ePedestrianAction_Run])
+    if (ctlState.mRun)
     {
-        if (ctlState.mCtlActions[ePedestrianAction_Shoot])
+        if (ctlState.mShoot)
             return ePedestrianState_RunsAndShoots;
 
         return ePedestrianState_Runs;
     }
 
-    if (ctlState.mCtlActions[ePedestrianAction_WalkBackward] ||
-        ctlState.mCtlActions[ePedestrianAction_WalkForward])
+    if (ctlState.mWalkBackward || ctlState.mWalkForward)
     {
         // cannot walk and use fists simultaneously
-        if (ctlState.mCtlActions[ePedestrianAction_Shoot] && mPedestrian->mCurrentWeapon != eWeapon_Fists)
+        if (ctlState.mShoot && (mPedestrian->mCurrentWeapon != eWeapon_Fists))
             return ePedestrianState_WalksAndShoots;
 
         return ePedestrianState_Walks;
     }
 
-    if (ctlState.mCtlActions[ePedestrianAction_Shoot])
+    if (ctlState.mShoot)
         return ePedestrianState_StandsAndShoots;
 
     return ePedestrianState_StandingStill;
@@ -756,7 +752,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     if (mPedestrian->IsShooting())
     {
         // pedestrian is in shooting state but does he really want to shoot?
-        if (ctlState.mCtlActions[ePedestrianAction_Shoot])
+        if (ctlState.mShoot)
         {
             TryToShoot();
         } 
@@ -766,9 +762,9 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     ProcessMotionActions();
 
     // slide over car
-    if (ctlState.mCtlActions[ePedestrianAction_Run] || ctlState.mCtlActions[ePedestrianAction_WalkForward])
+    if (ctlState.mRun || ctlState.mWalkForward)
     {
-        if (ctlState.mCtlActions[ePedestrianAction_Jump] && CanStartSlideOnCarState())
+        if (ctlState.mJump && CanStartSlideOnCarState())
         {
             PedestrianStateEvent evData { ePedestrianStateEvent_None };
             ChangeState(ePedestrianState_SlideOnCar, evData);

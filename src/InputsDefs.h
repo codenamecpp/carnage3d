@@ -2,8 +2,6 @@
 
 enum 
 {
-    MAX_GAMEPADS    = 4,
-    //key mods
     KEYMOD_SHIFT    = GLFW_MOD_SHIFT,
     KEYMOD_CTRL     = GLFW_MOD_CONTROL,
     KEYMOD_ALT      = GLFW_MOD_ALT,
@@ -13,6 +11,7 @@ enum
 enum eMButton
 {
     eMButton_null, // invalid mbutton
+
     eMButton_LEFT,
     eMButton_RIGHT,
     eMButton_MIDDLE,
@@ -107,6 +106,7 @@ decl_enum_strings(eKeycode);
 enum eGamepadButton
 {
     eGamepadButton_null, // invalid button
+
     eGamepadButton_A,
     eGamepadButton_B,
     eGamepadButton_X,
@@ -124,24 +124,69 @@ enum eGamepadButton
     eGamepadButton_DPAD_Left,
     eGamepadButton_LeftTrigger,
     eGamepadButton_RightTrigger,
+
     eGamepadButton_COUNT
 };
 
 decl_enum_strings(eGamepadButton);
 
-// input controller
-enum eInputControllerType
+// gamepad controller id
+enum eGamepadID
 {
-    eInputControllerType_None,
-    eInputControllerType_Keyboard,
-    eInputControllerType_Gamepad1,
-    eInputControllerType_Gamepad2,
-    eInputControllerType_Gamepad3,
-    eInputControllerType_Gamepad4,
-    eInputControllerType_COUNT
+    eGamepadID_Gamepad1,
+    eGamepadID_Gamepad2,
+    eGamepadID_Gamepad3,
+    eGamepadID_Gamepad4,
+
+    eGamepadID_COUNT,
 };
 
-decl_enum_strings(eInputControllerType);
+decl_enum_strings(eGamepadID);
+
+// Human player input actions
+enum eInputAction
+{
+    eInputAction_null, // not an action
+
+    // common
+    eInputAction_NextWeapon,
+    eInputAction_PrevWeapon,
+
+    // on foot
+    eInputAction_TurnLeft,
+    eInputAction_TurnRight,
+    eInputAction_Jump,
+    eInputAction_WalkForward,
+    eInputAction_WalkBackward,
+    eInputAction_Run, // overrides walk_forward and walk_backward
+    eInputAction_Shoot,
+    eInputAction_EnterCar,
+    eInputAction_EnterCarAsPassenger,
+
+    // in car
+    eInputAction_HandBrake,
+    eInputAction_Accelerate,
+    eInputAction_Reverse,
+    eInputAction_SteerLeft,
+    eInputAction_SteerRight,
+    eInputAction_Horn,
+    eInputAction_LeaveCar,
+
+    eInputAction_COUNT
+};
+
+decl_enum_strings(eInputAction);
+
+enum eInputActionsGroup
+{
+    eInputActionsGroup_Common,
+    eInputActionsGroup_OnFoot,
+    eInputActionsGroup_InCar,
+
+    eInputActionsGroup_COUNT
+};
+
+decl_enum_strings(eInputActionsGroup);
 
 // gamepad state
 struct GamepadState
@@ -304,3 +349,5 @@ public:
     {
     }
 };
+
+

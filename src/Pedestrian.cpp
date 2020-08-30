@@ -332,32 +332,15 @@ void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
     mCurrentSeat = targetSeat;
 
     mCurrentCar->PutPassenger(this, mCurrentSeat);
-
-    // reset actions
-    mCtlState.mCtlActions[ePedestrianAction_TurnLeft] = false;
-    mCtlState.mCtlActions[ePedestrianAction_TurnRight] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Jump] = false;
-    mCtlState.mCtlActions[ePedestrianAction_WalkForward] = false;
-    mCtlState.mCtlActions[ePedestrianAction_WalkBackward] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Run] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Shoot] = false;
 }
 
 void Pedestrian::SetCarExited()
 {
-    if (mCurrentCar)
-    {
-        mCurrentCar->RemovePassenger(this);
-        mCurrentCar = nullptr;
-    }
+    if (mCurrentCar == nullptr)
+        return;
 
-    // reset actions
-    mCtlState.mCtlActions[ePedestrianAction_HandBrake] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Accelerate] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Reverse] = false;
-    mCtlState.mCtlActions[ePedestrianAction_SteerLeft] = false;
-    mCtlState.mCtlActions[ePedestrianAction_SteerRight] = false;
-    mCtlState.mCtlActions[ePedestrianAction_Horn] = false;
+    mCurrentCar->RemovePassenger(this);
+    mCurrentCar = nullptr;
 }
 
 void Pedestrian::SetDead(ePedestrianDeathReason deathReason)

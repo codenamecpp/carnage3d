@@ -165,6 +165,7 @@
     <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
+    <ClInclude Include="InputActionsMapping.h" />
     <ClInclude Include="InputsDefs.h" />
     <ClInclude Include="iostream_utils.h" />
     <ClInclude Include="macro.h" />
@@ -268,6 +269,7 @@
     <ClCompile Include="HumanCharacterView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />
     <ClCompile Include="CharacterController.cpp" />
+    <ClCompile Include="InputActionsMapping.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="mem_allocators.cpp" />
     <ClCompile Include="Obstacle.cpp" />

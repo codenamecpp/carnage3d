@@ -371,7 +371,7 @@ CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     fixtureDef.shape = &shapeDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.0f;
-    fixtureDef.restitution = 0.4f;
+    fixtureDef.restitution = 0.0f;
     fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_CAR;
 
     mChassisFixture = mPhysicsBody->CreateFixture(&fixtureDef);

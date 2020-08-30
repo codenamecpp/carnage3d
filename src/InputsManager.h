@@ -15,7 +15,7 @@ public:
     int mCursorPositionX;
     int mCursorPositionY;
 
-    GamepadState mGamepadsState[MAX_GAMEPADS];
+    GamepadState mGamepadsState[eGamepadID_COUNT];
 
 public:
     InputsManager();
@@ -64,6 +64,12 @@ public:
     {
         debug_assert(keycode < eKeycode_COUNT && keycode > eKeycode_null);
         return mKeyboardKeys[keycode];
+    }
+    bool GetGamepadButtonState(eGamepadID gpID, eGamepadButton gpButton) const
+    {
+        debug_assert(gpID < eGamepadID_COUNT);
+        debug_assert(gpButton < eGamepadButton_COUNT);
+        return mGamepadsState[gpID].mButtons[gpButton];
     }
     bool GetMouseButtonL() const { return mMouseButtons[eMButton_LEFT]; }
     bool GetMouseButtonR() const { return mMouseButtons[eMButton_RIGHT]; }

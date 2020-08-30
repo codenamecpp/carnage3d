@@ -1,58 +1,41 @@
 {
     "player1":
     {
-        "controller_type": "Keyboard",
-        "keys":
-        {
-            "LeaveCar": "Enter",
-            "HandBrake": "Space",
-            "Accelerate": "Up",
-            "Reverse": "Down",
-            "SteerLeft": "Left",
-            "SteerRight": "Right",
-            "Horn": "Tab",
-            "TurnLeft": "Left",
-            "TurnRight": "Right",
-            "Jump": "Space",
-            "WalkBackward": "Down",
-            "Run": "Up",
-            "Shoot": "LCtrl",
-            "NextWeapon": "x",
-            "PrevWeapon": "z",
-            "EnterCar": "Enter",
-            "EnterCarAsPassenger": "f"
-        },
-        "gamepad":
-        {
-            "LeaveCar": "X",
-            "HandBrake": "Y",
-            "Accelerate": "Up",
-            "Reverse": "Down",
-            "SteerLeft": "Left",
-            "SteerRight": "Right",
-            "Horn": "A",
-            "TurnLeft": "Left",
-            "TurnRight": "Right",
-            "Jump": "LeftTrigger",
-            "WalkBackward": "Down",
-            "Run": "Up",
-            "Shoot": "B",
-            "NextWeapon": "LeftBumper",
-            "PrevWeapon": "RightBumper",
-            "EnterCar": "X",
-            "EnterCarAsPassenger": "A"
-        }
+        "gamepad_id": "Gamepad1",
+        "actions":
+        [
+            // common
+            {"action":"NextWeapon", "keycode":"x", "gpbutton":"LeftBumper"},
+            {"action":"PrevWeapon", "keycode":"z", "gpbutton":"RightBumper"},
+            // on foot
+            {"action":"TurnLeft", "keycode":"Left", "gpbutton":"Left"},
+            {"action":"TurnRight", "keycode":"Right", "gpbutton":"Right"},
+            {"action":"Jump", "keycode":"Space", "gpbutton":"LeftTrigger"},
+            {"action":"WalkBackward", "keycode":"Down", "gpbutton":"Down"},
+            {"action":"Run", "keycode":"Up", "gpbutton":"Up"},
+            {"action":"Shoot", "keycode":"LCtrl", "gpbutton":"B"},
+            {"action":"EnterCar", "keycode":"Enter", "gpbutton":"X"},
+            {"action":"EnterCarAsPassenger", "keycode":"f", "gpbutton":"A"},          
+            // in car
+            {"action":"HandBrake", "keycode":"Space", "gpbutton":"Y"},
+            {"action":"Accelerate", "keycode":"Up", "gpbutton":"Up"},
+            {"action":"Reverse", "keycode":"Down", "gpbutton":"Down"},
+            {"action":"SteerLeft", "keycode":"Left", "gpbutton":"Left"},
+            {"action":"SteerRight", "keycode":"Right", "gpbutton":"Right"},
+            {"action":"Horn", "keycode":"Tab", "gpbutton":"A"},
+            {"action":"LeaveCar", "keycode":"Enter", "gpbutton":"X"}
+        ]
     },
     "player2":
     {
-        "controller_type": "Gamepad2"
+        "gamepad_id": "Gamepad2"
     },
     "player3":
     {
-        "controller_type": "Gamepad3"
+        "gamepad_id": "Gamepad3"
     },
     "player4":
     {
-        "controller_type": "Gamepad4"
+        "gamepad_id": "Gamepad4"
     }
 }

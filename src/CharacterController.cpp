@@ -9,19 +9,15 @@ CharacterController::~CharacterController()
 
 void CharacterController::UpdateFrame(Pedestrian* pedestrian)
 {
+    // do nothing
 }
 
 void CharacterController::ResetControlState(Pedestrian* pedestrian)
 {
-    // reset control actions
-    for (int iaction = 0; iaction < ePedestrianAction_COUNT; ++iaction)
-    {
-        pedestrian->mCtlState.Clear();
-    }
+    pedestrian->mCtlState.Clear();
 }
 
 void CharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
 {
-
+    // do nothing
 }
-

@@ -637,37 +637,6 @@ enum eWeaponFireType
 
 decl_enum_strings(eWeaponFireType);
 
-// pedestrian basic action
-enum ePedestrianAction
-{
-    ePedestrianAction_null, // not an action
-
-    ePedestrianAction_TurnLeft,
-    ePedestrianAction_TurnRight,
-    ePedestrianAction_Jump,
-    ePedestrianAction_WalkForward,
-    ePedestrianAction_WalkBackward,
-    ePedestrianAction_Run, // overrides walk_forward and walk_backward
-    ePedestrianAction_Shoot,
-    ePedestrianAction_EnterCar,
-    ePedestrianAction_EnterCarAsPassenger,
-    ePedestrianAction_LeaveCar,
-    ePedestrianAction_NextWeapon,
-    ePedestrianAction_PrevWeapon,
-
-    // in car
-    ePedestrianAction_HandBrake,
-    ePedestrianAction_Accelerate,
-    ePedestrianAction_Reverse,
-    ePedestrianAction_SteerLeft,
-    ePedestrianAction_SteerRight,
-    ePedestrianAction_Horn,
-
-    ePedestrianAction_COUNT
-};
-
-decl_enum_strings(ePedestrianAction);
-
 // pedestrian basic state
 enum ePedestrianState
 {
@@ -737,13 +706,29 @@ public:
     // Reset current state
     inline void Clear()
     {
-        for (int icurrent = 0; icurrent < ePedestrianAction_COUNT; ++icurrent)
-        {
-            mCtlActions[icurrent] = false;
-        }
+        *this = PedestrianCtlState();
     }
 public:
-    bool mCtlActions[ePedestrianAction_COUNT]; // control actions
+    // on foot control actions
+    struct
+    {
+        bool mTurnLeft = false;
+        bool mTurnRight = false;
+        bool mWalkForward = false;
+        bool mWalkBackward = false;
+        bool mRun = false;
+        bool mShoot = false;
+        bool mJump = false;
+    };
+    struct // in car control actions
+    {
+        bool mHandBrake = false;
+        bool mAccelerate = false;
+        bool mReverse = false;
+        bool mSteerLeft = false;
+        bool mSteerRight = false;
+        bool mHorn = false;
+    };
 };
 
 // Object sprites draw prioriry

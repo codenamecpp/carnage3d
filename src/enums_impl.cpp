@@ -103,14 +103,12 @@ impl_enum_strings(eGamepadButton)
     {eGamepadButton_RightTrigger, "RightTrigger"},
 };
 
-impl_enum_strings(eInputControllerType)
+impl_enum_strings(eGamepadID)
 {
-    {eInputControllerType_None, "None"},
-    {eInputControllerType_Keyboard, "Keyboard"},
-    {eInputControllerType_Gamepad1, "Gamepad1"},
-    {eInputControllerType_Gamepad2, "Gamepad2"},
-    {eInputControllerType_Gamepad3, "Gamepad3"},
-    {eInputControllerType_Gamepad4, "Gamepad4"},
+    {eGamepadID_Gamepad1, "Gamepad1"},
+    {eGamepadID_Gamepad2, "Gamepad2"},
+    {eGamepadID_Gamepad3, "Gamepad3"},
+    {eGamepadID_Gamepad4, "Gamepad4"},
 };
 
 impl_enum_strings(eLogMessage)
@@ -379,29 +377,27 @@ impl_enum_strings(eWeaponID)
     {eWeapon_RocketLauncher, "rocket_launcher"},
 };
 
-impl_enum_strings(ePedestrianAction)
+impl_enum_strings(eInputAction)
 {
-    {ePedestrianAction_null, "None"},
-
-    {ePedestrianAction_TurnLeft, "TurnLeft"},
-    {ePedestrianAction_TurnRight, "TurnRight"},
-    {ePedestrianAction_Jump, "Jump"},
-    {ePedestrianAction_WalkForward, "WalkForward"},
-    {ePedestrianAction_WalkBackward, "WalkBackward"},
-    {ePedestrianAction_Run, "Run"},
-    {ePedestrianAction_Shoot, "Shoot"},
-    {ePedestrianAction_NextWeapon, "NextWeapon"},
-    {ePedestrianAction_PrevWeapon, "PrevWeapon"},
-    {ePedestrianAction_EnterCar, "EnterCar"},
-    {ePedestrianAction_EnterCarAsPassenger, "EnterCarAsPassenger"},
-
-    {ePedestrianAction_LeaveCar, "LeaveCar"},
-    {ePedestrianAction_HandBrake, "HandBrake"},
-    {ePedestrianAction_Accelerate, "Accelerate"},
-    {ePedestrianAction_Reverse, "Reverse"},
-    {ePedestrianAction_SteerLeft, "SteerLeft"},
-    {ePedestrianAction_SteerRight, "SteerRight"},
-    {ePedestrianAction_Horn, "Horn"},
+    {eInputAction_null, "None"},
+    {eInputAction_TurnLeft, "TurnLeft"},
+    {eInputAction_TurnRight, "TurnRight"},
+    {eInputAction_Jump, "Jump"},
+    {eInputAction_WalkForward, "WalkForward"},
+    {eInputAction_WalkBackward, "WalkBackward"},
+    {eInputAction_Run, "Run"},
+    {eInputAction_Shoot, "Shoot"},
+    {eInputAction_NextWeapon, "NextWeapon"},
+    {eInputAction_PrevWeapon, "PrevWeapon"},
+    {eInputAction_EnterCar, "EnterCar"},
+    {eInputAction_EnterCarAsPassenger, "EnterCarAsPassenger"},
+    {eInputAction_LeaveCar, "LeaveCar"},
+    {eInputAction_HandBrake, "HandBrake"},
+    {eInputAction_Accelerate, "Accelerate"},
+    {eInputAction_Reverse, "Reverse"},
+    {eInputAction_SteerLeft, "SteerLeft"},
+    {eInputAction_SteerRight, "SteerRight"},
+    {eInputAction_Horn, "Horn"},
 };
 
 impl_enum_strings(ePedestrianState)

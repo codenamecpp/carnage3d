@@ -226,8 +226,8 @@ bool GraphicsDevice::Initialize()
         });
     ::glfwSetKeyCallback(graphicsWindow, [](GLFWwindow*, int keycode, int scancode, int action, int mods)
         {
-            if (action == GLFW_REPEAT)
-                return;
+        if (action == GLFW_REPEAT)
+            return;
 
             eKeycode keycodeNative = GlfwKeycodeToNative(keycode);
             if (keycodeNative != eKeycode_null)
@@ -261,7 +261,7 @@ bool GraphicsDevice::Initialize()
         });
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
-            if (gamepad < MAX_GAMEPADS)
+            if (gamepad < eGamepadID_COUNT)
             {
                 gInputs.SetGamepadPresent(gamepad, (gamepadStatus == GLFW_CONNECTED));
             }
@@ -321,7 +321,7 @@ bool GraphicsDevice::Initialize()
     EnableVSync(config.mEnableVSync);
 
     // init gamepads
-    for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
+    for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
     {
         bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
         gInputs.SetGamepadPresent(icurr, isGamepad);
@@ -811,7 +811,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
 {
     GLFWgamepadstate gamepadstate;
 
-    for (int icurr = 0; icurr < MAX_GAMEPADS; ++icurr)
+    for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
     {
         GamepadState& currGamepad = gInputs.mGamepadsState[icurr];
         if (!currGamepad.mPresent)
