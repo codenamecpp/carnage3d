@@ -1,6 +1,6 @@
 #pragma once
 
-class UiContext;
+#include "Font.h"
 
 // in-game heads-up-display controller
 class HUD final
@@ -10,8 +10,9 @@ public:
     void Setup(Pedestrian* character);
     
     void UpdateFrame();
-    void DrawFrame(UiContext& uiContext);
+    void DrawFrame(GuiContext& guiContext);
 
 private:
     Pedestrian* mCharacter = nullptr;
+    Font* mFont = nullptr;
 };

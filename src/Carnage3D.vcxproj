@@ -161,8 +161,9 @@
     <ClInclude Include="DamageInfo.h" />
     <ClInclude Include="Decoration.h" />
     <ClInclude Include="Explosion.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FontManager.h" />
     <ClInclude Include="game_version.h" />
-    <ClInclude Include="GtaFontData.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
     <ClInclude Include="InputActionsMapping.h" />
@@ -216,8 +217,8 @@
     <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="TrafficManager.h" />
-    <ClInclude Include="UiContext.h" />
-    <ClInclude Include="UiManager.h" />
+    <ClInclude Include="GuiContext.h" />
+    <ClInclude Include="GuiManager.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
@@ -262,7 +263,8 @@
     <ClCompile Include="Decoration.cpp" />
     <ClCompile Include="enums_impl.cpp" />
     <ClCompile Include="Explosion.cpp" />
-    <ClCompile Include="GtaFontData.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="HUD.cpp" />
@@ -298,7 +300,7 @@
     <ClCompile Include="GpuTextureArray2D.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="TrafficManager.cpp" />
-    <ClCompile Include="UiManager.cpp" />
+    <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />

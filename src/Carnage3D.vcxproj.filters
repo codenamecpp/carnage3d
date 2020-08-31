@@ -292,20 +292,11 @@
     <ClInclude Include="GameParams.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="UiManager.h">
-      <Filter>Game\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="HUD.h">
-      <Filter>Game\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="UiContext.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
     <ClInclude Include="iostream_utils.h">
       <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="GtaFontData.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="game_version.h" />
     <ClInclude Include="common_utils.h">
@@ -367,6 +358,18 @@
     </ClInclude>
     <ClInclude Include="InputActionsMapping.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiManager.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiContext.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="FontManager.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Game\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -531,14 +534,8 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="UiManager.cpp">
-      <Filter>Game\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="HUD.cpp">
       <Filter>Game\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GtaFontData.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="json_document.cpp">
       <Filter>Lib</Filter>
@@ -581,6 +578,15 @@
     </ClCompile>
     <ClCompile Include="InputActionsMapping.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiManager.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="FontManager.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Game\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

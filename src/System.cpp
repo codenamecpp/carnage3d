@@ -163,7 +163,7 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
-    if (!gUiManager.Initialize())
+    if (!gGuiManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize gui system");
         Terminate();
@@ -187,7 +187,7 @@ void System::Deinit()
     gTimeManager.Deinit();
     gCarnageGame.Deinit();
     gImGuiManager.Deinit();
-    gUiManager.Deinit();
+    gGuiManager.Deinit();
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
     gMemoryManager.Deinit();
@@ -204,7 +204,7 @@ void System::Execute()
         gTimeManager.UpdateFrame();
         gMemoryManager.FlushFrameHeapMemory();
         gImGuiManager.UpdateFrame();
-        gUiManager.UpdateFrame();
+        gGuiManager.UpdateFrame();
         gCarnageGame.UpdateFrame();
         gRenderManager.RenderFrame();
     }

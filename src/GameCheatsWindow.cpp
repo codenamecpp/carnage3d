@@ -184,11 +184,11 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     ImGui::HorzSpacing();
 
-    //if (ImGui::CollapsingHeader("Physics"))
-    //{
-    //    ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
-    //    ImGui::Checkbox("Enable gravity", &mEnableGravity);
-    //}
+    if (ImGui::CollapsingHeader("Physics"))
+    {
+        //ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
+        ImGui::Checkbox("Enable gravity", &mEnableGravity);
+    }
 
     if (ImGui::CollapsingHeader("Map Draw"))
     {

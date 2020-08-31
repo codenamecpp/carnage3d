@@ -99,7 +99,7 @@ void Vehicle::PreDrawFrame()
     }
 }
 
-void Vehicle::DrawDebug(DebugRenderer& debugRender)
+void Vehicle::DebugDraw(DebugRenderer& debugRender)
 {
     glm::vec3 position = mPhysicsBody->GetPosition();
 

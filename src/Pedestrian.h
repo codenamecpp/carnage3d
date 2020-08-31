@@ -46,7 +46,7 @@ public:
     // override GameObject
     void UpdateFrame() override;
     void PreDrawFrame() override;
-    void DrawDebug(DebugRenderer& debugRender) override;
+    void DebugDraw(DebugRenderer& debugRender) override;
 
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details

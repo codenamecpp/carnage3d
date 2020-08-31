@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "HUD.h"
 #include "SpriteBatch.h"
-#include "UiContext.h"
+#include "GuiContext.h"
 #include "Pedestrian.h"
 #include "SpriteManager.h"
 #include "GameMapManager.h"
+#include "FontManager.h"
 
 void HUD::Setup(Pedestrian* character)
 {
     mCharacter = character;
+    mFont = gFontManager.GetFont("SUB2.FON");
 }
 
 void HUD::UpdateFrame()
@@ -16,7 +18,7 @@ void HUD::UpdateFrame()
 
 }
 
-void HUD::DrawFrame(UiContext& uiContext)
+void HUD::DrawFrame(GuiContext& guiContext)
 {
     if (mCharacter == nullptr)
         return;
@@ -36,7 +38,24 @@ void HUD::DrawFrame(UiContext& uiContext)
         sprite.mScale = 1.0f;
         sprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
 
-        uiContext.mSpriteBatch.DrawSprite(sprite);
+        guiContext.mSpriteBatch.DrawSprite(sprite);
+    }
+
+    if (mFont)
+    {
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+
+        ePedestrianState currStateId = mCharacter->GetCurrentStateID();
+        std::string currFpsString = cxx::va("Current state: %s", cxx::enum_to_string(currStateId));
+
+        Point textDims;
+        mFont->MeasureString(currFpsString, textDims);
+
+        Point textPos;
+        textPos.x = guiContext.GetScreenSizex() - textDims.x - 10;
+        textPos.y = 10;
+
+        mFont->DrawString(guiContext, currFpsString, textPos, fontPaletteIndex);
     }
 }
 

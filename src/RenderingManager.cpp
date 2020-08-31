@@ -69,7 +69,7 @@ void RenderingManager::RenderFrame()
     }
     gGraphicsDevice.SetViewportRect(viewportRectangle);
 
-    gUiManager.RenderFrame();
+    gGuiManager.RenderFrame();
 
     for (RenderView* currRenderview: mActiveRenderViews)
     {

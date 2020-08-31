@@ -1,16 +1,17 @@
 #include "stdafx.h"
-#include "UiManager.h"
+#include "GuiManager.h"
 #include "RenderingManager.h"
 #include "GpuProgram.h"
 #include "SpriteManager.h"
 #include "RenderView.h"
-#include "UiContext.h"
+#include "GuiContext.h"
 #include "CarnageGame.h"
 #include "ImGuiManager.h"
+#include "FontManager.h"
 
-UiManager gUiManager;
+GuiManager gGuiManager;
 
-bool UiManager::Initialize()
+bool GuiManager::Initialize()
 {
     if (!mSpriteBatch.Initialize())
     {
@@ -18,16 +19,20 @@ bool UiManager::Initialize()
         return false;
     }
 
+    gFontManager.Initialize();
+
     mCamera2D.SetIdentity();
     return true;
 }
 
-void UiManager::Deinit()
+void GuiManager::Deinit()
 {
     mSpriteBatch.Deinit();
+
+    gFontManager.Cleanup();
 }
 
-void UiManager::RenderFrame()
+void GuiManager::RenderFrame()
 {
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Z, eSpritesSortMode_None);
 
@@ -58,7 +63,7 @@ void UiManager::RenderFrame()
 
             gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(mCamera2D);
 
-            UiContext uiContext ( mCamera2D, mSpriteBatch );
+            GuiContext uiContext ( mCamera2D, mSpriteBatch );
             currPlayer.mCharView.mHUD.DrawFrame(uiContext);
             mSpriteBatch.Flush();
         }
@@ -90,37 +95,37 @@ void UiManager::RenderFrame()
     }
 }
 
-void UiManager::UpdateFrame()
+void GuiManager::UpdateFrame()
 {
     // do nothing
 }
 
-void UiManager::InputEvent(MouseMovedInputEvent& inputEvent)
+void GuiManager::InputEvent(MouseMovedInputEvent& inputEvent)
 {
     // do nothing
 }
 
-void UiManager::InputEvent(MouseScrollInputEvent& inputEvent)
+void GuiManager::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     // do nothing
 }
 
-void UiManager::InputEvent(MouseButtonInputEvent& inputEvent)
+void GuiManager::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     // do nothing
 }
 
-void UiManager::InputEvent(KeyInputEvent& inputEvent)
+void GuiManager::InputEvent(KeyInputEvent& inputEvent)
 {
     // do nothing
 }
 
-void UiManager::InputEvent(KeyCharEvent& inputEvent)
+void GuiManager::InputEvent(KeyCharEvent& inputEvent)
 {
     // do nothing
 }
 
-void UiManager::InputEvent(GamepadInputEvent& inputEvent)
+void GuiManager::InputEvent(GamepadInputEvent& inputEvent)
 {
     // do nothing
 }

@@ -28,7 +28,7 @@ public:
     virtual void UpdateFrame();
 
     // draw debug info
-    virtual void DrawDebug(DebugRenderer& debugRender);
+    virtual void DebugDraw(DebugRenderer& debugRender);
 
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details

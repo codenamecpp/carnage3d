@@ -133,7 +133,7 @@ void Projectile::PreDrawFrame()
     mDrawSprite.mPosition = glm::vec2(position.x, position.z);
 }
 
-void Projectile::DrawDebug(DebugRenderer& debugRender)
+void Projectile::DebugDraw(DebugRenderer& debugRender)
 {   
     if (mWeaponInfo)
     {

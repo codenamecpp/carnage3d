@@ -14,7 +14,7 @@ public:
     void CleanupTraffic();
 
     void UpdateFrame();
-    void DrawDebug(DebugRenderer& debugRender);
+    void DebugDraw(DebugRenderer& debugRender);
 
 private:
     void GeneratePedestrians(bool offscreenOnly);

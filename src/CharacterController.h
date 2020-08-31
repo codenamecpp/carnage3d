@@ -2,6 +2,8 @@
 
 #include "GameDefs.h"
 
+class DebugRenderer;
+
 // defines base character control class
 class CharacterController: public cxx::noncopyable
 {
@@ -10,9 +12,7 @@ public:
 
     // Process controller logic
     virtual void UpdateFrame(Pedestrian* pedestrian);
-
-    // Clear current state but keep target character bound to controller
-    virtual void ResetControlState(Pedestrian* pedestrian);
+    virtual void DebugDraw(DebugRenderer& debugRender);
 
     // Process character dead
     virtual void HandleCharacterDeath(Pedestrian* pedestrian);

@@ -34,7 +34,7 @@ void Decoration::UpdateFrame()
     }
 }
 
-void Decoration::DrawDebug(DebugRenderer& debugRender)
+void Decoration::DebugDraw(DebugRenderer& debugRender)
 {
 }
 

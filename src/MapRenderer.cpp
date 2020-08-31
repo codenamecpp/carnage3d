@@ -167,10 +167,10 @@ void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender
         if (gameObject->mLastRenderFrame != mRenderStats.mRenderFramesCounter)
             continue;
 
-        gameObject->DrawDebug(debugRender);
+        gameObject->DebugDraw(debugRender);
     }
 
-    gTrafficManager.DrawDebug(debugRender);
+    gTrafficManager.DebugDraw(debugRender);
 }
 
 void MapRenderer::DrawCityMesh(RenderView* renderview)

@@ -2,6 +2,7 @@
 #include "CharacterController.h"
 #include "Pedestrian.h"
 #include "Vehicle.h"
+#include "DebugRenderer.h"
 
 CharacterController::~CharacterController()
 {
@@ -12,9 +13,9 @@ void CharacterController::UpdateFrame(Pedestrian* pedestrian)
     // do nothing
 }
 
-void CharacterController::ResetControlState(Pedestrian* pedestrian)
+void CharacterController::DebugDraw(DebugRenderer& debugRender)
 {
-    pedestrian->mCtlState.Clear();
+    // do nothing
 }
 
 void CharacterController::HandleCharacterDeath(Pedestrian* pedestrian)

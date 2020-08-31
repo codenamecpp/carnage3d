@@ -40,7 +40,7 @@ void TrafficManager::UpdateFrame()
     // todo: vehicles
 }
 
-void TrafficManager::DrawDebug(DebugRenderer& debugRender)
+void TrafficManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 

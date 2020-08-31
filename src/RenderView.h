@@ -2,7 +2,7 @@
 
 #include "GameCamera.h"
 
-class UiContext;
+class GuiContext;
 
 // base renderview class
 class RenderView: public cxx::noncopyable

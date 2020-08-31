@@ -27,7 +27,7 @@ void Obstacle::UpdateFrame()
     }
 }
 
-void Obstacle::DrawDebug(DebugRenderer& debugRender)
+void Obstacle::DebugDraw(DebugRenderer& debugRender)
 {
 }
 

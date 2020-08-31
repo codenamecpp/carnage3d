@@ -423,6 +423,9 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 
 void PhysicsManager::ProcessGravityStep()
 {
+    if (!gGameCheatsWindow.mEnableGravity)
+        return;
+
     // process vihicles
     for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
     {

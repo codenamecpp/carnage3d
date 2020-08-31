@@ -50,6 +50,9 @@ public:
     // @param remap: Remap index, can only be used for pedestrian and vehicle sprites
     int GetSpritePaletteIndex(int spriteClut, int remapClut) const;
 
+    // Get palette index for font
+    int GetFontPaletteIndex(int fontClut) const;
+
     // Get number of textures total or for specific block type only
     // @param blockType: Block type
     int GetBlockTexturesCount(eBlockType blockType) const;

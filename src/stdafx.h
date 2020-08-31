@@ -94,7 +94,7 @@
 #include "SpriteAnimation.h"
 #include "GameParams.h"
 #include "GameMapHelpers.h"
-#include "UiManager.h"
+#include "GuiManager.h"
 #include "PixelsArray.h"
 #include "GameDefs.h"
 #include "Convert.h"

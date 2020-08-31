@@ -40,7 +40,7 @@ void Explosion::UpdateFrame()
     }
 }
 
-void Explosion::DrawDebug(DebugRenderer& debugRender)
+void Explosion::DebugDraw(DebugRenderer& debugRender)
 {
     float damageRadiusA = gGameParams.mExplosionPrimaryDamageDistance;
     float damageRadiusB = gGameParams.mExplosionSecondaryDamageDistance;

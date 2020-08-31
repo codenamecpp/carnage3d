@@ -4,7 +4,7 @@
 #include "SpriteBatch.h"
 
 // manages all graphical user interface operation
-class UiManager final: public InputEventsHandler
+class GuiManager final: public InputEventsHandler
 {
 public:
     // setup/free internal resources
@@ -27,4 +27,4 @@ private:
     GameCamera2D mCamera2D;
 };
 
-extern UiManager gUiManager;
+extern GuiManager gGuiManager;

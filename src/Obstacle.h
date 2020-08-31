@@ -13,7 +13,7 @@ public:
     // override GameObject
     void PreDrawFrame() override;
     void UpdateFrame() override;
-    void DrawDebug(DebugRenderer& debugRender) override;
+    void DebugDraw(DebugRenderer& debugRender) override;
 
     // Setup initial state when spawned or respawned on level
     void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);

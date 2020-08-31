@@ -71,12 +71,6 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
 
 void Pedestrian::UpdateFrame()
 {
-    // update controller logic if it specified
-    if (mController)
-    {
-        mController->UpdateFrame(this);
-    }
-
     float deltaTime = gTimeManager.mGameFrameDelta;
     mCurrentAnimState.AdvanceAnimation(deltaTime);
 
@@ -111,7 +105,7 @@ void Pedestrian::PreDrawFrame()
     }
 }
 
-void Pedestrian::DrawDebug(DebugRenderer& debugRender)
+void Pedestrian::DebugDraw(DebugRenderer& debugRender)
 {
     if (mCurrentCar == nullptr)
     {

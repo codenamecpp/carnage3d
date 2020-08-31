@@ -249,7 +249,7 @@ bool PixelsArray::FillWithColor(Color32 color)
         int offset = (iy * mSizex * bpp) + (ix * bpp);
         if (bpp == 1)
         {
-            mData[0] = color.mR;
+            mData[offset + 0] = color.mR;
         }
         else
         {

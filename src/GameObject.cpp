@@ -28,7 +28,7 @@ void GameObject::UpdateFrame()
     // do nothing
 }
 
-void GameObject::DrawDebug(DebugRenderer& debugRender)
+void GameObject::DebugDraw(DebugRenderer& debugRender)
 {
     // do nothing
 }

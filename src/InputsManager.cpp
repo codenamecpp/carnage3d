@@ -139,6 +139,6 @@ void InputsManager::UpdateFrame()
     {
         mInputHandlers.push_back(&gImGuiManager);
     }
-    mInputHandlers.push_back(&gUiManager);
+    mInputHandlers.push_back(&gGuiManager);
     mInputHandlers.push_back(&gCarnageGame);
 }

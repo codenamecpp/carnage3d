@@ -3,14 +3,14 @@
 class GameCamera2D;
 class SpriteBatch;
 
-class UiContext
+class GuiContext
 {
 public:
     GameCamera2D& mCamera;
     SpriteBatch& mSpriteBatch;
 
 public:
-    UiContext(GameCamera2D& camera, SpriteBatch& spriteBatch)
+    GuiContext(GameCamera2D& camera, SpriteBatch& spriteBatch)
         : mCamera(camera)
         , mSpriteBatch(spriteBatch)
     {

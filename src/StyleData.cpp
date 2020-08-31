@@ -338,6 +338,11 @@ int StyleData::GetSpritePaletteIndex(int spriteClut, int remapClut) const
     return mPaletteIndices[mTileClutsCount + spriteClut];
 }
 
+int StyleData::GetFontPaletteIndex(int fontClut) const
+{
+    return mPaletteIndices[mTileClutsCount + mSpriteClutsCount + mRemapClutsCount + fontClut];
+}
+
 bool StyleData::GetBlockTexture(eBlockType blockType, int blockIndex, PixelsArray* bitmap, int destPositionX, int destPositionY, int remap)
 {
     // target bitmap must be allocated otherwise operation makes no sence
