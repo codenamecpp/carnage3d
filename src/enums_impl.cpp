@@ -566,3 +566,21 @@ impl_enum_strings(eWeaponFireType)
     {eWeaponFireType_Melee, "melee"},
     {eWeaponFireType_Projectile, "projectile"},
 };
+
+impl_enum_strings(eSpriteDrawOrder)
+{
+    {eSpriteDrawOrder_Background, "background"},
+    {eSpriteDrawOrder_GroundDecals, "ground"},
+    {eSpriteDrawOrder_Corpse, "corpse"},
+    {eSpriteDrawOrder_TireMarks, "tireMarks"},
+    {eSpriteDrawOrder_MapObject, "mapObject"},
+    {eSpriteDrawOrder_Pedestrian, "pedestrian"},
+    {eSpriteDrawOrder_CarPassenger, "carPassenger"},
+    {eSpriteDrawOrder_Car, "car"},
+    {eSpriteDrawOrder_ConvetibleCarPassenger, "convertibleCarPassenger"},
+    {eSpriteDrawOrder_JumpingPedestrian, "jumpingPedestrian"},
+    {eSpriteDrawOrder_Trees, "trees"},
+    {eSpriteDrawOrder_Projectiles, "projectiles"},
+    {eSpriteDrawOrder_Explosion, "explosion"},
+    {eSpriteDrawOrder_Foreground, "foreground"},
+};

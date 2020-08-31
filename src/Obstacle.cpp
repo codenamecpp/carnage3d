@@ -8,6 +8,10 @@ Obstacle::Obstacle(GameObjectID id, GameObjectInfo* desc)
     , mGameObjectDesc(desc)
 {
     debug_assert(mGameObjectDesc);
+    if (mGameObjectDesc)
+    {
+        mDrawSprite.mDrawOrder = mGameObjectDesc->mDrawOrder;
+    }
 }
 
 Obstacle::~Obstacle()

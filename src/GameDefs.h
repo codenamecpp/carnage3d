@@ -81,6 +81,29 @@ class Explosion;
 
 using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
+// Object sprites draw prioriry
+enum eSpriteDrawOrder
+{
+    eSpriteDrawOrder_Background,
+    
+    eSpriteDrawOrder_GroundDecals,
+    eSpriteDrawOrder_Corpse,
+    eSpriteDrawOrder_TireMarks,
+    eSpriteDrawOrder_MapObject,
+    eSpriteDrawOrder_Pedestrian,
+    eSpriteDrawOrder_CarPassenger,
+    eSpriteDrawOrder_Car,
+    eSpriteDrawOrder_ConvetibleCarPassenger,
+    eSpriteDrawOrder_JumpingPedestrian,
+    eSpriteDrawOrder_Trees,
+    eSpriteDrawOrder_Projectiles,
+    eSpriteDrawOrder_Explosion,
+
+    eSpriteDrawOrder_Foreground,
+};
+
+decl_enum_strings(eSpriteDrawOrder);
+
 // gameobject class identifiers
 enum eGameObjectClass
 {
@@ -140,6 +163,7 @@ struct GameObjectInfo
     int mLifeDuration = 0; // 0 for infinite, non-zero n for n animation cycles
 
     SpriteAnimData mAnimationData; // optional
+    eSpriteDrawOrder mDrawOrder = eSpriteDrawOrder_MapObject;
 };
 
 // map block lid rotation
@@ -729,24 +753,4 @@ public:
         bool mSteerRight = false;
         bool mHorn = false;
     };
-};
-
-// Object sprites draw prioriry
-enum eSpriteDrawOrder
-{
-    eSpriteDrawOrder_Background,
-    
-    eSpriteDrawOrder_GroundDecals,
-    eSpriteDrawOrder_Corpse,
-    eSpriteDrawOrder_TireMarks,
-    eSpriteDrawOrder_MapObject,
-    eSpriteDrawOrder_Pedestrian,
-    eSpriteDrawOrder_CarPassenger,
-    eSpriteDrawOrder_Car,
-    eSpriteDrawOrder_ConvetibleCarPassenger,
-    eSpriteDrawOrder_JumpingPedestrian,
-    eSpriteDrawOrder_Projectiles,
-    eSpriteDrawOrder_Explosion,
-
-    eSpriteDrawOrder_Foreground,
 };

@@ -224,7 +224,7 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
 
     file.close();
 
-    if (!InitGameObjectsList())
+    if (!InitGameObjects())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Fail to initialize game objects");
     }
@@ -1060,7 +1060,7 @@ void StyleData::ReadPedestrianAnimations()
     }
 }
 
-bool StyleData::InitGameObjectsList()
+bool StyleData::InitGameObjects()
 {
     int rawObjectsCount = (int) mObjectsRaw.size();
 
@@ -1109,9 +1109,10 @@ bool StyleData::InitGameObjectsList()
             gConsole.LogMessage(eLogMessage_Warning, "Unknown gameobject classid");
             continue;
         }
-
+ 
         int frameCount = 0;
         cxx::json_get_attribute(currObjectNode, "frameCount", frameCount);
+        cxx::json_get_attribute(currObjectNode, "drawOrder", currObject.mDrawOrder);
 
         ParseObjectFlags(currObjectNode, "flags", currObject.mFlags);
 

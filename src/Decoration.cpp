@@ -9,6 +9,7 @@ Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc)
     if (gameObjectDesc)
     {
         mAnimationState.mAnimDesc = gameObjectDesc->mAnimationData;
+        mDrawSprite.mDrawOrder = gameObjectDesc->mDrawOrder;
     }
 }
 

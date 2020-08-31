@@ -128,7 +128,7 @@ private:
     void ReadPedestrianAnimations();
     void ReadWeapons();
 
-    bool InitGameObjectsList();
+    bool InitGameObjects();
 
     bool DoDataIntegrityCheck() const;
 

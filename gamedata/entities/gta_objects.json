@@ -163,7 +163,8 @@
     {
         "name": "tree1",
         "class": "obstacle",
-        "frameCount": 1
+        "frameCount": 1,
+        "drawOrder": "trees"
     },
     // #27
     {
