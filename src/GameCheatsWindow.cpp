@@ -6,6 +6,7 @@
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
+#include "AIManager.h"
 
 namespace ImGui
 {
@@ -73,7 +74,9 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
                 pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
                 pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
-                gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 1);
+                Pedestrian* character = gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 1);
+                debug_assert(character);
+                gAiManager.CreateAiController(character);
             }
             ImGui::EndMenu();
         }

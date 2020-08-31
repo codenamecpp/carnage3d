@@ -6,6 +6,15 @@
 class AiCharacterController final: public CharacterController
 {
 public:
+    AiCharacterController(Pedestrian* character);
+
     // process controller logic
-    void UpdateFrame(Pedestrian* pedestrian) override;
+    void UpdateFrame() override;
+
+private:
+    bool ContinueWalkToPoint();
+    void ChooseRandomPointToWalk();
+
+private:
+    glm::vec2 mArrivalPoint;
 };

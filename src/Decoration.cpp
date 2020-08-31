@@ -44,6 +44,7 @@ void Decoration::Spawn(const glm::vec3& position, cxx::angle_t heading)
 
     mAnimationState.ClearState();
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
 }
 
 void Decoration::SetLifeDuration(int numCycles)

@@ -181,7 +181,7 @@ void SpriteBatch::SortSprites()
         {
             return lhs.mHeight < rhs.mHeight;
         };
-        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        std::stable_sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
         return;
     }
 
@@ -191,7 +191,7 @@ void SpriteBatch::SortSprites()
         {
             return lhs.mDrawOrder < rhs.mDrawOrder;
         };
-        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        std::stable_sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
         return;
     }
 
@@ -205,7 +205,7 @@ void SpriteBatch::SortSprites()
             }
             return (lhs.mDrawOrder < rhs.mDrawOrder);
         };  
-        std::sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
+        std::stable_sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
         return;
     }
 }

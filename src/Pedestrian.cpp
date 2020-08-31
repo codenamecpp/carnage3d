@@ -22,6 +22,7 @@ Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian
 
 Pedestrian::~Pedestrian()
 {
+    debug_assert(mController == nullptr);
     SetCarExited();
 
     if (mPhysicsBody)
@@ -30,7 +31,7 @@ Pedestrian::~Pedestrian()
     }
 }
 
-void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
     mCurrentStateTime = 0.0f;
     mWeaponRechargeTime = 0.0f;
@@ -49,13 +50,13 @@ void Pedestrian::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
         debug_assert(mPhysicsBody);
     }
     else
     {
         mPhysicsBody->SetRespawned();
-        mPhysicsBody->SetPosition(startPosition, startRotation);
+        mPhysicsBody->SetPosition(position, heading);
     }
 
     mDeathReason = ePedestrianDeathReason_null;
@@ -342,12 +343,6 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     debug_assert(mDeathReason == ePedestrianDeathReason_null);
     debug_assert(deathReason != ePedestrianDeathReason_null);
     mDeathReason = deathReason;
-
-    // notify brains
-    if (mController)
-    {
-        mController->HandleCharacterDeath(this);
-    }
 }
 
 void Pedestrian::DieFromDamage(eDamageCause damageCause)

@@ -11,12 +11,19 @@
 
 static const float PlayerCharacterRespawnTime = 10.0f;
 
-void HumanCharacterController::UpdateFrame(Pedestrian* pedestrian)
+void HumanCharacterController::UpdateFrame()
 {
-    debug_assert(pedestrian == mCharacter);
-
     if (mCharacter->IsDead())
     {
+        // detect death
+        if (mRespawnTime == 0.0f)
+        {
+            mRespawnTime = PlayerCharacterRespawnTime;
+
+            int playerIndex = 1 + gCarnageGame.GetPlayerIndex(this);
+            gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", playerIndex, cxx::enum_to_string(mCharacter->mDeathReason));
+        }
+
         float deltaTime = gTimeManager.mGameFrameDelta;
         mRespawnTime -= deltaTime;
         if (mRespawnTime < 0)
@@ -214,17 +221,6 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
         }
         return;
     }
-}
-
-void HumanCharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
-{
-    debug_assert(mCharacter->IsDead());
-    mRespawnTime = PlayerCharacterRespawnTime;
-
-    // todo: show WASTED
-
-    int playerIndex = 1 + gCarnageGame.GetPlayerIndex(this);
-    gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", playerIndex, cxx::enum_to_string(mCharacter->mDeathReason));
 }
 
 void HumanCharacterController::Respawn()

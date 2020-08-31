@@ -6,9 +6,10 @@
 
 CharacterController::~CharacterController()
 {
+    Deactivate();
 }
 
-void CharacterController::UpdateFrame(Pedestrian* pedestrian)
+void CharacterController::UpdateFrame()
 {
     // do nothing
 }
@@ -18,7 +19,17 @@ void CharacterController::DebugDraw(DebugRenderer& debugRender)
     // do nothing
 }
 
-void CharacterController::HandleCharacterDeath(Pedestrian* pedestrian)
+void CharacterController::Deactivate()
 {
-    // do nothing
+    if (mCharacter)
+    {
+        debug_assert(mCharacter->mController == this);
+        mCharacter->mController = nullptr;
+        mCharacter = nullptr;
+    }
+}
+
+bool CharacterController::IsActive() const
+{
+    return mCharacter != nullptr;
 }

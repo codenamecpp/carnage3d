@@ -17,7 +17,7 @@ void GameParams::SetToDefaults()
     mPedestrianTurnSpeed = 260.0f;
     mPedestrianTurnSpeedSlideOnCar = 120.0f;
     mPedestrianSlideOnCarSpeed = Convert::MapUnitsToMeters(1.2f);
-    mPedestrianWalkSpeed = Convert::MapUnitsToMeters(0.7f);
+    mPedestrianWalkSpeed = Convert::MapUnitsToMeters(0.5f);
     mPedestrianRunSpeed = Convert::MapUnitsToMeters(1.5f);
     mPedestrianSpotTheCarDistance = Convert::MapUnitsToMeters(3.0f);
     mPedestrianKnockedDownTime = 3.0f;

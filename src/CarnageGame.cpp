@@ -9,6 +9,7 @@
 #include "MemoryManager.h"
 #include "TimeManager.h"
 #include "TrafficManager.h"
+#include "AIManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
@@ -64,11 +65,12 @@ void CarnageGame::UpdateFrame()
         if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.UpdateFrame(mHumanSlot[ihuman].mCharPedestrian);
+        mHumanSlot[ihuman].mCharController.UpdateFrame();
         mHumanSlot[ihuman].mCharView.UpdateFrame();
     }
 
     gTrafficManager.UpdateFrame();
+    gAiManager.UpdateFrame();
 }
 
 void CarnageGame::InputEventLost()
@@ -360,6 +362,7 @@ void CarnageGame::ShutdownCurrentScenario()
         mHumanSlot[ihuman].mCharView.SetCameraController(nullptr);
         mHumanSlot[ihuman].mCharPedestrian = nullptr;
     }
+    gAiManager.ReleaseAiControllers();
     gTrafficManager.CleanupTraffic();
     gGameObjectsManager.FreeGameObjects();
     gPhysics.FreePhysicsWorld();

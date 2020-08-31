@@ -11,15 +11,13 @@ public:
     // readonly
     InputActionsMapping mActionsMapping;
 
-    Pedestrian* mCharacter = nullptr;
     glm::vec3 mSpawnPosition;
 
 public:
-    // process controller logic
-    void UpdateFrame(Pedestrian* pedestrian) override;
     void SetCharacter(Pedestrian* character);
 
-    void HandleCharacterDeath(Pedestrian* pedestrian) override;
+    // process controller logic
+    void UpdateFrame() override;
 
     // process players inputs
     // @param inputEvent: Event data

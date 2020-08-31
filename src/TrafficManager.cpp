@@ -4,6 +4,7 @@
 #include "CarnageGame.h"
 #include "RenderView.h"
 #include "TimeManager.h"
+#include "AIManager.h"
 
 TrafficManager gTrafficManager;
 
@@ -19,8 +20,8 @@ void TrafficManager::StartupTraffic()
 
     mRand.set_seed((unsigned int) ms.count());
 
-    //mLastGenPedestriansTime = gTimeManager.mGameTime;
-    //GeneratePedestrians(false);
+    mLastGenPedestriansTime = gTimeManager.mGameTime;
+    GeneratePedestrians(false);
     
     // todo: vehicles
 }
@@ -32,11 +33,11 @@ void TrafficManager::CleanupTraffic()
 
 void TrafficManager::UpdateFrame()
 {
-    //if (gTimeManager.mGameTime > (mLastGenPedestriansTime + mGenPedestriansCooldownTime))
-    //{
-    //    mLastGenPedestriansTime = gTimeManager.mGameTime;
-    //    GeneratePedestrians(true);
-    //}
+    if (gTimeManager.mGameTime > (mLastGenPedestriansTime + mGenPedestriansCooldownTime))
+    {
+        mLastGenPedestriansTime = gTimeManager.mGameTime;
+        GeneratePedestrians(true);
+    }
     // todo: vehicles
 }
 
@@ -147,6 +148,8 @@ void TrafficManager::GeneratePedestrians(bool offscreenOnly)
         {
             pedestrian->mRemapIndex = mRand.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
             pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
+
+            AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
         }
     }
 }
@@ -182,6 +185,7 @@ void TrafficManager::ScanOffscreenPedestrians()
 
             if (glm::distance2(characterPos, currPedestrianPos) > 1800.0f) // todo: magic numbers
             {
+                pedestrian->mController->Deactivate();
                 pedestrian->MarkForDeletion();
             }
 
