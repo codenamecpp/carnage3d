@@ -6,7 +6,7 @@
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
-#include "AIManager.h"
+#include "AiManager.h"
 
 namespace ImGui
 {

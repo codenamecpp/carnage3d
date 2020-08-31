@@ -4,7 +4,7 @@
 #include "CarnageGame.h"
 #include "RenderView.h"
 #include "TimeManager.h"
-#include "AIManager.h"
+#include "AiManager.h"
 
 TrafficManager gTrafficManager;
 

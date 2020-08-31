@@ -9,7 +9,7 @@
 #include "MemoryManager.h"
 #include "TimeManager.h"
 #include "TrafficManager.h"
-#include "AIManager.h"
+#include "AiManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
