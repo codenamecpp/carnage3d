@@ -65,7 +65,7 @@
     <Filter Include="Data\entities">
       <UniqueIdentifier>{ba5abb24-45fc-4800-b80d-acbc30a9f820}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\AI">
+    <Filter Include="Game\Ai">
       <UniqueIdentifier>{6c26b4d0-cfc7-4af8-a22a-6acc7c3fb8ef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -350,12 +350,6 @@
     <ClInclude Include="TrafficManager.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="AIManager.h">
-      <Filter>Game\AI</Filter>
-    </ClInclude>
-    <ClInclude Include="AICharacterController.h">
-      <Filter>Game\AI</Filter>
-    </ClInclude>
     <ClInclude Include="InputActionsMapping.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -370,6 +364,12 @@
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AiCharacterController.h">
+      <Filter>Game\Ai</Filter>
+    </ClInclude>
+    <ClInclude Include="AiManager.h">
+      <Filter>Game\Ai</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -570,12 +570,6 @@
     <ClCompile Include="TrafficManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="AIManager.cpp">
-      <Filter>Game\AI</Filter>
-    </ClCompile>
-    <ClCompile Include="AICharacterController.cpp">
-      <Filter>Game\AI</Filter>
-    </ClCompile>
     <ClCompile Include="InputActionsMapping.cpp">
       <Filter>Application</Filter>
     </ClCompile>
@@ -587,6 +581,12 @@
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="AiCharacterController.cpp">
+      <Filter>Game\Ai</Filter>
+    </ClCompile>
+    <ClCompile Include="AiManager.cpp">
+      <Filter>Game\Ai</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

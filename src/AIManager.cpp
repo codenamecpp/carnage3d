@@ -1,4 +1,4 @@
 #include "stdafx.h"
-#include "AIManager.h"
+#include "AiManager.h"
 
-AIManager gAIManager;
+AiManager gAiManager;

@@ -153,8 +153,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AICharacterController.h" />
-    <ClInclude Include="AIManager.h" />
+    <ClInclude Include="AiCharacterController.h" />
+    <ClInclude Include="AiManager.h" />
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
@@ -256,8 +256,8 @@
     <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AICharacterController.cpp" />
-    <ClCompile Include="AIManager.cpp" />
+    <ClCompile Include="AiCharacterController.cpp" />
+    <ClCompile Include="AiManager.cpp" />
     <ClCompile Include="CommonTypes.cpp" />
     <ClCompile Include="DamageInfo.cpp" />
     <ClCompile Include="Decoration.cpp" />
