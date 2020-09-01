@@ -8,7 +8,7 @@ bool FontManager::Initialize()
     return true;
 }
 
-void FontManager::Cleanup()
+void FontManager::Deinit()
 {
     for (auto& currFont: mFontsCache)
     {
@@ -19,35 +19,36 @@ void FontManager::Cleanup()
 
 Font* FontManager::GetFont(const std::string& fontName)
 {
+    Font* fontInstance = nullptr;
+
     auto find_iterator = mFontsCache.find(fontName);
     if (find_iterator != mFontsCache.end())
-        return find_iterator->second;
-
-    // cache miss
-    Font* fontInstance = LoadFontFromFile(fontName);
-    if (fontInstance == nullptr)
     {
-        return nullptr;
+        fontInstance = find_iterator->second;
     }
 
-    mFontsCache[fontName] = fontInstance;
+    if (fontInstance == nullptr) // cache miss
+    {
+        fontInstance = new Font(fontName);
+        mFontsCache[fontName] = fontInstance;
+    }
+
+    debug_assert(fontInstance);
+    if (!fontInstance->IsLoaded())
+    {
+        if (!fontInstance->LoadFromFile())
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot load font '%s'", fontName.c_str());
+        }
+    }
+
     return fontInstance;
 }
 
-Font* FontManager::LoadFontFromFile(const std::string& fontName)
+void FontManager::FlushAllFonts()
 {
-    std::ifstream inputStream;
-    if (!gFiles.OpenBinaryFile(fontName, inputStream))
+    for (auto& currFont: mFontsCache)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot find font file '%s'", fontName.c_str());
-        return nullptr;
+        currFont.second->Unload();
     }
-
-    Font* fontInstance = new Font;
-    if (!fontInstance->LoadFromStream(inputStream))
-    {
-        SafeDelete(fontInstance);
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load font '%s'", fontName.c_str());
-    }
-    return fontInstance;
 }

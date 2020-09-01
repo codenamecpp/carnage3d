@@ -10,14 +10,15 @@ public:
     bool Initialize();
 
     // Flush all currently cached fonts
-    void Cleanup();
+    void Deinit();
 
-    // Finds font instance in the cache or loads it from a file
+    // Flush all currently loaded fonts
+    void FlushAllFonts();
+
+    // Finds font instance within cache and force it to load
     // @param fontName: Font name
+    // @returns font instance which might be not loaded in case of error
     Font* GetFont(const std::string& fontName);
-
-private:
-    Font* LoadFontFromFile(const std::string& fontName);
 
 private:
     std::map<std::string, Font*> mFontsCache;

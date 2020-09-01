@@ -4,18 +4,31 @@
 #include "GpuTexture2D.h"
 #include "stb_rect_pack.h"
 
-
 static const int MaxFontAtlasTextureSize = 2048;
+
+Font::Font(const std::string& fontName)
+    : mFontName(fontName)
+{  
+}
 
 Font::~Font()
 {
-    Clear();
+    Unload();
 }
 
-bool Font::LoadFromStream(std::istream& inStream)
+bool Font::IsLoaded() const
 {
-    // drop previous content
-    Clear();
+    return mFontTexture != nullptr;
+}
+
+bool Font::LoadFromFile()
+{
+    if (IsLoaded())
+        return true;
+
+    std::ifstream inStream;
+    if (!gFiles.OpenBinaryFile(mFontName, inStream))
+        return false;
 
     // read header
     unsigned char numChars = 0;
@@ -55,14 +68,14 @@ bool Font::LoadFromStream(std::istream& inStream)
     // create texture
     if (!CreateFontAtlas())
     {
-        Clear();
+        Unload();
         return false;
     }
 
     return true;
 }
 
-void Font::Clear()
+void Font::Unload()
 {
     mLineHeight = 0;
     mBaseCharCode = 0;

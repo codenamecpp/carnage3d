@@ -163,6 +163,7 @@
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontManager.h" />
+    <ClInclude Include="GameTextsManager.h" />
     <ClInclude Include="game_version.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectsManager.cpp" />
+    <ClCompile Include="GameTextsManager.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="HumanCharacterView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />

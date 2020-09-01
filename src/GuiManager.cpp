@@ -29,7 +29,7 @@ void GuiManager::Deinit()
 {
     mSpriteBatch.Deinit();
 
-    gFontManager.Cleanup();
+    gFontManager.Deinit();
 }
 
 void GuiManager::RenderFrame()

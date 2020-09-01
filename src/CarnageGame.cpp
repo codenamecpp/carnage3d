@@ -10,6 +10,7 @@
 #include "TimeManager.h"
 #include "TrafficManager.h"
 #include "AiManager.h"
+#include "GameTextsManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
@@ -37,6 +38,9 @@ bool CarnageGame::Initialize()
     if (gSystem.mStartupParams.mDebugMapName.empty())
         return false;
 
+    gGameTexts.Initialize();
+    //gGameTexts.LoadTexts("ENGLISH.FXT");
+
     if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
     {
         ShutdownCurrentScenario();
@@ -50,6 +54,8 @@ bool CarnageGame::Initialize()
 void CarnageGame::Deinit()
 {
     ShutdownCurrentScenario();
+
+    gGameTexts.Deinit();
 }
 
 void CarnageGame::UpdateFrame()

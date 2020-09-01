@@ -36,6 +36,9 @@ public:
     // @param objectName: File name
     // @param output: Content
     bool ReadTextFile(const std::string& objectName, std::string& output);
+
+    // Load whole binary file content to std vector
+    bool ReadBinaryFile(const std::string& objectName, std::vector<unsigned char>& output);
     
     // Load json config document
     bool ReadConfig(const std::string& jsonName, cxx::json_document& output);

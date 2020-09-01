@@ -128,6 +128,27 @@ bool FileSystem::ReadTextFile(const std::string& objectName, std::string& output
     return true;
 }
 
+bool FileSystem::ReadBinaryFile(const std::string& objectName, std::vector<unsigned char>& output)
+{
+    output.clear();
+
+    std::ifstream fileStream;
+    if (!OpenBinaryFile(objectName, fileStream))
+        return false;
+
+    fileStream.seekg(0, std::ios::end);
+    std::streampos fileSize = fileStream.tellg();
+    fileStream.seekg(0);
+
+    output.resize(fileSize);
+    if (!fileStream.read((char*) output.data(), fileSize))
+    {
+        output.clear();
+        return false;
+    }
+    return true;
+}
+
 void FileSystem::AddSearchPlace(const std::string& searchPlace)
 {
     for (const std::string& currPlace: mSearchPlaces)

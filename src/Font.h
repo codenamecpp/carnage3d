@@ -6,11 +6,18 @@
 class Font final: public cxx::noncopyable
 {
 public:
+    const std::string mFontName;
+
+public:
+    Font(const std::string& fontName);
     ~Font();
 
-    // Load font characters and palette from input stream
-    bool LoadFromStream(std::istream& inStream);
-    void Clear();
+    // Loads or unloads font isntance
+    bool LoadFromFile();
+    void Unload();
+
+    // Test whether font resource is loaded
+    bool IsLoaded() const;
 
     // Set base character code
     void SetFontBaseCharCode(int charCode);
