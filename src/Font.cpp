@@ -148,7 +148,7 @@ void Font::MeasureString(const std::string& text, Point& outputSize) const
     int charsCounter = 0;
     int currLineWidth = 0;
 
-    for (char currChar: text)
+    for (unsigned char currChar: text)
     {
         if (currChar == '\n')
         {
@@ -168,7 +168,7 @@ void Font::MeasureString(const std::string& text, Point& outputSize) const
         if (currChar < mBaseCharCode)
             continue;
 
-        char charCode = currChar - mBaseCharCode;
+        unsigned char charCode = currChar - mBaseCharCode;
         if (charCode >= maxCharCodes)
             continue;
 
@@ -211,7 +211,7 @@ void Font::DrawString(GuiContext& guiContext, const std::string& text, const Poi
 
     int currentOffsetX = position.x;
     int currentOffsetY = position.y;
-    for (char currChar: text)
+    for (unsigned char currChar: text)
     {
         if (currChar == '\n')
         {
@@ -229,7 +229,7 @@ void Font::DrawString(GuiContext& guiContext, const std::string& text, const Poi
         if (currChar < mBaseCharCode)
             continue;
 
-        char charCode = currChar - mBaseCharCode;
+        unsigned char charCode = currChar - mBaseCharCode;
         if (charCode >= maxCharCodes)
             continue;
 

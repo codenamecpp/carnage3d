@@ -137,7 +137,7 @@ bool FileSystem::ReadBinaryFile(const std::string& objectName, std::vector<unsig
         return false;
 
     fileStream.seekg(0, std::ios::end);
-    std::streampos fileSize = fileStream.tellg();
+    size_t fileSize = (size_t) fileStream.tellg();
     fileStream.seekg(0);
 
     output.resize(fileSize);

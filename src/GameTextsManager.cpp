@@ -3,6 +3,125 @@
 
 GameTextsManager gGameTexts;
 
+//////////////////////////////////////////////////////////////////////////
+
+class FXTReader
+{
+public:
+/*
+    https://gta.mendelsohn.de/Reference/Fil_FXT.html
+
+    Decryption
+    The messages are encrypted using a polyalphabetic substitution cipher that appears like a monoalphabetic cypher after byte 8, which made it easy to crack.
+
+    Subtract an offset from the first 8 bytes in the file. The respective offsets are, in hexadecimal notation, 
+        63, c6, 8c, 18, 30, 60, c0, 80. (Of course you can get these numbers by taking 63 and shifting it one bit to left for each consecutive number.
+        You can see why this sequence ends after 8 bytes; it would‘ve been harder to crack, had the bit pattern been rotated instead of shifted...)
+
+    Subtract 1 from all bytes. (This includes the bytes from the previous step!)
+
+    If a byte equals 195, delete it and add 64 to the next byte. This relocates extended characters to the windows ANSI character set, 
+    which is necessary for three of the four languages provided.
+
+    Each string ends with a 0 byte and contains no CR or LF codes. The next string is stored immediately after it. 
+    The last string in the file seems to always be "[]“.
+*/
+
+    FXTReader(std::istream& inputStream)
+        : mInputStream(inputStream)
+        , mBytesCounter()
+    {
+    }
+
+    bool get_next_key_value(std::string& outputKey, std::string& outputValue)
+    {
+        if (!get_next_key(outputKey) || outputKey.empty())
+            return false;
+
+        if (!get_next_value(outputValue))
+            return false;
+
+        return true;
+    }
+
+private:
+    bool get_next_key(std::string& outputKey)
+    {
+        unsigned char currChar;
+        if (!get_next_char(currChar))
+            return false;
+
+        if (currChar != '[')
+            return false;
+
+        outputKey.clear();
+        for (;;)
+        {
+            if (!get_next_char(currChar))
+                return false;
+
+            if (currChar == ']')
+                break;
+
+            outputKey.push_back(currChar);
+        }
+
+        return true;
+    }
+
+    bool get_next_value(std::string& outputValue)
+    {
+        outputValue.clear();
+        for (unsigned char currChar;;)
+        {
+            if (!get_next_char(currChar))
+                return false;
+
+            if (currChar == 0)
+                break;
+
+            outputValue.push_back(currChar);
+        }
+        return true;
+    }
+
+    bool get_next_char(unsigned char& character)
+    {
+        const static unsigned char code[] = {0x64, 0xc7, 0x8d, 0x19, 0x31, 0x61, 0xc1, 0x81};
+        if (mBytesCounter < CountOf(code))
+        {
+            if (mInputStream.read((char*) &character, 1))
+            {
+                character = character - code[mBytesCounter++];
+                return true;
+            }
+            return false;
+        }
+
+        if (!mInputStream.read((char*) &character, 1))
+            return false;
+
+        ++mBytesCounter;
+		if (--character == 195) 
+        {
+            if (!mInputStream.read((char*) &character, 1))
+            {
+                debug_assert(false);
+                return false;
+            }
+            ++mBytesCounter;
+            character = --character + 64;
+		};
+        return true;
+    }
+
+private:
+    std::istream& mInputStream;
+    int mBytesCounter;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 bool GameTextsManager::Initialize()
 {
     mErrorString = "***Text missed***";
@@ -25,70 +144,27 @@ const std::string& GameTextsManager::GetText(const std::string& textID) const
 
 bool GameTextsManager::LoadTexts(const std::string& fileName)
 {
-    std::vector<unsigned char> fileContent;
-    if (!gFiles.ReadBinaryFile(fileName, fileContent))
+    std::ifstream fileStream;
+    if (!gFiles.OpenBinaryFile(fileName, fileStream))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load game texts from file '%s'", fileName.c_str());
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot open texts file '%s'", fileName.c_str());
         return false;
-    }
-
-    unsigned char enc;
-    char offset;
-    if (fileContent[0] == 0xBF) 
-    {
-        enc = 0x63;
-        offset = -1;
-    } 
-    else if (fileContent[0] == 0xA6) 
-    {
-        enc = 0x67;
-        offset = 28;
-    } 
-    else
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Invalid texts file format '%s'", fileName.c_str());
-        return false;
-    }
-
-    for (int i = 0; i < 8; i++) 
-    {
-        fileContent[i] = fileContent[i] - enc;
-        enc <<= 1;
-    }
-
-    for (unsigned char& currData: fileContent) 
-    {
-        currData += offset;
     }
 
     mStrings.clear();
 
-    // parse lines
-    std::string keyString;
-    for (auto cursor_iterator = fileContent.begin();;)
+    FXTReader fxtreader(fileStream);
+    
+    std::string key;
+    std::string value;
+
+    for (;;)
     {
-        auto key_iterator_a = std::find(cursor_iterator, fileContent.end(), '[');
-        auto key_iterator_b = std::find(key_iterator_a, fileContent.end(), ']');
-        if (key_iterator_a == fileContent.end() ||
-            key_iterator_b == fileContent.end())
-        {
-            break;
-        }
-
-        auto value_iterator_a = key_iterator_b;
-        auto value_iterator_b = std::find(value_iterator_a, fileContent.end(), 0);
-        if (value_iterator_a == fileContent.end() ||
-            value_iterator_b == fileContent.end())
-        {
-            break;
-        }
-
-        keyString.assign(++key_iterator_a, key_iterator_b);
-        if (keyString.empty())
+        if (!fxtreader.get_next_key_value(key, value))
             break;
 
-        mStrings[keyString].assign(++value_iterator_a, value_iterator_b);
-        cursor_iterator = ++value_iterator_b;
+        mStrings[key] = value;
     }
+    
     return true;
 }

@@ -39,7 +39,7 @@ bool CarnageGame::Initialize()
         return false;
 
     gGameTexts.Initialize();
-    //gGameTexts.LoadTexts("ENGLISH.FXT");
+    gGameTexts.LoadTexts("ENGLISH.FXT");
 
     if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
     {
