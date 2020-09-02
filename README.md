@@ -58,7 +58,9 @@ Tested on Ubuntu Linux and Windows 7 64bits.
 
 ## Command Line Params ##
 
-To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**.
+* To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**
+* To specify the game data location add argument **-gtadata** followed by path
+* To enable split screen mode add **-numplayers**, for example **-numplayers 2**, max 4 players is supported
 
 ## Controls ##
 It is similar to original:
