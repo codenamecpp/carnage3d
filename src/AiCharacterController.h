@@ -26,6 +26,8 @@ public:
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
 
+    void SetCanSuicideInPanic(bool canSuicide);
+
 private:
     void UpdatePanic();
     void UpdateWandering();
@@ -41,4 +43,6 @@ private:
     ePedestrianAiState mAiState = ePedestrianAiState_Idle;
 
     glm::vec2 mDestinationPoint;
+
+    bool mCanSuicideInPanic = true;
 };

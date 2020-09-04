@@ -418,7 +418,7 @@ void Pedestrian::UpdateBurnEffect()
     if (mFireEffect == nullptr)
         return;
 
-    if (IsDead())
+    if (IsDead() || !IsOnTheGround())
         return;
 
     if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mPedestrianBurnDuration))

@@ -206,7 +206,8 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
         const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockLogPos.x, moveBlockLogPos.z, moveBlockLogPos.y);
         debug_assert(blockInfo);
 
-        if (blockInfo->mGroundType == eGroundType_Pawement)
+        eGroundType groundType = blockInfo->mGroundType;
+        if (groundType == eGroundType_Pawement)
         {
             newWayPoint = moveBlockLogPos;
             break;
@@ -214,7 +215,13 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
 
         if (isPanic)
         {
-            if (blockInfo->mGroundType == eGroundType_Field || blockInfo->mGroundType == eGroundType_Road)
+            if ((groundType == eGroundType_Field) || (groundType == eGroundType_Road))
+            {
+                newWayPoint = moveBlockLogPos;
+                break;
+            }
+
+            if (mCanSuicideInPanic && (groundType == eGroundType_Air))
             {
                 newWayPoint = moveBlockLogPos;
                 break;
@@ -267,4 +274,9 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 
         debugRender.DrawLine(currpos, destpos, Color32_Red, false);
     }
+}
+
+void AiCharacterController::SetCanSuicideInPanic(bool canSuicide)
+{
+    mCanSuicideInPanic = canSuicide;
 }
