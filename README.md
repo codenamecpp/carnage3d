@@ -12,15 +12,13 @@ This is open source Grand Theft Auto 1 remake project.
 Currently it is in very early stage, a progress so far: https://youtu.be/KnqaO0YZzZY
 
 ## Tools and technologies used ##
-* C++11
-* OpenGL 3.2
-* Box2D
-* cJSON
-* Dear ImGui
-* STBI
-* GLM math library
-* GLFW
-* GLEW
+* [Box2D](https://github.com/erincatto/box2d)
+* [cJSON](https://github.com/DaveGamble/cJSON)
+* [Dear ImGui](https://github.com/ocornut/imgui)
+* [STB](https://github.com/nothings/stb)
+* [GLM](https://github.com/g-truc/glm)
+* [GLFW](https://github.com/glfw/glfw)
+* [GLEW](https://github.com/nigels-com/glew)
 
 ## Compiling on Linux ##
 At the moment, makefile configured so project will build with clang compiler.
@@ -34,7 +32,7 @@ Run these commands in terminal:
 * make
 
 ## Compiling on Windows ##
-You will need Visual Studio 2015 Community Edition to build project.
+You will need Visual Studio 2015 to build the project.
 Before compile, add system environment variable __SDKDIR__ with path where all the dependencies lives. These dependencies are:
 * GLEW
 * GLM
@@ -54,11 +52,13 @@ It is possible to download and play demo version of the game easily just typing 
 
 Note that game must be compiled and configured before this step as described above.
 
-Tested on Ubuntu Linux and Windows 7 64bits.
+Tested on Ubuntu Linux, Windows 7, Windows 10.
 
 ## Command Line Params ##
 
-To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**.
+* To select specific level to play you can add command line argument **-mapname**, for example: **-mapname SANB.CMP**
+* To specify the game data location add argument **-gtadata** followed by path
+* To enable split screen mode add **-numplayers**, for example **-numplayers 2**, max 4 players is supported
 
 ## Controls ##
 It is similar to original:
@@ -79,6 +79,7 @@ In addition there is support of xbox-compatible gamepads. To enable it or change
 * [WebGL-GTA2](https://github.com/Kajakklubben/gta2-webgl)
 * [GTA2 level viewer](https://github.com/aalin/gta2-level-viewer)
 * [gta2.js](https://github.com/aalin/gta2.js)
+* [GTAViewer](https://github.com/GitExl/GTAViewer)
 
 ## Screenshots ##
 First test launch on Linux
