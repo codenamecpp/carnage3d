@@ -341,7 +341,8 @@
     {
         "name": "splash",
         "class": "decoration",
-        "frameCount": 12
+        "frameCount": 12,
+        "drawOrder": "projectiles"
     },
     // #55
     {

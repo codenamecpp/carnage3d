@@ -59,19 +59,18 @@ void Vehicle::UpdateFrame()
 {
     UpdateBurnEffect();
 
-    if (mCarWrecked)
+    if (IsWrecked())
         return;
 
-    // check if car dead
-    mCarWrecked = (mHitpoints <= 0);
-    if (mCarWrecked)
+    // check if car destroyed
+    if (mHitpoints <= 0)
     {
+        SetWrecked();
         Explode();
         return;
     }
 
     UpdateDeltaAnimations();
-
     UpdateDriving();
 }
 
@@ -585,7 +584,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 
     if (damageInfo.mDamageCause == eDamageCause_Drowning)
     {
-        mCarWrecked = true;
+        SetWrecked();
         // kill passengers inside
         for (Pedestrian* currentPed: mPassengers)
         {
@@ -729,4 +728,11 @@ void Vehicle::UpdateBurnEffect()
         SetBurnEffectActive(false);
         return;
     }
+}
+
+void Vehicle::SetWrecked()
+{
+    mCarWrecked = true;
+
+    mPhysicsBody->ResetDriveState();
 }

@@ -313,13 +313,21 @@ void PedPhysicsBody::HandleCarContactEnd()
 void PedPhysicsBody::HandleWaterContact()
 {
     if (mWaterContact)
-        return;
-
-    mWaterContact = true;
+        return;    
 
     // notify
     PedestrianStateEvent evData { ePedestrianStateEvent_WaterContact };
-    mReferencePed->mStatesManager.ProcessEvent(evData);
+    if (mReferencePed->mStatesManager.ProcessEvent(evData))
+    {
+        mWaterContact = true;
+        mFalling = false;
+
+        // create effect
+        Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(GetPosition());
+        debug_assert(splashEffect);
+
+        mHeight -= Convert::MapUnitsToMeters(1.0f); // put it down
+    }
 }
 
 bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
@@ -406,21 +414,34 @@ void CarPhysicsBody::ResetDriveState()
 
 void CarPhysicsBody::HandleWaterContact()
 {
-    if (mWaterContact || mReferenceCar->IsWrecked()) // todo
+    if (mWaterContact)
         return;
 
     mWaterContact = true;
+    mFalling = false;
+
     // boats aren't receive damage from water
     if (mReferenceCar->mCarStyle->mClassID == eVehicleClass_Boat)
         return;
 
-    mHeight -= 2.0f; // force position underwater
     ClearForces();
-    // notify
+    if (!mReferenceCar->IsWrecked())
+    {
+        DamageInfo damageInfo;
+        damageInfo.mDamageCause = eDamageCause_Drowning;
+        mReferenceCar->ReceiveDamage(damageInfo);
+    }
 
-    DamageInfo damageInfo;
-    damageInfo.mDamageCause = eDamageCause_Drowning;
-    mReferenceCar->ReceiveDamage(damageInfo);
+    // create effect
+    glm::vec2 splashPoints[5];
+    GetChassisCorners(splashPoints);
+    splashPoints[4] = GetPosition2();
+    for (const glm::vec2& currPoint: splashPoints)
+    {
+        Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(glm::vec3(currPoint.x, mHeight, currPoint.y));
+        debug_assert(splashEffect);
+    }
+    mHeight -= Convert::MapUnitsToMeters(1.0f); // put it down
 }
 
 void CarPhysicsBody::SimulationStep()

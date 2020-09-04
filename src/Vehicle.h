@@ -91,6 +91,7 @@ public:
     bool IsBurn() const;
 
 private:
+    void SetWrecked();
     void Explode();
     void UpdateDriving();
     void ComputeDrawHeight(const glm::vec3& position);

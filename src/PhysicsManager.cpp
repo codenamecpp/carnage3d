@@ -442,6 +442,9 @@ void PhysicsManager::ProcessGravityStep()
 
 void PhysicsManager::ProcessGravityStep(CarPhysicsBody* physicsBody)
 {
+    if (physicsBody->mWaterContact)
+        return;
+
     glm::vec2 posSteerWheel = physicsBody->GetWheelPosition(eCarWheel_Steer);
     glm::vec2 posDriveWheel = physicsBody->GetWheelPosition(eCarWheel_Drive);
 
@@ -457,7 +460,16 @@ void PhysicsManager::ProcessGravityStep(CarPhysicsBody* physicsBody)
         physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
         if (physicsBody->mHeight == groundHeight)
         {
-            physicsBody->HandleFallEnd();
+            // handle water contact
+            float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
+            if (groundHeight <= waterHeight)
+            {
+                physicsBody->HandleWaterContact();
+            }
+            else
+            {
+                physicsBody->HandleFallEnd();
+            }
         }
     }
     else
@@ -474,13 +486,14 @@ void PhysicsManager::ProcessGravityStep(CarPhysicsBody* physicsBody)
             physicsBody->HandleFallBegin();
         }
     }
-
-    //todo: handle water contact
 }
 
 void PhysicsManager::ProcessGravityStep(PedPhysicsBody* physicsBody)
 {
     Pedestrian* currPedestrian = physicsBody->mReferencePed;
+    if (physicsBody->mWaterContact)
+        return;
+
     if (currPedestrian->mCurrentCar)
     {
         physicsBody->mHeight = currPedestrian->mCurrentCar->mPhysicsBody->mHeight;
@@ -496,7 +509,16 @@ void PhysicsManager::ProcessGravityStep(PedPhysicsBody* physicsBody)
         physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
         if (physicsBody->mHeight == groundHeight)
         {
-            physicsBody->HandleFallEnd();
+            // handle water contact
+            float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
+            if (groundHeight <= waterHeight)
+            {
+                physicsBody->HandleWaterContact();
+            }
+            else
+            {
+                physicsBody->HandleFallEnd();
+            }
         }
     }
     else
@@ -513,8 +535,6 @@ void PhysicsManager::ProcessGravityStep(PedPhysicsBody* physicsBody)
             physicsBody->HandleFallBegin();
         }
     }
-
-    //todo: handle water contact
 }
 
 bool PhysicsManager::HasCollisionPedVsPed(b2Contact* contact, PedPhysicsBody* pedA, PedPhysicsBody* pedB) const

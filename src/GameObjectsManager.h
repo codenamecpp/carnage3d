@@ -46,6 +46,7 @@ public:
     // Add new decoration instance to map at specific location
     Decoration* CreateDecoration(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc);
     Decoration* CreateFirstBlood(const glm::vec3& position);
+    Decoration* CreateWaterSplash(const glm::vec3& position);
 
     // Add explosion instance to map at specific location 
     Explosion* CreateExplosion(const glm::vec3& position);

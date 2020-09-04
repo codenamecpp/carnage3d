@@ -222,6 +222,22 @@ void GameMapManager::FixShiftedBits()
     }
 }
 
+float GameMapManager::GetWaterLevelAtPosition2(const glm::vec2& position) const
+{
+    glm::ivec2 mapBlock = Convert::MetersToMapUnits(position);
+
+    for (int i = MAP_LAYERS_COUNT; i > 0; --i)
+    {
+        MapBlockInfo* blockData = GetBlockClamp(mapBlock.x, mapBlock.y, i - 1);
+        if (blockData->mGroundType == eGroundType_Water)
+        {
+            float waterHeight = Convert::MapUnitsToMeters(i - 1.0f);
+            return waterHeight;
+        }
+    }
+    return 0.0f;
+}
+
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
 {
     // get map block position in which we are located

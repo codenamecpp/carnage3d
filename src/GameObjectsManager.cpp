@@ -176,10 +176,17 @@ Decoration* GameObjectsManager::CreateFirstBlood(const glm::vec3& position)
 
     cxx::angle_t rotation;
     Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
-    debug_assert(decoration);
-    if (decoration)
-    {
-    }
+
+    return decoration;
+}
+
+Decoration* GameObjectsManager::CreateWaterSplash(const glm::vec3& position)
+{
+    GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_Splash];
+
+    cxx::angle_t rotation;
+    Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
+
     return decoration;
 }
 

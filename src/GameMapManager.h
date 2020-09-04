@@ -33,6 +33,9 @@ public:
     // @param position: Current position on map, meters
     float GetHeightAtPosition(const glm::vec3& position, bool excludeWater = true) const;
 
+    // Get water height at specified map point
+    float GetWaterLevelAtPosition2(const glm::vec2& position) const;
+
     // get intersection with solid blocks on specific map layer, ignores slopes
     // @param origin: Start position
     // @param destination: End position
