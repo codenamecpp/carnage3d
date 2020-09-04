@@ -14,6 +14,7 @@ public:
     bool mEnableDrawPedestrians = true;
     bool mEnableDrawVehicles = true;
     bool mEnableDrawCityMesh = true;
+    bool mEnableTrafficPedsGeneration = true;
 
 public:
     GameCheatsWindow();

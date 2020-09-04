@@ -12,7 +12,7 @@ class GameObjectsManager final: public cxx::noncopyable
 {
 public:
     // readonly
-    std::vector<GameObject*> mAllObjectsList;
+    std::vector<GameObject*> mAllObjects;
     std::vector<GameObject*> mDeleteObjectsList;
     std::vector<Pedestrian*> mPedestriansList;
 

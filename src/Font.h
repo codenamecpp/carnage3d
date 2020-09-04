@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GuiContext.h"
+#include "GuiDefs.h"
 
 // Drawable font instance
 class Font final: public cxx::noncopyable

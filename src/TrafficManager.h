@@ -16,23 +16,25 @@ public:
     void UpdateFrame();
     void DebugDraw(DebugRenderer& debugRender);
 
-private:
-    void GeneratePedestrians(bool offscreenOnly);
-    void ScanOffscreenPedestrians();
-
-    bool IsTrafficPedestriansLimitReached() const;
+    int CountTrafficPedestrians() const;
 
 private:
-    cxx::randomizer mRand;
+    void GeneratePedestrians();
+    void GenerateTrafficPedestrians(int pedsCount, RenderView& view);
+    void RemoveOffscreenPedestrians();
+    int GetPedestriansToGenerateCount(RenderView& view) const;
 
-    // pedestrian generation params
-    int mGenMaxPedestrians = 30; // max pedestrians
-    int mGenMaxPedestriansPerIteration = 8; // max generate pedestrians on single step
-    int mGenPedestriansChance = 60;
-    int mGenPedestriansMinDistance = 6; // min distance from player character, blocks
-    int mGenPedestriansMaxDistance = 9; // blocks
-    float mGenPedestriansCooldownTime = 1.0f; // seconds
+private:
     float mLastGenPedestriansTime = 0.0;
+
+    // buffers
+    struct CandidatePedestrianPos
+    {
+        int mMapX;
+        int mMapY;
+        int mMapLayer;
+    };
+    std::vector<CandidatePedestrianPos> mCandidatePedsPosArray;
 };
 
 extern TrafficManager gTrafficManager;

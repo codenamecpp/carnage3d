@@ -5,6 +5,8 @@
 #include "SpriteManager.h"
 #include "RenderView.h"
 #include "GameCheatsWindow.h"
+#include "AiManager.h"
+#include "TrafficManager.h"
 
 RenderingManager gRenderManager;
 
@@ -63,7 +65,9 @@ void RenderingManager::RenderFrame()
         if (currRenderview == mActiveRenderViews[0] && gGameCheatsWindow.mEnableDebugDraw)
         {
             mDebugRenderer.RenderFrameBegin(currRenderview);
-            mMapRenderer.RenderDebug(currRenderview, mDebugRenderer);
+            mMapRenderer.DebugDraw(currRenderview, mDebugRenderer);
+            gTrafficManager.DebugDraw(mDebugRenderer);
+            gAiManager.DebugDraw(mDebugRenderer);
             mDebugRenderer.RenderFrameEnd();
         }
     }

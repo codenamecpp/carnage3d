@@ -374,6 +374,9 @@
     <ClInclude Include="GameTextsManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="GuiDefs.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

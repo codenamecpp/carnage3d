@@ -43,9 +43,9 @@ void GameObjectsManager::UpdateFrame()
 
     // if is safe to add new objects during loop by adding them to the end of the list
 
-    for (size_t i = 0, NumElements = mAllObjectsList.size(); i < NumElements; ++i)
+    for (size_t i = 0, NumElements = mAllObjects.size(); i < NumElements; ++i)
     {
-        GameObject* currentObject = mAllObjectsList[i];
+        GameObject* currentObject = mAllObjects[i];
         currentObject->UpdateFrame();
     }
 }
@@ -62,7 +62,7 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     debug_assert(instance);
     instance->mRemapIndex = remap;
 
-    mAllObjectsList.push_back(instance);
+    mAllObjects.push_back(instance);
     mPedestriansList.push_back(instance);
 
     // init
@@ -79,7 +79,7 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
     Vehicle* instance = mCarsPool.create(carID);
     debug_assert(instance);
 
-    mAllObjectsList.push_back(instance);
+    mAllObjects.push_back(instance);
 
     // init
     instance->mCarStyle = carStyle;
@@ -112,7 +112,7 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
     Projectile* instance = mProjectilesPool.create();
     debug_assert(instance);
 
-    mAllObjectsList.push_back(instance);
+    mAllObjects.push_back(instance);
     // init
     instance->Spawn(position, heading, weaponInfo);
     return instance;
@@ -131,7 +131,7 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
         instance = mObstaclesPool.create(objectID, desc);
         debug_assert(instance);
 
-        mAllObjectsList.push_back(instance);
+        mAllObjects.push_back(instance);
         // init
         instance->Spawn(position, heading);
     }
@@ -145,7 +145,7 @@ Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
     Explosion* instance = mExplosionsPool.create(objectID);
     debug_assert(instance);
 
-    mAllObjectsList.push_back(instance);
+    mAllObjects.push_back(instance);
     // init
     instance->Spawn(position);
     return instance;
@@ -163,7 +163,7 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
     instance = mDecorationsPool.create(objectID, desc);
     debug_assert(instance);
 
-    mAllObjectsList.push_back(instance);
+    mAllObjects.push_back(instance);
     // init
     instance->Spawn(position, heading);
     instance->SetLifeDuration(desc->mLifeDuration);
@@ -185,7 +185,7 @@ Decoration* GameObjectsManager::CreateFirstBlood(const glm::vec3& position)
 
 Obstacle* GameObjectsManager::GetObstacleByID(GameObjectID objectID) const
 {
-    for (GameObject* currentObject: mAllObjectsList)
+    for (GameObject* currentObject: mAllObjects)
     {
         if (currentObject->mObjectID != objectID)
             continue;
@@ -200,7 +200,7 @@ Obstacle* GameObjectsManager::GetObstacleByID(GameObjectID objectID) const
 
 Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
 {
-    for (GameObject* currentObject: mAllObjectsList)
+    for (GameObject* currentObject: mAllObjects)
     {
         if (currentObject->mObjectID != objectID)
             continue;
@@ -215,7 +215,7 @@ Vehicle* GameObjectsManager::GetVehicleByID(GameObjectID objectID) const
 
 Decoration* GameObjectsManager::GetDecorationByID(GameObjectID objectID) const
 {
-    for (GameObject* currentObject: mAllObjectsList)
+    for (GameObject* currentObject: mAllObjects)
     {
         if (currentObject->mObjectID != objectID)
             continue;
@@ -230,7 +230,7 @@ Decoration* GameObjectsManager::GetDecorationByID(GameObjectID objectID) const
 
 Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
 {
-    for (GameObject* currentObject: mAllObjectsList)
+    for (GameObject* currentObject: mAllObjects)
     {
         if (currentObject->mObjectID != objectID)
             continue;
@@ -245,7 +245,7 @@ Pedestrian* GameObjectsManager::GetPedestrianByID(GameObjectID objectID) const
 
 GameObject* GameObjectsManager::GetGameObjectByID(GameObjectID objectID) const
 {
-    for (GameObject* currentObject: mAllObjectsList)
+    for (GameObject* currentObject: mAllObjects)
     {
         if (currentObject->mObjectID != objectID)
             continue;
@@ -276,7 +276,7 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
     }
 
     cxx::erase_elements(mDeleteObjectsList, object);
-    cxx::erase_elements(mAllObjectsList, object);
+    cxx::erase_elements(mAllObjects, object);
 
     switch (object->mClassID)
     {
@@ -334,9 +334,9 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
 
 void GameObjectsManager::DestroyAllObjects()
 {
-    while (!mAllObjectsList.empty())
+    while (!mAllObjects.empty())
     {
-        DestroyGameObject(mAllObjectsList[0]);
+        DestroyGameObject(mAllObjects[0]);
     }
 }
 

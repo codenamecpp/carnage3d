@@ -92,6 +92,9 @@ public:
     // Will swap Z and Y direction vectors
     void SetTopDownOrientation();
 
+    // Compute on screen view area
+    cxx::aabbox2d_t ComputeViewBounds2() const;
+
 private:
     bool mProjMatrixDirty; // projection matrix need recomputation
     bool mViewMatrixDirty; // view matrix need recomputation

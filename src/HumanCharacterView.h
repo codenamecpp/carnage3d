@@ -25,6 +25,5 @@ public:
     FollowCameraController mFollowCameraController;
     FreeLookCameraController mFreeLookCameraController;
     CameraController* mCameraController = nullptr;
-
     HUD mHUD;
 };

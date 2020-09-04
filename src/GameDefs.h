@@ -82,7 +82,7 @@ class Explosion;
 using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
 // Object sprites draw prioriry
-enum eSpriteDrawOrder
+enum eSpriteDrawOrder: unsigned char
 {
     eSpriteDrawOrder_Background,
     
@@ -98,6 +98,10 @@ enum eSpriteDrawOrder
     eSpriteDrawOrder_Trees,
     eSpriteDrawOrder_Projectiles,
     eSpriteDrawOrder_Explosion,
+
+    eSpriteDrawOrder_HUD_Background,
+    eSpriteDrawOrder_HUD_TextMessages,
+    eSpriteDrawOrder_HUD_Arrow,
 
     eSpriteDrawOrder_Foreground,
 };
@@ -678,7 +682,7 @@ enum ePedestrianState
     ePedestrianState_SlideOnCar,
     ePedestrianState_Dies,
     ePedestrianState_Dead,
-    ePedestrianState_KnockedDown,
+    ePedestrianState_Stunned,
     ePedestrianState_Drowning,
     ePedestrianState_COUNT
 };

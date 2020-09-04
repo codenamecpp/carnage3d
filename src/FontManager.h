@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Font.h"
+#include "GuiDefs.h"
 
 // This class implements caching mechanism for font resources
 class FontManager final: public cxx::noncopyable

@@ -176,7 +176,7 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
         drawOrder = eSpriteDrawOrder_JumpingPedestrian;
     }
 
-    if (IsUnconscious() || IsDead())
+    if (IsStunned() || IsDead())
     {
         drawOrder = eSpriteDrawOrder_Corpse;
     }
@@ -306,10 +306,10 @@ bool Pedestrian::IsWalking() const
         currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots);
 }
 
-bool Pedestrian::IsUnconscious() const
+bool Pedestrian::IsStunned() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    return currState == ePedestrianState_KnockedDown;
+    return currState == ePedestrianState_Stunned;
 }
 
 bool Pedestrian::IsDead() const
@@ -441,4 +441,19 @@ void Pedestrian::SetDrawOrder(eSpriteDrawOrder drawOrder)
     }
 
     mDrawSprite.mDrawOrder = drawOrder;
+}
+
+glm::ivec3 Pedestrian::GetLogicalPosition() const
+{ 
+    return Convert::MetersToMapUnits(mPhysicsBody->GetPosition());
+}
+
+glm::ivec2 Pedestrian::GetLogicalPosition2() const
+{
+    return Convert::MetersToMapUnits(mPhysicsBody->GetPosition2());
+}
+
+bool Pedestrian::IsOnTheGround() const
+{
+    return !mPhysicsBody->mFalling;
 }

@@ -3,6 +3,7 @@
 #include "MemoryManager.h"
 #include "GpuTexture2D.h"
 #include "stb_rect_pack.h"
+#include "GuiContext.h"
 
 static const int MaxFontAtlasTextureSize = 2048;
 
@@ -230,6 +231,7 @@ void Font::DrawString(GuiContext& guiContext, const std::string& text, const Poi
     spriteData.mScale = 1.0f;
     spriteData.mPaletteIndex = paletteIndex;
     spriteData.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    spriteData.mDrawOrder = eSpriteDrawOrder_HUD_TextMessages;
 
     int currentOffsetX = position.x;
     int currentOffsetY = position.y;

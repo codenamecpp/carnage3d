@@ -38,9 +38,16 @@ bool CarnageGame::Initialize()
     if (gSystem.mStartupParams.mDebugMapName.empty())
         return false;
 
+    // init randomizer
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch());
+    mGameRand.set_seed((unsigned int) ms.count());
+
+    // init game texts
     gGameTexts.Initialize();
     gGameTexts.LoadTexts("ENGLISH.FXT");
 
+    // init scenario
     if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
     {
         ShutdownCurrentScenario();
@@ -60,6 +67,16 @@ void CarnageGame::Deinit()
 
 void CarnageGame::UpdateFrame()
 {
+    if (!mDebugChangeMapName.empty())
+    {
+        gConsole.LogMessage(eLogMessage_Debug, "Changing to next map '%s'", mDebugChangeMapName.c_str());
+        if (!StartScenario(mDebugChangeMapName))
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Fail to change map");
+        }
+        mDebugChangeMapName.clear();
+    }
+
     float deltaTime = gTimeManager.mGameFrameDelta;
 
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
@@ -274,13 +291,7 @@ int CarnageGame::GetPlayerIndex(const HumanCharacterController* controller) cons
 
 void CarnageGame::DebugChangeMap(const std::string& mapName)
 {
-    gConsole.LogMessage(eLogMessage_Debug, "Changing to next map '%s'", mapName.c_str());
-
-    if (!StartScenario(mapName))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Fail to change map");
-        return;
-    }
+    mDebugChangeMapName = mapName;
 }
 
 bool CarnageGame::StartScenario(const std::string& mapName)

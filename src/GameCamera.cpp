@@ -156,6 +156,24 @@ void GameCamera::SetOrientation(const glm::vec3& dirForward, const glm::vec3& di
     mViewMatrixDirty = true;
 }
 
+cxx::aabbox2d_t GameCamera::ComputeViewBounds2() const
+{
+    cxx::aabbox2d_t areaBounds;
+    if (mCurrentMode == eSceneCameraMode_Perspective)
+    {
+        const float PiDiv180 = 0.017453f;
+        const float Hfar = tan(mPerspectiveParams.mFovy * PiDiv180 * 0.5f) * mPosition.y;
+        const float Wfar = Hfar * mPerspectiveParams.mAspect;
+
+        areaBounds.mMin.x = mPosition.x - Wfar;
+        areaBounds.mMin.y = mPosition.z - Hfar;
+        areaBounds.mMax.x = mPosition.x + Wfar;
+        areaBounds.mMax.y = mPosition.z + Hfar;
+    }
+
+    return areaBounds;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 GameCamera2D::GameCamera2D(): mViewportRect()

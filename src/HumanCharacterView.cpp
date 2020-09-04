@@ -8,6 +8,7 @@ void HumanCharacterView::UpdateFrame()
         mCameraController->UpdateFrame();
     }
 
+    mOnScreenArea = mCamera.ComputeViewBounds2();
     mHUD.UpdateFrame();
 }
 

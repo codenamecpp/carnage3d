@@ -61,6 +61,9 @@ private:
 
     bool StartScenario(const std::string& mapName);
     void ShutdownCurrentScenario();
+
+private:
+    std::string mDebugChangeMapName;
 };
 
 extern CarnageGame gCarnageGame;

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameObject.h"
 #include "GameObjectsManager.h"
+#include "RenderingManager.h"
 
 GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     : mObjectID(uniqueID)
@@ -11,6 +12,11 @@ GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     {
         debug_assert((uniqueID == GAMEOBJECT_ID_NULL) && (objectTypeID == eGameObjectClass_Projectile));
     }
+}
+
+void GameObject::RefreshDrawBounds()
+{
+    mDrawSprite.GetApproximateBounds(mDrawBounds);
 }
 
 GameObject::~GameObject()
@@ -47,6 +53,11 @@ void GameObject::MarkForDeletion()
 bool GameObject::IsMarkedForDeletion() const
 {
     return mMarkedForDeletion;
+}
+
+bool GameObject::IsOnScreen(const cxx::aabbox2d_t& screenBounds) const
+{
+    return screenBounds.contains(mDrawBounds);
 }
 
 void GameObject::SetAttachedToObject(GameObject* parentObject)

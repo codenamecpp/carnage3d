@@ -8,6 +8,7 @@
 #include "PhysicsManager.h"
 #include "TimeManager.h"
 #include "Box2D_Helpers.h"
+#include "CarnageGame.h"
 
 PhysicsBody::PhysicsBody(b2World* physicsWorld)
     : mHeight()
@@ -56,8 +57,13 @@ void PhysicsBody::SetRotationAngle(cxx::angle_t rotationAngle)
 cxx::angle_t PhysicsBody::GetRotationAngle() const
 {
     cxx::angle_t rotationAngle = cxx::angle_t::from_radians(mPhysicsBody->GetAngle());
-    rotationAngle.normalize_angle_180();
     return rotationAngle;
+}
+
+void PhysicsBody::SetOrientation2(const glm::vec2& signDirection)
+{
+    float rotationAngleRadians = atan2f(signDirection.y, signDirection.x);
+    mPhysicsBody->SetTransform(mPhysicsBody->GetPosition(), rotationAngleRadians);
 }
 
 void PhysicsBody::AddForce(const glm::vec2& force)
@@ -336,7 +342,7 @@ bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
         return false;
     }
 
-    if (mReferencePed->IsUnconscious())
+    if (mReferencePed->IsStunned())
     {
         return (bits & PHYSICS_OBJCAT_PED) == 0; // collide to all except for other peds
     }

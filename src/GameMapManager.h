@@ -3,30 +3,6 @@
 #include "GameDefs.h"
 #include "StyleData.h"
 
-/*
-    1 map unit == 4.0 meters (see gamedefs)
-
-     ^^^^^^^^
-    |        |
-    |        |
-    |________|_ _ _ _ _ _ _ _ 12.0 meters (3 map units)
-     ________  
-    |        |
-    |        |
-    |        |
-    |________|_ _ _ _ _ _ _ _ 8.0 meters (2 map units)
-     ________  
-    |        |
-    |        |
-    |        |
-    |________|_ _ _ _ _ _ _ _ 4.0 meters (1 map unit)
-     ________  
-    |        |
-    |        |
-    |        |
-    |________|_ _ _ _ _ _ _ _ 0.0 meters (0 map units)
-*/
-
 // this class manages GTA map and style data which get loaded from CMP/G24-files
 class GameMapManager final: public cxx::noncopyable
 {

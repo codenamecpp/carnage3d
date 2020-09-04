@@ -105,10 +105,10 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
         &PedestrianStatesManager::StateDummy_ProcessEvent};
 
-    mFuncsTable[ePedestrianState_KnockedDown] = {&PedestrianStatesManager::StateKnockedDown_ProcessEnter, 
+    mFuncsTable[ePedestrianState_Stunned] = {&PedestrianStatesManager::StateStunned_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
-        &PedestrianStatesManager::StateKnockedDown_ProcessFrame, 
-        &PedestrianStatesManager::StateKnockedDown_ProcessEvent};
+        &PedestrianStatesManager::StateStunned_ProcessFrame, 
+        &PedestrianStatesManager::StateStunned_ProcessEvent};
 
     mFuncsTable[ePedestrianState_Drowning] = {&PedestrianStatesManager::StateDrowning_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
@@ -349,7 +349,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     // handle punch
     if (damageInfo.mDamageCause == eDamageCause_Punch)
     {
-        ChangeState(ePedestrianState_KnockedDown, eventData);
+        ChangeState(ePedestrianState_Stunned, eventData);
         return true;
     }
 
@@ -491,7 +491,7 @@ bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEv
 {
     if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
     {
-        ChangeState(ePedestrianState_KnockedDown, stateEvent);
+        ChangeState(ePedestrianState_Stunned, stateEvent);
         return true;
     }
     return false;
@@ -654,7 +654,7 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateKnockedDown_ProcessFrame()
+void PedestrianStatesManager::StateStunned_ProcessFrame()
 {
     if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
     {
@@ -677,7 +677,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessFrame()
     }
 }
 
-void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStateEvent& stateEvent)
+void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_PullOutFromCar)
     {
@@ -692,7 +692,7 @@ void PedestrianStatesManager::StateKnockedDown_ProcessEnter(const PedestrianStat
     mPedestrian->mPhysicsBody->AddLinearImpulse(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
 }
 
-bool PedestrianStatesManager::StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent)
+bool PedestrianStatesManager::StateStunned_ProcessEvent(const PedestrianStateEvent& stateEvent)
 {
     if (stateEvent.mID == ePedestrianStateEvent_FallFromHeightStart)
     {

@@ -1,7 +1,6 @@
 #pragma once
 
-class GameCamera2D;
-class SpriteBatch;
+#include "GuiDefs.h"
 
 class GuiContext
 {

@@ -26,9 +26,10 @@ public:
     }
 
     // Compute sprite corner position
-    // @param positions: Output points
     void GetCorners(glm::vec2 positions[4]) const;
-    void GetMaxRectPoints(glm::vec2 positions[2]) const;
+
+    // Compute very inaccurate yet fast bounding box for sprite
+    void GetApproximateBounds(cxx::aabbox2d_t& bounds) const;
 
     // Clear sprite data
     void Clear();
@@ -46,7 +47,7 @@ public:
     unsigned short mPaletteIndex = 0;
 
     // sprite origin mode
-    enum eOriginMode: unsigned short
+    enum eOriginMode: unsigned char
     {
         eOriginMode_TopLeft,
         eOriginMode_Center,

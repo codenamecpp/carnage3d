@@ -5,6 +5,7 @@
 #include "RenderView.h"
 #include "TimeManager.h"
 #include "AiManager.h"
+#include "GameCheatsWindow.h"
 
 TrafficManager gTrafficManager;
 
@@ -14,14 +15,8 @@ TrafficManager::TrafficManager()
 
 void TrafficManager::StartupTraffic()
 {   
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now().time_since_epoch()
-    );
-
-    mRand.set_seed((unsigned int) ms.count());
-
-    mLastGenPedestriansTime = gTimeManager.mGameTime;
-    GeneratePedestrians(false);
+    mLastGenPedestriansTime = 0.0f;
+    GeneratePedestrians();
     
     // todo: vehicles
 }
@@ -33,11 +28,8 @@ void TrafficManager::CleanupTraffic()
 
 void TrafficManager::UpdateFrame()
 {
-    if (gTimeManager.mGameTime > (mLastGenPedestriansTime + mGenPedestriansCooldownTime))
-    {
-        mLastGenPedestriansTime = gTimeManager.mGameTime;
-        GeneratePedestrians(true);
-    }
+    GeneratePedestrians();
+
     // todo: vehicles
 }
 
@@ -45,39 +37,107 @@ void TrafficManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-void TrafficManager::GeneratePedestrians(bool offscreenOnly)
+void TrafficManager::GeneratePedestrians()
 {
-    // todo: generate around each active human player
+    if (mLastGenPedestriansTime > 0.0f && 
+        (mLastGenPedestriansTime + gGameParams.mTrafficGenPedsCooldownTime) > gTimeManager.mGameTime)
+    {
+        return;
+    }
 
-    ScanOffscreenPedestrians();
+    mLastGenPedestriansTime = gTimeManager.mGameTime;
 
-    // check limits
-    if (IsTrafficPedestriansLimitReached())
+    RemoveOffscreenPedestrians();
+
+    if (!gGameCheatsWindow.mEnableTrafficPedsGeneration)
         return;
 
-    Pedestrian* character = gCarnageGame.mHumanSlot[0].mCharPedestrian;
-    debug_assert(character);
+    for (auto& currentSlot: gCarnageGame.mHumanSlot)
+    {   
+        if (currentSlot.mCharPedestrian == nullptr)
+            continue;
 
-    int numGenerations = 0;
-    
-    int minDistance = offscreenOnly ? mGenPedestriansMinDistance : 2;
-    int maxDistance = offscreenOnly ? mGenPedestriansMaxDistance : 3;
+        int generatePedsCount = GetPedestriansToGenerateCount(currentSlot.mCharView);
+        if (generatePedsCount > 0)
+        {
+            GenerateTrafficPedestrians(generatePedsCount, currentSlot.mCharView);
+        }
+    }
+}
 
-    glm::vec2 charPosition = character->mPhysicsBody->GetPosition2();
+void TrafficManager::RemoveOffscreenPedestrians()
+{
+    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenPedsMaxDistance * 1.0f);
 
-    int mapX = (int) Convert::MetersToMapUnits(charPosition.x);
-    int mapZ = (int) Convert::MetersToMapUnits(charPosition.y);
-
-    Rect innerRect(mapX - minDistance, mapZ - minDistance, minDistance * 2 + 1, minDistance * 2 + 1);
-    Rect outerRect(mapX - maxDistance, mapZ - maxDistance, maxDistance * 2 + 1, maxDistance * 2 + 1);
-
-    struct CandidatePos
+    for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
     {
-        int mMapX;
-        int mMapY;
-        int mMapLayer;
-    };
-    std::vector<CandidatePos> candidates;
+        if (pedestrian->IsMarkedForDeletion() || !pedestrian->IsTrafficFlag())
+            continue;
+
+        bool isOnScreen = false;
+        for (auto& currentSlot: gCarnageGame.mHumanSlot)
+        {   
+            if (currentSlot.mCharPedestrian == nullptr)
+                continue;
+
+            cxx::aabbox2d_t onScreenArea = currentSlot.mCharView.mOnScreenArea;
+            onScreenArea.mMax.x += offscreenDistance;
+            onScreenArea.mMax.y += offscreenDistance;
+            onScreenArea.mMin.x -= offscreenDistance;
+            onScreenArea.mMin.y -= offscreenDistance;
+
+            if (pedestrian->IsOnScreen(onScreenArea))
+            {
+                isOnScreen = true;
+                break;
+            }
+        }
+
+        if (isOnScreen)
+            continue;
+
+        // remove ped
+        if (pedestrian->mController)
+        {
+            pedestrian->mController->Deactivate();
+        }
+        pedestrian->MarkForDeletion();
+    }
+}
+
+void TrafficManager::GenerateTrafficPedestrians(int pedsCount, RenderView& view)
+{
+    cxx::randomizer& random = gCarnageGame.mGameRand;
+
+    int numPedsGenerated = 0;
+
+    Rect innerRect;
+    Rect outerRect;
+    // get map area on screen
+    {
+        Point minBlock;
+        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.x);
+        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.y);
+
+        Point maxBlock;
+        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.x) + 1;
+        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.y) + 1;
+
+        innerRect.x = minBlock.x;
+        innerRect.y = minBlock.y;
+        innerRect.w = (maxBlock.x - minBlock.x);
+        innerRect.h = (maxBlock.y - minBlock.y);
+
+        // expand
+        int expandSize = gGameParams.mTrafficGenPedsMaxDistance;
+        outerRect = innerRect;
+        outerRect.x -= expandSize;
+        outerRect.y -= expandSize;
+        outerRect.w += expandSize * 2;
+        outerRect.h += expandSize * 2;
+    }
+    
+    mCandidatePedsPosArray.clear();
 
     for (int iy = 0; iy < outerRect.h; ++iy)
     for (int ix = 0; ix < outerRect.w; ++ix)
@@ -97,43 +157,36 @@ void TrafficManager::GeneratePedestrians(bool offscreenOnly)
 
             if (mapBlockInfo->mGroundType == eGroundType_Pawement)
             {
-                CandidatePos candidatePos;
+                CandidatePedestrianPos candidatePos;
                 candidatePos.mMapX = pos.x;
                 candidatePos.mMapY = pos.y;
                 candidatePos.mMapLayer = iz;
-                candidates.push_back(candidatePos);
+                mCandidatePedsPosArray.push_back(candidatePos);
             }
             break;
         }
     }
 
-    if (candidates.empty())
+    if (mCandidatePedsPosArray.empty())
         return;
 
     // shuffle candidates
-    std::sort(candidates.begin(), candidates.end(), [mapX, mapZ](const CandidatePos& lhs, const CandidatePos& rhs)
-        {
-            // Manhattan Distance
-            return (std::abs(lhs.mMapX - mapX) + std::abs(lhs.mMapY - mapZ)) >
-                (std::abs(rhs.mMapX - mapX) + std::abs(rhs.mMapY - mapZ));
-        });
+    random.shuffle(mCandidatePedsPosArray);
 
-    mRand.shuffle(candidates);
-
-    for (; (numGenerations < mGenMaxPedestriansPerIteration) && !candidates.empty(); ++numGenerations)
+    for (; (numPedsGenerated < pedsCount) && !mCandidatePedsPosArray.empty(); ++numPedsGenerated)
     {
-        if (!mRand.random_chance(mGenPedestriansChance))
+        if (!random.random_chance(gGameParams.mTrafficGenPedsChance))
             continue;
 
-        CandidatePos candidate = candidates.back();
-        candidates.pop_back();
+        CandidatePedestrianPos candidate = mCandidatePedsPosArray.back();
+        mCandidatePedsPosArray.pop_back();
 
         // generate pedestrian
         glm::vec2 positionOffset(
-            Convert::MapUnitsToMeters(mRand.generate_float() - 0.5f),
-            Convert::MapUnitsToMeters(mRand.generate_float() - 0.5f)
+            Convert::MapUnitsToMeters(random.generate_float() - 0.5f),
+            Convert::MapUnitsToMeters(random.generate_float() - 0.5f)
         );
-        cxx::angle_t pedestrianHeading(360.0f * mRand.generate_float(), cxx::angle_t::units::degrees);
+        cxx::angle_t pedestrianHeading(360.0f * random.generate_float(), cxx::angle_t::units::degrees);
         glm::vec3 pedestrianPosition(
             Convert::MapUnitsToMeters(candidate.mMapX + 0.5f) + positionOffset.x,
             Convert::MapUnitsToMeters(candidate.mMapLayer * 1.0f),
@@ -146,7 +199,7 @@ void TrafficManager::GeneratePedestrians(bool offscreenOnly)
         debug_assert(pedestrian);
         if (pedestrian)
         {
-            pedestrian->mRemapIndex = mRand.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
+            pedestrian->mRemapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
             pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
 
             AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
@@ -154,42 +207,41 @@ void TrafficManager::GeneratePedestrians(bool offscreenOnly)
     }
 }
 
-bool TrafficManager::IsTrafficPedestriansLimitReached() const
+int TrafficManager::GetPedestriansToGenerateCount(RenderView& view) const
 {
-    int currentTrafficPedestriansCount = 0;
-    for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
-    {
-        if (pedestrian->IsTrafficFlag())
-        {
-            ++currentTrafficPedestriansCount;
-        }
-    }
+    int pedestriansCounter = 0;
 
-    return (currentTrafficPedestriansCount >= mGenMaxPedestrians);
-}
+    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenPedsMaxDistance * 1.0f);
 
-void TrafficManager::ScanOffscreenPedestrians()
-{
-    Pedestrian* character = gCarnageGame.mHumanSlot[0].mCharPedestrian;
-    glm::vec2 characterPos = character->mPhysicsBody->GetPosition2();
+    cxx::aabbox2d_t onScreenArea = view.mOnScreenArea;
+    onScreenArea.mMax.x += offscreenDistance;
+    onScreenArea.mMax.y += offscreenDistance;
+    onScreenArea.mMin.x -= offscreenDistance;
+    onScreenArea.mMin.y -= offscreenDistance;
 
     for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
     {
-        if (pedestrian->IsMarkedForDeletion())
+        if (!pedestrian->IsTrafficFlag() || pedestrian->IsMarkedForDeletion())
             continue;
 
-        if (pedestrian->IsTrafficFlag())
+        if (pedestrian->IsOnScreen(onScreenArea))
         {
-            // todo: check for each player
-            glm::vec2 currPedestrianPos = pedestrian->mPhysicsBody->GetPosition2();
-
-            if (glm::distance2(characterPos, currPedestrianPos) > 1800.0f) // todo: magic numbers
-            {
-                pedestrian->mController->Deactivate();
-                pedestrian->MarkForDeletion();
-            }
-
+            ++pedestriansCounter;
         }
     }
+
+    return std::max(0, (gGameParams.mTrafficGenMaxPeds - pedestriansCounter));
 }
 
+int TrafficManager::CountTrafficPedestrians() const
+{
+    int counter = 0;
+    for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
+    {
+        if (currPedestrian->IsMarkedForDeletion() || !currPedestrian->IsTrafficFlag())
+            continue;
+
+        ++counter;
+    }
+    return counter;
+}

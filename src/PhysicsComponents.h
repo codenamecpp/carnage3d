@@ -47,6 +47,11 @@ public:
     void SetRotationAngle(cxx::angle_t rotationAngle);
     cxx::angle_t GetRotationAngle() const;
 
+    // Set sign direction
+    // @param signDirection: Sign direction vector, normalized
+    void SetOrientation2(const glm::vec2& signDirection);
+    glm::vec2 GetSignVector() const;
+
     // Set or get current angular velocity
     // @param velocity: New angular velocity in degrees/second
     void SetAngularVelocity(cxx::angle_t angularVelocity);
@@ -58,7 +63,6 @@ public:
     glm::vec2 GetLinearVelocity() const;
     glm::vec2 GetLinearVelocityFromWorldPoint(const glm::vec2& worldPosition) const;
     glm::vec2 GetLinearVelocityFromLocalPoint(const glm::vec2& localPosition) const;
-    glm::vec2 GetSignVector() const;
 
     // Convert coordinate from local to world space and vice versa
     // @param localPosition, worldPosition: Coordinate in meters

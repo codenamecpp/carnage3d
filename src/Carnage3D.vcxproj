@@ -165,6 +165,7 @@
     <ClInclude Include="FontManager.h" />
     <ClInclude Include="GameTextsManager.h" />
     <ClInclude Include="game_version.h" />
+    <ClInclude Include="GuiDefs.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HumanCharacterView.h" />
     <ClInclude Include="InputActionsMapping.h" />

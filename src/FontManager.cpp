@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FontManager.h"
+#include "Font.h"
 
 FontManager gFontManager;
 

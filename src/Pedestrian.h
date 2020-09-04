@@ -79,12 +79,17 @@ public:
     bool IsStanding() const;
     bool IsShooting() const;
     bool IsWalking() const;
-    bool IsUnconscious() const;
+    bool IsStunned() const;
     bool IsDead() const;
     bool IsBurn() const;
+    bool IsOnTheGround() const;
 
-    // detects identifier of current pedestrian state
+    // Detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
+
+    // Get current logical position ie the map block where is ped located
+    glm::ivec3 GetLogicalPosition() const;
+    glm::ivec2 GetLogicalPosition2() const;
 
 private:
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);

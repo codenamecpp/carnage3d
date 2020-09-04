@@ -1,18 +1,31 @@
 #pragma once
 
-#include "Font.h"
+#include "GuiDefs.h"
+#include "GameDefs.h"
 
-// in-game heads-up-display controller
-class HUD final
+// In-game heads-up-display
+class HUD final: public cxx::noncopyable
 {
 public:
-    // setup hud
+    // Initialze HUD
     void Setup(Pedestrian* character);
     
     void UpdateFrame();
     void DrawFrame(GuiContext& guiContext);
 
+    // Show messages
+    void PushCarNameMessage(eVehicleModel vehicleModel);
+    void PushAreaNameMessage();
+    void PushPagerMessage();
+    void PushHelpMessage();
+    void PushMissionMessage();
+    void PushBombCostMessage();
+
+    void ClearTextMessages();
+
 private:
     Pedestrian* mCharacter = nullptr;
     Font* mFont = nullptr;
+
+    std::deque<HUDMessageData> mTextMessagesQueue;
 };

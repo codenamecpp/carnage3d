@@ -107,9 +107,9 @@ private:
     bool StateSlideCar_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // state knocked down
-    void StateKnockedDown_ProcessFrame();
-    void StateKnockedDown_ProcessEnter(const PedestrianStateEvent& stateEvent);
-    bool StateKnockedDown_ProcessEvent(const PedestrianStateEvent& stateEvent);
+    void StateStunned_ProcessFrame();
+    void StateStunned_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    bool StateStunned_ProcessEvent(const PedestrianStateEvent& stateEvent);
 
     // state falling
     void StateFalling_ProcessEnter(const PedestrianStateEvent& stateEvent);

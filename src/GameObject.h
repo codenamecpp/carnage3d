@@ -37,8 +37,11 @@ public:
 
     // schedule object to delete from game
     void MarkForDeletion();
-
     bool IsMarkedForDeletion() const;
+
+    // Check if the game object can potentially be seen
+    // @param screenBounds: Visible area
+    bool IsOnScreen(const cxx::aabbox2d_t& screenBounds) const;
 
     // Attach or detach object to other object
     void SetAttachedToObject(GameObject* parentObject);
@@ -70,6 +73,8 @@ public:
 protected:
     GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
 
+    void RefreshDrawBounds();
+
 protected:
     // todo: add attachment point and angle
 
@@ -78,10 +83,10 @@ protected:
 
     // drawing spricific data
     Sprite2D mDrawSprite;
+    cxx::aabbox2d_t mDrawBounds; // sprite bounds cache
 
 private:
     // marked object will be destroyed next game frame
     bool mMarkedForDeletion = false;
-
     unsigned int mLastRenderFrame = 0; // render frames counter
 };

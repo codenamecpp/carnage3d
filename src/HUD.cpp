@@ -6,11 +6,14 @@
 #include "SpriteManager.h"
 #include "GameMapManager.h"
 #include "FontManager.h"
+#include "Font.h"
 
 void HUD::Setup(Pedestrian* character)
 {
     mCharacter = character;
     mFont = gFontManager.GetFont("SUB2.FON");
+
+    ClearTextMessages();
 }
 
 void HUD::UpdateFrame()
@@ -59,5 +62,37 @@ void HUD::DrawFrame(GuiContext& guiContext)
     }
 }
 
+void HUD::PushCarNameMessage(eVehicleModel vehicleModel)
+{
+    // todo
+}
 
+void HUD::PushAreaNameMessage()
+{
+    // todo
+}
 
+void HUD::PushPagerMessage()
+{
+    // todo
+}
+
+void HUD::PushHelpMessage()
+{
+    // todo
+}
+
+void HUD::PushMissionMessage()
+{
+    // todo
+}
+
+void HUD::PushBombCostMessage()
+{
+    // todo
+}
+
+void HUD::ClearTextMessages()
+{
+    // todo
+}

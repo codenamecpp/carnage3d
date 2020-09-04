@@ -416,7 +416,7 @@ impl_enum_strings(ePedestrianState)
     {ePedestrianState_SlideOnCar, "slide_on_car"},
     {ePedestrianState_Dies, "dies"},
     {ePedestrianState_Dead, "dead"},
-    {ePedestrianState_KnockedDown, "knocked_down"},
+    {ePedestrianState_Stunned, "stunned"},
     {ePedestrianState_Drowning, "drowning"},
 };
 
@@ -582,5 +582,8 @@ impl_enum_strings(eSpriteDrawOrder)
     {eSpriteDrawOrder_Trees, "trees"},
     {eSpriteDrawOrder_Projectiles, "projectiles"},
     {eSpriteDrawOrder_Explosion, "explosion"},
+    {eSpriteDrawOrder_HUD_Background, "hud_background"},
+    {eSpriteDrawOrder_HUD_TextMessages, "hud_textMessages"},
+    {eSpriteDrawOrder_HUD_Arrow, "hud_arrow"},
     {eSpriteDrawOrder_Foreground, "foreground"},
 };

@@ -34,6 +34,10 @@ void AiManager::UpdateFrame()
 
 void AiManager::DebugDraw(DebugRenderer& debugRender)
 {
+    for (AiCharacterController* currAi: mCharacterControllers)
+    {
+        currAi->DebugDraw(debugRender);
+    }
 }
 
 void AiManager::ReleaseAiControllers()

@@ -68,11 +68,40 @@ void MapRenderer::Deinit()
 void MapRenderer::RenderFrameBegin()
 {
     mRenderStats.FrameBegin();
+
+    // pre draw game objects
+    for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
+    {
+        if (gameObject->IsAttachedToObject())
+            continue;
+
+        PreDrawGameObject(gameObject);
+    }
 }
 
 void MapRenderer::RenderFrameEnd()
 {
     mRenderStats.FrameEnd();
+}
+
+void MapRenderer::PreDrawGameObject(GameObject* gameObject)
+{
+    if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
+        return;
+
+    // update draw sprite and compute bounds
+    gameObject->PreDrawFrame();
+    gameObject->RefreshDrawBounds();
+
+    // update attached objects
+    for (int ichild = 0; ; ++ichild)
+    {
+        GameObject* currentChild = gameObject->GetAttachedObject(ichild);
+        if (currentChild == nullptr)
+            break;
+
+        PreDrawGameObject(currentChild);
+    }
 }
 
 void MapRenderer::RenderFrame(RenderView* renderview)
@@ -90,13 +119,13 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     mSpriteBatch.BeginBatch(SpriteBatch::DepthAxis_Y, eSpritesSortMode_HeightAndDrawOrder);
 
     // collect and render game objects sprites
-    for (GameObject* currObject: gGameObjectsManager.mAllObjectsList)
+    for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
     {
         // attached objects must be drawn after the object to which they are attached
-        if (currObject->IsAttachedToObject())
+        if (gameObject->IsAttachedToObject())
             continue;
 
-        DrawGameObject(renderview, currObject);
+        DrawGameObject(renderview, gameObject);
     }
 
     gRenderManager.mSpritesProgram.Activate();
@@ -117,35 +146,20 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
         return;
 
-    bool dbgSkipDraw = 
+    bool debugSkipDraw = 
         (!gGameCheatsWindow.mEnableDrawPedestrians && gameObject->IsPedestrianClass()) ||
         (!gGameCheatsWindow.mEnableDrawVehicles && gameObject->IsVehicleClass()) ||
         (!gGameCheatsWindow.mEnableDrawObstacles && gameObject->IsObstacleClass()) ||
         (!gGameCheatsWindow.mEnableDrawDecorations && gameObject->IsDecorationClass());
 
-    if (!dbgSkipDraw)
+    // detect if gameobject is visible on screen
+    if (!debugSkipDraw && gameObject->IsOnScreen(renderview->mOnScreenArea))
     {
-        gameObject->PreDrawFrame();
+        mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
 
-        // detect if gameobject is visible on screen
-        const glm::vec2 spritePosition = (gameObject->mDrawSprite.mPosition + gameObject->mDrawSprite.GetOriginPoint());
-        float maxdistance = Convert::MapUnitsToMeters(10.0f); // todo: magic numbers
-        if (fabs(renderview->mCamera.mPosition.x - spritePosition.x) > maxdistance ||
-            fabs(renderview->mCamera.mPosition.z - spritePosition.y) > maxdistance)
-        {
-            // skip
-        }
-        else
-        {
-            mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
-
-            ++mRenderStats.mSpritesDrawnCount;
-            gameObject->mLastRenderFrame = mRenderStats.mRenderFramesCounter;
-        }
+        ++mRenderStats.mSpritesDrawnCount;
+        gameObject->mLastRenderFrame = mRenderStats.mRenderFramesCounter;
     }
-
-    if (!gameObject->HasAttachedObjects())
-        return;
 
     // draw attached objects
     for (int ichild = 0; ; ++ichild)
@@ -158,10 +172,10 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     }
 }
 
-void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender)
+void MapRenderer::DebugDraw(RenderView* renderview, DebugRenderer& debugRender)
 {
     debug_assert(renderview);
-    for (GameObject* gameObject: gGameObjectsManager.mAllObjectsList)
+    for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
     {
         // check if gameobject was on screen in current frame
         if (gameObject->mLastRenderFrame != mRenderStats.mRenderFramesCounter)
@@ -169,8 +183,6 @@ void MapRenderer::RenderDebug(RenderView* renderview, DebugRenderer& debugRender
 
         gameObject->DebugDraw(debugRender);
     }
-
-    gTrafficManager.DebugDraw(debugRender);
 }
 
 void MapRenderer::DrawCityMesh(RenderView* renderview)

@@ -7,6 +7,7 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 #include "AiManager.h"
+#include "TrafficManager.h"
 
 namespace ImGui
 {
@@ -67,7 +68,9 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
                 pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
                 pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
-                gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 0);
+                Pedestrian* character = gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 0);
+                debug_assert(character);
+                character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
             }
             if (ImGui::MenuItem("Basic walking"))
             {
@@ -76,6 +79,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
                 Pedestrian* character = gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 1);
                 debug_assert(character);
+                character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
                 gAiManager.CreateAiController(character);
             }
             ImGui::EndMenu();
@@ -105,13 +109,19 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     if (playerChar)
     {
         ImGui::HorzSpacing();
+
         glm::vec3 pedPosition = playerChar->mPhysicsBody->GetPosition();
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
-        glm::vec3 logicalPosition = Convert::MetersToMapUnits(pedPosition);
-        ImGui::Text("logical pos: %.3f, %.3f, %.3f", logicalPosition.x, logicalPosition.y, logicalPosition.z);
+
+        glm::ivec3 logPosition = playerChar->GetLogicalPosition();
+        ImGui::Text("logical pos: %d, %d, %d", logPosition.x, logPosition.y, logPosition.z);
+
+        MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(logPosition.x, logPosition.z, logPosition.y);
+        ImGui::Text("block: %s", cxx::enum_to_string(blockInfo->mGroundType));
 
         cxx::angle_t pedHeading = playerChar->mPhysicsBody->GetRotationAngle();
-        ImGui::Text("heading: %f", pedHeading.mDegrees);
+        ImGui::Text("heading: %.1f degs", pedHeading.to_degrees_normalize_360());
+
         ImGui::Text("weapon: %s", cxx::enum_to_string(playerChar->mCurrentWeapon));
         ImGui::Text("state: %s", cxx::enum_to_string(playerChar->GetCurrentStateID()));
         ImGui::HorzSpacing();
@@ -123,12 +133,12 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             ImGui::SliderInt("car remap", &playerChar->mCurrentCar->mRemapIndex, -1, MAX_CAR_REMAPS - 1);
         }
 
-        static glm::vec3 setLocalPosition = logicalPosition;
+        static glm::vec3 setLocalPosition;
         if (ImGui::Button("Set position..."))
         {
             ImGui::OpenPopup("Set player position");
 
-            setLocalPosition = logicalPosition;
+            setLocalPosition = Convert::MetersToMapUnits(pedPosition);
         }
 
         if (ImGui::BeginPopup("Set player position"))
@@ -245,6 +255,19 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 }
             }
         }
+    }
+
+    if (ImGui::CollapsingHeader("Traffic"))
+    {
+        ImGui::HorzSpacing();
+        ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Pedestrians");
+        ImGui::HorzSpacing();
+        ImGui::Text("Current count: %d", gTrafficManager.CountTrafficPedestrians());
+        ImGui::SliderInt("Max count", &gGameParams.mTrafficGenMaxPeds, 0, 100);
+        ImGui::SliderInt("Generation distance max", &gGameParams.mTrafficGenPedsMaxDistance, 1, 10);
+        ImGui::SliderInt("Generation chance", &gGameParams.mTrafficGenPedsChance, 0, 100);
+        ImGui::SliderFloat("Generation cooldown", &gGameParams.mTrafficGenPedsCooldownTime, 0.5f, 5.0f, "%.1f");
+        ImGui::Checkbox("Generation enabled", &mEnableTrafficPedsGeneration);
     }
 
     if (ImGui::CollapsingHeader("Graphics"))

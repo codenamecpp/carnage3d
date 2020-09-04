@@ -32,13 +32,14 @@ public:
     void Deinit();
     void RenderFrameBegin();
     void RenderFrame(RenderView* renderview);
-    void RenderDebug(RenderView* renderview, DebugRenderer& debugRender);
+    void DebugDraw(RenderView* renderview, DebugRenderer& debugRender);
     void RenderFrameEnd();
     void BuildMapMesh();
 
 private:
     void DrawCityMesh(RenderView* renderview);
     void DrawGameObject(RenderView* renderview, GameObject* gameObject);
+    void PreDrawGameObject(GameObject* gameObject);
 
 private:
     enum

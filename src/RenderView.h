@@ -9,6 +9,7 @@ class RenderView: public cxx::noncopyable
 {
 public:
     GameCamera mCamera;
+    cxx::aabbox2d_t mOnScreenArea; // current visible map rectangle
 
 public:
     RenderView() = default;
