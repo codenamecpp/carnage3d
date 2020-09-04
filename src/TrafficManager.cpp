@@ -149,7 +149,7 @@ void TrafficManager::GenerateTrafficPedestrians(int pedsCount, RenderView& view)
         // scan candidate from top
         for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
         {
-            MapBlockInfo* mapBlockInfo = gGameMap.GetBlockClamp(pos.x, pos.y, iz - 1);
+            MapBlockInfo* mapBlockInfo = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
             debug_assert(mapBlockInfo);
 
             if (mapBlockInfo->mGroundType == eGroundType_Air)
