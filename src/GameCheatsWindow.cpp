@@ -118,6 +118,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
         MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(logPosition.x, logPosition.z, logPosition.y);
         ImGui::Text("block: %s", cxx::enum_to_string(blockInfo->mGroundType));
+        ImGui::Text("N: %s", blockInfo->mUpDirection ? "OK" : "--");
+        ImGui::Text("E: %s", blockInfo->mRightDirection ? "OK" : "--");
+        ImGui::Text("S: %s", blockInfo->mDownDirection ? "OK" : "--");
+        ImGui::Text("W: %s", blockInfo->mLeftDirection ? "OK" : "--");
 
         cxx::angle_t pedHeading = playerChar->mPhysicsBody->GetRotationAngle();
         ImGui::Text("heading: %.1f degs", pedHeading.to_degrees_normalize_360());
