@@ -80,6 +80,7 @@ In addition there is support of xbox-compatible gamepads. To enable it or change
 * [GTA2 level viewer](https://github.com/aalin/gta2-level-viewer)
 * [gta2.js](https://github.com/aalin/gta2.js)
 * [GTAViewer](https://github.com/GitExl/GTAViewer)
+* [rust-theft-auto](https://github.com/gaudecker/rust-theft-auto)
 
 ## Screenshots ##
 First test launch on Linux
