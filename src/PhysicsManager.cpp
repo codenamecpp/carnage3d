@@ -445,13 +445,7 @@ void PhysicsManager::ProcessGravityStep(CarPhysicsBody* physicsBody)
     if (physicsBody->mWaterContact)
         return;
 
-    glm::vec2 posSteerWheel = physicsBody->GetWheelPosition(eCarWheel_Steer);
-    glm::vec2 posDriveWheel = physicsBody->GetWheelPosition(eCarWheel_Drive);
-
-    float heightSteerWheel = gGameMap.GetHeightAtPosition(glm::vec3(posSteerWheel.x, physicsBody->mHeight, posSteerWheel.y), false);
-    float heightDriveWheel = gGameMap.GetHeightAtPosition(glm::vec3(posDriveWheel.x, physicsBody->mHeight, posDriveWheel.y), false);
-
-    float groundHeight = std::max(heightSteerWheel, heightDriveWheel);
+    float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
 
     if (physicsBody->mFalling)
     {

@@ -26,6 +26,7 @@ public:
 private:
     Pedestrian* mCharacter = nullptr;
     Font* mFont = nullptr;
+    Font* mBigFont = nullptr;
 
     std::deque<HUDMessageData> mTextMessagesQueue;
 };

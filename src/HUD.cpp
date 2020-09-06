@@ -7,11 +7,13 @@
 #include "GameMapManager.h"
 #include "FontManager.h"
 #include "Font.h"
+#include "GameTextsManager.h"
 
 void HUD::Setup(Pedestrian* character)
 {
     mCharacter = character;
     mFont = gFontManager.GetFont("SUB2.FON");
+    mBigFont = gFontManager.GetFont("BIG2.FON");
 
     ClearTextMessages();
 }
