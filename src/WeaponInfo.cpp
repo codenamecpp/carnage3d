@@ -44,6 +44,8 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
     cxx::json_get_attribute(configNode, "base_fire_rate", mBaseFireRate);
     cxx::json_get_attribute(configNode, "base_ammo_limit", mBaseMaxAmmo);
     cxx::json_get_attribute(configNode, "hud_sprite", mSpriteIndex);
+    cxx::json_get_attribute(configNode, "base_damage", mBaseDamage);
+    debug_assert(mBaseDamage >= 0);
     return true;
 }
 

@@ -20,7 +20,7 @@
         "base_hit_range": 4.5,
         "base_fire_rate": 2.0,
         "base_ammo_limit": 999,
-        "base_damage": 1,
+        "base_damage": 5,
 
         "hud_sprite": 30
     },
@@ -38,7 +38,7 @@
         "base_hit_range": 4.5,
         "base_fire_rate": 8.0,
         "base_ammo_limit": 999,
-        "base_damage": 1,
+        "base_damage": 5,
 
         "hud_sprite": 31
     },
@@ -55,7 +55,7 @@
         "base_hit_range": 1.1,
         "base_fire_rate": 15.0,
         "base_ammo_limit": 999,
-        "base_damage": 4,
+        "base_damage": 15,
 
         "hud_sprite": 33
     },
