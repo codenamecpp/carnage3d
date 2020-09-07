@@ -22,7 +22,19 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
 
 Vehicle::~Vehicle()
 {
-    // todo: remove all passengers
+    // eject passengers
+    if (HasPassengers())
+    {
+        std::vector<Pedestrian*> passengers = mPassengers;
+        for (Pedestrian* currPassenger: passengers)
+        {
+            if (currPassenger->IsMarkedForDeletion())
+                continue;
+
+            currPassenger->PutOnFoot();
+        }
+        mPassengers.clear();
+    }
     
     if (mPhysicsBody)
     {
@@ -445,7 +457,7 @@ bool Vehicle::IsSeatPresent(eCarSeat carSeat) const
     return (doorIndex < mCarStyle->mDoorsCount && doorIndex > -1);
 }
 
-void Vehicle::PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
+void Vehicle::RegisterPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
 {
     if (pedestrian == nullptr || carSeat == eCarSeat_Any)
     {
@@ -463,7 +475,7 @@ void Vehicle::PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
     mPassengers.push_back(pedestrian);
 }
 
-void Vehicle::RemovePassenger(Pedestrian* pedestrian)
+void Vehicle::UnregisterPassenger(Pedestrian* pedestrian)
 {
     if (pedestrian->IsAttachedToObject(this))
     {
@@ -735,4 +747,9 @@ void Vehicle::SetWrecked()
     mCarWrecked = true;
 
     mPhysicsBody->ResetDriveState();
+}
+
+bool Vehicle::HasPassengers() const
+{
+    return !mPassengers.empty();
 }

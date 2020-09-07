@@ -117,6 +117,24 @@ void AiCharacterController::UpdateFrame()
         return;
     }
 
+    if ((mAiMode == ePedestrianAiMode_DrivingCar) && mCharacter->IsCarDriver())
+    {
+        UpdateDrivingCar();
+        return;
+    }
+
+    if (mAiMode == ePedestrianAiMode_DrivingCar)
+    {
+        StartPanic();
+        return;
+    }
+
+    if (mCharacter->IsCarDriver())
+    {
+        StartDrivingCar();
+        return;
+    }
+
     if (!mCharacter->IsIdle())
         return;
 
@@ -201,15 +219,14 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
     glm::ivec3 newWayPoint (0, 0, 0);
     for (eMapDirection curr: moveDirs)
     {
-        glm::ivec3 moveBlockLogPos = currentLogPos + GetVectorFromMapDirection(curr);
+        glm::ivec3 moveBlockPos = currentLogPos + GetVectorFromMapDirection(curr);
 
-        const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockLogPos.x, moveBlockLogPos.z, moveBlockLogPos.y);
-        debug_assert(blockInfo);
+        const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y);
 
         eGroundType groundType = blockInfo->mGroundType;
         if (groundType == eGroundType_Pawement)
         {
-            newWayPoint = moveBlockLogPos;
+            newWayPoint = moveBlockPos;
             break;
         }
 
@@ -217,13 +234,13 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
         {
             if ((groundType == eGroundType_Field) || (groundType == eGroundType_Road))
             {
-                newWayPoint = moveBlockLogPos;
+                newWayPoint = moveBlockPos;
                 break;
             }
 
             if (mCanSuicideInPanic && (groundType == eGroundType_Air))
             {
-                newWayPoint = moveBlockLogPos;
+                newWayPoint = moveBlockPos;
                 break;
             }
         }
@@ -279,4 +296,70 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 void AiCharacterController::SetCanSuicideInPanic(bool canSuicide)
 {
     mCanSuicideInPanic = canSuicide;
+}
+
+void AiCharacterController::StartDrivingCar()
+{
+    mAiMode = ePedestrianAiMode_DrivingCar;
+
+    mCharacter->mCtlState.Clear();
+}
+
+void AiCharacterController::UpdateDrivingCar()
+{
+    // todo: temporary implementation
+
+    cxx::angle_t currHeading = mCharacter->mPhysicsBody->GetRotationAngle();
+    eMapDirection currentMapDirection = GetMapDirectionFromHeading(currHeading.mDegrees);
+
+    eMapDirection moveDirs[] =
+    {
+        currentMapDirection,
+        GetMapDirectionCCW(currentMapDirection),
+        GetMapDirectionCW(currentMapDirection),
+    };
+
+    glm::ivec3 currentLogPos = mCharacter->GetLogicalPosition();
+    glm::ivec3 newWayPoint (0, 0, 0);
+    for (eMapDirection curr: moveDirs)
+    {
+        glm::ivec3 moveBlockPos = currentLogPos + GetVectorFromMapDirection(curr);
+
+        const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y);
+        if (blockInfo->mGroundType != eGroundType_Road)
+            continue;
+
+        if (blockInfo->mUpDirection && curr != eMapDirection_N)
+            continue;
+
+        if (blockInfo->mLeftDirection && curr != eMapDirection_W)
+            continue;
+
+        if (blockInfo->mRightDirection && curr != eMapDirection_E)
+            continue;
+
+        if (blockInfo->mDownDirection && curr != eMapDirection_S)
+            continue;
+
+        mCharacter->mCtlState.mAccelerate = true;
+        mCharacter->mCtlState.mReverse = false;
+        mCharacter->mCtlState.mSteerLeft = false;
+        mCharacter->mCtlState.mSteerRight = false;
+
+        if (curr == currentMapDirection)
+            continue;
+
+        if (curr == GetMapDirectionCCW(currentMapDirection))
+        {
+            mCharacter->mCtlState.mSteerLeft = true;
+            continue;
+        }
+        if (curr == GetMapDirectionCW(currentMapDirection))
+        {
+            mCharacter->mCtlState.mSteerRight = true;
+            continue;
+        }
+        mCharacter->mCtlState.mReverse = true;
+        mCharacter->mCtlState.mAccelerate = false;
+    }
 }

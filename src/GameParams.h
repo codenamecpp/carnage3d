@@ -25,11 +25,18 @@ public:
     float mPedestrianDrowningTime; // seconds
     float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
 
-    // traffic
-    int mTrafficGenMaxPeds; // max number of traffic pedestrians per player
+    // traffic - pedestrians
+    int mTrafficGenMaxPeds; // max number of traffic pedestrians around the player
     int mTrafficGenPedsChance; // chance to generate new traffic pedestrian on current turn
     int mTrafficGenPedsMaxDistance; // maximum distance from player camera, blocks
     float mTrafficGenPedsCooldownTime; // seconds between traffic generation
+
+    // traffic - cars
+    int mTrafficGenMaxCars; // max number of traffic cars around the player
+    int mTrafficGenCarsChance; // chance to generate new traffic car on current turn
+    int mTrafficGenCarsMaxDistance; // maximum distance from player camera, blocks
+    int mTrafficGenCarsMinDistance; // minimun distance from player camera, blocks
+    float mTrafficGenCarsCooldownTime; // seconds between traffic generation
 
     // explosion
     float mExplosionPrimaryDamageDistance; // how far explosion can do maximum damage, meters

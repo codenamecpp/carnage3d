@@ -15,6 +15,7 @@ public:
     std::vector<GameObject*> mAllObjects;
     std::vector<GameObject*> mDeleteObjectsList;
     std::vector<Pedestrian*> mPedestriansList;
+    std::vector<Vehicle*> mVehiclesList;
 
 public:
     ~GameObjectsManager();

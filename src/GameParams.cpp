@@ -24,11 +24,17 @@ void GameParams::SetToDefaults()
     mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
     mPedestrianDrowningTime = 0.05f;
     mPedestrianBurnDuration = 4.0f;
-    // traffic
+    // traffic - pedestrians
     mTrafficGenMaxPeds = 20;
     mTrafficGenPedsChance = 50;
     mTrafficGenPedsMaxDistance = 2;
     mTrafficGenPedsCooldownTime = 1.5f;
+    // traffic - cars
+    mTrafficGenMaxCars = 12;
+    mTrafficGenCarsChance = 65;
+    mTrafficGenCarsMaxDistance = 4;
+    mTrafficGenCarsMinDistance = 1;
+    mTrafficGenCarsCooldownTime = 3.0f;
     // explosion
     mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.25f);
     mExplosionSecondaryDamageDistance = Convert::MapUnitsToMeters(0.75f);

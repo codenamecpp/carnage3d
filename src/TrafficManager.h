@@ -17,24 +17,40 @@ public:
     void DebugDraw(DebugRenderer& debugRender);
 
     int CountTrafficPedestrians() const;
+    int CountTrafficCars() const;
 
 private:
-    void GeneratePedestrians();
-    void GenerateTrafficPedestrians(int pedsCount, RenderView& view);
-    void RemoveOffscreenPedestrians();
-    int GetPedestriansToGenerateCount(RenderView& view) const;
+    // traffic pedestrians generation
+    void GeneratePeds();
+    void GenerateTrafficPeds(int pedsCount, RenderView& view);
+    void RemoveOffscreenPeds();
+    int GetPedsToGenerateCount(RenderView& view) const;
+
+    // traffic cars generation
+    void GenerateCars();
+    void GenerateTrafficCars(int carsCount, RenderView& view);
+    void RemoveOffscreenCars();
+    int GetCarsToGenerateCount(RenderView& view) const;
+
+    Pedestrian* GenerateRandomTrafficCarDriver(Vehicle* vehicle);
+    Pedestrian* GenerateRandomTrafficPedestrian(int posx, int posy, int posz);
+    Vehicle* GenerateRandomTrafficCar(int posx, int posy, int posz);
+
+    bool TryRemoveTrafficCar(Vehicle* car);
+    bool TryRemoveTrafficPed(Pedestrian* ped);
 
 private:
-    float mLastGenPedestriansTime = 0.0;
+    float mLastGenPedsTime = 0.0;
+    float mLastGenCarsTime = 0.0f;
 
     // buffers
-    struct CandidatePedestrianPos
+    struct CandidatePos
     {
         int mMapX;
         int mMapY;
         int mMapLayer;
     };
-    std::vector<CandidatePedestrianPos> mCandidatePedsPosArray;
+    std::vector<CandidatePos> mCandidatePosArray;
 };
 
 extern TrafficManager gTrafficManager;

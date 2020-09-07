@@ -267,11 +267,21 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Pedestrians");
         ImGui::HorzSpacing();
         ImGui::Text("Current count: %d", gTrafficManager.CountTrafficPedestrians());
-        ImGui::SliderInt("Max count", &gGameParams.mTrafficGenMaxPeds, 0, 100);
-        ImGui::SliderInt("Generation distance max", &gGameParams.mTrafficGenPedsMaxDistance, 1, 10);
-        ImGui::SliderInt("Generation chance", &gGameParams.mTrafficGenPedsChance, 0, 100);
-        ImGui::SliderFloat("Generation cooldown", &gGameParams.mTrafficGenPedsCooldownTime, 0.5f, 5.0f, "%.1f");
-        ImGui::Checkbox("Generation enabled", &mEnableTrafficPedsGeneration);
+        ImGui::SliderInt("Max count##ped", &gGameParams.mTrafficGenMaxPeds, 0, 100);
+        ImGui::SliderInt("Generation distance max##ped", &gGameParams.mTrafficGenPedsMaxDistance, 1, 10);
+        ImGui::SliderInt("Generation chance##ped", &gGameParams.mTrafficGenPedsChance, 0, 100);
+        ImGui::SliderFloat("Generation cooldown##ped", &gGameParams.mTrafficGenPedsCooldownTime, 0.5f, 5.0f, "%.1f");
+        ImGui::Checkbox("Generation enabled##ped", &mEnableTrafficPedsGeneration);
+        ImGui::HorzSpacing();
+        ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Cars");
+        ImGui::HorzSpacing();
+        ImGui::Text("Current count: %d", gTrafficManager.CountTrafficCars());
+        ImGui::SliderInt("Max count##car", &gGameParams.mTrafficGenMaxCars, 0, 100);
+        ImGui::SliderInt("Generation distance min##car", &gGameParams.mTrafficGenCarsMinDistance, 1, 10);
+        ImGui::SliderInt("Generation distance max##car", &gGameParams.mTrafficGenCarsMaxDistance, 1, 10);
+        ImGui::SliderInt("Generation chance##car", &gGameParams.mTrafficGenCarsChance, 0, 100);
+        ImGui::SliderFloat("Generation cooldown##car", &gGameParams.mTrafficGenCarsCooldownTime, 0.5f, 5.0f, "%.1f");
+        ImGui::Checkbox("Generation enabled##car", &mEnableTrafficCarsGeneration);
     }
 
     if (ImGui::CollapsingHeader("Graphics"))
@@ -324,5 +334,11 @@ void GameCheatsWindow::CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedest
     currPosition.x += 0.5f;
     currPosition.z += 0.5f;
 
-    gGameObjectsManager.CreateVehicle(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
+    Vehicle* vehicle = gGameObjectsManager.CreateVehicle(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
+    debug_assert(vehicle);
+
+    if (vehicle)
+    {
+        vehicle->mFlags = (vehicle->mFlags | eGameObjectFlags_Traffic);
+    }
 }

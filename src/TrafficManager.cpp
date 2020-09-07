@@ -15,39 +15,47 @@ TrafficManager::TrafficManager()
 
 void TrafficManager::StartupTraffic()
 {   
-    mLastGenPedestriansTime = 0.0f;
-    GeneratePedestrians();
-    
-    // todo: vehicles
+    mLastGenPedsTime = 0.0f;
+    GeneratePeds();
+
+    mLastGenCarsTime = 0.0f;
+    GenerateCars();
 }
 
 void TrafficManager::CleanupTraffic()
 {
-    // todo: implement
+    for (Vehicle* currCar: gGameObjectsManager.mVehiclesList)
+    {
+        TryRemoveTrafficCar(currCar);
+    }
+
+    for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
+    {
+        TryRemoveTrafficPed(currPedestrian);
+    }
 }
 
 void TrafficManager::UpdateFrame()
 {
-    GeneratePedestrians();
-
-    // todo: vehicles
+    GeneratePeds();
+    GenerateCars();
 }
 
 void TrafficManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-void TrafficManager::GeneratePedestrians()
+void TrafficManager::GeneratePeds()
 {
-    if (mLastGenPedestriansTime > 0.0f && 
-        (mLastGenPedestriansTime + gGameParams.mTrafficGenPedsCooldownTime) > gTimeManager.mGameTime)
+    if ((mLastGenPedsTime > 0.0f) && 
+        (mLastGenPedsTime + gGameParams.mTrafficGenPedsCooldownTime) > gTimeManager.mGameTime)
     {
         return;
     }
 
-    mLastGenPedestriansTime = gTimeManager.mGameTime;
+    mLastGenPedsTime = gTimeManager.mGameTime;
 
-    RemoveOffscreenPedestrians();
+    RemoveOffscreenPeds();
 
     if (!gGameCheatsWindow.mEnableTrafficPedsGeneration)
         return;
@@ -57,21 +65,25 @@ void TrafficManager::GeneratePedestrians()
         if (currentSlot.mCharPedestrian == nullptr)
             continue;
 
-        int generatePedsCount = GetPedestriansToGenerateCount(currentSlot.mCharView);
+        int generatePedsCount = GetPedsToGenerateCount(currentSlot.mCharView);
         if (generatePedsCount > 0)
         {
-            GenerateTrafficPedestrians(generatePedsCount, currentSlot.mCharView);
+            GenerateTrafficPeds(generatePedsCount, currentSlot.mCharView);
         }
     }
 }
 
-void TrafficManager::RemoveOffscreenPedestrians()
+void TrafficManager::RemoveOffscreenPeds()
 {
-    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenPedsMaxDistance * 1.0f);
+    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenPedsMaxDistance + 1.0f);
 
     for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
     {
         if (pedestrian->IsMarkedForDeletion() || !pedestrian->IsTrafficFlag())
+            continue;
+
+        // skip vehicle passengers
+        if (pedestrian->IsCarPassenger())
             continue;
 
         bool isOnScreen = false;
@@ -97,15 +109,11 @@ void TrafficManager::RemoveOffscreenPedestrians()
             continue;
 
         // remove ped
-        if (pedestrian->mController)
-        {
-            pedestrian->mController->Deactivate();
-        }
         pedestrian->MarkForDeletion();
     }
 }
 
-void TrafficManager::GenerateTrafficPedestrians(int pedsCount, RenderView& view)
+void TrafficManager::GenerateTrafficPeds(int pedsCount, RenderView& view)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
@@ -137,7 +145,7 @@ void TrafficManager::GenerateTrafficPedestrians(int pedsCount, RenderView& view)
         outerRect.h += expandSize * 2;
     }
     
-    mCandidatePedsPosArray.clear();
+    mCandidatePosArray.clear();
 
     for (int iy = 0; iy < outerRect.h; ++iy)
     for (int ix = 0; ix < outerRect.w; ++ix)
@@ -149,65 +157,45 @@ void TrafficManager::GenerateTrafficPedestrians(int pedsCount, RenderView& view)
         // scan candidate from top
         for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
         {
-            MapBlockInfo* mapBlockInfo = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
-            debug_assert(mapBlockInfo);
+            MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
 
-            if (mapBlockInfo->mGroundType == eGroundType_Air)
+            if (mapBlock->mGroundType == eGroundType_Air)
                 continue;
 
-            if (mapBlockInfo->mGroundType == eGroundType_Pawement)
+            if (mapBlock->mGroundType == eGroundType_Pawement)
             {
-                CandidatePedestrianPos candidatePos;
+                if (mapBlock->mIsRailway)
+                    continue;
+
+                CandidatePos candidatePos;
                 candidatePos.mMapX = pos.x;
                 candidatePos.mMapY = pos.y;
                 candidatePos.mMapLayer = iz;
-                mCandidatePedsPosArray.push_back(candidatePos);
+                mCandidatePosArray.push_back(candidatePos);
             }
             break;
         }
     }
 
-    if (mCandidatePedsPosArray.empty())
+    if (mCandidatePosArray.empty())
         return;
 
     // shuffle candidates
-    random.shuffle(mCandidatePedsPosArray);
+    random.shuffle(mCandidatePosArray);
 
-    for (; (numPedsGenerated < pedsCount) && !mCandidatePedsPosArray.empty(); ++numPedsGenerated)
+    for (; (numPedsGenerated < pedsCount) && !mCandidatePosArray.empty(); ++numPedsGenerated)
     {
         if (!random.random_chance(gGameParams.mTrafficGenPedsChance))
             continue;
 
-        CandidatePedestrianPos candidate = mCandidatePedsPosArray.back();
-        mCandidatePedsPosArray.pop_back();
+        CandidatePos candidate = mCandidatePosArray.back();
+        mCandidatePosArray.pop_back();
 
-        // generate pedestrian
-        glm::vec2 positionOffset(
-            Convert::MapUnitsToMeters(random.generate_float() - 0.5f),
-            Convert::MapUnitsToMeters(random.generate_float() - 0.5f)
-        );
-        cxx::angle_t pedestrianHeading(360.0f * random.generate_float(), cxx::angle_t::units::degrees);
-        glm::vec3 pedestrianPosition(
-            Convert::MapUnitsToMeters(candidate.mMapX + 0.5f) + positionOffset.x,
-            Convert::MapUnitsToMeters(candidate.mMapLayer * 1.0f),
-            Convert::MapUnitsToMeters(candidate.mMapY + 0.5f) + positionOffset.y
-        );
-        // fix height
-        pedestrianPosition.y = gGameMap.GetHeightAtPosition(pedestrianPosition);
-
-        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading);
-        debug_assert(pedestrian);
-        if (pedestrian)
-        {
-            pedestrian->mRemapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
-            pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
-
-            AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
-        }
+        GenerateRandomTrafficPedestrian(candidate.mMapX, candidate.mMapLayer, candidate.mMapY);
     }
 }
 
-int TrafficManager::GetPedestriansToGenerateCount(RenderView& view) const
+int TrafficManager::GetPedsToGenerateCount(RenderView& view) const
 {
     int pedestriansCounter = 0;
 
@@ -221,7 +209,7 @@ int TrafficManager::GetPedestriansToGenerateCount(RenderView& view) const
 
     for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
     {
-        if (!pedestrian->IsTrafficFlag() || pedestrian->IsMarkedForDeletion())
+        if (!pedestrian->IsTrafficFlag() || pedestrian->IsMarkedForDeletion() || pedestrian->IsCarPassenger())
             continue;
 
         if (pedestrian->IsOnScreen(onScreenArea))
@@ -236,12 +224,359 @@ int TrafficManager::GetPedestriansToGenerateCount(RenderView& view) const
 int TrafficManager::CountTrafficPedestrians() const
 {
     int counter = 0;
-    for (Pedestrian* currPedestrian: gGameObjectsManager.mPedestriansList)
+    for (Pedestrian* pedestrian: gGameObjectsManager.mPedestriansList)
     {
-        if (currPedestrian->IsMarkedForDeletion() || !currPedestrian->IsTrafficFlag())
+        if (!pedestrian->IsTrafficFlag() || pedestrian->IsMarkedForDeletion() || pedestrian->IsCarPassenger())
             continue;
 
         ++counter;
     }
     return counter;
+}
+
+int TrafficManager::CountTrafficCars() const
+{
+    int counter = 0;
+    for (Vehicle* currVehicle: gGameObjectsManager.mVehiclesList)
+    {
+        if (currVehicle->IsMarkedForDeletion() || !currVehicle->IsTrafficFlag())
+            continue;
+
+        ++counter;
+    }
+    return counter;
+}
+
+int TrafficManager::GetCarsToGenerateCount(RenderView& view) const
+{
+    int carsCounter = 0;
+
+    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenCarsMaxDistance * 1.0f);
+
+    cxx::aabbox2d_t onScreenArea = view.mOnScreenArea;
+    onScreenArea.mMax.x += offscreenDistance;
+    onScreenArea.mMax.y += offscreenDistance;
+    onScreenArea.mMin.x -= offscreenDistance;
+    onScreenArea.mMin.y -= offscreenDistance;
+
+    for (Vehicle* car: gGameObjectsManager.mVehiclesList)
+    {
+        if (!car->IsTrafficFlag() || car->IsMarkedForDeletion())
+            continue;
+
+        if (car->IsOnScreen(onScreenArea))
+        {
+            ++carsCounter;
+        }
+    }
+
+    return std::max(0, (gGameParams.mTrafficGenMaxCars - carsCounter));
+}
+
+void TrafficManager::GenerateCars()
+{
+    if ((mLastGenCarsTime > 0.0f) && 
+        (mLastGenCarsTime + gGameParams.mTrafficGenCarsCooldownTime) > gTimeManager.mGameTime)
+    {
+        return;
+    }
+
+    mLastGenCarsTime = gTimeManager.mGameTime;
+
+    RemoveOffscreenCars();
+
+    if (!gGameCheatsWindow.mEnableTrafficCarsGeneration)
+        return;
+
+    for (auto& currentSlot: gCarnageGame.mHumanSlot)
+    {   
+        if (currentSlot.mCharPedestrian == nullptr)
+            continue;
+
+        int generateCarsCount = GetCarsToGenerateCount(currentSlot.mCharView);
+        if (generateCarsCount > 0)
+        {
+            GenerateTrafficCars(generateCarsCount, currentSlot.mCharView);
+        }
+    }
+}
+
+void TrafficManager::GenerateTrafficCars(int carsCount, RenderView& view)
+{
+    cxx::randomizer& random = gCarnageGame.mGameRand;
+
+    int numCarsGenerated = 0;
+
+    Rect innerRect;
+    Rect outerRect;
+    // get map area on screen
+    {
+        Point minBlock;
+        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.x);
+        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.y);
+
+        Point maxBlock;
+        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.x) + 1;
+        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.y) + 1;
+
+        int expandMinSize = gGameParams.mTrafficGenCarsMinDistance;
+        innerRect.x = minBlock.x - expandMinSize;
+        innerRect.y = minBlock.y - expandMinSize;
+        innerRect.w = (maxBlock.x - minBlock.x) + expandMinSize * 2;
+        innerRect.h = (maxBlock.y - minBlock.y) + expandMinSize * 2;
+
+        // expand
+        int expandSize = gGameParams.mTrafficGenCarsMaxDistance;
+        outerRect = innerRect;
+        outerRect.x -= expandSize;
+        outerRect.y -= expandSize;
+        outerRect.w += expandSize * 2;
+        outerRect.h += expandSize * 2;
+    }
+    
+    mCandidatePosArray.clear();
+
+    for (int iy = 0; iy < outerRect.h; ++iy)
+    for (int ix = 0; ix < outerRect.w; ++ix)
+    {
+        Point pos (ix + outerRect.x, iy + outerRect.y);
+        if (innerRect.PointWithin(pos))
+            continue;
+
+        // scan candidate from top
+        for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
+        {
+            MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
+
+            if (mapBlock->mGroundType == eGroundType_Air)
+                continue;
+
+            if (mapBlock->mGroundType == eGroundType_Road)
+            {
+                int bits = (int) (mapBlock->mDownDirection) + 
+                    (int) (mapBlock->mUpDirection) +
+                    (int) (mapBlock->mLeftDirection) + 
+                    (int) (mapBlock->mRightDirection);
+
+                if ((bits == 0 || bits > 1) || mapBlock->mIsRailway)
+                    continue;
+
+                CandidatePos candidatePos;
+                candidatePos.mMapX = pos.x;
+                candidatePos.mMapY = pos.y;
+                candidatePos.mMapLayer = iz;
+                mCandidatePosArray.push_back(candidatePos);
+            }
+            break;
+        }
+    }
+
+    if (mCandidatePosArray.empty())
+        return;
+
+    // shuffle candidates
+    random.shuffle(mCandidatePosArray);
+
+    for (; (numCarsGenerated < carsCount) && !mCandidatePosArray.empty(); ++numCarsGenerated)
+    {
+        if (!random.random_chance(gGameParams.mTrafficGenCarsChance))
+            continue;
+
+        CandidatePos candidate = mCandidatePosArray.back();
+        mCandidatePosArray.pop_back();
+
+        GenerateRandomTrafficCar(candidate.mMapX, candidate.mMapLayer, candidate.mMapY);
+    }
+}
+
+void TrafficManager::RemoveOffscreenCars()
+{
+    float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenCarsMaxDistance + 1.0f);
+
+    for (Vehicle* currentCar: gGameObjectsManager.mVehiclesList)
+    {
+        if (currentCar->IsMarkedForDeletion() || !currentCar->IsTrafficFlag())
+            continue;
+
+        bool isOnScreen = false;
+        for (auto& currentSlot: gCarnageGame.mHumanSlot)
+        {   
+            if (currentSlot.mCharPedestrian == nullptr)
+                continue;
+
+            cxx::aabbox2d_t onScreenArea = currentSlot.mCharView.mOnScreenArea;
+            onScreenArea.mMax.x += offscreenDistance;
+            onScreenArea.mMax.y += offscreenDistance;
+            onScreenArea.mMin.x -= offscreenDistance;
+            onScreenArea.mMin.y -= offscreenDistance;
+
+            if (currentCar->IsOnScreen(onScreenArea))
+            {
+                isOnScreen = true;
+                break;
+            }
+        }
+
+        if (isOnScreen)
+            continue;
+
+        TryRemoveTrafficCar(currentCar);
+    }
+}
+
+Vehicle* TrafficManager::GenerateRandomTrafficCar(int posx, int posy, int posz)
+{
+    const MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(posx, posz, posy);
+  
+    glm::vec3 positions(
+        Convert::MapUnitsToMeters(posx + 0.5f),
+        Convert::MapUnitsToMeters(posy * 1.0f),
+        Convert::MapUnitsToMeters(posz + 0.5f)
+    );
+
+    float turnAngle = 0.0f;
+    if (mapBlock->mUpDirection)
+    {
+        turnAngle = -90.0f;
+    }
+    else if (mapBlock->mDownDirection)
+    {
+        turnAngle = 90.0f;
+    }
+    else if (mapBlock->mLeftDirection)
+    {
+        turnAngle = 180.0f;
+    }
+
+    // generate car
+    cxx::angle_t carHeading(turnAngle, cxx::angle_t::units::degrees);
+    positions.y = gGameMap.GetHeightAtPosition(positions);
+
+    // choose car model
+    std::vector<VehicleInfo*> models;
+    for(VehicleInfo& currModel: gGameMap.mStyleData.mVehicles)
+    {
+        // filter classes
+        if ((currModel.mClassID == eVehicleClass_Tank) || (currModel.mClassID == eVehicleClass_Boat) ||
+            (currModel.mClassID == eVehicleClass_Tram) || (currModel.mClassID == eVehicleClass_Train) ||
+            (currModel.mClassID == eVehicleClass_BackOfJuggernaut))
+        {
+            continue;
+        }
+        // filter models
+        if ((currModel.mModelId == eVehicle_Helicopter) || (currModel.mModelId == eVehicle_Ambulance) ||
+            (currModel.mModelId == eVehicle_FireTruck) || (currModel.mModelId == eVehicle_ModelCar))
+        {
+            continue;
+        }
+        models.push_back(&currModel);
+    }
+    
+    if (models.empty())
+        return nullptr;
+
+    // shuffle candidates
+    gCarnageGame.mGameRand.shuffle(models);
+
+    Vehicle* vehicle = gGameObjectsManager.CreateVehicle(positions, carHeading, models.front());
+    debug_assert(vehicle);
+    if (vehicle)
+    {
+        vehicle->mFlags = (vehicle->mFlags | eGameObjectFlags_Traffic);
+
+        Pedestrian* carDriver = GenerateRandomTrafficCarDriver(vehicle);
+        debug_assert(carDriver);
+    }
+
+    return vehicle;
+}
+
+Pedestrian* TrafficManager::GenerateRandomTrafficPedestrian(int posx, int posy, int posz)
+{
+    cxx::randomizer& random = gCarnageGame.mGameRand;
+
+    // generate pedestrian
+    glm::vec2 positionOffset(
+        Convert::MapUnitsToMeters(random.generate_float() - 0.5f),
+        Convert::MapUnitsToMeters(random.generate_float() - 0.5f)
+    );
+    cxx::angle_t pedestrianHeading(360.0f * random.generate_float(), cxx::angle_t::units::degrees);
+    glm::vec3 pedestrianPosition(
+        Convert::MapUnitsToMeters(posx + 0.5f) + positionOffset.x,
+        Convert::MapUnitsToMeters(posy * 1.0f),
+        Convert::MapUnitsToMeters(posz + 0.5f) + positionOffset.y
+    );
+    // fix height
+    pedestrianPosition.y = gGameMap.GetHeightAtPosition(pedestrianPosition);
+
+    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading);
+    debug_assert(pedestrian);
+    if (pedestrian)
+    {
+        pedestrian->mRemapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
+        pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
+
+        AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
+    }
+    return pedestrian;
+}
+
+Pedestrian* TrafficManager::GenerateRandomTrafficCarDriver(Vehicle* vehicle)
+{
+    cxx::randomizer& random = gCarnageGame.mGameRand;
+
+    debug_assert(vehicle);
+
+    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(
+        vehicle->mPhysicsBody->GetPosition(), 
+        vehicle->mPhysicsBody->GetRotationAngle());
+
+    debug_assert(pedestrian);
+
+    if (pedestrian)
+    {
+        pedestrian->mRemapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
+        pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
+
+        AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
+        pedestrian->PutInsideCar(vehicle, eCarSeat_Driver);
+    }
+    return pedestrian;
+}
+
+bool TrafficManager::TryRemoveTrafficCar(Vehicle* car)
+{
+    if (car->IsMarkedForDeletion())
+        return true;
+
+    if (!car->IsTrafficFlag())
+        return false;
+
+    bool hasNonTrafficPassengers = cxx::contains_if(car->mPassengers, [](Pedestrian* carDriver)
+    {
+        return !carDriver->IsTrafficFlag();
+    });
+
+    if (hasNonTrafficPassengers)
+        return false;
+
+    for (Pedestrian* currDriver: car->mPassengers)
+    {
+        currDriver->MarkForDeletion();
+    }
+
+    car->MarkForDeletion();
+    return true;
+}
+
+bool TrafficManager::TryRemoveTrafficPed(Pedestrian* pedestrian)
+{
+    if (pedestrian->IsMarkedForDeletion())
+        return true;
+
+    if (!pedestrian->IsTrafficFlag())
+        return false;
+        
+    pedestrian->MarkForDeletion();
+    return true;
 }

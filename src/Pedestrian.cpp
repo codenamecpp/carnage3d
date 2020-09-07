@@ -22,7 +22,12 @@ Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian
 
 Pedestrian::~Pedestrian()
 {
-    debug_assert(mController == nullptr);
+    if (mController)
+    {
+        mController->Deactivate();
+        mController = nullptr;
+    }
+
     SetCarExited();
 
     if (mPhysicsBody)
@@ -216,7 +221,7 @@ void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
     }
 }
 
-void Pedestrian::ExitCar()
+void Pedestrian::LeaveCar()
 {
     if (IsCarPassenger())
     {
@@ -325,8 +330,8 @@ void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
 
     mCurrentCar = targetCar;
     mCurrentSeat = targetSeat;
-
-    mCurrentCar->PutPassenger(this, mCurrentSeat);
+    mPhysicsBody->ClearForces();
+    mCurrentCar->RegisterPassenger(this, mCurrentSeat);
 }
 
 void Pedestrian::SetCarExited()
@@ -334,7 +339,7 @@ void Pedestrian::SetCarExited()
     if (mCurrentCar == nullptr)
         return;
 
-    mCurrentCar->RemovePassenger(this);
+    mCurrentCar->UnregisterPassenger(this);
     mCurrentCar = nullptr;
 }
 
@@ -456,4 +461,39 @@ glm::ivec2 Pedestrian::GetLogicalPosition2() const
 bool Pedestrian::IsOnTheGround() const
 {
     return !mPhysicsBody->mFalling;
+}
+
+void Pedestrian::PutInsideCar(Vehicle* car, eCarSeat carSeat)
+{
+    debug_assert(car);
+    debug_assert(carSeat < eCarSeat_Any);
+
+    if (car == nullptr || mCurrentCar && mCurrentCar == car)
+        return;
+
+    if (mCurrentCar)
+    {
+        SetCarExited();
+    }
+
+    SetCarEntered(car, carSeat);
+
+    if (!IsDead())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        mStatesManager.ChangeState(ePedestrianState_DrivingCar, evData);
+    }
+}
+
+void Pedestrian::PutOnFoot()
+{
+    if (mCurrentCar == nullptr)
+        return;
+
+    if (!IsDead())
+    {
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        mStatesManager.ChangeState(ePedestrianState_StandingStill, evData);
+    }
+    SetCarExited();
 }

@@ -195,7 +195,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
-        mCharacter->ExitCar();
+        mCharacter->LeaveCar();
         return;
     }
 

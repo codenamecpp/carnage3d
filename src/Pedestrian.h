@@ -61,13 +61,15 @@ public:
     // Instant kill, pedestrian will remain in dead state until respawn
     void DieFromDamage(eDamageCause damageCause);
 
-    // get seat in car, pedestrian should be on foot
+    // Gracefully enter or exit car
     // @param targetCar: Cannot be null
     // @param targetSeat: Cannot be 'any'
     void EnterCar(Vehicle* targetCar, eCarSeat targetSeat);
+    void LeaveCar();
 
-    // gracefully leave current vehicle
-    void ExitCar();
+    // Force put pedestrian into vehicle or put on the ground 
+    void PutInsideCar(Vehicle* car, eCarSeat carSeat);
+    void PutOnFoot();
 
     // check if pedestrian entering/exiting or driving car at this moment
     bool IsCarPassenger() const;

@@ -37,13 +37,13 @@ public:
     // @param damageInfo: Damage details
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
 
-    // adds passenger into the car
+    // adds or removes car passenger
     // @param pedestrian: Pedestrian, cannot be null
     // @param carSeat: Target seat, does not do check if seat is already occupied, cannot be 'any'
-    void PutPassenger(Pedestrian* pedestrian, eCarSeat carSeat);
+    void RegisterPassenger(Pedestrian* pedestrian, eCarSeat carSeat);
+    void UnregisterPassenger(Pedestrian* pedestrian);
 
-    // removes passenger
-    void RemovePassenger(Pedestrian* pedestrian);
+    bool HasPassengers() const;
 
     // get car passengers
     Pedestrian* GetCarDriver() const;

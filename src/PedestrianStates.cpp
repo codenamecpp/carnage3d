@@ -475,6 +475,8 @@ void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEv
         eGameObjectFlags flags = mPedestrian->mFlags | eGameObjectFlags_Invisible;
         mPedestrian->mFlags = flags;
     }
+
+    SetInCarPositionToSeat();
 }
 
 void PedestrianStatesManager::StateDriveCar_ProcessExit()
@@ -570,8 +572,6 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
     debug_assert(stateEvent.mTargetCar);
 
     mPedestrian->SetCarEntered(stateEvent.mTargetCar, stateEvent.mTargetSeat);
-    mPedestrian->mPhysicsBody->ClearForces();
-
     bool isBike = (mPedestrian->mCurrentCar->mCarStyle->mClassID == eVehicleClass_Motorcycle);
     mPedestrian->SetAnimation(isBike ? ePedestrianAnim_EnterBike : ePedestrianAnim_EnterCar, eSpriteAnimLoop_None);
 

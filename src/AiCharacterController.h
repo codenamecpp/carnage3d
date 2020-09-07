@@ -7,6 +7,7 @@ enum ePedestrianAiMode
     ePedestrianAiMode_None,
     ePedestrianAiMode_Wandering,
     ePedestrianAiMode_Panic,
+    ePedestrianAiMode_DrivingCar,
 };
 
 enum ePedestrianAiState
@@ -31,9 +32,11 @@ public:
 private:
     void UpdatePanic();
     void UpdateWandering();
+    void UpdateDrivingCar();
 
     void StartPanic();
     void StartWandering();
+    void StartDrivingCar();
 
     bool ChooseRandomWayPoint(bool isPanic);
     bool ContinueMoveToPoint(bool isPanic);

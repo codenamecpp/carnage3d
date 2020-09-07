@@ -17,6 +17,10 @@ GameObjectsManager::~GameObjectsManager()
     mDecorationsPool.cleanup();
     mObstaclesPool.cleanup();
     mExplosionsPool.cleanup();
+
+    debug_assert(mPedestriansList.empty());
+    debug_assert(mVehiclesList.empty());
+    debug_assert(mAllObjects.empty());
 }
 
 bool GameObjectsManager::InitGameObjects()
@@ -80,6 +84,7 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
     debug_assert(instance);
 
     mAllObjects.push_back(instance);
+    mVehiclesList.push_back(instance);
 
     // init
     instance->mCarStyle = carStyle;
@@ -300,6 +305,8 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         {
             Vehicle* vehicle = static_cast<Vehicle*>(object);
             mCarsPool.destroy(vehicle);
+
+            cxx::erase_elements(mVehiclesList, object);
         }
         break;
 
@@ -343,15 +350,18 @@ void GameObjectsManager::DestroyAllObjects()
 {
     while (!mAllObjects.empty())
     {
-        DestroyGameObject(mAllObjects[0]);
+        DestroyGameObject(mAllObjects.back());
     }
+
+    debug_assert(mVehiclesList.empty());
+    debug_assert(mPedestriansList.empty());
 }
 
 void GameObjectsManager::DestroyMarkedForDeletionObjects()
 {
     while (!mDeleteObjectsList.empty())
     {
-        DestroyGameObject(mDeleteObjectsList[0]);
+        DestroyGameObject(mDeleteObjectsList.back());
     }
 }
 

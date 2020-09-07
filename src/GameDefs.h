@@ -728,6 +728,14 @@ enum eProjectileType
 };
 decl_enum_strings(eProjectileType);
 
+enum eAccidentServise
+{
+    eAccidentServise_PoliceStation,
+    eAccidentServise_Hospital,
+    eAccidentServise_FireStation,
+    eAccidentServise_COUNT
+};
+
 // Pedestrian control actions status
 struct PedestrianCtlState
 {

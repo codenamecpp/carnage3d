@@ -47,13 +47,19 @@ public:
 private:
     // Reading map data internals
     // @param file: Source stream
-    bool ReadCompressedMapData(std::ifstream& file, int columnLength, int blockLength);
-    bool ReadStartupObjects(std::ifstream& file, int dataSize);
+    bool ReadCompressedMapData(std::istream& file, int columnLength, int blockLength);
+    bool ReadStartupObjects(std::istream& file, int dataSize);
+    bool ReadRoutes(std::istream& file, int dataSize);
+    bool ReadServiceBaseLocations(std::ifstream& file);
+    bool ReadNavData(std::ifstream& file, int dataSize);
     void FixShiftedBits();
 
 private:
     MapBlockInfo mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x
+
+    // accident service base locations
+    std::vector<glm::ivec3> mAccidentServicesBases[eAccidentServise_COUNT];
 };
 
 extern GameMapManager gGameMap;

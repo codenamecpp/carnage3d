@@ -31,36 +31,56 @@ bool GameMapManager::LoadFromFile(const std::string& filename)
 {
     Cleanup();
 
-    gConsole.LogMessage(eLogMessage_Info, "Loading map '%s'", filename.c_str());
+    gConsole.LogMessage(eLogMessage_Info, "Loading map data '%s'", filename.c_str());
 
     std::ifstream file;
     if (!gFiles.OpenBinaryFile(filename, file))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot open map data file '%s'", filename.c_str());
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot open map data file");
         return false;
     }
 
     GTAFileHeaderCMP header;
     if (!cxx::read_from_stream(file, header) || header.version_code != GTA_CMPFILE_VERSION_CODE)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read header of map data file '%s'", filename.c_str());
+        gConsole.LogMessage(eLogMessage_Warning, "Invalid map file header");
         return false;
     }
 
     if (!ReadCompressedMapData(file, header.column_size, header.block_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read compressed map data from '%s'", filename.c_str());
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read compressed map data");
         return false;
     }
 
     if (!ReadStartupObjects(file, header.object_pos_size))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read map startup objects from '%s'", filename.c_str());
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read startup objects data");
+        return false;
+    }
+
+    if (!ReadRoutes(file, header.route_size))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read routes data");
+        return false;
+    }
+
+    if (!ReadServiceBaseLocations(file))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read service base locations data");
+        return false;
+    }
+
+    if (!ReadNavData(file, header.nav_data_size))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read nav data");
         return false;
     }
 
     // load corresponding style data
     std::string styleName = cxx::va("STYLE%03d.G24", header.style_number);
+
+    gConsole.LogMessage(eLogMessage_Info, "Loading style data '%s'", styleName.c_str());
     if (!mStyleData.LoadFromFile(styleName))
     {
         Cleanup();
@@ -81,6 +101,10 @@ void GameMapManager::Cleanup()
         }
     }
     mStartupObjects.clear();
+    for (int ibase = 0; ibase < eAccidentServise_COUNT; ++ibase)
+    {
+        mAccidentServicesBases[ibase].clear();
+    }
 }
 
 bool GameMapManager::IsLoaded() const
@@ -88,7 +112,7 @@ bool GameMapManager::IsLoaded() const
     return mStyleData.IsLoaded();
 }
 
-bool GameMapManager::ReadCompressedMapData(std::ifstream& file, int columnLength, int blocksLength)
+bool GameMapManager::ReadCompressedMapData(std::istream& file, int columnLength, int blocksLength)
 {
     // reading base data
     const int baseDataLength = MAP_DIMENSIONS * MAP_DIMENSIONS * sizeof(int);
@@ -367,7 +391,7 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
     return false;
 }
 
-bool GameMapManager::ReadStartupObjects(std::ifstream& file, int dataSize)
+bool GameMapManager::ReadStartupObjects(std::istream& file, int dataSize)
 {
     const unsigned int RecordSize = 14;
     debug_assert(dataSize % RecordSize == 0);
@@ -394,5 +418,87 @@ bool GameMapManager::ReadStartupObjects(std::ifstream& file, int dataSize)
     // so it better get rid of them
     std::set<StartupObjectPosStruct> uniqueObjects {mStartupObjects.begin(), mStartupObjects.end()};
     mStartupObjects.assign(uniqueObjects.begin(), uniqueObjects.end());
+    return true;
+}
+
+bool GameMapManager::ReadRoutes(std::istream& file, int dataSize)
+{
+    file.seekg(dataSize, std::ios::cur);
+    return true;
+}
+
+bool GameMapManager::ReadServiceBaseLocations(std::ifstream& file)
+{
+    struct LocationData
+    {
+        unsigned char x;
+        unsigned char y;
+        unsigned char z;
+    };
+    const int LocationDataSize = sizeof(LocationData);
+    const int MaxLocations = 6;
+
+    struct AllLocationData
+    {
+        LocationData police[MaxLocations];
+        LocationData hospitals[MaxLocations];
+        LocationData unused1[MaxLocations];
+        LocationData unused2[MaxLocations];
+        LocationData fireStations[MaxLocations];
+        LocationData unused3[MaxLocations];
+    };
+    AllLocationData locations;
+
+    const int DataSize = sizeof(locations);
+    static_assert(DataSize == (MaxLocations * 6 * LocationDataSize), "Invalid locations data size");
+
+    if (!file.read((char*)&locations, DataSize))
+    {
+        debug_assert(false);
+        return false;
+    }
+
+    // police stations
+    for (int i = 0; i < MaxLocations; ++i)
+    {   
+        if ((locations.police[i].x) || (locations.police[i].y) || (locations.police[i].z))
+        {
+            mAccidentServicesBases[eAccidentServise_PoliceStation].push_back({
+                locations.police[i].x, 
+                INVERT_MAP_LAYER(locations.police[i].z), 
+                locations.police[i].y});
+        }
+    }
+
+    // hospitals
+    for (int i = 0; i < MaxLocations; ++i)
+    {
+        if ((locations.hospitals[i].x) || (locations.hospitals[i].y) || (locations.hospitals[i].z))
+        {
+            mAccidentServicesBases[eAccidentServise_Hospital].push_back({
+                locations.hospitals[i].x, 
+                INVERT_MAP_LAYER(locations.hospitals[i].z), 
+                locations.hospitals[i].y});
+        }
+    }
+
+    // fire stations
+    for (int i = 0; i < MaxLocations; ++i)
+    {
+        if ((locations.fireStations[i].x) || (locations.fireStations[i].y) || (locations.fireStations[i].z))
+        {
+            mAccidentServicesBases[eAccidentServise_FireStation].push_back({
+                locations.fireStations[i].x, 
+                INVERT_MAP_LAYER(locations.fireStations[i].z), 
+                locations.fireStations[i].y});
+        }
+    }
+
+    return true;
+}
+
+bool GameMapManager::ReadNavData(std::ifstream& file, int dataSize)
+{
+    file.seekg(dataSize, std::ios::cur);
     return true;
 }
