@@ -238,7 +238,7 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
                 break;
             }
 
-            if (mCanSuicideInPanic && (groundType == eGroundType_Air))
+            if (mIsLemmingBehavior && (groundType == eGroundType_Air))
             {
                 newWayPoint = moveBlockPos;
                 break;
@@ -255,8 +255,8 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
     // choose random point within block
     float randomSubPosx = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
     float randomSubPosy = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
-    mDestinationPoint.x = Convert::MapUnitsToMeters(newWayPoint.x * 1.0f) + Convert::MapUnitsToMeters(randomSubPosx);
-    mDestinationPoint.y = Convert::MapUnitsToMeters(newWayPoint.z * 1.0f) + Convert::MapUnitsToMeters(randomSubPosy);
+    mWalkDestinationPoint.x = Convert::MapUnitsToMeters(newWayPoint.x * 1.0f) + Convert::MapUnitsToMeters(randomSubPosx);
+    mWalkDestinationPoint.y = Convert::MapUnitsToMeters(newWayPoint.z * 1.0f) + Convert::MapUnitsToMeters(randomSubPosy);
     return true;
 }
 
@@ -265,7 +265,7 @@ bool AiCharacterController::ContinueMoveToPoint(bool isPanic)
     float tolerance2 = pow(gGameParams.mPedestrianBoundsSphereRadius, 2.0f);
 
     glm::vec2 currentPosition = mCharacter->mPhysicsBody->GetPosition2();
-    if (glm::distance2(currentPosition, mDestinationPoint) <= tolerance2)
+    if (glm::distance2(currentPosition, mWalkDestinationPoint) <= tolerance2)
     {
         mCharacter->mCtlState.Clear();
         return false;
@@ -273,7 +273,7 @@ bool AiCharacterController::ContinueMoveToPoint(bool isPanic)
 
     // setup sign direction
     glm::vec2 currentPos2 = mCharacter->mPhysicsBody->GetPosition2();
-    glm::vec2 toTarget = glm::normalize(mDestinationPoint - currentPos2);
+    glm::vec2 toTarget = glm::normalize(mWalkDestinationPoint - currentPos2);
     mCharacter->mPhysicsBody->SetOrientation2(toTarget);
 
     // set control
@@ -287,15 +287,15 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
     if (mAiMode == ePedestrianAiMode_Panic || mAiMode == ePedestrianAiMode_Wandering)
     {
         glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
-        glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
+        glm::vec3 destpos (mWalkDestinationPoint.x, currpos.y, mWalkDestinationPoint.y);
 
         debugRender.DrawLine(currpos, destpos, Color32_Red, false);
     }
 }
 
-void AiCharacterController::SetCanSuicideInPanic(bool canSuicide)
+void AiCharacterController::SetLemmingBehavior(bool canSuicide)
 {
-    mCanSuicideInPanic = canSuicide;
+    mIsLemmingBehavior = canSuicide;
 }
 
 void AiCharacterController::StartDrivingCar()
@@ -308,6 +308,9 @@ void AiCharacterController::StartDrivingCar()
 void AiCharacterController::UpdateDrivingCar()
 {
     // todo: temporary implementation
+
+    debug_assert(mCharacter->mCurrentCar);
+
 
     cxx::angle_t currHeading = mCharacter->mPhysicsBody->GetRotationAngle();
     eMapDirection currentMapDirection = GetMapDirectionFromHeading(currHeading.mDegrees);
@@ -341,25 +344,22 @@ void AiCharacterController::UpdateDrivingCar()
         if (blockInfo->mDownDirection && curr != eMapDirection_S)
             continue;
 
-        mCharacter->mCtlState.mAccelerate = true;
-        mCharacter->mCtlState.mReverse = false;
-        mCharacter->mCtlState.mSteerLeft = false;
-        mCharacter->mCtlState.mSteerRight = false;
+        mCharacter->mCtlState.mAcceleration = 1.0f;
+        mCharacter->mCtlState.mSteerDirection = 0.0f;
 
         if (curr == currentMapDirection)
             continue;
 
         if (curr == GetMapDirectionCCW(currentMapDirection))
         {
-            mCharacter->mCtlState.mSteerLeft = true;
+            mCharacter->mCtlState.mSteerDirection = -1.0f;
             continue;
         }
         if (curr == GetMapDirectionCW(currentMapDirection))
         {
-            mCharacter->mCtlState.mSteerRight = true;
+            mCharacter->mCtlState.mSteerDirection = 1.0f;
             continue;
         }
-        mCharacter->mCtlState.mReverse = true;
-        mCharacter->mCtlState.mAccelerate = false;
+        mCharacter->mCtlState.mAcceleration = -1.0f;
     }
 }

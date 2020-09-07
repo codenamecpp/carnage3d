@@ -63,10 +63,6 @@ public:
     Pedestrian* GetPedestrianByID(GameObjectID objectID) const;
     GameObject* GetGameObjectByID(GameObjectID objectID) const;
 
-    // Get base hp points for specific car type
-    // @param carType: Identifier
-    int GetBaseHitpointsForVehicle(eVehicleClass carType) const;
-
     // Will immediately destroy gameobject, don't call this mehod during UpdateFrame
     // @param object: Object to destroy
     void DestroyGameObject(GameObject* object);

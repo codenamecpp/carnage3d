@@ -237,10 +237,6 @@ PedPhysicsBody::PedPhysicsBody(b2World* physicsWorld, Pedestrian* object)
     debug_assert(b2fixture);
 }
 
-PedPhysicsBody::~PedPhysicsBody()
-{
-}
-
 void PedPhysicsBody::SimulationStep()
 {
     if (mReferencePed->mCurrentCar)
@@ -362,10 +358,9 @@ bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
 
 CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     : PhysicsBody(physicsWorld)
-    , mSteeringDirection(CarSteeringDirectionNone)
+    , mSteerDirection()
     , mCarDesc(object->mCarStyle)
-    , mAccelerationEnabled(false)
-    , mDecelerationEnabled(false)
+    , mAcceleration()
     , mHandBrakeEnabled()
     , mReferenceCar(object)
 {
@@ -400,15 +395,10 @@ CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     SetupWheels();
 }
 
-CarPhysicsBody::~CarPhysicsBody()
-{
-}
-
 void CarPhysicsBody::ResetDriveState()
 {
-    SetSteering(CarSteeringDirectionNone);
-    SetAcceleration(false);
-    SetDeceleration(false);
+    SetSteerDirection(0.0f);
+    SetAcceleration(0.0f);
     SetHandBrake(false);
 }
 
@@ -515,19 +505,14 @@ void CarPhysicsBody::GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) co
     }
 }
 
-void CarPhysicsBody::SetSteering(int steerDirection)
+void CarPhysicsBody::SetSteerDirection(float steerDirection)
 {
-    mSteeringDirection = steerDirection;
+    mSteerDirection = steerDirection;
 }
 
-void CarPhysicsBody::SetAcceleration(bool isEnabled)
+void CarPhysicsBody::SetAcceleration(float acceleration)
 {
-    mAccelerationEnabled = isEnabled;
-}
-
-void CarPhysicsBody::SetDeceleration(bool isEnabled)
-{
-    mDecelerationEnabled = isEnabled;
+    mAcceleration = acceleration;
 }
 
 void CarPhysicsBody::SetHandBrake(bool isEnabled)
@@ -613,10 +598,10 @@ void CarPhysicsBody::UpdateSteer()
     float currentSpeed = GetCurrentSpeed();
     float currentVelocity = fabs(currentSpeed);
 
-    if (mSteeringDirection) 
+    if (mSteerDirection) 
     {
         float torqueForce = 150.0f;
-        torqueForce *= (currentSpeed < 0.0f) ? -mSteeringDirection : mSteeringDirection;
+        torqueForce *= (currentSpeed < 0.0f) ? -mSteerDirection : mSteerDirection;
 
         if (currentVelocity < 2.0f) 
         {
@@ -649,21 +634,21 @@ void CarPhysicsBody::UpdateFriction()
 void CarPhysicsBody::UpdateDrive()
 {
     float maxForwardSpeed = 100.0f;
-    float maxBackwardSpeed = -80.0f;
+    float maxBackwardSpeed = 80.0f;
 
     float driveForce = 300.0f;
     float brakeForce = 100.0f;
     float reverseForce = 250.0f;
 
     float desiredSpeed = 0.0f;
-    if (mAccelerationEnabled) 
+    if (mAcceleration > 0.0f) 
     {
-        desiredSpeed = maxForwardSpeed;
+        desiredSpeed = (maxForwardSpeed * mAcceleration);
     }
 
-    if (mDecelerationEnabled) 
+    if (mAcceleration < 0.0f) 
     {
-        desiredSpeed = maxBackwardSpeed;
+        desiredSpeed = (maxBackwardSpeed * mAcceleration);
     }
 
     //find current speed in forward direction
@@ -798,10 +783,6 @@ ProjectilePhysicsBody::ProjectilePhysicsBody(b2World* physicsWorld, Projectile* 
 
     b2Fixture* b2fixture = mPhysicsBody->CreateFixture(&fixtureDef);
     debug_assert(b2fixture);
-}
-
-ProjectilePhysicsBody::~ProjectilePhysicsBody()
-{
 }
 
 void ProjectilePhysicsBody::SimulationStep()

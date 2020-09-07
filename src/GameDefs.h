@@ -759,11 +759,9 @@ public:
     };
     struct // in car control actions
     {
+        float mAcceleration = 0.0f; // 0 means no acceleration, < 0 move reverse, > 0 full acceleration
+        float mSteerDirection = 0.0f; // 0 means no steer, < 0 steer left, > 0 steer right
         bool mHandBrake = false;
-        bool mAccelerate = false;
-        bool mReverse = false;
-        bool mSteerLeft = false;
-        bool mSteerRight = false;
         bool mHorn = false;
     };
 };

@@ -27,7 +27,7 @@ public:
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
 
-    void SetCanSuicideInPanic(bool canSuicide);
+    void SetLemmingBehavior(bool canSuicide);
 
 private:
     void UpdatePanic();
@@ -45,7 +45,11 @@ private:
     ePedestrianAiMode mAiMode = ePedestrianAiMode_None;
     ePedestrianAiState mAiState = ePedestrianAiState_Idle;
 
-    glm::vec2 mDestinationPoint;
+    // on foot related data
+    glm::vec2 mWalkDestinationPoint;
 
-    bool mCanSuicideInPanic = true;
+    bool mIsLemmingBehavior = true;
+
+    // driving car related data
+
 };

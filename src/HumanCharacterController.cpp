@@ -244,42 +244,53 @@ void HumanCharacterController::ProcessRepetitiveActions()
     // update in car
     if (mCharacter->IsCarPassenger())
     {
-        SyncActionState(eInputAction_SteerLeft, ctlState.mSteerLeft);
-        SyncActionState(eInputAction_SteerRight, ctlState.mSteerRight);
-        SyncActionState(eInputAction_Accelerate, ctlState.mAccelerate);
-        SyncActionState(eInputAction_Reverse, ctlState.mReverse);
-        SyncActionState(eInputAction_HandBrake, ctlState.mHandBrake);
+        ctlState.mSteerDirection = 0.0f;
+        if (GetActionState(eInputAction_SteerRight))
+        {
+            ctlState.mSteerDirection += 1.0f;
+        }
+        if (GetActionState(eInputAction_SteerLeft))
+        {
+            ctlState.mSteerDirection -= 1.0f;
+        }
+
+        ctlState.mAcceleration = 0.0f;
+        if (GetActionState(eInputAction_Accelerate))
+        {
+            ctlState.mAcceleration += 1.0f;
+        }
+        if (GetActionState(eInputAction_Reverse))
+        {
+            ctlState.mAcceleration -= 1.0f;
+        }
+
+        ctlState.mHandBrake = GetActionState(eInputAction_HandBrake);
     }
     // update on foot
     else
     {
-        SyncActionState(eInputAction_TurnLeft, ctlState.mTurnLeft);
-        SyncActionState(eInputAction_TurnRight, ctlState.mTurnRight);
-        SyncActionState(eInputAction_Run, ctlState.mRun);
-        SyncActionState(eInputAction_WalkBackward, ctlState.mWalkBackward);
-        SyncActionState(eInputAction_WalkForward, ctlState.mWalkForward);
-        SyncActionState(eInputAction_Jump, ctlState.mJump);
-        SyncActionState(eInputAction_Shoot, ctlState.mShoot);
+        ctlState.mTurnLeft = GetActionState(eInputAction_TurnLeft);
+        ctlState.mTurnRight = GetActionState(eInputAction_TurnRight);
+        ctlState.mRun = GetActionState(eInputAction_Run);
+        ctlState.mWalkBackward = GetActionState(eInputAction_WalkBackward);
+        ctlState.mWalkForward = GetActionState(eInputAction_WalkForward);
+        ctlState.mJump = GetActionState(eInputAction_Jump);
+        ctlState.mShoot = GetActionState(eInputAction_Shoot);
     }
 }
 
-void HumanCharacterController::SyncActionState(eInputAction action, bool& stateFlag) const
+bool HumanCharacterController::GetActionState(eInputAction action) const
 {
-    stateFlag = false;
-
     const auto& mapping = mActionsMapping.mActionToKeys[action];
     if (mapping.mKeycode != eKeycode_null)
     {
         if (gInputs.GetKeyState(mapping.mKeycode))
-        {
-            stateFlag = true;
-        }
+            return true;
     }
     if (mapping.mGpButton != eGamepadButton_null)
     {
         if (gInputs.GetGamepadButtonState(mActionsMapping.mGamepadID, mapping.mGpButton))
-        {
-            stateFlag = true;
-        }
+            return true;
     }
+    return false;
 }

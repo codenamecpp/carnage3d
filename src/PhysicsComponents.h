@@ -120,8 +120,6 @@ public:
 
 public:
     PedPhysicsBody(b2World* physicsWorld, Pedestrian* object);
-    ~PedPhysicsBody();
-
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
@@ -142,10 +140,6 @@ enum eCarWheel
     eCarWheel_COUNT
 };
 
-const int CarSteeringDirectionLeft = -1; 
-const int CarSteeringDirectionRight = 1; 
-const int CarSteeringDirectionNone = 0; 
-
 // car chassis physics component
 class CarPhysicsBody: public PhysicsBody
 {
@@ -157,8 +151,6 @@ public:
 
 public:
     CarPhysicsBody(b2World* physicsWorld, Vehicle* object);
-    ~CarPhysicsBody();
-
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
@@ -172,10 +164,8 @@ public:
 
     // steering
     // @param steerDirection: see CarSteeringDirection* constants
-    void SetSteering(int steerDirection);
-
-    void SetAcceleration(bool isEnabled);
-    void SetDeceleration(bool isEnabled);
+    void SetSteerDirection(float steerDirection);
+    void SetAcceleration(float acceleration);
     void SetHandBrake(bool isEnabled);
     
     // Get wheel velocities
@@ -219,9 +209,8 @@ private:
     float mSteeringAngleRadians = 0.0f;
 
     // current drive state
-    int mSteeringDirection;
-    bool mAccelerationEnabled = false;
-    bool mDecelerationEnabled = false;
+    float mSteerDirection = 0.0f; // [-1, 1]
+    float mAcceleration = 0.0f; // [-1, 1]
     bool mHandBrakeEnabled = false;
 };
 
@@ -237,8 +226,6 @@ public:
 
 public:
     ProjectilePhysicsBody(b2World* physicsWorld, Projectile* object);
-    ~ProjectilePhysicsBody();
-
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;

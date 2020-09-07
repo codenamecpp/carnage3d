@@ -9,13 +9,13 @@
 class Vehicle final: public GameObject
 {
     friend class GameObjectsManager;
+    friend class GameCheatsWindow;
 
 public:
     // public for convenience, should not be modified directly
     CarPhysicsBody* mPhysicsBody;
 
     float mDrawHeight;
-    int mRemapIndex;
 
     VehicleInfo* mCarStyle; // cannot be null
     std::vector<Pedestrian*> mPassengers;
@@ -48,6 +48,9 @@ public:
     // get car passengers
     Pedestrian* GetCarDriver() const;
     Pedestrian* GetFirstPassenger(eCarSeat carSeat) const;
+    
+    // Repair vehicle but only if it not wrecked
+    void Repair();
 
     // doors animations
     void OpenDoor(int doorIndex);
@@ -112,8 +115,9 @@ private:
     Decoration* mFireEffect = nullptr;
     float mBurnStartTime = 0.0f;
 
+    int mRemapIndex = NO_REMAP;
     int mSpriteIndex = 0;
-    int mHitpoints = 20;
 
+    int mCurrentDamage = 0;
     bool mCarWrecked = false;
 };

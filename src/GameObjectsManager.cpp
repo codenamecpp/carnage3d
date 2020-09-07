@@ -437,24 +437,3 @@ bool GameObjectsManager::CreateStartupObjects()
     }
     return true;
 }
-
-int GameObjectsManager::GetBaseHitpointsForVehicle(eVehicleClass carType) const
-{
-    // todo: move to settings
-    // todo: find out correct values
-
-    switch (carType)
-    {
-        case eVehicleClass_Bus:
-        case eVehicleClass_FrontOfJuggernaut:
-        case eVehicleClass_BackOfJuggernaut:
-            return 29; 
-        case eVehicleClass_Motorcycle:
-        case eVehicleClass_StandardCar:
-            return 16;
-        case eVehicleClass_Train:
-        case eVehicleClass_Tank:
-            return 62;
-    }
-    return 10;
-}

@@ -33,7 +33,6 @@ void GameParams::SetToDefaults()
     mTrafficGenMaxCars = 12;
     mTrafficGenCarsChance = 65;
     mTrafficGenCarsMaxDistance = 4;
-    mTrafficGenCarsMinDistance = 1;
     mTrafficGenCarsCooldownTime = 3.0f;
     // explosion
     mExplosionPrimaryDamageDistance = Convert::MapUnitsToMeters(0.25f);

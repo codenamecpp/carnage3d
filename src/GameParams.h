@@ -35,7 +35,6 @@ public:
     int mTrafficGenMaxCars; // max number of traffic cars around the player
     int mTrafficGenCarsChance; // chance to generate new traffic car on current turn
     int mTrafficGenCarsMaxDistance; // maximum distance from player camera, blocks
-    int mTrafficGenCarsMinDistance; // minimun distance from player camera, blocks
     float mTrafficGenCarsCooldownTime; // seconds between traffic generation
 
     // explosion

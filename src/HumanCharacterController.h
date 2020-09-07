@@ -34,7 +34,7 @@ private:
 
     void ProcessRepetitiveActions();
     void ProcessInputAction(eInputAction action, bool isActivated);
-    void SyncActionState(eInputAction action, bool& stateFlag) const;
+    bool GetActionState(eInputAction action) const;
 
 private:
     float mRespawnTime;

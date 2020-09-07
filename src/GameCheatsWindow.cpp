@@ -277,7 +277,6 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::HorzSpacing();
         ImGui::Text("Current count: %d", gTrafficManager.CountTrafficCars());
         ImGui::SliderInt("Max count##car", &gGameParams.mTrafficGenMaxCars, 0, 100);
-        ImGui::SliderInt("Generation distance min##car", &gGameParams.mTrafficGenCarsMinDistance, 1, 10);
         ImGui::SliderInt("Generation distance max##car", &gGameParams.mTrafficGenCarsMaxDistance, 1, 10);
         ImGui::SliderInt("Generation chance##car", &gGameParams.mTrafficGenCarsChance, 0, 100);
         ImGui::SliderFloat("Generation cooldown##car", &gGameParams.mTrafficGenCarsCooldownTime, 0.5f, 5.0f, "%.1f");

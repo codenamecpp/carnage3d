@@ -319,11 +319,10 @@ void TrafficManager::GenerateTrafficCars(int carsCount, RenderView& view)
         maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.x) + 1;
         maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.y) + 1;
 
-        int expandMinSize = gGameParams.mTrafficGenCarsMinDistance;
-        innerRect.x = minBlock.x - expandMinSize;
-        innerRect.y = minBlock.y - expandMinSize;
-        innerRect.w = (maxBlock.x - minBlock.x) + expandMinSize * 2;
-        innerRect.h = (maxBlock.y - minBlock.y) + expandMinSize * 2;
+        innerRect.x = minBlock.x;
+        innerRect.y = minBlock.y;
+        innerRect.w = (maxBlock.x - minBlock.x);
+        innerRect.h = (maxBlock.y - minBlock.y);
 
         // expand
         int expandSize = gGameParams.mTrafficGenCarsMaxDistance;
@@ -483,6 +482,7 @@ Vehicle* TrafficManager::GenerateRandomTrafficCar(int posx, int posy, int posz)
     if (vehicle)
     {
         vehicle->mFlags = (vehicle->mFlags | eGameObjectFlags_Traffic);
+        // todo: remap
 
         Pedestrian* carDriver = GenerateRandomTrafficCarDriver(vehicle);
         debug_assert(carDriver);

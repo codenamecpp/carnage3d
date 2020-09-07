@@ -16,7 +16,6 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarStyle()
     , mDamageDeltaBits()
     , mDrawHeight()
-    , mRemapIndex(NO_REMAP)
 {
 }
 
@@ -58,8 +57,7 @@ void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
     }
 
     mCarWrecked = false;
-    mHitpoints = gGameObjectsManager.GetBaseHitpointsForVehicle(mCarStyle->mClassID);
-
+    mCurrentDamage = 0;
     mDamageDeltaBits = 0;
     mSpriteIndex = mCarStyle->mSpriteIndex; // todo: handle bike fallen state 
 
@@ -75,7 +73,7 @@ void Vehicle::UpdateFrame()
         return;
 
     // check if car destroyed
-    if (mHitpoints <= 0)
+    if (mCurrentDamage >= 100)
     {
         SetWrecked();
         Explode();
@@ -519,20 +517,8 @@ void Vehicle::UpdateDriving()
 
     const PedestrianCtlState& ctlState = carDriver->mCtlState;
     mPhysicsBody->SetHandBrake(ctlState.mHandBrake);
-    mPhysicsBody->SetAcceleration(ctlState.mAccelerate);
-    mPhysicsBody->SetDeceleration(ctlState.mReverse);
-
-    // steering
-    int currentSteering = CarSteeringDirectionNone;
-    if (ctlState.mSteerLeft)
-    {
-        currentSteering = CarSteeringDirectionLeft;
-    }
-    if (ctlState.mSteerRight)
-    {
-        currentSteering = CarSteeringDirectionRight;
-    }
-    mPhysicsBody->SetSteering(currentSteering);
+    mPhysicsBody->SetAcceleration(ctlState.mAcceleration);
+    mPhysicsBody->SetSteerDirection(ctlState.mSteerDirection);
 }
 
 void Vehicle::Explode()
@@ -541,6 +527,8 @@ void Vehicle::Explode()
     explosionPos.y = mDrawHeight;
 
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
+    mRemapIndex = NO_REMAP;
+
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
     debug_assert(explosion);
     if (explosion)
@@ -583,14 +571,14 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         if (damageInfo.mFallHeight >= damageHeight)
         {
             mDamageDeltaBits = CAR_DAMAGE_SPRITE_DELTA_MASK; // set all damages
-            mHitpoints -= 5; // todo: magic numbers
+            mCurrentDamage += 5; // todo: magic numbers
         }
         return true;
     }
 
     if (damageInfo.mDamageCause == eDamageCause_Explosion)
     {
-        mHitpoints -= damageInfo.mHitPoints;
+        mCurrentDamage += damageInfo.mHitPoints;
         return true;
     }
 
@@ -608,7 +596,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
     if (damageInfo.mDamageCause == eDamageCause_Bullet ||
         damageInfo.mDamageCause == eDamageCause_Burning)
     {
-        mHitpoints -= damageInfo.mHitPoints;
+        mCurrentDamage += damageInfo.mHitPoints;
         return true;
     }
 
@@ -685,7 +673,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
             }
         }
 
-        --mHitpoints;
+        ++mCurrentDamage;
         return true;
     }
 
@@ -752,4 +740,13 @@ void Vehicle::SetWrecked()
 bool Vehicle::HasPassengers() const
 {
     return !mPassengers.empty();
+}
+
+void Vehicle::Repair()
+{
+    if (IsWrecked())
+        return;
+
+    mCurrentDamage = 0;
+    mDamageDeltaBits = 0;
 }
