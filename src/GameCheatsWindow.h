@@ -15,7 +15,7 @@ public:
     bool mEnableDrawVehicles = true;
     bool mEnableDrawCityMesh = true;
     bool mEnableTrafficPedsGeneration = true;
-    bool mEnableTrafficCarsGeneration = true;
+    bool mEnableTrafficCarsGeneration = false;
 
 public:
     GameCheatsWindow();

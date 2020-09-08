@@ -265,8 +265,8 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
     }
 
     // choose random point within block
-    float randomSubPosx = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
-    float randomSubPosy = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
+    float randomSubPosx = gCarnageGame.mGameRand.generate_float(0.1f, 0.9f);
+    float randomSubPosy = gCarnageGame.mGameRand.generate_float(0.1f, 0.9f);
     mDestinationPoint.x = Convert::MapUnitsToMeters(newWayPoint.x * 1.0f) + Convert::MapUnitsToMeters(randomSubPosx);
     mDestinationPoint.y = Convert::MapUnitsToMeters(newWayPoint.z * 1.0f) + Convert::MapUnitsToMeters(randomSubPosy);
     return true;

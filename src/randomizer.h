@@ -25,13 +25,13 @@ namespace cxx
         // @param minInt: Min int
         inline int generate_int()
         {
-            return std::uniform_int_distribution<>(0, INT_MAX)(mGeneratorEngine);
+            return std::uniform_int_distribution<int>(0, INT_MAX)(mGeneratorEngine);
         }
 
         inline int generate_int(int maxInt)
         {
             debug_assert(maxInt >= 0);
-            return std::uniform_int_distribution<>(0, maxInt)(mGeneratorEngine);
+            return std::uniform_int_distribution<int>(0, maxInt)(mGeneratorEngine);
         }
 
         inline int generate_int(int minInt, int maxInt)
@@ -40,7 +40,7 @@ namespace cxx
                 return generate_int(maxInt);
 
             debug_assert(maxInt > minInt);
-            return std::uniform_int_distribution<>(minInt, maxInt)(mGeneratorEngine);
+            return std::uniform_int_distribution<int>(minInt, maxInt)(mGeneratorEngine);
         }
 
         inline bool random_chance(int chance)
@@ -52,7 +52,16 @@ namespace cxx
         // generate random float in range [0; 1]
         inline float generate_float()
         {
-            return generate_int(INT_MAX) / (INT_MAX * 1.0f);
+            return std::uniform_real_distribution<float>(0.0f, 1.0f)(mGeneratorEngine);
+        }
+
+        inline float generate_float(float minFloat, float maxFloat)
+        {
+            if (minFloat == maxFloat)
+                return generate_float();
+
+            debug_assert(maxFloat > minFloat);
+            return std::uniform_real_distribution<float>(minFloat, maxFloat)(mGeneratorEngine);
         }
 
         // shuffle container elements
