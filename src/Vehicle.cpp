@@ -750,3 +750,8 @@ void Vehicle::Repair()
     mCurrentDamage = 0;
     mDamageDeltaBits = 0;
 }
+
+int Vehicle::GetCurrentDamage() const
+{
+    return mCurrentDamage;
+}

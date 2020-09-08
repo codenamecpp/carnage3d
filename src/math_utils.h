@@ -101,4 +101,11 @@ namespace cxx
         return length - glm::abs(value - length);
     }
 
+    // 2d cross product
+    template <typename TTuple2>
+    inline float cross2(const TTuple2& lhs, const TTuple2& rhs)
+    {
+        return lhs.x * rhs.y - lhs.y * rhs.x;
+    }
+
 } // namespace cxx

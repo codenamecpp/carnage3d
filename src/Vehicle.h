@@ -93,6 +93,9 @@ public:
     bool IsWrecked() const;
     bool IsBurn() const;
 
+    // Get current vehicle damage level
+    int GetCurrentDamage() const;
+
 private:
     void SetWrecked();
     void Explode();

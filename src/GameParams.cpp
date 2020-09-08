@@ -41,4 +41,5 @@ void GameParams::SetToDefaults()
     mExplosionSecondaryDamage = 1;
     // vehicles
     mVehicleBurnDuration = 20.0f;
+    mVehicleSpeedPassengerCanEnter = 8.0f;
 }

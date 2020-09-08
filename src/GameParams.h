@@ -45,6 +45,7 @@ public:
 
     // vehicles
     float mVehicleBurnDuration; // time before flame will go out by itself, seconds
+    float mVehicleSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
 
    
 };

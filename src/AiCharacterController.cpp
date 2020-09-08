@@ -104,6 +104,24 @@ AiCharacterController::AiCharacterController(Pedestrian* character)
     }
 }
 
+void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
+{
+    if ((mAiMode == ePedestrianAiMode_Panic) || 
+        (mAiMode == ePedestrianAiMode_Wandering) || 
+        (mAiMode == ePedestrianAiMode_DrivingCar))
+    {
+        glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
+        glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
+
+        debugRender.DrawLine(currpos, destpos, Color32_Red, false);
+    }
+}
+
+void AiCharacterController::SetLemmingBehavior(bool canSuicide)
+{
+    mIsLemmingBehavior = canSuicide;
+}
+
 void AiCharacterController::UpdateFrame()
 {
     if (mAiMode == ePedestrianAiMode_None)
@@ -117,15 +135,9 @@ void AiCharacterController::UpdateFrame()
         return;
     }
 
-    if ((mAiMode == ePedestrianAiMode_DrivingCar) && mCharacter->IsCarDriver())
-    {
-        UpdateDrivingCar();
-        return;
-    }
-
     if (mAiMode == ePedestrianAiMode_DrivingCar)
     {
-        StartPanic();
+        UpdateDrivingCar();
         return;
     }
 
@@ -153,10 +165,10 @@ void AiCharacterController::UpdateFrame()
 
 void AiCharacterController::UpdatePanic()
 {
-    if (ContinueMoveToPoint(true))
+    if (ContinueWalkToWaypoint(true))
         return;
 
-    if (!ChooseRandomWayPoint(true) || !ContinueMoveToPoint(true))
+    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(true))
     {
         mAiMode = ePedestrianAiMode_None; // disable ai
     }
@@ -170,10 +182,10 @@ void AiCharacterController::UpdateWandering()
         return;
     }
 
-    if (ContinueMoveToPoint(false))
+    if (ContinueWalkToWaypoint(false))
         return;
 
-    if (!ChooseRandomWayPoint(false) || !ContinueMoveToPoint(false))
+    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(false))
     {
         StartPanic();
     }
@@ -184,7 +196,7 @@ void AiCharacterController::StartPanic()
     mAiMode = ePedestrianAiMode_Panic;
 
     mCharacter->mCtlState.Clear();
-    if (!ChooseRandomWayPoint(true) || !ContinueMoveToPoint(true))
+    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(true))
     {
         mAiMode = ePedestrianAiMode_None; // disable ai
     }
@@ -195,13 +207,13 @@ void AiCharacterController::StartWandering()
     mAiMode = ePedestrianAiMode_Wandering;
 
     mCharacter->mCtlState.Clear();
-    if (!ChooseRandomWayPoint(false) || !ContinueMoveToPoint(false))
+    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(false))
     {
         StartPanic();
     }
 }
 
-bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
+bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
 {
     cxx::angle_t currHeading = mCharacter->mPhysicsBody->GetRotationAngle();
 
@@ -255,17 +267,17 @@ bool AiCharacterController::ChooseRandomWayPoint(bool isPanic)
     // choose random point within block
     float randomSubPosx = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
     float randomSubPosy = glm::clamp(gCarnageGame.mGameRand.generate_float(), 0.1f, 0.9f);
-    mWalkDestinationPoint.x = Convert::MapUnitsToMeters(newWayPoint.x * 1.0f) + Convert::MapUnitsToMeters(randomSubPosx);
-    mWalkDestinationPoint.y = Convert::MapUnitsToMeters(newWayPoint.z * 1.0f) + Convert::MapUnitsToMeters(randomSubPosy);
+    mDestinationPoint.x = Convert::MapUnitsToMeters(newWayPoint.x * 1.0f) + Convert::MapUnitsToMeters(randomSubPosx);
+    mDestinationPoint.y = Convert::MapUnitsToMeters(newWayPoint.z * 1.0f) + Convert::MapUnitsToMeters(randomSubPosy);
     return true;
 }
 
-bool AiCharacterController::ContinueMoveToPoint(bool isPanic)
+bool AiCharacterController::ContinueWalkToWaypoint(bool isPanic)
 {
     float tolerance2 = pow(gGameParams.mPedestrianBoundsSphereRadius, 2.0f);
 
     glm::vec2 currentPosition = mCharacter->mPhysicsBody->GetPosition2();
-    if (glm::distance2(currentPosition, mWalkDestinationPoint) <= tolerance2)
+    if (glm::distance2(currentPosition, mDestinationPoint) <= tolerance2)
     {
         mCharacter->mCtlState.Clear();
         return false;
@@ -273,7 +285,7 @@ bool AiCharacterController::ContinueMoveToPoint(bool isPanic)
 
     // setup sign direction
     glm::vec2 currentPos2 = mCharacter->mPhysicsBody->GetPosition2();
-    glm::vec2 toTarget = glm::normalize(mWalkDestinationPoint - currentPos2);
+    glm::vec2 toTarget = glm::normalize(mDestinationPoint - currentPos2);
     mCharacter->mPhysicsBody->SetOrientation2(toTarget);
 
     // set control
@@ -282,84 +294,68 @@ bool AiCharacterController::ContinueMoveToPoint(bool isPanic)
     return true;
 }
 
-void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
-{
-    if (mAiMode == ePedestrianAiMode_Panic || mAiMode == ePedestrianAiMode_Wandering)
-    {
-        glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
-        glm::vec3 destpos (mWalkDestinationPoint.x, currpos.y, mWalkDestinationPoint.y);
-
-        debugRender.DrawLine(currpos, destpos, Color32_Red, false);
-    }
-}
-
-void AiCharacterController::SetLemmingBehavior(bool canSuicide)
-{
-    mIsLemmingBehavior = canSuicide;
-}
-
 void AiCharacterController::StartDrivingCar()
 {
     mAiMode = ePedestrianAiMode_DrivingCar;
+    mCharacter->mCtlState.Clear();
+
+    if (!ChooseDriveWaypoint() || !ContinueDriveToWaypoint())
+    {
+        StopDriving();
+    }
+}
+
+void AiCharacterController::StopDriving()
+{
+    if (!mCharacter->IsCarDriver())
+        return;
 
     mCharacter->mCtlState.Clear();
+
+    float currentSpeed = mCharacter->mCurrentCar->mPhysicsBody->GetCurrentSpeed();
+    if (currentSpeed > gGameParams.mVehicleSpeedPassengerCanEnter)
+    {
+        mCharacter->mCtlState.mAcceleration = -1.0f;
+    }
+    else
+    {
+        mCharacter->LeaveCar();
+    }
 }
 
 void AiCharacterController::UpdateDrivingCar()
 {
-    // todo: temporary implementation
-
-    debug_assert(mCharacter->mCurrentCar);
-
-
-    cxx::angle_t currHeading = mCharacter->mPhysicsBody->GetRotationAngle();
-    eMapDirection currentMapDirection = GetMapDirectionFromHeading(currHeading.mDegrees);
-
-    eMapDirection moveDirs[] =
+    if (!mCharacter->IsCarDriver())
     {
-        currentMapDirection,
-        GetMapDirectionCCW(currentMapDirection),
-        GetMapDirectionCW(currentMapDirection),
-    };
-
-    glm::ivec3 currentLogPos = mCharacter->GetLogicalPosition();
-    glm::ivec3 newWayPoint (0, 0, 0);
-    for (eMapDirection curr: moveDirs)
-    {
-        glm::ivec3 moveBlockPos = currentLogPos + GetVectorFromMapDirection(curr);
-
-        const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y);
-        if (blockInfo->mGroundType != eGroundType_Road)
-            continue;
-
-        if (blockInfo->mUpDirection && curr != eMapDirection_N)
-            continue;
-
-        if (blockInfo->mLeftDirection && curr != eMapDirection_W)
-            continue;
-
-        if (blockInfo->mRightDirection && curr != eMapDirection_E)
-            continue;
-
-        if (blockInfo->mDownDirection && curr != eMapDirection_S)
-            continue;
-
-        mCharacter->mCtlState.mAcceleration = 1.0f;
-        mCharacter->mCtlState.mSteerDirection = 0.0f;
-
-        if (curr == currentMapDirection)
-            continue;
-
-        if (curr == GetMapDirectionCCW(currentMapDirection))
-        {
-            mCharacter->mCtlState.mSteerDirection = -1.0f;
-            continue;
-        }
-        if (curr == GetMapDirectionCW(currentMapDirection))
-        {
-            mCharacter->mCtlState.mSteerDirection = 1.0f;
-            continue;
-        }
-        mCharacter->mCtlState.mAcceleration = -1.0f;
+        StartPanic();
+        return;
     }
+    
+    // leave heavily damaged car
+    int currentDamage = mCharacter->mCurrentCar->GetCurrentDamage();
+    if (currentDamage >= 80)
+    {
+        StopDriving();
+        return;
+    }
+
+    if (ContinueDriveToWaypoint())
+        return;
+
+    if (!ChooseDriveWaypoint() || !ContinueDriveToWaypoint())
+    {
+        StopDriving();
+    }
+}
+
+bool AiCharacterController::ChooseDriveWaypoint()
+{
+    // todo: implement
+    return false;
+}
+
+bool AiCharacterController::ContinueDriveToWaypoint()
+{
+    // todo: implement
+    return false;
 }

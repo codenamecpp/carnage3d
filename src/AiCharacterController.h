@@ -38,18 +38,19 @@ private:
     void StartWandering();
     void StartDrivingCar();
 
-    bool ChooseRandomWayPoint(bool isPanic);
-    bool ContinueMoveToPoint(bool isPanic);
+    // walk/run
+    bool ChooseWalkWaypoint(bool isPanic);
+    bool ContinueWalkToWaypoint(bool isPanic);
+
+    // drive
+    bool ChooseDriveWaypoint();
+    bool ContinueDriveToWaypoint();
+    void StopDriving();
 
 private:
     ePedestrianAiMode mAiMode = ePedestrianAiMode_None;
     ePedestrianAiState mAiState = ePedestrianAiState_Idle;
 
-    // on foot related data
-    glm::vec2 mWalkDestinationPoint;
-
+    glm::vec2 mDestinationPoint;
     bool mIsLemmingBehavior = true;
-
-    // driving car related data
-
 };

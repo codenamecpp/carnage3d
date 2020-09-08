@@ -503,11 +503,12 @@ bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEv
 
 void PedestrianStatesManager::StateExitCar_ProcessFrame()
 {
-    int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
-    if (mPedestrian->mCurrentCar->HasDoorAnimation(doorIndex) &&
-        mPedestrian->mCurrentCar->IsDoorOpened(doorIndex))
+    Vehicle* currentCar = mPedestrian->mCurrentCar;
+    int doorIndex = currentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
+    if (currentCar->HasDoorAnimation(doorIndex) &&
+        currentCar->IsDoorOpened(doorIndex))
     {
-        mPedestrian->mCurrentCar->CloseDoor(doorIndex);
+        currentCar->CloseDoor(doorIndex);
     }
 
     if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
