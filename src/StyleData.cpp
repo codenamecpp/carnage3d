@@ -847,11 +847,10 @@ bool StyleData::ReadVehicles(std::ifstream& file, int dataLength)
         unsigned char convertible;
         READ_I8(file, convertible);
 
-        if (!cxx::parse_enum_int(convertible, carInfo.mConvertible))
-        {
-            gConsole.LogMessage(eLogMessage_Warning, "Unknown convertible type: %d", convertible);
-            debug_assert(false);
-        }
+        carInfo.mConvertible = (convertible & 1) == 1;
+        carInfo.mExtraDrivingAnim = (convertible & 2) == 2;
+
+        debug_assert(convertible <= 3);
 
         READ_I8(file, carInfo.mEngine);
 	    READ_I8(file, carInfo.mRadio);

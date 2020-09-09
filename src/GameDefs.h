@@ -49,6 +49,8 @@
         BIT(CAR_DAMAGE_SPRITE_DELTA_WS) \
     )
 
+#define CAR_DRIVE_SPRITE_DELTA 11
+
 // car sprite deltas - door 1
 #define CAR_DOOR1_SPRITE_DELTA_0 6 // first frame
 #define CAR_DOOR1_SPRITE_DELTA_1 7
@@ -66,6 +68,7 @@
 #define CAR_LIGHTING_SPRITE_DELTA_1 16
 
 #define CAR_DELTA_ANIMS_SPEED 10.0f
+#define CAR_DELTA_DRIVING_ANIM_SPEED 18.0f
 
 // forwards
 class GameObject;
@@ -476,16 +479,6 @@ enum eVehicleModel
 
 decl_enum_strings(eVehicleModel);
 
-// warning - these values are mapped to gta1, so don't change it
-enum eCarConvertible
-{
-    eCarConvertible_HardTop = 0,
-    eCarConvertible_OpenTop = 1,
-    eCarConvertible_HardTopAnimated = 2,
-    eCarConvertible_OpenTopAnimated = 3,
-};
-decl_enum_strings(eCarConvertible);
-
 // define vehicle type information
 struct VehicleInfo
 {
@@ -528,7 +521,8 @@ struct VehicleInfo
         float mHandbrakeSlideValue;
     };
 
-    eCarConvertible mConvertible;
+    bool mConvertible;
+    bool mExtraDrivingAnim;
     int mEngine;
     int mRadio;
     int mHorn;

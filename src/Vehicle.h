@@ -112,6 +112,7 @@ private:
 private:
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
+    SpriteAnimation mDrivingDeltaAnim;
     SpriteDeltaBits mDamageDeltaBits;
 
     // active effects

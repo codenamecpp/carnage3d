@@ -15,6 +15,7 @@ Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarWrecked()
     , mCarStyle()
     , mDamageDeltaBits()
+    , mDrivingDeltaAnim()
     , mDrawHeight()
 {
 }
@@ -222,6 +223,12 @@ SpriteDeltaBits Vehicle::GetSpriteDeltas() const
         deltaBits |= deltaBit;
     }
 
+    if (mDrivingDeltaAnim.IsAnimationActive())
+    {
+        unsigned int deltaBit = mDrivingDeltaAnim.GetCurrentFrame();
+        deltaBits |= deltaBit;
+    }
+
     return deltaBits;
 }
 
@@ -246,6 +253,21 @@ void Vehicle::SetupDeltaAnimations()
             BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1),
         }, 
         CAR_DELTA_ANIMS_SPEED);
+    }
+
+    if (mCarStyle->mExtraDrivingAnim)
+    {
+        debug_assert(spriteInfo.mDeltaCount > CAR_DRIVE_SPRITE_DELTA);
+        mDrivingDeltaAnim.Clear();
+        mDrivingDeltaAnim.mAnimDesc.SetupFrames(
+            {
+                0, 
+                BIT(CAR_DRIVE_SPRITE_DELTA),
+                0, 
+                BIT(CAR_DRIVE_SPRITE_DELTA),
+            }, 
+            CAR_DELTA_DRIVING_ANIM_SPEED
+        );
     }
 
     // doors
@@ -290,6 +312,26 @@ void Vehicle::UpdateDeltaAnimations()
     if (mEmergLightsAnim.IsAnimationActive())
     {
         mEmergLightsAnim.AdvanceAnimation(deltaTime);
+    }
+
+    if (mCarStyle->mExtraDrivingAnim)
+    {
+        bool shouldEnable = fabs(mPhysicsBody->GetCurrentSpeed()) > 0.5f; // todo: magic numbers
+        if (mDrivingDeltaAnim.IsAnimationActive())
+        {
+            if (!shouldEnable)
+            {
+                mDrivingDeltaAnim.StopAnimation();
+            }
+            else
+            {
+                mDrivingDeltaAnim.AdvanceAnimation(deltaTime);
+            }
+        }
+        else if (shouldEnable)
+        {
+            mDrivingDeltaAnim.PlayAnimation(eSpriteAnimLoop_FromStart);
+        }
     }
 }
 
@@ -547,12 +589,7 @@ void Vehicle::Explode()
 
 bool Vehicle::HasHardTop() const
 {
-    if ((mCarStyle->mConvertible == eCarConvertible_HardTop || mCarStyle->mConvertible == eCarConvertible_HardTopAnimated) && 
-        (mCarStyle->mClassID != eVehicleClass_Motorcycle))
-    {
-        return true;
-    }
-    return false;
+    return !mCarStyle->mConvertible && (mCarStyle->mClassID != eVehicleClass_Motorcycle);
 }
 
 bool Vehicle::IsWrecked() const
