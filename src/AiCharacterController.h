@@ -6,6 +6,7 @@
 enum ePedestrianAiMode
 {
     ePedestrianAiMode_None,
+    ePedestrianAiMode_Disabled,
     ePedestrianAiMode_Wandering,
     ePedestrianAiMode_Panic,
     ePedestrianAiMode_DrivingCar,
@@ -30,7 +31,6 @@ public:
     void DebugDraw(DebugRenderer& debugRender) override;
 
     void SetLemmingBehavior(bool canSuicide);
-
     void SetFollowPedestrian(Pedestrian* pedestrian);
 
 private:

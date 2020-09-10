@@ -25,6 +25,9 @@ public:
     float mPedestrianDrowningTime; // seconds
     float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
 
+    // traffic - common params
+    float mTrafficGenHareKrishnasTime; // time to generate hare krishnas, seconds
+
     // traffic - pedestrians
     int mTrafficGenMaxPeds; // max number of traffic pedestrians around the player
     int mTrafficGenPedsChance; // chance to generate new traffic pedestrian on current turn

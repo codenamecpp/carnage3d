@@ -106,20 +106,18 @@ AiCharacterController::AiCharacterController(Pedestrian* character)
     {
         debug_assert(mCharacter->mController == nullptr);
         mCharacter->mController = this;
-
-        StartWandering();
     }
 }
 
 void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 {
-    if (mAiMode != ePedestrianAiMode_None)
-    {
-        glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
-        glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
+    if (mAiMode == ePedestrianAiMode_None || mAiMode == ePedestrianAiMode_Disabled)
+        return;
 
-        debugRender.DrawLine(currpos, destpos, Color32_Red, false);
-    }
+    glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
+    glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
+
+    debugRender.DrawLine(currpos, destpos, Color32_Red, false);
 }
 
 void AiCharacterController::SetLemmingBehavior(bool canSuicide)
@@ -129,14 +127,24 @@ void AiCharacterController::SetLemmingBehavior(bool canSuicide)
 
 void AiCharacterController::UpdateFrame()
 {
+    // choose current activity
     if (mAiMode == ePedestrianAiMode_None)
+    {
+        if (IsControllerActive())
+        {
+            StartWandering();
+            return;
+        }
+
+        mAiMode = ePedestrianAiMode_Disabled;
         return;
+    }
 
     debug_assert(mCharacter);
 
     if (mCharacter->IsDead())
     {
-        mAiMode = ePedestrianAiMode_None;
+        mAiMode = ePedestrianAiMode_Disabled;
         return;
     }
 
@@ -160,13 +168,10 @@ void AiCharacterController::UpdateFrame()
         UpdatePanic();
         return;
     }
-    else
+    else if (mCharacter->IsBurn())
     {
-        if (mCharacter->IsBurn())
-        {
-            StartPanic();
-            return;
-        }
+        StartPanic();
+        return;
     }
 
     if (mAiMode == ePedestrianAiMode_Wandering)
@@ -189,7 +194,7 @@ void AiCharacterController::UpdatePanic()
 
     if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
-        mAiMode = ePedestrianAiMode_None; // disable ai
+        mAiMode = ePedestrianAiMode_Disabled; // disable ai
     }
 }
 
@@ -214,7 +219,7 @@ void AiCharacterController::StartPanic()
     mCharacter->mCtlState.Clear();
     if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
-        mAiMode = ePedestrianAiMode_None; // disable ai
+        mAiMode = ePedestrianAiMode_Disabled; // disable ai
     }
 }
 

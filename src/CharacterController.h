@@ -21,6 +21,7 @@ public:
     virtual void DebugDraw(DebugRenderer& debugRender);
 
     // Inactive ai controllers will be automatically destroyed on next frame
-    void Deactivate();
-    bool IsActive() const;
+    virtual void DeactivateConstroller();
+
+    bool IsControllerActive() const;
 };

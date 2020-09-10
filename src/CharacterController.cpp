@@ -6,7 +6,7 @@
 
 CharacterController::~CharacterController()
 {
-    Deactivate();
+    DeactivateConstroller();
 }
 
 void CharacterController::UpdateFrame()
@@ -19,17 +19,18 @@ void CharacterController::DebugDraw(DebugRenderer& debugRender)
     // do nothing
 }
 
-void CharacterController::Deactivate()
+void CharacterController::DeactivateConstroller()
 {
     if (mCharacter)
     {
         debug_assert(mCharacter->mController == this);
         mCharacter->mController = nullptr;
+        mCharacter->mCtlState.Clear();
         mCharacter = nullptr;
     }
 }
 
-bool CharacterController::IsActive() const
+bool CharacterController::IsControllerActive() const
 {
     return mCharacter != nullptr;
 }

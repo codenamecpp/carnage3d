@@ -18,6 +18,7 @@ public:
 
     // process controller logic
     void UpdateFrame() override;
+    void DeactivateConstroller() override;
 
     // process players inputs
     // @param inputEvent: Event data

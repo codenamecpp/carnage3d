@@ -89,6 +89,12 @@ using VehicleHandle = cxx::handle<Vehicle>;
 
 using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
+// Remap indices for pedestrians
+enum
+{
+    PedestrianRemap_HareKrishna = 18,
+};
+
 // Object sprites draw prioriry
 enum eSpriteDrawOrder: unsigned char
 {

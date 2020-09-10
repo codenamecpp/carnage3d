@@ -6,6 +6,8 @@ class RenderView;
 // This class generates randomly wander pedestrians and vehicles on currently visible area on map
 class TrafficManager final: public cxx::noncopyable
 {
+    friend class GameCheatsWindow;
+
 public:
     TrafficManager();
 
@@ -32,16 +34,20 @@ private:
     void RemoveOffscreenCars();
     int GetCarsToGenerateCount(RenderView& view) const;
 
+    // traffic objects generation
     Pedestrian* GenerateRandomTrafficCarDriver(Vehicle* vehicle);
     Pedestrian* GenerateRandomTrafficPedestrian(int posx, int posy, int posz);
+    Pedestrian* GenerateHareKrishnas(int posx, int posy, int posz);
     Vehicle* GenerateRandomTrafficCar(int posx, int posy, int posz);
 
-    bool TryRemoveTrafficCar(Vehicle* car);
+    // attempt to remove traffic pedestrian or vehicle
     bool TryRemoveTrafficPed(Pedestrian* ped);
+    bool TryRemoveTrafficCar(Vehicle* car);
 
 private:
     float mLastGenPedsTime = 0.0;
     float mLastGenCarsTime = 0.0f;
+    float mLastGenHareKrishnasTime = 0.0f;
 
     // buffers
     struct CandidatePos

@@ -24,7 +24,7 @@ Pedestrian::~Pedestrian()
 {
     if (mController)
     {
-        mController->Deactivate();
+        mController->DeactivateConstroller();
         mController = nullptr;
     }
 

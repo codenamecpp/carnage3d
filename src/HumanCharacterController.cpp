@@ -294,3 +294,8 @@ bool HumanCharacterController::GetActionState(eInputAction action) const
     }
     return false;
 }
+
+void HumanCharacterController::DeactivateConstroller()
+{
+    // do nothing
+}
