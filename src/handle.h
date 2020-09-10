@@ -46,9 +46,6 @@ namespace cxx
     {
         friend class handled_object<TClass>;
 
-        // in order to get things work, TClass should be derived from CHandledObject<>
-        static_assert(std::is_base_of<handled_object<TClass>, TClass>::value, "Expect TClass is derived from handled_object<>");
-
     public: 
         // ctor
         // @param targetObject: Pointer to target object

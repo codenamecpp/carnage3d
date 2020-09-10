@@ -8,6 +8,7 @@
 #include "TimeManager.h"
 #include "AiManager.h"
 #include "TrafficManager.h"
+#include "AiCharacterController.h"
 
 namespace ImGui
 {
@@ -63,7 +64,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         }
         if (ImGui::BeginMenu("[ Create Peds ]"))
         {
-            if (ImGui::MenuItem("Basic standing"))
+            if (ImGui::MenuItem("Standing"))
             {
                 glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
                 pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
@@ -72,7 +73,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 debug_assert(character);
                 character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
             }
-            if (ImGui::MenuItem("Basic walking"))
+            if (ImGui::MenuItem("Wandering"))
             {
                 glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
                 pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
@@ -81,6 +82,41 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 debug_assert(character);
                 character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
                 gAiManager.CreateAiController(character);
+            }
+            if (ImGui::MenuItem("Follower"))
+            {
+                glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
+                pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                Pedestrian* character = gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 1);
+                debug_assert(character);
+                character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
+                AiCharacterController* controller = gAiManager.CreateAiController(character);
+                debug_assert(controller);
+                if (controller)
+                {
+                    controller->SetFollowPedestrian(playerChar);
+                }
+            }
+            if (ImGui::MenuItem("Hare Krishnas"))
+            {
+                glm::vec3 pos = playerChar->mPhysicsBody->GetPosition();
+                pos.x += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                pos.z += Convert::MapUnitsToMeters(2.0f * gCarnageGame.mGameRand.generate_float() - 1.0f);
+                Pedestrian* characterLeader = nullptr;
+                for (int i = 0, Count = 8; i < Count; ++i)
+                {
+                    Pedestrian* character = gGameObjectsManager.CreatePedestrian(pos, cxx::angle_t(), 18);
+                    debug_assert(character);
+                    character->mFlags = character->mFlags | eGameObjectFlags_Traffic;
+                    AiCharacterController* controller = gAiManager.CreateAiController(character);
+                    debug_assert(controller);
+                    if (controller && characterLeader)
+                    {
+                        controller->SetFollowPedestrian(characterLeader);
+                    }
+                    characterLeader = character;
+                }
             }
             ImGui::EndMenu();
         }

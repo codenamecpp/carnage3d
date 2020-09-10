@@ -9,6 +9,7 @@
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
+    , public cxx::handled_object<Pedestrian>
 {
     friend class GameObjectsManager;
     friend class PedPhysicsBody;
@@ -81,6 +82,7 @@ public:
     bool IsStanding() const;
     bool IsShooting() const;
     bool IsWalking() const;
+    bool IsRunning() const;
     bool IsStunned() const;
     bool IsDead() const;
     bool IsBurn() const;

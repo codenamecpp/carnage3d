@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CharacterController.h"
+#include "Pedestrian.h"
 
 enum ePedestrianAiMode
 {
@@ -8,6 +9,7 @@ enum ePedestrianAiMode
     ePedestrianAiMode_Wandering,
     ePedestrianAiMode_Panic,
     ePedestrianAiMode_DrivingCar,
+    ePedestrianAiMode_FollowTarget,
 };
 
 enum ePedestrianAiState
@@ -29,18 +31,22 @@ public:
 
     void SetLemmingBehavior(bool canSuicide);
 
+    void SetFollowPedestrian(Pedestrian* pedestrian);
+
 private:
     void UpdatePanic();
     void UpdateWandering();
     void UpdateDrivingCar();
+    void UpdateFollowTarget();
 
     void StartPanic();
     void StartWandering();
     void StartDrivingCar();
+    void StartFollowTarget();
 
     // walk/run
     bool ChooseWalkWaypoint(bool isPanic);
-    bool ContinueWalkToWaypoint(bool isPanic);
+    bool ContinueWalkToWaypoint(float distance);
 
     // drive
     bool ChooseDriveWaypoint();
@@ -52,5 +58,12 @@ private:
     ePedestrianAiState mAiState = ePedestrianAiState_Idle;
 
     glm::vec2 mDestinationPoint;
+    float mDefaultNearDistance;
     bool mIsLemmingBehavior = true;
+
+    PedestrianHandle mFollowPedestrian;
+    float mFollowNearDistance;
+    float mFollowFarDistance;
+
+    bool mRunToTarget = false;
 };

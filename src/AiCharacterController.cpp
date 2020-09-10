@@ -7,6 +7,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+// todo: temporary implementation
+
+//////////////////////////////////////////////////////////////////////////
+
 enum eMapDirection
 {
     eMapDirection_N,
@@ -94,6 +98,9 @@ inline const glm::ivec3& GetVectorFromMapDirection(eMapDirection direction)
 AiCharacterController::AiCharacterController(Pedestrian* character)
 {
     mCharacter = character;
+    mFollowNearDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
+    mFollowFarDistance = Convert::MapUnitsToMeters(0.5f);
+    mDefaultNearDistance = gGameParams.mPedestrianBoundsSphereRadius;
 
     if (mCharacter)
     {
@@ -106,9 +113,7 @@ AiCharacterController::AiCharacterController(Pedestrian* character)
 
 void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 {
-    if ((mAiMode == ePedestrianAiMode_Panic) || 
-        (mAiMode == ePedestrianAiMode_Wandering) || 
-        (mAiMode == ePedestrianAiMode_DrivingCar))
+    if (mAiMode != ePedestrianAiMode_None)
     {
         glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
         glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
@@ -150,25 +155,39 @@ void AiCharacterController::UpdateFrame()
     if (!mCharacter->IsIdle())
         return;
 
+    if (mAiMode == ePedestrianAiMode_Panic)
+    {
+        UpdatePanic();
+        return;
+    }
+    else
+    {
+        if (mCharacter->IsBurn())
+        {
+            StartPanic();
+            return;
+        }
+    }
+
     if (mAiMode == ePedestrianAiMode_Wandering)
     {
         UpdateWandering();
         return;
     }
 
-    if (mAiMode == ePedestrianAiMode_Panic)
+    if (mAiMode == ePedestrianAiMode_FollowTarget)
     {
-        UpdatePanic();
+        UpdateFollowTarget();
         return;
     }
 }
 
 void AiCharacterController::UpdatePanic()
 {
-    if (ContinueWalkToWaypoint(true))
+    if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
 
-    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(true))
+    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         mAiMode = ePedestrianAiMode_None; // disable ai
     }
@@ -176,16 +195,10 @@ void AiCharacterController::UpdatePanic()
 
 void AiCharacterController::UpdateWandering()
 {
-    if (mCharacter->IsBurn())
-    {
-        StartPanic();
-        return;
-    }
-
-    if (ContinueWalkToWaypoint(false))
+    if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
 
-    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(false))
+    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         StartPanic();
     }
@@ -194,9 +207,12 @@ void AiCharacterController::UpdateWandering()
 void AiCharacterController::StartPanic()
 {
     mAiMode = ePedestrianAiMode_Panic;
+    mFollowPedestrian.reset();
+
+    mRunToTarget = true;
 
     mCharacter->mCtlState.Clear();
-    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(true))
+    if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         mAiMode = ePedestrianAiMode_None; // disable ai
     }
@@ -205,9 +221,10 @@ void AiCharacterController::StartPanic()
 void AiCharacterController::StartWandering()
 {
     mAiMode = ePedestrianAiMode_Wandering;
+    mFollowPedestrian.reset();
 
     mCharacter->mCtlState.Clear();
-    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(false))
+    if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         StartPanic();
     }
@@ -272,7 +289,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
     return true;
 }
 
-bool AiCharacterController::ContinueWalkToWaypoint(bool isPanic)
+bool AiCharacterController::ContinueWalkToWaypoint(float distance)
 {
     float tolerance2 = pow(gGameParams.mPedestrianBoundsSphereRadius, 2.0f);
 
@@ -290,15 +307,16 @@ bool AiCharacterController::ContinueWalkToWaypoint(bool isPanic)
 
     // set control
     mCharacter->mCtlState.mWalkForward = true;
-    mCharacter->mCtlState.mRun = isPanic;
+    mCharacter->mCtlState.mRun = mRunToTarget;
     return true;
 }
 
 void AiCharacterController::StartDrivingCar()
 {
     mAiMode = ePedestrianAiMode_DrivingCar;
-    mCharacter->mCtlState.Clear();
+    mFollowPedestrian.reset();
 
+    mCharacter->mCtlState.Clear();
     if (!ChooseDriveWaypoint() || !ContinueDriveToWaypoint())
     {
         StopDriving();
@@ -358,4 +376,56 @@ bool AiCharacterController::ContinueDriveToWaypoint()
 {
     // todo: implement
     return false;
+}
+
+void AiCharacterController::SetFollowPedestrian(Pedestrian* pedestrian)
+{
+    if (pedestrian == mCharacter || pedestrian == nullptr)
+    {
+        StartWandering();
+        return;
+    }
+    mFollowPedestrian = pedestrian;
+    StartFollowTarget();
+}
+
+void AiCharacterController::StartFollowTarget()
+{
+    if (!mFollowPedestrian)
+    {
+        debug_assert(false);
+        StartWandering();
+        return;
+    }
+
+    mCharacter->mCtlState.Clear();
+    mAiMode = ePedestrianAiMode_FollowTarget;
+
+    mDestinationPoint = mFollowPedestrian->mPhysicsBody->GetPosition2();
+}
+
+void AiCharacterController::UpdateFollowTarget()
+{
+    if (!mFollowPedestrian || mFollowPedestrian->IsDead())
+    {
+        StartWandering();
+        return;
+    }
+
+    if (ContinueWalkToWaypoint(mFollowNearDistance))
+        return;
+
+    glm::vec2 characterPosition2 = mCharacter->mPhysicsBody->GetPosition2();
+    glm::vec2 targetPosition2 = mFollowPedestrian->mPhysicsBody->GetPosition2();
+
+    float distanceToTarget2 = glm::distance2(characterPosition2, targetPosition2);
+    if (distanceToTarget2 < glm::pow(mFollowNearDistance, 2.0f))
+    {
+        mCharacter->mCtlState.Clear();
+        return;
+    }
+
+    mRunToTarget = mFollowPedestrian->IsRunning() || (distanceToTarget2 > glm::pow(mFollowFarDistance, 2.0f));
+    mDestinationPoint = targetPosition2 + glm::normalize(targetPosition2 - characterPosition2) * mFollowNearDistance;
+    ContinueWalkToWaypoint(mFollowNearDistance);
 }

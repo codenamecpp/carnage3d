@@ -6,7 +6,7 @@
 class DebugRenderer;
 
 // defines base class of game entity
-class GameObject: public cxx::noncopyable
+class GameObject: public cxx::handled_object<GameObject>
 {
     friend class GameObjectsManager;
     friend class MapRenderer;

@@ -7,6 +7,7 @@
 
 // defines vehicle instance
 class Vehicle final: public GameObject
+    , public cxx::handled_object<Vehicle>
 {
     friend class GameObjectsManager;
     friend class GameCheatsWindow;

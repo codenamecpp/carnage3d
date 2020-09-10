@@ -79,6 +79,11 @@ class Decoration;
 class Obstacle;
 class Explosion;
 
+// game objects handle
+using GameObjectHandle = cxx::handle<GameObject>;
+using PedestrianHandle = cxx::handle<Pedestrian>;
+using VehicleHandle = cxx::handle<Vehicle>;
+
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
 

@@ -319,6 +319,12 @@ bool Pedestrian::IsWalking() const
         currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots);
 }
 
+bool Pedestrian::IsRunning() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return (currState == ePedestrianState_Runs || currState == ePedestrianState_RunsAndShoots);
+}
+
 bool Pedestrian::IsStunned() const
 {
     ePedestrianState currState = GetCurrentStateID();
