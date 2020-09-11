@@ -25,10 +25,6 @@ public:
 
     PedestrianCtlState mCtlState;
 
-    float mCurrentStateTime = 0.0f; // time since current state has started
-    float mWeaponRechargeTime = 0.0f; // next time weapon can be used again
-    float mBurnStartTime = 0.0f;
-
     float mDrawHeight;
     int mRemapIndex;
     
@@ -117,6 +113,11 @@ private:
     ePedestrianAnimID mCurrentAnimID;
     SpriteAnimation mCurrentAnimState;
     PedestrianStatesManager mStatesManager;
+
+    float mCurrentStateTime = 0.0f; // time since current state has started
+    float mWeaponRechargeTime = 0.0f; // next time weapon can be used again
+    float mBurnStartTime = 0.0f;
+
     // active effects
     Decoration* mFireEffect = nullptr;
 };

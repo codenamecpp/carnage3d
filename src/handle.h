@@ -17,7 +17,7 @@ namespace cxx
         handled_object() = default;
         // @param rside
         handled_object(const handled_object& rside) 
-            : mHeadReferencesList() // do not share handles to this on copy
+            : mHandlesListHead() // do not share handles to this on copy
         {
         }
         ~handled_object()
@@ -31,13 +31,13 @@ namespace cxx
     protected:
         void reset_handle_references()
         {
-            while (mHeadReferencesList)
+            while (mHandlesListHead)
             {
-                mHeadReferencesList->_detach_reference();
+                mHandlesListHead->_detach_reference(true);
             }
         }
     private:
-        handle<TSelfClass>* mHeadReferencesList = nullptr;
+        handle<TSelfClass>* mHandlesListHead = nullptr;
     };
 
     // handle class
@@ -50,19 +50,19 @@ namespace cxx
         // ctor
         // @param targetObject: Pointer to target object
         handle() = default;
-        handle(TClass* targetObject): mPointer(), mNext(), mPrev()
+        handle(TClass* targetObject)
         {
             _attach_reference(targetObject);
         }
         // @param targetObject: Handle
-        handle(const handle<TClass>& targetObject): mPointer(), mNext(), mPrev()
+        handle(const handle<TClass>& targetObject)
         {
             _attach_reference(targetObject.mPointer);
         }
         // dtor
         ~handle()
         {
-            _detach_reference();
+            _detach_reference(false);
         }
 
         // assign target
@@ -82,8 +82,16 @@ namespace cxx
         // reset target
         inline void reset()
         {
-            _detach_reference();
+            _detach_reference(false);
         }
+
+        // whether handle is not pointing at object
+        inline bool is_null() const { return mPointer == nullptr; }
+
+        // check if pointing object was destroyed
+
+        // determine whether handle was pointing at some object
+        inline bool is_expired() const { return mHandleExpired; }
 
         // access to target instance
         inline TClass* operator -> () const 
@@ -103,23 +111,23 @@ namespace cxx
             if (targetObject == mPointer)
                 return;
 
-            _detach_reference();
+            _detach_reference(false);
             if (!targetObject)
                 return;
 
             mPointer = targetObject;
 
             handled_object<TClass>* basePointer = targetObject;
-            mNext = basePointer->mHeadReferencesList;
-            if (basePointer->mHeadReferencesList)
+            mNext = basePointer->mHandlesListHead;
+            if (basePointer->mHandlesListHead)
             {
-                basePointer->mHeadReferencesList->mPrev = this;
+                basePointer->mHandlesListHead->mPrev = this;
             }
-            basePointer->mHeadReferencesList = this;
+            basePointer->mHandlesListHead = this;
         }
 
         // detach reference from target
-        inline void _detach_reference()
+        inline void _detach_reference(bool isExpired)
         {
             if (!mPointer)
                 return;
@@ -127,11 +135,16 @@ namespace cxx
             handled_object<TClass>* basePointer = mPointer;
             if (mPrev) mPrev->mNext = mNext;
             if (mNext) mNext->mPrev = mPrev;
-            if (basePointer->mHeadReferencesList == this)
+            if (basePointer->mHandlesListHead == this)
             {
-                basePointer->mHeadReferencesList = mNext;
+                basePointer->mHandlesListHead = mNext;
             }
             _set_null();
+
+            if (isExpired)
+            {
+                mHandleExpired = isExpired;
+            }
         }
 
         // clean internal pointers
@@ -139,13 +152,16 @@ namespace cxx
         {
             mNext = nullptr;
             mPrev = nullptr;
-            mPointer = nullptr; 
+            mPointer = nullptr;
+            mHandleExpired = false;
         }
 
     private:
         TClass* mPointer = nullptr;
         handle* mNext = nullptr;
         handle* mPrev = nullptr;
+
+        bool mHandleExpired = false;
     };
 
 } // namespace cxx

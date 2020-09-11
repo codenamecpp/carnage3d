@@ -358,10 +358,7 @@ bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
 
 CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     : PhysicsBody(physicsWorld)
-    , mSteerDirection()
     , mCarDesc(object->mCarStyle)
-    , mAcceleration()
-    , mHandBrakeEnabled()
     , mReferenceCar(object)
 {
     b2BodyDef bodyDef;
@@ -393,13 +390,6 @@ CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     mPhysicsBody->SetMassData(&massData);
 
     SetupWheels();
-}
-
-void CarPhysicsBody::ResetDriveState()
-{
-    SetSteerDirection(0.0f);
-    SetAcceleration(0.0f);
-    SetHandBrake(false);
 }
 
 void CarPhysicsBody::HandleWaterContact()
@@ -436,9 +426,20 @@ void CarPhysicsBody::HandleWaterContact()
 
 void CarPhysicsBody::SimulationStep()
 {
-    UpdateFriction();
-    UpdateDrive();
-    UpdateSteer();
+    PedestrianCtlState* currentCtlState = nullptr;
+
+    if (!mReferenceCar->IsWrecked())
+    {
+        Pedestrian* carDriver = mReferenceCar->GetCarDriver();
+        if (carDriver)
+        {
+            currentCtlState = &carDriver->mCtlState;
+        }
+    }
+
+    UpdateFriction(currentCtlState);
+    UpdateDrive(currentCtlState);
+    UpdateSteer(currentCtlState);
 }
 
 bool CarPhysicsBody::ShouldContactWith(unsigned int objCatBits) const
@@ -505,21 +506,6 @@ void CarPhysicsBody::GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) co
     }
 }
 
-void CarPhysicsBody::SetSteerDirection(float steerDirection)
-{
-    mSteerDirection = steerDirection;
-}
-
-void CarPhysicsBody::SetAcceleration(float acceleration)
-{
-    mAcceleration = acceleration;
-}
-
-void CarPhysicsBody::SetHandBrake(bool isEnabled)
-{
-    mHandBrakeEnabled = isEnabled;
-}
-
 glm::vec2 CarPhysicsBody::GetWheelLateralVelocity(eCarWheel wheelID) const
 {
     debug_assert(wheelID < eCarWheel_COUNT);
@@ -582,7 +568,7 @@ void CarPhysicsBody::HandleFallEnd()
     mFalling = false;
 }
 
-void CarPhysicsBody::UpdateSteer()
+void CarPhysicsBody::UpdateSteer(PedestrianCtlState* currentCtlState)
 {
     //float lockAngle = glm::radians(32.0f);
     //float turnSpeedPerSec = glm::radians(mCarDesc->mTurning * 1.0f);
@@ -598,10 +584,16 @@ void CarPhysicsBody::UpdateSteer()
     float currentSpeed = GetCurrentSpeed();
     float currentVelocity = fabs(currentSpeed);
 
-    if (mSteerDirection) 
+    float steerDirection = 0.0f;
+    if (currentCtlState)
+    {
+        steerDirection = currentCtlState->mSteerDirection;
+    }
+
+    if (steerDirection) 
     {
         float torqueForce = 150.0f;
-        torqueForce *= (currentSpeed < 0.0f) ? -mSteerDirection : mSteerDirection;
+        torqueForce *= (currentSpeed < 0.0f) ? -steerDirection : steerDirection;
 
         if (currentVelocity < 2.0f) 
         {
@@ -612,7 +604,7 @@ void CarPhysicsBody::UpdateSteer()
     }
 }
 
-void CarPhysicsBody::UpdateFriction()
+void CarPhysicsBody::UpdateFriction(PedestrianCtlState* currentCtlState)
 {
     b2Vec2 currentForwardNormal = b2GetWheelForwardVelocity(eCarWheel_Drive);
     b2Vec2 impulse = mPhysicsBody->GetMass() * -b2GetWheelLateralVelocity(eCarWheel_Drive);
@@ -631,7 +623,7 @@ void CarPhysicsBody::UpdateFriction()
     mPhysicsBody->ApplyForce(dragForceMagnitude * currentForwardNormal, mPhysicsBody->GetWorldCenter(), true);
 }
 
-void CarPhysicsBody::UpdateDrive()
+void CarPhysicsBody::UpdateDrive(PedestrianCtlState* currentCtlState)
 {
     float maxForwardSpeed = 100.0f;
     float maxBackwardSpeed = 80.0f;
@@ -641,14 +633,21 @@ void CarPhysicsBody::UpdateDrive()
     float reverseForce = 250.0f;
 
     float desiredSpeed = 0.0f;
-    if (mAcceleration > 0.0f) 
+    float acceleration = 0.0f;
+
+    if (currentCtlState)
     {
-        desiredSpeed = (maxForwardSpeed * mAcceleration);
+        acceleration = currentCtlState->mAcceleration;
     }
 
-    if (mAcceleration < 0.0f) 
+    if (acceleration > 0.0f) 
     {
-        desiredSpeed = (maxBackwardSpeed * mAcceleration);
+        desiredSpeed = (maxForwardSpeed * acceleration);
+    }
+
+    if (acceleration < 0.0f) 
+    {
+        desiredSpeed = (maxBackwardSpeed * acceleration);
     }
 
     //find current speed in forward direction

@@ -48,6 +48,6 @@ void GameParams::SetToDefaults()
     mBroadcastGunShotEventDuration = 1.0f;
     mBroadcastExplosionEventDuration = 1.5f;
     // ai
-    mAiReactOnGunshotsDistance = Convert::MapUnitsToMeters(3.0f);
-    mAiReactOnExplosionsDistance = Convert::MapUnitsToMeters(4.0f);
+    mAiReactOnGunshotsDistance = Convert::MapUnitsToMeters(4.0f);
+    mAiReactOnExplosionsDistance = Convert::MapUnitsToMeters(5.0f);
 }

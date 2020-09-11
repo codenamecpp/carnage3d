@@ -155,18 +155,11 @@ public:
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
 
-    void ResetDriveState();
     void HandleWaterContact();
 
     void GetChassisCorners(glm::vec2 corners[4]) const;
     void GetLocalChassisCorners(glm::vec2 corners[4]) const;
     void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
-
-    // steering
-    // @param steerDirection: see CarSteeringDirection* constants
-    void SetSteerDirection(float steerDirection);
-    void SetAcceleration(float acceleration);
-    void SetHandBrake(bool isEnabled);
     
     // Get wheel velocities
     glm::vec2 GetWheelLateralVelocity(eCarWheel wheelID) const;
@@ -184,9 +177,9 @@ public:
 
 private:
     void SetupWheels();
-    void UpdateSteer();
-    void UpdateFriction();
-    void UpdateDrive();
+    void UpdateSteer(PedestrianCtlState* currentCtlState);
+    void UpdateFriction(PedestrianCtlState* currentCtlState);
+    void UpdateDrive(PedestrianCtlState* currentCtlState);
 
     // helpers, world space
     b2Vec2 b2GetWheelLateralVelocity(eCarWheel wheelID) const;
@@ -207,11 +200,6 @@ private:
     float mSteerWheelPosition = 0.0f; // front
     float mDriveWheelPosition = 0.0f; // rear
     float mSteeringAngleRadians = 0.0f;
-
-    // current drive state
-    float mSteerDirection = 0.0f; // [-1, 1]
-    float mAcceleration = 0.0f; // [-1, 1]
-    bool mHandBrakeEnabled = false;
 };
 
 //////////////////////////////////////////////////////////////////////////

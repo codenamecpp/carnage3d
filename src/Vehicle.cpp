@@ -84,7 +84,6 @@ void Vehicle::UpdateFrame()
     }
 
     UpdateDeltaAnimations();
-    UpdateDriving();
 }
 
 void Vehicle::PreDrawFrame()
@@ -560,21 +559,6 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
     return nullptr;
 }
 
-void Vehicle::UpdateDriving()
-{
-    Pedestrian* carDriver = GetCarDriver();
-    if (carDriver == nullptr || ePedestrianState_DrivingCar != carDriver->GetCurrentStateID())
-    {
-        mPhysicsBody->ResetDriveState();
-        return;
-    }
-
-    const PedestrianCtlState& ctlState = carDriver->mCtlState;
-    mPhysicsBody->SetHandBrake(ctlState.mHandBrake);
-    mPhysicsBody->SetAcceleration(ctlState.mAcceleration);
-    mPhysicsBody->SetSteerDirection(ctlState.mSteerDirection);
-}
-
 void Vehicle::Explode()
 {
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
@@ -782,8 +766,6 @@ void Vehicle::UpdateBurnEffect()
 void Vehicle::SetWrecked()
 {
     mCarWrecked = true;
-
-    mPhysicsBody->ResetDriveState();
 }
 
 bool Vehicle::HasPassengers() const
