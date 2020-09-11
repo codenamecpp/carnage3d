@@ -146,6 +146,12 @@ int Font::GetLineHeight() const
 
 void Font::MeasureString(const std::string& text, Point& outputSize) const
 {
+    Point maxSize {0, 0};
+    MeasureString(text, maxSize, outputSize);
+}
+
+void Font::MeasureString(const std::string& text, const Point& maxSize, Point& outputSize) const
+{
     outputSize.x = 0;
     outputSize.y = 0;
 
@@ -221,6 +227,12 @@ void Font::SetFontBaseCharCode(int charCode)
 }
 
 void Font::DrawString(GuiContext& guiContext, const std::string& text, const Point& position, int paletteIndex)
+{
+    Point maxSize;
+    DrawString(guiContext, text, position, maxSize, paletteIndex);
+}
+
+void Font::DrawString(GuiContext& guiContext, const std::string& text, const Point& position, const Point& maxSize, int paletteIndex)
 {
     int maxCharCodes = (int) mCharacters.size();
     if (maxCharCodes < 1)

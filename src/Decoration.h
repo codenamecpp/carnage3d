@@ -21,14 +21,18 @@ public:
 
     // Setup current position and rotation
     void SetTransform(const glm::vec3& position, cxx::angle_t heading);
-
+    void SetScale(float scale);
     void SetLifeDuration(int numAnimationCycles);
+
+    // Set decoration move in direction
+    // @param moveVelocity: Move velocity, meters per second
+    void SetMoveVelocity(const glm::vec3& moveVelocity);
 
     // Change current draw order for decoration object
     void SetDrawOrder(eSpriteDrawOrder drawOrder);
 
 private:
     SpriteAnimation mAnimationState;
-
+    glm::vec3 mMoveVelocity;
     int mLifeDuration = 0; // number of animation cycles before decoration will be deleted, or 0 for endless lifetime
 };

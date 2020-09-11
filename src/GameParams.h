@@ -57,6 +57,9 @@ public:
     // ai
     float mAiReactOnGunshotsDistance; // how far pedestrians can hear gunshots
     float mAiReactOnExplosionsDistance; // how far pedestrians can hear explosions
+
+    // hud
+    float mHudBigFontMessageShowDuration; // how long show 'wasted' on screen, seconds
 };
 
 extern GameParams gGameParams;

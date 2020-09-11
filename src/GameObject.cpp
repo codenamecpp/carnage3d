@@ -7,11 +7,6 @@ GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     : mObjectID(uniqueID)
     , mClassID(objectTypeID)
 {
-    if (uniqueID == GAMEOBJECT_ID_NULL || 
-        objectTypeID == eGameObjectClass_Projectile)
-    {
-        debug_assert((uniqueID == GAMEOBJECT_ID_NULL) && (objectTypeID == eGameObjectClass_Projectile));
-    }
 }
 
 void GameObject::RefreshDrawBounds()

@@ -18,6 +18,11 @@ void Sprite2D::Clear()
     mRotateAngle.set_zero();
 }
 
+bool Sprite2D::IsNull() const
+{
+    return (mTexture == nullptr);
+}
+
 void Sprite2D::GetCorners(glm::vec2 positions[4]) const
 {
     float rectw = mTextureRegion.mRectangle.w * mScale;

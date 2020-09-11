@@ -25,6 +25,13 @@ void Decoration::UpdateFrame()
         gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
     }
 
+    glm::vec3 currPosition = GetCurrentPosition();
+    glm::vec3 newPosition = currPosition + (mMoveVelocity * deltaTime);
+    if (newPosition != currPosition)
+    {
+        SetTransform(newPosition, mSpawnHeading);
+    }
+
     if (mLifeDuration > 0 && !mAnimationState.IsAnimationActive())
     {
         MarkForDeletion();
@@ -78,4 +85,14 @@ void Decoration::SetTransform(const glm::vec3& position, cxx::angle_t heading)
 void Decoration::SetDrawOrder(eSpriteDrawOrder drawOrder)
 {
     mDrawSprite.mDrawOrder = drawOrder;
+}
+
+void Decoration::SetScale(float scale)
+{
+    mDrawSprite.mScale = scale;
+}
+
+void Decoration::SetMoveVelocity(const glm::vec3& moveVelocity)
+{
+    mMoveVelocity = moveVelocity;
 }

@@ -34,6 +34,9 @@ public:
     // Clear sprite data
     void Clear();
 
+    // Whether sprite graphics is not specified
+    bool IsNull() const;
+
 public:
     GpuTexture2D* mTexture = nullptr;
     TextureRegion mTextureRegion; 

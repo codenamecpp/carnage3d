@@ -20,8 +20,10 @@ void HumanCharacterController::UpdateFrame()
         {
             mRespawnTime = PlayerCharacterRespawnTime;
 
-            int playerIndex = 1 + gCarnageGame.GetPlayerIndex(this);
-            gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", playerIndex, cxx::enum_to_string(mCharacter->mDeathReason));
+            int playerIndex = gCarnageGame.GetPlayerIndex(this);
+            gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", (playerIndex + 1), cxx::enum_to_string(mCharacter->mDeathReason));
+            // todo: cleanup this mess
+            gCarnageGame.mHumanSlot[playerIndex].mCharView.mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
         }
 
         float deltaTime = gTimeManager.mGameFrameDelta;

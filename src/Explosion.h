@@ -7,7 +7,7 @@ class Explosion final: public GameObject
     friend class GameObjectsManager;
   
 public:
-    Explosion(GameObjectID id);
+    Explosion();
 
     // override GameObject
     void PreDrawFrame() override;
@@ -28,7 +28,6 @@ public:
 
     // Test whether explosion did its damage and can't hurt
     bool IsDamageDone() const;
-
     bool IsCarExplosion() const;
 
 private:
@@ -37,6 +36,7 @@ private:
 
 private:
     SpriteAnimation mAnimationState;
+
     bool mIsCarExplosion = false;
     bool mPrimaryDamageDone = false;
     bool mSecondaryDamageDone = false;

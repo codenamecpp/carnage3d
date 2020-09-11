@@ -145,9 +145,7 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
 
 Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
 {
-    GameObjectID objectID = GenerateUniqueID();
-
-    Explosion* instance = mExplosionsPool.create(objectID);
+    Explosion* instance = mExplosionsPool.create();
     debug_assert(instance);
 
     mAllObjects.push_back(instance);
@@ -192,6 +190,22 @@ Decoration* GameObjectsManager::CreateWaterSplash(const glm::vec3& position)
 
     cxx::angle_t rotation;
     Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
+
+    return decoration;
+}
+
+Decoration* GameObjectsManager::CreateBigSmoke(const glm::vec3& position)
+{
+    GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_BigSmoke];
+
+    cxx::angle_t rotation;
+    Decoration* decoration = CreateDecoration(position, rotation, &objectInfo);
+    
+    if (decoration) // add some wind effect
+    {
+        const glm::vec3 velocity (1.0f, 0.0f, 0.0f); // todo: magic values
+        decoration->SetMoveVelocity(velocity);
+    }
 
     return decoration;
 }

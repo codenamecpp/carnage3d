@@ -50,4 +50,6 @@ void GameParams::SetToDefaults()
     // ai
     mAiReactOnGunshotsDistance = Convert::MapUnitsToMeters(4.0f);
     mAiReactOnExplosionsDistance = Convert::MapUnitsToMeters(5.0f);
+    // hud
+    mHudBigFontMessageShowDuration = 3.0f;
 }

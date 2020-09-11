@@ -7,9 +7,10 @@
 #include "Pedestrian.h"
 #include "Vehicle.h"
 #include "BroadcastEventsManager.h"
+#include "GameObjectsManager.h"
 
-Explosion::Explosion(GameObjectID id) 
-    : GameObject(eGameObjectClass_Explosion, id)
+Explosion::Explosion() 
+    : GameObject(eGameObjectClass_Explosion, GAMEOBJECT_ID_NULL)
 {
 }
 
@@ -23,6 +24,14 @@ void Explosion::UpdateFrame()
     if (mAnimationState.AdvanceAnimation(deltaTime))
     {
         gSpriteManager.GetExplosionTexture(mAnimationState.GetCurrentFrame(), mDrawSprite);
+
+        if (mAnimationState.mFrameCursor == 6) // todo: magic numbers
+        {
+            glm::vec3 currentPosition = GetCurrentPosition();
+            // create smoke effect
+            Decoration* bigSmoke = gGameObjectsManager.CreateBigSmoke(currentPosition);
+            debug_assert(bigSmoke);
+        }
     }
 
     if (!IsDamageDone())

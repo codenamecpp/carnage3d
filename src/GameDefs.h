@@ -150,6 +150,7 @@ enum
     GameObjectType_Null = 0,
     GameObjectType_Fire1 = 18,
     GameObjectType_LFire = 46,
+    GameObjectType_BigSmoke = 51,
     GameObjectType_Splash = 54,
     GameObjectType_FirstBlood = 63,
     GameObjectType_Body = 64,
