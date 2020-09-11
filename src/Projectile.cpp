@@ -7,9 +7,9 @@
 #include "DebugRenderer.h"
 #include "GameObjectsManager.h"
 
-Projectile::Projectile() 
+Projectile::Projectile(WeaponInfo* weaponInfo) 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
-    , mStartPosition()
+    , mWeaponInfo(weaponInfo)
 {
 }
 
@@ -21,29 +21,29 @@ Projectile::~Projectile()
     }
 }
 
-void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation, WeaponInfo* weaponInfo)
+void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    mWeaponInfo = weaponInfo;
-    mStartPosition = startPosition;
+    GameObject::Spawn(position, heading);
+
     mContactDetected = false;
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
         debug_assert(mPhysicsBody);
     }
     else
     {   
-        mPhysicsBody->SetPosition(startPosition, startRotation);
+        mPhysicsBody->SetPosition(position, heading);
     }
 
     // setup animation
     mAnimationState.Clear();
 
-    if (weaponInfo)
+    if (mWeaponInfo)
     {
         StyleData& cityStyle = gGameMap.mStyleData;
 
-        int objectindex = weaponInfo->mProjectileObject;
+        int objectindex = mWeaponInfo->mProjectileObject;
         if (objectindex > 0 && objectindex < (int) cityStyle.mObjects.size())
         {
             GameObjectInfo& objectInfo = cityStyle.mObjects[objectindex];
@@ -53,7 +53,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
             mAnimationState.mAnimDesc = objectInfo.mAnimationData;
 
             eSpriteAnimLoop loopType = eSpriteAnimLoop_FromStart;
-            if (!weaponInfo->IsFireDamage()) // todo: move to configs
+            if (!mWeaponInfo->IsFireDamage()) // todo: move to configs
             {
                 loopType = eSpriteAnimLoop_None;
             }
@@ -62,7 +62,7 @@ void Projectile::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotatio
     }
 
     // setup sprite rotation and scale
-    cxx::angle_t rotationAngle = startRotation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = heading + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Projectiles;
 }
@@ -170,4 +170,14 @@ void Projectile::SetContactDetected(const glm::vec3& position, GameObject* gameO
 bool Projectile::IsContactDetected() const
 {
     return mContactDetected;
+}
+
+glm::vec3 Projectile::GetCurrentPosition() const
+{
+    return mPhysicsBody->GetPosition();
+}
+
+glm::vec2 Projectile::GetCurrentPosition2() const
+{
+    return mPhysicsBody->GetPosition2();
 }

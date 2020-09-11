@@ -6,6 +6,7 @@
 #include "CarnageGame.h"
 #include "PhysicsManager.h"
 #include "TimeManager.h"
+#include "BroadcastEventsManager.h"
 
 PedestrianStatesManager::PedestrianStatesManager(Pedestrian* pedestrian)
     : mPedestrian(pedestrian)
@@ -226,7 +227,11 @@ bool PedestrianStatesManager::TryToShoot()
             currPosition.z + offset.y
         };
         debug_assert(weaponParams.mProjectileTypeID < eProjectileType_COUNT);
-        gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), &weaponParams);
+        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), &weaponParams);
+        debug_assert(projectile);
+
+        // broardcast event
+        gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, mPedestrian, mPedestrian, gGameParams.mBroadcastGunShotEventDuration);
     }
     else
     {

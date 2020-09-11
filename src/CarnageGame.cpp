@@ -11,6 +11,7 @@
 #include "TrafficManager.h"
 #include "AiManager.h"
 #include "GameTextsManager.h"
+#include "BroadcastEventsManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
@@ -94,6 +95,7 @@ void CarnageGame::UpdateFrame()
 
     gTrafficManager.UpdateFrame();
     gAiManager.UpdateFrame();
+    gBroadcastEvents.UpdateFrame();
 }
 
 void CarnageGame::InputEventLost()
@@ -384,4 +386,5 @@ void CarnageGame::ShutdownCurrentScenario()
     gGameObjectsManager.FreeGameObjects();
     gPhysics.FreePhysicsWorld();
     gGameMap.Cleanup();
+    gBroadcastEvents.ClearEvents();
 }

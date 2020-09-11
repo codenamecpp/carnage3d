@@ -7,21 +7,17 @@ class Decoration final: public GameObject
     friend class GameObjectsManager;
 
 public:
-    // readonly
-    glm::vec3 mPosition;
-    cxx::angle_t mRotation;
-
-public:
     Decoration(GameObjectID id, GameObjectInfo* desc);
-    ~Decoration();
 
     // override GameObject
     void PreDrawFrame() override;
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
+    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
 
-    // Setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& position, cxx::angle_t heading);
+    // Current world position
+    glm::vec3 GetCurrentPosition() const override;
+    glm::vec2 GetCurrentPosition2() const override;
 
     // Setup current position and rotation
     void SetTransform(const glm::vec3& position, cxx::angle_t heading);

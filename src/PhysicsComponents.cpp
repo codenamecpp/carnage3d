@@ -798,7 +798,7 @@ void ProjectilePhysicsBody::SimulationStep()
     SetLinearVelocity(velocity * mReferenceProjectile->mWeaponInfo->mProjectileSpeed);
 
     glm::vec2 currPosition = GetPosition2();
-    glm::vec2 startPosition(mReferenceProjectile->mStartPosition.x, mReferenceProjectile->mStartPosition.z);
+    glm::vec2 startPosition(mReferenceProjectile->mSpawnPosition.x, mReferenceProjectile->mSpawnPosition.z);
 
     if (glm::distance(startPosition, currPosition) >= mReferenceProjectile->mWeaponInfo->mBaseHitRange)
     {

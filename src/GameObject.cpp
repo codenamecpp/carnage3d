@@ -24,6 +24,18 @@ GameObject::~GameObject()
     SetDetached();
 }
 
+glm::vec3 GameObject::GetCurrentPosition() const
+{
+    // do nothing
+    return {};
+}
+
+glm::vec2 GameObject::GetCurrentPosition2() const
+{
+    // do nothing
+    return {};
+}
+
 void GameObject::PreDrawFrame()
 {
     // do nothing
@@ -43,6 +55,12 @@ bool GameObject::ReceiveDamage(const DamageInfo& damageInfo)
 {
     // do nothing
     return false;
+}
+
+void GameObject::Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading)
+{
+    mSpawnPosition = spawnPosition;
+    mSpawnHeading = spawnHeading;
 }
 
 void GameObject::MarkForDeletion()

@@ -79,10 +79,7 @@ class Decoration;
 class Obstacle;
 class Explosion;
 
-// game objects handle
-using GameObjectHandle = cxx::handle<GameObject>;
-using PedestrianHandle = cxx::handle<Pedestrian>;
-using VehicleHandle = cxx::handle<Vehicle>;
+class DebugRenderer;
 
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
@@ -731,6 +728,7 @@ enum eProjectileType
     eProjectileType_Missile, // rocket launcher, tank rocket
     eProjectileType_COUNT
 };
+
 decl_enum_strings(eProjectileType);
 
 enum eAccidentServise
@@ -740,6 +738,8 @@ enum eAccidentServise
     eAccidentServise_FireStation,
     eAccidentServise_COUNT
 };
+
+decl_enum_strings(eAccidentServise);
 
 // Pedestrian control actions status
 struct PedestrianCtlState

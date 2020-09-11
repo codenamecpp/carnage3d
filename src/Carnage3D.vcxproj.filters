@@ -377,6 +377,9 @@
     <ClInclude Include="GuiDefs.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="BroadcastEventsManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -595,6 +598,9 @@
       <Filter>Game\Ai</Filter>
     </ClCompile>
     <ClCompile Include="GameTextsManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="BroadcastEventsManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

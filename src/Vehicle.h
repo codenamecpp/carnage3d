@@ -5,6 +5,9 @@
 #include "GameObject.h"
 #include "Sprite2D.h"
 
+// Define weak pointer to vehicle object instance
+using VehicleHandle = cxx::handle<Vehicle>;
+
 // defines vehicle instance
 class Vehicle final: public GameObject
     , public cxx::handled_object<Vehicle>
@@ -30,13 +33,14 @@ public:
     void UpdateFrame() override;
     void PreDrawFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-
-    // setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
-
+    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
+
+    // Current world position
+    glm::vec3 GetCurrentPosition() const override;
+    glm::vec2 GetCurrentPosition2() const override;
 
     // adds or removes car passenger
     // @param pedestrian: Pedestrian, cannot be null
@@ -93,6 +97,9 @@ public:
     // Test whether vehicle is wrecked
     bool IsWrecked() const;
     bool IsBurn() const;
+
+    // Whether vehicle is fall in water
+    bool IsInWater() const;
 
     // Get current vehicle damage level
     int GetCurrentDamage() const;

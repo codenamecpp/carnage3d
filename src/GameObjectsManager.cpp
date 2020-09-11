@@ -114,12 +114,12 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
 
 Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo)
 {
-    Projectile* instance = mProjectilesPool.create();
+    Projectile* instance = mProjectilesPool.create(weaponInfo);
     debug_assert(instance);
 
     mAllObjects.push_back(instance);
     // init
-    instance->Spawn(position, heading, weaponInfo);
+    instance->Spawn(position, heading);
     return instance;
 }
 
@@ -152,7 +152,8 @@ Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
 
     mAllObjects.push_back(instance);
     // init
-    instance->Spawn(position);
+    cxx::angle_t zeroAngle;
+    instance->Spawn(position, zeroAngle);
     return instance;
 }
 

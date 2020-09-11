@@ -6,13 +6,10 @@
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
 #include "Vehicle.h"
+#include "BroadcastEventsManager.h"
 
 Explosion::Explosion(GameObjectID id) 
     : GameObject(eGameObjectClass_Explosion, id)
-{
-}
-
-Explosion::~Explosion()
 {
 }
 
@@ -45,15 +42,27 @@ void Explosion::DebugDraw(DebugRenderer& debugRender)
     float damageRadiusA = gGameParams.mExplosionPrimaryDamageDistance;
     float damageRadiusB = gGameParams.mExplosionSecondaryDamageDistance;
 
-    debugRender.DrawSphere(mExplosionEpicentre, damageRadiusA, Color32_Red, false);
-    debugRender.DrawSphere(mExplosionEpicentre, damageRadiusB, Color32_Yellow, false);
+    debugRender.DrawSphere(mSpawnPosition, damageRadiusA, Color32_Red, false);
+    debugRender.DrawSphere(mSpawnPosition, damageRadiusB, Color32_Yellow, false);
 }
 
-void Explosion::Spawn(const glm::vec3& startPosition)
+glm::vec3 Explosion::GetCurrentPosition() const
 {
-    mDrawSprite.mPosition.x = startPosition.x;
-    mDrawSprite.mPosition.y = startPosition.z;
-    mDrawSprite.mHeight = startPosition.y;
+    return mSpawnPosition;
+}
+
+glm::vec2 Explosion::GetCurrentPosition2() const
+{
+    return { mSpawnPosition.x, mSpawnPosition.z };
+}
+
+void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
+{
+    GameObject::Spawn(position, heading);
+
+    mDrawSprite.mPosition.x = position.x;
+    mDrawSprite.mPosition.y = position.z;
+    mDrawSprite.mHeight = position.y;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;
 
     mAnimationState.Clear();
@@ -68,9 +77,12 @@ void Explosion::Spawn(const glm::vec3& startPosition)
         debug_assert(false);
     }
 
-    mExplosionEpicentre = startPosition;
     mPrimaryDamageDone = false;
     mSecondaryDamageDone = false;
+
+    // broadcast event
+    glm::vec2 position2 (position.x, position.z);
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
 }
 
 bool Explosion::IsDamageDone() const
@@ -86,7 +98,7 @@ void Explosion::ProcessPrimaryDamage()
     mPrimaryDamageDone = true;
 
     // primary damage
-    glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
+    glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
     glm::vec2 extents (
         gGameParams.mExplosionPrimaryDamageDistance,
         gGameParams.mExplosionPrimaryDamageDistance
@@ -126,7 +138,7 @@ void Explosion::ProcessSecondaryDamage()
         return;
 
     // do secondary damage
-    glm::vec2 centerPoint (mExplosionEpicentre.x, mExplosionEpicentre.z);
+    glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
     glm::vec2 extents (
         gGameParams.mExplosionSecondaryDamageDistance,
         gGameParams.mExplosionSecondaryDamageDistance
@@ -168,4 +180,15 @@ void Explosion::DisablePrimaryDamage()
 void Explosion::DisableSecondaryDamage()
 {
     mSecondaryDamageDone = true;
+}
+
+void Explosion::SetIsCarExplosion(Vehicle* carObject)
+{
+    debug_assert(carObject);
+    mIsCarExplosion = true;
+}
+
+bool Explosion::IsCarExplosion() const
+{
+    return mIsCarExplosion;
 }

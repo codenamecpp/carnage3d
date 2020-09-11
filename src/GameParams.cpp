@@ -44,4 +44,10 @@ void GameParams::SetToDefaults()
     // vehicles
     mVehicleBurnDuration = 20.0f;
     mVehicleSpeedPassengerCanEnter = 8.0f;
+    // broadcast events
+    mBroadcastGunShotEventDuration = 1.0f;
+    mBroadcastExplosionEventDuration = 1.5f;
+    // ai
+    mAiReactOnGunshotsDistance = Convert::MapUnitsToMeters(3.0f);
+    mAiReactOnExplosionsDistance = Convert::MapUnitsToMeters(4.0f);
 }

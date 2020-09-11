@@ -43,18 +43,20 @@ Vehicle::~Vehicle()
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
 
-void Vehicle::Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation)
+void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
+    GameObject::Spawn(position, heading);
+
     debug_assert(mCarStyle);
     
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, startPosition, startRotation);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
         debug_assert(mPhysicsBody);
     }
     else
     {   
-        mPhysicsBody->SetPosition(startPosition, startRotation);
+        mPhysicsBody->SetPosition(position, heading);
     }
 
     mCarWrecked = false;
@@ -180,6 +182,16 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + signDirection.x, mDrawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);
     }
+}
+
+glm::vec3 Vehicle::GetCurrentPosition() const
+{
+    return mPhysicsBody->GetPosition();
+}
+
+glm::vec2 Vehicle::GetCurrentPosition2() const
+{
+    return mPhysicsBody->GetPosition2();
 }
 
 void Vehicle::ComputeDrawHeight(const glm::vec3& position)
@@ -791,4 +803,9 @@ void Vehicle::Repair()
 int Vehicle::GetCurrentDamage() const
 {
     return mCurrentDamage;
+}
+
+bool Vehicle::IsInWater() const
+{
+    return mPhysicsBody->mWaterContact;
 }

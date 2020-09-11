@@ -50,7 +50,13 @@ public:
     float mVehicleBurnDuration; // time before flame will go out by itself, seconds
     float mVehicleSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
 
-   
+    // broadcast events
+    float mBroadcastGunShotEventDuration; // how long event affects, seconds
+    float mBroadcastExplosionEventDuration;
+
+    // ai
+    float mAiReactOnGunshotsDistance; // how far pedestrians can hear gunshots
+    float mAiReactOnExplosionsDistance; // how far pedestrians can hear explosions
 };
 
 extern GameParams gGameParams;

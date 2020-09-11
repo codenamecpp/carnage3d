@@ -3,7 +3,8 @@
 #include "GameDefs.h"
 #include "DamageInfo.h"
 
-class DebugRenderer;
+// Define weak pointer to game object instance
+using GameObjectHandle = cxx::handle<GameObject>;
 
 // defines base class of game entity
 class GameObject: public cxx::handled_object<GameObject>
@@ -18,22 +19,32 @@ public:
     // readonly
     eGameObjectFlags mFlags = eGameObjectFlags_None;
 
+    glm::vec3 mSpawnPosition;
+    cxx::angle_t mSpawnHeading;
+
 public:
     virtual ~GameObject();
 
-    // update drawing sprite
+    // Update drawing sprite
     virtual void PreDrawFrame();
 
-    // process logic
+    // Process logic
     virtual void UpdateFrame();
 
-    // draw debug info
+    // Draw debug info
     virtual void DebugDraw(DebugRenderer& debugRender);
 
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details
     // @returns false if damage is ignored
     virtual bool ReceiveDamage(const DamageInfo& damageInfo);
+
+    // Setup initial state when spawned or respawned on level
+    virtual void Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading);
+
+    // Get current position within game world, meters
+    virtual glm::vec3 GetCurrentPosition() const;
+    virtual glm::vec2 GetCurrentPosition2() const;
 
     // schedule object to delete from game
     void MarkForDeletion();
@@ -56,7 +67,7 @@ public:
     GameObject* GetParentObject() const;
     GameObject* GetAttachedObject(int index) const;
 
-    // class shortcuts
+    // Class shortcuts
     inline bool IsPedestrianClass() const { return mClassID == eGameObjectClass_Pedestrian; }
     inline bool IsProjectileClass() const { return mClassID == eGameObjectClass_Projectile; }
     inline bool IsDecorationClass() const { return mClassID == eGameObjectClass_Decoration; }
@@ -65,7 +76,7 @@ public:
     inline bool IsObstacleClass() const { return mClassID == eGameObjectClass_Obstacle; }
     inline bool IsExplosionClass() const { return mClassID == eGameObjectClass_Explosion; }
 
-    // flag shortcuts
+    // Flag shortcuts
     inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
     inline bool IsCarObjectFlag() const { return (mFlags & eGameObjectFlags_CarObject) != 0; }
     inline bool IsTrafficFlag() const { return (mFlags & eGameObjectFlags_Traffic) != 0; }

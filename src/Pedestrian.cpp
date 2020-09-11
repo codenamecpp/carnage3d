@@ -38,6 +38,8 @@ Pedestrian::~Pedestrian()
 
 void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
+    GameObject::Spawn(position, heading);
+
     mCurrentStateTime = 0.0f;
     mWeaponRechargeTime = 0.0f;
     mBurnStartTime = 0.0f;
@@ -243,6 +245,16 @@ bool Pedestrian::ReceiveDamage(const DamageInfo& damageInfo)
     PedestrianStateEvent evData { ePedestrianStateEvent_ReceiveDamage };
     evData.mDamageInfo = damageInfo;
     return mStatesManager.ProcessEvent(evData);
+}
+
+glm::vec3 Pedestrian::GetCurrentPosition() const
+{
+    return mPhysicsBody->GetPosition();
+}
+
+glm::vec2 Pedestrian::GetCurrentPosition2() const
+{
+    return mPhysicsBody->GetPosition2();
 }
 
 void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode)
@@ -462,19 +474,14 @@ void Pedestrian::SetDrawOrder(eSpriteDrawOrder drawOrder)
     mDrawSprite.mDrawOrder = drawOrder;
 }
 
-glm::ivec3 Pedestrian::GetLogicalPosition() const
-{ 
-    return Convert::MetersToMapUnits(mPhysicsBody->GetPosition());
-}
-
-glm::ivec2 Pedestrian::GetLogicalPosition2() const
-{
-    return Convert::MetersToMapUnits(mPhysicsBody->GetPosition2());
-}
-
 bool Pedestrian::IsOnTheGround() const
 {
     return !mPhysicsBody->mFalling;
+}
+
+bool Pedestrian::IsInWater() const
+{
+    return mPhysicsBody->mWaterContact;
 }
 
 void Pedestrian::PutInsideCar(Vehicle* car, eCarSeat carSeat)

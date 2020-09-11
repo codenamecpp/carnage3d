@@ -13,10 +13,6 @@ Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc)
     }
 }
 
-Decoration::~Decoration()
-{
-}
-
 void Decoration::PreDrawFrame()
 {
 }
@@ -39,8 +35,20 @@ void Decoration::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
+glm::vec3 Decoration::GetCurrentPosition() const
+{
+    return mSpawnPosition;
+}
+
+glm::vec2 Decoration::GetCurrentPosition2() const
+{
+    return {mSpawnPosition.x, mSpawnPosition.z};
+}
+
 void Decoration::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
+    GameObject::Spawn(position, heading);
+
     SetTransform(position, heading);
 
     mAnimationState.ClearState();
@@ -56,8 +64,8 @@ void Decoration::SetLifeDuration(int numCycles)
 
 void Decoration::SetTransform(const glm::vec3& position, cxx::angle_t heading)
 {
-    mPosition = position;
-    mRotation = heading;
+    mSpawnPosition = position;
+    mSpawnHeading = heading;
 
     cxx::angle_t decoRotation = heading - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 

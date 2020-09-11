@@ -13,19 +13,19 @@ public:
     WeaponInfo* mWeaponInfo = nullptr;
     ProjectilePhysicsBody* mPhysicsBody = nullptr;
     
-    glm::vec3 mStartPosition;
-
 public:
-    Projectile();
+    Projectile(WeaponInfo* weaponInfo);
     ~Projectile();
 
     // override GameObject
     void UpdateFrame() override;
     void PreDrawFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
+    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
 
-    // Setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation, WeaponInfo* weaponInfo);
+    // Current world position
+    glm::vec3 GetCurrentPosition() const override;
+    glm::vec2 GetCurrentPosition2() const override;
 
     // @param gameObject: null if contacting with map
     void SetContactDetected(const glm::vec3& position, GameObject* gameObject);

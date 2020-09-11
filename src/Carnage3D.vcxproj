@@ -156,6 +156,7 @@
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiManager.h" />
     <ClInclude Include="Box2D_Helpers.h" />
+    <ClInclude Include="BroadcastEventsManager.h" />
     <ClInclude Include="common_utils.h" />
     <ClInclude Include="Convert.h" />
     <ClInclude Include="DamageInfo.h" />
@@ -260,6 +261,7 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
+    <ClCompile Include="BroadcastEventsManager.cpp" />
     <ClCompile Include="CommonTypes.cpp" />
     <ClCompile Include="DamageInfo.cpp" />
     <ClCompile Include="Decoration.cpp" />

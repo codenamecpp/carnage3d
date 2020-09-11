@@ -53,6 +53,11 @@ private:
     bool ContinueDriveToWaypoint();
     void StopDriving();
 
+    // utility
+    bool ScanForThreats();
+    bool ScanForGunshots();
+    bool ScanForExplosions();
+
 private:
     ePedestrianAiMode mAiMode = ePedestrianAiMode_None;
     ePedestrianAiState mAiState = ePedestrianAiState_Idle;

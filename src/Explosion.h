@@ -8,22 +8,28 @@ class Explosion final: public GameObject
   
 public:
     Explosion(GameObjectID id);
-    ~Explosion();
 
     // override GameObject
     void PreDrawFrame() override;
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
+    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
 
-    // Setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& startPosition);
+    // Current world position
+    glm::vec3 GetCurrentPosition() const override;
+    glm::vec2 GetCurrentPosition2() const override;
 
     // Disable primary of secondary damage of explosion
     void DisablePrimaryDamage();
     void DisableSecondaryDamage();
 
+    // Set if it was car explosion
+    void SetIsCarExplosion(Vehicle* carObject);
+
     // Test whether explosion did its damage and can't hurt
     bool IsDamageDone() const;
+
+    bool IsCarExplosion() const;
 
 private:
     void ProcessPrimaryDamage();
@@ -31,8 +37,7 @@ private:
 
 private:
     SpriteAnimation mAnimationState;
-    glm::vec3 mExplosionEpicentre;
-   
+    bool mIsCarExplosion = false;
     bool mPrimaryDamageDone = false;
     bool mSecondaryDamageDone = false;
 };

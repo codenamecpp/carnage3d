@@ -7,6 +7,9 @@
 #include "Sprite2D.h"
 #include "PedestrianStates.h"
 
+// Define weak pointer to pedestrian object instance
+using PedestrianHandle = cxx::handle<Pedestrian>;
+
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
     , public cxx::handled_object<Pedestrian>
@@ -48,13 +51,15 @@ public:
     void UpdateFrame() override;
     void PreDrawFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
+    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
 
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
 
-    // setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& startPosition, cxx::angle_t startRotation);
+    // Current world position
+    glm::vec3 GetCurrentPosition() const override;
+    glm::vec2 GetCurrentPosition2() const override;
 
     // set current weapon type
     void ChangeWeapon(eWeaponID weapon);
@@ -88,12 +93,11 @@ public:
     bool IsBurn() const;
     bool IsOnTheGround() const;
 
+    // Whether pedestrian is fall in water
+    bool IsInWater() const;
+
     // Detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
-
-    // Get current logical position ie the map block where is ped located
-    glm::ivec3 GetLogicalPosition() const;
-    glm::ivec2 GetLogicalPosition2() const;
 
 private:
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);

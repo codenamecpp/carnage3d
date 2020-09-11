@@ -4,6 +4,7 @@
 #include "PhysicsComponents.h"
 #include "CarnageGame.h"
 #include "DebugRenderer.h"
+#include "BroadcastEventsManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +126,50 @@ void AiCharacterController::SetLemmingBehavior(bool canSuicide)
     mIsLemmingBehavior = canSuicide;
 }
 
+bool AiCharacterController::ScanForThreats()
+{
+    if (ScanForGunshots())
+        return true;
+
+    if (ScanForExplosions())
+        return true;
+
+    return false;
+}
+
+bool AiCharacterController::ScanForExplosions()
+{
+    float reactionDistance2 = glm::pow(gGameParams.mAiReactOnExplosionsDistance, 2.0f);
+
+    BroadcastEvent eventData;
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_Explosion, mCharacter->GetCurrentPosition2(), eventData))
+    {
+        if (glm::distance2(eventData.mPosition, mCharacter->GetCurrentPosition2()) > reactionDistance2) // too far away
+            return false;
+
+        return true;
+    }
+    return false;
+}
+
+bool AiCharacterController::ScanForGunshots()
+{
+    float reactionDistance2 = glm::pow(gGameParams.mAiReactOnGunshotsDistance, 2.0f);
+
+    BroadcastEvent eventData;
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_GunShot, mCharacter->GetCurrentPosition2(), eventData))
+    {
+        if (eventData.mCharacter == mCharacter) // hear own gunshots
+            return false; 
+
+        if (glm::distance2(eventData.mPosition, mCharacter->GetCurrentPosition2()) > reactionDistance2) // too far away
+            return false;
+
+        return true;
+    }
+    return false;
+}
+
 void AiCharacterController::UpdateFrame()
 {
     // choose current activity
@@ -200,6 +245,12 @@ void AiCharacterController::UpdatePanic()
 
 void AiCharacterController::UpdateWandering()
 {
+    if (ScanForThreats())
+    {
+        StartPanic();
+        return;
+    }
+
     if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
 
@@ -249,7 +300,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
         GetMapDirectionOpposite(currentMapDirection)
     };
 
-    glm::ivec3 currentLogPos = mCharacter->GetLogicalPosition();
+    glm::ivec3 currentLogPos = Convert::MetersToMapUnits(mCharacter->GetCurrentPosition());
     glm::ivec3 newWayPoint (0, 0, 0);
     for (eMapDirection curr: moveDirs)
     {
@@ -411,6 +462,12 @@ void AiCharacterController::StartFollowTarget()
 
 void AiCharacterController::UpdateFollowTarget()
 {
+    if (ScanForThreats())
+    {
+        StartPanic();
+        return;
+    }
+
     if (!mFollowPedestrian || mFollowPedestrian->IsDead())
     {
         StartWandering();
@@ -434,3 +491,4 @@ void AiCharacterController::UpdateFollowTarget()
     mDestinationPoint = targetPosition2 + glm::normalize(targetPosition2 - characterPosition2) * mFollowNearDistance;
     ContinueWalkToWaypoint(mFollowNearDistance);
 }
+
