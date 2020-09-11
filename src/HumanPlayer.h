@@ -1,19 +1,20 @@
 #pragma once
 
+#include "HumanPlayerView.h"
 #include "CharacterController.h"
 #include "InputActionsMapping.h"
 
-//////////////////////////////////////////////////////////////////////////
-
-class HumanCharacterController final: public CharacterController
+// Contains human player related information but also processes character controller logic
+class HumanPlayer final: public CharacterController
 {
 public:
     // readonly
+    HumanPlayerView mPlayerView;
     InputActionsMapping mActionsMapping;
-
     glm::vec3 mSpawnPosition;
 
 public:
+    HumanPlayer();
     void SetCharacter(Pedestrian* character);
 
     // process controller logic
@@ -24,6 +25,9 @@ public:
     // @param inputEvent: Event data
     void InputEvent(KeyInputEvent& inputEvent);
     void InputEvent(GamepadInputEvent& inputEvent);
+    void InputEvent(MouseButtonInputEvent& inputEvent);
+    void InputEvent(MouseMovedInputEvent& inputEvent);
+    void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEventLost();
 
 private:
@@ -38,6 +42,6 @@ private:
     bool GetActionState(eInputAction action) const;
 
 private:
-    float mRespawnTime;
+    float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;
 };

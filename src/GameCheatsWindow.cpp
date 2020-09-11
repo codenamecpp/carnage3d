@@ -45,7 +45,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         return;
     }
 
-    Pedestrian* playerCharacter = gCarnageGame.mHumanSlot[0].mCharPedestrian;
+    Pedestrian* playerCharacter = gCarnageGame.mHumanPlayers[0]->mCharacter;
     glm::ivec3 characterLogPos = Convert::MetersToMapUnits(playerCharacter->GetCurrentPosition());
 
     if (ImGui::BeginMenuBar())
@@ -178,13 +178,13 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         const char* modeStrings[] = { "Follow", "Free Look" };
         CameraController* modeControllers[] =
         {
-            &gCarnageGame.mHumanSlot[0].mCharView.mFollowCameraController, 
-            &gCarnageGame.mHumanSlot[0].mCharView.mFreeLookCameraController,
+            &gCarnageGame.mHumanPlayers[0]->mPlayerView.mFollowCameraController, 
+            &gCarnageGame.mHumanPlayers[0]->mPlayerView.mFreeLookCameraController,
         }; 
         int currentCameraMode = 0;
         for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
         {
-            if (gCarnageGame.mHumanSlot[0].mCharView.mCameraController == modeControllers[i])
+            if (gCarnageGame.mHumanPlayers[0]->mPlayerView.mCameraController == modeControllers[i])
             {
                 currentCameraMode = i;
                 break;
@@ -199,7 +199,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 if (ImGui::Selectable(modeStrings[n], is_selected))
                 {
                     currentCameraMode = n;
-                    gCarnageGame.mHumanSlot[0].mCharView.SetCameraController(modeControllers[n]);
+                    gCarnageGame.mHumanPlayers[0]->mPlayerView.SetCameraController(modeControllers[n]);
                 }
                 if (is_selected)
                 {

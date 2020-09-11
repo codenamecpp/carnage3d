@@ -23,9 +23,9 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
-    gGameCheatsWindow.mWindowShown = true; // show by default
+    ::memset(mHumanPlayers, 0, sizeof(mHumanPlayers));
 
-    SetInputActionsFromConfig();
+    gGameCheatsWindow.mWindowShown = true; // show by default
 
     gGameParams.SetToDefaults();
 
@@ -86,11 +86,10 @@ void CarnageGame::UpdateFrame()
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.UpdateFrame();
-        mHumanSlot[ihuman].mCharView.UpdateFrame();
+        mHumanPlayers[ihuman]->UpdateFrame();
     }
 
     gTrafficManager.UpdateFrame();
@@ -102,11 +101,10 @@ void CarnageGame::InputEventLost()
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.InputEventLost();
-        mHumanSlot[ihuman].mCharView.InputEventLost();
+        mHumanPlayers[ihuman]->InputEventLost();
     }
 }
 
@@ -137,11 +135,10 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
-        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanPlayers[ihuman]->InputEvent(inputEvent);
     }
 }
 
@@ -149,10 +146,10 @@ void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanPlayers[ihuman]->InputEvent(inputEvent);
     }
 }
 
@@ -160,10 +157,10 @@ void CarnageGame::InputEvent(MouseMovedInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanPlayers[ihuman]->InputEvent(inputEvent);
     }
 }
 
@@ -171,10 +168,10 @@ void CarnageGame::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharView.InputEvent(inputEvent);
+        mHumanPlayers[ihuman]->InputEvent(inputEvent);
     }
 }
 
@@ -186,10 +183,10 @@ void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
 {
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
+        if (mHumanPlayers[ihuman] == nullptr)
             continue;
 
-        mHumanSlot[ihuman].mCharController.InputEvent(inputEvent);
+        mHumanPlayers[ihuman]->InputEvent(inputEvent);
     }
 }
 
@@ -198,11 +195,14 @@ bool CarnageGame::SetInputActionsFromConfig()
     // force default mapping for first player
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        HumanCharacterSlot& currentChar = mHumanSlot[ihuman];
-        currentChar.mCharController.mActionsMapping.Clear();
+        HumanPlayer* currentPlayer = mHumanPlayers[ihuman];
+        if (currentPlayer == nullptr)
+            continue;
+
+        currentPlayer->mActionsMapping.Clear();
         if (ihuman == 0) 
         {
-            currentChar.mCharController.mActionsMapping.SetDefaults();
+            currentPlayer->mActionsMapping.SetDefaults();
         }  
     }
 
@@ -217,43 +217,65 @@ bool CarnageGame::SetInputActionsFromConfig()
     std::string tempString;
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        HumanCharacterController& currentChar = mHumanSlot[ihuman].mCharController;
+        HumanPlayer* currentPlayer = mHumanPlayers[ihuman];
+        if (currentPlayer == nullptr)
+            continue;
 
         tempString = cxx::va("player%d", ihuman + 1);
 
         cxx::json_document_node rootNode = configDocument.get_root_node();
         cxx::json_document_node configNode = rootNode[tempString];
-        currentChar.mActionsMapping.LoadConfig(configNode);
+        currentPlayer->mActionsMapping.LoadConfig(configNode);
     }
 
     return true;
 }
 
-void CarnageGame::SetupHumanCharacter(int humanIndex, Pedestrian* pedestrian)
+void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
 {
-    // todo: what a mess!
+    if (mHumanPlayers[humanIndex])
+    {
+        debug_assert(false);
+        return;
+    }
 
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
-    debug_assert(mHumanSlot[humanIndex].mCharPedestrian == nullptr);
-    if (mHumanSlot[humanIndex].mCharPedestrian)
-        return;
 
     if (humanIndex > 0)
     {
         pedestrian->mRemapIndex = humanIndex - 1;
     }
-    mHumanSlot[humanIndex].mCharController.mSpawnPosition = pedestrian->mPhysicsBody->GetPosition();
-    mHumanSlot[humanIndex].mCharPedestrian = pedestrian;
-    mHumanSlot[humanIndex].mCharController.SetCharacter(pedestrian);
-    mHumanSlot[humanIndex].mCharView.mFollowCameraController.SetFollowTarget(pedestrian);
-    mHumanSlot[humanIndex].mCharView.mHUD.Setup(pedestrian);
+
+    HumanPlayer* humanPlayer = new HumanPlayer;
+    mHumanPlayers[humanIndex] = humanPlayer;
+
+    humanPlayer->mSpawnPosition = pedestrian->GetCurrentPosition();
+    humanPlayer->mPlayerView.mFollowCameraController.SetFollowTarget(pedestrian);
+    humanPlayer->mPlayerView.mHUD.Setup(pedestrian);
+    humanPlayer->SetCharacter(pedestrian);
 }
 
-void CarnageGame::SetupScreenLayout(int playersCount)
+void CarnageGame::DeleteHumanPlayer(int playerIndex)
+{
+    debug_assert(playerIndex < GAME_MAX_PLAYERS);
+
+    if (mHumanPlayers[playerIndex])
+    {
+        gRenderManager.DetachRenderView(&mHumanPlayers[playerIndex]->mPlayerView);
+        mHumanPlayers[playerIndex]->SetCharacter(nullptr);
+        mHumanPlayers[playerIndex]->mPlayerView.SetCameraController(nullptr);
+
+        SafeDelete(mHumanPlayers[playerIndex]);
+    }
+}
+
+void CarnageGame::SetupScreenLayout()
 {   
-    // todo: what a mess
     const int MaxCols = 2;
+    const int playersCount = GetHumanPlayersCount();
+
+    debug_assert(playersCount > 0);
 
     Rect fullViewport = gGraphicsDevice.mViewportRect;
 
@@ -264,6 +286,8 @@ void CarnageGame::SetupScreenLayout(int playersCount)
 
     for (int icurr = 0; icurr < playersCount; ++icurr)
     {
+        debug_assert(mHumanPlayers[icurr]);
+
         int currRow = icurr / MaxCols;
         int currCol = icurr % MaxCols;
 
@@ -271,21 +295,27 @@ void CarnageGame::SetupScreenLayout(int playersCount)
         debug_assert(colsOnCurrentRow);
         int frameSizePerW = fullViewport.w / colsOnCurrentRow;
         
-        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.h = frameSizePerH;
-        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
-        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
-        mHumanSlot[icurr].mCharView.mCamera.mViewportRect.w = frameSizePerW;
+        HumanPlayerView& currView = mHumanPlayers[icurr]->mPlayerView;
+        currView.mCamera.mViewportRect.h = frameSizePerH;
+        currView.mCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
+        currView.mCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
+        currView.mCamera.mViewportRect.w = frameSizePerW;
  
-        mHumanSlot[icurr].mCharView.SetCameraController(&mHumanSlot[icurr].mCharView.mFollowCameraController);
-        gRenderManager.AttachRenderView(&mHumanSlot[icurr].mCharView);
+        currView.SetCameraController(&currView.mFollowCameraController);
+        gRenderManager.AttachRenderView(&currView);
     }
 }
 
-int CarnageGame::GetPlayerIndex(const HumanCharacterController* controller) const
+int CarnageGame::GetHumanPlayerIndex(const HumanPlayer* controller) const
 {
+    if (controller == nullptr)
+    {
+        debug_assert(false);
+        return -1;
+    }
     for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
     {
-        if (&mHumanSlot[icurr].mCharController == controller)
+        if (mHumanPlayers[icurr] == controller)
             return icurr;
     }
     return -1;
@@ -329,17 +359,17 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
 
-    mNumPlayers = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
-    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", mNumPlayers);
+    int humanPlayersCount = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
+    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", humanPlayersCount);
 
     glm::vec3 pos[GAME_MAX_PLAYERS];
 
     // choose spawn point
     // it is temporary!
     int currFindPosIter = 0;
-    for (int yBlock = 10; yBlock < 20 && currFindPosIter < mNumPlayers; ++yBlock)
+    for (int yBlock = 10; yBlock < 20 && currFindPosIter < humanPlayersCount; ++yBlock)
     {
-        for (int xBlock = 10; xBlock < 20 && currFindPosIter < mNumPlayers; ++xBlock)
+        for (int xBlock = 10; xBlock < 20 && currFindPosIter < humanPlayersCount; ++xBlock)
         {
             for (int zBlock = MAP_LAYERS_COUNT - 1; zBlock > -1; --zBlock)
             {
@@ -355,31 +385,26 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         }
     }
 
-    for (int icurr = 0; icurr < mNumPlayers; ++icurr)
+    for (int icurr = 0; icurr < humanPlayersCount; ++icurr)
     {
         float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
 
         Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
-        SetupHumanCharacter(icurr, pedestrian);
+        SetupHumanPlayer(icurr, pedestrian);
     }
-    gTrafficManager.StartupTraffic();
 
-    SetupScreenLayout(mNumPlayers);
+    SetInputActionsFromConfig();
+    SetupScreenLayout();
+
+    gTrafficManager.StartupTraffic();
     return true;
 }
 
 void CarnageGame::ShutdownCurrentScenario()
 {
-    // todo: cleanup
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
-        if (mHumanSlot[ihuman].mCharPedestrian == nullptr)
-            continue;
-
-        gRenderManager.DetachRenderView(&mHumanSlot[ihuman].mCharView);
-        mHumanSlot[ihuman].mCharController.SetCharacter(nullptr);
-        mHumanSlot[ihuman].mCharView.SetCameraController(nullptr);
-        mHumanSlot[ihuman].mCharPedestrian = nullptr;
+        DeleteHumanPlayer(ihuman);
     }
     gAiManager.ReleaseAiControllers();
     gTrafficManager.CleanupTraffic();
@@ -387,4 +412,17 @@ void CarnageGame::ShutdownCurrentScenario()
     gPhysics.FreePhysicsWorld();
     gGameMap.Cleanup();
     gBroadcastEvents.ClearEvents();
+}
+
+int CarnageGame::GetHumanPlayersCount() const
+{
+    int playersCounter = 0;
+    for (HumanPlayer* currPlayer: mHumanPlayers)
+    {
+        if (currPlayer)
+        {
+            ++playersCounter;
+        }
+    }
+    return playersCounter;
 }

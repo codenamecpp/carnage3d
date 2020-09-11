@@ -51,11 +51,13 @@ void GuiManager::RenderFrame()
             .Disable(RenderStateFlags_DepthTest);
         gGraphicsDevice.SetRenderStates(guiRenderStates);
 
-        for (int icurr = 0; icurr < gCarnageGame.mNumPlayers; ++icurr)
+        for (HumanPlayer* currPlayer: gCarnageGame.mHumanPlayers)
         {   
-            CarnageGame::HumanCharacterSlot& currPlayer = gCarnageGame.mHumanSlot[icurr];
+            if (currPlayer == nullptr)
+                continue;
+
             mCamera2D.SetIdentity();
-            mCamera2D.mViewportRect = currPlayer.mCharView.mCamera.mViewportRect;
+            mCamera2D.mViewportRect = currPlayer->mPlayerView.mCamera.mViewportRect;
             mCamera2D.SetProjection(0.0f, mCamera2D.mViewportRect.w * 1.0f, mCamera2D.mViewportRect.h * 1.0f, 0.0f);
 
             gGraphicsDevice.SetViewportRect(mCamera2D.mViewportRect);
@@ -64,7 +66,7 @@ void GuiManager::RenderFrame()
             gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(mCamera2D);
 
             GuiContext uiContext ( mCamera2D, mSpriteBatch );
-            currPlayer.mCharView.mHUD.DrawFrame(uiContext);
+            currPlayer->mPlayerView.mHUD.DrawFrame(uiContext);
             mSpriteBatch.Flush();
         }
 

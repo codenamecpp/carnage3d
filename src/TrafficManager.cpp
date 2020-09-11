@@ -64,15 +64,15 @@ void TrafficManager::GeneratePeds()
     if (!gGameCheatsWindow.mEnableTrafficPedsGeneration)
         return;
 
-    for (auto& currentSlot: gCarnageGame.mHumanSlot)
+    for (HumanPlayer* humanPlayer: gCarnageGame.mHumanPlayers)
     {   
-        if (currentSlot.mCharPedestrian == nullptr)
+        if (humanPlayer == nullptr)
             continue;
 
-        int generatePedsCount = GetPedsToGenerateCount(currentSlot.mCharView);
+        int generatePedsCount = GetPedsToGenerateCount(humanPlayer->mPlayerView);
         if (generatePedsCount > 0)
         {
-            GenerateTrafficPeds(generatePedsCount, currentSlot.mCharView);
+            GenerateTrafficPeds(generatePedsCount, humanPlayer->mPlayerView);
         }
     }
 }
@@ -91,12 +91,12 @@ void TrafficManager::RemoveOffscreenPeds()
             continue;
 
         bool isOnScreen = false;
-        for (auto& currentSlot: gCarnageGame.mHumanSlot)
+        for (HumanPlayer* humanPlayer: gCarnageGame.mHumanPlayers)
         {   
-            if (currentSlot.mCharPedestrian == nullptr)
+            if (humanPlayer == nullptr)
                 continue;
 
-            cxx::aabbox2d_t onScreenArea = currentSlot.mCharView.mOnScreenArea;
+            cxx::aabbox2d_t onScreenArea = humanPlayer->mPlayerView.mOnScreenArea;
             onScreenArea.mMax.x += offscreenDistance;
             onScreenArea.mMax.y += offscreenDistance;
             onScreenArea.mMin.x -= offscreenDistance;
@@ -302,15 +302,15 @@ void TrafficManager::GenerateCars()
     if (!gGameCheatsWindow.mEnableTrafficCarsGeneration)
         return;
 
-    for (auto& currentSlot: gCarnageGame.mHumanSlot)
+    for (HumanPlayer* humanPlayer: gCarnageGame.mHumanPlayers)
     {   
-        if (currentSlot.mCharPedestrian == nullptr)
+        if (humanPlayer == nullptr)
             continue;
 
-        int generateCarsCount = GetCarsToGenerateCount(currentSlot.mCharView);
+        int generateCarsCount = GetCarsToGenerateCount(humanPlayer->mPlayerView);
         if (generateCarsCount > 0)
         {
-            GenerateTrafficCars(generateCarsCount, currentSlot.mCharView);
+            GenerateTrafficCars(generateCarsCount, humanPlayer->mPlayerView);
         }
     }
 }
@@ -412,12 +412,12 @@ void TrafficManager::RemoveOffscreenCars()
             continue;
 
         bool isOnScreen = false;
-        for (auto& currentSlot: gCarnageGame.mHumanSlot)
+        for (HumanPlayer* humanPlayer: gCarnageGame.mHumanPlayers)
         {   
-            if (currentSlot.mCharPedestrian == nullptr)
+            if (humanPlayer == nullptr)
                 continue;
 
-            cxx::aabbox2d_t onScreenArea = currentSlot.mCharView.mOnScreenArea;
+            cxx::aabbox2d_t onScreenArea = humanPlayer->mPlayerView.mOnScreenArea;
             onScreenArea.mMax.x += offscreenDistance;
             onScreenArea.mMax.y += offscreenDistance;
             onScreenArea.mMin.x -= offscreenDistance;

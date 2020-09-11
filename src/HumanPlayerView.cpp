@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "HumanCharacterView.h"
+#include "HumanPlayerView.h"
 
-void HumanCharacterView::UpdateFrame()
+void HumanPlayerView::UpdateFrame()
 {
     if (mCameraController)
     {
@@ -12,7 +12,7 @@ void HumanCharacterView::UpdateFrame()
     mHUD.UpdateFrame();
 }
 
-void HumanCharacterView::InputEvent(KeyInputEvent& inputEvent)
+void HumanPlayerView::InputEvent(KeyInputEvent& inputEvent)
 {
     if (mCameraController)
     {
@@ -20,7 +20,7 @@ void HumanCharacterView::InputEvent(KeyInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterView::InputEvent(MouseButtonInputEvent& inputEvent)
+void HumanPlayerView::InputEvent(MouseButtonInputEvent& inputEvent)
 {
     if (mCameraController)
     {
@@ -28,7 +28,7 @@ void HumanCharacterView::InputEvent(MouseButtonInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterView::InputEvent(MouseMovedInputEvent& inputEvent)
+void HumanPlayerView::InputEvent(MouseMovedInputEvent& inputEvent)
 {
     if (mCameraController)
     {
@@ -36,7 +36,7 @@ void HumanCharacterView::InputEvent(MouseMovedInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterView::InputEvent(MouseScrollInputEvent& inputEvent)
+void HumanPlayerView::InputEvent(MouseScrollInputEvent& inputEvent)
 {
     if (mCameraController)
     {
@@ -44,7 +44,7 @@ void HumanCharacterView::InputEvent(MouseScrollInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterView::InputEventLost()
+void HumanPlayerView::InputEventLost()
 {
     if (mCameraController)
     {
@@ -52,7 +52,7 @@ void HumanCharacterView::InputEventLost()
     }
 }
 
-void HumanCharacterView::SetCameraController(CameraController* controller)
+void HumanPlayerView::SetCameraController(CameraController* controller)
 {
     if (mCameraController == controller)
         return;

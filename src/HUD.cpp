@@ -243,8 +243,8 @@ void HUD::UpdatePanelsLayout(const Rect& viewportRect)
     // setup weapon panel
     if (mWeaponPanel.IsPanelVisible())
     {
-        position.x = viewportRect.x + 10;
-        position.y = viewportRect.y + 10;
+        position.x = 10;
+        position.y = 10;
         mWeaponPanel.SetPanelPosition(position);
         mWeaponPanel.UpdatePanelSize(maxSize);
     }

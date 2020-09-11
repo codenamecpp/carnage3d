@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "HumanCharacterController.h"
+#include "HumanPlayer.h"
 #include "Pedestrian.h"
 #include "PhysicsManager.h"
 #include "PhysicsComponents.h"
@@ -9,21 +9,25 @@
 #include "CarnageGame.h"
 #include "TimeManager.h"
 
-static const float PlayerCharacterRespawnTime = 10.0f;
-
-void HumanCharacterController::UpdateFrame()
+HumanPlayer::HumanPlayer()
 {
+}
+
+void HumanPlayer::UpdateFrame()
+{
+    mPlayerView.UpdateFrame();
+
     if (mCharacter->IsDead())
     {
         // detect death
         if (mRespawnTime == 0.0f)
         {
-            mRespawnTime = PlayerCharacterRespawnTime;
+            mRespawnTime = gGameParams.mGamePlayerRespawnTime;
 
-            int playerIndex = gCarnageGame.GetPlayerIndex(this);
+            int playerIndex = gCarnageGame.GetHumanPlayerIndex(this);
             gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", (playerIndex + 1), cxx::enum_to_string(mCharacter->mDeathReason));
             // todo: cleanup this mess
-            gCarnageGame.mHumanSlot[playerIndex].mCharView.mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
+            mPlayerView.mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
         }
 
         float deltaTime = gTimeManager.mGameFrameDelta;
@@ -37,9 +41,26 @@ void HumanCharacterController::UpdateFrame()
     ProcessRepetitiveActions();
 }
 
-void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
+void HumanPlayer::InputEvent(MouseButtonInputEvent& inputEvent)
+{
+    mPlayerView.InputEvent(inputEvent);
+}
+
+void HumanPlayer::InputEvent(MouseMovedInputEvent& inputEvent)
+{
+    mPlayerView.InputEvent(inputEvent);
+}
+
+void HumanPlayer::InputEvent(MouseScrollInputEvent& inputEvent)
+{
+    mPlayerView.InputEvent(inputEvent);
+}
+
+void HumanPlayer::InputEvent(KeyInputEvent& inputEvent)
 {
     debug_assert(mCharacter);
+
+    mPlayerView.InputEvent(inputEvent);
 
     eInputActionsGroup actionGroup = mCharacter->IsCarPassenger() ? eInputActionsGroup_InCar : eInputActionsGroup_OnFoot;
     eInputAction action = mActionsMapping.GetAction(actionGroup, inputEvent.mKeycode);
@@ -56,7 +77,7 @@ void HumanCharacterController::InputEvent(KeyInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
+void HumanPlayer::InputEvent(GamepadInputEvent& inputEvent)
 {
     debug_assert(mCharacter);
 
@@ -78,8 +99,10 @@ void HumanCharacterController::InputEvent(GamepadInputEvent& inputEvent)
     }
 }
 
-void HumanCharacterController::InputEventLost()
+void HumanPlayer::InputEventLost()
 {
+    mPlayerView.InputEventLost();
+
     if (mCharacter)
     {
         // reset actions
@@ -89,7 +112,7 @@ void HumanCharacterController::InputEventLost()
     mUpdateInputs = false;
 }
 
-void HumanCharacterController::ProcessInputAction(eInputAction action, bool isActivated)
+void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
 {    
     PedestrianCtlState& ctlState = mCharacter->mCtlState;
     switch (action)
@@ -151,7 +174,7 @@ void HumanCharacterController::ProcessInputAction(eInputAction action, bool isAc
     mUpdateInputs = true;
 }
 
-void HumanCharacterController::SetCharacter(Pedestrian* character)
+void HumanPlayer::SetCharacter(Pedestrian* character)
 {
     if (mCharacter)
     {
@@ -165,7 +188,7 @@ void HumanCharacterController::SetCharacter(Pedestrian* character)
     }
 }
 
-void HumanCharacterController::SwitchNextWeapon()
+void HumanPlayer::SwitchNextWeapon()
 {
     int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
@@ -179,7 +202,7 @@ void HumanCharacterController::SwitchNextWeapon()
     }
 }
 
-void HumanCharacterController::SwitchPrevWeapon()
+void HumanPlayer::SwitchPrevWeapon()
 {
     int nextWeaponIndex = mCharacter->mCurrentWeapon == 0 ? (eWeapon_COUNT - 1) : (mCharacter->mCurrentWeapon - 1);
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
@@ -193,7 +216,7 @@ void HumanCharacterController::SwitchPrevWeapon()
     }
 }
 
-void HumanCharacterController::EnterOrExitCar(bool alternative)
+void HumanPlayer::EnterOrExitCar(bool alternative)
 {
     if (mCharacter->IsCarPassenger())
     {
@@ -225,7 +248,7 @@ void HumanCharacterController::EnterOrExitCar(bool alternative)
     }
 }
 
-void HumanCharacterController::Respawn()
+void HumanPlayer::Respawn()
 {
     mRespawnTime = 0.0f;
 
@@ -234,7 +257,7 @@ void HumanCharacterController::Respawn()
     mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsBody->GetRotationAngle());
 }
 
-void HumanCharacterController::ProcessRepetitiveActions()
+void HumanPlayer::ProcessRepetitiveActions()
 {
     if (!mUpdateInputs)
         return;
@@ -281,7 +304,7 @@ void HumanCharacterController::ProcessRepetitiveActions()
     }
 }
 
-bool HumanCharacterController::GetActionState(eInputAction action) const
+bool HumanPlayer::GetActionState(eInputAction action) const
 {
     const auto& mapping = mActionsMapping.mActionToKeys[action];
     if (mapping.mKeycode != eKeycode_null)
@@ -297,7 +320,8 @@ bool HumanCharacterController::GetActionState(eInputAction action) const
     return false;
 }
 
-void HumanCharacterController::DeactivateConstroller()
+void HumanPlayer::DeactivateConstroller()
 {
     // do nothing
 }
+

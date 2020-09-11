@@ -12,6 +12,9 @@ public:
     void SetToDefaults();
 
 public:
+    // game - commons
+    float mGamePlayerRespawnTime; // respawn time, seconds
+
     // pedestrians
     float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters
     float mPedestrianTurnSpeed; // degrees per second

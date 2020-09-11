@@ -56,9 +56,6 @@
     <Filter Include="Game\GameObjects">
       <UniqueIdentifier>{ae34c99f-5276-4124-8830-00d7d601efca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\CharacterControllers">
-      <UniqueIdentifier>{73f4101e-aaab-49ec-b0d3-a05f5ee7c929}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\DebugWindows">
       <UniqueIdentifier>{e0f94144-2eda-4062-a81c-663d85aba012}</UniqueIdentifier>
     </Filter>
@@ -250,12 +247,6 @@
     <ClInclude Include="MapRenderer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="CharacterController.h">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="HumanCharacterController.h">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClInclude>
     <ClInclude Include="PedestrianStates.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
@@ -285,9 +276,6 @@
     </ClInclude>
     <ClInclude Include="RenderView.h">
       <Filter>Game\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="HumanCharacterView.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="GameParams.h">
       <Filter>Game</Filter>
@@ -378,6 +366,15 @@
       <Filter>Game\GUI</Filter>
     </ClInclude>
     <ClInclude Include="BroadcastEventsManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanPlayer.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanPlayerView.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
@@ -503,12 +500,6 @@
     <ClCompile Include="MapRenderer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="CharacterController.cpp">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="HumanCharacterController.cpp">
-      <Filter>Game\CharacterControllers</Filter>
-    </ClCompile>
     <ClCompile Include="PedestrianStates.cpp">
       <Filter>Game\GameObjects</Filter>
     </ClCompile>
@@ -530,9 +521,6 @@
     </ClCompile>
     <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="HumanCharacterView.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="RenderView.cpp">
       <Filter>Game\Rendering</Filter>
@@ -601,6 +589,15 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="BroadcastEventsManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanPlayer.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanPlayerView.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterController.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,6 +12,9 @@ void GameParams::SetToDefaults()
 {
     // todo: move to config
 
+    // game - commons
+    mGamePlayerRespawnTime = 6.0f;
+
     // pedestrians
     mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);
     mPedestrianTurnSpeed = 260.0f;

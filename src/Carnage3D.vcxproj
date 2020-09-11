@@ -168,7 +168,8 @@
     <ClInclude Include="game_version.h" />
     <ClInclude Include="GuiDefs.h" />
     <ClInclude Include="HUD.h" />
-    <ClInclude Include="HumanCharacterView.h" />
+    <ClInclude Include="HumanPlayerView.h" />
+    <ClInclude Include="HumanPlayer.h" />
     <ClInclude Include="InputActionsMapping.h" />
     <ClInclude Include="InputsDefs.h" />
     <ClInclude Include="iostream_utils.h" />
@@ -191,7 +192,6 @@
     <ClInclude Include="GameMapHelpers.h" />
     <ClInclude Include="MapRenderer.h" />
     <ClInclude Include="GameMapManager.h" />
-    <ClInclude Include="HumanCharacterController.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RenderView.h" />
     <ClInclude Include="rtti.h" />
@@ -273,9 +273,10 @@
     <ClCompile Include="GameObjectsManager.cpp" />
     <ClCompile Include="GameTextsManager.cpp" />
     <ClCompile Include="HUD.cpp" />
-    <ClCompile Include="HumanCharacterView.cpp" />
+    <ClCompile Include="HumanPlayerView.cpp" />
     <ClCompile Include="GpuBufferTexture.cpp" />
     <ClCompile Include="CharacterController.cpp" />
+    <ClCompile Include="HumanPlayer.cpp" />
     <ClCompile Include="InputActionsMapping.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="mem_allocators.cpp" />
@@ -286,7 +287,6 @@
     <ClCompile Include="FreeLookCameraController.cpp" />
     <ClCompile Include="GameMapHelpers.cpp" />
     <ClCompile Include="GameMapManager.cpp" />
-    <ClCompile Include="HumanCharacterController.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RenderView.cpp" />
     <ClCompile Include="Sprite2D.cpp" />

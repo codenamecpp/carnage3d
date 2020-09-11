@@ -2,27 +2,14 @@
 
 #include "GameMapManager.h"
 #include "GameObjectsManager.h"
-#include "HumanCharacterController.h"
-#include "HumanCharacterView.h"
+#include "HumanPlayer.h"
 
 // top level game application controller
 class CarnageGame final: public InputEventsHandler
 {
 public:
-    // temporary
-    struct HumanCharacterSlot
-    {
-    public:
-        HumanCharacterSlot() = default;        
-    public:
-        HumanCharacterController mCharController;
-        HumanCharacterView mCharView;
-        Pedestrian* mCharPedestrian = nullptr;
-    };
-
     // gamestate
-    HumanCharacterSlot mHumanSlot[GAME_MAX_PLAYERS];
-    int mNumPlayers = 0;
+    HumanPlayer* mHumanPlayers[GAME_MAX_PLAYERS];
 
     cxx::randomizer mGameRand;
 
@@ -46,12 +33,15 @@ public:
     void InputEventLost() override;
 
     // Initialize player data
-    void SetupHumanCharacter(int playerIndex, Pedestrian* pedestrian);
-    void SetupScreenLayout(int playersCount);
+    void SetupHumanPlayer(int playerIndex, Pedestrian* pedestrian);
+    void DeleteHumanPlayer(int playerIndex);
 
-    // Get player index from human char controller
+    void SetupScreenLayout();
+
+    // Get index or human player in players list
     // @returns -1 on error
-    int GetPlayerIndex(const HumanCharacterController* controller) const;
+    int GetHumanPlayerIndex(const HumanPlayer* controller) const;
+    int GetHumanPlayersCount() const;
 
     // Debug stuff
     void DebugChangeMap(const std::string& mapName);

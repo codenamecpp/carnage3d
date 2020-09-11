@@ -6,10 +6,10 @@
 #include "RenderView.h"
 #include "HUD.h"
 
-class HumanCharacterView: public RenderView
+class HumanPlayerView: public RenderView
 {
 public:
-    HumanCharacterView() = default;
+    HumanPlayerView() = default;
 
     void UpdateFrame();
     void InputEvent(KeyInputEvent& inputEvent);
