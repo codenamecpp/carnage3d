@@ -564,15 +564,16 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
         character->mFlags = (character->mFlags | eGameObjectFlags_Traffic);
         AiCharacterController* controller = gAiManager.CreateAiController(character);
         debug_assert(controller);
+        if (controller && characterLeader == nullptr)
+        {
+            controller->EnableAiFlags(ePedestrianAiFlags_FollowHumanCharacter);
+            characterLeader = character;
+        }
         if (controller && characterPrev)
         {
             controller->SetFollowPedestrian(characterPrev);
         }
         characterPrev = character;
-        if (characterLeader == nullptr)
-        {
-            characterLeader = character;
-        }
     }
     return characterLeader;
 }

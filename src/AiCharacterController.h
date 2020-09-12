@@ -20,6 +20,15 @@ enum ePedestrianAiState
     ePedestrianAiState_WalkToLocation,
 };
 
+enum ePedestrianAiFlags
+{
+    ePedestrianAiFlags_None = 0,
+
+    ePedestrianAiFlags_LemmingBehavior = BIT(0), // can suicide
+    ePedestrianAiFlags_FollowHumanCharacter = BIT(1),
+};
+decl_enum_as_flags(ePedestrianAiFlags);
+
 // defines ai character controller
 class AiCharacterController final: public CharacterController
 {
@@ -30,7 +39,10 @@ public:
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
 
-    void SetLemmingBehavior(bool canSuicide);
+    void EnableAiFlags(ePedestrianAiFlags aiFlags);
+    void DisableAiFlags(ePedestrianAiFlags aiFlags);
+    bool HasAiFlags(ePedestrianAiFlags aiFlags) const;
+
     void SetFollowPedestrian(Pedestrian* pedestrian);
 
 private:
@@ -43,6 +55,8 @@ private:
     void StartWandering();
     void StartDrivingCar();
     void StartFollowTarget();
+
+    bool TryFollowHumanCharacterNearby();
 
     // walk/run
     bool ChooseWalkWaypoint(bool isPanic);
@@ -64,7 +78,8 @@ private:
 
     glm::vec2 mDestinationPoint;
     float mDefaultNearDistance;
-    bool mIsLemmingBehavior = true;
+    
+    ePedestrianAiFlags mAiFlags = ePedestrianAiFlags_None;
 
     PedestrianHandle mFollowPedestrian;
     float mFollowNearDistance;

@@ -121,11 +121,6 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
     debugRender.DrawLine(currpos, destpos, Color32_Red, false);
 }
 
-void AiCharacterController::SetLemmingBehavior(bool canSuicide)
-{
-    mIsLemmingBehavior = canSuicide;
-}
-
 bool AiCharacterController::ScanForThreats()
 {
     if (ScanForGunshots())
@@ -254,6 +249,13 @@ void AiCharacterController::UpdateWandering()
     if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
 
+    bool canFollowHuman = HasAiFlags(ePedestrianAiFlags_FollowHumanCharacter);
+    if (canFollowHuman)
+    {
+        if (TryFollowHumanCharacterNearby())
+            return;
+    }
+
     if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         StartPanic();
@@ -323,7 +325,8 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
                 break;
             }
 
-            if (mIsLemmingBehavior && (groundType == eGroundType_Air))
+            bool canSuicide = HasAiFlags(ePedestrianAiFlags_LemmingBehavior);
+            if (canSuicide && (groundType == eGroundType_Air))
             {
                 newWayPoint = moveBlockPos;
                 break;
@@ -490,5 +493,50 @@ void AiCharacterController::UpdateFollowTarget()
     mRunToTarget = mFollowPedestrian->IsRunning() || (distanceToTarget2 > glm::pow(mFollowFarDistance, 2.0f));
     mDestinationPoint = targetPosition2 + glm::normalize(targetPosition2 - characterPosition2) * mFollowNearDistance;
     ContinueWalkToWaypoint(mFollowNearDistance);
+}
+
+void AiCharacterController::EnableAiFlags(ePedestrianAiFlags aiFlags)
+{
+    mAiFlags = (mAiFlags | aiFlags);
+}
+
+void AiCharacterController::DisableAiFlags(ePedestrianAiFlags aiFlags)
+{
+    mAiFlags = (mAiFlags & ~aiFlags);
+}
+
+bool AiCharacterController::HasAiFlags(ePedestrianAiFlags aiFlags) const
+{
+    return (mAiFlags & aiFlags) == aiFlags;
+}
+
+bool AiCharacterController::TryFollowHumanCharacterNearby()
+{
+    float maxSignDistance = Convert::MapUnitsToMeters(0.5f);
+
+    float bestDistance2 = glm::pow(maxSignDistance, 2.0f);
+    Pedestrian* bestHumanCharacter = nullptr;
+    for (HumanPlayer* currentPlayer: gCarnageGame.mHumanPlayers)
+    {
+        if (currentPlayer == nullptr)
+            continue;
+        debug_assert(mCharacter != currentPlayer->mCharacter);
+        if (!currentPlayer->mCharacter->IsStanding())
+            continue;
+
+        float currDistance2 = glm::distance2(currentPlayer->mCharacter->GetCurrentPosition2(), mCharacter->GetCurrentPosition2());
+        if (currDistance2 > bestDistance2)
+            continue;
+
+        bestDistance2 = currDistance2;
+        bestHumanCharacter = currentPlayer->mCharacter;
+    }
+
+    if (bestHumanCharacter)
+    {
+        SetFollowPedestrian(bestHumanCharacter);
+        return true;
+    }
+    return false;
 }
 
