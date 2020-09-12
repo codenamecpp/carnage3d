@@ -41,5 +41,5 @@ public:
 
 private:
     // internals
-    static void PutBlockFace(GameMapManager& city, CityMeshData& meshData, int x, int y, int z, eBlockFace face, MapBlockInfo* blockInfo);
+    static void PutBlockFace(GameMapManager& city, CityMeshData& meshData, int x, int y, int z, eBlockFace face, const MapBlockInfo* blockInfo);
 };

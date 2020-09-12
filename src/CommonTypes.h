@@ -125,9 +125,16 @@ public:
     // test whether point is within rect
     inline bool PointWithin(const Point& point) const
     {
-        return point.x >= x && point.y >= y &&
-            point.x < (x + w - 1) &&
-            point.y < (y + h - 1);
+        if (point.x < x || point.y < y)
+            return false;
+
+        if (point.x > (x + w - 1))
+            return false;
+        
+        if (point.y > (y + h - 1))
+            return false;
+
+        return true;
     }
     // get union area of two rectangles
     inline Rect GetUnion(const Rect& rc) const

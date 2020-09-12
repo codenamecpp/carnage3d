@@ -122,6 +122,8 @@ decl_enum_strings(eSpriteDrawOrder);
 // predefined sprite indices - mapped to gta1 values, don't change
 enum
 {
+    eSpriteID_Arrow_AreaDisplayLeft = 25,
+    eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,
 };
 
@@ -747,6 +749,18 @@ enum eAccidentServise
 };
 
 decl_enum_strings(eAccidentServise);
+
+// Game map navigation data sector
+struct DistrictInfo
+{
+    std::string mDebugName; // left for debug purposes
+
+    Rect mArea; // sector area in map blocks
+        // cds cays:
+        // overlapping of areas is allowed the smaller area always has priority.
+
+    int mSampleIndex = 0; // unique index
+};
 
 // Pedestrian control actions status
 struct PedestrianCtlState

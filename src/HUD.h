@@ -92,6 +92,25 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class HUDDistrictNamePanel: public HUDPanel
+{
+public:
+    HUDDistrictNamePanel();
+    void SetMessageText(const std::string& messageText);
+    // override HUDPanel methods
+    bool SetupHUD() override;
+    void DrawFrame(GuiContext& guiContext) override;
+    void UpdatePanelSize(const Point& maxSize) override; 
+
+private:
+    Font* mMessageFont = nullptr;
+    Sprite2D mBackgroundSpriteLeftPart;
+    Sprite2D mBackgroundSpriteRightPart;
+    std::string mMessageText; // cached message text
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // In-game heads-up-display
 class HUD final: public cxx::noncopyable
 {
@@ -103,7 +122,6 @@ public:
     void DrawFrame(GuiContext& guiContext);
 
     // Show messages
-    void PushAreaNameMessage();
     void PushPagerMessage();
     void PushHelpMessage();
     void PushMissionMessage();
@@ -111,6 +129,9 @@ public:
 
     void ShowBigFontMessage(eHUDBigFontMessage messageType);
     void ShowCarNameMessage(eVehicleModel carModel);
+    
+    // Show district name where player is located now
+    void ShowDistrictNameMessage(int districtIndex);
 
     void ClearTextMessages();
 
@@ -127,4 +148,5 @@ private:
     HUDWeaponPanel mWeaponPanel;
     HUDBigFontMessage mBigFontMessage;
     HUDCarNamePanel mCarNamePanel;
+    HUDDistrictNamePanel mDistrictNamePanel;
 };

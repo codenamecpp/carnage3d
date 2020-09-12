@@ -81,7 +81,7 @@ bool GameMapManager::LoadFromFile(const std::string& filename)
     std::string styleName = cxx::va("STYLE%03d.G24", header.style_number);
 
     gConsole.LogMessage(eLogMessage_Info, "Loading style data '%s'", styleName.c_str());
-    if (!mStyleData.LoadFromFile(styleName))
+    if (!mStyleData.LoadFromFile(styleName, header.style_number))
     {
         Cleanup();
         return false;
@@ -188,22 +188,13 @@ bool GameMapManager::ReadCompressedMapData(std::istream& file, int columnLength,
     return true;
 }
 
-MapBlockInfo* GameMapManager::GetBlock(int coordx, int coordz, int layer) const
-{
-    debug_assert(layer > -1 && layer < MAP_LAYERS_COUNT);
-    debug_assert(coordx > -1 && coordx < MAP_DIMENSIONS);
-    debug_assert(coordz > -1 && coordz < MAP_DIMENSIONS);
-    // remember kids, don't try this at home!
-    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordz][coordx]);
-}
-
-MapBlockInfo* GameMapManager::GetBlockClamp(int coordx, int coordz, int layer) const
+const MapBlockInfo* GameMapManager::GetBlockInfo(int coordx, int coordz, int layer) const
 {
     layer = glm::clamp(layer, 0, MAP_LAYERS_COUNT - 1);
     coordx = glm::clamp(coordx, 0, MAP_DIMENSIONS - 1);
     coordz = glm::clamp(coordz, 0, MAP_DIMENSIONS - 1);
-    // remember kids, don't try this at home!
-    return const_cast<MapBlockInfo*> (&mMapTiles[layer][coordz][coordx]);
+
+    return &mMapTiles[layer][coordz][coordx];
 }
 
 void GameMapManager::FixShiftedBits()
@@ -248,11 +239,11 @@ void GameMapManager::FixShiftedBits()
 
 float GameMapManager::GetWaterLevelAtPosition2(const glm::vec2& position) const
 {
-    glm::ivec2 mapBlock = Convert::MetersToMapUnits(position);
+    glm::ivec2 blockPosition = Convert::MetersToMapUnits(position);
 
     for (int i = MAP_LAYERS_COUNT; i > 0; --i)
     {
-        MapBlockInfo* blockData = GetBlockClamp(mapBlock.x, mapBlock.y, i - 1);
+        const MapBlockInfo* blockData = GetBlockInfo(blockPosition.x, blockPosition.y, i - 1);
         if (blockData->mGroundType == eGroundType_Water)
         {
             float waterHeight = Convert::MapUnitsToMeters(i - 1.0f);
@@ -260,6 +251,36 @@ float GameMapManager::GetWaterLevelAtPosition2(const glm::vec2& position) const
         }
     }
     return 0.0f;
+}
+
+const DistrictInfo* GameMapManager::GetDistrictAtPosition2(const glm::vec2& position) const
+{
+    glm::ivec2 blockPosition = Convert::MetersToMapUnits(position);
+
+    return GetDistrict(blockPosition.x, blockPosition.y);
+}
+
+const DistrictInfo* GameMapManager::GetDistrict(int coordx, int coordy) const
+{
+    const Point point (coordx, coordy);
+    for (const DistrictInfo& currDistrict: mDistricts)
+    {
+        if (currDistrict.mArea.PointWithin(point))
+            return &currDistrict;
+    }
+    debug_assert(false); // shouldn't happen
+    return nullptr;
+}
+
+const DistrictInfo* GameMapManager::GetDistrictByIndex(int districtIndex) const
+{
+    for (const DistrictInfo& currInfo: mDistricts)
+    {
+        if (currInfo.mSampleIndex == districtIndex)
+            return &currInfo;
+    }
+    debug_assert(false);
+    return nullptr;
 }
 
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
@@ -273,7 +294,7 @@ float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool exclud
     float currentHeight = (float) mapBlock.y; // set current height to ground, map units
     for (; currentHeight > 0.0f;)
     {
-        MapBlockInfo* blockData = GetBlockClamp(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
+        const MapBlockInfo* blockData = GetBlockInfo(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
 
         // compute slope height
         if (blockData->mSlopeType) 
@@ -373,7 +394,7 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
         }
 
         // detect hit
-        MapBlockInfo* blockData = GetBlockClamp(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
+        const MapBlockInfo* blockData = GetBlockInfo(mapcoord_curr.x, mapcoord_curr.y, mapcoord_z);
         if (blockData->mGroundType == eGroundType_Building)
         {
             float perpWallDist;
@@ -499,6 +520,50 @@ bool GameMapManager::ReadServiceBaseLocations(std::ifstream& file)
 
 bool GameMapManager::ReadNavData(std::ifstream& file, int dataSize)
 {
-    file.seekg(dataSize, std::ios::cur);
+    struct nav_data_struct
+    {
+        unsigned char x, y;
+        unsigned char w, h;
+        unsigned char sam;
+        char name[30];
+    };
+    const int NavDataStructSize = sizeof(nav_data_struct);
+
+    mDistricts.clear();
+
+    int sectorsCount = dataSize / NavDataStructSize;
+    debug_assert((dataSize % NavDataStructSize) == 0);
+
+    nav_data_struct navDataStruct;
+    for (int i = 0; i < sectorsCount; ++i)
+    {
+        if (!cxx::read_from_stream(file, navDataStruct))
+        {
+            debug_assert(false);
+            return false;
+        }
+
+        if (navDataStruct.w == 0 || navDataStruct.h == 0)
+            continue;
+
+        mDistricts.emplace_back();
+        DistrictInfo& navSector = mDistricts.back();
+        navSector.mArea.x = navDataStruct.x;
+        navSector.mArea.y = navDataStruct.y;
+        navSector.mArea.w = navDataStruct.w;
+        navSector.mArea.h = navDataStruct.h;
+        navSector.mSampleIndex = navDataStruct.sam;
+        navSector.mDebugName = navDataStruct.name;
+    }
+
+    // sort by size
+    std::sort(mDistricts.begin(), mDistricts.end(),
+        [](const DistrictInfo& lhs, const DistrictInfo& rhs)
+        {
+            if (lhs.mArea.w != rhs.mArea.w)
+                return (lhs.mArea.w < rhs.mArea.w);
+
+            return (lhs.mArea.h < rhs.mArea.h);
+        });
     return true;
 }

@@ -55,5 +55,6 @@ void GameParams::SetToDefaults()
     mAiReactOnExplosionsDistance = Convert::MapUnitsToMeters(5.0f);
     // hud
     mHudBigFontMessageShowDuration = 3.0f;
-    mHudCarNameDisplayShowDuration = 3.0f;
+    mHudCarNameShowDuration = 3.0f;
+    mHudDistrictNameShowDuration = 3.0f;
 }

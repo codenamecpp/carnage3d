@@ -39,6 +39,7 @@ void HumanPlayer::UpdateFrame()
     }
 
     ProcessRepetitiveActions();
+    UpdateDistrictLocation();
 }
 
 void HumanPlayer::InputEvent(MouseButtonInputEvent& inputEvent)
@@ -176,6 +177,7 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
 
 void HumanPlayer::SetCharacter(Pedestrian* character)
 {
+    mLastDistrictIndex = 0;
     if (mCharacter)
     {
         debug_assert(mCharacter->mController == this);
@@ -250,6 +252,7 @@ void HumanPlayer::EnterOrExitCar(bool alternative)
 
 void HumanPlayer::Respawn()
 {
+    mLastDistrictIndex = 0;
     mRespawnTime = 0.0f;
 
     // todo : exit from car
@@ -340,5 +343,15 @@ void HumanPlayer::OnCharacterStartCarDrive()
     }
     eVehicleModel carModel = currentCar->mCarInfo->mModelID;
     mPlayerView.mHUD.ShowCarNameMessage(carModel);
+}
+
+void HumanPlayer::UpdateDistrictLocation()
+{
+    const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->GetCurrentPosition2());
+    if (currentDistrict->mSampleIndex != mLastDistrictIndex)
+    {
+        mLastDistrictIndex = currentDistrict->mSampleIndex;
+        mPlayerView.mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
+    }
 }
 

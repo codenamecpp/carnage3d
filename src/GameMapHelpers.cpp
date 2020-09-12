@@ -15,16 +15,17 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, i
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (MapBlockInfo* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, layerIndex))
-        {
-            for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
-            {
-                if (blockInfo->mFaces[iface] == 0)
-                    continue;
+        const MapBlockInfo* mapBlock = cityScape.GetBlockInfo(tilex + area.x, tiley + area.y, layerIndex);
+        if (mapBlock == nullptr)
+            continue;
 
-                eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, layerIndex, faceid, blockInfo);
-            }
+        for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
+        {
+            if (mapBlock->mFaces[iface] == 0)
+                continue;
+
+            eBlockFace faceid = (eBlockFace) iface;
+            PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, layerIndex, faceid, mapBlock);
         }
     }
     return true;
@@ -41,22 +42,23 @@ bool GameMapHelpers::BuildMapMesh(GameMapManager& cityScape, const Rect& area, C
     for (int tiley = 0; tiley < area.h; ++tiley)
     for (int tilex = 0; tilex < area.w; ++tilex)
     {
-        if (MapBlockInfo* blockInfo = cityScape.GetBlockClamp(tilex + area.x, tiley + area.y, tilez))
-        {
-            for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
-            {
-                if (blockInfo->mFaces[iface] == 0)
-                    continue;
+        const MapBlockInfo* mapBlock = cityScape.GetBlockInfo(tilex + area.x, tiley + area.y, tilez);
+        if (mapBlock == nullptr)
+            continue;
 
-                eBlockFace faceid = (eBlockFace) iface;
-                PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, tilez, faceid, blockInfo);
-            }
+        for (int iface = 0; iface < eBlockFace_COUNT; ++iface)
+        {
+            if (mapBlock->mFaces[iface] == 0)
+                continue;
+
+            eBlockFace faceid = (eBlockFace) iface;
+            PutBlockFace(cityScape, meshData, tilex + area.x, tiley + area.y, tilez, faceid, mapBlock);
         }
     }
     return true;
 }
 
-void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, CityMeshData& meshData, int x, int y, int z, eBlockFace face, MapBlockInfo* blockInfo)
+void GameMapHelpers::PutBlockFace(GameMapManager& cityScape, CityMeshData& meshData, int x, int y, int z, eBlockFace face, const MapBlockInfo* blockInfo)
 {
     assert(blockInfo && blockInfo->mFaces[face]);
     eBlockType blockType = (face == eBlockFace_Lid) ? eBlockType_Lid : eBlockType_Side;

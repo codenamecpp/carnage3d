@@ -161,7 +161,7 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, RenderView& view)
         // scan candidate from top
         for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
         {
-            MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
+            const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(pos.x, pos.y, iz);
 
             if (mapBlock->mGroundType == eGroundType_Air)
                 continue;
@@ -359,7 +359,7 @@ void TrafficManager::GenerateTrafficCars(int carsCount, RenderView& view)
         // scan candidate from top
         for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
         {
-            MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(pos.x, pos.y, iz);
+            const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(pos.x, pos.y, iz);
 
             if (mapBlock->mGroundType == eGroundType_Air)
                 continue;
@@ -439,7 +439,7 @@ void TrafficManager::RemoveOffscreenCars()
 
 Vehicle* TrafficManager::GenerateRandomTrafficCar(int posx, int posy, int posz)
 {
-    const MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(posx, posz, posy);
+    const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(posx, posz, posy);
   
     glm::vec3 positions(
         Convert::MapUnitsToMeters(posx + 0.5f),

@@ -127,7 +127,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
         ImGui::Text("logical pos: %d, %d, %d", characterLogPos.x, characterLogPos.y, characterLogPos.z);
 
-        MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(characterLogPos.x, characterLogPos.z, characterLogPos.y);
+        const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(characterLogPos.x, characterLogPos.z, characterLogPos.y);
         ImGui::Text("block: %s", cxx::enum_to_string(blockInfo->mGroundType));
         ImGui::Text("N: %s", blockInfo->mUpDirection ? "OK" : "--");
         ImGui::Text("E: %s", blockInfo->mRightDirection ? "OK" : "--");

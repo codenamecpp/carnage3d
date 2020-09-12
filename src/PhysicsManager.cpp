@@ -202,7 +202,7 @@ void PhysicsManager::CreateMapCollisionShape()
     for (int y = 0; y < MAP_DIMENSIONS; ++y)
     for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
     {
-        MapBlockInfo* blockData = gGameMap.GetBlock(x, y, layer);
+        const MapBlockInfo* blockData = gGameMap.GetBlockInfo(x, y, layer);
         debug_assert(blockData);
 
         if (blockData->mGroundType != eGroundType_Building)
@@ -210,10 +210,10 @@ void PhysicsManager::CreateMapCollisionShape()
 
         // checek blox is inner
         {
-            MapBlockInfo* neighbourE = gGameMap.GetBlockClamp(x + 1, y, layer); 
-            MapBlockInfo* neighbourW = gGameMap.GetBlockClamp(x - 1, y, layer); 
-            MapBlockInfo* neighbourN = gGameMap.GetBlockClamp(x, y - 1, layer); 
-            MapBlockInfo* neighbourS = gGameMap.GetBlockClamp(x, y + 1, layer);
+            const MapBlockInfo* neighbourE = gGameMap.GetBlockInfo(x + 1, y, layer); 
+            const MapBlockInfo* neighbourW = gGameMap.GetBlockInfo(x - 1, y, layer); 
+            const MapBlockInfo* neighbourN = gGameMap.GetBlockInfo(x, y - 1, layer); 
+            const MapBlockInfo* neighbourS = gGameMap.GetBlockInfo(x, y + 1, layer);
 
             auto is_walkable = [](eGroundType gtype)
             {
@@ -554,7 +554,7 @@ bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapy, float height) cons
 
     // todo: temporary implementation
 
-    MapBlockInfo* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
+    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -567,7 +567,7 @@ bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixture
 
     // todo: temporary implementation
 
-    MapBlockInfo* blockData = gGameMap.GetBlockClamp(mapx, mapy, mapLayer);
+    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(mapx, mapy, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
 
@@ -763,7 +763,7 @@ bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysic
     // check same height
     int layer = (int) (Convert::MetersToMapUnits(projectile->mHeight) + 0.5f);
 
-    MapBlockInfo* mapBlock = gGameMap.GetBlockClamp(mapx, mapy, layer);
+    const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(mapx, mapy, layer);
     if (mapBlock->mGroundType != eGroundType_Building)
         return false;
 

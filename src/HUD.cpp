@@ -207,6 +207,67 @@ void HUDCarNamePanel::UpdatePanelSize(const Point& maxSize)
 
 //////////////////////////////////////////////////////////////////////////
 
+HUDDistrictNamePanel::HUDDistrictNamePanel()
+{
+}
+
+void HUDDistrictNamePanel::SetMessageText(const std::string& messageText)
+{
+    mMessageText = messageText;
+}
+
+bool HUDDistrictNamePanel::SetupHUD()
+{
+    mMessageFont = gFontManager.GetFont("SUB2.FON");
+    debug_assert(mMessageFont);
+    // setup left part sprite
+    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_AreaDisplayLeft);
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteLeftPart);
+    mBackgroundSpriteLeftPart.mHeight = 0.0f;
+    mBackgroundSpriteLeftPart.mScale = 1.0f;
+    mBackgroundSpriteLeftPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    // setup right part sprite
+    spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_AreaDisplayRight);
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteRightPart);
+    mBackgroundSpriteRightPart.mHeight = 0.0f;
+    mBackgroundSpriteRightPart.mScale = 1.0f;
+    mBackgroundSpriteRightPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    return true;
+}
+
+void HUDDistrictNamePanel::DrawFrame(GuiContext& guiContext)
+{
+    mBackgroundSpriteLeftPart.mPosition.x = (mPanelPosition.x * 1.0f);
+    mBackgroundSpriteLeftPart.mPosition.y = (mPanelPosition.y * 1.0f);
+    guiContext.mSpriteBatch.DrawSprite(mBackgroundSpriteLeftPart);
+
+    mBackgroundSpriteRightPart.mPosition.x = (mPanelPosition.x * 1.0f) + mBackgroundSpriteLeftPart.mTextureRegion.mRectangle.w;
+    mBackgroundSpriteRightPart.mPosition.y = (mPanelPosition.y * 1.0f);
+    guiContext.mSpriteBatch.DrawSprite(mBackgroundSpriteRightPart);
+
+    if (mMessageFont)
+    {
+        Point textDims;
+        mMessageFont->MeasureString(mMessageText, textDims);
+
+        Point textPosition = mPanelPosition;
+        textPosition.x = mPanelPosition.x + (mPanelSize.x / 2) - (textDims.x / 2);
+        textPosition.y = mPanelPosition.y + (mPanelSize.y / 2) - (textDims.y / 2);
+
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+        mMessageFont->DrawString(guiContext, mMessageText, textPosition, fontPaletteIndex);
+    }
+}
+
+void HUDDistrictNamePanel::UpdatePanelSize(const Point& maxSize)
+{
+    mPanelSize.x = mBackgroundSpriteLeftPart.mTextureRegion.mRectangle.w + mBackgroundSpriteRightPart.mTextureRegion.mRectangle.w;
+    mPanelSize.y = mBackgroundSpriteLeftPart.mTextureRegion.mRectangle.h;
+    debug_assert(mBackgroundSpriteLeftPart.mTextureRegion.mRectangle.h + mBackgroundSpriteRightPart.mTextureRegion.mRectangle.h);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void HUD::Setup(Pedestrian* character)
 {
     mCharacter = character;
@@ -222,9 +283,14 @@ void HUD::Setup(Pedestrian* character)
     mCarNamePanel.SetupHUD();
     mCarNamePanel.HidePanel();
 
+    mDistrictNamePanel.SetupHUD();
+    mDistrictNamePanel.HidePanel();
+
+    mPanelsList.clear();
     mPanelsList.push_back(&mWeaponPanel);
     mPanelsList.push_back(&mBigFontMessage);
     mPanelsList.push_back(&mCarNamePanel);
+    mPanelsList.push_back(&mDistrictNamePanel);
 }
 
 void HUD::UpdateFrame()
@@ -267,11 +333,6 @@ void HUD::DrawFrame(GuiContext& guiContext)
     }
 }
 
-void HUD::PushAreaNameMessage()
-{
-    // todo
-}
-
 void HUD::PushPagerMessage()
 {
     // todo
@@ -299,6 +360,8 @@ void HUD::ClearTextMessages()
 
 void HUD::UpdatePanelsLayout(const Rect& viewportRect)
 {
+    const int yoffset = 10; // todo: magic numbers
+
     Point position;
     Point maxSize;
 
@@ -306,7 +369,7 @@ void HUD::UpdatePanelsLayout(const Rect& viewportRect)
     if (mWeaponPanel.IsPanelVisible())
     {
         position.x = 10;
-        position.y = 10;
+        position.y = yoffset;
         mWeaponPanel.SetPanelPosition(position);
         mWeaponPanel.UpdatePanelSize(Point());
     }
@@ -322,13 +385,26 @@ void HUD::UpdatePanelsLayout(const Rect& viewportRect)
         mBigFontMessage.SetPanelPosition(position);
     }
 
-    // setup car name display
-    if (mCarNamePanel.IsPanelVisible())
+    // middle top
     {
-        mCarNamePanel.UpdatePanelSize(Point());
-        position.x = viewportRect.w / 2 - mCarNamePanel.mPanelSize.x / 2;
-        position.y = 10;
-        mCarNamePanel.SetPanelPosition(position);
+        position.y = yoffset; // base offset
+        if (mDistrictNamePanel.IsPanelVisible())
+        {
+            mDistrictNamePanel.UpdatePanelSize(Point());
+            position.x = viewportRect.w / 2 - mDistrictNamePanel.mPanelSize.x / 2;
+            mDistrictNamePanel.SetPanelPosition(position);
+            position.y += mDistrictNamePanel.mPanelSize.y;
+            position.y += yoffset;
+        }
+
+        if (mCarNamePanel.IsPanelVisible())
+        {
+            mCarNamePanel.UpdatePanelSize(Point());
+            position.x = viewportRect.w / 2 - mCarNamePanel.mPanelSize.x / 2;
+            mCarNamePanel.SetPanelPosition(position);
+            position.y += mCarNamePanel.mPanelSize.y;
+            position.y += yoffset;
+        }
     }
 }
 
@@ -370,5 +446,15 @@ void HUD::ShowCarNameMessage(eVehicleModel carModel)
 
     const std::string& messageText = gGameTexts.GetText(textID);
     mCarNamePanel.SetMessageText(messageText);
-    mCarNamePanel.ShowPanelWithTimeout(gGameParams.mHudCarNameDisplayShowDuration);
+    mCarNamePanel.ShowPanelWithTimeout(gGameParams.mHudCarNameShowDuration);
+}
+
+void HUD::ShowDistrictNameMessage(int districtIndex)
+{
+    debug_assert(districtIndex >= 0);
+
+    std::string textID = cxx::va("%03darea%03d", gGameMap.mStyleData.GetStyleNumber(), districtIndex);
+    const std::string& messageText = gGameTexts.GetText(textID);
+    mDistrictNamePanel.SetMessageText(messageText);
+    mDistrictNamePanel.ShowPanelWithTimeout(gGameParams.mHudDistrictNameShowDuration);
 }

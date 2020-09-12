@@ -63,7 +63,8 @@ public:
 
     // hud
     float mHudBigFontMessageShowDuration; // how long show 'wasted' on screen, seconds
-    float mHudCarNameDisplayShowDuration; // how long show car name on screen, seconds
+    float mHudCarNameShowDuration; // how long show car name on screen, seconds
+    float mHudDistrictNameShowDuration; // how long show district name on screen, seconds
 };
 
 extern GameParams gGameParams;

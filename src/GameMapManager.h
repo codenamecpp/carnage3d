@@ -26,14 +26,21 @@ public:
     // get map block info at specific location
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for layer
     // @param coordx, coordy, layer: Block location
-    MapBlockInfo* GetBlock(int coordx, int coordy, int layer) const;
-    MapBlockInfo* GetBlockClamp(int coordx, int coordy, int layer) const;
+    const MapBlockInfo* GetBlockInfo(int coordx, int coordy, int layer) const;
+
+    // Get navigation data sector at specific map point
+    // @param position: Current position on map, meters
+    // @returns null on error
+    const DistrictInfo* GetDistrictAtPosition2(const glm::vec2& position) const;
+    const DistrictInfo* GetDistrict(int coordx, int coordy) const;
+    const DistrictInfo* GetDistrictByIndex(int districtIndex) const;
 
     // Get real height at specified map point
     // @param position: Current position on map, meters
     float GetHeightAtPosition(const glm::vec3& position, bool excludeWater = true) const;
 
-    // Get water height at specified map point
+    // Get water height at specific map point
+    // @param position: Current position on map, meters
     float GetWaterLevelAtPosition2(const glm::vec2& position) const;
 
     // get intersection with solid blocks on specific map layer, ignores slopes
@@ -60,6 +67,8 @@ private:
 
     // accident service base locations
     std::vector<glm::ivec3> mAccidentServicesBases[eAccidentServise_COUNT];
+
+    std::vector<DistrictInfo> mDistricts;
 };
 
 extern GameMapManager gGameMap;

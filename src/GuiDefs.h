@@ -6,7 +6,6 @@ class Font;
 
 enum eHUDMessageType
 {
-    eHUDMessageType_AreaName,
     eHUDMessageType_Pager,
     eHUDMessageType_Help,
     eHUDMessageType_Mission,
@@ -34,6 +33,6 @@ enum eHUDBigFontMessage
 // HUD message data
 struct HUDMessageData
 {
-    eHUDMessageType mMessageType = eHUDMessageType_AreaName;
+    eHUDMessageType mMessageType {};
     std::string mMessageText;
 };

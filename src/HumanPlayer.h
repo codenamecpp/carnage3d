@@ -44,7 +44,11 @@ private:
     void ProcessInputAction(eInputAction action, bool isActivated);
     bool GetActionState(eInputAction action) const;
 
+    void UpdateDistrictLocation();
+
 private:
+    int mLastDistrictIndex = 0; // district index where character was last time
+    
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;
 };

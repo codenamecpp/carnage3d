@@ -308,7 +308,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
     {
         glm::ivec3 moveBlockPos = currentLogPos + GetVectorFromMapDirection(curr);
 
-        const MapBlockInfo* blockInfo = gGameMap.GetBlockClamp(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y);
+        const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y);
 
         eGroundType groundType = blockInfo->mGroundType;
         if (groundType == eGroundType_Pawement)
