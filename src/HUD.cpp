@@ -42,6 +42,12 @@ void HUDPanel::UpdatePanelSize(const Point& maxSize)
     // do nothing
 }
 
+bool HUDPanel::SetupHUD()
+{
+    // do nothing
+    return true;
+}
+
 void HUDPanel::SetPanelPosition(const Point& tlcornerPosition)
 {
     mPanelPosition = tlcornerPosition;
@@ -79,46 +85,51 @@ HUDWeaponPanel::HUDWeaponPanel()
 {
 }
 
+bool HUDWeaponPanel::SetupHUD()
+{
+    mWeaponIcon.mHeight = 0.0f;
+    mWeaponIcon.mScale = 1.0f;
+    mWeaponIcon.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    return true;
+}
+
 void HUDWeaponPanel::DrawFrame(GuiContext& guiContext)
 {
     if (mWeaponIcon.IsNull())
         return;
+
+    mWeaponIcon.mPosition.x = mPanelPosition.x * 1.0f;
+    mWeaponIcon.mPosition.y = mPanelPosition.y * 1.0f;
 
     guiContext.mSpriteBatch.DrawSprite(mWeaponIcon);
 }
 
 void HUDWeaponPanel::UpdatePanelSize(const Point& maxSize)
 {
-    mWeaponIcon.mPosition.x = mPanelPosition.x * 1.0f;
-    mWeaponIcon.mPosition.y = mPanelPosition.y * 1.0f;
-
     mPanelSize.x = mWeaponIcon.mTextureRegion.mRectangle.w;
     mPanelSize.y = mWeaponIcon.mTextureRegion.mRectangle.h;
 }
 
 void HUDWeaponPanel::SetWeaponIcon(eWeaponID weaponID)
 {
-    // there no icon for fists
-    if (weaponID == eWeapon_Fists)
-    {
-        mWeaponIcon.Clear();
-    }
-    else
-    {
-        WeaponInfo& weapon = gGameMap.mStyleData.mWeapons[weaponID];
-        int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weapon.mSpriteIndex);
+    WeaponInfo& weapon = gGameMap.mStyleData.mWeapons[weaponID];
+    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weapon.mSpriteIndex);
 
-        gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mWeaponIcon);
-        mWeaponIcon.mHeight = 0.0f;
-        mWeaponIcon.mScale = 1.0f;
-        mWeaponIcon.mOriginMode = Sprite2D::eOriginMode_TopLeft;
-    }
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mWeaponIcon);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 HUDBigFontMessage::HUDBigFontMessage()
 {
+}
+
+bool HUDBigFontMessage::SetupHUD()
+{
+    mMessageFont = gFontManager.GetFont("BIG2.FON");
+    debug_assert(mMessageFont);
+
+    return true;
 }
 
 void HUDBigFontMessage::DrawFrame(GuiContext& guiContext)
@@ -138,15 +149,60 @@ void HUDBigFontMessage::UpdatePanelSize(const Point& maxSize)
     }
 }
 
-void HUDBigFontMessage::SetMesssageFont(Font* font)
-{
-    debug_assert(font);
-    mMessageFont = font;
-}
-
 void HUDBigFontMessage::SetMessageText(const std::string& messageText)
 {
     mMessageText = messageText;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+HUDCarNamePanel::HUDCarNamePanel()
+{
+}
+
+void HUDCarNamePanel::SetMessageText(const std::string& messageText)
+{
+    mMessageText = messageText;
+}
+
+bool HUDCarNamePanel::SetupHUD()
+{
+    mMessageFont = gFontManager.GetFont("SUB2.FON");
+    debug_assert(mMessageFont);
+
+    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_VehicleDisplay);
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSprite);
+
+    mBackgroundSprite.mHeight = 0.0f;
+    mBackgroundSprite.mScale = 1.0f;
+    mBackgroundSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    return true;
+}
+
+void HUDCarNamePanel::DrawFrame(GuiContext& guiContext)
+{
+    mBackgroundSprite.mPosition.x = mPanelPosition.x * 1.0f;
+    mBackgroundSprite.mPosition.y = mPanelPosition.y * 1.0f;
+
+    guiContext.mSpriteBatch.DrawSprite(mBackgroundSprite);
+    if (mMessageFont)
+    {
+        Point textDims;
+        mMessageFont->MeasureString(mMessageText, textDims);
+
+        Point textPosition = mPanelPosition;
+        textPosition.x = mPanelPosition.x + (mPanelSize.x / 2) - (textDims.x / 2);
+        textPosition.y = mPanelPosition.y + (mPanelSize.y / 2) - (textDims.y / 2);
+
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+        mMessageFont->DrawString(guiContext, mMessageText, textPosition, fontPaletteIndex);
+    }
+}
+
+void HUDCarNamePanel::UpdatePanelSize(const Point& maxSize)
+{
+    mPanelSize.x = mBackgroundSprite.mTextureRegion.mRectangle.w;
+    mPanelSize.y = mBackgroundSprite.mTextureRegion.mRectangle.h;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -155,24 +211,35 @@ void HUD::Setup(Pedestrian* character)
 {
     mCharacter = character;
 
-    mFont = gFontManager.GetFont("SUB2.FON");
-    mBigFont = gFontManager.GetFont("BIG2.FON");
-
     ClearTextMessages();
 
-    // setup hud panels    
-    mBigFontMessage.SetMesssageFont(mBigFont);
+    // setup hud panels
+    mWeaponPanel.SetupHUD();
+
+    mBigFontMessage.SetupHUD();
     mBigFontMessage.HidePanel();
+
+    mCarNamePanel.SetupHUD();
+    mCarNamePanel.HidePanel();
 
     mPanelsList.push_back(&mWeaponPanel);
     mPanelsList.push_back(&mBigFontMessage);
+    mPanelsList.push_back(&mCarNamePanel);
 }
 
 void HUD::UpdateFrame()
 {
     if (mCharacter)
     {
-        mWeaponPanel.SetWeaponIcon(mCharacter->mCurrentWeapon);
+        if (mCharacter->mCurrentWeapon == eWeapon_Fists)
+        {
+            mWeaponPanel.HidePanel();
+        }
+        else
+        {
+            mWeaponPanel.SetWeaponIcon(mCharacter->mCurrentWeapon);
+            mWeaponPanel.ShowPanel();
+        }
     }
 
     // update hud panels
@@ -198,11 +265,6 @@ void HUD::DrawFrame(GuiContext& guiContext)
             currentPanel->DrawFrame(guiContext);
         }
     }
-}
-
-void HUD::PushCarNameMessage(eVehicleModel vehicleModel)
-{
-    // todo
 }
 
 void HUD::PushAreaNameMessage()
@@ -246,7 +308,7 @@ void HUD::UpdatePanelsLayout(const Rect& viewportRect)
         position.x = 10;
         position.y = 10;
         mWeaponPanel.SetPanelPosition(position);
-        mWeaponPanel.UpdatePanelSize(maxSize);
+        mWeaponPanel.UpdatePanelSize(Point());
     }
 
     // setup big font message
@@ -258,6 +320,15 @@ void HUD::UpdatePanelsLayout(const Rect& viewportRect)
         position.x = viewportRect.w / 2 - mBigFontMessage.mPanelSize.x / 2;
         position.y = viewportRect.h / 4 - mBigFontMessage.mPanelSize.y / 2;
         mBigFontMessage.SetPanelPosition(position);
+    }
+
+    // setup car name display
+    if (mCarNamePanel.IsPanelVisible())
+    {
+        mCarNamePanel.UpdatePanelSize(Point());
+        position.x = viewportRect.w / 2 - mCarNamePanel.mPanelSize.x / 2;
+        position.y = 10;
+        mCarNamePanel.SetPanelPosition(position);
     }
 }
 
@@ -289,4 +360,15 @@ void HUD::ShowBigFontMessage(eHUDBigFontMessage messageType)
     {
         debug_assert(false);
     }
+}
+
+void HUD::ShowCarNameMessage(eVehicleModel carModel)
+{
+    debug_assert(carModel < eVehicle_COUNT);
+
+    std::string textID = cxx::va("car%d", carModel);
+
+    const std::string& messageText = gGameTexts.GetText(textID);
+    mCarNamePanel.SetMessageText(messageText);
+    mCarNamePanel.ShowPanelWithTimeout(gGameParams.mHudCarNameDisplayShowDuration);
 }

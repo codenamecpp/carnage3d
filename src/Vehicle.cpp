@@ -13,7 +13,7 @@
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
     , mCarWrecked()
-    , mCarStyle()
+    , mCarInfo()
     , mDamageDeltaBits()
     , mDrivingDeltaAnim()
     , mDrawHeight()
@@ -48,7 +48,7 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mSpawnPosition = position;
     mSpawnHeading = heading;
 
-    debug_assert(mCarStyle);
+    debug_assert(mCarInfo);
     
     if (mPhysicsBody == nullptr)
     {
@@ -63,7 +63,7 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mCarWrecked = false;
     mCurrentDamage = 0;
     mDamageDeltaBits = 0;
-    mSpriteIndex = mCarStyle->mSpriteIndex; // todo: handle bike fallen state 
+    mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
     SetBurnEffectActive(false);
@@ -94,7 +94,7 @@ void Vehicle::PreDrawFrame()
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
-    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarStyle->mRemapsBaseIndex + mRemapIndex);
+    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
     gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
 
     mDrawSprite.mPosition.x = position.x;
@@ -131,14 +131,14 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
     }
 
     // draw doors
-    for (int idoor = 0; idoor < mCarStyle->mDoorsCount; ++idoor)
+    for (int idoor = 0; idoor < mCarInfo->mDoorsCount; ++idoor)
     {
         glm::vec2 rotated_pos;
         GetDoorPos(idoor, rotated_pos);
         debugRender.DrawCube(glm::vec3(rotated_pos.x, position.y + 0.15f, rotated_pos.y), glm::vec3(0.15f, 0.15f, 0.15f), Color32_Yellow, false);
     }
 
-    if (mCarStyle->mDoorsCount > 0)
+    if (mCarInfo->mDoorsCount > 0)
     {
         glm::vec2 seatpos;
         GetSeatPos(eCarSeat_Driver, seatpos);
@@ -267,7 +267,7 @@ void Vehicle::SetupDeltaAnimations()
         CAR_DELTA_ANIMS_SPEED);
     }
 
-    if (mCarStyle->mExtraDrivingAnim)
+    if (mCarInfo->mExtraDrivingAnim)
     {
         debug_assert(spriteInfo.mDeltaCount > CAR_DRIVE_SPRITE_DELTA);
         mDrivingDeltaAnim.Clear();
@@ -283,7 +283,7 @@ void Vehicle::SetupDeltaAnimations()
     }
 
     // doors
-    if (mCarStyle->mDoorsCount >= 1)
+    if (mCarInfo->mDoorsCount >= 1)
     {
         mDoorsAnims[0].mAnimDesc.SetupFrames(
         {
@@ -296,7 +296,7 @@ void Vehicle::SetupDeltaAnimations()
         CAR_DELTA_ANIMS_SPEED);
     }
 
-    if (mCarStyle->mDoorsCount >= 2)
+    if (mCarInfo->mDoorsCount >= 2)
     {
         mDoorsAnims[1].mAnimDesc.SetupFrames(
         {
@@ -326,7 +326,7 @@ void Vehicle::UpdateDeltaAnimations()
         mEmergLightsAnim.AdvanceAnimation(deltaTime);
     }
 
-    if (mCarStyle->mExtraDrivingAnim)
+    if (mCarInfo->mExtraDrivingAnim)
     {
         bool shouldEnable = fabs(mPhysicsBody->GetCurrentSpeed()) > 0.5f; // todo: magic numbers
         if (mDrivingDeltaAnim.IsAnimationActive())
@@ -446,10 +446,10 @@ int Vehicle::GetDoorIndexForSeat(eCarSeat carSeat) const
 
 bool Vehicle::GetDoorPosLocal(int doorIndex, glm::vec2& out) const
 {
-    if (doorIndex > -1 && doorIndex < mCarStyle->mDoorsCount)
+    if (doorIndex > -1 && doorIndex < mCarInfo->mDoorsCount)
     {
-        out.x = Convert::PixelsToMeters(mCarStyle->mDoors[doorIndex].mRpy);
-        out.y = -Convert::PixelsToMeters(mCarStyle->mDoors[doorIndex].mRpx);
+        out.x = Convert::PixelsToMeters(mCarInfo->mDoors[doorIndex].mRpy);
+        out.y = -Convert::PixelsToMeters(mCarInfo->mDoors[doorIndex].mRpx);
         return true;
     }
 
@@ -476,14 +476,14 @@ bool Vehicle::GetSeatPosLocal(eCarSeat carSeat, glm::vec2& out) const
     glm::vec2 doorLocalPos;
     if (GetDoorPosLocal(doorIndex, doorLocalPos))
     {
-        bool isBike = (mCarStyle->mClassID == eVehicleClass_Motorcycle);
+        bool isBike = (mCarInfo->mClassID == eVehicleClass_Motorcycle);
         if (isBike)
         {
             out.y = 0.0f; // dead center
         }
         else
         {
-            out.y = -mCarStyle->mDimensions.x * 0.25f * -glm::sign(doorLocalPos.y);
+            out.y = -mCarInfo->mDimensions.x * 0.25f * -glm::sign(doorLocalPos.y);
         }
         out.x = doorLocalPos.x;
         return true;
@@ -506,7 +506,7 @@ bool Vehicle::GetSeatPos(eCarSeat carSeat, glm::vec2& out) const
 bool Vehicle::IsSeatPresent(eCarSeat carSeat) const
 {
     int doorIndex = GetDoorIndexForSeat(carSeat);
-    return (doorIndex < mCarStyle->mDoorsCount && doorIndex > -1);
+    return (doorIndex < mCarInfo->mDoorsCount && doorIndex > -1);
 }
 
 void Vehicle::RegisterPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
@@ -565,7 +565,7 @@ void Vehicle::Explode()
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
     explosionPos.y = mDrawHeight;
 
-    mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarStyle->mClassID);
+    mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
     mRemapIndex = NO_REMAP;
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
@@ -586,7 +586,7 @@ void Vehicle::Explode()
 
 bool Vehicle::HasHardTop() const
 {
-    return !mCarStyle->mConvertible && (mCarStyle->mClassID != eVehicleClass_Motorcycle);
+    return !mCarInfo->mConvertible && (mCarInfo->mClassID != eVehicleClass_Motorcycle);
 }
 
 bool Vehicle::IsWrecked() const

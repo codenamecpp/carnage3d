@@ -325,3 +325,20 @@ void HumanPlayer::DeactivateConstroller()
     // do nothing
 }
 
+bool HumanPlayer::IsHumanPlayer() const
+{
+    return true;
+}
+
+void HumanPlayer::OnCharacterStartCarDrive()
+{
+    Vehicle* currentCar = mCharacter->mCurrentCar;
+    if (currentCar == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
+    eVehicleModel carModel = currentCar->mCarInfo->mModelID;
+    mPlayerView.mHUD.ShowCarNameMessage(carModel);
+}
+

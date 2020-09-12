@@ -87,7 +87,7 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
     mVehiclesList.push_back(instance);
 
     // init
-    instance->mCarStyle = carStyle;
+    instance->mCarInfo = carStyle;
     instance->Spawn(position, heading);
     return instance;
 }
@@ -97,7 +97,7 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
     Vehicle* vehicle = nullptr;
     for (VehicleInfo& currStyle: gGameMap.mStyleData.mVehicles)
     {
-        if (currStyle.mModelId == carModel)
+        if (currStyle.mModelID == carModel)
         {
             vehicle = CreateVehicle(position, heading, &currStyle);
             break;

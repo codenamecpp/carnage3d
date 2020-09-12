@@ -28,6 +28,7 @@ public:
     bool IsPanelVisible() const;
 
     // overridable methods
+    virtual bool SetupHUD();
     virtual void DrawFrame(GuiContext& guiContext);
     virtual void UpdateFrame();
     virtual void UpdatePanelSize(const Point& maxSize);
@@ -48,6 +49,7 @@ public:
     // Setup current weapon icon
     void SetWeaponIcon(eWeaponID weaponID);
     // override HUDPanel methods
+    bool SetupHUD() override;
     void DrawFrame(GuiContext& guiContext) override;
     void UpdatePanelSize(const Point& maxSize) override;
 private:
@@ -60,14 +62,31 @@ class HUDBigFontMessage: public HUDPanel
 {
 public:
     HUDBigFontMessage();
-    // Setup big font message params
-    void SetMesssageFont(Font* font);
     void SetMessageText(const std::string& messageText);
     // override HUDPanel methods
+    bool SetupHUD() override;
     void DrawFrame(GuiContext& guiContext) override;
     void UpdatePanelSize(const Point& maxSize) override; 
 private:
     Font* mMessageFont = nullptr;
+    std::string mMessageText; // cached message text
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class HUDCarNamePanel: public HUDPanel
+{
+public:
+    HUDCarNamePanel();
+    void SetMessageText(const std::string& messageText);
+    // override HUDPanel methods
+    bool SetupHUD() override;
+    void DrawFrame(GuiContext& guiContext) override;
+    void UpdatePanelSize(const Point& maxSize) override; 
+
+private:
+    Font* mMessageFont = nullptr;
+    Sprite2D mBackgroundSprite;
     std::string mMessageText; // cached message text
 };
 
@@ -84,7 +103,6 @@ public:
     void DrawFrame(GuiContext& guiContext);
 
     // Show messages
-    void PushCarNameMessage(eVehicleModel vehicleModel);
     void PushAreaNameMessage();
     void PushPagerMessage();
     void PushHelpMessage();
@@ -92,6 +110,7 @@ public:
     void PushBombCostMessage();
 
     void ShowBigFontMessage(eHUDBigFontMessage messageType);
+    void ShowCarNameMessage(eVehicleModel carModel);
 
     void ClearTextMessages();
 
@@ -100,8 +119,6 @@ private:
 
 private:
     Pedestrian* mCharacter = nullptr;
-    Font* mFont = nullptr;
-    Font* mBigFont = nullptr;
 
     std::deque<HUDMessageData> mTextMessagesQueue;
     std::vector<HUDPanel*> mPanelsList;
@@ -109,4 +126,5 @@ private:
     // hud panels
     HUDWeaponPanel mWeaponPanel;
     HUDBigFontMessage mBigFontMessage;
+    HUDCarNamePanel mCarNamePanel;
 };

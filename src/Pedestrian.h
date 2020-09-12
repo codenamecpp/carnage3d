@@ -17,6 +17,7 @@ class Pedestrian final: public GameObject
     friend class GameObjectsManager;
     friend class PedPhysicsBody;
     friend class PedestrianStatesManager;
+    friend class GameCheatsWindow;
 
 public:
     // public for convenience, should not be modified directly
@@ -91,9 +92,9 @@ public:
 
     // Whether pedestrian is fall in water
     bool IsInWater() const;
-
-    // Detects identifier of current pedestrian state
-    ePedestrianState GetCurrentStateID() const;
+    
+    // Whether pedestrian is under human player control
+    bool IsHumanPlayerCharacter() const;
 
 private:
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);
@@ -108,6 +109,9 @@ private:
     void UpdateBurnEffect();
 
     void SetDrawOrder(eSpriteDrawOrder drawOrder);
+
+    // Detects identifier of current pedestrian state
+    ePedestrianState GetCurrentStateID() const;
 
 private:
     ePedestrianAnimID mCurrentAnimID;

@@ -125,8 +125,7 @@ void Projectile::UpdateFrame()
 
 void Projectile::PreDrawFrame()
 {
-    int spriteIndex = mAnimationState.GetCurrentFrame();
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, 0, mDrawSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
 
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);

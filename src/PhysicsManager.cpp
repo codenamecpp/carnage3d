@@ -169,7 +169,7 @@ PedPhysicsBody* PhysicsManager::CreatePhysicsObject(Pedestrian* object, const gl
 CarPhysicsBody* PhysicsManager::CreatePhysicsObject(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle)
 {
     debug_assert(object);
-    debug_assert(object->mCarStyle);
+    debug_assert(object->mCarInfo);
 
     CarPhysicsBody* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, object);
     physicsObject->SetPosition(position, rotationAngle);

@@ -811,7 +811,7 @@ bool StyleData::ReadVehicles(std::ifstream& file, int dataLength)
         carInfo.mSpriteIndex = GetVehicleSpriteIndex(classID, sprNum); 
 
         // parse model id
-        if (!cxx::parse_enum_int(modelId, carInfo.mModelId))
+        if (!cxx::parse_enum_int(modelId, carInfo.mModelID))
         {
             gConsole.LogMessage(eLogMessage_Warning, "Unknown car model id: %d", modelId);
             debug_assert(false);

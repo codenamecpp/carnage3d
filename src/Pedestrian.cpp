@@ -519,3 +519,13 @@ void Pedestrian::PutOnFoot()
     }
     SetCarExited();
 }
+
+bool Pedestrian::IsHumanPlayerCharacter() const
+{
+    if (mController)
+    {
+        return mController->IsHumanPlayer();
+    }
+
+    return false;
+}

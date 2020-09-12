@@ -20,8 +20,15 @@ public:
     virtual void UpdateFrame();
     virtual void DebugDraw(DebugRenderer& debugRender);
 
+    // Whether character is under human player control
+    virtual bool IsHumanPlayer() const;
+
     // Inactive ai controllers will be automatically destroyed on next frame
     virtual void DeactivateConstroller();
 
     bool IsControllerActive() const;
+
+    // Process character events
+    virtual void OnCharacterStartCarDrive();
+    virtual void OnCharacterStopCarDrive();
 };

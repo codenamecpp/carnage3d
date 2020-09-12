@@ -21,7 +21,7 @@ public:
 
     float mDrawHeight;
 
-    VehicleInfo* mCarStyle; // cannot be null
+    VehicleInfo* mCarInfo; // cannot be null
     std::vector<Pedestrian*> mPassengers;
 
 public:

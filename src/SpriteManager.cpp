@@ -414,8 +414,8 @@ void SpriteManager::DumpCarsTextures(const std::string& outputLocation)
         cityStyle.GetSpriteTexture(sprite_index, &spriteBitmap, 0, 0);
             
         // dump to file
-        pathBuffer = cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelId, 
-            cxx::enum_to_string(currCar.mModelId), 
+        pathBuffer = cxx::va("%s/%d-%s-%s.png", outputLocation.c_str(), currCar.mModelID, 
+            cxx::enum_to_string(currCar.mModelID), 
             cxx::enum_to_string(currCar.mClassID));
 
         if (!spriteBitmap.SaveToFile(pathBuffer))

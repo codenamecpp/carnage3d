@@ -358,7 +358,7 @@ bool PedPhysicsBody::ShouldContactWith(unsigned int bits) const
 
 CarPhysicsBody::CarPhysicsBody(b2World* physicsWorld, Vehicle* object)
     : PhysicsBody(physicsWorld)
-    , mCarDesc(object->mCarStyle)
+    , mCarDesc(object->mCarInfo)
     , mReferenceCar(object)
 {
     b2BodyDef bodyDef;
@@ -401,7 +401,7 @@ void CarPhysicsBody::HandleWaterContact()
     mFalling = false;
 
     // boats aren't receive damage from water
-    if (mReferenceCar->mCarStyle->mClassID == eVehicleClass_Boat)
+    if (mReferenceCar->mCarInfo->mClassID == eVehicleClass_Boat)
         return;
 
     ClearForces();

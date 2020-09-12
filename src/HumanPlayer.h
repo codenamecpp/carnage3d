@@ -17,9 +17,12 @@ public:
     HumanPlayer();
     void SetCharacter(Pedestrian* character);
 
-    // process controller logic
+    // Process controller logic
     void UpdateFrame() override;
     void DeactivateConstroller() override;
+    bool IsHumanPlayer() const override;
+
+    void OnCharacterStartCarDrive() override;
 
     // process players inputs
     // @param inputEvent: Event data

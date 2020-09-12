@@ -55,7 +55,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             for (int icurr = 0; icurr < (int)gGameMap.mStyleData.mVehicles.size(); ++icurr)
             {
                 ImGui::PushID(icurr);
-                if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mVehicles[icurr].mModelId))) 
+                if (ImGui::MenuItem(cxx::enum_to_string(gGameMap.mStyleData.mVehicles[icurr].mModelID))) 
                 {
                     CreateCarNearby(&gGameMap.mStyleData.mVehicles[icurr], playerCharacter);
                 }
@@ -244,7 +244,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         if (Vehicle* currCar = playerCharacter->mCurrentCar)
         {
-            VehicleInfo* carInformation = currCar->mCarStyle;
+            VehicleInfo* carInformation = currCar->mCarInfo;
 
             if (ImGui::CollapsingHeader("Vehicle Info"))
             {

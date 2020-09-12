@@ -477,8 +477,8 @@ Vehicle* TrafficManager::GenerateRandomTrafficCar(int posx, int posy, int posz)
             continue;
         }
         // filter models
-        if ((currModel.mModelId == eVehicle_Helicopter) || (currModel.mModelId == eVehicle_Ambulance) ||
-            (currModel.mModelId == eVehicle_FireTruck) || (currModel.mModelId == eVehicle_ModelCar))
+        if ((currModel.mModelID == eVehicle_Helicopter) || (currModel.mModelID == eVehicle_Ambulance) ||
+            (currModel.mModelID == eVehicle_FireTruck) || (currModel.mModelID == eVehicle_ModelCar))
         {
             continue;
         }

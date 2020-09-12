@@ -119,6 +119,12 @@ enum eSpriteDrawOrder: unsigned char
 
 decl_enum_strings(eSpriteDrawOrder);
 
+// predefined sprite indices - mapped to gta1 values, don't change
+enum
+{
+    eSpriteID_Arrow_VehicleDisplay = 27,
+};
+
 // gameobject class identifiers
 enum eGameObjectClass
 {
@@ -506,7 +512,7 @@ struct VehicleInfo
     short mRemapsBaseIndex;
     HLSRemap mRemap[MAX_CAR_REMAPS];
     eVehicleClass mClassID; // is a descriptor of the type of car / vehicle
-    eVehicleModel mModelId;
+    eVehicleModel mModelID;
 
     int mTurning;
 

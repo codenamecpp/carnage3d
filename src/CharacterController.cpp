@@ -19,6 +19,11 @@ void CharacterController::DebugDraw(DebugRenderer& debugRender)
     // do nothing
 }
 
+bool CharacterController::IsHumanPlayer() const
+{
+    return false;
+}
+
 void CharacterController::DeactivateConstroller()
 {
     if (mCharacter)
@@ -33,4 +38,12 @@ void CharacterController::DeactivateConstroller()
 bool CharacterController::IsControllerActive() const
 {
     return mCharacter != nullptr;
+}
+
+void CharacterController::OnCharacterStartCarDrive()
+{
+}
+
+void CharacterController::OnCharacterStopCarDrive()
+{
 }
