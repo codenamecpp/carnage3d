@@ -19,6 +19,7 @@ public:
     // readonly
     eGameObjectFlags mFlags = eGameObjectFlags_None;
 
+    // initial position and heading
     glm::vec3 mSpawnPosition;
     cxx::angle_t mSpawnHeading;
 

@@ -67,7 +67,8 @@ glm::vec2 Explosion::GetCurrentPosition2() const
 
 void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    GameObject::Spawn(position, heading);
+    mSpawnPosition = position;
+    mSpawnHeading = heading;
 
     mDrawSprite.mPosition.x = position.x;
     mDrawSprite.mPosition.y = position.z;

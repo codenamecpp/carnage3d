@@ -23,7 +23,8 @@ Projectile::~Projectile()
 
 void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    GameObject::Spawn(position, heading);
+    mSpawnPosition = position;
+    mSpawnHeading = heading;
 
     mContactDetected = false;
     if (mPhysicsBody == nullptr)

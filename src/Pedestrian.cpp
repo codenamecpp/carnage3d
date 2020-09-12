@@ -38,7 +38,8 @@ Pedestrian::~Pedestrian()
 
 void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    GameObject::Spawn(position, heading);
+    mSpawnPosition = position;
+    mSpawnHeading = heading;
 
     mCurrentStateTime = 0.0f;
     mWeaponRechargeTime = 0.0f;

@@ -37,7 +37,8 @@ void Obstacle::DebugDraw(DebugRenderer& debugRender)
 
 void Obstacle::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    GameObject::Spawn(position, heading);
+    mSpawnPosition = position;
+    mSpawnHeading = heading;
 
     debug_assert(mGameObjectDesc);
 

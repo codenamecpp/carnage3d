@@ -5,6 +5,8 @@
 
 Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc) 
     : GameObject(eGameObjectClass_Decoration, id)
+    , mMoveVelocity()
+    , mAnimationState()
 {
     if (gameObjectDesc)
     {
@@ -54,8 +56,6 @@ glm::vec2 Decoration::GetCurrentPosition2() const
 
 void Decoration::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
-    GameObject::Spawn(position, heading);
-
     SetTransform(position, heading);
 
     mAnimationState.ClearState();
