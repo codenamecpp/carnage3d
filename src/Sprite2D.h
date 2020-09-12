@@ -25,6 +25,15 @@ public:
         return origin;
     }
 
+    // Compute size
+    inline glm::vec2 GetSpriteSize() const
+    {
+        return {
+            mTextureRegion.mRectangle.w * mScale,
+            mTextureRegion.mRectangle.h * mScale
+        };
+    }
+
     // Compute sprite corner position
     void GetCorners(glm::vec2 positions[4]) const;
 

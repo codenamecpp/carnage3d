@@ -190,6 +190,17 @@ void HumanPlayer::SetCharacter(Pedestrian* character)
     }
 }
 
+int HumanPlayer::GetWantedLevel() const
+{
+    return mWantedLevel;
+}
+
+void HumanPlayer::SetWantedLevel(int wantedLevel)
+{
+    debug_assert(wantedLevel <= GAME_MAX_WANTED_LEVEL);
+    mWantedLevel = wantedLevel;
+}
+
 void HumanPlayer::SwitchNextWeapon()
 {
     int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;
@@ -252,6 +263,7 @@ void HumanPlayer::EnterOrExitCar(bool alternative)
 
 void HumanPlayer::Respawn()
 {
+    SetWantedLevel(0);
     mLastDistrictIndex = 0;
     mRespawnTime = 0.0f;
 

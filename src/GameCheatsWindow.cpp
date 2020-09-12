@@ -229,17 +229,6 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Checkbox("Draw city mesh", &mEnableDrawCityMesh);
     }
 
-    if (ImGui::CollapsingHeader("Ped"))
-    {
-        ImGui::SliderFloat("Turn speed (degs/s)", &gGameParams.mPedestrianTurnSpeed, 10.0f, 640.0f, "%.2f");
-        ImGui::SliderFloat("Run speed (m/s)", &gGameParams.mPedestrianRunSpeed, 
-            Convert::MapUnitsToMeters(0.1f), 
-            Convert::MapUnitsToMeters(16.0f), "%.2f");
-        ImGui::SliderFloat("Walk speed (m/s)", &gGameParams.mPedestrianWalkSpeed, 
-            Convert::MapUnitsToMeters(0.1f), 
-            Convert::MapUnitsToMeters(16.0f), "%.2f");
-    }
-
     if (playerCharacter)
     {
         if (Vehicle* currCar = playerCharacter->mCurrentCar)

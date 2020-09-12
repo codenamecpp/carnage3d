@@ -240,7 +240,7 @@ void Font::DrawString(GuiContext& guiContext, const std::string& text, const Poi
 
     Sprite2D spriteData;
     spriteData.mTexture = mFontTexture;
-    spriteData.mScale = 1.0f;
+    spriteData.mScale = HUD_SPRITE_SCALE;
     spriteData.mPaletteIndex = paletteIndex;
     spriteData.mOriginMode = Sprite2D::eOriginMode_TopLeft;
     spriteData.mDrawOrder = eSpriteDrawOrder_HUD_TextMessages;

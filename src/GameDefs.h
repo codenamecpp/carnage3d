@@ -21,6 +21,7 @@
 
 #define SPRITE_ZERO_ANGLE 90.0f // all sprites in game are rotated at 90 degrees
 #define MAP_SPRITE_SCALE (METERS_PER_MAP_UNIT / PIXELS_PER_MAP_UNIT)
+#define HUD_SPRITE_SCALE 1.0f
 #define PED_SPRITE_DRAW_BOX_SIZE_PX 24 // with, height
 #define CAR_WHEEL_SIZE_W_PX 6
 #define CAR_WHEEL_SIZE_H_PX 12
@@ -32,6 +33,7 @@
 #define INVERT_MAP_LAYER(index) (MAP_LAYERS_COUNT - (index) - 1)
 
 #define GAME_MAX_PLAYERS 4
+#define GAME_MAX_WANTED_LEVEL 4
 
 // car sprite deltas - damage
 #define CAR_DAMAGE_SPRITE_DELTA_FR 0 // front right
@@ -80,6 +82,7 @@ class Obstacle;
 class Explosion;
 
 class DebugRenderer;
+class HumanPlayer;
 
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
@@ -90,6 +93,16 @@ using GameObjectID = unsigned int; // unique id of gameobject instance in world
 enum
 {
     PedestrianRemap_HareKrishna = 18,
+};
+
+// Remap indices for fonts
+enum
+{
+    FontRemap_Default = 0,
+    FontRemap_Red = 1,
+    FontRemap_Green = 5,
+
+    FontRemap_MAX = 8
 };
 
 // Object sprites draw prioriry
@@ -125,6 +138,8 @@ enum
     eSpriteID_Arrow_AreaDisplayLeft = 25,
     eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,
+    eSpriteID_Arrow_WantedFrame1 = 41,
+    eSpriteID_Arrow_WantedFrame2 = 42,
 };
 
 // gameobject class identifiers

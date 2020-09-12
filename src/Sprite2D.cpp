@@ -12,7 +12,7 @@ void Sprite2D::Clear()
     mPosition.x = 0.0f;
     mPosition.y = 0.0f;
     mHeight = 0.0f;
-    mScale = 1.0f;
+    mScale = MAP_SPRITE_SCALE;
     mPaletteIndex = 0;
 
     mRotateAngle.set_zero();
@@ -25,16 +25,15 @@ bool Sprite2D::IsNull() const
 
 void Sprite2D::GetCorners(glm::vec2 positions[4]) const
 {
-    float rectw = mTextureRegion.mRectangle.w * mScale;
-    float recth = mTextureRegion.mRectangle.h * mScale;
+    glm::vec2 spriteSize = GetSpriteSize();
 
     positions[0] = GetOriginPoint();
 
-    positions[1].x = positions[0].x + rectw;
+    positions[1].x = positions[0].x + spriteSize.x;
     positions[1].y = positions[0].y;
 
     positions[2].x = positions[0].x;
-    positions[2].y = positions[0].y + recth;
+    positions[2].y = positions[0].y + spriteSize.y;
 
     positions[3].x = positions[1].x;
     positions[3].y = positions[2].y;
@@ -59,11 +58,10 @@ void Sprite2D::GetCorners(glm::vec2 positions[4]) const
 
 void Sprite2D::GetApproximateBounds(cxx::aabbox2d_t& bounds) const
 {
-    float rectw = mTextureRegion.mRectangle.w * mScale;
-    float recth = mTextureRegion.mRectangle.h * mScale;
-    float maxsize = std::max(rectw, recth);
-
+    glm::vec2 spriteSize = GetSpriteSize();
     glm::vec2 origin;
+
+    float maxsize = std::max(spriteSize.x, spriteSize.y);
     if (mOriginMode == eOriginMode_Center)
     {
         origin.x = origin.y = (-maxsize * 0.5f);

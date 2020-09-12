@@ -9,6 +9,9 @@
 #include "Font.h"
 #include "GameTextsManager.h"
 #include "TimeManager.h"
+#include "HumanPlayer.h"
+
+//////////////////////////////////////////////////////////////////////////
 
 HUDPanel::HUDPanel()
     : mPanelPosition()
@@ -27,14 +30,7 @@ void HUDPanel::DrawFrame(GuiContext& guiContext)
 
 void HUDPanel::UpdateFrame()
 {
-    // process show timeout
-    if (mIsPanelVisible && mIsShownWithTimeout)
-    {
-        if (gTimeManager.mUiTime > (mShowTimeStart + mShowTimeDuration))
-        {
-            HidePanel();
-        }
-    }
+    // do nothing
 }
 
 void HUDPanel::UpdatePanelSize(const Point& maxSize)
@@ -42,36 +38,19 @@ void HUDPanel::UpdatePanelSize(const Point& maxSize)
     // do nothing
 }
 
-bool HUDPanel::SetupHUD()
+void HUDPanel::SetupHUD()
 {
     // do nothing
-    return true;
-}
-
-void HUDPanel::SetPanelPosition(const Point& tlcornerPosition)
-{
-    mPanelPosition = tlcornerPosition;
 }
 
 void HUDPanel::ShowPanel()
 {
     mIsPanelVisible = true;
-    mIsShownWithTimeout = false;
 }
 
 void HUDPanel::HidePanel()
 {
     mIsPanelVisible = false;
-    mIsShownWithTimeout = false;
-}
-
-void HUDPanel::ShowPanelWithTimeout(float timeout)
-{
-    mIsPanelVisible = true;
-    mIsShownWithTimeout = true;
-    debug_assert(timeout >= 0.0f);
-    mShowTimeDuration = timeout;
-    mShowTimeStart = gTimeManager.mUiTime;
 }
 
 bool HUDPanel::IsPanelVisible() const
@@ -85,12 +64,11 @@ HUDWeaponPanel::HUDWeaponPanel()
 {
 }
 
-bool HUDWeaponPanel::SetupHUD()
+void HUDWeaponPanel::SetupHUD()
 {
     mWeaponIcon.mHeight = 0.0f;
-    mWeaponIcon.mScale = 1.0f;
+    mWeaponIcon.mScale = HUD_SPRITE_SCALE;
     mWeaponIcon.mOriginMode = Sprite2D::eOriginMode_TopLeft;
-    return true;
 }
 
 void HUDWeaponPanel::DrawFrame(GuiContext& guiContext)
@@ -124,19 +102,17 @@ HUDBigFontMessage::HUDBigFontMessage()
 {
 }
 
-bool HUDBigFontMessage::SetupHUD()
+void HUDBigFontMessage::SetupHUD()
 {
     mMessageFont = gFontManager.GetFont("BIG2.FON");
     debug_assert(mMessageFont);
-
-    return true;
 }
 
 void HUDBigFontMessage::DrawFrame(GuiContext& guiContext)
 {   
     if (mMessageFont)
     {
-        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Default);
         mMessageFont->DrawString(guiContext, mMessageText, mPanelPosition, mPanelSize, fontPaletteIndex);
     }
 }
@@ -165,7 +141,7 @@ void HUDCarNamePanel::SetMessageText(const std::string& messageText)
     mMessageText = messageText;
 }
 
-bool HUDCarNamePanel::SetupHUD()
+void HUDCarNamePanel::SetupHUD()
 {
     mMessageFont = gFontManager.GetFont("SUB2.FON");
     debug_assert(mMessageFont);
@@ -174,9 +150,8 @@ bool HUDCarNamePanel::SetupHUD()
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSprite);
 
     mBackgroundSprite.mHeight = 0.0f;
-    mBackgroundSprite.mScale = 1.0f;
+    mBackgroundSprite.mScale = HUD_SPRITE_SCALE;
     mBackgroundSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
-    return true;
 }
 
 void HUDCarNamePanel::DrawFrame(GuiContext& guiContext)
@@ -194,7 +169,7 @@ void HUDCarNamePanel::DrawFrame(GuiContext& guiContext)
         textPosition.x = mPanelPosition.x + (mPanelSize.x / 2) - (textDims.x / 2);
         textPosition.y = mPanelPosition.y + (mPanelSize.y / 2) - (textDims.y / 2);
 
-        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Default);
         mMessageFont->DrawString(guiContext, mMessageText, textPosition, fontPaletteIndex);
     }
 }
@@ -216,7 +191,7 @@ void HUDDistrictNamePanel::SetMessageText(const std::string& messageText)
     mMessageText = messageText;
 }
 
-bool HUDDistrictNamePanel::SetupHUD()
+void HUDDistrictNamePanel::SetupHUD()
 {
     mMessageFont = gFontManager.GetFont("SUB2.FON");
     debug_assert(mMessageFont);
@@ -224,15 +199,14 @@ bool HUDDistrictNamePanel::SetupHUD()
     int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_AreaDisplayLeft);
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteLeftPart);
     mBackgroundSpriteLeftPart.mHeight = 0.0f;
-    mBackgroundSpriteLeftPart.mScale = 1.0f;
+    mBackgroundSpriteLeftPart.mScale = HUD_SPRITE_SCALE;
     mBackgroundSpriteLeftPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
     // setup right part sprite
     spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_AreaDisplayRight);
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteRightPart);
     mBackgroundSpriteRightPart.mHeight = 0.0f;
-    mBackgroundSpriteRightPart.mScale = 1.0f;
+    mBackgroundSpriteRightPart.mScale = HUD_SPRITE_SCALE;
     mBackgroundSpriteRightPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
-    return true;
 }
 
 void HUDDistrictNamePanel::DrawFrame(GuiContext& guiContext)
@@ -254,7 +228,7 @@ void HUDDistrictNamePanel::DrawFrame(GuiContext& guiContext)
         textPosition.x = mPanelPosition.x + (mPanelSize.x / 2) - (textDims.x / 2);
         textPosition.y = mPanelPosition.y + (mPanelSize.y / 2) - (textDims.y / 2);
 
-        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(0);
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Default);
         mMessageFont->DrawString(guiContext, mMessageText, textPosition, fontPaletteIndex);
     }
 }
@@ -268,11 +242,182 @@ void HUDDistrictNamePanel::UpdatePanelSize(const Point& maxSize)
 
 //////////////////////////////////////////////////////////////////////////
 
-void HUD::Setup(Pedestrian* character)
+HUDWantedLevelPanel::HUDWantedLevelPanel()
 {
-    mCharacter = character;
+}
 
-    ClearTextMessages();
+void HUDWantedLevelPanel::SetWantedLevel(int wantedLevel)
+{
+    debug_assert(mCopSpritesCount <= GAME_MAX_WANTED_LEVEL);
+    mCopSpritesCount = wantedLevel;
+}
+
+void HUDWantedLevelPanel::SetupHUD()
+{
+    for (CopSprite& currCopSprite: mCopSprites)
+    {
+        currCopSprite.mHeight = 0.0f;
+        currCopSprite.mScale = HUD_SPRITE_SCALE;
+        currCopSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+
+        currCopSprite.mAnimationState.Clear();
+        currCopSprite.mAnimationState.mAnimDesc.SetupFrames(
+            {
+                eSpriteID_Arrow_WantedFrame1,
+                eSpriteID_Arrow_WantedFrame2
+            });
+        currCopSprite.mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
+
+        // initial sprite
+        gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, eSpriteID_Arrow_WantedFrame1, 0, currCopSprite);
+    }
+}
+
+void HUDWantedLevelPanel::DrawFrame(GuiContext& guiContext)
+{
+    for (int icurr = 0; icurr < mCopSpritesCount; ++icurr)
+    {
+        Sprite2D& currSprite = mCopSprites[icurr];
+        currSprite.mPosition.x = (mPanelPosition.x * 1.0f) + icurr * currSprite.mTextureRegion.mRectangle.w;
+        currSprite.mPosition.y = (mPanelPosition.y * 1.0f);
+        guiContext.mSpriteBatch.DrawSprite(currSprite);
+    }
+}
+
+void HUDWantedLevelPanel::UpdateFrame()
+{
+    // process animation
+    for (int icurr = 0; icurr < mCopSpritesCount; ++icurr)
+    {
+        CopSprite& currCopSprite = mCopSprites[icurr];
+        if (currCopSprite.mAnimationState.AdvanceAnimation(gTimeManager.mUiFrameDelta))
+        {
+            gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, currCopSprite.mAnimationState.GetCurrentFrame(), 0, currCopSprite);
+        }
+    }
+}
+
+void HUDWantedLevelPanel::UpdatePanelSize(const Point& maxSize)
+{
+    CopSprite& currCopSprite = mCopSprites[0];
+    mPanelSize.x = mCopSpritesCount * currCopSprite.mTextureRegion.mRectangle.w;
+    mPanelSize.y = currCopSprite.mTextureRegion.mRectangle.h;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+HUDScoresPanel::HUDScoresPanel()
+{
+}
+
+void HUDScoresPanel::SetScores(int score, int lives, int multiplier)
+{
+    if (score != mPrevScore)
+    {
+        mPrevScore = score;
+        mScoreText = cxx::va("%d", score);
+    }
+
+    if (lives != mPrevLives)
+    {
+        mPrevLives = lives;
+        mLivesText = cxx::va(":%d", lives);
+    }
+
+    if (multiplier != mPrevMultiplier)
+    {
+        mPrevMultiplier = multiplier;
+        mMultiplierText = cxx::va(":%d", multiplier);
+    }
+}
+
+void HUDScoresPanel::SetupHUD()
+{
+    mFontScore = gFontManager.GetFont("SCORE2.FON");
+    debug_assert(mFontScore);
+    if (mFontScore)
+    {
+        mFontScore->SetFontBaseCharCode('0');
+    }
+
+    mFontLives = gFontManager.GetFont("MISSMUL2.FON");
+    debug_assert(mFontLives);
+    if (mFontLives)
+    {
+        mFontLives->SetFontBaseCharCode('0');
+    }
+
+    mFontMultiplier = gFontManager.GetFont("MISSMUL2.FON");
+    debug_assert(mFontMultiplier);
+    if (mFontMultiplier)
+    {
+        mFontMultiplier->SetFontBaseCharCode('0');
+    }
+}
+
+void HUDScoresPanel::DrawFrame(GuiContext& guiContext)
+{
+    int standardPalette = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Default);
+    int livesPalette = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Green);
+    if (mFontScore)
+    {
+        Point pos {mPanelPosition.x + mColumnCountersDims.x, mPanelPosition.y};
+        mFontScore->DrawString(guiContext, mScoreText, pos, standardPalette);
+    }
+    int yoffset = 0;
+    if (mFontLives)
+    {
+        Point pos {mPanelPosition.x, mPanelPosition.y};
+        mFontLives->DrawString(guiContext, mLivesText, pos, livesPalette);
+        yoffset = mFontLives->GetLineHeight();
+    }
+    if (mFontMultiplier)
+    {
+        Point pos {mPanelPosition.x, mPanelPosition.y + yoffset};
+        mFontMultiplier->DrawString(guiContext, mMultiplierText, pos, standardPalette);
+    }
+}
+
+void HUDScoresPanel::UpdateFrame()
+{
+    // todo: implement scrolling effect for score digits
+}
+
+void HUDScoresPanel::UpdatePanelSize(const Point& maxSize)
+{
+    Point scoreDims {0, 0};
+    Point livesDims {0, 0};
+    Point multiplierDims {0, 0};
+
+    mColumnCountersDims.y = 0;
+    if (mFontScore)
+    {
+        mFontScore->MeasureString(mScoreText, scoreDims);
+    }
+    if (mFontLives)
+    {
+        mFontLives->MeasureString(mLivesText, livesDims);
+        mColumnCountersDims.y += mFontLives->GetLineHeight();
+    }
+    if (mFontMultiplier)
+    {
+        mFontMultiplier->MeasureString(mMultiplierText, multiplierDims);
+        mColumnCountersDims.y += mFontMultiplier->GetLineHeight();
+    }
+    mColumnCountersDims.x = std::max(livesDims.x, multiplierDims.x);
+    mPanelSize.x = scoreDims.x + mColumnCountersDims.x;
+    mPanelSize.y = std::max(scoreDims.y, mColumnCountersDims.y);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void HUD::SetupHUD(HumanPlayer* humanPlayer)
+{
+    mHumanPlayer = humanPlayer;
+    debug_assert(mHumanPlayer);
+
+    mAutoHidePanels.clear();
+    mTextMessagesQueue.clear();
 
     // setup hud panels
     mWeaponPanel.SetupHUD();
@@ -286,27 +431,51 @@ void HUD::Setup(Pedestrian* character)
     mDistrictNamePanel.SetupHUD();
     mDistrictNamePanel.HidePanel();
 
+    mWantedLevelPanel.SetupHUD();
+    mWantedLevelPanel.HidePanel();
+
+    mScoresPanel.SetupHUD();
+
     mPanelsList.clear();
     mPanelsList.push_back(&mWeaponPanel);
     mPanelsList.push_back(&mBigFontMessage);
     mPanelsList.push_back(&mCarNamePanel);
     mPanelsList.push_back(&mDistrictNamePanel);
+    mPanelsList.push_back(&mWantedLevelPanel);
+    mPanelsList.push_back(&mScoresPanel);
 }
 
 void HUD::UpdateFrame()
 {
-    if (mCharacter)
+    Pedestrian* character = mHumanPlayer->mCharacter;
+
+    // update weapon info
+    if (character->mCurrentWeapon == eWeapon_Fists)
     {
-        if (mCharacter->mCurrentWeapon == eWeapon_Fists)
-        {
-            mWeaponPanel.HidePanel();
-        }
-        else
-        {
-            mWeaponPanel.SetWeaponIcon(mCharacter->mCurrentWeapon);
-            mWeaponPanel.ShowPanel();
-        }
+        mWeaponPanel.HidePanel();
     }
+    else
+    {
+        mWeaponPanel.SetWeaponIcon(character->mCurrentWeapon);
+        mWeaponPanel.ShowPanel();
+    }
+
+    // update wanted level
+    int currentWantedLevel = mHumanPlayer->GetWantedLevel();
+    mWantedLevelPanel.SetWantedLevel(currentWantedLevel);
+    if (currentWantedLevel == 0)
+    {
+        mWantedLevelPanel.HidePanel();
+    }
+    else
+    {
+        mWantedLevelPanel.ShowPanel();
+    }
+
+    // update scores
+    mScoresPanel.SetScores(100, 4, 1); // todo: implement scores system
+
+    TickAutoHidePanels();
 
     // update hud panels
     for (HUDPanel* currentPanel: mPanelsList)
@@ -321,7 +490,7 @@ void HUD::UpdateFrame()
 void HUD::DrawFrame(GuiContext& guiContext)
 {
     // pre draw
-    UpdatePanelsLayout(guiContext.mCamera.mViewportRect);
+    ArrangePanels(guiContext.mCamera.mViewportRect);
 
     // draw hud panels
     for (HUDPanel* currentPanel: mPanelsList)
@@ -353,58 +522,88 @@ void HUD::PushBombCostMessage()
     // todo
 }
 
-void HUD::ClearTextMessages()
+void HUD::ArrangePanels(const Rect& viewportRect)
 {
-    // todo
-}
+    const int screen_offset = 10; // todo: magic numbers
 
-void HUD::UpdatePanelsLayout(const Rect& viewportRect)
-{
-    const int yoffset = 10; // todo: magic numbers
-
-    Point position;
-    Point maxSize;
-
-    // setup weapon panel
-    if (mWeaponPanel.IsPanelVisible())
+    // top left
     {
-        position.x = 10;
-        position.y = yoffset;
-        mWeaponPanel.SetPanelPosition(position);
-        mWeaponPanel.UpdatePanelSize(Point());
+        Rect bounds (screen_offset, screen_offset, viewportRect.w - screen_offset, viewportRect.y - screen_offset);
+        ArrangePanelsVert(bounds, eHUDPanelAlign_Left, screen_offset, 
+            {
+                &mWeaponPanel,
+            });
+    }
+
+    // top center
+    {
+        Rect bounds (0, screen_offset, viewportRect.w, viewportRect.y - screen_offset);
+        ArrangePanelsVert(bounds, eHUDPanelAlign_Center, screen_offset, 
+            {
+                &mWantedLevelPanel,
+                &mDistrictNamePanel,
+                &mCarNamePanel,
+            });
+    }
+
+    // top right
+    {
+        Rect bounds (0, screen_offset, viewportRect.w - screen_offset, viewportRect.y - screen_offset);
+        ArrangePanelsVert(bounds, eHUDPanelAlign_Right, screen_offset, 
+            {
+                &mScoresPanel,
+            });
     }
 
     // setup big font message
     if (mBigFontMessage.IsPanelVisible())
     {
+        Point maxSize;
         maxSize.x = viewportRect.w / 2;
         maxSize.y = 0;
         mBigFontMessage.UpdatePanelSize(maxSize);
+
+        Point position;
         position.x = viewportRect.w / 2 - mBigFontMessage.mPanelSize.x / 2;
         position.y = viewportRect.h / 4 - mBigFontMessage.mPanelSize.y / 2;
         mBigFontMessage.SetPanelPosition(position);
     }
+}
 
-    // middle top
+void HUD::ArrangePanelsHorz(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels)
+{
+    debug_assert(false); // todo: implement
+}
+
+void HUD::ArrangePanelsVert(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels)
+{
+    Point position (bounds.x, bounds.y);
+    Point dimensions (bounds.w, bounds.h);
+
+    for (HUDPanel* currPanel: panels)
     {
-        position.y = yoffset; // base offset
-        if (mDistrictNamePanel.IsPanelVisible())
-        {
-            mDistrictNamePanel.UpdatePanelSize(Point());
-            position.x = viewportRect.w / 2 - mDistrictNamePanel.mPanelSize.x / 2;
-            mDistrictNamePanel.SetPanelPosition(position);
-            position.y += mDistrictNamePanel.mPanelSize.y;
-            position.y += yoffset;
-        }
+        if (!currPanel->IsPanelVisible())
+            continue;
 
-        if (mCarNamePanel.IsPanelVisible())
+        currPanel->UpdatePanelSize(dimensions);
+        switch (panelsAlign)
         {
-            mCarNamePanel.UpdatePanelSize(Point());
-            position.x = viewportRect.w / 2 - mCarNamePanel.mPanelSize.x / 2;
-            mCarNamePanel.SetPanelPosition(position);
-            position.y += mCarNamePanel.mPanelSize.y;
-            position.y += yoffset;
+            case eHUDPanelAlign_Left:
+                position.x = bounds.x;
+            break;
+            case eHUDPanelAlign_Center:
+                position.x = bounds.x + (bounds.w / 2) - (currPanel->mPanelSize.x / 2);
+            break;
+            case eHUDPanelAlign_Right:
+                position.x = bounds.x + bounds.w - currPanel->mPanelSize.x;
+            break;
+            default:
+                debug_assert(false);
+            break;
         }
+        currPanel->SetPanelPosition(position);
+        position.y += currPanel->mPanelSize.y;
+        position.y += spacing;
     }
 }
 
@@ -430,7 +629,7 @@ void HUD::ShowBigFontMessage(eHUDBigFontMessage messageType)
     {
         const std::string& messageText = gGameTexts.GetText(messageIDs[messageType]);
         mBigFontMessage.SetMessageText(messageText);
-        mBigFontMessage.ShowPanelWithTimeout(gGameParams.mHudBigFontMessageShowDuration);
+        ShowAutoHidePanel(&mBigFontMessage, gGameParams.mHudBigFontMessageShowDuration);
     }
     else
     {
@@ -446,7 +645,7 @@ void HUD::ShowCarNameMessage(eVehicleModel carModel)
 
     const std::string& messageText = gGameTexts.GetText(textID);
     mCarNamePanel.SetMessageText(messageText);
-    mCarNamePanel.ShowPanelWithTimeout(gGameParams.mHudCarNameShowDuration);
+    ShowAutoHidePanel(&mCarNamePanel, gGameParams.mHudCarNameShowDuration);
 }
 
 void HUD::ShowDistrictNameMessage(int districtIndex)
@@ -456,5 +655,60 @@ void HUD::ShowDistrictNameMessage(int districtIndex)
     std::string textID = cxx::va("%03darea%03d", gGameMap.mStyleData.GetStyleNumber(), districtIndex);
     const std::string& messageText = gGameTexts.GetText(textID);
     mDistrictNamePanel.SetMessageText(messageText);
-    mDistrictNamePanel.ShowPanelWithTimeout(gGameParams.mHudDistrictNameShowDuration);
+    ShowAutoHidePanel(&mDistrictNamePanel, gGameParams.mHudDistrictNameShowDuration);
+}
+
+void HUD::ShowAutoHidePanel(HUDPanel* panel, float showDuration)
+{
+    debug_assert(panel);
+    panel->ShowPanel();
+
+    // check if already in list
+    for (AutoHidePanel& currElement: mAutoHidePanels)
+    {
+        if (currElement.mPointer == panel)
+        {
+            currElement.mShowTime = gTimeManager.mUiTime;
+            currElement.mShowDuration = showDuration;
+            return;
+        }
+    }
+    // add new entry
+    mAutoHidePanels.emplace_back();
+    AutoHidePanel& currElements = mAutoHidePanels.back();
+    currElements.mPointer = panel;
+    currElements.mShowTime = gTimeManager.mUiTime;
+    currElements.mShowDuration = showDuration;
+}
+
+void HUD::TickAutoHidePanels()
+{
+    for (auto panels_iterator = mAutoHidePanels.begin(); panels_iterator != mAutoHidePanels.end(); )
+    {
+        AutoHidePanel& currElement = *panels_iterator;
+
+        bool removeFromList = false;
+        // process show timeout
+        if (currElement.mPointer->IsPanelVisible())
+        {
+            float showTimeEnd = (currElement.mShowTime + currElement.mShowDuration);
+            if (gTimeManager.mUiTime > showTimeEnd)
+            {
+                currElement.mPointer->HidePanel();
+                removeFromList = true;
+            }
+        }
+        else
+        {
+            removeFromList = true;
+        }
+
+        if (removeFromList)
+        {
+            panels_iterator = mAutoHidePanels.erase(panels_iterator);
+            continue;
+        }
+
+        ++panels_iterator;
+    }
 }

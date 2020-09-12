@@ -17,6 +17,10 @@ public:
     HumanPlayer();
     void SetCharacter(Pedestrian* character);
 
+    // Get or set current police attention level
+    int GetWantedLevel() const;
+    void SetWantedLevel(int wantedLevel);
+
     // Process controller logic
     void UpdateFrame() override;
     void DeactivateConstroller() override;
@@ -48,6 +52,7 @@ private:
 
 private:
     int mLastDistrictIndex = 0; // district index where character was last time
+    int mWantedLevel = 0; // current police attention level
     
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;
