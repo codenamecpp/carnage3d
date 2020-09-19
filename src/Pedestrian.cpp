@@ -95,7 +95,7 @@ void Pedestrian::PreDrawFrame()
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
-    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle() ;
+    cxx::angle_t rotationAngle = mPhysicsBody->mSmoothRotation;
 
     int spriteIndex = mCurrentAnimState.GetCurrentFrame();
 

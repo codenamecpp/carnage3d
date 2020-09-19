@@ -580,6 +580,16 @@ namespace cxx
         float mDegrees = 0.0f;
     };
 
+    // linear interpolation angles
+    inline angle_t lerp_angles(angle_t lhs, angle_t rhs, float alpha)
+    {
+        static const float MaxAngleDegrees = 360.0f;
+
+        float difference = fmod(rhs.mDegrees - lhs.mDegrees, MaxAngleDegrees);
+        float shortAngleDistance = fmod(2.0f * difference, MaxAngleDegrees) - difference;
+        return angle_t::from_degrees(lhs.mDegrees + shortAngleDistance * alpha);
+    }
+
     // create a new interpolated bounding box
     // @param interpolation: value between 0.0f and 1.0f.
     inline aabbox_t interpolate_aabbox(const aabbox_t& aaboxA, const aabbox_t& aaboxB, float interpolation)

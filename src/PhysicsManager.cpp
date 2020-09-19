@@ -106,14 +106,17 @@ void PhysicsManager::ProcessSimulationStep()
     for (PhysicsBody* currComponent: mCarsBodiesList)
     {
         currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
     }
     for (PhysicsBody* currComponent: mPedsBodiesList)
     {
         currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
     }
     for (PhysicsBody* currComponent: mProjectileBodiesList)
     {
         currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
+        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
     }
 
     mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
@@ -142,16 +145,19 @@ void PhysicsManager::ProcessInterpolation()
     for (PhysicsBody* currComponent: mCarsBodiesList)
     {
         currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
+        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
     }
 
     for (PhysicsBody* currComponent: mPedsBodiesList)
     {
         currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
+        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
     }
 
     for (PhysicsBody* currComponent: mProjectileBodiesList)
     {
         currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
+        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
     }
 }
 

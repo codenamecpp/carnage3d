@@ -16,6 +16,8 @@ PhysicsBody::PhysicsBody(b2World* physicsWorld)
     , mPhysicsBody()
     , mPreviousPosition()
     , mSmoothPosition()
+    , mPreviousRotation()
+    , mSmoothRotation()
 {
     debug_assert(physicsWorld);
 }
@@ -44,6 +46,8 @@ void PhysicsBody::SetPosition(const glm::vec3& position, cxx::angle_t rotationAn
     mHeight = position.y;
     mPreviousPosition = position;
     mSmoothPosition = position;
+    mPreviousRotation = rotationAngle;
+    mSmoothRotation = rotationAngle;
 
     box2d::vec2 b2position { position.x, position.z };
     mPhysicsBody->SetTransform(b2position, rotationAngle.to_radians());
@@ -51,6 +55,9 @@ void PhysicsBody::SetPosition(const glm::vec3& position, cxx::angle_t rotationAn
 
 void PhysicsBody::SetRotationAngle(cxx::angle_t rotationAngle)
 {
+    mPreviousRotation = rotationAngle;
+    mSmoothRotation = rotationAngle;
+
     mPhysicsBody->SetTransform(mPhysicsBody->GetPosition(), rotationAngle.to_radians());
 }
 

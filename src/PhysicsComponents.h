@@ -22,8 +22,11 @@ public:
     bool mFalling = false; // falling from a height
     float mFallStartHeight = 0.0f; // specified if mFalling is set
 
+    // for rendering
     glm::vec3 mPreviousPosition;
-    glm::vec3 mSmoothPosition; // for rendering only
+    glm::vec3 mSmoothPosition; 
+    cxx::angle_t mPreviousRotation;
+    cxx::angle_t mSmoothRotation;
 
 public:
     virtual ~PhysicsBody();

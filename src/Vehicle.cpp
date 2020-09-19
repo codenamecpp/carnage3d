@@ -90,7 +90,7 @@ void Vehicle::UpdateFrame()
 void Vehicle::PreDrawFrame()
 {   
     // sync sprite transformation with physical body
-    cxx::angle_t rotationAngle = mPhysicsBody->GetRotationAngle();
+    cxx::angle_t rotationAngle = mPhysicsBody->mSmoothRotation;
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);
 
