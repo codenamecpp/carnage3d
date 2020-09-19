@@ -152,9 +152,9 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
         glm::vec3 {position.x + bodyLinearVelocity.x, mDrawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
 
     // draw wheels
-    for (eCarWheel currID: {eCarWheel_Drive, eCarWheel_Steer})
+    for (eCarTire currID: {eCarTire_Rear, eCarTire_Front})
     {
-        mPhysicsBody->GetWheelCorners(currID, corners);
+        mPhysicsBody->GetTireCorners(currID, corners);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -166,9 +166,9 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
         {
             debugRender.DrawLine(points[i], points[(i + 1) % 4], Color32_Yellow, false);
         }
-        glm::vec2 forwardVelocity = mPhysicsBody->GetWheelForwardVelocity(currID);
-        glm::vec2 lateralVelocity = mPhysicsBody->GetWheelLateralVelocity(currID);
-        glm::vec2 wheelPosition = mPhysicsBody->GetWheelPosition(currID);
+        glm::vec2 forwardVelocity = mPhysicsBody->GetTireForwardVelocity(currID);
+        glm::vec2 lateralVelocity = mPhysicsBody->GetTireLateralVelocity(currID);
+        glm::vec2 wheelPosition = mPhysicsBody->GetTirePosition(currID);
 
         debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
@@ -177,7 +177,7 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, Color32_Red, false);
 
-        glm::vec2 signDirection = mPhysicsBody->GetWheelDirection(currID);
+        glm::vec2 signDirection = mPhysicsBody->GetTireForward(currID);
         debugRender.DrawLine(
             glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
             glm::vec3 {wheelPosition.x + signDirection.x, mDrawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);

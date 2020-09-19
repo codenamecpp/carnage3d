@@ -115,13 +115,14 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     ImGui::HorzSpacing();
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Frame Time: %.3f ms (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-    ImGui::Text("Map chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
-    ImGui::Text("Sprites drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mSpritesDrawnCount);
     
     // pedestrian stats
     if (playerCharacter)
     {
         ImGui::HorzSpacing();
+
+        cxx::angle_t pedHeading = playerCharacter->mPhysicsBody->GetRotationAngle();
+        ImGui::Text("heading: %.1f degs", pedHeading.to_degrees_normalize_360());
 
         glm::vec3 pedPosition = playerCharacter->mPhysicsBody->GetPosition();
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
@@ -129,15 +130,16 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
         const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(characterLogPos.x, characterLogPos.z, characterLogPos.y);
         ImGui::Text("block: %s", cxx::enum_to_string(blockInfo->mGroundType));
-        ImGui::Text("N: %s", blockInfo->mUpDirection ? "OK" : "--");
-        ImGui::Text("E: %s", blockInfo->mRightDirection ? "OK" : "--");
-        ImGui::Text("S: %s", blockInfo->mDownDirection ? "OK" : "--");
-        ImGui::Text("W: %s", blockInfo->mLeftDirection ? "OK" : "--");
 
-        cxx::angle_t pedHeading = playerCharacter->mPhysicsBody->GetRotationAngle();
-        ImGui::Text("heading: %.1f degs", pedHeading.to_degrees_normalize_360());
+        if (Vehicle* currCar = playerCharacter->mCurrentCar)
+        {
+            ImGui::Text("  N: %s", blockInfo->mUpDirection ? "OK" : "--");
+            ImGui::Text("  E: %s", blockInfo->mRightDirection ? "OK" : "--");
+            ImGui::Text("  S: %s", blockInfo->mDownDirection ? "OK" : "--");
+            ImGui::Text("  W: %s", blockInfo->mLeftDirection ? "OK" : "--");
+            ImGui::Text("Car speed : %.3f", currCar->mPhysicsBody->GetCurrentSpeed());
+        }
 
-        ImGui::Text("weapon: %s", cxx::enum_to_string(playerCharacter->mCurrentWeapon));
         ImGui::Text("state: %s", cxx::enum_to_string(playerCharacter->GetCurrentStateID()));
         ImGui::HorzSpacing();
 
@@ -218,47 +220,17 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Checkbox("Enable gravity", &mEnableGravity);
     }
 
-    if (ImGui::CollapsingHeader("Map Draw"))
+    if (ImGui::CollapsingHeader("Draw"))
     {
-        ImGui::Checkbox("Enable blocks animation", &mEnableBlocksAnimation);
-        ImGui::Checkbox("Enable debug draw", &mEnableDebugDraw);
-        ImGui::Checkbox("Draw decorations", &mEnableDrawDecorations);
-        ImGui::Checkbox("Draw obstacles", &mEnableDrawObstacles);
-        ImGui::Checkbox("Draw pedestrians", &mEnableDrawPedestrians);
-        ImGui::Checkbox("Draw vehicles", &mEnableDrawVehicles);
-        ImGui::Checkbox("Draw city mesh", &mEnableDrawCityMesh);
-    }
-
-    if (playerCharacter)
-    {
-        if (Vehicle* currCar = playerCharacter->mCurrentCar)
-        {
-            VehicleInfo* carInformation = currCar->mCarInfo;
-
-            if (ImGui::CollapsingHeader("Vehicle Info"))
-            {
-                ImVec4 physicsPropsColor(0.75f, 0.75f, 0.75f, 1.0f);
-                ImGui::Text("VType - %s", cxx::enum_to_string(carInformation->mClassID));
-                ImGui::HorzSpacing();
-                ImGui::TextColored(physicsPropsColor, "Turning : %d", carInformation->mTurning);
-                ImGui::TextColored(physicsPropsColor, "Turn Ratio : %d", carInformation->mTurnRatio);
-                ImGui::TextColored(physicsPropsColor, "Moment : %d", carInformation->mMoment);
-                ImGui::TextColored(physicsPropsColor, "Mass : %.3f", carInformation->mMass);
-                ImGui::TextColored(physicsPropsColor, "Thurst : %.3f", carInformation->mThrust);
-                ImGui::TextColored(physicsPropsColor, "Tyre Adhesion X/Y : %.3f / %.3f", carInformation->mTyreAdhesionX, carInformation->mTyreAdhesionY);
-                ImGui::HorzSpacing();
-                ImGui::TextColored(physicsPropsColor, "Handbrake Friction : %.3f", carInformation->mHandbrakeFriction);
-                ImGui::TextColored(physicsPropsColor, "Footbrake Friction : %.3f", carInformation->mFootbrakeFriction);
-                ImGui::TextColored(physicsPropsColor, "Front Brake Bias : %.3f", carInformation->mFrontBrakeBias);
-                ImGui::HorzSpacing();
-
-                ImGui::Text("Current velocity : %.3f", currCar->mPhysicsBody->GetCurrentSpeed());
-                if (ImGui::Button("Clear forces"))
-                {
-                    currCar->mPhysicsBody->ClearForces();
-                }
-            }
-        }
+        ImGui::Text("Map chunks drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mBlockChunksDrawnCount);
+        ImGui::Text("Sprites drawn: %d", gRenderManager.mMapRenderer.mRenderStats.mSpritesDrawnCount);
+        ImGui::HorzSpacing();
+        ImGui::Checkbox("Debug draw", &mEnableDebugDraw);
+        ImGui::Checkbox("Decorations", &mEnableDrawDecorations);
+        ImGui::SameLine(); ImGui::Checkbox("Obstacles", &mEnableDrawObstacles);
+        ImGui::Checkbox("Pedestrians", &mEnableDrawPedestrians);
+        ImGui::SameLine(); ImGui::Checkbox("Vehicles", &mEnableDrawVehicles);
+        ImGui::Checkbox("City mesh", &mEnableDrawCityMesh);
     }
 
     if (ImGui::CollapsingHeader("Traffic"))
@@ -333,7 +305,7 @@ void GameCheatsWindow::CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedest
     currPosition.x += 0.5f;
     currPosition.z += 0.5f;
 
-    Vehicle* vehicle = gGameObjectsManager.CreateVehicle(currPosition, cxx::angle_t::from_degrees(25.0f), carStyle);
+    Vehicle* vehicle = gGameObjectsManager.CreateVehicle(currPosition, cxx::angle_t {}, carStyle);
     debug_assert(vehicle);
 
     if (vehicle)

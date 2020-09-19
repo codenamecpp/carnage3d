@@ -345,6 +345,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
     //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
     //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
+
     if (!gPhysics.InitPhysicsWorld())
     {
         debug_assert(false);

@@ -52,8 +52,9 @@ void FollowCameraController::UpdateFrame()
         glm::vec2 carVelocity = mFollowPedestrian->mCurrentCar->mPhysicsBody->GetLinearVelocity();
         float carSpeed = glm::length(carVelocity);
         carVelocity = glm::normalize(carVelocity);
-        position.x += (carVelocity.x * carSpeed * 0.35f);
-        position.z += (carVelocity.y * carSpeed * 0.35f);
+        position.x += (carVelocity.x * carSpeed * 0.35f); // todo: magic numbers
+        position.z += (carVelocity.y * carSpeed * 0.35f); // todo: magic numbers
+        catchSpeed *= 0.3f; // todo: magic numbers
     }
 
     float deltaTime = gTimeManager.mGameFrameDelta;

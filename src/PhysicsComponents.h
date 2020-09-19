@@ -133,11 +133,11 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-enum eCarWheel
+enum eCarTire
 {
-    eCarWheel_Steer,
-    eCarWheel_Drive,
-    eCarWheel_COUNT
+    eCarTire_Front,
+    eCarTire_Rear,
+    eCarTire_COUNT
 };
 
 // car chassis physics component
@@ -159,15 +159,16 @@ public:
 
     void GetChassisCorners(glm::vec2 corners[4]) const;
     void GetLocalChassisCorners(glm::vec2 corners[4]) const;
-    void GetWheelCorners(eCarWheel wheelID, glm::vec2 corners[4]) const;
+    void GetTireCorners(eCarTire tireID, glm::vec2 corners[4]) const;
     
-    // Get wheel velocities
-    glm::vec2 GetWheelLateralVelocity(eCarWheel wheelID) const;
-    glm::vec2 GetWheelForwardVelocity(eCarWheel wheelID) const;
+    // Get tire velocities
+    glm::vec2 GetTireLateralVelocity(eCarTire tireID) const;
+    glm::vec2 GetTireForwardVelocity(eCarTire tireID) const;
 
-    // Get wheel forward direction and position in world space
-    glm::vec2 GetWheelPosition(eCarWheel wheelID) const;
-    glm::vec2 GetWheelDirection(eCarWheel wheelID) const;
+    // Get tire forward direction and position in world space
+    glm::vec2 GetTirePosition(eCarTire tireID) const;
+    glm::vec2 GetTireForward(eCarTire tireID) const;
+    glm::vec2 GetTireLateral(eCarTire tireID) const;
 
     // Get current vehicle speed
     float GetCurrentSpeed() const;
@@ -176,29 +177,35 @@ public:
     void HandleFallEnd();
 
 private:
-    void SetupWheels();
-    void UpdateSteer(PedestrianCtlState* currentCtlState);
-    void UpdateFriction(PedestrianCtlState* currentCtlState);
-    void UpdateDrive(PedestrianCtlState* currentCtlState);
+    struct DriveCtlState
+    {
+        float mSteerDirection = 0.0f;
+        float mDriveDirection = 0.0f;
+        bool mHandBrake = false;
+    };
+
+    void UpdateSteer(const DriveCtlState& currCtlState);
+    void UpdateFriction(const DriveCtlState& currCtlState);
+    void UpdateDrive(const DriveCtlState& currCtlState);
 
     // helpers, world space
-    b2Vec2 b2GetWheelLateralVelocity(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelForwardVelocity(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelForwardVector(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelLateralVector(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelPoint(eCarWheel wheelID) const;
+    b2Vec2 b2GetTireLateralVelocity(eCarTire tireID) const;
+    b2Vec2 b2GetTireForwardVelocity(eCarTire tireID) const;
+    b2Vec2 b2GetTireForward(eCarTire tireID) const;
+    b2Vec2 b2GetTireLateral(eCarTire tireID) const;
+    b2Vec2 b2GetTirePos(eCarTire tireID) const;
     // helpers, local space
-    b2Vec2 b2GetWheelLocalPoint(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelLocalForwardVector(eCarWheel wheelID) const;
-    b2Vec2 b2GetWheelLocalLateralVector(eCarWheel wheelID) const;
+    b2Vec2 b2GetTireLocalPos(eCarTire tireID) const;
+    b2Vec2 b2GetTireLocalForward(eCarTire tireID) const;
+    b2Vec2 b2GetTireLocalLateral(eCarTire tireID) const;
 
 private:
     VehicleInfo* mCarDesc = nullptr;
     b2Fixture* mChassisFixture = nullptr;
 
-    // wheels
-    float mSteerWheelPosition = 0.0f; // front
-    float mDriveWheelPosition = 0.0f; // rear
+    // tires
+    float mFrontTireOffset = 0.0f; // steer
+    float mRearTireOffset = 0.0f; // drive
     float mSteeringAngleRadians = 0.0f;
 };
 
