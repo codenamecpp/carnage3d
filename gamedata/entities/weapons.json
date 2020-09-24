@@ -19,7 +19,7 @@
         // base params
         "base_hit_range": 4.5,
         "base_fire_rate": 2.0,
-        "base_ammo_limit": 999,
+        "base_ammo_limit": 99,
         "base_damage": 5,
 
         "hud_sprite": 30
@@ -71,7 +71,7 @@
         // base params
         "base_hit_range": 20.0,
         "base_fire_rate": 1.0,
-        "base_ammo_limit": 999,
+        "base_ammo_limit": 99,
         "base_damage": 100,
 
         "hud_sprite": 32

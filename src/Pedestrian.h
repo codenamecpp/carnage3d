@@ -36,8 +36,9 @@ public:
     eCarSeat mCurrentSeat;
 
     // inventory
-    eWeaponID mCurrentWeapon;
-    int mWeaponsAmmo[eWeapon_COUNT]; // -1 means infinite, 'fists' is good example
+    eWeaponID mCurrentWeapon = eWeapon_Fists;
+    int mAmmunition[eWeapon_COUNT];
+    int mArmorHitPoints = 0;
 
 public:
     // @param id: Unique object identifier, constant
@@ -60,6 +61,13 @@ public:
 
     // set current weapon type
     void ChangeWeapon(eWeaponID weapon);
+    bool HasArmor() const;
+    bool HasAmmunition(eWeaponID weapon) const;
+    bool HasAmmunition() const;
+    void AddAmmunition(eWeaponID weapon, int amount);
+    void DecAmmunition(eWeaponID weapon, int amount);
+    void SetAmmunition(eWeaponID weapon, int amount);
+    void ClearAmmunition();
 
     // Instant kill, pedestrian will remain in dead state until respawn
     void DieFromDamage(eDamageCause damageCause);

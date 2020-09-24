@@ -17,6 +17,11 @@ void HumanPlayer::UpdateFrame()
 {
     mPlayerView.UpdateFrame();
 
+    if (!mCharacter->HasAmmunition())
+    {
+        SwitchPrevWeapon();
+    }
+
     if (mCharacter->IsDead())
     {
         // detect death
@@ -187,6 +192,8 @@ void HumanPlayer::SetCharacter(Pedestrian* character)
     if (mCharacter)
     {
         mCharacter->mController = this;
+
+        Cheat_GiveAllWeapons();
     }
 }
 
@@ -206,9 +213,10 @@ void HumanPlayer::SwitchNextWeapon()
     int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
-        if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
+        eWeaponID weaponID = (eWeaponID) nextWeaponIndex;
+        if ((weaponID == eWeapon_Fists) || mCharacter->HasAmmunition(weaponID))
         {
-            mCharacter->ChangeWeapon((eWeaponID) nextWeaponIndex);
+            mCharacter->ChangeWeapon(weaponID);
             return;
         }
         nextWeaponIndex = (nextWeaponIndex + 1) % eWeapon_COUNT;
@@ -220,9 +228,10 @@ void HumanPlayer::SwitchPrevWeapon()
     int nextWeaponIndex = mCharacter->mCurrentWeapon == 0 ? (eWeapon_COUNT - 1) : (mCharacter->mCurrentWeapon - 1);
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
-        if (mCharacter->mWeaponsAmmo[nextWeaponIndex] != 0)
+        eWeaponID weaponID = (eWeaponID) nextWeaponIndex;
+        if ((weaponID == eWeapon_Fists) || mCharacter->HasAmmunition(weaponID))
         {
-            mCharacter->ChangeWeapon((eWeaponID) nextWeaponIndex);
+            mCharacter->ChangeWeapon(weaponID);
             return;
         }
         nextWeaponIndex = nextWeaponIndex == 0 ? (eWeapon_COUNT - 1) : (nextWeaponIndex - 1);
@@ -270,6 +279,8 @@ void HumanPlayer::Respawn()
     // todo : exit from car
 
     mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsBody->GetRotationAngle());
+
+    Cheat_GiveAllWeapons();
 }
 
 void HumanPlayer::ProcessRepetitiveActions()
@@ -364,6 +375,15 @@ void HumanPlayer::UpdateDistrictLocation()
     {
         mLastDistrictIndex = currentDistrict->mSampleIndex;
         mPlayerView.mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
+    }
+}
+
+void HumanPlayer::Cheat_GiveAllWeapons()
+{
+    debug_assert(mCharacter);
+    for (int icurr = 0; icurr < eWeapon_COUNT; ++icurr)
+    {
+        mCharacter->AddAmmunition((eWeaponID) icurr, 99);
     }
 }
 

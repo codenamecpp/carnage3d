@@ -40,14 +40,17 @@ class HUDWeaponPanel: public HUDPanel
 {
 public:
     HUDWeaponPanel();
-    // Setup current weapon icon
-    void SetWeaponIcon(eWeaponID weaponID);
+    // Setup current weapon info
+    void SetWeaponInfo(eWeaponID weaponID, int ammunitionCount);
     // override HUDPanel methods
     void SetupHUD() override;
     void DrawFrame(GuiContext& guiContext) override;
     void UpdatePanelSize(const Point& maxSize) override;
 private:
     Sprite2D mWeaponIcon;
+    Font* mAmmunitionFont = nullptr;
+    int mPrevAmmunitionCount = 0;
+    std::string mAmmunitionText; // cached message text
 };
 
 //////////////////////////////////////////////////////////////////////////

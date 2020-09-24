@@ -48,12 +48,8 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
     // reset actions
     mCtlState.Clear();
 
-    // reset weapon ammo
-    for (int iweapon = 0; iweapon < eWeapon_COUNT; ++iweapon)
-    {
-        mWeaponsAmmo[iweapon] = -1; // temporary
-    }
-    mWeaponsAmmo[eWeapon_Fists] = -1;
+    // reset weapon
+    ClearAmmunition();
     mCurrentWeapon = eWeapon_Fists;
     
     if (mPhysicsBody == nullptr)
@@ -520,4 +516,53 @@ bool Pedestrian::IsHumanPlayerCharacter() const
     }
 
     return false;
+}
+
+bool Pedestrian::HasAmmunition(eWeaponID weapon) const
+{
+    debug_assert(weapon < eWeapon_COUNT);
+    return gGameMap.mStyleData.mWeapons[weapon].IsUnlimited() || (mAmmunition[weapon] > 0);
+}
+
+bool Pedestrian::HasAmmunition() const
+{
+    return HasAmmunition(mCurrentWeapon);
+}
+
+void Pedestrian::AddAmmunition(eWeaponID weapon, int amount)
+{
+    debug_assert(weapon < eWeapon_COUNT);
+
+    int currentAmount = mAmmunition[weapon];
+    SetAmmunition(weapon, currentAmount + amount);
+}
+
+void Pedestrian::ClearAmmunition()
+{
+    for (int icurrent = 0; icurrent < eWeapon_COUNT; ++icurrent)
+    {
+        mAmmunition[icurrent] = 0;
+    }
+    mArmorHitPoints = 0;
+}
+
+void Pedestrian::SetAmmunition(eWeaponID weapon, int amount)
+{
+    debug_assert(weapon < eWeapon_COUNT);
+
+    int MaxAmmo = gGameMap.mStyleData.mWeapons[weapon].mBaseMaxAmmo;
+    mAmmunition[weapon] = glm::clamp(amount, 0, MaxAmmo);
+}
+
+void Pedestrian::DecAmmunition(eWeaponID weapon, int amount)
+{
+    debug_assert(weapon < eWeapon_COUNT);
+
+    int currAmmo = mAmmunition[weapon];
+    mAmmunition[weapon] = std::max(0, currAmmo - amount);
+}
+
+bool Pedestrian::HasArmor() const
+{
+    return mArmorHitPoints > 0;
 }

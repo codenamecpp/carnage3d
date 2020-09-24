@@ -37,6 +37,9 @@ public:
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEventLost();
 
+    // cheats
+    void Cheat_GiveAllWeapons();
+
 private:
     void SwitchNextWeapon();
     void SwitchPrevWeapon();

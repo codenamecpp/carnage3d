@@ -69,6 +69,9 @@ void HUDWeaponPanel::SetupHUD()
     mWeaponIcon.mHeight = 0.0f;
     mWeaponIcon.mScale = HUD_SPRITE_SCALE;
     mWeaponIcon.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+
+    mAmmunitionFont = gFontManager.GetFont("SUB1.FON");
+    debug_assert(mAmmunitionFont);
 }
 
 void HUDWeaponPanel::DrawFrame(GuiContext& guiContext)
@@ -80,6 +83,20 @@ void HUDWeaponPanel::DrawFrame(GuiContext& guiContext)
     mWeaponIcon.mPosition.y = mPanelPosition.y * 1.0f;
 
     guiContext.mSpriteBatch.DrawSprite(mWeaponIcon);
+
+    if (mAmmunitionFont)
+    {
+        Point textDims;
+        mAmmunitionFont->MeasureString(mAmmunitionText, textDims);
+
+        Point textPos 
+        {
+            (mPanelPosition.x + mPanelSize.x) - textDims.x,
+            (mPanelPosition.y + mPanelSize.y) - textDims.y + 4,
+        };
+        int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Default);
+        mAmmunitionFont->DrawString(guiContext, mAmmunitionText, textPos, mPanelSize, fontPaletteIndex);
+    }
 }
 
 void HUDWeaponPanel::UpdatePanelSize(const Point& maxSize)
@@ -88,8 +105,14 @@ void HUDWeaponPanel::UpdatePanelSize(const Point& maxSize)
     mPanelSize.y = mWeaponIcon.mTextureRegion.mRectangle.h;
 }
 
-void HUDWeaponPanel::SetWeaponIcon(eWeaponID weaponID)
+void HUDWeaponPanel::SetWeaponInfo(eWeaponID weaponID, int ammunitionCount)
 {
+    if ((mPrevAmmunitionCount == 0) || (mPrevAmmunitionCount != ammunitionCount))
+    {
+        mPrevAmmunitionCount = ammunitionCount;
+        mAmmunitionText = cxx::va("%d", ammunitionCount);
+    }
+
     WeaponInfo& weapon = gGameMap.mStyleData.mWeapons[weaponID];
     int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weapon.mSpriteIndex);
 
@@ -456,7 +479,7 @@ void HUD::UpdateFrame()
     }
     else
     {
-        mWeaponPanel.SetWeaponIcon(character->mCurrentWeapon);
+        mWeaponPanel.SetWeaponInfo(character->mCurrentWeapon, character->mAmmunition[character->mCurrentWeapon]);
         mWeaponPanel.ShowPanel();
     }
 
