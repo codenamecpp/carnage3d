@@ -79,6 +79,7 @@ public:
     void SetMaxRepeatCycles(int numCycles);
     void PlayAnimationBackwards(eSpriteAnimLoop animLoop);
     void PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps);
+    void SetCurrentLoop(eSpriteAnimLoop animLoop);
 
     void RewindToStart();
     void RewindToEnd();

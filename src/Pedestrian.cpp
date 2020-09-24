@@ -309,33 +309,25 @@ bool Pedestrian::IsEnteringOrExitingCar() const
 
 bool Pedestrian::IsIdle() const
 {
-    return IsStanding() || IsShooting() || IsWalking();
+    return IsStanding() || IsWalking();
 }
 
 bool Pedestrian::IsStanding() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    return (currState == ePedestrianState_StandingStill || currState == ePedestrianState_StandsAndShoots);
-}
-
-bool Pedestrian::IsShooting() const
-{
-    ePedestrianState currState = GetCurrentStateID();
-    return (currState == ePedestrianState_StandsAndShoots || currState == ePedestrianState_WalksAndShoots ||
-        currState == ePedestrianState_RunsAndShoots);
+    return (currState == ePedestrianState_StandingStill);
 }
 
 bool Pedestrian::IsWalking() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    return (currState == ePedestrianState_Walks || currState == ePedestrianState_Runs || 
-        currState == ePedestrianState_WalksAndShoots || currState == ePedestrianState_RunsAndShoots);
+    return (currState == ePedestrianState_Walks || currState == ePedestrianState_Runs);
 }
 
 bool Pedestrian::IsRunning() const
 {
     ePedestrianState currState = GetCurrentStateID();
-    return (currState == ePedestrianState_Runs || currState == ePedestrianState_RunsAndShoots);
+    return (currState == ePedestrianState_Runs);
 }
 
 bool Pedestrian::IsStunned() const

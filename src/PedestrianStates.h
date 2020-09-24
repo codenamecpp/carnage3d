@@ -71,7 +71,7 @@ private:
     ePedestrianState GetNextIdleState();
 
     // anims helpers
-    ePedestrianAnimID DetectIdleAnimation() const;
+    ePedestrianAnimID DetectIdleAnimation(bool isShooting) const;
 
     void SetInCarPositionToDoor();
     void SetInCarPositionToSeat();

@@ -697,11 +697,8 @@ enum ePedestrianState
 {
     ePedestrianState_Unspecified, // special error state
     ePedestrianState_StandingStill,
-    ePedestrianState_StandsAndShoots,
     ePedestrianState_Walks,
     ePedestrianState_Runs,
-    ePedestrianState_WalksAndShoots,
-    ePedestrianState_RunsAndShoots,
     ePedestrianState_Falling,
     ePedestrianState_EnteringCar,
     ePedestrianState_ExitingCar,

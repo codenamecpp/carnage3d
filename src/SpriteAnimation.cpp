@@ -52,6 +52,7 @@ bool SpriteAnimation::IsRunsBackwards() const
 
 void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
 {
+    mLoopMode = animLoop;
     if (mStatus != eSpriteAnimStatus_Stop)
         return;
 
@@ -66,7 +67,6 @@ void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop)
     mAnimationStartTime = 0.0;
     mCyclesCounter = 0;
     mStatus = eSpriteAnimStatus_PlayForward;
-    mLoopMode = animLoop;
 }
 
 void SpriteAnimation::PlayAnimation(eSpriteAnimLoop animLoop, float fps)
@@ -98,6 +98,11 @@ void SpriteAnimation::PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps
     PlayAnimation(animLoop, fps);
 
     mStatus = eSpriteAnimStatus_PlayBackward;
+}
+
+void SpriteAnimation::SetCurrentLoop(eSpriteAnimLoop animLoop)
+{
+    mLoopMode = animLoop;
 }
 
 void SpriteAnimation::StopAnimation()

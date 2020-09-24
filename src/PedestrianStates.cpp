@@ -51,11 +51,6 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
-    mFuncsTable[ePedestrianState_StandsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateDummy_ProcessExit, 
-        &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
-
     mFuncsTable[ePedestrianState_Walks] = {&PedestrianStatesManager::StateIdle_ProcessEnter,
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
@@ -63,16 +58,6 @@ void PedestrianStatesManager::InitFuncsTable()
 
     mFuncsTable[ePedestrianState_Runs] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit,
-        &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
-
-    mFuncsTable[ePedestrianState_WalksAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateDummy_ProcessExit, 
-        &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
-
-    mFuncsTable[ePedestrianState_RunsAndShoots] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
-        &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
         &PedestrianStatesManager::StateIdle_ProcessEvent};
 
@@ -248,81 +233,61 @@ ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
     if (ctlState.mRun)
-    {
-        if (ctlState.mShoot)
-            return ePedestrianState_RunsAndShoots;
-
         return ePedestrianState_Runs;
-    }
 
     if (ctlState.mWalkBackward || ctlState.mWalkForward)
-    {
-        // cannot walk and use fists simultaneously
-        if (ctlState.mShoot && (mPedestrian->mCurrentWeapon != eWeapon_Fists))
-            return ePedestrianState_WalksAndShoots;
-
         return ePedestrianState_Walks;
-    }
-
-    if (ctlState.mShoot)
-        return ePedestrianState_StandsAndShoots;
 
     return ePedestrianState_StandingStill;
 }
 
-ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation() const
-{
+ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation(bool isShooting) const
+{    
     if (mCurrentStateID == ePedestrianState_StandingStill)
+    {
+        if (isShooting)
+        {
+            switch (mPedestrian->mCurrentWeapon)
+            {
+                case eWeapon_Fists: return ePedestrianAnim_PunchingWhileStanding;
+                case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileStanding;
+                case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
+                case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
+                case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
+            }  
+        }
         return ePedestrianAnim_StandingStill;
+    }
 
     if (mCurrentStateID == ePedestrianState_Walks)
+    {
+        if (isShooting)
+        {
+            switch (mPedestrian->mCurrentWeapon)
+            {
+                case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
+                case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileWalking;
+                case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
+                case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
+                case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
+            }
+        }
         return ePedestrianAnim_Walk;
+    }
 
     if (mCurrentStateID == ePedestrianState_Runs)
-        return ePedestrianAnim_Run;
-
-    // stands and shoots
-    if (mCurrentStateID == ePedestrianState_StandsAndShoots)
     {
-        switch (mPedestrian->mCurrentWeapon)
+        if (isShooting)
         {
-            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileStanding;
-            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileStanding;
-            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
-            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
-            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
+            switch (mPedestrian->mCurrentWeapon)
+            {
+                case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
+                case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileRunning;
+                case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
+                case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
+                case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
+            }
         }
-        debug_assert(false);
-        return ePedestrianAnim_StandingStill;
-    }
-
-    // walks and shoots
-    if (mCurrentStateID == ePedestrianState_WalksAndShoots)
-    {
-        switch (mPedestrian->mCurrentWeapon)
-        {
-            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
-            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileWalking;
-            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
-            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
-            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
-        }
-        debug_assert(false);
-        return ePedestrianAnim_Walk;
-    }
-
-    // runs and shoots
-    if (mCurrentStateID == ePedestrianState_RunsAndShoots)
-    {
-        switch (mPedestrian->mCurrentWeapon)
-        {
-            case eWeapon_Fists: return ePedestrianAnim_PunchingWhileRunning;
-            case eWeapon_Pistol: return ePedestrianAnim_ShootPistolWhileRunning;
-            case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
-            case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
-            case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
-        }
-        debug_assert(false);
         return ePedestrianAnim_Run;
     }
 
@@ -764,13 +729,33 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
 
-    if (mPedestrian->IsShooting())
+    bool isShooting = false;
+    if (ctlState.mShoot)
     {
-        // pedestrian is in shooting state but does he really want to shoot?
-        if (ctlState.mShoot)
+        if ((mCurrentStateID == ePedestrianState_Walks) && (mPedestrian->mCurrentWeapon == eWeapon_Fists))
+        {
+            // cannot walk and use fists simultaneously
+        }
+        else
         {
             TryToShoot();
-        } 
+            isShooting = true;
+        }
+    }
+
+    // update animation
+    ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
+    if (animID != mPedestrian->mCurrentAnimID)
+    {
+        // force shoot animation
+        if (isShooting)
+        {
+            mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart);
+        }
+        else if (mPedestrian->mCurrentAnimState.IsLastFrame())
+        {
+            mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
+        }
     }
 
     ProcessRotateActions();
@@ -787,27 +772,18 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
         }
     }
     
-    // process shooting
+    // check next state
     ePedestrianState nextIdleState = GetNextIdleState();
-    if (nextIdleState == mCurrentStateID)
-        return;
-
-    if ((mCurrentStateID == ePedestrianState_RunsAndShoots && nextIdleState == ePedestrianState_Runs) ||
-        (mCurrentStateID == ePedestrianState_WalksAndShoots && nextIdleState == ePedestrianState_Walks) ||
-        (mCurrentStateID == ePedestrianState_StandsAndShoots && nextIdleState == ePedestrianState_StandingStill))
+    if (nextIdleState != mCurrentStateID)
     {
-        // wait animation ends
-        if (mPedestrian->mCurrentAnimState.IsAnimationActive() && !mPedestrian->mCurrentAnimState.IsLastFrame())
-            return;
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        ChangeState(nextIdleState, evData);
     }
-
-    PedestrianStateEvent evData { ePedestrianStateEvent_None };
-    ChangeState(nextIdleState, evData);
 }
 
 void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    ePedestrianAnimID animID = DetectIdleAnimation();
+    ePedestrianAnimID animID = DetectIdleAnimation(mPedestrian->mCtlState.mShoot);
     mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
 }
 
@@ -815,7 +791,7 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 {
     if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
     {
-        ePedestrianAnimID animID = DetectIdleAnimation();
+        ePedestrianAnimID animID = DetectIdleAnimation(mPedestrian->mCtlState.mShoot);
         mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         return true;
     }

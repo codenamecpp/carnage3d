@@ -404,11 +404,8 @@ impl_enum_strings(ePedestrianState)
 {   
     {ePedestrianState_Unspecified, "unspecified"},
     {ePedestrianState_StandingStill, "standing_still"},
-    {ePedestrianState_StandsAndShoots, "stands_and_shoots"},
     {ePedestrianState_Walks, "walks"},
     {ePedestrianState_Runs, "runs"},
-    {ePedestrianState_WalksAndShoots, "walks_and_shoots"},
-    {ePedestrianState_RunsAndShoots, "runs_and_shoots"},
     {ePedestrianState_Falling, "falling"},
     {ePedestrianState_EnteringCar, "entering_car"},
     {ePedestrianState_ExitingCar, "exiting_car"},
