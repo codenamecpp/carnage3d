@@ -256,6 +256,7 @@
     <ClInclude Include="TrimeshBuffer.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VertexFormats.h" />
+    <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -338,6 +339,7 @@
     <ClCompile Include="PixelsArray.cpp" />
     <ClCompile Include="TrimeshBuffer.cpp" />
     <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponInfo.cpp" />
   </ItemGroup>
   <ItemGroup>

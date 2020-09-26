@@ -42,7 +42,12 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mSpawnHeading = heading;
 
     mCurrentStateTime = 0.0f;
-    mWeaponRechargeTime = 0.0f;
+
+    for (int currWeapon = 0; currWeapon < eWeapon_COUNT; ++currWeapon)
+    {
+        mWeapons[currWeapon].Setup((eWeaponID) currWeapon, 0);
+    }
+
     mBurnStartTime = 0.0f;
 
     // reset actions
@@ -50,7 +55,9 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 
     // reset weapon
     ClearAmmunition();
+
     mCurrentWeapon = eWeapon_Fists;
+    mChangeWeapon = eWeapon_Fists;
     
     if (mPhysicsBody == nullptr)
     {
@@ -78,6 +85,24 @@ void Pedestrian::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     mCurrentAnimState.AdvanceAnimation(deltaTime);
+
+    // update weapons state
+    for (Weapon& currWeapon: mWeapons)
+    {
+        currWeapon.UpdateFrame();
+    }
+
+    // change weapon
+    if (mCurrentWeapon != mChangeWeapon)
+    {
+        if (GetWeapon().IsOutOfAmmunition() || GetWeapon().IsReadyToFire())
+        {
+            mCurrentWeapon = mChangeWeapon;
+            // notify current state
+            PedestrianStateEvent evData { ePedestrianStateEvent_WeaponChange };
+            mStatesManager.ProcessEvent(evData);
+        }
+    }
 
     mCurrentStateTime += deltaTime;
     // update current state logic
@@ -189,15 +214,20 @@ void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
     mDrawHeight = maxHeight;
 }
 
+Weapon& Pedestrian::GetWeapon()
+{
+    return mWeapons[mCurrentWeapon];
+}
+
+Weapon& Pedestrian::GetWeapon(eWeaponID weapon)
+{
+    debug_assert(weapon < eWeapon_COUNT);
+    return mWeapons[weapon];
+}
+
 void Pedestrian::ChangeWeapon(eWeaponID weapon)
 {
-    if (mCurrentWeapon == weapon)
-        return;
-
-    mCurrentWeapon = weapon;
-    // notify current state
-    PedestrianStateEvent evData { ePedestrianStateEvent_WeaponChange };
-    mStatesManager.ProcessEvent(evData);
+    mChangeWeapon = weapon;
 }
 
 void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
@@ -518,51 +548,11 @@ bool Pedestrian::IsHumanPlayerCharacter() const
     return false;
 }
 
-bool Pedestrian::HasAmmunition(eWeaponID weapon) const
-{
-    debug_assert(weapon < eWeapon_COUNT);
-    return gGameMap.mStyleData.mWeapons[weapon].IsUnlimited() || (mAmmunition[weapon] > 0);
-}
-
-bool Pedestrian::HasAmmunition() const
-{
-    return HasAmmunition(mCurrentWeapon);
-}
-
-void Pedestrian::AddAmmunition(eWeaponID weapon, int amount)
-{
-    debug_assert(weapon < eWeapon_COUNT);
-
-    int currentAmount = mAmmunition[weapon];
-    SetAmmunition(weapon, currentAmount + amount);
-}
-
 void Pedestrian::ClearAmmunition()
 {
     for (int icurrent = 0; icurrent < eWeapon_COUNT; ++icurrent)
     {
-        mAmmunition[icurrent] = 0;
+        mWeapons[icurrent].SetAmmunition(0);
     }
     mArmorHitPoints = 0;
-}
-
-void Pedestrian::SetAmmunition(eWeaponID weapon, int amount)
-{
-    debug_assert(weapon < eWeapon_COUNT);
-
-    int MaxAmmo = gGameMap.mStyleData.mWeapons[weapon].mBaseMaxAmmo;
-    mAmmunition[weapon] = glm::clamp(amount, 0, MaxAmmo);
-}
-
-void Pedestrian::DecAmmunition(eWeaponID weapon, int amount)
-{
-    debug_assert(weapon < eWeapon_COUNT);
-
-    int currAmmo = mAmmunition[weapon];
-    mAmmunition[weapon] = std::max(0, currAmmo - amount);
-}
-
-bool Pedestrian::HasArmor() const
-{
-    return mArmorHitPoints > 0;
 }

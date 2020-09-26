@@ -167,72 +167,6 @@ void PedestrianStatesManager::ProcessMotionActions()
     mPedestrian->mPhysicsBody->SetLinearVelocity(linearVelocity); 
 }
 
-bool PedestrianStatesManager::TryToShoot()
-{
-    debug_assert(mPedestrian->mCurrentWeapon < eWeapon_COUNT);
-
-    float currGameTime = gTimeManager.mGameTime;
-    if ((mPedestrian->mWeaponRechargeTime >= currGameTime) || !mPedestrian->HasAmmunition())
-    {
-        return false;
-    }
-
-    glm::vec3 currPosition = mPedestrian->mPhysicsBody->GetPosition();
-
-    // get weapon params
-    WeaponInfo& weaponParams = gGameMap.mStyleData.mWeapons[mPedestrian->mCurrentWeapon];
-
-    if (weaponParams.IsMelee())
-    {
-        glm::vec2 posA { currPosition.x, currPosition.z };
-        glm::vec2 posB = posA + (mPedestrian->mPhysicsBody->GetSignVector() * weaponParams.mBaseHitRange);
-        // find candidates
-        PhysicsLinecastResult linecastResult;
-        gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
-        for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
-        {
-            PedPhysicsBody* pedBody = linecastResult.mHits[icurr].mPedComponent;
-            if (pedBody == nullptr || pedBody->mReferencePed == mPedestrian) // ignore self
-                continue; 
-
-            // todo: check distance in y direction
-            DamageInfo damageInfo;
-            damageInfo.SetDamageFromWeapon(weaponParams, mPedestrian);         
-            pedBody->mReferencePed->ReceiveDamage(damageInfo);
-        }
-    }
-    else if (weaponParams.IsRange())
-    {
-        glm::vec2 signVector = mPedestrian->mPhysicsBody->GetSignVector();       
-        glm::vec2 offset = (signVector * 1.0f); //todo: magic numbers
-        glm::vec3 projectilePos {
-            currPosition.x + offset.x, 
-            currPosition.y, 
-            currPosition.z + offset.y
-        };
-        debug_assert(weaponParams.mProjectileTypeID < eProjectileType_COUNT);
-        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, mPedestrian->mPhysicsBody->GetRotationAngle(), &weaponParams);
-        debug_assert(projectile);
-
-        if (!weaponParams.IsUnlimited())
-        {
-            mPedestrian->DecAmmunition(weaponParams.mWeaponID, 1);
-        }
-
-        // broardcast event
-        gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, mPedestrian, mPedestrian, gGameParams.mBroadcastGunShotEventDuration);
-    }
-    else
-    {
-        debug_assert(false);
-    }
-
-    // setup cooldown time for weapons
-    float rechargeTime = (1.0f / weaponParams.mBaseFireRate);
-    mPedestrian->mWeaponRechargeTime = (currGameTime + rechargeTime);
-    return true;
-}
-
 ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
@@ -734,7 +668,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
 
     bool isShooting = false;
-    if (ctlState.mShoot && mPedestrian->HasAmmunition())
+    if (ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition())
     {
         if ((mCurrentStateID == ePedestrianState_Walks) && (mPedestrian->mCurrentWeapon == eWeapon_Fists))
         {
@@ -742,7 +676,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
         }
         else
         {
-            TryToShoot();
+            mPedestrian->GetWeapon().Fire(mPedestrian);
             isShooting = true;
         }
     }
@@ -787,7 +721,7 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
 
 void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    bool isShooting = mPedestrian->mCtlState.mShoot && mPedestrian->HasAmmunition();
+    bool isShooting = mPedestrian->mCtlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
 
     ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
     mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
@@ -797,7 +731,7 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 {
     if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
     {
-        bool isShooting = mPedestrian->mCtlState.mShoot && mPedestrian->HasAmmunition();
+        bool isShooting = mPedestrian->mCtlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
 
         ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
         mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 

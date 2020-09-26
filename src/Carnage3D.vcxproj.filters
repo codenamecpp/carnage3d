@@ -377,6 +377,9 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Weapon.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -598,6 +601,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="CharacterController.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

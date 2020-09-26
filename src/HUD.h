@@ -35,13 +35,13 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
-
+class Weapon;
 class HUDWeaponPanel: public HUDPanel
 {
 public:
     HUDWeaponPanel();
     // Setup current weapon info
-    void SetWeaponInfo(eWeaponID weaponID, int ammunitionCount);
+    void SetWeaponInfo(Weapon& weaponState);
     // override HUDPanel methods
     void SetupHUD() override;
     void DrawFrame(GuiContext& guiContext) override;

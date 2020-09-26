@@ -692,6 +692,15 @@ enum eWeaponFireType
 
 decl_enum_strings(eWeaponFireType);
 
+// weapon state
+enum eWeaponState
+{
+    eWeaponState_ReadyToFire,
+    eWeaponState_Reloading,
+    eWeaponState_OutOfAmmunition,
+    eWeaponState_COUNT
+};
+
 // pedestrian basic state
 enum ePedestrianState
 {

@@ -66,7 +66,6 @@ private:
     // state helpers
     void ProcessRotateActions();
     void ProcessMotionActions();
-    bool TryToShoot();
 
     ePedestrianState GetNextIdleState();
 

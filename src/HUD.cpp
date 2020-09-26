@@ -105,16 +105,16 @@ void HUDWeaponPanel::UpdatePanelSize(const Point& maxSize)
     mPanelSize.y = mWeaponIcon.mTextureRegion.mRectangle.h;
 }
 
-void HUDWeaponPanel::SetWeaponInfo(eWeaponID weaponID, int ammunitionCount)
+void HUDWeaponPanel::SetWeaponInfo(Weapon& weaponState)
 {
-    if ((mPrevAmmunitionCount == 0) || (mPrevAmmunitionCount != ammunitionCount))
+    if ((mPrevAmmunitionCount == 0) || (mPrevAmmunitionCount != weaponState.mAmmunition))
     {
-        mPrevAmmunitionCount = ammunitionCount;
-        mAmmunitionText = cxx::va("%d", ammunitionCount);
+        mPrevAmmunitionCount = weaponState.mAmmunition;
+        mAmmunitionText = cxx::va("%d", weaponState.mAmmunition);
     }
 
-    WeaponInfo& weapon = gGameMap.mStyleData.mWeapons[weaponID];
-    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weapon.mSpriteIndex);
+    WeaponInfo* weaponInfo = weaponState.GetWeaponInfo();
+    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, weaponInfo->mSpriteIndex);
 
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mWeaponIcon);
 }
@@ -479,7 +479,7 @@ void HUD::UpdateFrame()
     }
     else
     {
-        mWeaponPanel.SetWeaponInfo(character->mCurrentWeapon, character->mAmmunition[character->mCurrentWeapon]);
+        mWeaponPanel.SetWeaponInfo(character->mWeapons[character->mCurrentWeapon]);
         mWeaponPanel.ShowPanel();
     }
 

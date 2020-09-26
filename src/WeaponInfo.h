@@ -35,8 +35,6 @@ public:
     { 
         return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Missile); 
     }
-    // has unlimited ammo
-    bool IsUnlimited() const { return (mBaseMaxAmmo == 0); }
 
 public:
     eWeaponID mWeaponID = eWeapon_Fists;

@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "Sprite2D.h"
 #include "PedestrianStates.h"
+#include "Weapon.h"
 
 // Define weak pointer to pedestrian object instance
 using PedestrianHandle = cxx::handle<Pedestrian>;
@@ -37,7 +38,9 @@ public:
 
     // inventory
     eWeaponID mCurrentWeapon = eWeapon_Fists;
-    int mAmmunition[eWeapon_COUNT];
+    eWeaponID mChangeWeapon = eWeapon_Fists;
+    Weapon mWeapons[eWeapon_COUNT];
+
     int mArmorHitPoints = 0;
 
 public:
@@ -59,14 +62,14 @@ public:
     glm::vec3 GetCurrentPosition() const override;
     glm::vec2 GetCurrentPosition2() const override;
 
-    // set current weapon type
+    // set next weapon type
     void ChangeWeapon(eWeaponID weapon);
-    bool HasArmor() const;
-    bool HasAmmunition(eWeaponID weapon) const;
-    bool HasAmmunition() const;
-    void AddAmmunition(eWeaponID weapon, int amount);
-    void DecAmmunition(eWeaponID weapon, int amount);
-    void SetAmmunition(eWeaponID weapon, int amount);
+
+    // Get current weapon state
+    // @param weapon: Weapon identifier
+    Weapon& GetWeapon();
+    Weapon& GetWeapon(eWeaponID weapon);
+
     void ClearAmmunition();
 
     // Instant kill, pedestrian will remain in dead state until respawn
@@ -127,7 +130,6 @@ private:
     PedestrianStatesManager mStatesManager;
 
     float mCurrentStateTime = 0.0f; // time since current state has started
-    float mWeaponRechargeTime = 0.0f; // next time weapon can be used again
     float mBurnStartTime = 0.0f;
 
     // active effects

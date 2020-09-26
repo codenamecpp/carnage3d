@@ -17,7 +17,7 @@ void HumanPlayer::UpdateFrame()
 {
     mPlayerView.UpdateFrame();
 
-    if (!mCharacter->HasAmmunition())
+    if (mCharacter->GetWeapon().IsOutOfAmmunition())
     {
         SwitchPrevWeapon();
     }
@@ -214,7 +214,7 @@ void HumanPlayer::SwitchNextWeapon()
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
         eWeaponID weaponID = (eWeaponID) nextWeaponIndex;
-        if ((weaponID == eWeapon_Fists) || mCharacter->HasAmmunition(weaponID))
+        if (!mCharacter->mWeapons[weaponID].IsOutOfAmmunition())
         {
             mCharacter->ChangeWeapon(weaponID);
             return;
@@ -229,7 +229,7 @@ void HumanPlayer::SwitchPrevWeapon()
     for (; nextWeaponIndex != mCharacter->mCurrentWeapon; )
     {
         eWeaponID weaponID = (eWeaponID) nextWeaponIndex;
-        if ((weaponID == eWeapon_Fists) || mCharacter->HasAmmunition(weaponID))
+        if (!mCharacter->mWeapons[weaponID].IsOutOfAmmunition())
         {
             mCharacter->ChangeWeapon(weaponID);
             return;
@@ -383,7 +383,7 @@ void HumanPlayer::Cheat_GiveAllWeapons()
     debug_assert(mCharacter);
     for (int icurr = 0; icurr < eWeapon_COUNT; ++icurr)
     {
-        mCharacter->AddAmmunition((eWeaponID) icurr, 99);
+        mCharacter->mWeapons[icurr].AddAmmunition(99);
     }
 }
 
