@@ -66,8 +66,8 @@ public:
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
 
     // Current world position
-    glm::vec3 GetCurrentPosition() const override;
-    glm::vec2 GetCurrentPosition2() const override;
+    glm::vec3 GetPosition() const override;
+    glm::vec2 GetPosition2() const override;
 
     // set next weapon type
     void ChangeWeapon(eWeaponID weapon);
@@ -105,6 +105,7 @@ public:
     bool IsRunning() const;
     bool IsStunned() const;
     bool IsDead() const;
+    bool IsDies() const;
     bool IsBurn() const;
     bool IsOnTheGround() const;
 
@@ -147,6 +148,7 @@ private:
 
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
+    void UpdateDamageFromRailways();
 
     void SetDrawOrder(eSpriteDrawOrder drawOrder);
 
@@ -160,6 +162,7 @@ private:
 
     float mCurrentStateTime = 0.0f; // time since current state has started
     float mBurnStartTime = 0.0f;
+    float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
 
     // active effects
     Decoration* mFireEffect = nullptr;

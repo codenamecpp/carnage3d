@@ -644,6 +644,7 @@ enum ePedestrianAnimID
     ePedestrianAnim_DropOffCarSliding,
     ePedestrianAnim_FallShort,
     ePedestrianAnim_LiesOnFloor,
+    ePedestrianAnim_LiesOnFloorBones,
     ePedestrianAnim_PunchingWhileStanding,
     ePedestrianAnim_PunchingWhileRunning,
     ePedestrianAnim_ShootPistolWhileStanding,
@@ -658,6 +659,7 @@ enum ePedestrianAnimID
     ePedestrianAnim_ShootRPGWhileStanding,
     ePedestrianAnim_ShootRPGWhileWalking,
     ePedestrianAnim_ShootRPGWhileRunning,
+    ePedestrianAnim_Electrocuted,
     ePedestrianAnim_COUNT
 };
 
@@ -707,10 +709,10 @@ enum ePedestrianState
     ePedestrianState_ExitingCar,
     ePedestrianState_DrivingCar,
     ePedestrianState_SlideOnCar,
-    ePedestrianState_Dies,
     ePedestrianState_Dead,
     ePedestrianState_Stunned,
     ePedestrianState_Drowning,
+    ePedestrianState_Electrocuted,
     ePedestrianState_COUNT
 };
 

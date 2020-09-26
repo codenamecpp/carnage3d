@@ -52,13 +52,13 @@ void Obstacle::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
 }
 
-glm::vec3 Obstacle::GetCurrentPosition() const
+glm::vec3 Obstacle::GetPosition() const
 {
     // todo: implementation
     return {mDrawSprite.mPosition.x, mDrawSprite.mHeight, mDrawSprite.mPosition.y};
 }
 
-glm::vec2 Obstacle::GetCurrentPosition2() const
+glm::vec2 Obstacle::GetPosition2() const
 {
     // todo: implementation
     return {mDrawSprite.mPosition.x, mDrawSprite.mPosition.y};

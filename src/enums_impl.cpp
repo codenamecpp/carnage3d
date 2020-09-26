@@ -353,6 +353,7 @@ impl_enum_strings(ePedestrianAnimID)
     {ePedestrianAnim_DropOffCarSliding, "drop_off_car_sliding"},
     {ePedestrianAnim_FallShort, "fall_short"},
     {ePedestrianAnim_LiesOnFloor, "lies_on_floor"},
+    {ePedestrianAnim_LiesOnFloorBones, "lies_on_floor_bones"},
     {ePedestrianAnim_PunchingWhileStanding, "punching_while_standing"},
     {ePedestrianAnim_PunchingWhileRunning, "punching_while_running"},
     {ePedestrianAnim_ShootPistolWhileStanding, "shoot_pistol_while_standing"},
@@ -367,6 +368,7 @@ impl_enum_strings(ePedestrianAnimID)
     {ePedestrianAnim_ShootRPGWhileStanding, "shoot_rpg_while_standing"},
     {ePedestrianAnim_ShootRPGWhileWalking, "shoot_rpg_while_walking"},
     {ePedestrianAnim_ShootRPGWhileRunning, "shoot_rpg_while_running"},
+    {ePedestrianAnim_Electrocuted, "electrocuted"}
 };
 
 impl_enum_strings(eWeaponID)
@@ -412,7 +414,7 @@ impl_enum_strings(ePedestrianState)
     {ePedestrianState_ExitingCar, "exiting_car"},
     {ePedestrianState_DrivingCar, "driving_car"},
     {ePedestrianState_SlideOnCar, "slide_on_car"},
-    {ePedestrianState_Dies, "dies"},
+    {ePedestrianState_Electrocuted, "electrocuted"},
     {ePedestrianState_Dead, "dead"},
     {ePedestrianState_Stunned, "stunned"},
     {ePedestrianState_Drowning, "drowning"},

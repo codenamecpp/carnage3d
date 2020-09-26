@@ -101,10 +101,10 @@ void PedestrianStatesManager::InitFuncsTable()
         &PedestrianStatesManager::StateDrowning_ProcessFrame, 
         &PedestrianStatesManager::StateDummy_ProcessEvent};
 
-    mFuncsTable[ePedestrianState_Dies] = {&PedestrianStatesManager::StateDies_ProcessEnter, 
-        &PedestrianStatesManager::StateDies_ProcessExit, 
-        &PedestrianStatesManager::StateDies_ProcessFrame, 
-        &PedestrianStatesManager::StateDies_ProcessEvent};
+    mFuncsTable[ePedestrianState_Electrocuted] = {&PedestrianStatesManager::StateElectrocuted_ProcessEnter, 
+        &PedestrianStatesManager::StateDummy_ProcessExit, 
+        &PedestrianStatesManager::StateElectrocuted_ProcessFrame, 
+        &PedestrianStatesManager::StateDummy_ProcessEvent};
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     // handle high voltage
     if (damageInfo.mDamageCause == eDamageCause_Electricity)
     {
-        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        ChangeState(ePedestrianState_Electrocuted, eventData);
         return true;
     }
 
@@ -350,16 +350,23 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
 void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
     debug_assert(stateEvent.mID == ePedestrianStateEvent_Die);
-    mPedestrian->SetAnimation(ePedestrianAnim_LiesOnFloor, eSpriteAnimLoop_FromStart);
+
     mPedestrian->SetDead(stateEvent.mDeathReason);
     mPedestrian->mPhysicsBody->ClearForces();
+
+    ePedestrianAnimID animID = ePedestrianAnim_LiesOnFloor;
+    if (mPedestrian->mDeathReason == ePedestrianDeathReason_Electrocuted)
+    {
+        animID = ePedestrianAnim_LiesOnFloorBones;
+    }
+    mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart);
 
     // create effects
     bool createBlood = (stateEvent.mDeathReason != ePedestrianDeathReason_Drowned) &&
         (stateEvent.mDeathReason != ePedestrianDeathReason_Electrocuted) &&
-        (stateEvent.mDeathReason != ePedestrianDeathReason_null);
+        (stateEvent.mDeathReason != ePedestrianDeathReason_null) && !mPedestrian->IsCarPassenger();
 
-    if (!mPedestrian->IsCarPassenger())
+    if (createBlood)
     {
         glm::vec3 position = mPedestrian->mPhysicsBody->GetPosition();
         Decoration* decoration = gGameObjectsManager.CreateFirstBlood(position);
@@ -607,7 +614,7 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
     float impulse = 0.5f; // todo: magic numbers
 
     mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
-    mPedestrian->mPhysicsBody->AddLinearImpulse(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
+    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
 }
 
 bool PedestrianStatesManager::StateStunned_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -780,19 +787,30 @@ void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEv
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::StateDies_ProcessFrame()
+void PedestrianStatesManager::StateElectrocuted_ProcessFrame()
 {
+    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    {
+        if (mPedestrian->mCurrentAnimID == ePedestrianAnim_FallShort)
+        {
+            mPedestrian->mPhysicsBody->ClearForces();
+            mPedestrian->SetAnimation(ePedestrianAnim_Electrocuted, eSpriteAnimLoop_None);
+            return;
+        }
+        
+        if (mPedestrian->mCurrentAnimID == ePedestrianAnim_Electrocuted)
+        {
+            mPedestrian->DieFromDamage(eDamageCause_Electricity);
+            return;
+        }
+    }
 }
 
-void PedestrianStatesManager::StateDies_ProcessEnter(const PedestrianStateEvent& stateEvent)
+void PedestrianStatesManager::StateElectrocuted_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-}
+    float impulse = 0.3f; // todo: magic numbers
 
-void PedestrianStatesManager::StateDies_ProcessExit()
-{
-}
-
-bool PedestrianStatesManager::StateDies_ProcessEvent(const PedestrianStateEvent& stateEvent)
-{
-    return false;
+    mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
+    mPedestrian->mPhysicsBody->ClearForces();
+    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
 }

@@ -245,7 +245,7 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
     HumanPlayer* humanPlayer = new HumanPlayer;
     mHumanPlayers[humanIndex] = humanPlayer;
 
-    humanPlayer->mSpawnPosition = pedestrian->GetCurrentPosition();
+    humanPlayer->mSpawnPosition = pedestrian->GetPosition();
     humanPlayer->mPlayerView.mFollowCameraController.SetFollowTarget(pedestrian);
     humanPlayer->mPlayerView.mHUD.SetupHUD(humanPlayer);
     humanPlayer->SetCharacter(pedestrian);

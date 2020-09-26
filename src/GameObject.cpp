@@ -19,13 +19,13 @@ GameObject::~GameObject()
     SetDetached();
 }
 
-glm::vec3 GameObject::GetCurrentPosition() const
+glm::vec3 GameObject::GetPosition() const
 {
     // do nothing
     return {};
 }
 
-glm::vec2 GameObject::GetCurrentPosition2() const
+glm::vec2 GameObject::GetPosition2() const
 {
     // do nothing
     return {};

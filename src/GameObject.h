@@ -44,8 +44,8 @@ public:
     virtual void Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading);
 
     // Get current position within game world, meters
-    virtual glm::vec3 GetCurrentPosition() const;
-    virtual glm::vec2 GetCurrentPosition2() const;
+    virtual glm::vec3 GetPosition() const;
+    virtual glm::vec2 GetPosition2() const;
 
     // schedule object to delete from game
     void MarkForDeletion();

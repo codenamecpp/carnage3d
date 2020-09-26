@@ -126,5 +126,26 @@
     "shoot_rpg_while_running":
     {
         "start_frame": 162, "num_frames": 8
+    },
+    "electrocuted":
+    {
+        "frames": [
+            172, 
+            173, 174, 
+            173, 174,
+            173, 174, 
+            173, 174,
+            173, 174,
+            173, 174,
+            173, 174,
+            173, 174,
+            175, 175,
+            176, 176
+        ], 
+        "fps": 10.0
+    },
+    "lies_on_floor_bones":
+    {
+        "start_frame": 176, "num_frames": 1, "fps": 1.0
     }
 }

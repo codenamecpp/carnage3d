@@ -27,7 +27,7 @@ void Explosion::UpdateFrame()
 
         if (mAnimationState.mFrameCursor == 6) // todo: magic numbers
         {
-            glm::vec3 currentPosition = GetCurrentPosition();
+            glm::vec3 currentPosition = GetPosition();
             // create smoke effect
             Decoration* bigSmoke = gGameObjectsManager.CreateBigSmoke(currentPosition);
             debug_assert(bigSmoke);
@@ -55,12 +55,12 @@ void Explosion::DebugDraw(DebugRenderer& debugRender)
     debugRender.DrawSphere(mSpawnPosition, damageRadiusB, Color32_Yellow, false);
 }
 
-glm::vec3 Explosion::GetCurrentPosition() const
+glm::vec3 Explosion::GetPosition() const
 {
     return mSpawnPosition;
 }
 
-glm::vec2 Explosion::GetCurrentPosition2() const
+glm::vec2 Explosion::GetPosition2() const
 {
     return { mSpawnPosition.x, mSpawnPosition.z };
 }

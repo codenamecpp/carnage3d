@@ -39,8 +39,8 @@ public:
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
 
     // Current world position
-    glm::vec3 GetCurrentPosition() const override;
-    glm::vec2 GetCurrentPosition2() const override;
+    glm::vec3 GetPosition() const override;
+    glm::vec2 GetPosition2() const override;
 
     // adds or removes car passenger
     // @param pedestrian: Pedestrian, cannot be null
@@ -68,6 +68,7 @@ public:
     bool IsDoorClosing(int doorIndex) const;
 
     bool HasHardTop() const;
+    bool CanResistElectricity() const;
 
     // emergency lights animation
     bool HasEmergencyLightsAnimation() const;
@@ -113,6 +114,7 @@ private:
 
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
+    void UpdateDamageFromRailways();
 
     SpriteDeltaBits GetSpriteDeltas() const;
 
@@ -125,10 +127,11 @@ private:
     // active effects
     Decoration* mFireEffect = nullptr;
     float mBurnStartTime = 0.0f;
+    float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
 
     int mRemapIndex = NO_REMAP;
     int mSpriteIndex = 0;
-
     int mCurrentDamage = 0;
+
     bool mCarWrecked = false;
 };

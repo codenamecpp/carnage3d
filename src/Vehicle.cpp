@@ -48,6 +48,8 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mSpawnPosition = position;
     mSpawnHeading = heading;
 
+    mStandingOnRailwaysTimer = 0.0f;
+
     debug_assert(mCarInfo);
     
     if (mPhysicsBody == nullptr)
@@ -72,6 +74,7 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
 void Vehicle::UpdateFrame()
 {
     UpdateBurnEffect();
+    UpdateDamageFromRailways();
 
     if (IsWrecked())
         return;
@@ -184,12 +187,12 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
     }
 }
 
-glm::vec3 Vehicle::GetCurrentPosition() const
+glm::vec3 Vehicle::GetPosition() const
 {
     return mPhysicsBody->GetPosition();
 }
 
-glm::vec2 Vehicle::GetCurrentPosition2() const
+glm::vec2 Vehicle::GetPosition2() const
 {
     return mPhysicsBody->GetPosition2();
 }
@@ -589,6 +592,17 @@ bool Vehicle::HasHardTop() const
     return !mCarInfo->mConvertible && (mCarInfo->mClassID != eVehicleClass_Motorcycle);
 }
 
+bool Vehicle::CanResistElectricity() const
+{
+    if ((mCarInfo->mClassID == eVehicleClass_Train) ||
+        (mCarInfo->mClassID == eVehicleClass_Tram) ||
+        (mCarInfo->mClassID == eVehicleClass_Tank))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool Vehicle::IsWrecked() const
 {
     return mCarWrecked;
@@ -598,6 +612,15 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 {
     if (IsWrecked())
         return false;
+
+    if (damageInfo.mDamageCause == eDamageCause_Electricity)
+    {
+        if (CanResistElectricity())
+            return false;
+
+        mCurrentDamage += 1; // todo: magic numbers
+        return true;
+    }
 
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
@@ -791,4 +814,34 @@ int Vehicle::GetCurrentDamage() const
 bool Vehicle::IsInWater() const
 {
     return mPhysicsBody->mWaterContact;
+}
+
+void Vehicle::UpdateDamageFromRailways()
+{
+    if (IsWrecked() || CanResistElectricity())
+        return;
+
+    if (mPhysicsBody->mFalling)
+    {
+        mStandingOnRailwaysTimer = 0.0f;
+        return;
+    }
+
+    glm::ivec3 logPosition = Convert::MetersToMapUnits(GetPosition());
+    
+    const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(logPosition.x, logPosition.z, logPosition.y);
+    if ((blockInfo->mGroundType == eGroundType_Field) && blockInfo->mIsRailway)
+    {
+        mStandingOnRailwaysTimer += gTimeManager.mGameFrameDelta;
+        if (mStandingOnRailwaysTimer > gGameParams.mGameRailwaysDamageDelay)
+        {
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromElectricity();
+            ReceiveDamage(damageInfo);
+        }
+    }
+    else
+    {
+        mStandingOnRailwaysTimer = 0.0f;
+    }
 }

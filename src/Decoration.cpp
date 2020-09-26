@@ -27,7 +27,7 @@ void Decoration::UpdateFrame()
         gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
     }
 
-    glm::vec3 currPosition = GetCurrentPosition();
+    glm::vec3 currPosition = GetPosition();
     glm::vec3 newPosition = currPosition + (mMoveVelocity * deltaTime);
     if (newPosition != currPosition)
     {
@@ -44,12 +44,12 @@ void Decoration::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-glm::vec3 Decoration::GetCurrentPosition() const
+glm::vec3 Decoration::GetPosition() const
 {
     return mSpawnPosition;
 }
 
-glm::vec2 Decoration::GetCurrentPosition2() const
+glm::vec2 Decoration::GetPosition2() const
 {
     return {mSpawnPosition.x, mSpawnPosition.z};
 }

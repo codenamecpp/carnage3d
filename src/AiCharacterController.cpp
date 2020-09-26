@@ -137,9 +137,9 @@ bool AiCharacterController::ScanForExplosions()
     float reactionDistance2 = glm::pow(gGameParams.mAiReactOnExplosionsDistance, 2.0f);
 
     BroadcastEvent eventData;
-    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_Explosion, mCharacter->GetCurrentPosition2(), eventData))
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_Explosion, mCharacter->GetPosition2(), eventData))
     {
-        if (glm::distance2(eventData.mPosition, mCharacter->GetCurrentPosition2()) > reactionDistance2) // too far away
+        if (glm::distance2(eventData.mPosition, mCharacter->GetPosition2()) > reactionDistance2) // too far away
             return false;
 
         return true;
@@ -152,12 +152,12 @@ bool AiCharacterController::ScanForGunshots()
     float reactionDistance2 = glm::pow(gGameParams.mAiReactOnGunshotsDistance, 2.0f);
 
     BroadcastEvent eventData;
-    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_GunShot, mCharacter->GetCurrentPosition2(), eventData))
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_GunShot, mCharacter->GetPosition2(), eventData))
     {
         if (eventData.mCharacter == mCharacter) // hear own gunshots
             return false; 
 
-        if (glm::distance2(eventData.mPosition, mCharacter->GetCurrentPosition2()) > reactionDistance2) // too far away
+        if (glm::distance2(eventData.mPosition, mCharacter->GetPosition2()) > reactionDistance2) // too far away
             return false;
 
         return true;
@@ -302,7 +302,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
         GetMapDirectionOpposite(currentMapDirection)
     };
 
-    glm::ivec3 currentLogPos = Convert::MetersToMapUnits(mCharacter->GetCurrentPosition());
+    glm::ivec3 currentLogPos = Convert::MetersToMapUnits(mCharacter->GetPosition());
     glm::ivec3 newWayPoint (0, 0, 0);
     for (eMapDirection curr: moveDirs)
     {
@@ -524,7 +524,7 @@ bool AiCharacterController::TryFollowHumanCharacterNearby()
         if (!currentPlayer->mCharacter->IsStanding())
             continue;
 
-        float currDistance2 = glm::distance2(currentPlayer->mCharacter->GetCurrentPosition2(), mCharacter->GetCurrentPosition2());
+        float currDistance2 = glm::distance2(currentPlayer->mCharacter->GetPosition2(), mCharacter->GetPosition2());
         if (currDistance2 > bestDistance2)
             continue;
 

@@ -172,12 +172,12 @@ bool Projectile::IsContactDetected() const
     return mContactDetected;
 }
 
-glm::vec3 Projectile::GetCurrentPosition() const
+glm::vec3 Projectile::GetPosition() const
 {
     return mPhysicsBody->GetPosition();
 }
 
-glm::vec2 Projectile::GetCurrentPosition2() const
+glm::vec2 Projectile::GetPosition2() const
 {
     return mPhysicsBody->GetPosition2();
 }

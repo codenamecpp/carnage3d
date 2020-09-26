@@ -24,8 +24,8 @@ public:
     void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
 
     // Current world position
-    glm::vec3 GetCurrentPosition() const override;
-    glm::vec2 GetCurrentPosition2() const override;
+    glm::vec3 GetPosition() const override;
+    glm::vec2 GetPosition2() const override;
 
     // @param gameObject: null if contacting with map
     void SetContactDetected(const glm::vec3& position, GameObject* gameObject);

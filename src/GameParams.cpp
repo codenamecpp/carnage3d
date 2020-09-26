@@ -14,6 +14,7 @@ void GameParams::SetToDefaults()
 
     // game - commons
     mGamePlayerRespawnTime = 6.0f;
+    mGameRailwaysDamageDelay = 1.5f;
 
     // pedestrians
     mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);

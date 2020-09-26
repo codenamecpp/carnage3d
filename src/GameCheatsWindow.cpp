@@ -46,7 +46,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     }
 
     Pedestrian* playerCharacter = gCarnageGame.mHumanPlayers[0]->mCharacter;
-    glm::ivec3 characterLogPos = Convert::MetersToMapUnits(playerCharacter->GetCurrentPosition());
+    glm::ivec3 characterLogPos = Convert::MetersToMapUnits(playerCharacter->GetPosition());
 
     if (ImGui::BeginMenuBar())
     {

@@ -27,7 +27,7 @@ public:
     {
     }
 public:
-    const ePedestrianStateEvent mID;
+    ePedestrianStateEvent mID;
 
     Vehicle* mTargetCar = nullptr;
     eCarSeat mTargetSeat;
@@ -124,11 +124,9 @@ private:
     void StateDrowning_ProcessFrame();
     void StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent);
 
-    // state dies
-    void StateDies_ProcessFrame();
-    void StateDies_ProcessEnter(const PedestrianStateEvent& stateEvent);
-    void StateDies_ProcessExit();
-    bool StateDies_ProcessEvent(const PedestrianStateEvent& stateEvent);
+    // state electrocuted, die
+    void StateElectrocuted_ProcessFrame();
+    void StateElectrocuted_ProcessEnter(const PedestrianStateEvent& stateEvent);
 
 private:
 

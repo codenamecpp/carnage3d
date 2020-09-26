@@ -14,6 +14,7 @@ public:
 public:
     // game - commons
     float mGamePlayerRespawnTime; // respawn time, seconds
+    float mGameRailwaysDamageDelay; // how long can to stand on railways without damage, seconds
 
     // pedestrians
     float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters

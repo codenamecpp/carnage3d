@@ -67,6 +67,7 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
     }
 
     mBurnStartTime = 0.0f;
+    mStandingOnRailwaysTimer = 0.0f;
 
     // reset actions
     mCtlState.Clear();
@@ -123,6 +124,9 @@ void Pedestrian::UpdateFrame()
     }
 
     mCurrentStateTime += deltaTime;
+
+    UpdateDamageFromRailways();
+
     // update current state logic
     mStatesManager.ProcessFrame();
 
@@ -292,12 +296,12 @@ bool Pedestrian::ReceiveDamage(const DamageInfo& damageInfo)
     return mStatesManager.ProcessEvent(evData);
 }
 
-glm::vec3 Pedestrian::GetCurrentPosition() const
+glm::vec3 Pedestrian::GetPosition() const
 {
     return mPhysicsBody->GetPosition();
 }
 
-glm::vec2 Pedestrian::GetCurrentPosition2() const
+glm::vec2 Pedestrian::GetPosition2() const
 {
     return mPhysicsBody->GetPosition2();
 }
@@ -384,6 +388,12 @@ bool Pedestrian::IsDead() const
 {
     ePedestrianState currState = GetCurrentStateID();
     return currState == ePedestrianState_Dead;
+}
+
+bool Pedestrian::IsDies() const
+{
+    ePedestrianState currState = GetCurrentStateID();
+    return (currState == ePedestrianState_Electrocuted);
 }
 
 void Pedestrian::SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat)
@@ -573,4 +583,34 @@ void Pedestrian::ClearAmmunition()
         mWeapons[icurrent].SetAmmunition(0);
     }
     mArmorHitPoints = 0;
+}
+
+void Pedestrian::UpdateDamageFromRailways()
+{
+    if (IsDead() || IsDies())
+        return;
+
+    if (!IsOnTheGround())
+    {
+        mStandingOnRailwaysTimer = 0.0f;
+        return;
+    }
+
+    glm::ivec3 logPosition = Convert::MetersToMapUnits(GetPosition());
+
+    const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(logPosition.x, logPosition.z, logPosition.y);
+    if ((blockInfo->mGroundType == eGroundType_Field) && blockInfo->mIsRailway)
+    {
+        mStandingOnRailwaysTimer += gTimeManager.mGameFrameDelta;
+        if (mStandingOnRailwaysTimer > gGameParams.mGameRailwaysDamageDelay)
+        {
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromElectricity();
+            ReceiveDamage(damageInfo);
+        }
+    }
+    else
+    {
+        mStandingOnRailwaysTimer = 0.0f;
+    }
 }
