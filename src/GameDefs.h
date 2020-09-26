@@ -89,12 +89,6 @@ class HumanPlayer;
 
 using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
-// Remap indices for pedestrians
-enum
-{
-    PedestrianRemap_HareKrishna = 18,
-};
-
 // Remap indices for fonts
 enum
 {

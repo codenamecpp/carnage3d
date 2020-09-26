@@ -7,6 +7,7 @@
 #include "Sprite2D.h"
 #include "PedestrianStates.h"
 #include "Weapon.h"
+#include "PedestrianInfo.h"
 
 // Define weak pointer to pedestrian object instance
 using PedestrianHandle = cxx::handle<Pedestrian>;
@@ -22,6 +23,8 @@ class Pedestrian final: public GameObject
 
 public:
     // public for convenience, should not be modified directly
+    ePedestrianType mPedestrianTypeID = ePedestrianType_Civilian;
+
     CharacterController* mController; // controls pedestrian actions
     PedPhysicsBody* mPhysicsBody;
 
@@ -36,6 +39,9 @@ public:
     Vehicle* mCurrentCar = nullptr;
     eCarSeat mCurrentSeat;
 
+    // properties
+    ePedestrianFearFlags mFearFlags = ePedestrianFearFlags_None;
+
     // inventory
     eWeaponID mCurrentWeapon = eWeapon_Fists;
     eWeaponID mChangeWeapon = eWeapon_Fists;
@@ -45,7 +51,8 @@ public:
 
 public:
     // @param id: Unique object identifier, constant
-    Pedestrian(GameObjectID id);
+    // @param typeIdentifier: Pedestrian type identifier
+    Pedestrian(GameObjectID id, ePedestrianType typeIdentifier);
     ~Pedestrian();
 
     // override GameObject
@@ -106,6 +113,28 @@ public:
     
     // Whether pedestrian is under human player control
     bool IsHumanPlayerCharacter() const;
+
+    // Whether pedestrian has specific fears
+    bool HasFear_Players() const
+    {
+        return (mFearFlags & ePedestrianFearFlags_Players) > 0;
+    }
+    bool HasFear_Police() const
+    {
+        return (mFearFlags & ePedestrianFearFlags_Police) > 0;
+    }
+    bool HasFear_GunShots() const
+    {
+        return (mFearFlags & ePedestrianFearFlags_GunShots) > 0;
+    }
+    bool HasFear_Explosions() const
+    {
+        return (mFearFlags & ePedestrianFearFlags_Explosions) > 0;
+    }
+    bool HasFear_DeadPeds() const
+    {
+        return (mFearFlags & ePedestrianFearFlags_DeadPeds) > 0;
+    }
 
 private:
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);

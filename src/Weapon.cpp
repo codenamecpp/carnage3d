@@ -68,10 +68,6 @@ bool Weapon::Fire(Pedestrian* attacker)
         Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, attacker->mPhysicsBody->GetRotationAngle(), weaponInfo);
         debug_assert(projectile);
 
-        if (IsRequiresAmmunition())
-        {
-            DecAmmunition(1);
-        }
         // broardcast event
         gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, attacker, attacker, gGameParams.mBroadcastGunShotEventDuration);
     }
@@ -80,10 +76,17 @@ bool Weapon::Fire(Pedestrian* attacker)
         debug_assert(false);
     }
 
-    mWeaponState = eWeaponState_Reloading;
     mLastFireTime = gTimeManager.mGameTime;
     ++mShotsCounter;
+    if (IsUsesAmmunition())
+    {
+        DecAmmunition(1);
+    }
 
+    if (!IsOutOfAmmunition())
+    {
+        mWeaponState = eWeaponState_Reloading;
+    }
     return true;
 }
 
@@ -91,7 +94,7 @@ WeaponInfo* Weapon::GetWeaponInfo() const
 {
     debug_assert(mWeaponID < eWeapon_COUNT);
 
-    return &gGameMap.mStyleData.mWeapons[mWeaponID];
+    return &gGameMap.mStyleData.mWeaponTypes[mWeaponID];
 }
 
 bool Weapon::IsOutOfAmmunition() const
@@ -111,7 +114,7 @@ bool Weapon::IsReloading() const
 
 void Weapon::SetAmmunition(int ammunition)
 {
-    if (!IsRequiresAmmunition())
+    if (!IsUsesAmmunition())
         return;
 
     WeaponInfo* weaponInfo = GetWeaponInfo();
@@ -161,7 +164,7 @@ bool Weapon::IsReloadingTime() const
     return false;
 }
 
-bool Weapon::IsRequiresAmmunition() const
+bool Weapon::IsUsesAmmunition() const
 {
     WeaponInfo* weaponInfo = GetWeaponInfo();
     return weaponInfo->mBaseMaxAmmo > 0;

@@ -9,15 +9,19 @@
 #include "Vehicle.h"
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
+#include "CarnageGame.h"
 
-Pedestrian::Pedestrian(GameObjectID id) : GameObject(eGameObjectClass_Pedestrian, id)
+Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier) 
+    : GameObject(eGameObjectClass_Pedestrian, id)
     , mPhysicsBody()
     , mCurrentAnimID(ePedestrianAnim_Null)
     , mController()
     , mDrawHeight()
     , mRemapIndex(NO_REMAP)
     , mStatesManager(this)
+    , mPedestrianTypeID(typeIdentifier)
 {
+    debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
 }
 
 Pedestrian::~Pedestrian()
@@ -38,8 +42,22 @@ Pedestrian::~Pedestrian()
 
 void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
+    debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
+    PedestrianInfo& pedestrianInfo = gGameMap.mStyleData.mPedestrianTypes[mPedestrianTypeID];
+
+    mFearFlags = pedestrianInfo.mFearFlags;
     mSpawnPosition = position;
     mSpawnHeading = heading;
+
+    if (pedestrianInfo.mRemapType == ePedestrianRemapType_Index)
+    {
+        mRemapIndex = pedestrianInfo.mRemapIndex;
+    }
+    if (pedestrianInfo.mRemapType == ePedestrianRemapType_RandomCivilian)
+    {
+        // todo: find out correct civilian peds indices
+        mRemapIndex = gCarnageGame.mGameRand.generate_int(0, MAX_PED_REMAPS - 1);
+    }
 
     mCurrentStateTime = 0.0f;
 
@@ -141,7 +159,7 @@ void Pedestrian::DebugDraw(DebugRenderer& debugRender)
     {
         glm::vec3 position = mPhysicsBody->GetPosition();
 
-        WeaponInfo& meleeWeapon = gGameMap.mStyleData.mWeapons[eWeaponFireType_Melee];
+        WeaponInfo& meleeWeapon = gGameMap.mStyleData.mWeaponTypes[eWeaponFireType_Melee];
 
         glm::vec2 signVector = mPhysicsBody->GetSignVector() * meleeWeapon.mBaseHitRange;
         debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);

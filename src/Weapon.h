@@ -33,7 +33,7 @@ public:
     void AddAmmunition(int ammunition);
     void DecAmmunition(int ammunition);
 
-    bool IsRequiresAmmunition() const;
+    bool IsUsesAmmunition() const;
 
     // Current weapon state shortcuts
     bool IsOutOfAmmunition() const;

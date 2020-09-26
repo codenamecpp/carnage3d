@@ -58,14 +58,16 @@ void GameObjectsManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx::angle_t heading, int remap)
+Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx::angle_t heading, ePedestrianType pedestrianType, int remap)
 {
     GameObjectID pedestrianID = GenerateUniqueID();
 
-    Pedestrian* instance = mPedestriansPool.create(pedestrianID);
+    Pedestrian* instance = mPedestriansPool.create(pedestrianID, pedestrianType);
     debug_assert(instance);
-    instance->mRemapIndex = remap;
-
+    if (remap != NO_REMAP)
+    {
+        instance->mRemapIndex = remap;
+    }
     mAllObjects.push_back(instance);
     mPedestriansList.push_back(instance);
 

@@ -123,10 +123,10 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 
 bool AiCharacterController::ScanForThreats()
 {
-    if (ScanForGunshots())
+    if (mCharacter->HasFear_GunShots() && ScanForGunshots())
         return true;
 
-    if (ScanForExplosions())
+    if (mCharacter->HasFear_Explosions() && ScanForExplosions())
         return true;
 
     return false;

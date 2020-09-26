@@ -242,11 +242,6 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
 
-    if (humanIndex > 0)
-    {
-        pedestrian->mRemapIndex = humanIndex - 1;
-    }
-
     HumanPlayer* humanPlayer = new HumanPlayer;
     mHumanPlayers[humanIndex] = humanPlayer;
 
@@ -386,11 +381,19 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         }
     }
 
+    ePedestrianType playerPedTypes[GAME_MAX_PLAYERS] =
+    {
+        ePedestrianType_Player1,
+        ePedestrianType_Player2,
+        ePedestrianType_Player3,
+        ePedestrianType_Player4,
+    };
+
     for (int icurr = 0; icurr < humanPlayersCount; ++icurr)
     {
-        float randomAngle = 360.0f * gCarnageGame.mGameRand.generate_float();
+        cxx::angle_t pedestrianHeading { 360.0f * gCarnageGame.mGameRand.generate_float(), cxx::angle_t::units::degrees };
 
-        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], cxx::angle_t::from_degrees(randomAngle));
+        Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pos[icurr], pedestrianHeading, playerPedTypes[icurr]);
         SetupHumanPlayer(icurr, pedestrian);
     }
 

@@ -380,6 +380,9 @@
     <ClInclude Include="Weapon.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="PedestrianInfo.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -606,6 +609,9 @@
     <ClCompile Include="Weapon.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="PedestrianInfo.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">
@@ -636,6 +642,9 @@
       <Filter>Data\entities</Filter>
     </None>
     <None Include="..\gamedata\entities\weapons.json">
+      <Filter>Data\entities</Filter>
+    </None>
+    <None Include="..\gamedata\entities\pedestrians.json">
       <Filter>Data\entities</Filter>
     </None>
   </ItemGroup>

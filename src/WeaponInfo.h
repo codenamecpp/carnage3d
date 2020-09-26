@@ -30,7 +30,7 @@ public:
     { 
         return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Flame); 
     }
-    // explode when hit
+    // explodes when hit
     bool IsExplosionDamage() const 
     { 
         return (mFireTypeID == eWeaponFireType_Projectile) && (mProjectileTypeID == eProjectileType_Missile); 

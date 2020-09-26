@@ -1,0 +1,47 @@
+[
+    {
+        "ped_type": "player1",
+        "remap_index": -1,
+        "fears": []
+    },
+    {
+        "ped_type": "player2",
+        "remap_index": 0, // fixed remap index
+        "fears": []
+    },
+    {
+        "ped_type": "player3",
+        "remap_index": 1, // fixed remap index
+        "fears": []
+    },
+    {
+        "ped_type": "player4",
+        "remap_index": 2, // fixed remap index
+        "fears": []
+    },
+    {
+        "ped_type": "civilian",
+        "remap_type": "random_civilian",
+        "fears": ["gunShots", "explosions", "deadPeds"]
+    },
+    {
+        "ped_type": "police",
+        "remap_index": -1,
+        "fears": []
+    },
+    {
+        "ped_type": "hare_krishnas_gang",
+        "remap_index": 18, // fixed remap index
+        "fears": ["gunShots", "explosions", "deadPeds"]
+    },
+    {
+        "ped_type": "medical",
+        "remap_index": 0,
+        "fears": ["gunShots", "explosions", "deadPeds"]
+    },
+    {
+        "ped_type": "fireman",
+        "remap_index": 1,
+        "fears": ["gunShots", "explosions", "deadPeds"]
+    }
+]

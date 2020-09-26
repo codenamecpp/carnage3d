@@ -3,6 +3,7 @@
 #include "GameDefs.h"
 #include "GraphicsDefs.h"
 #include "GameObject.h"
+#include "PedestrianInfo.h"
 
 impl_enum_strings(eKeycode)
 {
@@ -575,4 +576,17 @@ impl_enum_strings(eSpriteDrawOrder)
     {eSpriteDrawOrder_HUD_TextMessages, "hud_textMessages"},
     {eSpriteDrawOrder_HUD_Arrow, "hud_arrow"},
     {eSpriteDrawOrder_Foreground, "foreground"},
+};
+
+impl_enum_strings(ePedestrianType)
+{
+    {ePedestrianType_Player1, "player1"},
+    {ePedestrianType_Player2, "player2"},
+    {ePedestrianType_Player3, "player3"},
+    {ePedestrianType_Player4, "player4"},
+    {ePedestrianType_Civilian, "civilian"},
+    {ePedestrianType_Police, "police"},
+    {ePedestrianType_HareKrishnasGang, "hare_krishnas_gang"},
+    {ePedestrianType_Medical, "medical"},
+    {ePedestrianType_Fireman, "fireman"},
 };

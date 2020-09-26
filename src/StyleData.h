@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 #include "WeaponInfo.h"
+#include "PedestrianInfo.h"
 
 class PixelsArray;
 
@@ -15,7 +16,8 @@ public:
     std::vector<VehicleInfo> mVehicles;
     std::vector<BlockAnimationInfo> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
-    std::vector<WeaponInfo> mWeapons;
+    std::vector<WeaponInfo> mWeaponTypes;
+    std::vector<PedestrianInfo> mPedestrianTypes;
 
     // CLUT data :
     //  tiles
@@ -129,7 +131,8 @@ private:
     bool ReadSpriteNumbers(std::ifstream& file, int dataLength);
 
     void ReadPedestrianAnimations();
-    void ReadWeapons();
+    bool ReadWeaponTypes();
+    bool ReadPedestrianTypes();
 
     bool InitGameObjects();
 

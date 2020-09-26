@@ -523,9 +523,7 @@ Pedestrian* TrafficManager::GenerateRandomTrafficPedestrian(int posx, int posy, 
     // fix height
     pedestrianPosition.y = gGameMap.GetHeightAtPosition(pedestrianPosition);
 
-    int remapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
-
-    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, remapIndex);
+    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, ePedestrianType_Civilian);
     debug_assert(pedestrian);
     if (pedestrian)
     {
@@ -558,7 +556,7 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
     Pedestrian* characterPrev = nullptr;
     for (int i = 0, PedsCount = 7; i < PedsCount; ++i)
     {
-        Pedestrian* character = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, PedestrianRemap_HareKrishna);
+        Pedestrian* character = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, ePedestrianType_HareKrishnasGang);
         debug_assert(character);
 
         character->mFlags = (character->mFlags | eGameObjectFlags_Traffic);
@@ -587,7 +585,7 @@ Pedestrian* TrafficManager::GenerateRandomTrafficCarDriver(Vehicle* vehicle)
     int remapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
     Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(
         vehicle->mPhysicsBody->GetPosition(), 
-        vehicle->mPhysicsBody->GetRotationAngle(), remapIndex);
+        vehicle->mPhysicsBody->GetRotationAngle(), ePedestrianType_Civilian);
 
     debug_assert(pedestrian);
 

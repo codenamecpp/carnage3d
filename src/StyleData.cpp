@@ -230,7 +230,8 @@ bool StyleData::LoadFromFile(const std::string& stylesName, int styleNumber)
     }
 
     ReadPedestrianAnimations();
-    ReadWeapons();
+    ReadWeaponTypes();
+    ReadPedestrianTypes();
 
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
@@ -265,7 +266,7 @@ bool StyleData::DoDataIntegrityCheck() const
 void StyleData::Cleanup()
 {
     mObjectsRaw.clear();
-    mWeapons.clear();
+    mWeaponTypes.clear();
     mBlockTexturesRaw.clear();
     mPaletteIndices.clear();
     mPalettes.clear();
@@ -969,21 +970,18 @@ int StyleData::GetPedestrianRemapsBaseIndex() const
     return remapsBaseIndex;
 }
 
-void StyleData::ReadWeapons()
+bool StyleData::ReadWeaponTypes()
 {
-    mWeapons.resize(eWeapon_COUNT);
+    mWeaponTypes.resize(eWeapon_COUNT);
 
     cxx::json_document weaponsConfig;
     if (!gFiles.ReadConfig("entities/weapons.json", weaponsConfig))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read weapons config");
-        return;
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read 'entities/weapons.json'");
+        return false;
     }
 
-    cxx::json_node_array configRootNode = weaponsConfig.get_root_node();
-
-    std::string currWeaponName;
-    for (cxx::json_node_object currentNode = configRootNode.first_child();
+    for (cxx::json_node_object currentNode = weaponsConfig.get_root_node().first_child();
         currentNode; currentNode = currentNode.next_sibling())
     {
         WeaponInfo currentWeapon;
@@ -993,8 +991,36 @@ void StyleData::ReadWeapons()
             continue;
         }
 
-        mWeapons[currentWeapon.mWeaponID] = currentWeapon;
+        mWeaponTypes[currentWeapon.mWeaponID] = currentWeapon;
     }
+    return true;
+}
+
+bool StyleData::ReadPedestrianTypes()
+{
+    mPedestrianTypes.resize(ePedestrianType_COUNT);
+
+    cxx::json_document pedsConfig;
+    if (!gFiles.ReadConfig("entities/pedestrians.json", pedsConfig))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot read 'entities/pedestrians.json'");
+        return false;
+    }
+
+    for (cxx::json_node_object currentNode = pedsConfig.get_root_node().first_child();
+        currentNode; currentNode = currentNode.next_sibling())
+    {
+        PedestrianInfo currentPedestrian;
+        if (!currentPedestrian.SetupFromConfg(currentNode))
+        {
+            debug_assert(false);
+            continue;
+        }
+
+        mPedestrianTypes[currentPedestrian.mTypeID] = currentPedestrian;
+    }
+
+    return true;
 }
 
 void StyleData::ReadPedestrianAnimations()
