@@ -12,6 +12,7 @@
 #include "AiManager.h"
 #include "GameTextsManager.h"
 #include "BroadcastEventsManager.h"
+#include "AudioManager.h"
 
 static const char* InputsConfigPath = "config/inputs.json";
 
@@ -330,6 +331,10 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         gConsole.LogMessage(eLogMessage_Warning, "Cannot load map '%s'", mapName.c_str());
         return false;
     }
+    if (!gAudioManager.LoadLevelSounds())
+    {
+        // ignore
+    }
     gSpriteManager.Cleanup();
     gRenderManager.mMapRenderer.BuildMapMesh();
     if (!gSpriteManager.InitLevelSprites())
@@ -416,6 +421,7 @@ void CarnageGame::ShutdownCurrentScenario()
     gPhysics.FreePhysicsWorld();
     gGameMap.Cleanup();
     gBroadcastEvents.ClearEvents();
+    gAudioManager.FreeLevelSounds();
 }
 
 int CarnageGame::GetHumanPlayersCount() const

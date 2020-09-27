@@ -112,7 +112,7 @@ int StyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockIndex) 
     return 0;
 }
 
-bool StyleData::LoadFromFile(const std::string& stylesName, int styleNumber)
+bool StyleData::LoadFromFile(const std::string& stylesName)
 {
     Cleanup();
 
@@ -238,7 +238,6 @@ bool StyleData::LoadFromFile(const std::string& stylesName, int styleNumber)
     {
         debug_assert(false);
     }
-    mStyleNumber = styleNumber;
     return true;
 }
 
@@ -282,7 +281,6 @@ void StyleData::Cleanup()
     mSpriteClutsCount = 0;
     mRemapClutsCount = 0;
     mFontClutsCount = 0;
-    mStyleNumber = 0;
     // reset all sprite numbers
     for (int isprite = 0; isprite < CountOf(mSpriteNumbers); ++isprite)
     {
@@ -1210,9 +1208,4 @@ int StyleData::GetWreckedVehicleSpriteIndex(eVehicleClass vehicleClass) const
         break;
     }
     return GetSpriteIndex(eSpriteType_WBus, spriteID);
-}
-
-int StyleData::GetStyleNumber() const
-{
-    return mStyleNumber;
 }

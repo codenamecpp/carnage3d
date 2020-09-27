@@ -675,7 +675,7 @@ void HUD::ShowDistrictNameMessage(int districtIndex)
 {
     debug_assert(districtIndex >= 0);
 
-    std::string textID = cxx::va("%03darea%03d", gGameMap.mStyleData.GetStyleNumber(), districtIndex);
+    std::string textID = cxx::va("%03darea%03d", gGameMap.mStyleFileNumber, districtIndex);
     const std::string& messageText = gGameTexts.GetText(textID);
     mDistrictNamePanel.SetMessageText(messageText);
     ShowAutoHidePanel(&mDistrictNamePanel, gGameParams.mHudDistrictNameShowDuration);

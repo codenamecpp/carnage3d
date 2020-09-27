@@ -81,11 +81,13 @@ bool GameMapManager::LoadFromFile(const std::string& filename)
     std::string styleName = cxx::va("STYLE%03d.G24", header.style_number);
 
     gConsole.LogMessage(eLogMessage_Info, "Loading style data '%s'", styleName.c_str());
-    if (!mStyleData.LoadFromFile(styleName, header.style_number))
+    if (!mStyleData.LoadFromFile(styleName))
     {
         Cleanup();
         return false;
     }
+    mStyleFileNumber = header.style_number;
+    mAudioFileNumber = header.style_number; // sample_number is always 0 for some reason
     return true;
 }
 
@@ -105,6 +107,8 @@ void GameMapManager::Cleanup()
     {
         mAccidentServicesBases[ibase].clear();
     }
+    mStyleFileNumber = 0;
+    mAudioFileNumber = 0;
 }
 
 bool GameMapManager::IsLoaded() const

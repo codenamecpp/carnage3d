@@ -31,7 +31,7 @@ public:
     StyleData();
     // Load style data from specific file, returns false on error
     // @param stylesName: Target file name
-    bool LoadFromFile(const std::string& stylesName, int styleNumber);
+    bool LoadFromFile(const std::string& stylesName);
     void Cleanup();
     bool IsLoaded() const;
 
@@ -111,9 +111,6 @@ public:
     // Get base clut index for pedestrian sprites
     int GetPedestrianRemapsBaseIndex() const;
 
-    // Get style number identifier
-    int GetStyleNumber() const;
-
 private:
     // apply single delta on sprite
     void ApplySpriteDelta(SpriteInfo& sprite, SpriteInfo::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
@@ -178,6 +175,4 @@ private:
     int mLidBlocksCount;
     int mAuxBlocksCount;
     int mSpriteNumbers[eSpriteType_COUNT];
-
-    int mStyleNumber; // style identifier
 };

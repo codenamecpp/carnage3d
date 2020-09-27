@@ -7,10 +7,14 @@
 class GameMapManager final: public cxx::noncopyable
 {
 public:
-    // public for convenience
+    // readonly
     StyleData mStyleData;
 
     std::vector<StartupObjectPosStruct> mStartupObjects;
+
+    // audio bank and style numbers
+    int mStyleFileNumber = 0;
+    int mAudioFileNumber = 0;
 
 public:
     // load map data from specific file, returns false on error
