@@ -109,7 +109,7 @@ AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position,
         if (!mLevelSounds.GetEntryData(sfxIndex, archiveEntry))
         {
             debug_assert(false);
-            return false;
+            return nullptr;
         }
         // upload audio data
         AudioBuffer* audioBuffer = gAudioDevice.CreateAudioBuffer(

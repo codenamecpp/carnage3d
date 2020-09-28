@@ -31,7 +31,7 @@ bool AudioDevice::Initialize()
         Deinit();
         return false;
     }
-    alClearError();
+    //alClearError();
     if (::alcMakeContextCurrent(mContext))
     {
         // setup default listener params

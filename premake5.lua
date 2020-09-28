@@ -79,7 +79,7 @@ project "carnage3d"
 	}
 	includedirs { "third_party/Box2D" }
 	includedirs { "GLFW" }
-	links { "GL", "GLEW", "stdc++fs", "Box2D", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl", "GLFW" }
+	links { "GL", "GLEW", "stdc++fs", "openal", "Box2D", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl", "GLFW" }
 
 	filter { "configurations:Debug" }
 		defines { "DEBUG", "_DEBUG" }

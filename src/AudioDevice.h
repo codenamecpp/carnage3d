@@ -2,10 +2,7 @@
 
 #include "AudioSource.h"
 #include "AudioListener.h"
-
-// internals
-struct ALCdevice;
-struct ALCcontext;
+#include "OpenALDefs.h"
 
 // Audio device
 class AudioDevice final: public cxx::noncopyable
