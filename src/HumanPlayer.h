@@ -3,6 +3,7 @@
 #include "HumanPlayerView.h"
 #include "CharacterController.h"
 #include "InputActionsMapping.h"
+#include "AudioListener.h"
 
 // Contains human player related information but also processes character controller logic
 class HumanPlayer final: public CharacterController
@@ -12,10 +13,11 @@ public:
     HumanPlayerView mPlayerView;
     InputActionsMapping mActionsMapping;
     glm::vec3 mSpawnPosition;
+    AudioListener* mAudioListener = nullptr;
 
 public:
-    HumanPlayer();
-    void SetCharacter(Pedestrian* character);
+    HumanPlayer(Pedestrian* character);
+    ~HumanPlayer();
 
     // Get or set current police attention level
     int GetWantedLevel() const;

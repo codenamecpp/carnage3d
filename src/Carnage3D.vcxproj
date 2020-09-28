@@ -90,13 +90,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLM\include;$(SolutionDir)..\third_party\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLM\include;$(SolutionDir)..\third_party\Box2D;$(SDKDIR)\openal-soft\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;$(SDKDIR)/openal-soft/libs/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"</Command>
@@ -122,15 +122,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLM\include;$(SolutionDir)..\third_party\Box2D;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDKDIR)\glew\include;$(SDKDIR)\GLM\include;$(SolutionDir)..\third_party\Box2D;$(SDKDIR)\openal-soft\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;$(SDKDIR)/openal-soft/libs/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"</Command>
@@ -155,7 +155,12 @@
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiManager.h" />
-    <ClInclude Include="AudioArchive.h" />
+    <ClInclude Include="AudioListener.h" />
+    <ClInclude Include="AudioSource.h" />
+    <ClInclude Include="OpenALDefs.h" />
+    <ClInclude Include="SfxArchive.h" />
+    <ClInclude Include="SfxDefs.h" />
+    <ClInclude Include="AudioDevice.h" />
     <ClInclude Include="AudioManager.h" />
     <ClInclude Include="Box2D_Helpers.h" />
     <ClInclude Include="BroadcastEventsManager.h" />
@@ -265,7 +270,9 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
-    <ClCompile Include="AudioArchive.cpp" />
+    <ClCompile Include="AudioSource.cpp" />
+    <ClCompile Include="SfxArchive.cpp" />
+    <ClCompile Include="AudioDevice.cpp" />
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="BroadcastEventsManager.cpp" />
     <ClCompile Include="CommonTypes.cpp" />

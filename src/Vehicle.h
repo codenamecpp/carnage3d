@@ -66,6 +66,7 @@ public:
     bool IsDoorClosed(int doorIndex) const;
     bool IsDoorOpening(int doorIndex) const;
     bool IsDoorClosing(int doorIndex) const;
+    bool HasDoorsOpened() const;
 
     bool HasHardTop() const;
     bool CanResistElectricity() const;

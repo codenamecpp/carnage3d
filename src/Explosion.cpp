@@ -8,6 +8,7 @@
 #include "Vehicle.h"
 #include "BroadcastEventsManager.h"
 #include "GameObjectsManager.h"
+#include "AudioManager.h"
 
 Explosion::Explosion() 
     : GameObject(eGameObjectClass_Explosion, GAMEOBJECT_ID_NULL)
@@ -93,6 +94,8 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
     // broadcast event
     glm::vec2 position2 (position.x, position.z);
     gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
+
+    gAudioManager.PlaySfxLevel(SfxLevel_HugeExplosion, GetPosition(), false);
 }
 
 bool Explosion::IsDamageDone() const

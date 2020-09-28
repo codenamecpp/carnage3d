@@ -36,7 +36,6 @@ private:
 
 private:
     SpriteAnimation mAnimationState;
-
     // collision contact info
     glm::vec3 mContactPoint;
     GameObject* mContactObject = nullptr;

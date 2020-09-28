@@ -5,6 +5,7 @@
 #include "BroadcastEventsManager.h"
 #include "GameObjectsManager.h"
 #include "PhysicsManager.h"
+#include "AudioManager.h"
 
 void Weapon::Setup(eWeaponID weaponID, int ammunition)
 {
@@ -67,6 +68,11 @@ bool Weapon::Fire(Pedestrian* attacker)
         debug_assert(weaponInfo->mProjectileTypeID < eProjectileType_COUNT);
         Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, attacker->mPhysicsBody->GetRotationAngle(), weaponInfo);
         debug_assert(projectile);
+
+        if (weaponInfo->mShotSound != -1)
+        {
+            gAudioManager.PlaySfxLevel(weaponInfo->mShotSound, projectilePos, false);
+        }
 
         // broardcast event
         gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, attacker, attacker, gGameParams.mBroadcastGunShotEventDuration);

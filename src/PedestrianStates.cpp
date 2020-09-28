@@ -7,6 +7,7 @@
 #include "PhysicsManager.h"
 #include "TimeManager.h"
 #include "BroadcastEventsManager.h"
+#include "AudioManager.h"
 
 PedestrianStatesManager::PedestrianStatesManager(Pedestrian* pedestrian)
     : mPedestrian(pedestrian)
@@ -609,6 +610,13 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
         SetInCarPositionToDoor();
 
         mPedestrian->SetCarExited();
+    }
+    if (stateEvent.mID == ePedestrianStateEvent_ReceiveDamage)
+    {
+        if (stateEvent.mDamageInfo.mDamageCause == eDamageCause_Punch)
+        {
+            gAudioManager.PlaySfxLevel(SfxLevel_Punch, mPedestrian->GetPosition(), false);
+        }
     }
 
     float impulse = 0.5f; // todo: magic numbers

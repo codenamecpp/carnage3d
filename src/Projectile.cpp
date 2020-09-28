@@ -6,6 +6,7 @@
 #include "TimeManager.h"
 #include "DebugRenderer.h"
 #include "GameObjectsManager.h"
+#include "AudioManager.h"
 
 Projectile::Projectile(WeaponInfo* weaponInfo) 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
@@ -118,6 +119,11 @@ void Projectile::UpdateFrame()
             hitEffect->SetDrawOrder(eSpriteDrawOrder_Projectiles);
             hitEffect->SetLifeDuration(1);
         }
+    }
+
+    if (mWeaponInfo->mProjectileHitObjectSound != -1)
+    {
+        gAudioManager.PlaySfxLevel(mWeaponInfo->mProjectileHitObjectSound, GetPosition(), false);
     }
 
     MarkForDeletion();

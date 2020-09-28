@@ -16,12 +16,13 @@
         "projectile_speed": 8.0,
         "projectile_object": 74,
         "projectile_hit_effect": 13, // spark
+        "projectile_hit_object_sfx": 43, // sound index
         // base params
         "base_hit_range": 4.5,
         "base_fire_rate": 2.0,
         "base_ammo_limit": 99,
         "base_damage": 5,
-
+        "shot_sfx": 33, // sound index
         "hud_sprite": 30
     },
 
@@ -34,12 +35,13 @@
         "projectile_speed": 8.0,
         "projectile_object": 74,
         "projectile_hit_effect": 13, // spark
+        "projectile_hit_object_sfx": 43, // sound index
         // base params
         "base_hit_range": 4.5,
         "base_fire_rate": 8.0,
         "base_ammo_limit": 999,
         "base_damage": 5,
-
+        "shot_sfx": 34, // sound index
         "hud_sprite": 31
     },
 
@@ -56,7 +58,7 @@
         "base_fire_rate": 15.0,
         "base_ammo_limit": 999,
         "base_damage": 15,
-
+        "shot_sfx": 35, // sound index
         "hud_sprite": 33
     },
 
@@ -73,7 +75,7 @@
         "base_fire_rate": 1.0,
         "base_ammo_limit": 99,
         "base_damage": 100,
-
+        "shot_sfx": 36, // sound index
         "hud_sprite": 32
     }
 ]

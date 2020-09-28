@@ -243,13 +243,12 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
 
-    HumanPlayer* humanPlayer = new HumanPlayer;
+    HumanPlayer* humanPlayer = new HumanPlayer(pedestrian);
     mHumanPlayers[humanIndex] = humanPlayer;
 
     humanPlayer->mSpawnPosition = pedestrian->GetPosition();
     humanPlayer->mPlayerView.mFollowCameraController.SetFollowTarget(pedestrian);
     humanPlayer->mPlayerView.mHUD.SetupHUD(humanPlayer);
-    humanPlayer->SetCharacter(pedestrian);
 }
 
 void CarnageGame::DeleteHumanPlayer(int playerIndex)
@@ -259,7 +258,6 @@ void CarnageGame::DeleteHumanPlayer(int playerIndex)
     if (mHumanPlayers[playerIndex])
     {
         gRenderManager.DetachRenderView(&mHumanPlayers[playerIndex]->mPlayerView);
-        mHumanPlayers[playerIndex]->SetCharacter(nullptr);
         mHumanPlayers[playerIndex]->mPlayerView.SetCameraController(nullptr);
 
         SafeDelete(mHumanPlayers[playerIndex]);

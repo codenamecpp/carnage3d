@@ -65,6 +65,9 @@
     <Filter Include="Game\Ai">
       <UniqueIdentifier>{6c26b4d0-cfc7-4af8-a22a-6acc7c3fb8ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AudioDevice">
+      <UniqueIdentifier>{ec15dea2-60e8-42d3-ba36-211deb0a588d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Game\Audio">
       <UniqueIdentifier>{a396de81-9b36-4baf-b6e6-85c01913f3bc}</UniqueIdentifier>
     </Filter>
@@ -386,11 +389,26 @@
     <ClInclude Include="PedestrianInfo.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="AudioArchive.h">
-      <Filter>Game\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="AudioManager.h">
       <Filter>Game\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioDevice.h">
+      <Filter>AudioDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="SfxArchive.h">
+      <Filter>Game\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="SfxDefs.h">
+      <Filter>Game\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenALDefs.h">
+      <Filter>AudioDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSource.h">
+      <Filter>AudioDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioListener.h">
+      <Filter>AudioDevice</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -621,11 +639,17 @@
     <ClCompile Include="PedestrianInfo.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="AudioArchive.cpp">
-      <Filter>Game\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="AudioManager.cpp">
       <Filter>Game\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioDevice.cpp">
+      <Filter>AudioDevice</Filter>
+    </ClCompile>
+    <ClCompile Include="SfxArchive.cpp">
+      <Filter>Game\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSource.cpp">
+      <Filter>AudioDevice</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

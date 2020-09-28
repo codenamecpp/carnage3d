@@ -9,6 +9,7 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
+#include "AudioManager.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mPhysicsBody()
@@ -844,4 +845,14 @@ void Vehicle::UpdateDamageFromRailways()
     {
         mStandingOnRailwaysTimer = 0.0f;
     }
+}
+
+bool Vehicle::HasDoorsOpened() const
+{
+    for (int icurrDoor = 0; icurrDoor < MAX_CAR_DOORS; ++icurrDoor)
+    {
+        if (HasDoorAnimation(icurrDoor) && !IsDoorClosed(icurrDoor))
+            return true;
+    }
+    return false;
 }

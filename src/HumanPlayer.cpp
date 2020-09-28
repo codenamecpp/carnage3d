@@ -8,9 +8,30 @@
 #include "GameMapManager.h"
 #include "CarnageGame.h"
 #include "TimeManager.h"
+#include "AudioDevice.h"
 
-HumanPlayer::HumanPlayer()
+HumanPlayer::HumanPlayer(Pedestrian* character)
+    : mLastDistrictIndex()
 {
+    mAudioListener = gAudioDevice.CreateAudioListener();
+    debug_assert(mAudioListener);
+
+    // setup character
+    mCharacter = character;
+    if (mCharacter)
+    {
+        mCharacter->mController = this;
+        Cheat_GiveAllWeapons();
+    }
+}
+
+HumanPlayer::~HumanPlayer()
+{
+    if (mAudioListener)
+    {
+        gAudioDevice.DestroyAudioListener(mAudioListener);
+        mAudioListener = nullptr;
+    }
 }
 
 void HumanPlayer::UpdateFrame()
@@ -45,6 +66,12 @@ void HumanPlayer::UpdateFrame()
 
     ProcessRepetitiveActions();
     UpdateDistrictLocation();
+
+    // update audio listener location
+    if (mAudioListener)
+    {
+        mAudioListener->SetPosition(mPlayerView.mCamera.mPosition);
+    }
 }
 
 void HumanPlayer::InputEvent(MouseButtonInputEvent& inputEvent)
@@ -178,23 +205,6 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
     }
 
     mUpdateInputs = true;
-}
-
-void HumanPlayer::SetCharacter(Pedestrian* character)
-{
-    mLastDistrictIndex = 0;
-    if (mCharacter)
-    {
-        debug_assert(mCharacter->mController == this);
-        mCharacter->mController = nullptr;
-    }
-    mCharacter = character;
-    if (mCharacter)
-    {
-        mCharacter->mController = this;
-
-        Cheat_GiveAllWeapons();
-    }
 }
 
 int HumanPlayer::GetWantedLevel() const
@@ -386,4 +396,3 @@ void HumanPlayer::Cheat_GiveAllWeapons()
         mCharacter->mWeapons[icurr].AddAmmunition(99);
     }
 }
-

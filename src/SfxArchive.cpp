@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "AudioArchive.h"
+#include "SfxArchive.h"
 
-AudioArchive::~AudioArchive()
+SfxArchive::~SfxArchive()
 {
     FreeArchive();
 }
 
-bool AudioArchive::LoadArchive(const std::string& archiveName)
+bool SfxArchive::LoadArchive(const std::string& archiveName)
 {
     FreeArchive();
 
@@ -65,7 +65,7 @@ bool AudioArchive::LoadArchive(const std::string& archiveName)
             continue;
         }
         
-        AudioArchiveEntry& currEntry = mAudioEntries[icurr];
+        SfxArchiveEntry& currEntry = mAudioEntries[icurr];
         currEntry.mDataOffset = currEntrySrc.mDataOffset;
         currEntry.mDataLength = currEntrySrc.mDataLength;
         currEntry.mSampleRate = currEntrySrc.mSampleRate;
@@ -76,9 +76,9 @@ bool AudioArchive::LoadArchive(const std::string& archiveName)
     return true;
 }
 
-void AudioArchive::FreeArchive()
+void SfxArchive::FreeArchive()
 {
-    for (AudioArchiveEntry& currEntry: mAudioEntries)
+    for (SfxArchiveEntry& currEntry: mAudioEntries)
     {
         SafeDeleteArray(currEntry.mData);
     }
@@ -86,17 +86,17 @@ void AudioArchive::FreeArchive()
     mRawDataStream.close();
 }
 
-bool AudioArchive::IsLoaded() const
+bool SfxArchive::IsLoaded() const
 {
     return !mAudioEntries.empty();
 }
 
-int AudioArchive::GetEntriesCount() const
+int SfxArchive::GetEntriesCount() const
 {
     return (int) mAudioEntries.size();
 }
 
-bool AudioArchive::GetEntryInfo(int entryIndex, AudioArchiveEntry& output) const
+bool SfxArchive::GetEntryInfo(int entryIndex, SfxArchiveEntry& output) const
 {
     int MaxEntriesCount = GetEntriesCount();
     if (entryIndex < MaxEntriesCount)
@@ -108,12 +108,12 @@ bool AudioArchive::GetEntryInfo(int entryIndex, AudioArchiveEntry& output) const
     return false;
 }
 
-bool AudioArchive::GetEntryData(int entryIndex, AudioArchiveEntry& output)
+bool SfxArchive::GetEntryData(int entryIndex, SfxArchiveEntry& output)
 {
     int MaxEntriesCount = GetEntriesCount();
     if (entryIndex < MaxEntriesCount)
     {
-        AudioArchiveEntry& currEntry = mAudioEntries[entryIndex];
+        SfxArchiveEntry& currEntry = mAudioEntries[entryIndex];
         if (currEntry.mData == nullptr) // force load audio data from raw stream
         {
             currEntry.mData = new unsigned char[currEntry.mDataLength];
@@ -128,12 +128,12 @@ bool AudioArchive::GetEntryData(int entryIndex, AudioArchiveEntry& output)
     return false;
 }
 
-void AudioArchive::FreeEntryData(int entryIndex)
+void SfxArchive::FreeEntryData(int entryIndex)
 {
     int MaxEntriesCount = GetEntriesCount();
     if (entryIndex < MaxEntriesCount)
     {
-        AudioArchiveEntry& currEntry = mAudioEntries[entryIndex];
+        SfxArchiveEntry& currEntry = mAudioEntries[entryIndex];
         SafeDeleteArray(currEntry.mData);
     }
     else
@@ -142,7 +142,7 @@ void AudioArchive::FreeEntryData(int entryIndex)
     }
 }
 
-void AudioArchive::DumpSounds(const std::string& outputDirectory)
+void SfxArchive::DumpSounds(const std::string& outputDirectory)
 {
     cxx::ensure_path_exists(outputDirectory);
     
@@ -169,7 +169,7 @@ void AudioArchive::DumpSounds(const std::string& outputDirectory)
     int numEntries = GetEntriesCount();
     for (int icurr = 0; icurr < numEntries; ++icurr)
     {
-        AudioArchiveEntry audioArchiveEntry;
+        SfxArchiveEntry audioArchiveEntry;
         if (!GetEntryData(icurr, audioArchiveEntry))
         {
             debug_assert(false);

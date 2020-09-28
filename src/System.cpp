@@ -6,6 +6,8 @@
 #include "CarnageGame.h"
 #include "ImGuiManager.h"
 #include "TimeManager.h"
+#include "AudioDevice.h"
+#include "AudioManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -163,6 +165,16 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
+    if (!gAudioDevice.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio device");
+    }
+
+    if (!gAudioManager.Initialize())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio manager");
+    }
+
     if (!gGuiManager.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize gui system");
@@ -188,6 +200,8 @@ void System::Deinit()
     gCarnageGame.Deinit();
     gImGuiManager.Deinit();
     gGuiManager.Deinit();
+    gAudioManager.Deinit();
+    gAudioDevice.Deinit();
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
     gMemoryManager.Deinit();
@@ -205,7 +219,9 @@ void System::Execute()
         gMemoryManager.FlushFrameHeapMemory();
         gImGuiManager.UpdateFrame();
         gGuiManager.UpdateFrame();
+        gAudioManager.UpdateFrame();
         gCarnageGame.UpdateFrame();
+        gAudioDevice.UpdateFrame(); // update after logic frame
         gRenderManager.RenderFrame();
     }
 }

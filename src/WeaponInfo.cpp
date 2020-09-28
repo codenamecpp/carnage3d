@@ -35,6 +35,7 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
         }
         cxx::json_get_attribute(configNode, "projectile_hit_effect", mProjectileHitEffect);
         cxx::json_get_attribute(configNode, "projectile_object", mProjectileObject);
+        cxx::json_get_attribute(configNode, "projectile_hit_object_sfx", mProjectileHitObjectSound);
     }
     // conver map units to meters
     if (cxx::json_get_attribute(configNode, "base_hit_range", mBaseHitRange))
@@ -45,6 +46,7 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
     cxx::json_get_attribute(configNode, "base_ammo_limit", mBaseMaxAmmo);
     cxx::json_get_attribute(configNode, "hud_sprite", mSpriteIndex);
     cxx::json_get_attribute(configNode, "base_damage", mBaseDamage);
+    cxx::json_get_attribute(configNode, "shot_sfx", mShotSound);
     debug_assert(mBaseDamage >= 0);
     return true;
 }
@@ -52,16 +54,15 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
 void WeaponInfo::Clear()
 {
     mWeaponID = eWeapon_Fists;
-
     mFireTypeID = eWeaponFireType_Melee;
     mProjectileTypeID = eProjectileType_Bullet;
-
     mBaseHitRange = 1.0f;
     mBaseFireRate = 1.0f;
     mProjectileSize = 1.0f;
     mProjectileSpeed = 1.0f; 
-
+    mProjectileHitObjectSound = -1;
     mProjectileObject = GameObjectType_BulletProjectile;
     mBaseMaxAmmo = 0;
     mSpriteIndex = 0;
+    mShotSound = 0;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 // Audio entry information within archive
-struct AudioArchiveEntry
+struct SfxArchiveEntry
 {
     unsigned int mDataOffset = 0;
     unsigned int mDataLength = 0;
@@ -13,11 +13,11 @@ struct AudioArchiveEntry
 };
 
 // Contains audio entries within archive
-class AudioArchive final: public cxx::noncopyable
+class SfxArchive final: public cxx::noncopyable
 {
 public:
-    AudioArchive() = default;
-    ~AudioArchive();
+    SfxArchive() = default;
+    ~SfxArchive();
 
     // Load audio entries from archive
     // @param archiveName: Achive name without extension
@@ -26,8 +26,8 @@ public:
     bool IsLoaded() const;
 
     // Reading audio entries
-    bool GetEntryInfo(int entryIndex, AudioArchiveEntry& output) const;
-    bool GetEntryData(int entryIndex, AudioArchiveEntry& output);
+    bool GetEntryInfo(int entryIndex, SfxArchiveEntry& output) const;
+    bool GetEntryData(int entryIndex, SfxArchiveEntry& output);
     int GetEntriesCount() const;
 
     // Unload entry data from memory
@@ -37,6 +37,6 @@ public:
     void DumpSounds(const std::string& outputDirectory);
 
 private:
-    std::vector<AudioArchiveEntry> mAudioEntries;
+    std::vector<SfxArchiveEntry> mAudioEntries;
     std::ifstream mRawDataStream;
 };
