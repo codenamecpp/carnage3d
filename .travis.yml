@@ -5,5 +5,6 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install -y libxml2-dev
   - sudo apt install libglew-dev libglfw3-dev libglm-dev libgl1-mesa-dev xorg-dev clang
+  - sudo apt-get install libopenal-dev
 script:
 - make
