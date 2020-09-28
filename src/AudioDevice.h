@@ -8,6 +8,10 @@
 class AudioDevice final: public cxx::noncopyable
 {
 public:
+    // readonly
+    AudioDeviceCaps mDeviceCaps;
+
+public:
     ~AudioDevice();
 
     // Setup audio device internal resources
@@ -43,6 +47,7 @@ public:
     void DestroyAudioSource(AudioSource* audioSource);
 
 private:
+    void QueryAudioDeviceCaps();
     void UpdateSourcesPositions();
 
 private:

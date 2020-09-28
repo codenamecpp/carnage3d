@@ -31,29 +31,35 @@ bool AudioDevice::Initialize()
         Deinit();
         return false;
     }
+
     //alClearError();
-    if (::alcMakeContextCurrent(mContext))
+    if (!::alcMakeContextCurrent(mContext))
     {
-        // setup default listener params
-        ::alListener3f(AL_POSITION, 0.0f, 0.0f, 1.0f);
-        alCheckError();
+        gConsole.LogMessage(eLogMessage_Warning, "Audio device context error");
 
-        ::alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-        alCheckError();
-
-        ::alListenerf(AL_GAIN, 1.0f);
-        alCheckError();
-
-
-        float orientation_at_up[] = {0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
-        ::alListenerfv(AL_ORIENTATION, orientation_at_up);
-        alCheckError();
-
-        return true;
+        Deinit();
+        return false;
     }
 
-    gConsole.LogMessage(eLogMessage_Warning, "Audio device context error");
-    return false;
+    // setup default listener params
+    ::alListener3f(AL_POSITION, 0.0f, 0.0f, 1.0f);
+    alCheckError();
+
+    ::alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+    alCheckError();
+
+    ::alListenerf(AL_GAIN, 1.0f);
+    alCheckError();
+
+    float orientation_at_up[] = {0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
+    ::alListenerfv(AL_ORIENTATION, orientation_at_up);
+    alCheckError();
+
+    ::alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
+    alCheckError();
+
+    QueryAudioDeviceCaps();
+    return true;
 }
 
 void AudioDevice::Deinit()
@@ -225,4 +231,14 @@ void AudioDevice::UpdateSourcesPositions()
         ::alSource3f(currSource->mSourceID, AL_POSITION, posx, sourceLocation.y, posz);
         alCheckError();
     }
+}
+
+void AudioDevice::QueryAudioDeviceCaps()
+{
+    ::alcGetIntegerv(mDevice, ALC_MONO_SOURCES, 1, &mDeviceCaps.mMaxSourcesMono);
+    ::alcGetIntegerv(mDevice, ALC_STEREO_SOURCES, 1, &mDeviceCaps.mMaxSourcesStereo);
+
+    gConsole.LogMessage(eLogMessage_Info, "Audio Device caps:");
+    gConsole.LogMessage(eLogMessage_Info, " - max sources mono: %d", mDeviceCaps.mMaxSourcesMono);
+    gConsole.LogMessage(eLogMessage_Info, " - max sources stereo: %d", mDeviceCaps.mMaxSourcesStereo);
 }

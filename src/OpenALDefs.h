@@ -25,3 +25,14 @@ inline void alClearError()
     {
     }
 }
+
+// Audio device capabilities
+struct AudioDeviceCaps
+{
+public:
+    AudioDeviceCaps() = default;
+
+public:
+    int mMaxSourcesMono = 0;
+    int mMaxSourcesStereo = 0;
+};
