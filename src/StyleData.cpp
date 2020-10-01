@@ -953,7 +953,7 @@ bool StyleData::GetPedestrianAnimation(ePedestrianAnimID animationID, SpriteAnim
     if (animationID < ePedestrianAnim_COUNT)
     {
         animationData = mPedestrianAnimations[animationID];
-        debug_assert(animationData.mFramesCount > 0);
+        debug_assert(animationData.GetFramesCount() > 0);
         return true;
     }
     debug_assert(false);
@@ -1044,42 +1044,13 @@ void StyleData::ReadPedestrianAnimations()
             continue;
         }
         SpriteAnimData& animDesc = mPedestrianAnimations[animID];
-        animDesc.Clear();
-
-        float framesPerSecond = SPRITES_ANIM_DEFAULT_FPS;
-        cxx::json_get_attribute(currentNode, "fps", framesPerSecond);
-
-        if (cxx::json_node_array framesNode = currentNode["frames"])
-        {
-            int numFrames = std::min(MaxSpriteAnimationFrames, framesNode.get_elements_count());
-            animDesc.mFramesCount = numFrames;
-            animDesc.mFramesPerSecond = framesPerSecond;
-            // get frames
-            for (int icurrFrame = 0; icurrFrame < numFrames; ++icurrFrame)
-            {
-                if (!cxx::json_get_attribute(framesNode, icurrFrame, animDesc.mFrames[icurrFrame]))
-                {
-                    debug_assert(false);
-                }
-            }
-        }
-        else
-        {
-            int numFrames = 0;
-            int baseFrame = 0;
-            if (!cxx::json_get_attribute(currentNode, "start_frame", baseFrame) ||
-                !cxx::json_get_attribute(currentNode, "num_frames", numFrames))
-            {
-                debug_assert(false);
-            }
-            animDesc.Setup(baseFrame, numFrames, framesPerSecond);
-        }
-
+        animDesc.Deserialize(currentNode);
+      
         // convert to absolute sprite index
-        for (int iframe = 0; iframe < animDesc.mFramesCount; ++iframe)
+        for (int iframe = 0; iframe < animDesc.GetFramesCount(); ++iframe)
         {
-            int spriteId = animDesc.mFrames[iframe];
-            animDesc.mFrames[iframe] = GetSpriteIndex(eSpriteType_Ped, spriteId);
+            SpriteAnimFrame& animFrame = animDesc.mFrames[iframe];
+            animFrame.mSprite = GetSpriteIndex(eSpriteType_Ped, animFrame.mSprite);
         }
     }
 }
@@ -1150,15 +1121,15 @@ bool StyleData::InitGameObjects()
         //      * depth - stores a life descriptor ( 0 for infinite, non-zero n for n animation cycles )
         if (objectRaw.mStatus == 5)
         {
-            float fps = (GTA_CYCLES_PER_FRAME * 1.0f) / objectRaw.mHeight;
-            currObject.mAnimationData.Setup(startSpriteIndex, objectRaw.mWidth, fps);
+            currObject.mAnimationData.mFrameRate = (GTA_CYCLES_PER_FRAME * 1.0f) / objectRaw.mHeight;
+            currObject.mAnimationData.SetFrames(startSpriteIndex, objectRaw.mWidth);
             currObject.mLifeDuration = objectRaw.mDepth;
         }
         else
         {
             if (frameCount > 0)
             {
-                currObject.mAnimationData.Setup(startSpriteIndex, frameCount);
+                currObject.mAnimationData.SetFrames(startSpriteIndex, frameCount);
             }
             // convert object dimensions pixels to meters
             currObject.mHeight = Convert::PixelsToMeters(objectRaw.mHeight);

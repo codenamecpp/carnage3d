@@ -22,9 +22,9 @@ void Explosion::PreDrawFrame()
 void Explosion::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    if (mAnimationState.AdvanceAnimation(deltaTime))
+    if (mAnimationState.UpdateFrame(deltaTime))
     {
-        gSpriteManager.GetExplosionTexture(mAnimationState.GetCurrentFrame(), mDrawSprite);
+        gSpriteManager.GetExplosionTexture(mAnimationState.GetSpriteIndex(), mDrawSprite);
 
         if (mAnimationState.mFrameCursor == 6) // todo: magic numbers
         {
@@ -41,7 +41,7 @@ void Explosion::UpdateFrame()
         ProcessSecondaryDamage();
     }
 
-    if (!mAnimationState.IsAnimationActive())
+    if (!mAnimationState.IsActive())
     {
         MarkForDeletion();
     }
@@ -79,7 +79,7 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mAnimationState.Clear();
     // todo
     int numFrames = gSpriteManager.GetExplosionFramesCount();
-    mAnimationState.mAnimDesc.Setup(0, numFrames);
+    mAnimationState.mAnimDesc.SetFrames(0, numFrames);
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
     mAnimationState.SetMaxRepeatCycles(1);
 

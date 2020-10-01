@@ -432,11 +432,18 @@ impl_enum_strings(eSceneCameraMode)
     {eSceneCameraMode_Orthographic, "orthographic"},
 };
 
-impl_enum_strings(eSpriteAnimStatus)
+impl_enum_strings(eSpriteAnimMode)
 {
-    {eSpriteAnimStatus_Stop, "stop"},
-    {eSpriteAnimStatus_PlayForward, "play_forward"},
-    {eSpriteAnimStatus_PlayBackward, "play_backward"},
+    {eSpriteAnimMode_Normal, "normal"},
+    {eSpriteAnimMode_Reverse, "reverse"},
+};
+
+
+impl_enum_strings(eSpriteAnimState)
+{
+    {eSpriteAnimState_Stopped, "stopped"},
+    {eSpriteAnimState_Play, "play"},
+    {eSpriteAnimState_Paused, "paused"},
 };
 
 impl_enum_strings(eSpriteAnimLoop)
@@ -444,6 +451,14 @@ impl_enum_strings(eSpriteAnimLoop)
     {eSpriteAnimLoop_None, "none"},
     {eSpriteAnimLoop_PingPong, "ping_pong"},
     {eSpriteAnimLoop_FromStart, "from_start"},
+};
+
+impl_enum_strings(eSpriteAnimAction)
+{
+    {eSpriteAnimAction_None, "none"},
+    {eSpriteAnimAction_CarDoorOpen, "car_door_open"},
+    {eSpriteAnimAction_CarDoorClose, "car_door_close"},
+    {eSpriteAnimAction_Footstep, "footstep"},
 };
 
 impl_enum_strings(eVehicleModel)

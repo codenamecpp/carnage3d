@@ -22,9 +22,9 @@ void Decoration::PreDrawFrame()
 void Decoration::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    if (mAnimationState.AdvanceAnimation(deltaTime))
+    if (mAnimationState.UpdateFrame(deltaTime))
     {
-        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
     }
 
     glm::vec3 currPosition = GetPosition();
@@ -34,7 +34,7 @@ void Decoration::UpdateFrame()
         SetTransform(newPosition, mSpawnHeading);
     }
 
-    if (mLifeDuration > 0 && !mAnimationState.IsAnimationActive())
+    if (mLifeDuration > 0 && !mAnimationState.IsActive())
     {
         MarkForDeletion();
     }
@@ -60,7 +60,7 @@ void Decoration::Spawn(const glm::vec3& position, cxx::angle_t heading)
 
     mAnimationState.ClearState();
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
 }
 
 void Decoration::SetLifeDuration(int numCycles)

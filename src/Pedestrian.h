@@ -14,6 +14,7 @@ using PedestrianHandle = cxx::handle<Pedestrian>;
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
+    , public SpriteAnimListener
     , public cxx::handled_object<Pedestrian>
 {
     friend class GameObjectsManager;
@@ -138,6 +139,9 @@ public:
     }
 
 private:
+    // override SpriteAnimListener
+    bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID) override;
+
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);
     void ComputeDrawHeight(const glm::vec3& position);
 

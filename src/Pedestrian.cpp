@@ -10,6 +10,8 @@
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
 #include "CarnageGame.h"
+#include "SfxDefs.h"
+#include "AudioManager.h"
 
 Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier) 
     : GameObject(eGameObjectClass_Pedestrian, id)
@@ -22,6 +24,7 @@ Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier)
     , mPedestrianTypeID(typeIdentifier)
 {
     debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
+    mCurrentAnimState.SetListener(this);
 }
 
 Pedestrian::~Pedestrian()
@@ -103,7 +106,7 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
 void Pedestrian::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    mCurrentAnimState.AdvanceAnimation(deltaTime);
+    mCurrentAnimState.UpdateFrame(deltaTime);
 
     // update weapons state
     for (Weapon& currWeapon: mWeapons)
@@ -140,7 +143,7 @@ void Pedestrian::PreDrawFrame()
 
     cxx::angle_t rotationAngle = mPhysicsBody->mSmoothRotation;
 
-    int spriteIndex = mCurrentAnimState.GetCurrentFrame();
+    int spriteIndex = mCurrentAnimState.GetSpriteIndex();
 
     int remapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
     gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
@@ -308,15 +311,24 @@ glm::vec2 Pedestrian::GetPosition2() const
 
 void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode)
 {
-    if (mCurrentAnimID != animation)
+    if (mCurrentAnimID == animation)
     {
-        mCurrentAnimState.Clear();
-        if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
+        if (mCurrentAnimState.IsActive())
         {
-            debug_assert(false);
+            mCurrentAnimState.SetCurrentLoop(loopMode);
+            return;
         }
-        mCurrentAnimID = animation;
+
+        mCurrentAnimState.PlayAnimation(loopMode);
+        return;
     }
+
+    mCurrentAnimState.Clear();
+    if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
+    {
+        debug_assert(false);
+    }
+    mCurrentAnimID = animation;
     mCurrentAnimState.PlayAnimation(loopMode);
 }
 
@@ -613,4 +625,17 @@ void Pedestrian::UpdateDamageFromRailways()
     {
         mStandingOnRailwaysTimer = 0.0f;
     }
+}
+
+bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID)
+{
+    debug_assert(&mCurrentAnimState == animation);
+
+    if ((actionID == eSpriteAnimAction_Footstep) && !IsStanding() && IsHumanPlayerCharacter())
+    {
+        int footstepsSfx = IsRunning() ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
+        gAudioManager.PlaySfxLevel(footstepsSfx, GetPosition(), false);
+    }
+
+    return true;
 }

@@ -1,18 +1,30 @@
 #pragma once
 
-#define SPRITES_ANIM_DEFAULT_FPS 12.0f
+#define SPRITE_ANIM_DEFAULT_FPS 12.0f
 
-const int MaxSpriteAnimationFrames = 64;
+// forwards
+class SpriteAnimation;
 
-enum eSpriteAnimStatus
+// Sprite animation playback mode
+enum eSpriteAnimMode
 {
-    eSpriteAnimStatus_Stop,
-    eSpriteAnimStatus_PlayForward,
-    eSpriteAnimStatus_PlayBackward,
+    eSpriteAnimMode_Normal,
+    eSpriteAnimMode_Reverse
 };
 
-decl_enum_strings(eSpriteAnimStatus);
+decl_enum_strings(eSpriteAnimMode);
 
+// Sprite animation playback state
+enum eSpriteAnimState
+{
+    eSpriteAnimState_Play,
+    eSpriteAnimState_Stopped,
+    eSpriteAnimState_Paused,
+};
+
+decl_enum_strings(eSpriteAnimState);
+
+// Sprite animation loop mode
 enum eSpriteAnimLoop
 {
     eSpriteAnimLoop_None,
@@ -22,88 +34,130 @@ enum eSpriteAnimLoop
 
 decl_enum_strings(eSpriteAnimLoop);
 
+// Sprite animation frame action type
+enum eSpriteAnimAction
+{
+    eSpriteAnimAction_None,
+    eSpriteAnimAction_CarDoorOpen,
+    eSpriteAnimAction_CarDoorClose,
+    eSpriteAnimAction_Footstep,
+};
+
+decl_enum_strings(eSpriteAnimAction);
+
+// defines sprite animation listener class
+class SpriteAnimListener
+{
+public:
+    virtual ~SpriteAnimListener()
+    {
+    }
+    // Handle frame action, return false to drop all queued actions since last update
+    // @param animation: Animation instance
+    // @param frameIndex: Frame index with action
+    // @param actionID: Sprite action identifier
+    virtual bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID)
+    {
+        return true;
+    }
+};
+
+// defines sprite animation frame data
+struct SpriteAnimFrame
+{
+public:
+    int mSprite = 0; // index of sprite texture in spritesheet
+
+    // optional frame action identifier
+    eSpriteAnimAction mActionID = eSpriteAnimAction_None; 
+};
+
 // defines sprite animation data
 struct SpriteAnimData
 {
 public:
     SpriteAnimData() = default;
-    inline void Setup(int startFrame, int numFrames, float fps = SPRITES_ANIM_DEFAULT_FPS)
-    {
-        mFramesCount = numFrames;
-        debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
-        for (int iframe = 0; iframe < mFramesCount; ++iframe)
-        {
-            mFrames[iframe] = startFrame + iframe;
-        }
-        mFramesPerSecond = fps;
-    }
-    inline void SetupFrames(std::initializer_list<int> frames, float fps = SPRITES_ANIM_DEFAULT_FPS)
-    {
-        mFramesCount = frames.size();
-        debug_assert(mFramesCount <= MaxSpriteAnimationFrames);
-        for (int iframe = 0; iframe < mFramesCount; ++iframe)
-        {
-            mFrames[iframe] = *(frames.begin() + iframe);
-        }
-        mFramesPerSecond = fps;
-    }
-    inline void Clear()
-    {
-        mFramesCount = 0;
-        mFramesPerSecond = 0.0f;
-    }
+
+    // Read animation data from json node, returns false on error
+    bool Deserialize(cxx::json_document_node configNode);
+    void Clear();
+    void ClearFrameActions();
+
+    // Setup animation frames
+    void SetFrames(int startSpriteIndex, int framesCount);
+
+    // Setup animation frames with specific sprite indices
+    void SetFrames(std::initializer_list<int> frames);
+
+    int GetFramesCount() const;
 public:
-    int mFrames[MaxSpriteAnimationFrames];
-    int mFramesCount = 0;
-    float mFramesPerSecond = 0.0f;
+    std::vector<SpriteAnimFrame> mFrames;
+    float mFrameRate = SPRITE_ANIM_DEFAULT_FPS; // frames per second
 };
 
 // defines sprite animation state
 class SpriteAnimation
 {
 public:
-    SpriteAnimation();
-    // advance animation state, returns true on frame changes
-    bool AdvanceAnimation(float deltaTime);
-    void Clear();
-    void ClearState();
-
-    // animation control
-
-    void StopAnimation();
-    void StopAnimationAtEnd(); // disable current loop mode
-
-    // play animation from current position
-    void PlayAnimation(eSpriteAnimLoop animLoop);
-    void PlayAnimation(eSpriteAnimLoop animLoop, float fps);
-    void SetMaxRepeatCycles(int numCycles);
-    void PlayAnimationBackwards(eSpriteAnimLoop animLoop);
-    void PlayAnimationBackwards(eSpriteAnimLoop animLoop, float fps);
-    void SetCurrentLoop(eSpriteAnimLoop animLoop);
-
-    void RewindToStart();
-    void RewindToEnd();
-    void NextFrame(bool moveForward);
-    int GetCurrentFrame() const;
-    
-    bool IsAnimationActive() const; // test whether animation in progress
-    bool IsFirstFrame() const;
-    bool IsLastFrame() const;
-    bool IsRunsForwards() const;
-    bool IsRunsBackwards() const;
-
-    bool IsNull() const;
-    
-public:
-    // public for convenience, should not be modified directly
+    // readonly
     SpriteAnimData mAnimDesc;
-    eSpriteAnimStatus mStatus;
+
+    eSpriteAnimMode mPlayMode = eSpriteAnimMode_Normal;
+    eSpriteAnimState mState;
     eSpriteAnimLoop mLoopMode;
 
-    float mFrameStartTime;
-    float mAnimationStartTime;
-    
+    float mFrameTime; // time accumulator
     int mCyclesCounter;
     int mCyclesCountMax = 0;
     int mFrameCursor; // current offset in mAnimData.Frames
+    int mLastFrameCursor = -1;
+
+public:
+    SpriteAnimation();
+    void SetListener(SpriteAnimListener* animationListener);
+
+    // advance animation state, returns true on frame changes
+    bool UpdateFrame(float deltaTime);
+    void Clear();
+    void ClearState();
+
+    // start animation from _current_ position, resets previous playback state
+    void PlayAnimation(eSpriteAnimLoop animLoop, eSpriteAnimMode playMode = eSpriteAnimMode_Normal);
+    void PlayAnimation(eSpriteAnimLoop animLoop, eSpriteAnimMode playMode, float fps);
+    void StopAnimation();
+
+    // hold and restore animation without reseting playback state
+    void PauseAnimation();
+    void ContinueAnimation();
+
+    void SetMaxRepeatCycles(int numCycles);
+
+    void SetCurrentLoop(eSpriteAnimLoop animLoop);
+    void SetCurrentMode(eSpriteAnimMode animMode);
+
+    void RewindToStart();
+    void RewindToEnd();
+
+    int GetSpriteIndex() const;
+    
+    bool IsActive() const; // test whether animation in progress or paused
+    bool IsPaused() const;
+    bool IsStopped() const;
+
+    bool IsFirstFrame() const;
+    bool IsLastFrame() const;
+    bool IsRunsForwards() const;
+    bool IsRunsInReverse() const;
+
+    bool IsNull() const;
+
+private:
+    void NextFrame(bool moveForward);
+    void AdvanceProgressForSingleFrame();
+    void QueueFrameAction();
+    void FireFrameActions();
+    
+private:
+    SpriteAnimListener* mListener = nullptr;
+    std::deque<int> mFireActionsQueue;
 };

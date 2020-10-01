@@ -17,7 +17,7 @@ enum
     SfxLevel_Punch = 16,
     SfxLevel_WaterSplash = 18,
     SfxLevel_FootStep1 = 19,
-    SfxLevel_FootSpet2 = 20,
+    SfxLevel_FootStep2 = 20,
     SfxLevel_Scream1 = 21,
     SfxLevel_Scream2 = 22,
     SfxLevel_Scream3 = 23,
@@ -35,6 +35,11 @@ enum
     SfxLevel_BulletRicochet = 43,
     SfxLevel_Special1 = 76,
     SfxLevel_Special2 = 77,
+
+    SfxLevel_FirstCarEngineSound = 45,
+    // car engine sounds
+    SfxLevel_FirstCarHornSound = 58,
+    // car horn sounds
 
     SfxLevel_COUNT
 };

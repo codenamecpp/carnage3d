@@ -227,21 +227,21 @@ SpriteDeltaBits Vehicle::GetSpriteDeltas() const
     {
         if (!mDoorsAnims[idoor].IsNull())
         {
-            unsigned int deltaBit = mDoorsAnims[idoor].GetCurrentFrame();
+            unsigned int deltaBit = mDoorsAnims[idoor].GetSpriteIndex();
             deltaBits |= deltaBit;
         }
     }
 
     // add emergency lights
-    if (mEmergLightsAnim.IsAnimationActive())
+    if (mEmergLightsAnim.IsActive())
     {
-        unsigned int deltaBit = mEmergLightsAnim.GetCurrentFrame();
+        unsigned int deltaBit = mEmergLightsAnim.GetSpriteIndex();
         deltaBits |= deltaBit;
     }
 
-    if (mDrivingDeltaAnim.IsAnimationActive())
+    if (mDrivingDeltaAnim.IsActive())
     {
-        unsigned int deltaBit = mDrivingDeltaAnim.GetCurrentFrame();
+        unsigned int deltaBit = mDrivingDeltaAnim.GetSpriteIndex();
         deltaBits |= deltaBit;
     }
 
@@ -263,54 +263,47 @@ void Vehicle::SetupDeltaAnimations()
     if ((deltaBits & maskBits) == maskBits)
     {
         mEmergLightsAnim.Clear();
-        mEmergLightsAnim.mAnimDesc.SetupFrames(
+        mEmergLightsAnim.mAnimDesc.mFrameRate = CAR_DELTA_ANIMS_SPEED;
+        mEmergLightsAnim.mAnimDesc.SetFrames(
         {
             BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0), BIT(CAR_LIGHTING_SPRITE_DELTA_0),
             BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1), BIT(CAR_LIGHTING_SPRITE_DELTA_1),
-        }, 
-        CAR_DELTA_ANIMS_SPEED);
+        });
     }
 
     if (mCarInfo->mExtraDrivingAnim)
     {
         debug_assert(spriteInfo.mDeltaCount > CAR_DRIVE_SPRITE_DELTA);
         mDrivingDeltaAnim.Clear();
-        mDrivingDeltaAnim.mAnimDesc.SetupFrames(
-            {
-                0, 
-                BIT(CAR_DRIVE_SPRITE_DELTA),
-                0, 
-                BIT(CAR_DRIVE_SPRITE_DELTA),
-            }, 
-            CAR_DELTA_DRIVING_ANIM_SPEED
-        );
+        mDrivingDeltaAnim.mAnimDesc.mFrameRate = CAR_DELTA_DRIVING_ANIM_SPEED;
+        mDrivingDeltaAnim.mAnimDesc.SetFrames(
+        {
+            0, BIT(CAR_DRIVE_SPRITE_DELTA),
+            0, BIT(CAR_DRIVE_SPRITE_DELTA),
+        });
     }
 
     // doors
     if (mCarInfo->mDoorsCount >= 1)
     {
-        mDoorsAnims[0].mAnimDesc.SetupFrames(
+        mDoorsAnims[0].mAnimDesc.mFrameRate = CAR_DELTA_ANIMS_SPEED;
+        mDoorsAnims[0].mAnimDesc.SetFrames(
         {
-            0,
-            BIT(CAR_DOOR1_SPRITE_DELTA_0),
-            BIT(CAR_DOOR1_SPRITE_DELTA_1),
-            BIT(CAR_DOOR1_SPRITE_DELTA_2),
-            BIT(CAR_DOOR1_SPRITE_DELTA_3)
-        }, 
-        CAR_DELTA_ANIMS_SPEED);
+            0, 
+            BIT(CAR_DOOR1_SPRITE_DELTA_0), BIT(CAR_DOOR1_SPRITE_DELTA_1),
+            BIT(CAR_DOOR1_SPRITE_DELTA_2), BIT(CAR_DOOR1_SPRITE_DELTA_3)
+        });
     }
 
     if (mCarInfo->mDoorsCount >= 2)
     {
-        mDoorsAnims[1].mAnimDesc.SetupFrames(
+        mDoorsAnims[1].mAnimDesc.mFrameRate = CAR_DELTA_ANIMS_SPEED;
+        mDoorsAnims[1].mAnimDesc.SetFrames(
         {
-            0,
-            BIT(CAR_DOOR2_SPRITE_DELTA_0),
-            BIT(CAR_DOOR2_SPRITE_DELTA_1),
-            BIT(CAR_DOOR2_SPRITE_DELTA_2),
-            BIT(CAR_DOOR2_SPRITE_DELTA_3)
-        }, 
-        CAR_DELTA_ANIMS_SPEED);
+            0, 
+            BIT(CAR_DOOR2_SPRITE_DELTA_0), BIT(CAR_DOOR2_SPRITE_DELTA_1),
+            BIT(CAR_DOOR2_SPRITE_DELTA_2), BIT(CAR_DOOR2_SPRITE_DELTA_3)
+        });
     }
 }
 
@@ -319,21 +312,21 @@ void Vehicle::UpdateDeltaAnimations()
     float deltaTime = gTimeManager.mGameFrameDelta;
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
     {
-        if (mDoorsAnims[idoor].IsAnimationActive())
+        if (mDoorsAnims[idoor].IsActive())
         {
-            mDoorsAnims[idoor].AdvanceAnimation(deltaTime);
+            mDoorsAnims[idoor].UpdateFrame(deltaTime);
         }
     }
 
-    if (mEmergLightsAnim.IsAnimationActive())
+    if (mEmergLightsAnim.IsActive())
     {
-        mEmergLightsAnim.AdvanceAnimation(deltaTime);
+        mEmergLightsAnim.UpdateFrame(deltaTime);
     }
 
     if (mCarInfo->mExtraDrivingAnim)
     {
         bool shouldEnable = fabs(mPhysicsBody->GetCurrentSpeed()) > 0.5f; // todo: magic numbers
-        if (mDrivingDeltaAnim.IsAnimationActive())
+        if (mDrivingDeltaAnim.IsActive())
         {
             if (!shouldEnable)
             {
@@ -341,7 +334,7 @@ void Vehicle::UpdateDeltaAnimations()
             }
             else
             {
-                mDrivingDeltaAnim.AdvanceAnimation(deltaTime);
+                mDrivingDeltaAnim.UpdateFrame(deltaTime);
             }
         }
         else if (shouldEnable)
@@ -369,7 +362,8 @@ void Vehicle::CloseDoor(int doorIndex)
         if (IsDoorClosing(doorIndex) || IsDoorClosed(doorIndex))
             return;
 
-        mDoorsAnims[doorIndex].PlayAnimationBackwards(eSpriteAnimLoop_None);
+        mDoorsAnims[doorIndex].RewindToEnd();
+        mDoorsAnims[doorIndex].PlayAnimation(eSpriteAnimLoop_None, eSpriteAnimMode_Reverse);
     }
 }
 
@@ -382,29 +376,29 @@ bool Vehicle::HasDoorAnimation(int doorIndex) const
 bool Vehicle::IsDoorOpened(int doorIndex) const
 {
     debug_assert(doorIndex < MAX_CAR_DOORS);
-    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsAnimationActive() && 
+    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsActive() && 
         mDoorsAnims[doorIndex].IsLastFrame();
 }
 
 bool Vehicle::IsDoorClosed(int doorIndex) const
 {
     debug_assert(doorIndex < MAX_CAR_DOORS);
-    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsAnimationActive() && 
+    return HasDoorAnimation(doorIndex) && !mDoorsAnims[doorIndex].IsActive() && 
         mDoorsAnims[doorIndex].IsFirstFrame();
 }
 
 bool Vehicle::IsDoorOpening(int doorIndex) const
 {
     debug_assert(doorIndex < MAX_CAR_DOORS);
-    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsAnimationActive() && 
+    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsActive() && 
         mDoorsAnims[doorIndex].IsRunsForwards();
 }
 
 bool Vehicle::IsDoorClosing(int doorIndex) const
 {
     debug_assert(doorIndex < MAX_CAR_DOORS);
-    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsAnimationActive() && 
-        mDoorsAnims[doorIndex].IsRunsBackwards();
+    return HasDoorAnimation(doorIndex) && mDoorsAnims[doorIndex].IsActive() && 
+        mDoorsAnims[doorIndex].IsRunsInReverse();
 }
 
 bool Vehicle::HasEmergencyLightsAnimation() const
@@ -414,14 +408,14 @@ bool Vehicle::HasEmergencyLightsAnimation() const
 
 bool Vehicle::IsEmergencyLightsEnabled() const
 {
-    return HasEmergencyLightsAnimation() && mEmergLightsAnim.IsAnimationActive();
+    return HasEmergencyLightsAnimation() && mEmergLightsAnim.IsActive();
 }
 
 void Vehicle::EnableEmergencyLights(bool isEnabled)
 {
     if (HasEmergencyLightsAnimation())
     {
-        if (isEnabled == mEmergLightsAnim.IsAnimationActive())
+        if (isEnabled == mEmergLightsAnim.IsActive())
             return;
 
         if (isEnabled)

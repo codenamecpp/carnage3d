@@ -59,7 +59,7 @@ void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
             {
                 loopType = eSpriteAnimLoop_None;
             }
-            mAnimationState.PlayAnimation(loopType, 24.0f); // todo: move to config
+            mAnimationState.PlayAnimation(loopType, eSpriteAnimMode_Normal, 24.0f); // todo: move to config
         }
     }
 
@@ -72,7 +72,7 @@ void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
 void Projectile::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    mAnimationState.AdvanceAnimation(deltaTime);
+    mAnimationState.UpdateFrame(deltaTime);
 
     if (!IsContactDetected())
         return;
@@ -131,7 +131,7 @@ void Projectile::UpdateFrame()
 
 void Projectile::PreDrawFrame()
 {
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
 
     glm::vec3 position = mPhysicsBody->mSmoothPosition;
     ComputeDrawHeight(position);

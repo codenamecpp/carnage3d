@@ -436,7 +436,7 @@ void PedestrianStatesManager::StateExitCar_ProcessFrame()
         currentCar->CloseDoor(doorIndex);
     }
 
-    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    if (!mPedestrian->mCurrentAnimState.IsActive())
     {
         PedestrianStateEvent evData { ePedestrianStateEvent_None };
         ChangeState(ePedestrianState_StandingStill, evData);
@@ -485,7 +485,7 @@ void PedestrianStatesManager::StateEnterCar_ProcessFrame()
         SetInCarPositionToSeat();
     }
 
-    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    if (!mPedestrian->mCurrentAnimState.IsActive())
     {
         PedestrianStateEvent evData { ePedestrianStateEvent_None };
         ChangeState(ePedestrianState_DrivingCar, evData);
@@ -526,7 +526,7 @@ void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 
     if (mPedestrian->mCurrentAnimID == ePedestrianAnim_JumpOntoCar)
     {
-        if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+        if (!mPedestrian->mCurrentAnimState.IsActive())
         {
             mPedestrian->SetAnimation(ePedestrianAnim_SlideOnCar, eSpriteAnimLoop_FromStart);
         }
@@ -541,7 +541,7 @@ void PedestrianStatesManager::StateSlideCar_ProcessFrame()
     else if (mPedestrian->mCurrentAnimID == ePedestrianAnim_DropOffCarSliding)
     {
         // check can finish current state
-        if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+        if (!mPedestrian->mCurrentAnimState.IsActive())
         {
             PedestrianStateEvent evData { ePedestrianStateEvent_None };
             ChangeState(ePedestrianState_StandingStill, evData);
@@ -582,7 +582,7 @@ bool PedestrianStatesManager::StateSlideCar_ProcessEvent(const PedestrianStateEv
 
 void PedestrianStatesManager::StateStunned_ProcessFrame()
 {
-    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    if (!mPedestrian->mCurrentAnimState.IsActive())
     {
         if (mPedestrian->mCurrentAnimID == ePedestrianAnim_FallShort)
         {
@@ -797,7 +797,7 @@ void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEv
 
 void PedestrianStatesManager::StateElectrocuted_ProcessFrame()
 {
-    if (!mPedestrian->mCurrentAnimState.IsAnimationActive())
+    if (!mPedestrian->mCurrentAnimState.IsActive())
     {
         if (mPedestrian->mCurrentAnimID == ePedestrianAnim_FallShort)
         {

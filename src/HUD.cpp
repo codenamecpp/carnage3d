@@ -284,7 +284,7 @@ void HUDWantedLevelPanel::SetupHUD()
         currCopSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
 
         currCopSprite.mAnimationState.Clear();
-        currCopSprite.mAnimationState.mAnimDesc.SetupFrames(
+        currCopSprite.mAnimationState.mAnimDesc.SetFrames(
             {
                 eSpriteID_Arrow_WantedFrame1,
                 eSpriteID_Arrow_WantedFrame2
@@ -313,9 +313,9 @@ void HUDWantedLevelPanel::UpdateFrame()
     for (int icurr = 0; icurr < mCopSpritesCount; ++icurr)
     {
         CopSprite& currCopSprite = mCopSprites[icurr];
-        if (currCopSprite.mAnimationState.AdvanceAnimation(gTimeManager.mUiFrameDelta))
+        if (currCopSprite.mAnimationState.UpdateFrame(gTimeManager.mUiFrameDelta))
         {
-            gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, currCopSprite.mAnimationState.GetCurrentFrame(), 0, currCopSprite);
+            gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, currCopSprite.mAnimationState.GetSpriteIndex(), 0, currCopSprite);
         }
     }
 }

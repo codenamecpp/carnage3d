@@ -1,11 +1,21 @@
 {
     "walk": 
     {
-        "start_frame": 0, "num_frames": 8
+        "start_frame": 0, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 6, "action": "footstep"}
+        ]
     },
     "run": 
     {
-        "start_frame": 8, "num_frames": 8
+        "start_frame": 8, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "exit_car": 
     {
@@ -77,7 +87,12 @@
     },
     "punching_while_running":
     {
-        "start_frame": 181, "num_frames": 8
+        "start_frame": 181, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "shoot_pistol_while_standing":
     {
@@ -85,11 +100,21 @@
     },
     "shoot_pistol_while_walking":
     {
-        "start_frame": 99, "num_frames": 8
+        "start_frame": 99, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 6, "action": "footstep"}
+        ]
     },
     "shoot_pistol_while_running":
     {
-        "start_frame": 107, "num_frames": 8
+        "start_frame": 107, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "shoot_machinegun_while_standing":
     {
@@ -97,11 +122,21 @@
     },
     "shoot_machinegun_while_walking":
     {
-        "start_frame": 136, "num_frames": 8
+        "start_frame": 136, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 6, "action": "footstep"}
+        ]
     },
     "shoot_machinegun_while_running":
     {
-        "start_frame": 144, "num_frames": 8
+        "start_frame": 144, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "shoot_flamethrower_while_standing":
     {
@@ -109,11 +144,21 @@
     },
     "shoot_flamethrower_while_walking":
     {
-        "start_frame": 118, "num_frames": 8
+        "start_frame": 118, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 6, "action": "footstep"}
+        ]
     },
     "shoot_flamethrower_while_running":
     {
-        "start_frame": 126, "num_frames": 8
+        "start_frame": 126, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "shoot_rpg_while_standing":
     {
@@ -121,11 +166,21 @@
     },
     "shoot_rpg_while_walking":
     {
-        "start_frame": 154, "num_frames": 8
+        "start_frame": 154, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 6, "action": "footstep"}
+        ]
     },
     "shoot_rpg_while_running":
     {
-        "start_frame": 162, "num_frames": 8
+        "start_frame": 162, "num_frames": 8,
+        "actions":
+        [
+            {"frame_index": 1, "action": "footstep"},
+            {"frame_index": 5, "action": "footstep"}
+        ]
     },
     "electrocuted":
     {

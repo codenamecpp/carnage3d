@@ -25,9 +25,9 @@ void Obstacle::PreDrawFrame()
 void Obstacle::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    if (mAnimationState.AdvanceAnimation(deltaTime))
+    if (mAnimationState.UpdateFrame(deltaTime))
     {
-        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetCurrentFrame(), 0, mDrawSprite);
+        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
     }
 }
 

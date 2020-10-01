@@ -302,13 +302,13 @@ void SpriteManager::InitBlocksAnimations()
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
-        animData.mAnimDesc.mFramesPerSecond = (GTA_CYCLES_PER_FRAME * 1.0f) / currAnim.mSpeed;
-        animData.mAnimDesc.mFramesCount = currAnim.mFrameCount + 1;
-        animData.mAnimDesc.mFrames[0] = animData.mBlockIndex; // initial frame
+        animData.mAnimDesc.mFrameRate = (GTA_CYCLES_PER_FRAME * 1.0f) / currAnim.mSpeed;
+        animData.mAnimDesc.SetFrames(animData.mBlockIndex, currAnim.mFrameCount + 1);
         for (int iframe = 0; iframe < currAnim.mFrameCount; ++iframe)
         {   
             // convert to linear indices
-            animData.mAnimDesc.mFrames[iframe + 1] = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
+            SpriteAnimFrame& animFrame = animData.mAnimDesc.mFrames[iframe + 1];
+            animFrame.mSprite = cityStyle.GetBlockTextureLinearIndex(eBlockType_Aux, currAnim.mFrames[iframe]);
         }
         animData.PlayAnimation(eSpriteAnimLoop_FromStart);
         mBlocksAnimations.push_back(animData);
@@ -322,9 +322,9 @@ void SpriteManager::UpdateBlocksAnimations(float deltaTime)
 
     for (BlockAnimation& currAnim: mBlocksAnimations)
     {
-        if (!currAnim.AdvanceAnimation(deltaTime))
+        if (!currAnim.UpdateFrame(deltaTime))
             continue;
-        mBlocksIndices[currAnim.mBlockIndex] = currAnim.GetCurrentFrame(); // patch table
+        mBlocksIndices[currAnim.mBlockIndex] = currAnim.GetSpriteIndex(); // patch table
         mIndicesTableChanged = true;
     }
 }
