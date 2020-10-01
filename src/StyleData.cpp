@@ -1121,6 +1121,11 @@ bool StyleData::InitGameObjects()
         //      * depth - stores a life descriptor ( 0 for infinite, non-zero n for n animation cycles )
         if (objectRaw.mStatus == 5)
         {
+            if (objectRaw.mHeight == 0)
+            {
+                objectRaw.mHeight = frameCount;
+            }
+            debug_assert(objectRaw.mHeight > 0);
             currObject.mAnimationData.mFrameRate = (GTA_CYCLES_PER_FRAME * 1.0f) / objectRaw.mHeight;
             currObject.mAnimationData.SetFrames(startSpriteIndex, objectRaw.mWidth);
             currObject.mLifeDuration = objectRaw.mDepth;
@@ -1136,6 +1141,8 @@ bool StyleData::InitGameObjects()
             currObject.mWidth = Convert::PixelsToMeters(objectRaw.mWidth);
             currObject.mDepth = Convert::PixelsToMeters(objectRaw.mDepth);
         }
+
+        debug_assert(!std::isinf(currObject.mAnimationData.mFrameRate));
     }
 
     return true;
