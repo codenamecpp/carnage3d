@@ -24,6 +24,9 @@ public:
     // memory
     bool mEnableFrameHeapAllocator;
 
+    // audio
+    bool mEnableAudio;
+
     // debug
     bool mShowImguiDemoWindow;
 };

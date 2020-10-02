@@ -112,25 +112,33 @@ bool AudioDevice::SetMasterVolume(float gainValue)
 
 AudioBuffer* AudioDevice::CreateAudioBuffer()
 {
-    AudioBuffer* audioBuffer = mBuffersPool.create();
-    debug_assert(audioBuffer);
-    if (audioBuffer)
+    AudioBuffer* audioBuffer = nullptr;
+    if (IsInitialized())
     {
-        mAllBuffers.push_back(audioBuffer);
+        audioBuffer = mBuffersPool.create();
+        debug_assert(audioBuffer);
+        if (audioBuffer)
+        {
+            mAllBuffers.push_back(audioBuffer);
+        }
     }
     return audioBuffer;
 }
 
 AudioBuffer* AudioDevice::CreateAudioBuffer(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData)
 {
-    AudioBuffer* audioBuffer = CreateAudioBuffer();
-    debug_assert(audioBuffer);
-
-    if (audioBuffer)
+    AudioBuffer* audioBuffer = nullptr;
+    if (IsInitialized())
     {
-        if (!audioBuffer->SetupBufferData(sampleRate, bitsPerSample, channelsCount, dataLength, bufferData))
+        audioBuffer = CreateAudioBuffer();
+        debug_assert(audioBuffer);
+
+        if (audioBuffer)
         {
-            debug_assert(false);
+            if (!audioBuffer->SetupBufferData(sampleRate, bitsPerSample, channelsCount, dataLength, bufferData))
+            {
+                debug_assert(false);
+            }
         }
     }
     return audioBuffer;
@@ -147,11 +155,15 @@ void AudioDevice::DestroyAudioBuffer(AudioBuffer* audioBuffer)
 
 AudioSource* AudioDevice::CreateAudioSource()
 {
-    AudioSource* audioSource = mSourcesPool.create();
-    debug_assert(audioSource);
-    if (audioSource)
+    AudioSource* audioSource = nullptr;
+    if (IsInitialized())
     {
-        mAllSources.push_back(audioSource);
+        audioSource = mSourcesPool.create();
+        debug_assert(audioSource);
+        if (audioSource)
+        {
+            mAllSources.push_back(audioSource);
+        }
     }
     return audioSource;
 }

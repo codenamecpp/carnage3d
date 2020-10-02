@@ -26,6 +26,7 @@ SystemConfig::SystemConfig()
 
 void SystemConfig::SetToDefaults()
 {
+    mEnableAudio = true;
     mEnableFrameHeapAllocator = true;
     mShowImguiDemoWindow = false;
     mEnableVSync = false;
@@ -55,6 +56,12 @@ void SystemConfig::InitFromJsonDocument(const cxx::json_document& sourceDocument
     if (cxx::json_document_node memConfig = configRootNode["memory"])
     {
         cxx::json_get_attribute(memConfig, "enable_frame_heap_allocator", mEnableFrameHeapAllocator);
+    }
+
+    // audio
+    if (cxx::json_document_node audioConfig = configRootNode["audio"])
+    {
+        cxx::json_get_attribute(audioConfig, "enable", mEnableAudio);
     }
 
     // debug
@@ -165,14 +172,21 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
-    if (!gAudioDevice.Initialize())
+    if (mConfig.mEnableAudio)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio device");
-    }
+        if (!gAudioDevice.Initialize())
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio device");
+        }
 
-    if (!gAudioManager.Initialize())
+        if (!gAudioManager.Initialize())
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio manager");
+        }
+    }
+    else
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot initialize audio manager");
+        gConsole.LogMessage(eLogMessage_Info, "Audio is disabled via config");
     }
 
     if (!gGuiManager.Initialize())
@@ -200,8 +214,11 @@ void System::Deinit()
     gCarnageGame.Deinit();
     gImGuiManager.Deinit();
     gGuiManager.Deinit();
-    gAudioManager.Deinit();
-    gAudioDevice.Deinit();
+    if (mConfig.mEnableAudio)
+    {
+        gAudioManager.Deinit();
+        gAudioDevice.Deinit();
+    }
     gRenderManager.Deinit();
     gGraphicsDevice.Deinit();
     gMemoryManager.Deinit();
@@ -219,9 +236,15 @@ void System::Execute()
         gMemoryManager.FlushFrameHeapMemory();
         gImGuiManager.UpdateFrame();
         gGuiManager.UpdateFrame();
-        gAudioManager.UpdateFrame();
+        if (mConfig.mEnableAudio)
+        {
+            gAudioManager.UpdateFrame();
+        }
         gCarnageGame.UpdateFrame();
-        gAudioDevice.UpdateFrame(); // update after logic frame
+        if (mConfig.mEnableAudio)
+        {
+            gAudioDevice.UpdateFrame(); // update at logic frame end
+        }
         gRenderManager.RenderFrame();
     }
 }

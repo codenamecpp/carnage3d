@@ -104,6 +104,10 @@ AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position,
     // get buffer
     debug_assert(sfxIndex < mLevelSounds.GetEntriesCount());
 
+    AudioSource* audioSource = GetFreeSfxAudioSource();
+    if (audioSource == nullptr)
+        return nullptr; // out of free audio channels
+
     if (mLevelSoundsBuffers[sfxIndex] == nullptr)
     {
         SfxArchiveEntry archiveEntry;
@@ -127,10 +131,6 @@ AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position,
 
         mLevelSoundsBuffers[sfxIndex] = audioBuffer;
     }
-
-    AudioSource* audioSource = GetFreeSfxAudioSource();
-    if (audioSource == nullptr)
-        return nullptr; // out of free audio channels
 
     if (!audioSource->SetupSourceBuffer(mLevelSoundsBuffers[sfxIndex]))
     {
@@ -164,7 +164,8 @@ bool AudioManager::AllocateAudioSources()
     for (int icurr = 0; icurr < MaxAudioSources; ++icurr)
     {
         AudioSource* audioSource = gAudioDevice.CreateAudioSource();
-        debug_assert(audioSource);
+        if (audioSource == nullptr)
+            break;
 
         mAudioSources.push_back(audioSource);
     }

@@ -6,16 +6,17 @@
         "vsync": false,
         "hardware_cursor": true
     },
-
     "debug":
     {
         "show_imgui_demo_window": false
     },
-
     "memory":
     {
         "enable_frame_heap_allocator": true
     },
-
+    "audio":
+    {
+        "enable": true
+    },
     "gta_gamedata_location": "../../../GTADATA"
 }
