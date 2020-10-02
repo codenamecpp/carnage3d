@@ -254,15 +254,18 @@ void Vehicle::SetupDeltaAnimations()
     SpriteDeltaBits deltaBits = spriteInfo.GetDeltaBits();
 
     mEmergLightsAnim.Clear();
+    mDrivingDeltaAnim.Clear();
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
     {
         mDoorsAnims[idoor].Clear();
     }
 
+    if (deltaBits == 0)
+        return;
+
     SpriteDeltaBits maskBits = BIT(CAR_LIGHTING_SPRITE_DELTA_0) | BIT(CAR_LIGHTING_SPRITE_DELTA_1);
     if ((deltaBits & maskBits) == maskBits)
     {
-        mEmergLightsAnim.Clear();
         mEmergLightsAnim.mAnimDesc.mFrameRate = CAR_DELTA_ANIMS_SPEED;
         mEmergLightsAnim.mAnimDesc.SetFrames(
         {
@@ -274,7 +277,6 @@ void Vehicle::SetupDeltaAnimations()
     if (mCarInfo->mExtraDrivingAnim)
     {
         debug_assert(spriteInfo.mDeltaCount > CAR_DRIVE_SPRITE_DELTA);
-        mDrivingDeltaAnim.Clear();
         mDrivingDeltaAnim.mAnimDesc.mFrameRate = CAR_DELTA_DRIVING_ANIM_SPEED;
         mDrivingDeltaAnim.mAnimDesc.SetFrames(
         {
@@ -293,6 +295,8 @@ void Vehicle::SetupDeltaAnimations()
             BIT(CAR_DOOR1_SPRITE_DELTA_0), BIT(CAR_DOOR1_SPRITE_DELTA_1),
             BIT(CAR_DOOR1_SPRITE_DELTA_2), BIT(CAR_DOOR1_SPRITE_DELTA_3)
         });
+        mDoorsAnims[0].SetFrameAction(0, eSpriteAnimAction_CarDoors);
+        mDoorsAnims[0].SetListener(this);
     }
 
     if (mCarInfo->mDoorsCount >= 2)
@@ -304,6 +308,8 @@ void Vehicle::SetupDeltaAnimations()
             BIT(CAR_DOOR2_SPRITE_DELTA_0), BIT(CAR_DOOR2_SPRITE_DELTA_1),
             BIT(CAR_DOOR2_SPRITE_DELTA_2), BIT(CAR_DOOR2_SPRITE_DELTA_3)
         });
+        mDoorsAnims[0].SetFrameAction(0, eSpriteAnimAction_CarDoors);
+        mDoorsAnims[1].SetListener(this);
     }
 }
 
@@ -849,4 +855,14 @@ bool Vehicle::HasDoorsOpened() const
             return true;
     }
     return false;
+}
+
+bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID)
+{
+    if (actionID == eSpriteAnimAction_CarDoors)
+    {
+        bool openDoors = animation->IsRunsForwards();
+        gAudioManager.PlaySfxLevel(openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, GetPosition(), false);
+    }
+    return true;
 }

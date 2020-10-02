@@ -27,6 +27,10 @@ public:
     // @param sfxIndex: Sound index, one of SfxVoice_*
     AudioSource* PlaySfxVoice(int sfxIndex, const glm::vec3& position, bool enableLoop);
 
+    void StopAllSounds();
+    void PauseAllSounds();
+    void ResumeAllSounds();
+
 private:
     AudioSource* GetFreeSfxAudioSource() const;
 

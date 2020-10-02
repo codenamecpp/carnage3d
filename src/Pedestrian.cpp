@@ -631,10 +631,14 @@ bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, e
 {
     debug_assert(&mCurrentAnimState == animation);
 
-    if ((actionID == eSpriteAnimAction_Footstep) && !IsStanding() && IsHumanPlayerCharacter())
+    ePedestrianState stateID = GetCurrentStateID();
+    if ((actionID == eSpriteAnimAction_Footstep) && IsHumanPlayerCharacter())
     {
-        int footstepsSfx = IsRunning() ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
-        gAudioManager.PlaySfxLevel(footstepsSfx, GetPosition(), false);
+        if ((stateID == ePedestrianState_Runs) || (stateID == ePedestrianState_Walks))
+        {
+            int footstepsSfx = (stateID == ePedestrianState_Runs) ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
+            gAudioManager.PlaySfxLevel(footstepsSfx, GetPosition(), false);
+        }
     }
 
     return true;

@@ -38,8 +38,7 @@ decl_enum_strings(eSpriteAnimLoop);
 enum eSpriteAnimAction
 {
     eSpriteAnimAction_None,
-    eSpriteAnimAction_CarDoorOpen,
-    eSpriteAnimAction_CarDoorClose,
+    eSpriteAnimAction_CarDoors, // open or close car door
     eSpriteAnimAction_Footstep,
 };
 
@@ -139,6 +138,8 @@ public:
     void RewindToEnd();
 
     int GetSpriteIndex() const;
+
+    void SetFrameAction(int frameIndex, eSpriteAnimAction actionID);
     
     bool IsActive() const; // test whether animation in progress or paused
     bool IsPaused() const;

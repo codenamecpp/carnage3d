@@ -10,6 +10,7 @@ using VehicleHandle = cxx::handle<Vehicle>;
 
 // defines vehicle instance
 class Vehicle final: public GameObject
+    , public SpriteAnimListener
     , public cxx::handled_object<Vehicle>
 {
     friend class GameObjectsManager;
@@ -107,6 +108,9 @@ public:
     int GetCurrentDamage() const;
 
 private:
+    // override SpriteAnimListener
+    bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID);
+
     void SetWrecked();
     void Explode();
     void ComputeDrawHeight(const glm::vec3& position);

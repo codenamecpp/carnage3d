@@ -456,8 +456,7 @@ impl_enum_strings(eSpriteAnimLoop)
 impl_enum_strings(eSpriteAnimAction)
 {
     {eSpriteAnimAction_None, "none"},
-    {eSpriteAnimAction_CarDoorOpen, "car_door_open"},
-    {eSpriteAnimAction_CarDoorClose, "car_door_close"},
+    {eSpriteAnimAction_CarDoors, "car_doors"},
     {eSpriteAnimAction_Footstep, "footstep"},
 };
 

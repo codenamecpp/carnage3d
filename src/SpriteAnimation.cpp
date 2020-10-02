@@ -417,3 +417,16 @@ int SpriteAnimation::GetSpriteIndex() const
     }
     return 0;
 }
+
+void SpriteAnimation::SetFrameAction(int frameIndex, eSpriteAnimAction actionID)
+{
+    int framesCount = mAnimDesc.GetFramesCount();
+    if (frameIndex < framesCount)
+    {
+        mAnimDesc.mFrames[frameIndex].mActionID = actionID;
+    }
+    else
+    {
+        debug_assert(false);
+    }
+}

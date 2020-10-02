@@ -19,6 +19,7 @@ bool AudioManager::Initialize()
 
 void AudioManager::Deinit()
 {
+    StopAllSounds();
     FreeLevelSounds();
 
     ReleaseAudioSources();
@@ -170,3 +171,35 @@ bool AudioManager::AllocateAudioSources()
     return true;
 }
 
+void AudioManager::StopAllSounds()
+{
+    for (AudioSource* currSource: mAudioSources)
+    {
+        if (currSource->IsPlaying() || currSource->IsPaused())
+        {
+            currSource->Stop();
+        }
+    }
+}
+
+void AudioManager::PauseAllSounds()
+{
+    for (AudioSource* currSource: mAudioSources)
+    {
+        if (currSource->IsPlaying())
+        {
+            currSource->Pause();
+        }
+    }
+}
+
+void AudioManager::ResumeAllSounds()
+{
+    for (AudioSource* currSource: mAudioSources)
+    {
+        if (currSource->IsPaused())
+        {
+            currSource->Resume();
+        }
+    }
+}
