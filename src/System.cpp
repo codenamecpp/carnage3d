@@ -214,7 +214,7 @@ void System::Deinit()
     gCarnageGame.Deinit();
     gImGuiManager.Deinit();
     gGuiManager.Deinit();
-    if (mConfig.mEnableAudio)
+    if (gAudioDevice.IsInitialized())
     {
         gAudioManager.Deinit();
         gAudioDevice.Deinit();
@@ -236,13 +236,10 @@ void System::Execute()
         gMemoryManager.FlushFrameHeapMemory();
         gImGuiManager.UpdateFrame();
         gGuiManager.UpdateFrame();
-        if (mConfig.mEnableAudio)
+        gCarnageGame.UpdateFrame();
+        if (gAudioDevice.IsInitialized())
         {
             gAudioManager.UpdateFrame();
-        }
-        gCarnageGame.UpdateFrame();
-        if (mConfig.mEnableAudio)
-        {
             gAudioDevice.UpdateFrame(); // update at logic frame end
         }
         gRenderManager.RenderFrame();
