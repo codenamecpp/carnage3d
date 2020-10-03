@@ -792,8 +792,38 @@ void ProjectilePhysicsBody::SimulationStep()
 
 bool ProjectilePhysicsBody::ShouldContactWith(unsigned int objCatBits) const
 {
-    if (mReferenceProjectile->IsContactDetected() || mReferenceProjectile->IsMarkedForDeletion())
+    if (mContactDetected || mReferenceProjectile->IsMarkedForDeletion())
         return false;
 
     return true;
+}
+
+bool ProjectilePhysicsBody::ProcessContactWithObject(const glm::vec3& contactPoint, GameObject* gameObject)
+{
+    if (mContactDetected || mReferenceProjectile->IsMarkedForDeletion())
+        return false;
+
+    if (mReferenceProjectile->mShooter && (mReferenceProjectile->mShooter == gameObject)) // ignore shooter ped
+        return false;
+
+    mContactPoint = contactPoint;
+    mContactObject = gameObject;
+    mContactDetected = true;
+    return true;
+}
+
+bool ProjectilePhysicsBody::ProcessContactWithMap(const glm::vec3& contactPoint)
+{
+    if (mContactDetected || mReferenceProjectile->IsMarkedForDeletion())
+        return false;
+
+    mContactPoint = contactPoint;
+    mContactDetected = true;
+    return true;
+}
+
+void ProjectilePhysicsBody::ClearCurrentContact()
+{
+    mContactDetected = false;
+    mContactObject.reset();
 }

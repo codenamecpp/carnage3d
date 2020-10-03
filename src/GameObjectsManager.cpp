@@ -109,14 +109,14 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
     return vehicle;
 }
 
-Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading)
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, Pedestrian* shooter)
 {
-    return CreateProjectile(position, heading, nullptr);
+    return CreateProjectile(position, heading, nullptr, shooter);
 }
 
-Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo)
+Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx::angle_t heading, WeaponInfo* weaponInfo, Pedestrian* shooter)
 {
-    Projectile* instance = mProjectilesPool.create(weaponInfo);
+    Projectile* instance = mProjectilesPool.create(weaponInfo, shooter);
     debug_assert(instance);
 
     mAllObjects.push_back(instance);

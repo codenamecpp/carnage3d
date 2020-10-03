@@ -6,17 +6,17 @@ namespace cxx
 
     template<typename TClass>
     class handle;
+    class handle_base;
 
-    // base class of handled object
-    template<typename TSelfClass>
+    // base class of all handled object
     class handled_object
-    {   
-        friend class handle<TSelfClass>;
+    {
+        friend class handle_base;
 
     public:
         handled_object() = default;
         // @param rside
-        handled_object(const handled_object& rside) 
+        handled_object(const handled_object& rhs) 
             : mHandlesListHead() // do not share handles to this on copy
         {
         }
@@ -25,60 +25,24 @@ namespace cxx
             reset_handle_references();
         }
         // do not share handles to this on copy
-        inline void operator = (const handled_object& rside)
+        inline void operator = (const handled_object& rhs)
         {
+            // do not share handles to this on copy
         }
     protected:
-        void reset_handle_references()
-        {
-            while (mHandlesListHead)
-            {
-                mHandlesListHead->_detach_reference(true);
-            }
-        }
+        void reset_handle_references();
+
     private:
-        handle<TSelfClass>* mHandlesListHead = nullptr;
+        handle_base* mHandlesListHead = nullptr;
     };
 
-    // handle class
-    template<typename TClass>
-    class handle final
+    //////////////////////////////////////////////////////////////////////////
+
+    // base handle class
+    class handle_base
     {
-        friend class handled_object<TClass>;
-
-    public: 
-        // ctor
-        // @param targetObject: Pointer to target object
-        handle() = default;
-        handle(TClass* targetObject)
-        {
-            _attach_reference(targetObject);
-        }
-        // @param targetObject: Handle
-        handle(const handle<TClass>& targetObject)
-        {
-            _attach_reference(targetObject.mPointer);
-        }
-        // dtor
-        ~handle()
-        {
-            _detach_reference(false);
-        }
-
-        // assign target
-        inline handle<TClass>& operator = (TClass* targetObject)
-        {
-            _attach_reference(targetObject);
-            return *this;
-        }
-
-        // assign target
-        inline handle<TClass>& operator = (const handle<TClass>& targetObject)
-        {
-            _attach_reference(targetObject.mPointer);
-            return *this;
-        }
-
+        friend class handled_object;
+    public:
         // reset target
         inline void reset()
         {
@@ -93,31 +57,33 @@ namespace cxx
         // determine whether handle was pointing at some object
         inline bool is_expired() const { return mHandleExpired; }
 
-        // access to target instance
-        inline TClass* operator -> () const 
+    protected: 
+        // @param targetObject: Pointer to target object
+        handle_base() = default;
+        handle_base(const handle_base& otherHandle) = delete;
+        ~handle_base()
         {
-            debug_assert(mPointer);
-            return mPointer;
+            _detach_reference(false);
         }
 
-        // implicit convert to class pointer
-        inline operator TClass* () const { return mPointer; }
+        // assign target
+        handle_base& operator = (const handle_base& otherHandle) = delete;
 
-    private:
+    protected:
         // attach reference to target
         // @param targetObject: Pointer to object
-        inline void _attach_reference(TClass* targetObject)
+        inline void _attach_reference(handled_object* targetObject)
         {
             if (targetObject == mPointer)
                 return;
 
             _detach_reference(false);
-            if (!targetObject)
+            if (targetObject == nullptr)
                 return;
 
             mPointer = targetObject;
 
-            handled_object<TClass>* basePointer = targetObject;
+            handled_object* basePointer = targetObject;
             mNext = basePointer->mHandlesListHead;
             if (basePointer->mHandlesListHead)
             {
@@ -129,10 +95,10 @@ namespace cxx
         // detach reference from target
         inline void _detach_reference(bool isExpired)
         {
-            if (!mPointer)
+            if (mPointer == nullptr)
                 return;
 
-            handled_object<TClass>* basePointer = mPointer;
+            handled_object* basePointer = mPointer;
             if (mPrev) mPrev->mNext = mNext;
             if (mNext) mNext->mPrev = mPrev;
             if (basePointer->mHandlesListHead == this)
@@ -156,12 +122,69 @@ namespace cxx
             mHandleExpired = false;
         }
 
-    private:
-        TClass* mPointer = nullptr;
-        handle* mNext = nullptr;
-        handle* mPrev = nullptr;
+    protected:
+        handled_object* mPointer = nullptr;
+        handle_base* mNext = nullptr;
+        handle_base* mPrev = nullptr;
 
         bool mHandleExpired = false;
     };
+
+    //////////////////////////////////////////////////////////////////////////
+
+    template<typename TObject>
+    class handle final: public handle_base
+    {
+    public:
+        // ctor
+        // @param targetObject: Pointer to target object
+        handle() = default;
+        handle(TObject* targetObject)
+        {
+            _attach_reference(targetObject);
+        }
+        // @param targetObject: Handle
+        handle(const handle<TObject>& targetObject)
+        {
+            _attach_reference(targetObject.mPointer);
+        }
+        // assign target
+        inline handle& operator = (TObject* targetObject)
+        {
+            _attach_reference(targetObject);
+            return *this;
+        }
+        // assign target
+        inline handle& operator = (const handle<TObject>& targetObject)
+        {
+            _attach_reference(targetObject.mPointer);
+            return *this;
+        }
+        // access to target instance
+        // assume that pointer class is compatible
+        inline TObject* operator -> () const 
+        {
+            debug_assert(mPointer);
+            return static_cast<TObject*>(mPointer);
+        }
+        // implicit convert to class pointer
+        // assume that pointer class is compatible
+        inline operator TObject* () const 
+        { 
+            return static_cast<TObject*>(mPointer);
+        }
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    // impl
+    //////////////////////////////////////////////////////////////////////////
+
+    inline void handled_object::reset_handle_references()
+    {
+        while (mHandlesListHead)
+        {
+            mHandlesListHead->_detach_reference(true);
+        }
+    }
 
 } // namespace cxx

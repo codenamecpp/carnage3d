@@ -784,8 +784,7 @@ bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysic
             wmanifold.points[0].x, projectile->mHeight, 
             wmanifold.points[0].y );
 
-        projectile->mReferenceProjectile->SetContactDetected(contactPoint, nullptr);
-        return true;
+        return projectile->ProcessContactWithMap(contactPoint);
     }
     return false;
 }
@@ -811,8 +810,7 @@ bool PhysicsManager::ProcessProjectileVsCar(b2Contact* contact, ProjectilePhysic
             wmanifold.points[0].x, projectile->mHeight, 
             wmanifold.points[0].y );
 
-        projectile->mReferenceProjectile->SetContactDetected(contactPoint, car->mReferenceCar);
-        return true;
+        return projectile->ProcessContactWithObject(contactPoint, car->mReferenceCar);
     }
     return false;
 }
@@ -838,8 +836,7 @@ bool PhysicsManager::ProcessProjectileVsPed(b2Contact* contact, ProjectilePhysic
             wmanifold.points[0].x, projectile->mHeight, 
             wmanifold.points[0].y );
 
-        projectile->mReferenceProjectile->SetContactDetected(contactPoint, ped->mReferencePed);
-        return true;
+        return projectile->ProcessContactWithObject(contactPoint, ped->mReferencePed);
     }
     return false;
 }

@@ -28,45 +28,54 @@ void Weapon::UpdateFrame()
     }
 }
 
-bool Weapon::Fire(Pedestrian* attacker)
+bool Weapon::Fire(Pedestrian* shooter)
 {
     if (!IsReadyToFire())
         return false;
 
-    debug_assert(attacker);
-    glm::vec3 currPosition = attacker->mPhysicsBody->GetPosition();
+    debug_assert(shooter);
+    glm::vec3 currPosition = shooter->mPhysicsBody->GetPosition();
 
     WeaponInfo* weaponInfo = GetWeaponInfo();
     if (weaponInfo->IsMelee())
     {
         glm::vec2 posA { currPosition.x, currPosition.z };
-        glm::vec2 posB = posA + (attacker->mPhysicsBody->GetSignVector() * weaponInfo->mBaseHitRange);
+        glm::vec2 posB = posA + (shooter->mPhysicsBody->GetSignVector() * weaponInfo->mBaseHitRange);
         // find candidates
         PhysicsLinecastResult linecastResult;
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
         for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
         {
             PedPhysicsBody* pedBody = linecastResult.mHits[icurr].mPedComponent;
-            if (pedBody == nullptr || pedBody->mReferencePed == attacker) // ignore self
+            if (pedBody == nullptr || pedBody->mReferencePed == shooter) // ignore self
                 continue; 
 
             // todo: check distance in y direction
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromWeapon(*weaponInfo, attacker);         
+            damageInfo.SetDamageFromWeapon(*weaponInfo, shooter);         
             pedBody->mReferencePed->ReceiveDamage(damageInfo);
         }
     }
     else if (weaponInfo->IsRange())
-    {
-        glm::vec2 signVector = attacker->mPhysicsBody->GetSignVector();       
-        glm::vec2 offset = (signVector * 1.0f); //todo: magic numbers
-        glm::vec3 projectilePos {
-            currPosition.x + offset.x, 
-            currPosition.y, 
-            currPosition.z + offset.y
-        };
+    {   
+        glm::vec3 projectilePos = currPosition;
+        glm::vec2 offset;
+        if (weaponInfo->GetProjectileOffsetForAnimation(shooter->GetCurrentAnimationID(), offset))
+        {
+            offset = shooter->mPhysicsBody->GetWorldPoint(offset);
+            projectilePos.x = offset.x;
+            projectilePos.z = offset.y;
+        }
+        else
+        {
+            float defaultOffsetLength = gGameParams.mPedestrianBoundsSphereRadius + weaponInfo->mProjectileSize;
+            offset = shooter->mPhysicsBody->GetSignVector() * defaultOffsetLength;
+            projectilePos.x += offset.x; 
+            projectilePos.z += offset.y;
+        }
+
         debug_assert(weaponInfo->mProjectileTypeID < eProjectileType_COUNT);
-        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, attacker->mPhysicsBody->GetRotationAngle(), weaponInfo);
+        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, shooter->mPhysicsBody->GetRotationAngle(), weaponInfo, shooter);
         debug_assert(projectile);
 
         if (weaponInfo->mShotSound != -1)
@@ -75,7 +84,7 @@ bool Weapon::Fire(Pedestrian* attacker)
         }
 
         // broardcast event
-        gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, attacker, attacker, gGameParams.mBroadcastGunShotEventDuration);
+        gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, shooter, shooter, gGameParams.mBroadcastGunShotEventDuration);
     }
     else
     {

@@ -8,9 +8,10 @@
 #include "GameObjectsManager.h"
 #include "AudioManager.h"
 
-Projectile::Projectile(WeaponInfo* weaponInfo) 
+Projectile::Projectile(WeaponInfo* weaponInfo, Pedestrian* shooter) 
     : GameObject(eGameObjectClass_Projectile, GAMEOBJECT_ID_NULL)
     , mWeaponInfo(weaponInfo)
+    , mShooter(shooter)
 {
 }
 
@@ -26,8 +27,6 @@ void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
     mSpawnPosition = position;
     mSpawnHeading = heading;
-
-    mContactDetected = false;
     if (mPhysicsBody == nullptr)
     {
         mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
@@ -74,7 +73,7 @@ void Projectile::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     mAnimationState.UpdateFrame(deltaTime);
 
-    if (!IsContactDetected())
+    if (!mPhysicsBody->mContactDetected)
         return;
 
     if (mWeaponInfo == nullptr)
@@ -83,15 +82,15 @@ void Projectile::UpdateFrame()
         return;
     }
 
-    if (mContactObject)
+    if (mPhysicsBody->mContactObject)
     {
         DamageInfo damageInfo;
         damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
-        if (!mContactObject->ReceiveDamage(damageInfo))
+        if (!mPhysicsBody->mContactObject->ReceiveDamage(damageInfo))
         {
-            if (mWeaponInfo->IsFireDamage() || mContactObject->IsPedestrianClass()) // todo: fix!
+            if (mWeaponInfo->IsFireDamage() || mPhysicsBody->mContactObject->IsPedestrianClass()) // todo: fix!
             {
-                mContactDetected = false;
+                mPhysicsBody->ClearCurrentContact();
                 return; // ignore contact
             }
         }
@@ -99,19 +98,19 @@ void Projectile::UpdateFrame()
 
     if (mWeaponInfo->IsExplosionDamage())
     {
-        if (mContactObject == nullptr)
+        if (mPhysicsBody->mContactObject == nullptr)
         {
-            mContactPoint.y += Convert::MapUnitsToMeters(1.0f);
+            mPhysicsBody->mContactPoint.y += Convert::MapUnitsToMeters(1.0f);
         }
 
-        Explosion* explosion = gGameObjectsManager.CreateExplosion(mContactPoint);
+        Explosion* explosion = gGameObjectsManager.CreateExplosion(mPhysicsBody->mContactPoint);
         debug_assert(explosion);
     }
 
     if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
     {
         GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
-        Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mContactPoint, cxx::angle_t(), &objectInfo);
+        Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mPhysicsBody->mContactPoint, cxx::angle_t(), &objectInfo);
         debug_assert(hitEffect);
 
         if (hitEffect)
@@ -164,18 +163,6 @@ void Projectile::ComputeDrawHeight(const glm::vec3& position)
     }
 
     mDrawSprite.mHeight = maxHeight;
-}
-
-void Projectile::SetContactDetected(const glm::vec3& position, GameObject* gameObject)
-{
-    mContactDetected = true;
-    mContactObject = gameObject;
-    mContactPoint = position;
-}
-
-bool Projectile::IsContactDetected() const
-{
-    return mContactDetected;
 }
 
 glm::vec3 Projectile::GetPosition() const

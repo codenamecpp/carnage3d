@@ -5,13 +5,9 @@
 #include "GameObject.h"
 #include "Sprite2D.h"
 
-// Define weak pointer to vehicle object instance
-using VehicleHandle = cxx::handle<Vehicle>;
-
 // defines vehicle instance
 class Vehicle final: public GameObject
     , public SpriteAnimListener
-    , public cxx::handled_object<Vehicle>
 {
     friend class GameObjectsManager;
     friend class GameCheatsWindow;

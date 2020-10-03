@@ -36,6 +36,35 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
         cxx::json_get_attribute(configNode, "projectile_hit_effect", mProjectileHitEffect);
         cxx::json_get_attribute(configNode, "projectile_object", mProjectileObject);
         cxx::json_get_attribute(configNode, "projectile_hit_object_sfx", mProjectileHitObjectSound);
+
+        // read projectile offsets
+        if (cxx::json_node_array offsetsNode = configNode["projectile_offset"])
+        {
+            for (cxx::json_node_object currOffsetNode = offsetsNode.first_child();
+                currOffsetNode; currOffsetNode = currOffsetNode.next_sibling())
+            {
+                ProjectileOffset projectileOffset;
+                if (cxx::json_get_attribute(currOffsetNode, "anim", projectileOffset.mAnimationID))
+                {
+                    if (cxx::json_node_array pxNode = currOffsetNode["px"])
+                    {
+                        int pixels_x = 0;
+                        int pixels_y = 0;
+                        cxx::json_get_attribute(pxNode, 0, pixels_x);
+                        cxx::json_get_attribute(pxNode, 1, pixels_y);
+
+                        projectileOffset.mOffset2.x = Convert::PixelsToMeters(pixels_x);
+                        projectileOffset.mOffset2.y = Convert::PixelsToMeters(pixels_y);
+                    }
+
+                    mProjectileOffsets.push_back(projectileOffset);
+                }
+                else
+                {
+                    debug_assert(false);
+                }
+            }
+        }
     }
     // conver map units to meters
     if (cxx::json_get_attribute(configNode, "base_hit_range", mBaseHitRange))
@@ -65,4 +94,18 @@ void WeaponInfo::Clear()
     mBaseMaxAmmo = 0;
     mSpriteIndex = 0;
     mShotSound = 0;
+    mProjectileOffsets.clear();
+}
+
+bool WeaponInfo::GetProjectileOffsetForAnimation(ePedestrianAnimID animID, glm::vec2& offset) const
+{
+    for (const ProjectileOffset& currOffset: mProjectileOffsets)
+    {
+        if (animID == currOffset.mAnimationID)
+        {
+            offset = currOffset.mOffset2;
+            return true;
+        }
+    }
+    return false;
 }

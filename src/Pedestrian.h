@@ -9,13 +9,9 @@
 #include "Weapon.h"
 #include "PedestrianInfo.h"
 
-// Define weak pointer to pedestrian object instance
-using PedestrianHandle = cxx::handle<Pedestrian>;
-
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
     , public SpriteAnimListener
-    , public cxx::handled_object<Pedestrian>
 {
     friend class GameObjectsManager;
     friend class PedPhysicsBody;
@@ -137,6 +133,8 @@ public:
     {
         return (mFearFlags & ePedestrianFearFlags_DeadPeds) > 0;
     }
+
+    ePedestrianAnimID GetCurrentAnimationID() const;
 
 private:
     // override SpriteAnimListener

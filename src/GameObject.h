@@ -3,11 +3,8 @@
 #include "GameDefs.h"
 #include "DamageInfo.h"
 
-// Define weak pointer to game object instance
-using GameObjectHandle = cxx::handle<GameObject>;
-
 // defines base class of game entity
-class GameObject: public cxx::handled_object<GameObject>
+class GameObject: public cxx::handled_object
 {
     friend class GameObjectsManager;
     friend class MapRenderer;

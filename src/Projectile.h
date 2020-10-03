@@ -12,9 +12,10 @@ public:
     // readonly
     WeaponInfo* mWeaponInfo = nullptr;
     ProjectilePhysicsBody* mPhysicsBody = nullptr;
+    PedestrianHandle mShooter;
     
 public:
-    Projectile(WeaponInfo* weaponInfo);
+    Projectile(WeaponInfo* weaponInfo, Pedestrian* shooter);
     ~Projectile();
 
     // override GameObject
@@ -27,17 +28,9 @@ public:
     glm::vec3 GetPosition() const override;
     glm::vec2 GetPosition2() const override;
 
-    // @param gameObject: null if contacting with map
-    void SetContactDetected(const glm::vec3& position, GameObject* gameObject);
-    bool IsContactDetected() const;
-
 private:
     void ComputeDrawHeight(const glm::vec3& position);
 
 private:
     SpriteAnimation mAnimationState;
-    // collision contact info
-    glm::vec3 mContactPoint;
-    GameObject* mContactObject = nullptr;
-    bool mContactDetected = false;
 };

@@ -685,15 +685,8 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     bool isShooting = false;
     if (ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition())
     {
-        if ((mCurrentStateID == ePedestrianState_Walks) && (mPedestrian->mCurrentWeapon == eWeapon_Fists))
-        {
-            // cannot walk and use fists simultaneously
-        }
-        else
-        {
-            mPedestrian->GetWeapon().Fire(mPedestrian);
-            isShooting = true;
-        }
+        // cannot walk and use fists simultaneously
+        isShooting = !((mCurrentStateID == ePedestrianState_Walks) && (mPedestrian->mCurrentWeapon == eWeapon_Fists));
     }
 
     // update animation
@@ -713,6 +706,11 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
 
     ProcessRotateActions();
     ProcessMotionActions();
+
+    if (isShooting)
+    {
+        mPedestrian->GetWeapon().Fire(mPedestrian);
+    }
 
     // slide over car
     if (ctlState.mRun || ctlState.mWalkForward)

@@ -643,3 +643,8 @@ bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, e
 
     return true;
 }
+
+ePedestrianAnimID Pedestrian::GetCurrentAnimationID() const
+{
+    return mCurrentAnimID;
+}

@@ -25,7 +25,7 @@ public:
     void ClearShotsCounter();
 
     // Try to make shot from weapon, depending on current state it might fail
-    bool Fire(Pedestrian* attacker);
+    bool Fire(Pedestrian* shooter);
 
     // Change weapons current ammunition amount
     // @param ammunition: New amount

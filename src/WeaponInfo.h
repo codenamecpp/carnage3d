@@ -14,6 +14,10 @@ public:
     // Reset weapon info to default state
     void Clear();
 
+    // Get projectile spawn point offset relative pedestrian center
+    // @param offset: Output offset, meters
+    bool GetProjectileOffsetForAnimation(ePedestrianAnimID animID, glm::vec2& offset) const;
+
     // Shortcuts
     bool IsMelee() const { return mFireTypeID == eWeaponFireType_Melee; }
     bool IsRange() const { return mFireTypeID == eWeaponFireType_Projectile; }
@@ -41,6 +45,13 @@ public:
 
     eWeaponFireType mFireTypeID = eWeaponFireType_Melee;
     eProjectileType mProjectileTypeID = eProjectileType_Bullet; // only used if firetype is projectile
+
+    struct ProjectileOffset
+    {
+        ePedestrianAnimID mAnimationID;
+        glm::vec2 mOffset2; // relatipe to pedestrian center, meters
+    };
+    std::vector<ProjectileOffset> mProjectileOffsets;
 
     float mBaseHitRange = 1.0f; // how far weapon can damage, for projectiles this is fly distance
     float mBaseFireRate = 1.0f; // num shots per seconds

@@ -84,6 +84,15 @@ class Explosion;
 class DebugRenderer;
 class HumanPlayer;
 
+// Define weak pointer to game object instance
+using GameObjectHandle = cxx::handle<GameObject>;
+
+// Define weak pointer to pedestrian object instance
+using PedestrianHandle = cxx::handle<Pedestrian>;
+
+// Define weak pointer to vehicle object instance
+using VehicleHandle = cxx::handle<Vehicle>;
+
 // some game objects has null identifier, they are dacals, projectiles and short-lived effects
 #define GAMEOBJECT_ID_NULL 0
 

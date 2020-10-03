@@ -221,10 +221,20 @@ class ProjectilePhysicsBody: public PhysicsBody
 public:
     // readonly
     Projectile* mReferenceProjectile = nullptr;
+    
+    // collision contact info
+    glm::vec3 mContactPoint;
+    GameObjectHandle mContactObject;
+    bool mContactDetected = false;
 
 public:
     ProjectilePhysicsBody(b2World* physicsWorld, Projectile* object);
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
+
+    bool ProcessContactWithObject(const glm::vec3& contactPoint, GameObject* gameObject);
+    bool ProcessContactWithMap(const glm::vec3& contactPoint);
+
+    void ClearCurrentContact();
 };
