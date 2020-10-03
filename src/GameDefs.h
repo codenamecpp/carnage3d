@@ -155,8 +155,10 @@ enum eGameObjectFlags: unsigned int
 {
     eGameObjectFlags_None = 0,
     eGameObjectFlags_Invisible = BIT(0),
-    eGameObjectFlags_CarObject = BIT(1),
+    eGameObjectFlags_CarPart = BIT(1),
     eGameObjectFlags_Traffic = BIT(2), // temporary lifetime
+    eGameObjectFlags_Mission = BIT(3), // was spawned for mission
+    eGameObjectFlags_Startup = BIT(4), // was spawned on game start
 };
 
 decl_enum_as_flags(eGameObjectFlags);

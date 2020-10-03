@@ -79,8 +79,10 @@ public:
 
     // Flag shortcuts
     inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
-    inline bool IsCarObjectFlag() const { return (mFlags & eGameObjectFlags_CarObject) != 0; }
+    inline bool IsCarPartFlag() const { return (mFlags & eGameObjectFlags_CarPart) != 0; }
     inline bool IsTrafficFlag() const { return (mFlags & eGameObjectFlags_Traffic) != 0; }
+    inline bool IsMissionFlag() const { return (mFlags & eGameObjectFlags_Mission) != 0; }
+    inline bool IsStartupFlag() const { return (mFlags & eGameObjectFlags_Startup) != 0; }
 
 protected:
     GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);

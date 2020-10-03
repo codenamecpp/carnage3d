@@ -569,7 +569,7 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
         }
         if (controller && characterPrev)
         {
-            controller->SetFollowPedestrian(characterPrev);
+            controller->FollowPedestrian(characterPrev);
         }
         characterPrev = character;
     }

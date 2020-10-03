@@ -87,7 +87,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 debug_assert(controller);
                 if (controller)
                 {
-                    controller->SetFollowPedestrian(playerCharacter);
+                    controller->FollowPedestrian(playerCharacter);
                 }
             }
             if (ImGui::MenuItem("Hare Krishnas"))

@@ -32,7 +32,7 @@ inline bool ParseObjectFlags(cxx::json_document_node node, const std::string& at
 
             if (flag_string == "carobject")
             {
-                flags = (flags | eGameObjectFlags_CarObject);
+                flags = (flags | eGameObjectFlags_CarPart);
                 continue;
             }
 

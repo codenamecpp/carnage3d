@@ -101,8 +101,11 @@ void AudioManager::ReleaseAudioSources()
 
 AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position, bool enableLoop)
 {
-    // get buffer
-    debug_assert(sfxIndex < mLevelSounds.GetEntriesCount());
+    if (sfxIndex < 0 || sfxIndex >= mLevelSounds.GetEntriesCount())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
 
     AudioSource* audioSource = GetFreeSfxAudioSource();
     if (audioSource == nullptr)
@@ -131,7 +134,7 @@ AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position,
 
         mLevelSoundsBuffers[sfxIndex] = audioBuffer;
     }
-
+    // get buffer
     if (!audioSource->SetupSourceBuffer(mLevelSoundsBuffers[sfxIndex]))
     {
         debug_assert(false);

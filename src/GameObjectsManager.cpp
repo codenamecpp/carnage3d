@@ -419,21 +419,25 @@ bool GameObjectsManager::CreateStartupObjects()
                 debug_assert(false);
                 continue;
             }
-            Vehicle* startupCar = CreateVehicle(start_position, start_rotation, carModel);
-            debug_assert(startupCar);
+            if (Vehicle* startupCar = CreateVehicle(start_position, start_rotation, carModel))
+            {
+                startupCar->mFlags = (startupCar->mFlags | eGameObjectFlags_Startup);
+                continue;
+            }
+            debug_assert(false);
             continue;
         }
 
-        int objectTypeIndex = currObject.mType;
-
-        debug_assert(objectTypeIndex < GameObjectType_MAX);
-
-        GameObjectInfo& objectType = styleData.mObjects[objectTypeIndex];
+        GameObjectInfo& objectType = styleData.mObjects[currObject.mType];
         switch (objectType.mClassID)
         {
             case eGameObjectClass_Decoration: 
             {
                 Decoration* startupDecoration = CreateDecoration(start_position, start_rotation, &objectType);
+                if (startupDecoration)
+                {
+                    startupDecoration->mFlags = (startupDecoration->mFlags | eGameObjectFlags_Startup);
+                }
                 debug_assert(startupDecoration);
             }
             break;
@@ -441,11 +445,13 @@ bool GameObjectsManager::CreateStartupObjects()
             case eGameObjectClass_Obstacle: 
             {
                 Obstacle* startupObstacle = CreateObstacle(start_position, start_rotation, &objectType);
+                if (startupObstacle)
+                {
+                    startupObstacle->mFlags = (startupObstacle->mFlags | eGameObjectFlags_Startup);
+                }
                 debug_assert(startupObstacle);
             }            
             break;
-
-            case eGameObjectClass_Powerup: break;
 
             default:
                 debug_assert(false);

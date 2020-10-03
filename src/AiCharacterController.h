@@ -43,7 +43,8 @@ public:
     void DisableAiFlags(ePedestrianAiFlags aiFlags);
     bool HasAiFlags(ePedestrianAiFlags aiFlags) const;
 
-    void SetFollowPedestrian(Pedestrian* pedestrian);
+    // objectives
+    void FollowPedestrian(Pedestrian* pedestrian);
 
 private:
     void UpdatePanic();

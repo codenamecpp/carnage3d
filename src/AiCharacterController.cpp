@@ -437,7 +437,7 @@ bool AiCharacterController::ContinueDriveToWaypoint()
     return false;
 }
 
-void AiCharacterController::SetFollowPedestrian(Pedestrian* pedestrian)
+void AiCharacterController::FollowPedestrian(Pedestrian* pedestrian)
 {
     if (pedestrian == mCharacter || pedestrian == nullptr)
     {
@@ -534,7 +534,7 @@ bool AiCharacterController::TryFollowHumanCharacterNearby()
 
     if (bestHumanCharacter)
     {
-        SetFollowPedestrian(bestHumanCharacter);
+        FollowPedestrian(bestHumanCharacter);
         return true;
     }
     return false;
