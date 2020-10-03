@@ -105,7 +105,7 @@ public:
 
 private:
     // override SpriteAnimListener
-    bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID);
+    bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID) override;
 
     void SetWrecked();
     void Explode();

@@ -548,7 +548,7 @@ void Pedestrian::PutInsideCar(Vehicle* car, eCarSeat carSeat)
     debug_assert(car);
     debug_assert(carSeat < eCarSeat_Any);
 
-    if (car == nullptr || mCurrentCar && mCurrentCar == car)
+    if ((car == nullptr) || (mCurrentCar == car))
         return;
 
     if (mCurrentCar)
