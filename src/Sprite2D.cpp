@@ -7,7 +7,7 @@ void Sprite2D::Clear()
 
     mTextureRegion.Clear();
 
-    mOriginMode = eOriginMode_Center;
+    mOriginMode = eSpriteOrigin_Center;
     mDrawOrder = eSpriteDrawOrder_Background;
     mPosition.x = 0.0f;
     mPosition.y = 0.0f;
@@ -62,7 +62,7 @@ void Sprite2D::GetApproximateBounds(cxx::aabbox2d_t& bounds) const
     glm::vec2 origin;
 
     float maxsize = std::max(spriteSize.x, spriteSize.y);
-    if (mOriginMode == eOriginMode_Center)
+    if (mOriginMode == eSpriteOrigin_Center)
     {
         origin.x = origin.y = (-maxsize * 0.5f);
     }

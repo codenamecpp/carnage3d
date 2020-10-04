@@ -12,7 +12,7 @@ public:
     inline glm::vec2 GetOriginPoint() const
     {
         glm::vec2 origin;
-        if (mOriginMode == eOriginMode_Center)
+        if (mOriginMode == eSpriteOrigin_Center)
         {
             origin.x = (-mTextureRegion.mRectangle.w * mScale) * 0.5f;
             origin.y = (-mTextureRegion.mRectangle.h * mScale) * 0.5f;
@@ -58,13 +58,7 @@ public:
 
     unsigned short mPaletteIndex = 0;
 
-    // sprite origin mode
-    enum eOriginMode: unsigned char
-    {
-        eOriginMode_TopLeft,
-        eOriginMode_Center,
-    };
-    eOriginMode mOriginMode = eOriginMode_Center;
+    eSpriteOriginMode mOriginMode = eSpriteOrigin_Center;
     eSpriteDrawOrder mDrawOrder = eSpriteDrawOrder_Background;
 };
 

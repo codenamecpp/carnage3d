@@ -147,7 +147,48 @@ AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position,
 
 AudioSource* AudioManager::PlaySfxVoice(int sfxIndex, const glm::vec3& position, bool enableLoop)
 {
-    return nullptr;
+    if (sfxIndex < 0 || sfxIndex >= mVoiceSounds.GetEntriesCount())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    AudioSource* audioSource = GetFreeSfxAudioSource();
+    if (audioSource == nullptr)
+        return nullptr; // out of free audio channels
+
+    if (mVoiceSoundsBuffers[sfxIndex] == nullptr)
+    {
+        SfxArchiveEntry archiveEntry;
+        if (!mVoiceSounds.GetEntryData(sfxIndex, archiveEntry))
+        {
+            debug_assert(false);
+            return nullptr;
+        }
+        // upload audio data
+        AudioBuffer* audioBuffer = gAudioDevice.CreateAudioBuffer(
+            archiveEntry.mSampleRate,
+            archiveEntry.mBitsPerSample,
+            archiveEntry.mChannelsCount,
+            archiveEntry.mDataLength,
+            archiveEntry.mData);
+
+        // free source data
+        mVoiceSounds.FreeEntryData(sfxIndex);
+
+        debug_assert(audioBuffer && !audioBuffer->IsBufferError());
+
+        mVoiceSoundsBuffers[sfxIndex] = audioBuffer;
+    }
+    // get buffer
+    if (!audioSource->SetupSourceBuffer(mVoiceSoundsBuffers[sfxIndex]))
+    {
+        debug_assert(false);
+    }
+    audioSource->SetPitch(1.0f);
+    audioSource->SetPosition3D(position.x, position.y, position.z);
+    audioSource->Start(enableLoop);
+    return audioSource;
 }
 
 AudioSource* AudioManager::GetFreeSfxAudioSource() const

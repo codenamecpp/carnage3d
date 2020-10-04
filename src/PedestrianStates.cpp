@@ -376,6 +376,11 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
             decoration->SetDrawOrder(eSpriteDrawOrder_GroundDecals);
         }
     }
+
+    if (mPedestrian->IsHumanPlayerCharacter())
+    {
+        gAudioManager.PlaySfxVoice(SfxVoice_PlayerDies, mPedestrian->GetPosition(), false);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

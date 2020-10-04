@@ -47,6 +47,12 @@ enum
 // voice sound constants
 enum
 {
-    // todo...
+    SfxVoice_GrandTheftAuto = 0,
+    SfxVoice_MissionComplete = 1,
+    SfxVoice_MissionFailed = 2,
+    SfxVoice_KillFrenzy = 3,
+    SfxVoice_Excellent = 4,
+    SfxVoice_PlayerDies = 12,
+
     SfxVoice_COUT
 };

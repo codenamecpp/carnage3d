@@ -68,7 +68,7 @@ void HUDWeaponPanel::SetupHUD()
 {
     mWeaponIcon.mHeight = 0.0f;
     mWeaponIcon.mScale = HUD_SPRITE_SCALE;
-    mWeaponIcon.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    mWeaponIcon.mOriginMode = eSpriteOrigin_TopLeft;
 
     mAmmunitionFont = gFontManager.GetFont("SUB1.FON");
     debug_assert(mAmmunitionFont);
@@ -174,7 +174,7 @@ void HUDCarNamePanel::SetupHUD()
 
     mBackgroundSprite.mHeight = 0.0f;
     mBackgroundSprite.mScale = HUD_SPRITE_SCALE;
-    mBackgroundSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    mBackgroundSprite.mOriginMode = eSpriteOrigin_TopLeft;
 }
 
 void HUDCarNamePanel::DrawFrame(GuiContext& guiContext)
@@ -223,13 +223,13 @@ void HUDDistrictNamePanel::SetupHUD()
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteLeftPart);
     mBackgroundSpriteLeftPart.mHeight = 0.0f;
     mBackgroundSpriteLeftPart.mScale = HUD_SPRITE_SCALE;
-    mBackgroundSpriteLeftPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    mBackgroundSpriteLeftPart.mOriginMode = eSpriteOrigin_TopLeft;
     // setup right part sprite
     spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_AreaDisplayRight);
     gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackgroundSpriteRightPart);
     mBackgroundSpriteRightPart.mHeight = 0.0f;
     mBackgroundSpriteRightPart.mScale = HUD_SPRITE_SCALE;
-    mBackgroundSpriteRightPart.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+    mBackgroundSpriteRightPart.mOriginMode = eSpriteOrigin_TopLeft;
 }
 
 void HUDDistrictNamePanel::DrawFrame(GuiContext& guiContext)
@@ -281,7 +281,7 @@ void HUDWantedLevelPanel::SetupHUD()
     {
         currCopSprite.mHeight = 0.0f;
         currCopSprite.mScale = HUD_SPRITE_SCALE;
-        currCopSprite.mOriginMode = Sprite2D::eOriginMode_TopLeft;
+        currCopSprite.mOriginMode = eSpriteOrigin_TopLeft;
 
         currCopSprite.mAnimationState.Clear();
         currCopSprite.mAnimationState.mAnimDesc.SetFrames(

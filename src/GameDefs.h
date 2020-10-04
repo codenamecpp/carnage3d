@@ -108,6 +108,12 @@ enum
     FontRemap_MAX = 8
 };
 
+enum eSpriteOriginMode: unsigned char
+{
+    eSpriteOrigin_TopLeft,
+    eSpriteOrigin_Center,
+};
+
 // Object sprites draw prioriry
 enum eSpriteDrawOrder: unsigned char
 {
