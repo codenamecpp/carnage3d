@@ -159,7 +159,19 @@ bool GameMapManager::ReadCompressedMapData(std::istream& file, int columnLength,
             unsigned char type_map_ext;
             READ_I8(file, type_map_ext);
 
-            blockInfo.mTrafficLight = (type_map_ext & 0x07);
+            switch (type_map_ext & 0x07)
+            {
+                case 0: blockInfo.mTrafficHint = eTrafficHint_None; break;
+                case 1: blockInfo.mTrafficHint = eTrafficHint_TrafficLights; break;
+                case 2:
+                case 3: 
+                    debug_assert(false);
+                break;
+                case 4: blockInfo.mTrafficHint = eTrafficHint_TrainTurnEnd; break;
+                case 5: blockInfo.mTrafficHint = eTrafficHint_TrainTurnStart; break;
+                case 6: blockInfo.mTrafficHint = eTrafficHint_TrainStationEnd; break;
+                case 7: blockInfo.mTrafficHint = eTrafficHint_TrainStationStart; break;
+            };
             blockInfo.mRemap = (type_map_ext >> 3) & 0x03;
             blockInfo.mFlipTopBottomFaces = (type_map_ext & 0x20) > 0;
             blockInfo.mFlipLeftRightFaces = (type_map_ext & 0x40) > 0;
@@ -227,7 +239,7 @@ void GameMapManager::FixShiftedBits()
             currBlock.mDownDirection = aboveBlock.mDownDirection;
             currBlock.mUpDirection = aboveBlock.mUpDirection;
             currBlock.mGroundType = aboveBlock.mGroundType;
-            currBlock.mTrafficLight = aboveBlock.mTrafficLight;
+            currBlock.mTrafficHint = aboveBlock.mTrafficHint;
         }
 
         // top most block set to air
@@ -237,7 +249,7 @@ void GameMapManager::FixShiftedBits()
         topBlock.mDownDirection = 0;
         topBlock.mUpDirection = 0;
         topBlock.mGroundType = eGroundType_Air;
-        topBlock.mTrafficLight = 0;
+        topBlock.mTrafficHint = eTrafficHint_None;;
     }
 }
 

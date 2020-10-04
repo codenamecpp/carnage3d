@@ -138,11 +138,19 @@ decl_enum_strings(eSpriteDrawOrder);
 // predefined sprite indices - mapped to gta1 values, don't change
 enum
 {
+    // hud
     eSpriteID_Arrow_AreaDisplayLeft = 25,
     eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,
     eSpriteID_Arrow_WantedFrame1 = 41,
     eSpriteID_Arrow_WantedFrame2 = 42,
+
+    // traffic light
+    eSpriteID_TrafficLight_Red = 0,
+    eSpriteID_TrafficLight_Green = 1,
+    eSpriteID_TrafficLight_Yellow = 2,
+    eSpriteID_TrafficLight_Off = 3,
+    eSpriteID_TrafficLight_Shadow = 4,
 };
 
 // gameobject class identifiers
@@ -221,6 +229,19 @@ enum eLidRotation : unsigned char
 };
 
 decl_enum_strings(eLidRotation);
+
+// traffic hint
+enum eTrafficHint : unsigned char
+{
+    eTrafficHint_None,
+    eTrafficHint_TrafficLights,
+    eTrafficHint_TrainTurnStart,
+    eTrafficHint_TrainTurnEnd,
+    eTrafficHint_TrainStationStart,
+    eTrafficHint_TrainStationEnd,
+};
+
+decl_enum_strings(eTrafficHint);
 
 // map block type
 enum eBlockType : unsigned short
@@ -379,11 +400,10 @@ struct MapBlockInfo
 {
     unsigned char mRemap;
 
-    eGroundType mGroundType;
+    eGroundType mGroundType = eGroundType_Air;
+    eLidRotation mLidRotation = eLidRotation_0;
+    eTrafficHint mTrafficHint = eTrafficHint_None;
 
-    eLidRotation mLidRotation;
-
-    unsigned char mTrafficLight;
     unsigned char mFaces[eBlockFace_COUNT]; // stores a value which indicates the correct graphic square to use for that face
         // A value of zero indicates no face - hidden faces must be set to zero
 

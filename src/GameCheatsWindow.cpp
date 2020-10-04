@@ -130,6 +130,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
         const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(characterLogPos.x, characterLogPos.z, characterLogPos.y);
         ImGui::Text("block: %s", cxx::enum_to_string(blockInfo->mGroundType));
+        if (blockInfo->mTrafficHint)
+        {
+            ImGui::Text("Traffic Hint: %s", cxx::enum_to_string(blockInfo->mTrafficHint));
+        }
 
         if (Vehicle* currCar = playerCharacter->mCurrentCar)
         {

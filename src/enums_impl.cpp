@@ -128,6 +128,16 @@ impl_enum_strings(eLidRotation)
     {eLidRotation_270, "270"},
 };
 
+impl_enum_strings(eTrafficHint)
+{
+    {eTrafficHint_None, "none"},
+    {eTrafficHint_TrafficLights, "traffic_lights"},
+    {eTrafficHint_TrainTurnStart, "train_turn_start"},
+    {eTrafficHint_TrainTurnEnd, "train_turn_end"},
+    {eTrafficHint_TrainStationStart, "train_station_start"},
+    {eTrafficHint_TrainStationEnd, "train_station_end"},
+};
+
 impl_enum_strings(eTextureWrapMode)
 {
     {eTextureWrapMode_Repeat, "repeat"},
