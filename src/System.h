@@ -60,11 +60,8 @@ public:
     SystemStartupParams mStartupParams;
 
 public:
-    void Initialize(int argc, char *argv[]);
-    void Deinit();
-
     // Initialize game subsystems and run main loop
-    void Execute();
+    void Run(int argc, char *argv[]);
 
     // Abnormal application shutdown due to critical failure
     void Terminate();
@@ -76,6 +73,10 @@ public:
     double GetSystemSeconds() const;
 
 private:
+    void Initialize(int argc, char *argv[]);
+    void Deinit();
+    bool ExecuteFrame();
+
     // Save/Load configuration to/from external file
     bool LoadConfiguration();
     bool SaveConfiguration();

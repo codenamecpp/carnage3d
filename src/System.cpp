@@ -226,30 +226,45 @@ void System::Deinit()
     gConsole.Deinit();
 }
 
-void System::Execute()
+void System::Run(int argc, char *argv[])
 {
+    Initialize(argc, argv);
+
     // main loop
-    for (; !mQuitRequested; )
+
+#ifndef __EMSCRIPTEN__
+
+    while (true)
     {
-        gInputs.UpdateFrame();
-        gTimeManager.UpdateFrame();
-        gMemoryManager.FlushFrameHeapMemory();
-        gImGuiManager.UpdateFrame();
-        gGuiManager.UpdateFrame();
-        gCarnageGame.UpdateFrame();
-        if (gAudioDevice.IsInitialized())
-        {
-            gAudioManager.UpdateFrame();
-            gAudioDevice.UpdateFrame(); // update at logic frame end
-        }
-        gRenderManager.RenderFrame();
+        bool continueExecution = ExecuteFrame();
+        if (!continueExecution)
+            break;
     }
+
+    Deinit();
+
+#else
+    emscripten_set_main_loop([]()
+    {
+        bool continueExecution = gSystem.ExecuteFrame();
+        if (!continueExecution)
+        {
+            gSystem.Deinit();
+        }
+    }, 
+    0, false);
+#endif // __EMSCRIPTEN__
 }
 
 void System::Terminate()
 {    
     Deinit(); // leave gracefully
+
+#ifdef __EMSCRIPTEN__
+    emscripten_force_exit(EXIT_FAILURE);
+#else
     exit(EXIT_FAILURE);
+#endif // __EMSCRIPTEN__
 }
 
 void System::QuitRequest()
@@ -286,4 +301,24 @@ double System::GetSystemSeconds() const
 {
     double currentTime = ::glfwGetTime();
     return currentTime;
+}
+
+bool System::ExecuteFrame()
+{
+    if (mQuitRequested)
+        return false;
+
+    gInputs.UpdateFrame();
+    gTimeManager.UpdateFrame();
+    gMemoryManager.FlushFrameHeapMemory();
+    gImGuiManager.UpdateFrame();
+    gGuiManager.UpdateFrame();
+    gCarnageGame.UpdateFrame();
+    if (gAudioDevice.IsInitialized())
+    {
+        gAudioManager.UpdateFrame();
+        gAudioDevice.UpdateFrame(); // update at logic frame end
+    }
+    gRenderManager.RenderFrame();
+    return true;
 }

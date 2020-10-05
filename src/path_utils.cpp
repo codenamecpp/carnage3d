@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "path_utils.h"
-#include <experimental/filesystem>
 
-namespace filesystem = std::experimental::filesystem;
+#ifdef __EMSCRIPTEN__
+#include <filesystem>
+    namespace filesystem = std::__fs::filesystem;
+#else
+#include <experimental/filesystem>
+    namespace filesystem = std::experimental::filesystem;
+#endif // #ifndef __EMSCRIPTEN__
 
 namespace cxx
 {

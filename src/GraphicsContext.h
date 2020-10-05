@@ -21,7 +21,6 @@ public:
     struct TextureUnitState
     {
         // note: mutual exclusion is used for different texture types
-        GpuBufferTexture* mBufferTexture = nullptr;
         GpuTexture2D* mTexture2D = nullptr;
         GpuTextureArray2D* mTextureArray2D = nullptr;
     };

@@ -5,7 +5,6 @@
 #include "GraphicsDevice.h"
 #include "CarnageGame.h"
 #include "stb_rect_pack.h"
-#include "GpuBufferTexture.h"
 #include "GameCheatsWindow.h"
 #include "MemoryManager.h"
 
@@ -251,11 +250,13 @@ bool SpriteManager::InitBlocksIndicesTable()
         mBlocksIndices[i] = i;
     }
 
-    mBlocksIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 
-        mBlocksIndices.size() * sizeof(unsigned short), 
-        mBlocksIndices.data());
+    int textureWidth = cxx::get_next_pot(mBlocksIndices.size());
+    mBlocksIndicesTable = gGraphicsDevice.CreateTexture2D(eTextureFormat_R16UI, textureWidth, 1, nullptr);
     debug_assert(mBlocksIndicesTable);
-
+    if (mBlocksIndicesTable)
+    {
+        mBlocksIndicesTable->Upload(0, 0, 0, mBlocksIndices.size(), 1, mBlocksIndices.data());
+    }
     return true;
 }
 
@@ -270,11 +271,15 @@ void SpriteManager::InitPalettesTable()
     // upload texels
     mPalettesTable->Upload(0, 0, 0, 256, cityStyle.mPalettes.size(), cityStyle.mPalettes.data());
 
-    mPaletteIndicesTable = gGraphicsDevice.CreateBufferTexture(eTextureFormat_R16UI, 
-        cityStyle.mPaletteIndices.size() * sizeof(unsigned short),
-        cityStyle.mPaletteIndices.data());
-
+    int textureWidth = cxx::get_next_pot(cityStyle.mPaletteIndices.size());
+    mPaletteIndicesTable = gGraphicsDevice.CreateTexture2D(eTextureFormat_R16UI, textureWidth, 1, nullptr);
     debug_assert(mPaletteIndicesTable);
+    if (mPaletteIndicesTable)
+    {
+        mPaletteIndicesTable->Upload(0, 0, 0, 
+            cityStyle.mPaletteIndices.size(), 1, 
+            cityStyle.mPaletteIndices.data());
+    }
 }
 
 void SpriteManager::RenderFrameBegin()
@@ -289,7 +294,7 @@ void SpriteManager::RenderFrameEnd()
         // upload indices table
         debug_assert(mBlocksIndicesTable);
         mIndicesTableChanged = false;
-        mBlocksIndicesTable->Upload(0, mBlocksIndices.size() * sizeof(unsigned short), mBlocksIndices.data());
+        mBlocksIndicesTable->Upload(0, 0, 0, mBlocksIndices.size(), 1, mBlocksIndices.data());
     }
 }
 

@@ -107,6 +107,7 @@ int StyleData::GetBlockTextureLinearIndex(eBlockType blockType, int blockIndex) 
             debug_assert(blockIndex < mAuxBlocksCount);
             return blockIndex + mSideBlocksCount + mLidBlocksCount;
         }
+        default: break;
     }
     debug_assert(false);
     return 0;
@@ -421,6 +422,7 @@ int StyleData::GetBlockTexturesCount(eBlockType blockType) const
         case eBlockType_Side: return mSideBlocksCount;
         case eBlockType_Lid: return mLidBlocksCount;
         case eBlockType_Aux: return mAuxBlocksCount;
+        default: break;
     }
     debug_assert(false);
     return 0;

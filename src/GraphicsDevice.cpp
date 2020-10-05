@@ -3,7 +3,6 @@
 #include "OpenGLDefs.h"
 #include "GpuProgram.h"
 #include "GpuBuffer.h"
-#include "GpuBufferTexture.h"
 #include "GpuTexture2D.h"
 #include "GpuTextureArray2D.h"
 
@@ -321,12 +320,13 @@ bool GraphicsDevice::Initialize()
     EnableVSync(config.mEnableVSync);
 
     // init gamepads
+#ifndef __EMSCRIPTEN__
     for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
     {
         bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
         gInputs.SetGamepadPresent(icurr, isGamepad);
     }
-
+#endif // __EMSCRIPTEN__
     return true;
 }
 
@@ -378,35 +378,6 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
         mGraphicsMonitor = nullptr;
         ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
     }
-}
-
-GpuBufferTexture* GraphicsDevice::CreateBufferTexture()
-{
-    if (!IsDeviceInited())
-    {
-        debug_assert(false);
-        return nullptr;
-    }
-
-    GpuBufferTexture* texture = new GpuBufferTexture(mGraphicsContext);
-    return texture;
-}
-
-GpuBufferTexture* GraphicsDevice::CreateBufferTexture(eTextureFormat textureFormat, int dataLength, const void* sourceData)
-{
-    if (!IsDeviceInited())
-    {
-        debug_assert(false);
-        return nullptr;
-    }
-
-    GpuBufferTexture* texture = new GpuBufferTexture(mGraphicsContext);
-    if (!texture->Setup(textureFormat, dataLength, sourceData))
-    {
-        DestroyTexture(texture);
-        return nullptr;
-    }
-    return texture;
 }
 
 GpuTexture2D* GraphicsDevice::CreateTexture2D()
@@ -574,25 +545,6 @@ void GraphicsDevice::BindIndexBuffer(GpuBuffer* sourceBuffer)
     glCheckError();
 }
 
-void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuBufferTexture* texture)
-{
-    if (!IsDeviceInited())
-    {
-        debug_assert(false);
-        return;
-    }
-
-    debug_assert(textureUnit < eTextureUnit_COUNT);
-    if (mGraphicsContext.mCurrentTextures[textureUnit].mBufferTexture == texture)
-        return;
-
-    ActivateTextureUnit(textureUnit);
-
-    mGraphicsContext.mCurrentTextures[textureUnit].mBufferTexture = texture;
-    ::glBindTexture(GL_TEXTURE_BUFFER, texture ? texture->mResourceHandle : 0);
-    glCheckError();
-}
-
 void GraphicsDevice::BindTexture(eTextureUnit textureUnit, GpuTexture2D* texture)
 {
     if (!IsDeviceInited())
@@ -679,17 +631,6 @@ void GraphicsDevice::BindRenderProgram(GpuProgram* program)
         }
     }
     mGraphicsContext.mCurrentProgram = program;
-}
-
-void GraphicsDevice::DestroyTexture(GpuBufferTexture* textureResource)
-{
-    if (!IsDeviceInited())
-    {
-        debug_assert(false);
-        return;
-    }
-
-    SafeDelete(textureResource);
 }
 
 void GraphicsDevice::DestroyTexture(GpuTexture2D* textureResource)
@@ -809,6 +750,7 @@ void GraphicsDevice::Present()
 
 void GraphicsDevice::ProcessGamepadsInputs()
 {
+#ifndef __EMSCRIPTEN__
     GLFWgamepadstate gamepadstate;
 
     for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
@@ -849,6 +791,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
             gInputs.InputEvent(inputEvent);
         }
     }
+#endif // __EMSCRIPTEN__
 }
 
 void GraphicsDevice::SetViewportRect(const Rect& sourceRectangle)
@@ -1005,6 +948,7 @@ void GraphicsDevice::InternalSetRenderStates(const RenderStates& renderStates, b
     if (mCurrentStates == renderStates && !forceState)
         return;
 
+#ifndef __EMSCRIPTEN__
     // polygon mode
     if (forceState || (mCurrentStates.mFillMode != renderStates.mFillMode))
     {
@@ -1020,6 +964,7 @@ void GraphicsDevice::InternalSetRenderStates(const RenderStates& renderStates, b
         ::glPolygonMode(GL_FRONT_AND_BACK, mode);
         glCheckError();
     }
+#endif // __EMSCRIPTEN__
 
     // depth testing
     if (forceState || !mCurrentStates.MatchFlags(renderStates, RenderStateFlags_DepthTest))

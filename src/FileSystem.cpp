@@ -17,9 +17,9 @@ bool FileSystem::Initialize()
 
 //#ifdef _DEBUG
     std::string debugDataPath = cxx::get_parent_directory(mWorkingDirectoryPath);
-    mSearchPlaces.emplace_back(debugDataPath + "/gamedata");
+    AddSearchPlace(debugDataPath + "/gamedata");
 //#else
-    mSearchPlaces.emplace_back(mWorkingDirectoryPath + "/gamedata");
+    AddSearchPlace(mWorkingDirectoryPath + "/gamedata");
 //#endif
     return true;
 }
@@ -181,6 +181,27 @@ bool FileSystem::GetFullPathToFile(const std::string& objectName, std::string& f
     return false;
 }
 
+bool FileSystem::GetFullPathToDirectory(const std::string& objectName, std::string& fullPath) const
+{
+    if (cxx::is_absolute_path(objectName))
+    {
+        fullPath = objectName;
+        return true;
+    }
+    std::string pathBuffer;
+    // search directory in search places
+    for (const std::string& currPlace: mSearchPlaces)
+    {
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName.c_str());
+        if (cxx::is_directory_exists(pathBuffer))
+        {
+            fullPath = pathBuffer;
+            return true;
+        }
+    }
+    return false;
+}
+
 bool FileSystem::SetupGtaDataLocation()
 {
     const SystemStartupParams& startupParams = gSystem.mStartupParams;
@@ -190,9 +211,10 @@ bool FileSystem::SetupGtaDataLocation()
         mGTADataDirectoryPath = startupParams.mGtaDataLocation;
     }
 
+    GetFullPathToDirectory(mGTADataDirectoryPath, mGTADataDirectoryPath);
     if (mGTADataDirectoryPath.length())
     {
-        if (!cxx::is_directory_exists(mGTADataDirectoryPath))
+        if (!IsDirectoryExists(mGTADataDirectoryPath))
         {
             gConsole.LogMessage(eLogMessage_Warning, "Cannot locate gta gamedata: '%s'", mGTADataDirectoryPath.c_str());
             return false;

@@ -271,9 +271,6 @@
     <ClInclude Include="Sprite2D.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GpuBufferTexture.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Convert.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -548,9 +545,6 @@
     </ClCompile>
     <ClCompile Include="Sprite2D.cpp">
       <Filter>Game\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="GpuBufferTexture.cpp">
-      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>

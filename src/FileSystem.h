@@ -55,6 +55,7 @@ public:
     // @param objectName: File name
     // @param fullPath: Out full path
     bool GetFullPathToFile(const std::string& objectName, std::string& fullPath) const;
+    bool GetFullPathToDirectory(const std::string& objectName, std::string& fullPath) const;
 
 private:
     // Gather all gta maps within gamedata

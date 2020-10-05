@@ -849,6 +849,8 @@ GLFWAPI int glfwGetWindowAttrib(GLFWwindow* handle, int attrib)
             return window->context.release;
         case GLFW_CONTEXT_NO_ERROR:
             return window->context.noerror;
+
+        default: break;
     }
 
     _glfwInputError(GLFW_INVALID_ENUM, "Invalid window attribute 0x%08X", attrib);

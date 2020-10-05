@@ -4,8 +4,8 @@
 
 // constants
 uniform mat4 view_projection_matrix;
-uniform isamplerBuffer tex_1; // block frames table
-uniform isamplerBuffer tex_2; // palette indices table
+uniform usampler2D tex_1; // block frames table
+uniform usampler2D tex_2; // palette indices table
 
 // attributes
 in vec3 in_pos0;
@@ -28,10 +28,10 @@ void main()
     Transparency = in_color1;
 
     // get real block tile index
-    BlockTextureIndex = texelFetch(tex_1, int(Texcoord.z + 0.5)).r;
+    BlockTextureIndex = texelFetch(tex_1, ivec2(int(Texcoord.z + 0.5), 0), 0).r;
 
     // get palette index for block tile
-    PaletteIndex = texelFetch(tex_2, int(4.0 * BlockTextureIndex + in_color0)).r;
+    PaletteIndex = texelFetch(tex_2, ivec2(int(4.0 * BlockTextureIndex + in_color0), 0), 0).r;
 
     vec4 vertexPosition = view_projection_matrix * vec4(
 		in_pos0.x, 

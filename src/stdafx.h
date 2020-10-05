@@ -19,6 +19,11 @@
     #include <unistd.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+    #include <emscripten/emscripten.h>
+    #define GLFW_INCLUDE_ES3
+#endif
+
 #pragma warning ( disable : 4351 ) // new behavior: elements of array will be default initialized
 #pragma warning ( disable : 4201 ) // nonstandard extension used: nameless struct/union
 #pragma warning ( disable : 4100 ) // unreferenced formal parameter

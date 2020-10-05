@@ -443,6 +443,7 @@ int Vehicle::GetDoorIndexForSeat(eCarSeat carSeat) const
         case eCarSeat_Driver: return 0;
         case eCarSeat_Passenger: return 1;
         case eCarSeat_PassengerExtra: return 2;
+        default: break;
     }
     debug_assert(false);
     return 0;
