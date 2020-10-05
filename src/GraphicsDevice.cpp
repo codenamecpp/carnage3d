@@ -365,6 +365,10 @@ void GraphicsDevice::EnableVSync(bool vsyncEnabled)
 
 void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
 {
+#ifdef __EMSCRIPTEN__
+    return; // fullscreen mode is not available
+#endif
+
     if (!IsDeviceInited())
         return;
 
@@ -872,7 +876,6 @@ bool GraphicsDevice::InitializeOGLExtensions()
     if (!GLEW_VERSION_3_2)
     {
         gConsole.LogMessage(eLogMessage_Warning, "OpenGL 3.2 API is not available");
-        return false;
     }
 
     // dump opengl information
@@ -932,14 +935,13 @@ void GraphicsDevice::SetupVertexAttributes(const VertexFormat& streamDefinition)
             ::glVertexAttribPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, 
                 attribute.mNormalized ? GL_TRUE : GL_FALSE, 
                 streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
-            glCheckError();
         }
         else
         {
             ::glVertexAttribIPointer(currentProgram->mAttributes[iattribute], numComponents, dataType, 
                 streamDefinition.mDataStride, BUFFER_OFFSET(attribute.mDataOffset + streamDefinition.mBaseOffset));
-            glCheckError();
         }
+        glCheckError();
     }
 }
 

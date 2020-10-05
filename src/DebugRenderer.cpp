@@ -388,7 +388,7 @@ void DebugRenderer::FlushDebugVertices(bool depth_test)
     gGraphicsDevice.BindVertexBuffer(mGpuVerticesBuffer, Vertex3D_Debug_Format::Get());
 
     int vertexDataSizeBytes = mDebugVerticesCount * Sizeof_Vertex3D_Debug;
-    if (void* bufferData = mGpuVerticesBuffer->Lock(BufferAccess_Write | BufferAccess_InvalidateBuffer, 0, vertexDataSizeBytes))
+    if (void* bufferData = mGpuVerticesBuffer->Lock(BufferAccess_Write | BufferAccess_InvalidateBuffer))
     {
         ::memcpy(bufferData, mDebugVertices, vertexDataSizeBytes);
         if (!mGpuVerticesBuffer->Unlock())

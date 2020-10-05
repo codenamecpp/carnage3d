@@ -52,12 +52,6 @@ std::string get_executable_path()
 #endif
 }
 
-bool is_absolute_path(std::string pathto)
-{
-    filesystem::path sourcePath {pathto};
-    return sourcePath.is_absolute();
-}
-
 bool is_file_exists(std::string pathto)
 {
     filesystem::path sourcePath {pathto};

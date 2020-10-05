@@ -3,7 +3,16 @@
 #include "GraphicsContext.h"
 #include "OpenGLDefs.h"
 
+#ifdef __EMSCRIPTEN__
+static const char* gGLSL_version_string = 
+    "#version 300 es\n"
+    "precision highp float;\n"
+    "precision highp usampler2DArray;\n"
+    "precision highp usampler2D;\n";
+#else
 static const char* gGLSL_version_string = "#version 330 core\n";
+#endif
+
 static const char* gGLSL_vertex_shader_string = "#define VERTEX_SHADER\n";
 static const char* gGLSL_fragment_shader_string = "#define FRAGMENT_SHADER\n";
 const int MaxShaderInfoLength = 2048;
