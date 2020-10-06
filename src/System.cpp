@@ -114,6 +114,7 @@ bool SystemStartupParams::ParseStartupParams(int argc, char *argv[])
             iarg += 2;
             continue;
         }
+        gConsole.LogMessage(eLogMessage_Warning, "Unknown arg '%s'", argv[iarg]);
         ++iarg;
     }
 

@@ -65,6 +65,8 @@ private:
     bool ReadNavData(std::ifstream& file, int dataSize);
     void FixShiftedBits();
 
+    std::string GetStyleFileName(int styleNumber) const;
+
 private:
     MapBlockInfo mMapTiles[MAP_LAYERS_COUNT][MAP_DIMENSIONS][MAP_DIMENSIONS]; // z, y, x
     int mBaseTilesData[MAP_DIMENSIONS][MAP_DIMENSIONS]; // y x

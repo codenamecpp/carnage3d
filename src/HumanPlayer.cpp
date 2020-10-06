@@ -381,6 +381,9 @@ void HumanPlayer::OnCharacterStartCarDrive()
 void HumanPlayer::UpdateDistrictLocation()
 {
     const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->GetPosition2());
+    if (currentDistrict == nullptr)
+        return;
+
     if (currentDistrict->mSampleIndex != mLastDistrictIndex)
     {
         mLastDistrictIndex = currentDistrict->mSampleIndex;

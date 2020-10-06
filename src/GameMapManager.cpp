@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameMapManager.h"
+#include "CarnageGame.h"
 
 GameMapManager gGameMap;
 
@@ -78,7 +79,7 @@ bool GameMapManager::LoadFromFile(const std::string& filename)
     }
 
     // load corresponding style data
-    std::string styleName = cxx::va("STYLE%03d.G24", header.style_number);
+    std::string styleName = GetStyleFileName(header.style_number);
 
     gConsole.LogMessage(eLogMessage_Info, "Loading style data '%s'", styleName.c_str());
     if (!mStyleData.LoadFromFile(styleName))
@@ -582,4 +583,26 @@ bool GameMapManager::ReadNavData(std::ifstream& file, int dataSize)
             return (lhs.mArea.h < rhs.mArea.h);
         });
     return true;
+}
+
+std::string GameMapManager::GetStyleFileName(int styleNumber) const
+{
+    eGtaGameVersion gameVersion = gCarnageGame.mGameVersion;
+
+    if (gameVersion == eGtaGameVersion_MissionPack2_London61)
+    {
+        std::string styleName = cxx::va("Sty%03d.g24", styleNumber);
+        return styleName;
+    }
+
+    if (gameVersion == eGtaGameVersion_MissionPack1_London69)
+    {
+        std::string styleName = cxx::va("Style%03d.g24", styleNumber);
+        return styleName;
+    }
+
+    debug_assert((gameVersion == eGtaGameVersion_Demo) || (gameVersion == eGtaGameVersion_Full));
+    
+    std::string styleName = cxx::va("STYLE%03d.G24", styleNumber);
+    return styleName;
 }
