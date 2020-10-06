@@ -5,6 +5,14 @@
 #include "GameObject.h"
 #include "PedestrianInfo.h"
 
+impl_enum_strings(eGtaGameVersion)
+{
+    {eGtaGameVersion_Demo, "demo"},
+    {eGtaGameVersion_Full, "full"},
+    {eGtaGameVersion_MissionPack1_London69, "uk69"},
+    {eGtaGameVersion_MissionPack2_London61, "uk61"},
+};
+
 impl_enum_strings(eKeycode)
 {
     {eKeycode_ESCAPE, "Escape"},

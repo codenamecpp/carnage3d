@@ -45,9 +45,27 @@ bool CarnageGame::Initialize()
         std::chrono::system_clock::now().time_since_epoch());
     mGameRand.set_seed((unsigned int) ms.count());
 
-    // init game texts
+    if (!DetectGameVersion())
+    {
+        gConsole.LogMessage(eLogMessage_Debug, "Fail to detect game version");
+    }
+
+    // init tests
+    std::string gameLanguageID = gSystem.mStartupParams.mGameLanguage;
+    if (!gameLanguageID.empty())
+    {
+        gConsole.LogMessage(eLogMessage_Debug, "Set game language: '%s'", gameLanguageID.c_str());
+    }
+
+    std::string textsFilename = GetTextsLanguageFileName(gameLanguageID);
+    gConsole.LogMessage(eLogMessage_Debug, "Loading game texts from '%s'", textsFilename.c_str());
+
     gGameTexts.Initialize();
-    gGameTexts.LoadTexts("ENGLISH.FXT");
+    if (!gGameTexts.LoadTexts(textsFilename))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Fail to load game texts for current language");
+        gGameTexts.Deinit();
+    }
 
     // init scenario
     if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
@@ -433,4 +451,114 @@ int CarnageGame::GetHumanPlayersCount() const
         }
     }
     return playersCounter;
+}
+
+bool CarnageGame::DetectGameVersion()
+{
+    mGameVersion = eGtaGameVersion_Full;
+
+    bool useAutoDetection = true;
+
+    SystemStartupParams& params = gSystem.mStartupParams;
+    if (!params.mGtaGameVersion.empty())
+    {
+        if (!cxx::parse_enum(params.mGtaGameVersion.c_str(), mGameVersion))
+        {
+            gConsole.LogMessage(eLogMessage_Debug, "Unknown game version '%s', ignore", params.mGtaGameVersion.c_str());
+        }
+        else
+        {
+            useAutoDetection = false;
+        }
+    }
+
+    if (useAutoDetection)
+    {
+        const int GameMapsCount = (int) gFiles.mGameMapsList.size();
+        if (GameMapsCount == 0)
+            return false;
+
+        if (gFiles.IsFileExists("MISSUK.INI"))
+        {
+            mGameVersion = eGtaGameVersion_MissionPack1_London69;
+        }
+        else if (gFiles.IsFileExists("missuke.ini"))
+        {
+            mGameVersion = eGtaGameVersion_MissionPack2_London61;
+        }
+        else if (GameMapsCount < 3)
+        {
+            mGameVersion = eGtaGameVersion_Demo;
+        }
+        else
+        {
+            mGameVersion = eGtaGameVersion_Full;
+        }
+    }
+
+    gConsole.LogMessage(eLogMessage_Debug, "Gta game version is '%s' (%s)", cxx::enum_to_string(mGameVersion),
+        useAutoDetection ? "autodetect" : "forced");
+    
+    return true;
+}
+
+std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID) const
+{
+    if ((mGameVersion == eGtaGameVersion_Demo) || (mGameVersion == eGtaGameVersion_Full))
+    {
+        if (cxx_stricmp(languageID.c_str(), "en") == 0)
+        {
+            return "ENGLISH.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "fr") == 0)
+        {
+            return "FRENCH.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "de") == 0)
+        {
+            return "GERMAN.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "it") == 0)
+        {
+            return "ITALIAN.FXT";
+        }
+
+        return "ENGLISH.FXT";
+    }
+
+    if (mGameVersion == eGtaGameVersion_MissionPack1_London69)
+    {
+        if (cxx_stricmp(languageID.c_str(), "en") == 0)
+        {
+            return "ENGUK.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "fr") == 0)
+        {
+            return "FREUK.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "de") == 0)
+        {
+            return "GERUK.FXT";
+        }
+
+        if (cxx_stricmp(languageID.c_str(), "it") == 0)
+        {
+            return "ITAUK.FXT";
+        }
+
+        return "ENGUK.FXT";
+    }
+
+    if (mGameVersion == eGtaGameVersion_MissionPack2_London61)
+    {
+        return "enguke.fxt";
+    }
+
+    debug_assert(false);
+    return "ENGLISH.FXT";
 }

@@ -10,7 +10,7 @@ class CarnageGame final: public InputEventsHandler
 public:
     // gamestate
     HumanPlayer* mHumanPlayers[GAME_MAX_PLAYERS];
-
+    eGtaGameVersion mGameVersion = eGtaGameVersion_Full;
     cxx::randomizer mGameRand;
 
 public:
@@ -48,6 +48,9 @@ public:
 
 private:
     bool SetInputActionsFromConfig();
+    bool DetectGameVersion();
+
+    std::string GetTextsLanguageFileName(const std::string& languageID) const;
 
     bool StartScenario(const std::string& mapName);
     void ShutdownCurrentScenario();

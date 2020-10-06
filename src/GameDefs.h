@@ -98,6 +98,17 @@ using VehicleHandle = cxx::handle<Vehicle>;
 
 using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
+enum eGtaGameVersion
+{
+    eGtaGameVersion_Demo,
+    eGtaGameVersion_Full,
+    eGtaGameVersion_MissionPack1_London69,
+    eGtaGameVersion_MissionPack2_London61,
+    eGtaGameVersion_COUNT
+};
+
+decl_enum_strings(eGtaGameVersion);
+
 // Remap indices for fonts
 enum
 {

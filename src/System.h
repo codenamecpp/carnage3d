@@ -46,6 +46,8 @@ public:
 public:
     std::string mDebugMapName; // startup map name
     std::string mGtaDataLocation; // force gta data location
+    std::string mGtaGameVersion; // force gta version
+    std::string mGameLanguage; // force ingame language
     int mPlayersCount = 0;
 };
 

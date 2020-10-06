@@ -102,6 +102,18 @@ bool SystemStartupParams::ParseStartupParams(int argc, char *argv[])
             iarg += 2;
             continue;
         }
+        if (cxx_stricmp(argv[iarg], "-gtaversion") == 0 && (argc > iarg + 1))
+        {
+            mGtaGameVersion.assign(argv[iarg + 1]);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-lang") == 0 && (argc > iarg + 1))
+        {
+            mGameLanguage.assign(argv[iarg + 1]);
+            iarg += 2;
+            continue;
+        }
         ++iarg;
     }
 
@@ -112,6 +124,8 @@ void SystemStartupParams::ClearParams()
 {
     mDebugMapName.clear();
     mGtaDataLocation.clear();
+    mGtaGameVersion.clear();
+    mGameLanguage.clear();
     mPlayersCount = 0;
 }
 
