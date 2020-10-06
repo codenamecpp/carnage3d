@@ -29,7 +29,6 @@ public:
 
     FXTReader(std::istream& inputStream)
         : mInputStream(inputStream)
-        , mBytesCounter()
     {
     }
 
@@ -87,22 +86,39 @@ private:
 
     bool get_next_char(unsigned char& character)
     {
-        const static unsigned char code[] = {0x64, 0xc7, 0x8d, 0x19, 0x31, 0x61, 0xc1, 0x81};
-        if (mBytesCounter < CountOf(code))
-        {
-            if (mInputStream.read((char*) &character, 1))
-            {
-                character = character - code[mBytesCounter++];
-                return true;
-            }
-            return false;
-        }
+        const int EncryptedBytesCount = 8;
 
         if (!mInputStream.read((char*) &character, 1))
             return false;
 
+        // detect encryption method
+        if (mBytesCounter == 0)
+        {
+            if (character == 0xBF)
+            {
+                mEcnKey = 0x63;
+                mEncOffset = -1;
+            }
+            else if (character == 0xA6)
+            {
+                mEcnKey = 0x67;
+                mEncOffset = 28;
+            }
+            else
+            {
+                debug_assert(false);
+                return false;
+            }
+        }
+
+        if (mBytesCounter < EncryptedBytesCount)
+        {
+            character = character - mEcnKey;
+            mEcnKey <<= 1; 
+        }
+
         ++mBytesCounter;
-		if (--character == 195) 
+		if ((character + mEncOffset) == 195) 
         {
             if (!mInputStream.read((char*) &character, 1))
             {
@@ -110,14 +126,17 @@ private:
                 return false;
             }
             ++mBytesCounter;
-            character = --character + 64;
+            character += 64;
 		};
+        character = (character + mEncOffset);
         return true;
     }
 
 private:
     std::istream& mInputStream;
-    int mBytesCounter;
+    int mBytesCounter = 0;
+    int mEncOffset = 0;
+    unsigned char mEcnKey = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
