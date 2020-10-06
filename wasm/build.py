@@ -30,7 +30,7 @@ scan_sources('third_party/Box2D/Box2D/Dynamics/Contacts')
 scan_sources('third_party/Box2D/Box2D/Dynamics/Joints')
 scan_sources('third_party/Box2D/Box2D/Dynamics')
 
-#args.append('--preload-file data')
+args.append('-O2')
 args.append('-o ' + output_object)
 args.append('-std=c++11')
 args.append('-s WASM=1')
