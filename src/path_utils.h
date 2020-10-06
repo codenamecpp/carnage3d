@@ -23,10 +23,6 @@ namespace cxx
     // get full path to executable
     std::string get_executable_path();
 
-    // test whether path is absolute or relative
-    // @param sourcePath: Path
-    bool is_absolute_path(std::string pathto);
-
     // test whether file exists in os
     // @param sourcePath: Path
     bool is_file_exists(std::string pathto);

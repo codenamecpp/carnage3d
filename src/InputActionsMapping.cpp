@@ -178,6 +178,8 @@ eInputActionsGroup InputActionsMapping::GetInputActionsGroup(eInputAction action
         case eInputAction_Horn:
         case eInputAction_LeaveCar:
             return eInputActionsGroup_InCar;
+
+        default: break;
     }
     return eInputActionsGroup_Common;
 }

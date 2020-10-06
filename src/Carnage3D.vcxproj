@@ -189,7 +189,6 @@
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectsManager.h" />
-    <ClInclude Include="GpuBufferTexture.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="PedestrianStates.h" />
@@ -287,7 +286,6 @@
     <ClCompile Include="GameTextsManager.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="HumanPlayerView.cpp" />
-    <ClCompile Include="GpuBufferTexture.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="HumanPlayer.cpp" />
     <ClCompile Include="InputActionsMapping.cpp" />

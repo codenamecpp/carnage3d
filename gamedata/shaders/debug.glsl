@@ -17,7 +17,7 @@ void main()
 {
     FragColor = in_color0;
 
-    vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0f);
+    vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0);
     gl_Position = vertexPosition;
 }
 

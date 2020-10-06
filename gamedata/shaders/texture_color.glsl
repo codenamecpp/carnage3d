@@ -22,7 +22,7 @@ void main()
     Position = in_pos0;
     FragColor = in_color0;
 
-    vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0f);
+    vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0);
     gl_Position = vertexPosition;
 }
 
@@ -45,10 +45,10 @@ out vec4 FinalColor;
 void main()
 {
     vec4 pixelColor = texture(tex_0, Texcoord);
-    //if (pixelColor.a < 1.0f) // old school alpha test
+    //if (pixelColor.a < 1.0) // old school alpha test
     //    discard;
 
-    FinalColor = clamp(pixelColor, 0.0f, 1.0f);
+    FinalColor = clamp(pixelColor, 0.0, 1.0);
 }
 
 #endif

@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "path_utils.h"
-#include <experimental/filesystem>
 
-namespace filesystem = std::experimental::filesystem;
+#ifdef __EMSCRIPTEN__
+#include <filesystem>
+    namespace filesystem = std::__fs::filesystem;
+#else
+#include <experimental/filesystem>
+    namespace filesystem = std::experimental::filesystem;
+#endif // #ifndef __EMSCRIPTEN__
 
 namespace cxx
 {
@@ -45,12 +50,6 @@ std::string get_executable_path()
     debug_assert(false);
     return std::string();
 #endif
-}
-
-bool is_absolute_path(std::string pathto)
-{
-    filesystem::path sourcePath {pathto};
-    return sourcePath.is_absolute();
 }
 
 bool is_file_exists(std::string pathto)

@@ -4,7 +4,6 @@
 class GraphicsDevice;
 class GpuBuffer;
 class GpuProgram;
-class GpuBufferTexture;
 class GpuTexture2D;
 class GpuTextureArray2D;
 class GraphicsContext;
@@ -266,6 +265,7 @@ inline int NumBytesPerPixel(eTextureFormat format)
         case eTextureFormat_R16UI: return 2;
         case eTextureFormat_R8UI: return 1;
         case eTextureFormat_RGBA8UI: return 4;
+        default: break;
     }
     return 0;
 }
@@ -363,6 +363,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeFormat attributeF
         case eVertexAttributeFormat_4UB: return 4;
         case eVertexAttributeFormat_1US: return 1;
         case eVertexAttributeFormat_2US: return 2;
+        default: break;
     }
     debug_assert(false);
     return 0;
@@ -379,6 +380,7 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeFormat attributeFormat
         case eVertexAttributeFormat_4UB: return 4 * sizeof(unsigned char);
         case eVertexAttributeFormat_1US: return 1 * sizeof(unsigned short);
         case eVertexAttributeFormat_2US: return 2 * sizeof(unsigned short);
+        default: break;
     }
     debug_assert(false);
     return 0;

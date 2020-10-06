@@ -3,7 +3,16 @@
 #include "GraphicsContext.h"
 #include "OpenGLDefs.h"
 
+#ifdef __EMSCRIPTEN__
+static const char* gGLSL_version_string = 
+    "#version 300 es\n"
+    "precision highp float;\n"
+    "precision highp usampler2DArray;\n"
+    "precision highp usampler2D;\n";
+#else
 static const char* gGLSL_version_string = "#version 330 core\n";
+#endif
+
 static const char* gGLSL_vertex_shader_string = "#define VERTEX_SHADER\n";
 static const char* gGLSL_fragment_shader_string = "#define FRAGMENT_SHADER\n";
 const int MaxShaderInfoLength = 2048;
@@ -57,6 +66,37 @@ public:
 public:
     GLenum mTarget;
     GLuint mHandle;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ScopedProgramBinder
+{
+public:
+    ScopedProgramBinder(GraphicsContext& renderContext, GpuProgram* gpuProgram)
+        : mRenderContext(renderContext)
+        , mPreviousProgram(renderContext.mCurrentProgram)
+        , mProgram(gpuProgram)
+    {
+        debug_assert(mProgram);
+        if (mProgram != mPreviousProgram)
+        {
+            ::glUseProgram(mProgram->mResourceHandle);
+            glCheckError();
+        }
+    }
+    ~ScopedProgramBinder()
+    {
+        if (mProgram != mPreviousProgram)
+        {
+            ::glUseProgram(mPreviousProgram ? mPreviousProgram->mResourceHandle : 0);
+            glCheckError();
+        }
+    }
+private:
+    GraphicsContext& mRenderContext;
+    GpuProgram* mPreviousProgram;
+    GpuProgram* mProgram;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -150,64 +190,100 @@ void GpuProgram::SetUniform(eRenderUniform constant, const glm::mat4& floatMatri
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform1f(mResourceHandle, constantLocation, param0);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform1f(constantLocation, param0);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0, float param1)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform2f(mResourceHandle, constantLocation, param0, param1);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform2f(constantLocation, param0, param1);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, float param0, float param1, float param2)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform3f(mResourceHandle, constantLocation, param0, param1, param2);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform3f(constantLocation, param0, param1, param2);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, int param0)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform1i(mResourceHandle, constantLocation, param0);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform1i(constantLocation, param0);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec2& floatVector2)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform2fv(mResourceHandle, constantLocation, 1, &floatVector2.x);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform2fv(constantLocation, 1, &floatVector2.x);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec3& floatVector3)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform3fv(mResourceHandle, constantLocation, 1, &floatVector3.x);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform3fv(constantLocation, 1, &floatVector3.x);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::vec4& floatVector4)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniform4fv(mResourceHandle, constantLocation, 1, &floatVector4.x);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniform4fv(constantLocation, 1, &floatVector4.x);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::mat3& floatMatrix3)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniformMatrix3fv(mResourceHandle, constantLocation, 1, GL_FALSE, &floatMatrix3[0][0]);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniformMatrix3fv(constantLocation, 1, GL_FALSE, &floatMatrix3[0][0]);
+        glCheckError();
+    }
 }
 
 void GpuProgram::SetCustomUniform(GpuVariableLocation constantLocation, const glm::mat4& floatMatrix4)
 {
     debug_assert(constantLocation != GpuVariableNULL);
-    ::glProgramUniformMatrix4fv(mResourceHandle, constantLocation, 1, GL_FALSE, &floatMatrix4[0][0]);
-    glCheckError();
+    if (constantLocation != GpuVariableNULL)
+    {
+        ScopedProgramBinder scopedBind(mGraphicsContext, this);
+        ::glUniformMatrix4fv(constantLocation, 1, GL_FALSE, &floatMatrix4[0][0]);
+        glCheckError();
+    }
 }
 
 bool GpuProgram::CompileSourceCode(const char* shaderSource)
@@ -275,6 +351,7 @@ bool GpuProgram::CompileSourceCode(const char* shaderSource)
         glCheckError();
     }
 
+    ScopedProgramBinder scopedBind(mGraphicsContext, this);
     // query samplers
     for (int isampler = 0; isampler < eTextureUnit_COUNT; ++isampler)
     {
@@ -283,8 +360,8 @@ bool GpuProgram::CompileSourceCode(const char* shaderSource)
         if (ilocation != GpuVariableNULL)
         {
             mSamplers[isampler] = ilocation;
-            // bind sampler to default slot
-            ::glProgramUniform1i(mResourceHandle, ilocation, isampler);
+
+            ::glUniform1i(ilocation, isampler); // bind sampler to default slot
             glCheckError();
         }
     }

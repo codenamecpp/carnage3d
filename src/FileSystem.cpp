@@ -17,9 +17,21 @@ bool FileSystem::Initialize()
 
 //#ifdef _DEBUG
     std::string debugDataPath = cxx::get_parent_directory(mWorkingDirectoryPath);
-    mSearchPlaces.emplace_back(debugDataPath + "/gamedata");
+    if (!debugDataPath.empty())
+    {
+        debugDataPath.append("/");
+    }
+    debugDataPath.append("gamedata");
+    AddSearchPlace(debugDataPath);
 //#else
-    mSearchPlaces.emplace_back(mWorkingDirectoryPath + "/gamedata");
+    
+    debugDataPath = mWorkingDirectoryPath;
+    if (!debugDataPath.empty())
+    {
+        debugDataPath.append("/");
+    }
+    debugDataPath.append("gamedata");
+    AddSearchPlace(debugDataPath);
 //#endif
     return true;
 }
@@ -36,7 +48,7 @@ bool FileSystem::OpenBinaryFile(const std::string& objectName, std::ifstream& in
 {
     instream.close();
 
-    if (cxx::is_absolute_path(objectName))
+    if (cxx::is_file_exists(objectName))
     {
         instream.open(objectName, std::ios::in | std::ios::binary);
         return instream.is_open();
@@ -59,7 +71,7 @@ bool FileSystem::OpenTextFile(const std::string& objectName, std::ifstream& inst
 {
     instream.close();
 
-    if (cxx::is_absolute_path(objectName))
+    if (cxx::is_file_exists(objectName))
     {
         instream.open(objectName, std::ios::in);
         return instream.is_open();
@@ -80,10 +92,9 @@ bool FileSystem::OpenTextFile(const std::string& objectName, std::ifstream& inst
 
 bool FileSystem::IsDirectoryExists(const std::string& objectName)
 {
-    if (cxx::is_absolute_path(objectName))
-    {
-        return cxx::is_directory_exists(objectName);
-    }
+    if (cxx::is_directory_exists(objectName))
+        return true;
+
     std::string pathBuffer;
     // search directory in search places
     for (const std::string& currPlace: mSearchPlaces)
@@ -97,8 +108,8 @@ bool FileSystem::IsDirectoryExists(const std::string& objectName)
 
 bool FileSystem::IsFileExists(const std::string& objectName)
 {
-    if (cxx::is_absolute_path(objectName))
-        return cxx::is_file_exists(objectName);
+    if (cxx::is_file_exists(objectName))
+        return true;
 
     std::string pathBuffer;
     // search file in search places
@@ -162,7 +173,7 @@ void FileSystem::AddSearchPlace(const std::string& searchPlace)
 
 bool FileSystem::GetFullPathToFile(const std::string& objectName, std::string& fullPath) const
 {
-    if (cxx::is_absolute_path(objectName))
+    if (cxx::is_file_exists(objectName))
     {
         fullPath = objectName;
         return true;
@@ -173,6 +184,27 @@ bool FileSystem::GetFullPathToFile(const std::string& objectName, std::string& f
     {
         pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName.c_str());
         if (cxx::is_file_exists(pathBuffer))
+        {
+            fullPath = pathBuffer;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FileSystem::GetFullPathToDirectory(const std::string& objectName, std::string& fullPath) const
+{
+    if (cxx::is_directory_exists(objectName))
+    {
+        fullPath = objectName;
+        return true;
+    }
+    std::string pathBuffer;
+    // search directory in search places
+    for (const std::string& currPlace: mSearchPlaces)
+    {
+        pathBuffer = cxx::va("%s/%s", currPlace.c_str(), objectName.c_str());
+        if (cxx::is_directory_exists(pathBuffer))
         {
             fullPath = pathBuffer;
             return true;
@@ -192,14 +224,16 @@ bool FileSystem::SetupGtaDataLocation()
 
     if (mGTADataDirectoryPath.length())
     {
-        if (!cxx::is_directory_exists(mGTADataDirectoryPath))
+        if (!IsDirectoryExists(mGTADataDirectoryPath))
         {
             gConsole.LogMessage(eLogMessage_Warning, "Cannot locate gta gamedata: '%s'", mGTADataDirectoryPath.c_str());
             return false;
         }
 
-        gFiles.AddSearchPlace(mGTADataDirectoryPath);
         gConsole.LogMessage(eLogMessage_Info, "Current gta gamedata location is: '%s'", mGTADataDirectoryPath.c_str());
+
+        GetFullPathToDirectory(mGTADataDirectoryPath, mGTADataDirectoryPath);
+        gFiles.AddSearchPlace(mGTADataDirectoryPath);
 
         if (ScanGtaMaps())
         {

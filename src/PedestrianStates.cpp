@@ -193,6 +193,7 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation(bool isShooting) 
                 case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileStanding;
                 case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileStanding;
                 case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileStanding;
+                default: break;
             }  
         }
         return ePedestrianAnim_StandingStill;
@@ -209,6 +210,7 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation(bool isShooting) 
                 case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileWalking;
                 case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileWalking;
                 case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileWalking;
+                default: break;
             }
         }
         return ePedestrianAnim_Walk;
@@ -225,6 +227,7 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation(bool isShooting) 
                 case eWeapon_Machinegun: return ePedestrianAnim_ShootMachinegunWhileRunning;
                 case eWeapon_Flamethrower: return ePedestrianAnim_ShootFlamethrowerWhileRunning;
                 case eWeapon_RocketLauncher: return ePedestrianAnim_ShootRPGWhileRunning;
+                default: break;
             }
         }
         return ePedestrianAnim_Run;

@@ -37,21 +37,13 @@ public:
 
     // Map hardware buffer content to process memory
     // @param accessBits: Desired data access policy
-    // @param bufferOffset: Offset from start, bytes
-    // @param dataSize: Size of data, bytes
     // @return Pointer to buffer data or null on fail
     void* Lock(BufferAccessBits accessBits);
-    void* Lock(BufferAccessBits accessBits, unsigned int bufferOffset, unsigned int dataSize);
 
     template<typename TElement>
     inline TElement* LockData(BufferAccessBits accessBits)
     {
         return static_cast<TElement*>(Lock(accessBits));
-    }
-    template<typename TElement>
-    inline TElement* LockData(BufferAccessBits accessBits, unsigned int bufferOffset, unsigned int dataSize)
-    {
-        return static_cast<TElement*>(Lock(accessBits, bufferOffset, dataSize));
     }
 
     // Unmap buffer object data source

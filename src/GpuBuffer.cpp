@@ -85,7 +85,13 @@ bool GpuBuffer::Setup(eBufferUsage bufferUsage, unsigned int bufferLength, const
 
     if (dataBuffer)
     {
-        void* pMappedData = ::glMapBufferRange(bufferTargetGL, 0, mBufferCapacity, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        void* pMappedData = nullptr;
+
+#ifdef __EMSCRIPTEN__
+        pMappedData = ::glMapBufferRange(bufferTargetGL, 0, mBufferCapacity, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+#else
+        pMappedData = ::glMapBufferRange(bufferTargetGL, 0, mBufferCapacity, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+#endif
         glCheckError();
         if (pMappedData == nullptr)
         {
@@ -184,28 +190,7 @@ bool GpuBuffer::SubData(unsigned int dataOffset, unsigned int dataLength, const 
 
 void* GpuBuffer::Lock(BufferAccessBits accessBits)
 {
-    return Lock(accessBits, 0, mBufferCapacity);
-}
-
-void* GpuBuffer::Lock(BufferAccessBits accessBits, unsigned int bufferOffset, unsigned int dataLength)
-{
     if (!IsBufferInited())
-    {
-        debug_assert(false);
-        return nullptr;
-    }
-
-    GLbitfield accessBitsGL = ((accessBits & BufferAccess_Read) > 0 ? GL_MAP_READ_BIT : 0) |
-        ((accessBits & BufferAccess_Write) > 0 ? GL_MAP_WRITE_BIT : 0) |
-        ((accessBits & BufferAccess_Unsynchronized) > 0 ? GL_MAP_UNSYNCHRONIZED_BIT : 0) |
-        ((accessBits & BufferAccess_InvalidateRange) > 0 ? GL_MAP_INVALIDATE_RANGE_BIT : 0) |
-        ((accessBits & BufferAccess_InvalidateBuffer) > 0 ? GL_MAP_INVALIDATE_BUFFER_BIT : 0);
-
-    debug_assert(accessBitsGL > 0);
-    if (accessBitsGL == 0)
-        return nullptr;
-
-    if (dataLength == 0 || ((bufferOffset + dataLength) > mBufferCapacity))
     {
         debug_assert(false);
         return nullptr;
@@ -213,7 +198,27 @@ void* GpuBuffer::Lock(BufferAccessBits accessBits, unsigned int bufferOffset, un
 
     ScopedBufferBinder scopedBind (mGraphicsContext, this);
     GLenum bufferTargetGL = EnumToGL(mContent);
-    void* pMappedData = ::glMapBufferRange(bufferTargetGL, bufferOffset, dataLength, accessBitsGL);
+
+    void* pMappedData = nullptr;
+#ifdef __EMSCRIPTEN__
+    if ((accessBits & BufferAccess_Read) > 0)
+    {
+        debug_assert(false); // reading is not supported
+        return nullptr;
+    }
+    pMappedData = ::glMapBufferRange(bufferTargetGL, 0, mBufferLength, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+
+#else
+    GLbitfield accessBitsGL = ((accessBits & BufferAccess_Read) > 0 ? GL_MAP_READ_BIT : 0) |
+        ((accessBits & BufferAccess_Write) > 0 ? GL_MAP_WRITE_BIT : 0) |
+        ((accessBits & BufferAccess_Unsynchronized) > 0 ? GL_MAP_UNSYNCHRONIZED_BIT : 0) |
+        ((accessBits & BufferAccess_InvalidateRange) > 0 ? GL_MAP_INVALIDATE_RANGE_BIT : 0) |
+        ((accessBits & BufferAccess_InvalidateBuffer) > 0 ? GL_MAP_INVALIDATE_BUFFER_BIT : 0);
+
+    debug_assert(accessBitsGL > 0);
+    pMappedData = ::glMapBufferRange(bufferTargetGL, 0, mBufferLength, accessBitsGL);
+
+#endif
     glCheckError();
     return pMappedData;
 }
