@@ -11,6 +11,8 @@ This is open source Grand Theft Auto 1 remake project.
 ## Status ##
 Currently it is in very early stage, a progress so far: https://youtu.be/KnqaO0YZzZY
 
+Thanks to modern technologies, it is now possible to play directly in web browser! Try it https://codenamecpp.github.io/carnage3d/web/carnage3D_wasm.html .
+
 ## Tools and technologies used ##
 * [Box2D](https://github.com/erincatto/box2d)
 * [cJSON](https://github.com/DaveGamble/cJSON)
