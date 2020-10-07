@@ -137,3 +137,17 @@ void RenderProgram::UploadCameraTransformMatrices(GameCamera2D& gameCamera)
     }
     debug_assert(isInited);
 }
+
+void RenderProgram::InitUniformParameters()
+{
+    // setup default parameters
+    if (mGpuProgram->IsUniformExists(eRenderUniform_EnableBiLinearFiltering))
+    {
+        mGpuProgram->SetUniform(eRenderUniform_EnableBiLinearFiltering, gSystem.mConfig.mEnableTextureFiltering);
+    }
+}
+
+void RenderProgram::BindUniformParameters()
+{
+
+}

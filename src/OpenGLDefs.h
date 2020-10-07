@@ -152,6 +152,7 @@ inline GLenum GetAttributeDataTypeGL(eVertexAttributeFormat attributeFormat)
         case eVertexAttributeFormat_4UB: return GL_UNSIGNED_BYTE;
         case eVertexAttributeFormat_1US: return GL_UNSIGNED_SHORT;
         case eVertexAttributeFormat_2US: return GL_UNSIGNED_SHORT;
+        case eVertexAttributeFormat_4US: return GL_UNSIGNED_SHORT;
         default: break;
     }
     debug_assert(false);

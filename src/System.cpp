@@ -26,6 +26,7 @@ SystemConfig::SystemConfig()
 
 void SystemConfig::SetToDefaults()
 {
+    mEnableTextureFiltering = false;
     mEnableAudio = true;
     mEnableFrameHeapAllocator = true;
     mShowImguiDemoWindow = false;
@@ -50,6 +51,7 @@ void SystemConfig::InitFromJsonDocument(const cxx::json_document& sourceDocument
 
         cxx::json_get_attribute(screenConfig, "fullscreen", mFullscreen);
         cxx::json_get_attribute(screenConfig, "vsync", mEnableVSync);
+        cxx::json_get_attribute(screenConfig, "texFiltering", mEnableTextureFiltering);
     }
 
     // memory

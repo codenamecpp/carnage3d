@@ -3,6 +3,7 @@
 #include "RenderingManager.h"
 #include "SpriteManager.h"
 #include "RenderView.h"
+#include "GpuTexture2D.h"
 
 const unsigned int NumVerticesPerSprite = 4;
 const unsigned int NumIndicesPerSprite = 6;
@@ -93,19 +94,15 @@ void SpriteBatch::GenerateSpritesBatches()
 
         vertexData[vertexOffset + 0].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 0].mTexcoord.y = sprite.mTextureRegion.mV0;
-        vertexData[vertexOffset + 0].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 1].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 1].mTexcoord.y = sprite.mTextureRegion.mV0;
-        vertexData[vertexOffset + 1].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 2].mTexcoord.x = sprite.mTextureRegion.mU0;
         vertexData[vertexOffset + 2].mTexcoord.y = sprite.mTextureRegion.mV1;
-        vertexData[vertexOffset + 2].mClutIndex = sprite.mPaletteIndex;
 
         vertexData[vertexOffset + 3].mTexcoord.x = sprite.mTextureRegion.mU1;
         vertexData[vertexOffset + 3].mTexcoord.y = sprite.mTextureRegion.mV1;
-        vertexData[vertexOffset + 3].mClutIndex = sprite.mPaletteIndex;
 
         glm::vec2 positions[4];
         sprite.GetCorners(positions);
@@ -116,11 +113,12 @@ void SpriteBatch::GenerateSpritesBatches()
             {
                 vertexData[vertexOffset + i].mPosition.x = positions[i].x;
                 vertexData[vertexOffset + i].mPosition.z = positions[i].y;
+                vertexData[vertexOffset + i].mPosition.y = sprite.mHeight;
+                // common part
+                vertexData[vertexOffset + i].mClutIndex = sprite.mPaletteIndex;
+                vertexData[vertexOffset + i].mTextureSize[0] = sprite.mTexture->mSize.x;
+                vertexData[vertexOffset + i].mTextureSize[1] = sprite.mTexture->mSize.y;
             }
-            vertexData[vertexOffset + 0].mPosition.y = sprite.mHeight;
-            vertexData[vertexOffset + 1].mPosition.y = sprite.mHeight;
-            vertexData[vertexOffset + 2].mPosition.y = sprite.mHeight;
-            vertexData[vertexOffset + 3].mPosition.y = sprite.mHeight;
         }
         else
         {
@@ -128,11 +126,12 @@ void SpriteBatch::GenerateSpritesBatches()
             {
                 vertexData[vertexOffset + i].mPosition.x = positions[i].x;
                 vertexData[vertexOffset + i].mPosition.y = positions[i].y;
+                vertexData[vertexOffset + i].mPosition.z = sprite.mHeight;
+                // common part
+                vertexData[vertexOffset + i].mClutIndex = sprite.mPaletteIndex;
+                vertexData[vertexOffset + i].mTextureSize[0] = sprite.mTexture->mSize.x;
+                vertexData[vertexOffset + i].mTextureSize[1] = sprite.mTexture->mSize.y;
             }
-            vertexData[vertexOffset + 0].mPosition.z = sprite.mHeight;
-            vertexData[vertexOffset + 1].mPosition.z = sprite.mHeight;
-            vertexData[vertexOffset + 2].mPosition.z = sprite.mHeight;
-            vertexData[vertexOffset + 3].mPosition.z = sprite.mHeight;
         }
 
         // setup indices

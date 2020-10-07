@@ -17,6 +17,7 @@ public:
     int mScreenSizex, mScreenSizey; // screen dimensions
     bool mFullscreen; // enable full screen mode
     bool mEnableVSync; // enable vertical synchronization
+    bool mEnableTextureFiltering;
 
     // physics
     float mPhysicsFramerate;

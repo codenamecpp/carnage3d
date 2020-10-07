@@ -36,11 +36,6 @@ public:
 
 protected:
     // overridable
-    virtual void InitUniformParameters()
-    {
-    }
-
-    virtual void BindUniformParameters()
-    {
-    }
+    virtual void InitUniformParameters();
+    virtual void BindUniformParameters();
 };

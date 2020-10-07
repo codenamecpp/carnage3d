@@ -214,6 +214,7 @@ impl_enum_strings(eVertexAttributeFormat)
     {eVertexAttributeFormat_4UB, "4ub"},
     {eVertexAttributeFormat_1US, "1us"},
     {eVertexAttributeFormat_2US, "2us"},
+    {eVertexAttributeFormat_4US, "4us"},
     {eVertexAttributeFormat_Unknown, "unknown"},
 };
 
@@ -227,6 +228,7 @@ impl_enum_strings(eVertexAttribute)
     {eVertexAttribute_Normal1, "in_normal1"},
     {eVertexAttribute_Color0, "in_color0"},
     {eVertexAttribute_Color1, "in_color1"},
+    {eVertexAttribute_TextureSize, "in_textureSize"},
 };
 
 impl_enum_strings(eBufferContent)
@@ -252,6 +254,7 @@ impl_enum_strings(eRenderUniform)
     {eRenderUniform_ViewProjectionMatrix, "view_projection_matrix"},
     {eRenderUniform_NormalMatrix, "normal_matrix"},
     {eRenderUniform_CameraPosition, "camera_position"},
+    {eRenderUniform_EnableBiLinearFiltering, "enable_bilinear_filtering"},
 };
 
 impl_enum_strings(eBlendMode)

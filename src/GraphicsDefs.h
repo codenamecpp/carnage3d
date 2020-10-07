@@ -331,6 +331,7 @@ enum eVertexAttributeFormat
     eVertexAttributeFormat_4UB,     // 4 unsigned bytes
     eVertexAttributeFormat_1US,     // 1 unsigned short
     eVertexAttributeFormat_2US,     // 2 unsigned shorts
+    eVertexAttributeFormat_4US,     // 4 unsigned shorts
     eVertexAttributeFormat_Unknown
 };
 
@@ -346,6 +347,7 @@ enum eVertexAttribute
     eVertexAttribute_Normal1,
     eVertexAttribute_Color0,
     eVertexAttribute_Color1,
+    eVertexAttribute_TextureSize, // texture width and height in pixels
     eVertexAttribute_COUNT,
     eVertexAttribute_MAX = 16,
 };
@@ -363,6 +365,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeFormat attributeF
         case eVertexAttributeFormat_4UB: return 4;
         case eVertexAttributeFormat_1US: return 1;
         case eVertexAttributeFormat_2US: return 2;
+        case eVertexAttributeFormat_4US: return 4;
         default: break;
     }
     debug_assert(false);
@@ -380,6 +383,7 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeFormat attributeFormat
         case eVertexAttributeFormat_4UB: return 4 * sizeof(unsigned char);
         case eVertexAttributeFormat_1US: return 1 * sizeof(unsigned short);
         case eVertexAttributeFormat_2US: return 2 * sizeof(unsigned short);
+        case eVertexAttributeFormat_4US: return 4 * sizeof(unsigned short);
         default: break;
     }
     debug_assert(false);
@@ -545,6 +549,7 @@ enum eRenderUniform
     eRenderUniform_ViewProjectionMatrix,
     eRenderUniform_NormalMatrix,         
     eRenderUniform_CameraPosition, // world space camera position
+    eRenderUniform_EnableBiLinearFiltering,
     eRenderUniform_COUNT
 };
 
