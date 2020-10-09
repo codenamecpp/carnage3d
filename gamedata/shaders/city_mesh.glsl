@@ -48,12 +48,6 @@ void main()
 
 uniform usampler2DArray tex_0; // block texture
 uniform sampler2D tex_3; // palettes table
-uniform bool enable_bilinear_filtering;
-
-// constants
-
-const float BlockTextureSize = 64.0; // width and height of block texture
-const float BlockTexelSize = 1.0 / BlockTextureSize;
 
 // passed from vertex shader
 in vec2 Texcoord;
@@ -64,65 +58,23 @@ flat in float PaletteIndex;
 // result
 out vec4 FinalColor;
 
-bool fetchBlockTexel(vec2 tc, inout vec4 texelColor)
+vec4 fetchBlockTexel(vec2 tc)
 {
     // get color index in palette
     float pal_color = float(texture(tex_0, vec3(tc.x, tc.y, BlockTextureIndex)).r);
 
     if (Transparency > 0.5 && pal_color < 0.5) // transparent
-	{
-		texelColor.a = 0.0;
-        return false;
-	}
-
-    texelColor = texelFetch(tex_3, ivec2(int(pal_color), int(PaletteIndex)), 0);
-    texelColor.a = 1.0;
-	return true;
-}
-
-vec4 fetchBlockTexelBiLinear()
-{
-    vec4 p0q0;
-	if (!fetchBlockTexel(Texcoord, p0q0))
 		discard;
 
-	// bilinear filtering
-	// https://www.codeproject.com/Articles/236394/Bi-Cubic-and-Bi-Linear-Interpolation-with-GLSL
-
-    vec4 p1q0 = p0q0;
-	fetchBlockTexel(Texcoord + vec2(BlockTexelSize, 0.0), p1q0);
-
-    vec4 p0q1 = p0q0;
-	fetchBlockTexel(Texcoord + vec2(0.0, BlockTexelSize), p0q1);
-
-    vec4 p1q1 = p0q0;
-	fetchBlockTexel(Texcoord + vec2(BlockTexelSize, BlockTexelSize), p1q1);
-
-    float a = fract(Texcoord.x * BlockTextureSize); // Get Interpolation factor for X direction.
-					// Fraction near to valid data.
-
-    vec4 pInterp_q0 = mix(p0q0, p1q0, a); // Interpolates top row in X direction.
-    vec4 pInterp_q1 = mix(p0q1, p1q1, a); // Interpolates bottom row in X direction.
-
-    float b = fract(Texcoord.y * BlockTextureSize);// Get Interpolation factor for Y direction.
-    return mix(pInterp_q0, pInterp_q1, b); // Interpolate in Y direction.
+    vec4 texelColor = texelFetch(tex_3, ivec2(int(pal_color), int(PaletteIndex)), 0);
+    texelColor.a = 1.0;
+	return texelColor;
 }
 
 // entry point
 void main()
 {
-	vec4 texelColor;
-	// no filtering
-	if (!enable_bilinear_filtering)
-	{
-		if (!fetchBlockTexel(Texcoord, texelColor))
-			discard;
-	}
-	else
-	{
-		texelColor = fetchBlockTexelBiLinear();
-	}
-
+	vec4 texelColor = fetchBlockTexel(Texcoord);
     FinalColor = clamp(texelColor, 0.0, 1.0);
 }
 
