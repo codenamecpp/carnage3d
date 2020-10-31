@@ -23,11 +23,11 @@ static const char* InputsConfigPath = "config/inputs.json";
 // cvars
 //////////////////////////////////////////////////////////////////////////
 
-CvarString gCvarMapname("g_mapname", "", "Current map name", CvarFlags_Readonly);
-CvarString gCvarCurrentBaseDir("g_basedir", "", "Current gta data location", CvarFlags_Readonly);
-CvarEnum<eGtaGameVersion> gCvarGameVersion("g_gamever", eGtaGameVersion_Unknown, "Current gta game version", CvarFlags_Readonly);
-CvarString gCvarGameLanguage("g_gamelang", "en", "Current game language", CvarFlags_Readonly);
-CvarInt gCvarNumPlayers("g_numplayers", 1, "Number of players in split screen mode", CvarFlags_Readonly);
+CvarString gCvarMapname("g_mapname", "", "Current map name", CvarFlags_Init);
+CvarString gCvarCurrentBaseDir("g_basedir", "", "Current gta data location", CvarFlags_Init);
+CvarEnum<eGtaGameVersion> gCvarGameVersion("g_gamever", eGtaGameVersion_Unknown, "Current gta game version", CvarFlags_Init);
+CvarString gCvarGameLanguage("g_gamelang", "en", "Current game language", CvarFlags_Init);
+CvarInt gCvarNumPlayers("g_numplayers", 1, "Number of players in split screen mode", CvarFlags_Init);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -573,7 +573,6 @@ std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID)
     {
         return "enguke.fxt";
     }
-
-    debug_assert(false);
+   
     return "ENGLISH.FXT";
 }

@@ -27,7 +27,7 @@ bool Cvar::SetFromString(const std::string& input, eCvarSetMethod setMethod)
         return false;
     }
     // check init only access
-    if (IsInit() && (setMethod == eCvarSetMethod_CommandLine))
+    if (IsInit() && (setMethod == eCvarSetMethod_Console))
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot change '%s', it is write protected", mName.c_str());
         return false;
