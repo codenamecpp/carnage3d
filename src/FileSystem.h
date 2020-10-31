@@ -42,8 +42,9 @@ public:
     // Load whole binary file content to std vector
     bool ReadBinaryFile(const std::string& objectName, std::vector<unsigned char>& output);
     
-    // Load json config document
-    bool ReadConfig(const std::string& jsonName, cxx::json_document& output);
+    // Load or save json config document
+    bool ReadConfig(const std::string& filePath, cxx::json_document& configDocument);
+    bool SaveConfig(const std::string& filePath, const cxx::json_document& configDocument);
 
     // Test whether file exists
     // @param objectName: File name

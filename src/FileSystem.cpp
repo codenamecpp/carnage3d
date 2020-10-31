@@ -300,16 +300,35 @@ bool FileSystem::ScanGtaMaps()
     return !mGameMapsList.empty();
 }
 
-bool FileSystem::ReadConfig(const std::string& jsonName, cxx::json_document& output)
+bool FileSystem::ReadConfig(const std::string& filePath, cxx::json_document& configDocument)
 {
     std::string configContent;
-    if (!ReadTextFile(jsonName, configContent))
-        return false;
-
-    if (!output.parse_document(configContent))
+    if (!ReadTextFile(filePath, configContent))
     {
-        debug_assert(false);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot open config file '%s'", filePath.c_str());
         return false;
     }
+
+    if (!configDocument.parse_document(configContent))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config file '%s'", filePath.c_str());
+        return false;
+    }
+    return true;
+}
+
+bool FileSystem::SaveConfig(const std::string& filePath, const cxx::json_document& configDocument)
+{
+    std::ofstream outputFile;
+    if (!CreateTextFile(filePath, outputFile))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot write config file '%s'", filePath.c_str());
+        return false;
+    }
+
+    std::string documentContent;
+    configDocument.dump_document(documentContent);
+
+    outputFile << documentContent;
     return true;
 }

@@ -193,12 +193,11 @@ void System::QuitRequest()
 
 bool System::LoadConfiguration()
 {
+    gConsole.LogMessage(eLogMessage_Debug, "Loading system configuration");
+
     cxx::json_document configDocument;
     if (!gFiles.ReadConfig(SysConfigPath, configDocument))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config from '%s'", SysConfigPath);
         return false;
-    }
 
     cxx::json_document_node configRootNode = configDocument.get_root_node();
 
@@ -216,6 +215,8 @@ bool System::LoadConfiguration()
 
 bool System::SaveConfiguration()
 {
+    gConsole.LogMessage(eLogMessage_Debug, "Saving system configuration");
+
     cxx::json_document configDocument;
     configDocument.create_document();
 
@@ -230,16 +231,8 @@ bool System::SaveConfiguration()
         currCvar->SaveCvar(configRootNode);
     }
 
-    std::ofstream outputFile;
-    if (!gFiles.CreateTextFile(SysConfigPath, outputFile))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot save config to '%s'", SysConfigPath);
+    if (!gFiles.SaveConfig(SysConfigPath, configDocument))
         return false;
-    }
-
-    std::string documentContent;
-    configDocument.dump_document(documentContent);
-    outputFile << documentContent;
 
     return true;
 }
