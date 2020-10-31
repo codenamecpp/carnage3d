@@ -9,6 +9,7 @@
 #include "AiManager.h"
 #include "TrafficManager.h"
 #include "AiCharacterController.h"
+#include "cvars.h"
 
 namespace ImGui
 {
@@ -35,6 +36,9 @@ GameCheatsWindow::GameCheatsWindow()
 
 void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 {
+    if (!gCarnageGame.IsInGameState())
+        return;
+
     ImGuiWindowFlags wndFlags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus | 
         ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar;
 
@@ -94,19 +98,6 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             {
                 Pedestrian* character = gTrafficManager.GenerateHareKrishnas(characterLogPos.x, characterLogPos.y, characterLogPos.z);
                 debug_assert(character);
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("[ Select map ]"))
-        {
-            for (int icurr = 0; icurr < (int)gFiles.mGameMapsList.size(); ++icurr)
-            {
-                ImGui::PushID(icurr);
-                if (ImGui::MenuItem(gFiles.mGameMapsList[icurr].c_str())) 
-                {
-                    gCarnageGame.DebugChangeMap(gFiles.mGameMapsList[icurr]);
-                }
-                ImGui::PopID();
             }
             ImGui::EndMenu();
         }
@@ -261,14 +252,13 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     if (ImGui::CollapsingHeader("Graphics"))
     {
-        if (ImGui::Checkbox("Enable vsync", &gSystem.mConfig.mEnableVSync))
+        if (ImGui::Checkbox("Enable vsync", &gCvarGraphicsVSync.mValue))
         {
-            gGraphicsDevice.EnableVSync(gSystem.mConfig.mEnableVSync);
+            gCvarGraphicsVSync.SetModified();
         }
-        if (ImGui::Checkbox("Fullscreen", &gSystem.mConfig.mFullscreen))
+        if (ImGui::Checkbox("Fullscreen", &gCvarGraphicsFullscreen.mValue))
         {
-            gGraphicsDevice.EnableFullscreen(gSystem.mConfig.mFullscreen);
-            gGraphicsDevice.EnableVSync(gSystem.mConfig.mEnableVSync); // set vsync param as fullcreen mode changes
+            gCvarGraphicsFullscreen.SetModified();
         }
 
         ImGui::HorzSpacing();

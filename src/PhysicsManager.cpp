@@ -6,6 +6,7 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 #include "Box2D_Helpers.h"
+#include "cvars.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +69,7 @@ bool PhysicsManager::InitPhysicsWorld()
     mPhysicsWorld = new b2World(gravity);
     mPhysicsWorld->SetContactListener(this);
 
-    mSimulationStepTime = 1.0f / std::max(gSystem.mConfig.mPhysicsFramerate, 1.0f);
+    mSimulationStepTime = 1.0f / std::max(gCvarPhysicsFramerate.mValue, 1.0f);
     mGravity = Convert::MapUnitsToMeters(0.5f);
 
     CreateMapCollisionShape();

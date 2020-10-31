@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderProgram.h"
 #include "GpuProgram.h"
+#include "cvars.h"
 
 RenderProgram::RenderProgram(const char* srcFileName)
     : mSourceFileName(srcFileName)
@@ -143,7 +144,7 @@ void RenderProgram::InitUniformParameters()
     // setup default parameters
     if (mGpuProgram->IsUniformExists(eRenderUniform_EnableBiLinearFiltering))
     {
-        mGpuProgram->SetUniform(eRenderUniform_EnableBiLinearFiltering, gSystem.mConfig.mEnableTextureFiltering);
+        mGpuProgram->SetUniform(eRenderUniform_EnableBiLinearFiltering, gCvarGraphicsTexFiltering.mValue);
     }
 }
 

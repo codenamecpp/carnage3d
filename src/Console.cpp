@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Console.h"
+#include "ConsoleVar.h"
+#include "cvars.h"
 
 static char ConsoleMessageBuffer[2048];
 
@@ -47,6 +49,8 @@ void Console::Flush()
 
 void Console::ExecuteCommands(const char* commands)
 {
+    LogMessage(eLogMessage_Debug, "%s", commands); // echo
+
     cxx::string_tokenizer tokenizer(commands);
     for (;;)
     {
@@ -54,17 +58,77 @@ void Console::ExecuteCommands(const char* commands)
         if (!tokenizer.get_next(commandName, ' '))
             break;
 
-        std::string commandParams;
-        if (tokenizer.get_next(commandParams, ';'))
+        // find variable by name
+        Cvar* consoleVariable = nullptr;
+        for (Cvar* currCvar: mCvarsList)
         {
-            cxx::trim(commandParams);
+            if (currCvar->mName == commandName)
+            {
+                consoleVariable = currCvar;
+                break;
+            }
         }
 
-        cxx::trim(commandName);
+        if (consoleVariable)
+        {   
+            std::string commandParams;
+            if (tokenizer.get_next(commandParams, ';'))
+            {
+                cxx::trim(commandParams);
+            }
+            cxx::trim(commandName);
+            if (commandParams.empty()) // print cvar info
+            {
+                std::string currValue;
+                consoleVariable->GetPrintableValue(currValue);
 
-        // todo:
-        // vars
-        // commands
+                std::string defaultValue;
+                consoleVariable->GetPrintableDefaultValue(defaultValue);
+
+                LogMessage(eLogMessage_Info, "Current value: '%s', default value: '%s', description: '%s'",
+                    currValue.c_str(), defaultValue.c_str(), consoleVariable->mDescription.c_str());
+            }
+            else // try set new value
+            {
+                consoleVariable->SetFromString(commandParams, eCvarSetMethod_Console);
+            }
+            break;
+        }
         LogMessage(eLogMessage_Warning, "Unknown command %s", commandName.c_str());
     }
+}
+
+bool Console::RegisterVariable(Cvar* consoleVariable)
+{
+    if (consoleVariable == nullptr)
+    {
+        debug_assert(false);
+        return false;
+    }
+    if (cxx::contains_if(mCvarsList, [consoleVariable](const Cvar* currCvar)
+        {
+            return (currCvar == consoleVariable) || (currCvar->mName == consoleVariable->mName);
+        }))
+    {
+        debug_assert(false);
+        return false;
+    }
+    mCvarsList.push_back(consoleVariable);
+    return true;
+}
+
+bool Console::UnregisterVariable(Cvar* consoleVariable)
+{
+    if (consoleVariable == nullptr)
+    {
+        debug_assert(false);
+        return false;
+    }
+    cxx::erase_elements(mCvarsList, consoleVariable);
+    return true;
+}
+
+void Console::RegisterGlobalVariables()
+{
+    CvarsRegisterGlobal();
 }

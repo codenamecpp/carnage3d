@@ -2,6 +2,7 @@
 #include "ConsoleWindow.h"
 #include "imgui.h"
 #include "Console.h"
+#include "ConsoleVar.h"
 
 ConsoleWindow gDebugConsoleWindow;
 
@@ -14,7 +15,7 @@ void ConsoleWindow::DoUI(ImGuiIO& imguiContext)
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | 
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-    ImGui::SetNextWindowBgAlpha(0.9f);
+    ImGui::SetNextWindowBgAlpha(0.7f);
     if (!ImGui::Begin("Console", &mWindowShown, windowFlags))
     {
         ImGui::End();
@@ -97,17 +98,19 @@ void ConsoleWindow::DoUI(ImGuiIO& imguiContext)
         reclaim_focus = true;
     }
 
-    // Auto-focus on window apparition
-    ImGui::SetItemDefaultFocus();
-    if (reclaim_focus)
+    if (!ImGui::IsAnyItemActive())
     {
-        ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+        // Auto-focus on window apparition
+        ImGui::SetItemDefaultFocus();
+        if (reclaim_focus)
+        {
+            ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+        }
+        else
+        {
+            ImGui::SetKeyboardFocusHere(0); // Auto focus previous widget
+        }
     }
-    else
-    {
-        ImGui::SetKeyboardFocusHere(0); // Auto focus previous widget
-    }
-
     ImGui::End();
 }
 
@@ -144,7 +147,14 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
             // build a list of candidates
             std::vector<const char*> candidates;
 
-            // todo: vars, commands
+            // cvars
+            for (Cvar* currCvar: gConsole.mCvarsList)
+            {
+                if (cxx_strnicmp(currCvar->mName.c_str(), word_start, (int)(word_end-word_start)) == 0)
+                {
+                    candidates.push_back(currCvar->mName.c_str());
+                }
+            }
 
             int candidatesCount = candidates.size();
             if (candidatesCount == 0)

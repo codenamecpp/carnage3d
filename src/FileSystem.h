@@ -7,9 +7,7 @@ public:
     // standard places paths
     std::string mExecutablePath;
     std::string mWorkingDirectoryPath;
-    std::string mGTADataDirectoryPath;
     std::vector<std::string> mSearchPlaces;
-
     std::vector<std::string> mGameMapsList;
 
 public:
@@ -31,6 +29,10 @@ public:
     // @param instream: Output stream
     bool OpenBinaryFile(const std::string& objectName, std::ifstream& instream);
     bool OpenTextFile(const std::string& objectName, std::ifstream& instream);
+
+    // Create text or binary file stream for write operations
+    bool CreateBinaryFile(const std::string& objectName, std::ofstream& outstream);
+    bool CreateTextFile(const std::string& objectName, std::ofstream& outstream);
 
     // Load whole text file content to std string
     // @param objectName: File name

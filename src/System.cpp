@@ -8,129 +8,30 @@
 #include "TimeManager.h"
 #include "AudioDevice.h"
 #include "AudioManager.h"
+#include "cvars.h"
 
 //////////////////////////////////////////////////////////////////////////
 
 static const char* SysConfigPath = "config/sys_config.json";
 
 //////////////////////////////////////////////////////////////////////////
-
-const int DefaultScreenResolutionX = 1024;
-const int DefaultScreenResolutionY = 768;
-const float DefaultPhysicsFramerate = 60.0f;
-
-SystemConfig::SystemConfig()
-{
-    SetToDefaults();
-}
-
-void SystemConfig::SetToDefaults()
-{
-    mEnableTextureFiltering = false;
-    mEnableAudio = true;
-    mEnableFrameHeapAllocator = true;
-    mShowImguiDemoWindow = false;
-    mEnableVSync = false;
-    mFullscreen = false;
-    mScreenSizex = DefaultScreenResolutionX;
-    mScreenSizey = DefaultScreenResolutionY;
-    mPhysicsFramerate = DefaultPhysicsFramerate;
-}
-
-void SystemConfig::InitFromJsonDocument(const cxx::json_document& sourceDocument)
-{
-    cxx::json_document_node configRootNode = sourceDocument.get_root_node();
-
-    if (cxx::json_document_node screenConfig = configRootNode["screen"])
-    {
-        if (cxx::json_document_node screenResolution = screenConfig["resolution"])
-        {
-            cxx::json_get_attribute(screenResolution, 0, mScreenSizex);
-            cxx::json_get_attribute(screenResolution, 1, mScreenSizey);
-        }
-
-        cxx::json_get_attribute(screenConfig, "fullscreen", mFullscreen);
-        cxx::json_get_attribute(screenConfig, "vsync", mEnableVSync);
-        cxx::json_get_attribute(screenConfig, "texFiltering", mEnableTextureFiltering);
-    }
-
-    // memory
-    if (cxx::json_document_node memConfig = configRootNode["memory"])
-    {
-        cxx::json_get_attribute(memConfig, "enable_frame_heap_allocator", mEnableFrameHeapAllocator);
-    }
-
-    // audio
-    if (cxx::json_document_node audioConfig = configRootNode["audio"])
-    {
-        cxx::json_get_attribute(audioConfig, "enable", mEnableAudio);
-    }
-
-    // debug
-    if (cxx::json_document_node memConfig = configRootNode["debug"])
-    {
-        cxx::json_get_attribute(memConfig, "show_imgui_demo_window", mShowImguiDemoWindow);
-    }
-}
-
-void SystemConfig::ExportToJsonDocument(cxx::json_document& sourceDocument)
-{
-    // todo
-}
-
+// cvars
 //////////////////////////////////////////////////////////////////////////
 
-bool SystemStartupParams::ParseStartupParams(int argc, char *argv[])
-{
-    ClearParams();
+// graphics
+CvarPoint gCvarGraphicsScreenDims("r_screenDims", Point(1024, 768), "Screen dimensions", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+CvarBoolean gCvarGraphicsFullscreen("r_fullscreen", false, "Is fullscreen mode enabled", CvarFlags_Archive);
+CvarBoolean gCvarGraphicsVSync("r_vsync", true, "Is vertical synchronization enabled", CvarFlags_Archive);
+CvarBoolean gCvarGraphicsTexFiltering("r_texFiltering", false, "Is texture filtering enabled", CvarFlags_Archive | CvarFlags_Readonly);
 
-    for (int iarg = 0; iarg < argc; )
-    {
-        if (cxx_stricmp(argv[iarg], "-mapname") == 0 && (argc > iarg + 1))
-        {
-            mDebugMapName.assign(argv[iarg + 1]);
-            iarg += 2;
-            continue;
-        }
-        if (cxx_stricmp(argv[iarg], "-gtadata") == 0 && (argc > iarg + 1))
-        {
-            mGtaDataLocation.assign(argv[iarg + 1]);
-            iarg += 2;
-            continue;
-        }
-        if (cxx_stricmp(argv[iarg], "-numplayers") == 0 && (argc > iarg + 1))
-        {
-            ::sscanf(argv[iarg + 1], "%d", &mPlayersCount);
-            iarg += 2;
-            continue;
-        }
-        if (cxx_stricmp(argv[iarg], "-gtaversion") == 0 && (argc > iarg + 1))
-        {
-            mGtaGameVersion.assign(argv[iarg + 1]);
-            iarg += 2;
-            continue;
-        }
-        if (cxx_stricmp(argv[iarg], "-lang") == 0 && (argc > iarg + 1))
-        {
-            mGameLanguage.assign(argv[iarg + 1]);
-            iarg += 2;
-            continue;
-        }
-        gConsole.LogMessage(eLogMessage_Warning, "Unknown arg '%s'", argv[iarg]);
-        ++iarg;
-    }
+// physics
+CvarFloat gCvarPhysicsFramerate("g_physicsFps", 60.0f, "Physical world update framerate", CvarFlags_Archive | CvarFlags_Init);
 
-    return true;
-}
+// memory
+CvarBoolean gCvarMemEnableFrameHeapAllocator("mem_enableFrameHeapAllocator", true, "Enable frame heap allocator", CvarFlags_Archive | CvarFlags_Init);
 
-void SystemStartupParams::ClearParams()
-{
-    mDebugMapName.clear();
-    mGtaDataLocation.clear();
-    mGtaGameVersion.clear();
-    mGameLanguage.clear();
-    mPlayersCount = 0;
-}
+// audio
+CvarBoolean gCvarAudioActive("a_audioActive", true, "Enable audio system", CvarFlags_Archive | CvarFlags_Init);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -138,6 +39,8 @@ System gSystem;
 
 void System::Initialize(int argc, char *argv[])
 {
+    mQuitRequested = false;
+
     if (!gConsole.Initialize())
     {
         debug_assert(false);
@@ -145,12 +48,8 @@ void System::Initialize(int argc, char *argv[])
 
     gConsole.LogMessage(eLogMessage_Info, GAME_TITLE);
     gConsole.LogMessage(eLogMessage_Info, "System initialize");
+    gConsole.RegisterGlobalVariables();
     
-    if (!mStartupParams.ParseStartupParams(argc, argv))
-    {
-        debug_assert(false);
-    }
-
     if (!gFiles.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize filesystem");
@@ -158,12 +57,7 @@ void System::Initialize(int argc, char *argv[])
     }
 
     LoadConfiguration();
-
-    if (!gFiles.SetupGtaDataLocation())
-    {
-        gConsole.LogMessage(eLogMessage_Error, "Set valid gta gamedata location via sys config param 'gta_gamedata_location'");
-        Terminate();
-    }
+    ParseStartupParams(argc, argv);
 
     if (!gMemoryManager.Initialize())
     {
@@ -189,7 +83,7 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
-    if (mConfig.mEnableAudio)
+    if (gCvarAudioActive.mValue)
     {
         if (!gAudioDevice.Initialize())
         {
@@ -212,20 +106,28 @@ void System::Initialize(int argc, char *argv[])
         Terminate();
     }
 
+    gTimeManager.Initialize();
+
+    if (!gFiles.SetupGtaDataLocation())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Set valid gta gamedata location via sys config param 'g_gtadata'");
+    }
+
     if (!gCarnageGame.Initialize())
     {
         gConsole.LogMessage(eLogMessage_Error, "Cannot initialize game");
         Terminate();
     }
-
-    gTimeManager.Initialize();
-
-    mQuitRequested = false;
 }
 
-void System::Deinit()
+void System::Deinit(bool isTermination)
 {
     gConsole.LogMessage(eLogMessage_Info, "System shutdown");
+
+    if (!isTermination)
+    {
+        SaveConfiguration();
+    }
 
     gTimeManager.Deinit();
     gCarnageGame.Deinit();
@@ -258,7 +160,7 @@ void System::Run(int argc, char *argv[])
             break;
     }
 
-    Deinit();
+    Deinit(false);
 
 #else
     emscripten_set_main_loop([]()
@@ -266,7 +168,7 @@ void System::Run(int argc, char *argv[])
         bool continueExecution = gSystem.ExecuteFrame();
         if (!continueExecution)
         {
-            gSystem.Deinit();
+            gSystem.Deinit(false);
         }
     }, 
     0, false);
@@ -275,7 +177,7 @@ void System::Run(int argc, char *argv[])
 
 void System::Terminate()
 {    
-    Deinit(); // leave gracefully
+    Deinit(true); // leave gracefully
 
 #ifdef __EMSCRIPTEN__
     emscripten_force_exit(EXIT_FAILURE);
@@ -291,26 +193,54 @@ void System::QuitRequest()
 
 bool System::LoadConfiguration()
 {
-    mConfig.SetToDefaults();
-
     cxx::json_document configDocument;
     if (!gFiles.ReadConfig(SysConfigPath, configDocument))
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config '%s'", SysConfigPath);
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot load config from '%s'", SysConfigPath);
         return false;
     }
 
     cxx::json_document_node configRootNode = configDocument.get_root_node();
-    mConfig.InitFromJsonDocument(configDocument);
 
-    // gta1 data files location
-    cxx::json_get_attribute(configRootNode, "gta_gamedata_location", gFiles.mGTADataDirectoryPath);
+    // load archive cvars
+    for (Cvar* currCvar: gConsole.mCvarsList)
+    {
+        if (!currCvar->IsArchive())
+            continue;
+
+        currCvar->LoadCvar(configRootNode);
+    }
+
     return true;
 }
 
 bool System::SaveConfiguration()
 {
-    // todo
+    cxx::json_document configDocument;
+    configDocument.create_document();
+
+    cxx::json_document_node configRootNode = configDocument.get_root_node();
+
+    // save archive cvars
+    for (Cvar* currCvar: gConsole.mCvarsList)
+    {
+        if (!currCvar->IsArchive())
+            continue;
+
+        currCvar->SaveCvar(configRootNode);
+    }
+
+    std::ofstream outputFile;
+    if (!gFiles.CreateTextFile(SysConfigPath, outputFile))
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot save config to '%s'", SysConfigPath);
+        return false;
+    }
+
+    std::string documentContent;
+    configDocument.dump_document(documentContent);
+    outputFile << documentContent;
+
     return true;
 }
 
@@ -336,6 +266,55 @@ bool System::ExecuteFrame()
         gAudioManager.UpdateFrame();
         gAudioDevice.UpdateFrame(); // update at logic frame end
     }
+
+    // update screen params
+    if (gCvarGraphicsFullscreen.IsModified() || gCvarGraphicsVSync.IsModified())
+    {
+        gGraphicsDevice.EnableFullscreen(gCvarGraphicsFullscreen.mValue);
+        gCvarGraphicsFullscreen.ClearModified();
+
+        gGraphicsDevice.EnableVSync(gCvarGraphicsVSync.mValue);
+        gCvarGraphicsVSync.ClearModified();
+    }
     gRenderManager.RenderFrame();
     return true;
+}
+
+void System::ParseStartupParams(int argc, char *argv[])
+{
+    for (int iarg = 0; iarg < argc; )
+    {
+        if (cxx_stricmp(argv[iarg], "-mapname") == 0 && (argc > iarg + 1))
+        {
+            gCvarMapname.SetFromString(argv[iarg + 1], eCvarSetMethod_CommandLine);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-gtadata") == 0 && (argc > iarg + 1))
+        {
+            gCvarCurrentBaseDir.SetFromString(argv[iarg + 1], eCvarSetMethod_CommandLine);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-numplayers") == 0 && (argc > iarg + 1))
+        {
+            gCvarNumPlayers.SetFromString(argv[iarg + 1], eCvarSetMethod_CommandLine);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-gtaversion") == 0 && (argc > iarg + 1))
+        {
+            gCvarGameVersion.SetFromString(argv[iarg + 1], eCvarSetMethod_CommandLine);
+            iarg += 2;
+            continue;
+        }
+        if (cxx_stricmp(argv[iarg], "-lang") == 0 && (argc > iarg + 1))
+        {
+            gCvarGameLanguage.SetFromString(argv[iarg + 1], eCvarSetMethod_CommandLine);
+            iarg += 2;
+            continue;
+        }
+        gConsole.LogMessage(eLogMessage_Warning, "Unknown arg '%s'", argv[iarg]);
+        ++iarg;
+    }
 }

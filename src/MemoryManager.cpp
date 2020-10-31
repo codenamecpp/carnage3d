@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MemoryManager.h"
+#include "cvars.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +14,7 @@ bool MemoryManager::Initialize()
 {
     gConsole.LogMessage(eLogMessage_Info, "Init MemoryManager");
 
-    if (gSystem.mConfig.mEnableFrameHeapAllocator)
+    if (gCvarMemEnableFrameHeapAllocator.mValue)
     {
         gConsole.LogMessage(eLogMessage_Info, "Frame heap memory size: %d", SysMemoryFrameHeapSize);
 

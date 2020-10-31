@@ -23,6 +23,46 @@ namespace cxx
         // get first child element of object or array element
         json_document_node first_child() const;
 
+        // add child object node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @returns null if node with same name already exists
+        json_document_node create_object_node(const std::string& nodeName);
+
+        // add child string node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @param value: Initial value
+        // @returns null if node with same name already exists
+        json_document_node create_string_node(const std::string& nodeName, const std::string& value);
+
+        // add child boolean node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @param value: Initial value
+        // @returns null if node with same name already exists
+        json_document_node create_boolean_node(const std::string& nodeName, bool value);
+
+        // add child numeric node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @param value: Initial value
+        // @returns null if node with same name already exists
+        json_document_node create_numeric_node(const std::string& nodeName, int value);
+
+        // add child numeric node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @param value: Initial value
+        // @returns null if node with same name already exists
+        json_document_node create_numeric_node(const std::string& nodeName, float value);
+
+        // add child array node
+        // @param parent: Parent node, must be non null, must be object type or array type
+        // @param nodeName: New node name
+        // @returns null if node with same name already exists
+        json_document_node create_array_node(const std::string& nodeName);
+
         // get child node element by name
         // @param name: Node name
         json_document_node operator [] (const std::string& name) const;
@@ -256,46 +296,6 @@ namespace cxx
 
         // get root json object of document
         json_document_node get_root_node() const;
-
-        // add child object node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @returns null if node with same name already exists
-        json_node_object create_object_node(const json_document_node& parent, const std::string& nodeName);
-
-        // add child string node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @param value: Initial value
-        // @returns null if node with same name already exists
-        json_node_string create_string_node(const json_document_node& parent, const std::string& nodeName, const std::string& value);
-
-        // add child boolean node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @param value: Initial value
-        // @returns null if node with same name already exists
-        json_node_boolean create_boolean_node(const json_document_node& parent, const std::string& nodeName, bool value);
-
-        // add child numeric node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @param value: Initial value
-        // @returns null if node with same name already exists
-        json_node_numeric create_numeric_node(const json_document_node& parent, const std::string& nodeName, int value);
-
-        // add child numeric node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @param value: Initial value
-        // @returns null if node with same name already exists
-        json_node_numeric create_numeric_node(const json_document_node& parent, const std::string& nodeName, float value);
-
-        // add child array node
-        // @param parent: Parent node, must be non null, must be object type or array type
-        // @param nodeName: New node name
-        // @returns null if node with same name already exists
-        json_node_array create_array_node(const json_document_node& parent, const std::string& nodeName);
 
         // operators
         inline bool operator == (const json_document& rhs) const { return mJsonElement && rhs.mJsonElement == mJsonElement; }

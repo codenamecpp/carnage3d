@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameMapManager.h"
 #include "CarnageGame.h"
+#include "cvars.h"
 
 GameMapManager gGameMap;
 
@@ -587,21 +588,19 @@ bool GameMapManager::ReadNavData(std::ifstream& file, int dataSize)
 
 std::string GameMapManager::GetStyleFileName(int styleNumber) const
 {
-    eGtaGameVersion gameVersion = gCarnageGame.mGameVersion;
-
-    if (gameVersion == eGtaGameVersion_MissionPack2_London61)
+    if (gCvarGameVersion.mValue == eGtaGameVersion_MissionPack2_London61)
     {
         std::string styleName = cxx::va("Sty%03d.g24", styleNumber);
         return styleName;
     }
 
-    if (gameVersion == eGtaGameVersion_MissionPack1_London69)
+    if (gCvarGameVersion.mValue == eGtaGameVersion_MissionPack1_London69)
     {
         std::string styleName = cxx::va("Style%03d.g24", styleNumber);
         return styleName;
     }
 
-    debug_assert((gameVersion == eGtaGameVersion_Demo) || (gameVersion == eGtaGameVersion_Full));
+    debug_assert((gCvarGameVersion.mValue == eGtaGameVersion_Demo) || (gCvarGameVersion.mValue == eGtaGameVersion_Full));
     
     std::string styleName = cxx::va("STYLE%03d.G24", styleNumber);
     return styleName;

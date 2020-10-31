@@ -161,7 +161,8 @@ void ImGuiManager::UpdateFrame()
 
     ImGui::NewFrame();
 
-    if (gSystem.mConfig.mShowImguiDemoWindow)
+    static bool showImguiDemoWindow = false;
+    if (showImguiDemoWindow)
     {
         ImGui::ShowDemoWindow();
         ImGui::ShowMetricsWindow();

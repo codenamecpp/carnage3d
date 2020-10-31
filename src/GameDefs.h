@@ -100,6 +100,7 @@ using GameObjectID = unsigned int; // unique id of gameobject instance in world
 
 enum eGtaGameVersion
 {
+    eGtaGameVersion_Unknown, // unknown
     eGtaGameVersion_Demo,
     eGtaGameVersion_Full,
     eGtaGameVersion_MissionPack1_London69,

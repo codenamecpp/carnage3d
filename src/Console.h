@@ -2,20 +2,24 @@
 
 #include "CommonTypes.h"
 
+// forwards
+class Cvar;
+
 // represents console system that handles debug commands
 class Console final: public cxx::noncopyable
 {
 public:
+    // readonly
+    std::deque<ConsoleLine> mLines;
+    std::vector<Cvar*> mCvarsList;
+
+public:
     // Setup internal resources, returns false on error
     bool Initialize();
-
-    // Free allocated resources
     void Deinit();
+    void RegisterGlobalVariables();
 
-    // Write text message in console, it could be ignored depending on currenyl active importance level filter
-    // @param messageType: Message category
-    // @param format: String format
-    // @args: Arguments
+    // Write text message in console
     void LogMessage(eLogMessage messageCat, const char* format, ...);
 
     // Clear all console text messages
@@ -25,8 +29,10 @@ public:
     // @param commands: Commands string
     void ExecuteCommands(const char* commands);
 
-public:
-    std::deque<ConsoleLine> mLines;
+    // Register or unregister console variable
+    // @returns false on error
+    bool RegisterVariable(Cvar* consoleVariable);
+    bool UnregisterVariable(Cvar* consoleVariable);
 };
 
 extern Console gConsole;

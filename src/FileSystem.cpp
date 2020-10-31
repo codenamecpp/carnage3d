@@ -1,9 +1,15 @@
 #include "stdafx.h"
 #include "FileSystem.h"
+#include "cvars.h"
 
 //////////////////////////////////////////////////////////////////////////
 
 static const std::string GTA1MapFileExtension = ".CMP";
+
+//////////////////////////////////////////////////////////////////////////
+
+// cvars
+CvarString gCvarGtaDataPath("g_gtadata", "", "GTA data location", CvarFlags_Archive | CvarFlags_Init | CvarFlags_Hidden);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -13,26 +19,15 @@ bool FileSystem::Initialize()
 {
     mExecutablePath = cxx::get_executable_path();
     mWorkingDirectoryPath = cxx::get_parent_directory(mExecutablePath);
-    gConsole.LogMessage(eLogMessage_Info, "Working directory: '%s'", mWorkingDirectoryPath.c_str());
+    mWorkingDirectoryPath = cxx::get_parent_directory(mWorkingDirectoryPath); // root
+    if (!mWorkingDirectoryPath.empty())
+    {
+        mWorkingDirectoryPath.append("/");
+    }
+    mWorkingDirectoryPath.append("gamedata");
+    AddSearchPlace(mWorkingDirectoryPath);
 
-//#ifdef _DEBUG
-    std::string debugDataPath = cxx::get_parent_directory(mWorkingDirectoryPath);
-    if (!debugDataPath.empty())
-    {
-        debugDataPath.append("/");
-    }
-    debugDataPath.append("gamedata");
-    AddSearchPlace(debugDataPath);
-//#else
-    
-    debugDataPath = mWorkingDirectoryPath;
-    if (!debugDataPath.empty())
-    {
-        debugDataPath.append("/");
-    }
-    debugDataPath.append("gamedata");
-    AddSearchPlace(debugDataPath);
-//#endif
+    gConsole.LogMessage(eLogMessage_Info, "Working directory: '%s'", mWorkingDirectoryPath.c_str());
     return true;
 }
 
@@ -40,7 +35,6 @@ void FileSystem::Deinit()
 {
     mExecutablePath.clear();
     mWorkingDirectoryPath.clear();
-    mGTADataDirectoryPath.clear();
     mGameMapsList.clear();
 }
 
@@ -88,6 +82,40 @@ bool FileSystem::OpenTextFile(const std::string& objectName, std::ifstream& inst
         }
     }
     return instream.is_open();
+}
+
+bool FileSystem::CreateBinaryFile(const std::string& objectName, std::ofstream& outstream)
+{
+    outstream.close();
+
+    std::string path;
+    if (!mWorkingDirectoryPath.empty())
+    {
+        path = cxx::va("%s/%s", mWorkingDirectoryPath.c_str(), objectName.c_str());
+    }
+    else
+    {
+        path = objectName;
+    }
+    outstream.open(path, std::ios::out | std::ios::binary);
+    return outstream.is_open();
+}
+
+bool FileSystem::CreateTextFile(const std::string& objectName, std::ofstream& outstream)
+{
+    outstream.close();
+
+    std::string path;
+    if (!mWorkingDirectoryPath.empty())
+    {
+        path = cxx::va("%s/%s", mWorkingDirectoryPath.c_str(), objectName.c_str());
+    }
+    else
+    {
+        path = objectName;
+    }
+    outstream.open(path, std::ios::out);
+    return outstream.is_open();
 }
 
 bool FileSystem::IsDirectoryExists(const std::string& objectName)
@@ -215,25 +243,24 @@ bool FileSystem::GetFullPathToDirectory(const std::string& objectName, std::stri
 
 bool FileSystem::SetupGtaDataLocation()
 {
-    const SystemStartupParams& startupParams = gSystem.mStartupParams;
     // override data location with startup param
-    if (!startupParams.mGtaDataLocation.empty())
+    if (gCvarCurrentBaseDir.mValue.empty())
     {
-        mGTADataDirectoryPath = startupParams.mGtaDataLocation;
+        gCvarCurrentBaseDir.mValue = gCvarGtaDataPath.mValue;
     }
 
-    if (mGTADataDirectoryPath.length())
+    if (gCvarCurrentBaseDir.mValue.length())
     {
-        if (!IsDirectoryExists(mGTADataDirectoryPath))
+        if (!IsDirectoryExists(gCvarCurrentBaseDir.mValue))
         {
-            gConsole.LogMessage(eLogMessage_Warning, "Cannot locate gta gamedata: '%s'", mGTADataDirectoryPath.c_str());
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot locate gta gamedata: '%s'", gCvarCurrentBaseDir.mValue.c_str());
             return false;
         }
 
-        gConsole.LogMessage(eLogMessage_Info, "Current gta gamedata location is: '%s'", mGTADataDirectoryPath.c_str());
+        gConsole.LogMessage(eLogMessage_Info, "Current gta gamedata location is: '%s'", gCvarCurrentBaseDir.mValue.c_str());
 
-        GetFullPathToDirectory(mGTADataDirectoryPath, mGTADataDirectoryPath);
-        gFiles.AddSearchPlace(mGTADataDirectoryPath);
+        GetFullPathToDirectory(gCvarCurrentBaseDir.mValue, gCvarCurrentBaseDir.mValue);
+        gFiles.AddSearchPlace(gCvarCurrentBaseDir.mValue);
 
         if (ScanGtaMaps())
         {

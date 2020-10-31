@@ -13,8 +13,21 @@
 #include "GameTextsManager.h"
 #include "BroadcastEventsManager.h"
 #include "AudioManager.h"
+#include "cvars.h"
+
+//////////////////////////////////////////////////////////////////////////
 
 static const char* InputsConfigPath = "config/inputs.json";
+
+//////////////////////////////////////////////////////////////////////////
+// cvars
+//////////////////////////////////////////////////////////////////////////
+
+CvarString gCvarMapname("g_mapname", "", "Current map name", CvarFlags_Readonly);
+CvarString gCvarCurrentBaseDir("g_basedir", "", "Current gta data location", CvarFlags_Readonly);
+CvarEnum<eGtaGameVersion> gCvarGameVersion("g_gamever", eGtaGameVersion_Unknown, "Current gta game version", CvarFlags_Readonly);
+CvarString gCvarGameLanguage("g_gamelang", "en", "Current game language", CvarFlags_Readonly);
+CvarInt gCvarNumPlayers("g_numplayers", 1, "Number of players in split screen mode", CvarFlags_Readonly);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -24,40 +37,41 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
-    ::memset(mHumanPlayers, 0, sizeof(mHumanPlayers));
-
-    gGameCheatsWindow.mWindowShown = true; // show by default
-
-    gGameParams.SetToDefaults();
-
-    if (gSystem.mStartupParams.mDebugMapName.empty())
-    {
-        // try load first found map
-        debug_assert(!gFiles.mGameMapsList.empty());
-        gSystem.mStartupParams.mDebugMapName = gFiles.mGameMapsList[0];
-    }
-
-    if (gSystem.mStartupParams.mDebugMapName.empty())
-        return false;
+    debug_assert(mCurrentStateID == eGameStateID_Initial);
 
     // init randomizer
     std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch());
     mGameRand.set_seed((unsigned int) ms.count());
 
+    gGameParams.SetToDefaults();
+
     if (!DetectGameVersion())
     {
         gConsole.LogMessage(eLogMessage_Debug, "Fail to detect game version");
     }
 
-    // init tests
-    std::string gameLanguageID = gSystem.mStartupParams.mGameLanguage;
-    if (!gameLanguageID.empty())
+    ::memset(mHumanPlayers, 0, sizeof(mHumanPlayers));
+
+    gGameCheatsWindow.mWindowShown = true; // show by default
+
+    if (gCvarMapname.mValue.empty())
     {
-        gConsole.LogMessage(eLogMessage_Debug, "Set game language: '%s'", gameLanguageID.c_str());
+        // try load first found map
+        if (!gFiles.mGameMapsList.empty())
+        {
+            gCvarMapname.mValue = gFiles.mGameMapsList[0];
+        }
+    }
+    gCvarMapname.ClearModified();
+
+    // init texts
+    if (!gCvarGameLanguage.mValue.empty())
+    {
+        gConsole.LogMessage(eLogMessage_Debug, "Set game language: '%s'", gCvarGameLanguage.mValue.c_str());
     }
 
-    std::string textsFilename = GetTextsLanguageFileName(gameLanguageID);
+    std::string textsFilename = GetTextsLanguageFileName(gCvarGameLanguage.mValue);
     gConsole.LogMessage(eLogMessage_Debug, "Loading game texts from '%s'", textsFilename.c_str());
 
     gGameTexts.Initialize();
@@ -68,13 +82,15 @@ bool CarnageGame::Initialize()
     }
 
     // init scenario
-    if (!StartScenario(gSystem.mStartupParams.mDebugMapName))
+    if (!StartScenario(gCvarMapname.mValue))
     {
         ShutdownCurrentScenario();
-
         gConsole.LogMessage(eLogMessage_Warning, "Fail to start game"); 
-        return false;
+
+        mCurrentStateID = eGameStateID_Error;
     }
+
+    gDebugConsoleWindow.mWindowShown = IsErrorGameState();
     return true;
 }
 
@@ -83,37 +99,48 @@ void CarnageGame::Deinit()
     ShutdownCurrentScenario();
 
     gGameTexts.Deinit();
+
+    mCurrentStateID = eGameStateID_Initial;
+}
+
+bool CarnageGame::IsMenuGameState() const
+{
+    return mCurrentStateID == eGameStateID_MainMenu;
+}
+
+bool CarnageGame::IsInGameState() const
+{
+    return mCurrentStateID == eGameStateID_InGame;
+}
+
+bool CarnageGame::IsErrorGameState() const
+{
+    return mCurrentStateID == eGameStateID_Error;
 }
 
 void CarnageGame::UpdateFrame()
 {
-    if (!mDebugChangeMapName.empty())
-    {
-        gConsole.LogMessage(eLogMessage_Debug, "Changing to next map '%s'", mDebugChangeMapName.c_str());
-        if (!StartScenario(mDebugChangeMapName))
-        {
-            gConsole.LogMessage(eLogMessage_Warning, "Fail to change map");
-        }
-        mDebugChangeMapName.clear();
-    }
-
     float deltaTime = gTimeManager.mGameFrameDelta;
 
-    gSpriteManager.UpdateBlocksAnimations(deltaTime);
-    gPhysics.UpdateFrame();
-    gGameObjectsManager.UpdateFrame();
-
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    // advance game state
+    if (IsInGameState())
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
+        gSpriteManager.UpdateBlocksAnimations(deltaTime);
+        gPhysics.UpdateFrame();
+        gGameObjectsManager.UpdateFrame();
 
-        mHumanPlayers[ihuman]->UpdateFrame();
+        for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+        {
+            if (mHumanPlayers[ihuman] == nullptr)
+                continue;
+
+            mHumanPlayers[ihuman]->UpdateFrame();
+        }
+
+        gTrafficManager.UpdateFrame();
+        gAiManager.UpdateFrame();
+        gBroadcastEvents.UpdateFrame();
     }
-
-    gTrafficManager.UpdateFrame();
-    gAiManager.UpdateFrame();
-    gBroadcastEvents.UpdateFrame();
 }
 
 void CarnageGame::InputEventLost()
@@ -333,14 +360,15 @@ int CarnageGame::GetHumanPlayerIndex(const HumanPlayer* controller) const
     return -1;
 }
 
-void CarnageGame::DebugChangeMap(const std::string& mapName)
-{
-    mDebugChangeMapName = mapName;
-}
-
 bool CarnageGame::StartScenario(const std::string& mapName)
 {
     ShutdownCurrentScenario();
+
+    if (mapName.empty())
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Map name is not specified");
+        return false;
+    }
 
     if (!gGameMap.LoadFromFile(mapName))
     {
@@ -376,17 +404,17 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     //glm::vec3 pos { 121.0f, 2.0f, 200.0f };
     //glm::vec3 pos { 174.0f, 2.0f, 230.0f };
 
-    int humanPlayersCount = glm::clamp(gSystem.mStartupParams.mPlayersCount, 1, GAME_MAX_PLAYERS);
-    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", humanPlayersCount);
+    gCvarNumPlayers.mValue = glm::clamp(gCvarNumPlayers.mValue, 1, GAME_MAX_PLAYERS);
+    gConsole.LogMessage(eLogMessage_Info, "Num players: %d", gCvarNumPlayers.mValue);
 
     glm::vec3 pos[GAME_MAX_PLAYERS];
 
     // choose spawn point
     // it is temporary!
     int currFindPosIter = 0;
-    for (int yBlock = 10; yBlock < 20 && currFindPosIter < humanPlayersCount; ++yBlock)
+    for (int yBlock = 10; yBlock < 20 && currFindPosIter < gCvarNumPlayers.mValue; ++yBlock)
     {
-        for (int xBlock = 10; xBlock < 20 && currFindPosIter < humanPlayersCount; ++xBlock)
+        for (int xBlock = 10; xBlock < 20 && currFindPosIter < gCvarNumPlayers.mValue; ++xBlock)
         {
             for (int zBlock = MAP_LAYERS_COUNT - 1; zBlock > -1; --zBlock)
             {
@@ -410,7 +438,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         ePedestrianType_Player4,
     };
 
-    for (int icurr = 0; icurr < humanPlayersCount; ++icurr)
+    for (int icurr = 0; icurr < gCvarNumPlayers.mValue; ++icurr)
     {
         cxx::angle_t pedestrianHeading { 360.0f * gCarnageGame.mGameRand.generate_float(), cxx::angle_t::units::degrees };
 
@@ -422,6 +450,8 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     SetupScreenLayout();
 
     gTrafficManager.StartupTraffic();
+
+    mCurrentStateID = eGameStateID_InGame;
     return true;
 }
 
@@ -438,6 +468,7 @@ void CarnageGame::ShutdownCurrentScenario()
     gGameMap.Cleanup();
     gBroadcastEvents.ClearEvents();
     gAudioManager.FreeLevelSounds();
+    mCurrentStateID = eGameStateID_Initial;
 }
 
 int CarnageGame::GetHumanPlayersCount() const
@@ -455,23 +486,7 @@ int CarnageGame::GetHumanPlayersCount() const
 
 bool CarnageGame::DetectGameVersion()
 {
-    mGameVersion = eGtaGameVersion_Full;
-
-    bool useAutoDetection = true;
-
-    SystemStartupParams& params = gSystem.mStartupParams;
-    if (!params.mGtaGameVersion.empty())
-    {
-        if (!cxx::parse_enum(params.mGtaGameVersion.c_str(), mGameVersion))
-        {
-            gConsole.LogMessage(eLogMessage_Debug, "Unknown game version '%s', ignore", params.mGtaGameVersion.c_str());
-        }
-        else
-        {
-            useAutoDetection = false;
-        }
-    }
-
+    bool useAutoDetection = (gCvarGameVersion.mValue == eGtaGameVersion_Unknown);
     if (useAutoDetection)
     {
         const int GameMapsCount = (int) gFiles.mGameMapsList.size();
@@ -480,23 +495,23 @@ bool CarnageGame::DetectGameVersion()
 
         if (gFiles.IsFileExists("MISSUK.INI"))
         {
-            mGameVersion = eGtaGameVersion_MissionPack1_London69;
+            gCvarGameVersion.mValue = eGtaGameVersion_MissionPack1_London69;
         }
         else if (gFiles.IsFileExists("missuke.ini"))
         {
-            mGameVersion = eGtaGameVersion_MissionPack2_London61;
+            gCvarGameVersion.mValue = eGtaGameVersion_MissionPack2_London61;
         }
         else if (GameMapsCount < 3)
         {
-            mGameVersion = eGtaGameVersion_Demo;
+            gCvarGameVersion.mValue = eGtaGameVersion_Demo;
         }
         else
         {
-            mGameVersion = eGtaGameVersion_Full;
+            gCvarGameVersion.mValue = eGtaGameVersion_Full;
         }
     }
 
-    gConsole.LogMessage(eLogMessage_Debug, "Gta game version is '%s' (%s)", cxx::enum_to_string(mGameVersion),
+    gConsole.LogMessage(eLogMessage_Debug, "Gta game version is '%s' (%s)", cxx::enum_to_string(gCvarGameVersion.mValue),
         useAutoDetection ? "autodetect" : "forced");
     
     return true;
@@ -504,7 +519,7 @@ bool CarnageGame::DetectGameVersion()
 
 std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID) const
 {
-    if ((mGameVersion == eGtaGameVersion_Demo) || (mGameVersion == eGtaGameVersion_Full))
+    if ((gCvarGameVersion.mValue == eGtaGameVersion_Demo) || (gCvarGameVersion.mValue == eGtaGameVersion_Full))
     {
         if (cxx_stricmp(languageID.c_str(), "en") == 0)
         {
@@ -529,7 +544,7 @@ std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID)
         return "ENGLISH.FXT";
     }
 
-    if (mGameVersion == eGtaGameVersion_MissionPack1_London69)
+    if (gCvarGameVersion.mValue == eGtaGameVersion_MissionPack1_London69)
     {
         if (cxx_stricmp(languageID.c_str(), "en") == 0)
         {
@@ -554,7 +569,7 @@ std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID)
         return "ENGUK.FXT";
     }
 
-    if (mGameVersion == eGtaGameVersion_MissionPack2_London61)
+    if (gCvarGameVersion.mValue == eGtaGameVersion_MissionPack2_London61)
     {
         return "enguke.fxt";
     }

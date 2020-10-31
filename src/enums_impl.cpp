@@ -7,6 +7,7 @@
 
 impl_enum_strings(eGtaGameVersion)
 {
+    {eGtaGameVersion_Unknown, "unknown"},
     {eGtaGameVersion_Demo, "demo"},
     {eGtaGameVersion_Full, "full"},
     {eGtaGameVersion_MissionPack1_London69, "uk69"},

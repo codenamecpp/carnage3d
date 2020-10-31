@@ -1,22 +1,10 @@
 {
-    "screen":
-    {
-        "resolution": [1024, 768],
-        "fullscreen": false,
-        "vsync": false,
-        "texFiltering": false
-    },
-    "debug":
-    {
-        "show_imgui_demo_window": false
-    },
-    "memory":
-    {
-        "enable_frame_heap_allocator": true
-    },
-    "audio":
-    {
-        "enable": true
-    },
-    "gta_gamedata_location": "../../../GTADATA"
+	"r_screenDims":	"1024 768",
+	"r_fullscreen":	"false",
+	"r_vsync":	"true",
+	"r_texFiltering":	"false",
+	"g_physicsFps":	"60.000",
+	"mem_enableFrameHeapAllocator":	"true",
+	"a_audioActive":	"true",
+	"g_gtadata":	""
 }

@@ -5,6 +5,7 @@
 #include "GpuBuffer.h"
 #include "GpuTexture2D.h"
 #include "GpuTextureArray2D.h"
+#include "cvars.h"
 
 GraphicsDevice gGraphicsDevice;
 
@@ -140,8 +141,6 @@ GraphicsDevice::~GraphicsDevice()
 
 bool GraphicsDevice::Initialize()
 {
-    SystemConfig& config = gSystem.mConfig;
-
     if (IsDeviceInited())
     {
         Deinit();
@@ -152,11 +151,14 @@ bool GraphicsDevice::Initialize()
             gConsole.LogMessage(eLogMessage_Error, "GLFW error occurred: %s", errorString);
         });
 
-    mScreenResolution.x = config.mScreenSizex;
-    mScreenResolution.y = config.mScreenSizey;
+    bool enableVSync = gCvarGraphicsVSync.mValue;
+    bool enableFullscreen = gCvarGraphicsFullscreen.mValue;
+
+    mScreenResolution = gCvarGraphicsScreenDims.mValue;
     gConsole.LogMessage(eLogMessage_Debug, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
         mScreenResolution.x, mScreenResolution.y, 
-        config.mEnableVSync ? "enabled" : "disabled", config.mFullscreen ? "yes" : "no");
+        enableVSync ? "enabled" : "disabled", 
+        enableFullscreen ? "yes" : "no");
 
     if (::glfwInit() == GL_FALSE)
     {
@@ -177,7 +179,7 @@ bool GraphicsDevice::Initialize()
     );
 
     GLFWmonitor* graphicsMonitor = nullptr;
-    if (config.mFullscreen)
+    if (enableFullscreen)
     {
         graphicsMonitor = ::glfwGetPrimaryMonitor();
         debug_assert(graphicsMonitor);
@@ -316,8 +318,8 @@ bool GraphicsDevice::Initialize()
     RenderStates defaultRenderStates;
     InternalSetRenderStates(defaultRenderStates, true);
 
-    EnableFullscreen(config.mFullscreen);
-    EnableVSync(config.mEnableVSync);
+    EnableFullscreen(enableFullscreen);
+    EnableVSync(enableVSync);
 
     // init gamepads
 #ifndef __EMSCRIPTEN__
@@ -327,6 +329,11 @@ bool GraphicsDevice::Initialize()
         gInputs.SetGamepadPresent(icurr, isGamepad);
     }
 #endif // __EMSCRIPTEN__
+
+    // reset modified cvars
+    gCvarGraphicsFullscreen.ClearModified();
+    gCvarGraphicsScreenDims.ClearModified();
+    gCvarGraphicsVSync.ClearModified();
     return true;
 }
 

@@ -157,6 +157,8 @@
     <ClInclude Include="AiManager.h" />
     <ClInclude Include="AudioListener.h" />
     <ClInclude Include="AudioSource.h" />
+    <ClInclude Include="ConsoleVar.h" />
+    <ClInclude Include="cvars.h" />
     <ClInclude Include="OpenALDefs.h" />
     <ClInclude Include="SfxArchive.h" />
     <ClInclude Include="SfxDefs.h" />
@@ -270,6 +272,7 @@
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
     <ClCompile Include="AudioSource.cpp" />
+    <ClCompile Include="ConsoleVar.cpp" />
     <ClCompile Include="SfxArchive.cpp" />
     <ClCompile Include="AudioDevice.cpp" />
     <ClCompile Include="AudioManager.cpp" />

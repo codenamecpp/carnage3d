@@ -4,13 +4,22 @@
 #include "GameObjectsManager.h"
 #include "HumanPlayer.h"
 
+// Current game state identifier
+enum eGameStateID
+{
+    eGameStateID_Initial,
+    eGameStateID_MainMenu,
+    eGameStateID_InGame,
+    eGameStateID_Error
+};
+
 // top level game application controller
 class CarnageGame final: public InputEventsHandler
 {
 public:
     // gamestate
     HumanPlayer* mHumanPlayers[GAME_MAX_PLAYERS];
-    eGtaGameVersion mGameVersion = eGtaGameVersion_Full;
+    eGameStateID mCurrentStateID = eGameStateID_Initial;
     cxx::randomizer mGameRand;
 
 public:
@@ -32,6 +41,11 @@ public:
     void InputEvent(GamepadInputEvent& inputEvent) override;
     void InputEventLost() override;
 
+    // Current game state
+    bool IsMenuGameState() const;
+    bool IsInGameState() const;
+    bool IsErrorGameState() const;
+
     // Initialize player data
     void SetupHumanPlayer(int playerIndex, Pedestrian* pedestrian);
     void DeleteHumanPlayer(int playerIndex);
@@ -43,9 +57,6 @@ public:
     int GetHumanPlayerIndex(const HumanPlayer* controller) const;
     int GetHumanPlayersCount() const;
 
-    // Debug stuff
-    void DebugChangeMap(const std::string& mapName);
-
 private:
     bool SetInputActionsFromConfig();
     bool DetectGameVersion();
@@ -54,9 +65,6 @@ private:
 
     bool StartScenario(const std::string& mapName);
     void ShutdownCurrentScenario();
-
-private:
-    std::string mDebugChangeMapName;
 };
 
 extern CarnageGame gCarnageGame;
