@@ -379,15 +379,21 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
     if (!IsDeviceInited())
         return;
 
-    if (mGraphicsMonitor == nullptr && fullscreenEnabled)
+    if (fullscreenEnabled)
     {
-        mGraphicsMonitor = ::glfwGetPrimaryMonitor();
-        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+        if (mGraphicsMonitor == nullptr)
+        {
+            mGraphicsMonitor = ::glfwGetPrimaryMonitor();
+            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+        }
     }
     else
     {
-        mGraphicsMonitor = nullptr;
-        ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+        if (mGraphicsMonitor)
+        {
+            mGraphicsMonitor = nullptr;
+            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+        }
     }
 }
 
