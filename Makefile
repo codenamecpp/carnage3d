@@ -1,6 +1,6 @@
 CPUS := $(shell nproc)
 
-all: build_debug
+all: build_release
 	true
 
 build_sanitize: box2d premake
@@ -33,10 +33,10 @@ clean:
 	make -C .build clean
 
 run:
-	./bin/carnage3d-debug
+	./bin/carnage3d-release
 	
 run_demoversion:
-	./bin/carnage3d-debug -mapname SANB.CMP -gtadata "gamedata/demoversions/GTAECTS/GTADATA"
+	./bin/carnage3d-release -mapname SANB.CMP -gtadata "gamedata/demoversions/GTAECTS/GTADATA"
 
 builddir: 
 	test -d .build || mkdir .build
