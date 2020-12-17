@@ -45,6 +45,7 @@ public:
         this->mDataStride = Sizeof_ParticleVertex;
         this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_4F, offsetof(TVertexType, mPositionSize));
         this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_4UB, offsetof(TVertexType, mColor));
+        this->SetAttributeNormalized(eVertexAttribute_Color0);
     }
 };
 
@@ -122,6 +123,7 @@ public:
     glm::vec2 mParticleSizeRange { 1.0f, 1.0f };
     // lifetime control
     glm::vec2 mParticleLifetimeRange { 1.0f };
+    Color32 mParticleColor = Color32_White; // todo: color variations
 
     bool mParticleDieOnTimeout = true; // whether particle lifetime is limited by mParticleLifetimeMin, mParticleLifetimeMax
     bool mParticleDieOnCollision = false; // whether particle dies when collide with solid block

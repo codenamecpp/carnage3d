@@ -184,7 +184,7 @@ void ParticleEffect::SpawnParticle(Particle& particle)
     particle.mLifeTime = random.generate_float(mEffectParams.mParticleLifetimeRange.x, mEffectParams.mParticleLifetimeRange.y);
 
     // choose color
-    particle.mColor = Color32_White;
+    particle.mColor = mEffectParams.mParticleColor;
 }
 
 void ParticleEffect::GenerateNewParticles()

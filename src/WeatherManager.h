@@ -25,8 +25,8 @@ private:
     void ChangeWeather(eGameWeather weather);
     void CleanupWeather();
 
-    void GetSnowParticleEffectParams(ParticleEffectParams& params) const;
-    void GetSnowParticleEffectShape(ParticleEmitterShape& shape) const;
+    void GetParticleEffectParams(eGameWeather weather, ParticleEffectParams& params) const;
+    void GetParticleEffectShape(eGameWeather weather, ParticleEmitterShape& shape) const;
 
 private:
     eGameWeather mCurrentWeather = eGameWeather_Sun;

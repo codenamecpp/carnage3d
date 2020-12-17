@@ -47,7 +47,7 @@ out vec4 FinalColor;
 // entry point
 void main()
 {
-    FinalColor = vec4(1.0,1.0,1.0,1.0);
+    FinalColor = FragColor;
 }
 
 #endif
