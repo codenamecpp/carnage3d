@@ -12,9 +12,8 @@ class PhysicsManager final: private b2ContactListener
 public:
     PhysicsManager();
 
-    bool InitPhysicsWorld();
-    void FreePhysicsWorld();
-
+    void EnterWorld();
+    void ClearWorld();
     void UpdateFrame();
 
     // Create pedestrian specific physical body

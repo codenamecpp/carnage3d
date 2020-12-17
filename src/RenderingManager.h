@@ -4,6 +4,7 @@
 #include "RenderProgram.h"
 #include "MapRenderer.h"
 #include "DebugRenderer.h"
+#include "ParticleEffect.h"
 
 class RenderView;
 
@@ -16,6 +17,7 @@ public:
     RenderProgram mGuiTexColorProgram;
     RenderProgram mSpritesProgram;
     RenderProgram mDebugProgram;
+    RenderProgram mParticleProgram;
 
     MapRenderer mMapRenderer;
 
@@ -41,6 +43,14 @@ public:
     
     void AttachRenderView(RenderView* renderview);
     void DetachRenderView(RenderView* renderview);
+
+    // Register particle effect for rendering
+    void RegisterParticleEffect(ParticleEffect* particleEffect);
+    void UnregisterParticleEffect(ParticleEffect* particleEffect);
+
+private:
+    void RenderParticleEffects(RenderView* renderview);
+    void RenderParticleEffect(RenderView* renderview, ParticleEffect* particleEffect);
 
 private:
     bool InitRenderPrograms();

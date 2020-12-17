@@ -307,6 +307,12 @@ void System::ParseStartupParams(int argc, char *argv[])
             iarg += 2;
             continue;
         }
+        if (cxx_stricmp(argv[iarg], "-weather") == 0)
+        {
+            gCvarWeatherActive.SetFromString("true", eCvarSetMethod_CommandLine);
+            iarg += 1;
+            continue;
+        }
         gConsole.LogMessage(eLogMessage_Warning, "Unknown arg '%s'", argv[iarg]);
         ++iarg;
     }

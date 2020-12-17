@@ -310,6 +310,9 @@ bool GraphicsDevice::Initialize()
     ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCheckError();
 
+    ::glEnable(GL_PROGRAM_POINT_SIZE);
+    glCheckError();
+
     // force clear screen at stratup
     ::glfwSwapBuffers(mGraphicsWindow);
     glCheckError();

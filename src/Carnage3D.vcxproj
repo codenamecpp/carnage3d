@@ -159,7 +159,12 @@
     <ClInclude Include="AudioSource.h" />
     <ClInclude Include="ConsoleVar.h" />
     <ClInclude Include="cvars.h" />
+    <ClInclude Include="ImGuiHelpers.h" />
     <ClInclude Include="OpenALDefs.h" />
+    <ClInclude Include="ParticleDefs.h" />
+    <ClInclude Include="ParticleEffect.h" />
+    <ClInclude Include="ParticleEffectsManager.h" />
+    <ClInclude Include="ParticleRenderdata.h" />
     <ClInclude Include="SfxArchive.h" />
     <ClInclude Include="SfxDefs.h" />
     <ClInclude Include="AudioDevice.h" />
@@ -267,12 +272,16 @@
     <ClInclude Include="VertexFormats.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponInfo.h" />
+    <ClInclude Include="WeatherManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="ConsoleVar.cpp" />
+    <ClCompile Include="ParticleEffect.cpp" />
+    <ClCompile Include="ParticleEffectsManager.cpp" />
+    <ClCompile Include="ParticleRenderdata.cpp" />
     <ClCompile Include="SfxArchive.cpp" />
     <ClCompile Include="AudioDevice.cpp" />
     <ClCompile Include="AudioManager.cpp" />
@@ -355,6 +364,7 @@
     <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponInfo.cpp" />
+    <ClCompile Include="WeatherManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Box2D\Box2D.vcxproj">
@@ -374,6 +384,7 @@
     <None Include="..\gamedata\shaders\city_mesh.glsl" />
     <None Include="..\gamedata\shaders\debug.glsl" />
     <None Include="..\gamedata\shaders\gui.glsl" />
+    <None Include="..\gamedata\shaders\particle.glsl" />
     <None Include="..\gamedata\shaders\sprites.glsl" />
     <None Include="..\gamedata\shaders\texture_color.glsl" />
   </ItemGroup>

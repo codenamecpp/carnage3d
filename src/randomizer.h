@@ -37,7 +37,7 @@ namespace cxx
         inline int generate_int(int minInt, int maxInt)
         {
             if (minInt == maxInt)
-                return generate_int(maxInt);
+                return minInt;
 
             debug_assert(maxInt > minInt);
             return std::uniform_int_distribution<int>(minInt, maxInt)(mGeneratorEngine);
@@ -58,7 +58,7 @@ namespace cxx
         inline float generate_float(float minFloat, float maxFloat)
         {
             if (minFloat == maxFloat)
-                return generate_float();
+                return minFloat;
 
             debug_assert(maxFloat > minFloat);
             return std::uniform_real_distribution<float>(minFloat, maxFloat)(mGeneratorEngine);

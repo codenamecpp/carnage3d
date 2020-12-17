@@ -147,11 +147,14 @@ inline GLenum GetAttributeDataTypeGL(eVertexAttributeFormat attributeFormat)
 {
     switch (attributeFormat)
     {
-        case eVertexAttributeFormat_2F: return GL_FLOAT;
-        case eVertexAttributeFormat_3F: return GL_FLOAT;
+        case eVertexAttributeFormat_2F:
+        case eVertexAttributeFormat_3F:
+        case eVertexAttributeFormat_4F: return GL_FLOAT;
+
         case eVertexAttributeFormat_4UB: return GL_UNSIGNED_BYTE;
-        case eVertexAttributeFormat_1US: return GL_UNSIGNED_SHORT;
-        case eVertexAttributeFormat_2US: return GL_UNSIGNED_SHORT;
+
+        case eVertexAttributeFormat_1US:
+        case eVertexAttributeFormat_2US:
         case eVertexAttributeFormat_4US: return GL_UNSIGNED_SHORT;
         default: break;
     }

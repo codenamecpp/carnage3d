@@ -71,6 +71,9 @@
     <Filter Include="Game\Audio">
       <UniqueIdentifier>{a396de81-9b36-4baf-b6e6-85c01913f3bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Particles">
+      <UniqueIdentifier>{9702cb17-25cc-44a7-92ba-65a8c47323d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -411,6 +414,24 @@
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="cvars.h" />
+    <ClInclude Include="ImGuiHelpers.h">
+      <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleDefs.h">
+      <Filter>Game\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEffect.h">
+      <Filter>Game\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEffectsManager.h">
+      <Filter>Game\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleRenderdata.h">
+      <Filter>Game\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="WeatherManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -652,6 +673,18 @@
     <ClCompile Include="ConsoleVar.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleEffect.cpp">
+      <Filter>Game\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEffectsManager.cpp">
+      <Filter>Game\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleRenderdata.cpp">
+      <Filter>Game\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">
@@ -686,6 +719,9 @@
     </None>
     <None Include="..\gamedata\entities\pedestrians.json">
       <Filter>Data\entities</Filter>
+    </None>
+    <None Include="..\gamedata\shaders\particle.glsl">
+      <Filter>Data\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

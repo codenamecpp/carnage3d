@@ -30,6 +30,7 @@ extern CvarString gCvarCurrentBaseDir; // current gta data location
 extern CvarEnum<eGtaGameVersion> gCvarGameVersion; // current gta game version
 extern CvarString gCvarGameLanguage; // current game language
 extern CvarInt gCvarNumPlayers; // number of players in split screen mode
+extern CvarBoolean gCvarWeatherActive; // whether weather effects enabled
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -48,4 +49,5 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarGameVersion);
     gConsole.RegisterVariable(&gCvarGameLanguage);
     gConsole.RegisterVariable(&gCvarNumPlayers);
+    gConsole.RegisterVariable(&gCvarWeatherActive);
 }

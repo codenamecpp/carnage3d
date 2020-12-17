@@ -328,6 +328,7 @@ enum eVertexAttributeFormat
 {
     eVertexAttributeFormat_2F,      // 2 floats
     eVertexAttributeFormat_3F,      // 3 floats
+    eVertexAttributeFormat_4F,      // 4 floats
     eVertexAttributeFormat_4UB,     // 4 unsigned bytes
     eVertexAttributeFormat_1US,     // 1 unsigned short
     eVertexAttributeFormat_2US,     // 2 unsigned shorts
@@ -362,6 +363,7 @@ inline unsigned int GetAttributeComponentCount(eVertexAttributeFormat attributeF
     {
         case eVertexAttributeFormat_2F: return 2;
         case eVertexAttributeFormat_3F: return 3;
+        case eVertexAttributeFormat_4F: return 4;
         case eVertexAttributeFormat_4UB: return 4;
         case eVertexAttributeFormat_1US: return 1;
         case eVertexAttributeFormat_2US: return 2;
@@ -380,6 +382,7 @@ inline unsigned int GetAttributeSizeBytes(eVertexAttributeFormat attributeFormat
     {
         case eVertexAttributeFormat_2F: return 2 * sizeof(float);
         case eVertexAttributeFormat_3F: return 3 * sizeof(float);
+        case eVertexAttributeFormat_4F: return 4 * sizeof(float);
         case eVertexAttributeFormat_4UB: return 4 * sizeof(unsigned char);
         case eVertexAttributeFormat_1US: return 1 * sizeof(unsigned short);
         case eVertexAttributeFormat_2US: return 2 * sizeof(unsigned short);

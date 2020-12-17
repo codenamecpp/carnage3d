@@ -32,7 +32,7 @@ public:
     void Deinit();
     void RenderFrameBegin();
     void RenderFrame(RenderView* renderview);
-    void DebugDraw(RenderView* renderview, DebugRenderer& debugRender);
+    void DebugDraw(DebugRenderer& debugRender);
     void RenderFrameEnd();
     void BuildMapMesh();
 

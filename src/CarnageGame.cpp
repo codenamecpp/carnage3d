@@ -14,6 +14,8 @@
 #include "BroadcastEventsManager.h"
 #include "AudioManager.h"
 #include "cvars.h"
+#include "ParticleEffectsManager.h"
+#include "WeatherManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +130,8 @@ void CarnageGame::UpdateFrame()
         gSpriteManager.UpdateBlocksAnimations(deltaTime);
         gPhysics.UpdateFrame();
         gGameObjectsManager.UpdateFrame();
+        gWeatherManager.UpdateFrame();
+        gParticleManager.UpdateFrame();
 
         for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
         {
@@ -390,13 +394,9 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
     //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
 
-    if (!gPhysics.InitPhysicsWorld())
-    {
-        debug_assert(false);
-    }
-
-    gGameObjectsManager.InitGameObjects();
-
+    gPhysics.EnterWorld();
+    gParticleManager.EnterWorld();
+    gGameObjectsManager.EnterWorld();
     // temporary
     //glm::vec3 pos { 108.0f, 2.0f, 25.0f };
     //glm::vec3 pos { 14.0, 2.0f, 38.0f };
@@ -450,6 +450,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     SetupScreenLayout();
 
     gTrafficManager.StartupTraffic();
+    gWeatherManager.EnterWorld();
 
     mCurrentStateID = eGameStateID_InGame;
     return true;
@@ -463,11 +464,13 @@ void CarnageGame::ShutdownCurrentScenario()
     }
     gAiManager.ReleaseAiControllers();
     gTrafficManager.CleanupTraffic();
-    gGameObjectsManager.FreeGameObjects();
-    gPhysics.FreePhysicsWorld();
+    gWeatherManager.ClearWorld();
+    gGameObjectsManager.ClearWorld();
+    gPhysics.ClearWorld();
     gGameMap.Cleanup();
     gBroadcastEvents.ClearEvents();
     gAudioManager.FreeLevelSounds();
+    gParticleManager.ClearWorld();
     mCurrentStateID = eGameStateID_Initial;
 }
 

@@ -212,6 +212,7 @@ impl_enum_strings(eVertexAttributeFormat)
 {
     {eVertexAttributeFormat_2F, "2f"},
     {eVertexAttributeFormat_3F, "3f"},
+    {eVertexAttributeFormat_4F, "4f"},
     {eVertexAttributeFormat_4UB, "4ub"},
     {eVertexAttributeFormat_1US, "1us"},
     {eVertexAttributeFormat_2US, "2us"},

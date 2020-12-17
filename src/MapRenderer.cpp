@@ -131,10 +131,10 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gRenderManager.mSpritesProgram.Activate();
     gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
 
-    RenderStates guiRenderStates = RenderStates()
+    RenderStates renderStates = RenderStates()
         .Disable(RenderStateFlags_FaceCulling)
         .Disable(RenderStateFlags_DepthWrite);
-    gGraphicsDevice.SetRenderStates(guiRenderStates);
+    gGraphicsDevice.SetRenderStates(renderStates);
 
     mSpriteBatch.Flush();
 
@@ -172,9 +172,8 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     }
 }
 
-void MapRenderer::DebugDraw(RenderView* renderview, DebugRenderer& debugRender)
+void MapRenderer::DebugDraw(DebugRenderer& debugRender)
 {
-    debug_assert(renderview);
     for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
     {
         // check if gameobject was on screen in current frame

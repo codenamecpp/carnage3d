@@ -23,20 +23,17 @@ GameObjectsManager::~GameObjectsManager()
     debug_assert(mAllObjects.empty());
 }
 
-bool GameObjectsManager::InitGameObjects()
+void GameObjectsManager::EnterWorld()
 {
     mIDsCounter = 0;
 
     if (!CreateStartupObjects())
     {
         gConsole.LogMessage(eLogMessage_Warning, "GameObjectsManager: Cannot create startup objects");
-        return false;
     }
-
-    return true;
 }
 
-void GameObjectsManager::FreeGameObjects()
+void GameObjectsManager::ClearWorld()
 {
     DestroyAllObjects();
 }

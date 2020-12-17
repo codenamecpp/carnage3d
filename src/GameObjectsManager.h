@@ -20,9 +20,8 @@ public:
 public:
     ~GameObjectsManager();
 
-    bool InitGameObjects();
-    void FreeGameObjects();
-
+    void EnterWorld();
+    void ClearWorld();
     void UpdateFrame();
     void DebugDraw(DebugRenderer& debugRender);
 
