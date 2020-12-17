@@ -49,6 +49,13 @@ public:
     }
 };
 
+enum eParticleState
+{
+    eParticleState_Alive,
+    eParticleState_Fade,
+    eParticleState_Dead,
+};
+
 // defines single particle state
 struct Particle
 {
@@ -72,6 +79,7 @@ public:
         mAge = 0.0f;
         mLifeTime = 0.0f;
         mColor = Color32_White;
+        mState = eParticleState_Alive;
     }
 public:
     glm::vec3 mStartPosition;
@@ -80,6 +88,7 @@ public:
     float mSize = 1.0f;
     float mAge = 0.0f; // current age, in seconds
     float mLifeTime = 0.0f; // time duration of how long particle will live, in seconds
+    eParticleState mState = eParticleState_Alive;
     Color32 mColor = Color32_White;
 };
 
@@ -111,10 +120,14 @@ struct ParticleEffectParams
 {
 public:
     ParticleEffectParams() = default;
+
+    bool IsFadeoutOnDie() const { return mParticleFadeoutDuration > 0.0f; }
+
 public:
     eParticleSpace mParticleSpace = eParticleSpace_Local;
     int mMaxParticlesCount = 0;
     float mParticleEmitFrequency = 1.0f; // particles per second
+    float mParticleFadeoutDuration = 0.0f; // fade out on die, seconds
     // movement control
     glm::vec2 mParticleHorzVelocityRange; // x/z
     glm::vec2 mParticleVertVelocityRange; // y

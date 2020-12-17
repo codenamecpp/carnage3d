@@ -88,12 +88,12 @@ void WeatherManager::GetParticleEffectParams(eGameWeather weather, ParticleEffec
     if (weather == eGameWeather_Snow)
     {
         params.mParticleSpace = eParticleSpace_Global;
-        params.mMaxParticlesCount = 2200;
+        params.mMaxParticlesCount = 2000;
         params.mParticleEmitFrequency = 350.0f;
         params.mParticleHorzVelocityRange.x = -0.2f;
         params.mParticleHorzVelocityRange.y = 0.2f;
-        params.mParticleVertVelocityRange.x = 0.0f;
-        params.mParticleVertVelocityRange.y = 6.2f;
+        params.mParticleVertVelocityRange.x = -7.0f;
+        params.mParticleVertVelocityRange.y = 7.2f;
         params.mParticlesGravity.y = -8.0f;
         params.mParticleSizeRange.x = 8.0f;
         params.mParticleSizeRange.y = 10.0f;
@@ -102,6 +102,7 @@ void WeatherManager::GetParticleEffectParams(eGameWeather weather, ParticleEffec
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
         params.mParticleColor = Color32_White;
+        params.mParticleFadeoutDuration = 0.5f;
     }
 
     if (weather == eGameWeather_Rain)
@@ -123,6 +124,7 @@ void WeatherManager::GetParticleEffectParams(eGameWeather weather, ParticleEffec
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
         params.mParticleColor = Color32_SkyBlue;
+        params.mParticleFadeoutDuration = 0.15f;
     }
 }
 

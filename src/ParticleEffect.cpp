@@ -130,22 +130,49 @@ bool ParticleEffect::UpdateParticle(Particle& particle, float deltaTime)
 {
     particle.mAge += deltaTime;
 
-    // check timeout
-    if (mEffectParams.mParticleDieOnTimeout)
+    if (particle.mState == eParticleState_Alive)
     {
-        if (particle.mAge >= particle.mLifeTime)
-            return false; // particle dead
+        // check timeout
+        if (mEffectParams.mParticleDieOnTimeout && (particle.mAge > particle.mLifeTime))
+        {
+            if (mEffectParams.IsFadeoutOnDie())
+            {
+                particle.mState = eParticleState_Fade;
+            }
+            else return false; // particle dead
+        }
+
+        // update current position based on velocity and time
+        particle.mPosition += (particle.mVelocity + mEffectParams.mParticlesGravity) * deltaTime;
+
+        // check collision
+        if (mEffectParams.mParticleDieOnCollision)
+        {
+            float height = gGameMap.GetHeightAtPosition(particle.mPosition, false);
+            if (height > particle.mPosition.y)
+            {
+                particle.mPosition.y = height; // fix height
+                if (mEffectParams.IsFadeoutOnDie())
+                {
+                    particle.mState = eParticleState_Fade;
+                }
+                else return false; // particle dead
+            }
+        }
     }
 
-    // update current position based on velocity and time
-    particle.mPosition += (particle.mVelocity + mEffectParams.mParticlesGravity) * deltaTime;
-
-    // check collision
-    if (mEffectParams.mParticleDieOnCollision)
+    // update fadeout
+    if (particle.mState == eParticleState_Fade)
     {
-        float height = gGameMap.GetHeightAtPosition(particle.mPosition, false);
-        if (height > particle.mPosition.y)
-            return false; // // particle dead
+        debug_assert(mEffectParams.mParticleFadeoutDuration > 0.0f);
+        int currAlpha = (int) (particle.mColor.mA - (255.0f * (deltaTime / mEffectParams.mParticleFadeoutDuration)));
+        if (currAlpha < 0)
+        {
+            currAlpha = 0;
+        }
+        particle.mColor.mA = (unsigned char) currAlpha;
+        if (currAlpha == 0)
+            return false; // particle dead
     }
 
     return true; // particle alive
@@ -156,6 +183,7 @@ void ParticleEffect::SpawnParticle(Particle& particle)
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
     particle.mAge = 0.0f;
+    particle.mState = eParticleState_Alive;
 
     // choose position
     if (mEmitterShapeParams.mShape == eParticleEmitterShape_Box)
@@ -226,6 +254,7 @@ void ParticleEffect::UpdateAliveParticles(float deltaTime)
             continue;
         }
 
+        currParticle.mState = eParticleState_Dead;
         // kill particle
         if (icurr < (mAliveParticlesCount - 1))
         {
