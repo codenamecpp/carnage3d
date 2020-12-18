@@ -2,7 +2,7 @@
 #include "WeatherManager.h"
 #include "ParticleEffectsManager.h"
 #include "CarnageGame.h"
-#include "Cvars.h"
+#include "cvars.h"
 
 WeatherManager gWeatherManager;
 
