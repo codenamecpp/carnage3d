@@ -1,14 +1,7 @@
 #pragma once
 
 #include "ParticleEffect.h"
-
-enum eGameWeather
-{
-    eGameWeather_Sun, // default
-    eGameWeather_Snow,
-    eGameWeather_Rain,
-    eGameWeather_Fog,
-};
+#include "GameDefs.h"
 
 // Weather effects manager
 class WeatherManager final: public cxx::noncopyable
@@ -22,15 +15,13 @@ public:
     bool IsWeatherEffectsEnabled() const;
 
 private:
-    void ChangeWeather(eGameWeather weather);
+    void ChangeWeather(eWeatherEffect weather);
     void CleanupWeather();
 
-    void GetParticleEffectParams(eGameWeather weather, ParticleEffectParams& params) const;
-    void GetParticleEffectShape(eGameWeather weather, ParticleEmitterShape& shape) const;
+    void GetParticleEffectParams(eWeatherEffect weather, ParticleEffectParams& params) const;
+    void GetParticleEffectShape(eWeatherEffect weather, ParticleEmitterShape& shape) const;
 
 private:
-    eGameWeather mCurrentWeather = eGameWeather_Sun;
-
     ParticleEffect* mParticleEffect = nullptr;
 };
 

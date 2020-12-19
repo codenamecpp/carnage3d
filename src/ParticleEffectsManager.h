@@ -24,6 +24,19 @@ public:
     // @param particleEffect: Object to destroy, pointer becomes invalid
     void DestroyParticleEffect(ParticleEffect* particleEffect);
     void DestroyParticleEffects();
+
+    // sparks effect
+    void StartCarSparks(const glm::vec3& position, int numSparks);
+    void StartCarSparks(const glm::vec3& position, const glm::vec3& velocity, int numSparks);
+
+    bool IsCarSparksEffectEnabled() const;
+
+private:
+    void CreateSparksParticleEffect();
+
+private:
+    // persistent effects
+    ParticleEffect* mSparksEffect = nullptr;
 };
 
 extern ParticleEffectsManager gParticleManager;

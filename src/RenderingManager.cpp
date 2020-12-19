@@ -205,7 +205,8 @@ void RenderingManager::RenderParticleEffects(RenderView* renderview)
 
     RenderStates renderStates = RenderStates()
         .Enable(RenderStateFlags_AlphaBlend)
-        .Disable(RenderStateFlags_FaceCulling);
+        .Disable(RenderStateFlags_FaceCulling)
+        .Disable(RenderStateFlags_DepthWrite);
     gGraphicsDevice.SetRenderStates(renderStates);
 
     for (ParticleEffect* currEffect: gParticleManager.mParticleEffects)

@@ -7,6 +7,7 @@
 #include "TimeManager.h"
 #include "Box2D_Helpers.h"
 #include "cvars.h"
+#include "ParticleEffectsManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -751,6 +752,15 @@ void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysicsBody* carA, C
     contact->GetWorldManifold(&wmanifold);
 
     glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
+    if (gParticleManager.IsCarSparksEffectEnabled())
+    {
+        glm::vec3 sparksPoint { contactPoint.x, carA->mHeight, contactPoint.y };
+        glm::vec2 velocity2 = glm::normalize(
+            carA->GetLinearVelocity() + 
+            carB->GetLinearVelocity());
+        glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
+        gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
+    }
 
     for (CarPhysicsBody* currCar: {carA, carB})
     {

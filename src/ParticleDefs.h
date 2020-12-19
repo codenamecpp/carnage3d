@@ -121,12 +121,14 @@ struct ParticleEffectParams
 public:
     ParticleEffectParams() = default;
 
-    bool IsFadeoutOnDie() const { return mParticleFadeoutDuration > 0.0f; }
+    bool IsParticleFadeoutOnDie() const { return mParticleFadeoutDuration > 0.0f; }
+    bool IsEffectFinite() const { return mEffectDuration > 0.0f; }
 
 public:
     eParticleSpace mParticleSpace = eParticleSpace_Local;
     int mMaxParticlesCount = 0;
-    float mParticleEmitFrequency = 1.0f; // particles per second
+    float mEffectDuration = 0.0f; // how long the effect will emit particles before stopping, seconds
+    float mParticlesPerSecond = 0.0f; // emit frequency, 0 for manual particles generation
     float mParticleFadeoutDuration = 0.0f; // fade out on die, seconds
     // movement control
     glm::vec2 mParticleHorzVelocityRange; // x/z
@@ -136,8 +138,9 @@ public:
     glm::vec2 mParticleSizeRange { 1.0f, 1.0f };
     // lifetime control
     glm::vec2 mParticleLifetimeRange { 1.0f };
-    Color32 mParticleColor = Color32_White; // todo: color variations
-
+    std::vector<Color32> mParticleColors; // color variations
+    // various flags
     bool mParticleDieOnTimeout = true; // whether particle lifetime is limited by mParticleLifetimeMin, mParticleLifetimeMax
     bool mParticleDieOnCollision = false; // whether particle dies when collide with solid block
+    bool mParticleChangesColorOverTime = false; // use particle colors array as sequence
 };

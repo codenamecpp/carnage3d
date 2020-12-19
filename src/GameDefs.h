@@ -671,6 +671,17 @@ public:
     unsigned short mRemap; // is a remap table number (0 for none), if remap is >=128 then the item is a car
 };
 
+// weather effect type
+enum eWeatherEffect
+{
+    eWeatherEffect_Sun, // default
+    eWeatherEffect_Snow,
+    eWeatherEffect_Rain,
+    eWeatherEffect_Fog,
+};
+
+decl_enum_strings(eWeatherEffect);
+
 // pedestrian animations
 enum ePedestrianAnimID
 {

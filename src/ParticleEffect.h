@@ -31,6 +31,10 @@ public:
     void StopEffect();
     void ClearEffect();
 
+    // Manually spawn particles
+    bool PutParticle(const glm::vec3& position);
+    bool PutParticle(const glm::vec3& position, const glm::vec3& velocity);
+
     // Whether or not effect is in active state
     bool IsEffectInactive() const;
     bool IsEffectActive() const;
@@ -59,7 +63,8 @@ private:
     ParticleEmitterShape mEmitterShapeParams;
     eParticleEffectState mEffectState = eParticleEffectState_Initial;
     std::vector<Particle> mParticles;
-    float mSpawnTimer = 0.0f;
+    float mParticleTimer = 0.0f;
+    float mActivityTimer = 0.0f;
     int mAliveParticlesCount = 0;
     ParticleRenderdata* mRenderdata = nullptr; // renderdata is owned by particle renderer
 };

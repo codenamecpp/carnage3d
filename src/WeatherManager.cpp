@@ -11,12 +11,14 @@ WeatherManager gWeatherManager;
 //////////////////////////////////////////////////////////////////////////
 
 CvarBoolean gCvarWeatherActive ("g_weather", 0, "Enable weather effects", CvarFlags_Init);
+CvarEnum<eWeatherEffect> gCvarWeatherEffect ("g_weatherEffect", eWeatherEffect_Sun, "Currently active weather effect", CvarFlags_None);
 
 //////////////////////////////////////////////////////////////////////////
 
 void WeatherManager::EnterWorld()
 {
-    ChangeWeather(eGameWeather_Snow);
+    ChangeWeather(gCvarWeatherEffect.mValue);
+    gCvarWeatherEffect.ClearModified();
 }
 
 void WeatherManager::ClearWorld()
@@ -29,14 +31,17 @@ void WeatherManager::UpdateFrame()
     if (!IsWeatherEffectsEnabled())
         return;
 
-    if ((mCurrentWeather == eGameWeather_Snow) || (mCurrentWeather == eGameWeather_Rain))
+    if (gCvarWeatherEffect.IsModified())
     {
-        if (mParticleEffect)
-        {
-            ParticleEmitterShape effectShape;
-            GetParticleEffectShape(mCurrentWeather, effectShape);
-            mParticleEffect->SetEmitterShape(effectShape);
-        }
+        gCvarWeatherEffect.ClearModified();
+        ChangeWeather(gCvarWeatherEffect.mValue);
+    }
+
+    if (mParticleEffect)
+    {
+        ParticleEmitterShape effectShape;
+        GetParticleEffectShape(gCvarWeatherEffect.mValue, effectShape);
+        mParticleEffect->SetEmitterShape(effectShape);
     }
 }
 
@@ -44,19 +49,16 @@ void WeatherManager::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-void WeatherManager::ChangeWeather(eGameWeather weather)
+void WeatherManager::ChangeWeather(eWeatherEffect weather)
 {
     if (!IsWeatherEffectsEnabled())
         return;
 
     // todo: implement effect ot all active players
 
-    if (mCurrentWeather == weather)
-        return;
-
     CleanupWeather();
 
-    if ((weather == eGameWeather_Snow) || (weather == eGameWeather_Rain))
+    if ((weather == eWeatherEffect_Snow) || (weather == eWeatherEffect_Rain))
     {
         ParticleEffectParams effectParams;
         GetParticleEffectParams(weather, effectParams);
@@ -69,7 +71,8 @@ void WeatherManager::ChangeWeather(eGameWeather weather)
         mParticleEffect->StartEffect();
     }
 
-    mCurrentWeather = weather;
+    gCvarWeatherEffect.mValue = weather;
+    gCvarWeatherEffect.ClearModified();
 }
 
 void WeatherManager::CleanupWeather()
@@ -80,36 +83,37 @@ void WeatherManager::CleanupWeather()
         mParticleEffect = nullptr;
     }
 
-    mCurrentWeather = eGameWeather_Sun;
+    gCvarWeatherEffect.mValue = eWeatherEffect_Sun;
+    gCvarWeatherEffect.ClearModified();
 }
 
-void WeatherManager::GetParticleEffectParams(eGameWeather weather, ParticleEffectParams& params) const
+void WeatherManager::GetParticleEffectParams(eWeatherEffect weather, ParticleEffectParams& params) const
 {
-    if (weather == eGameWeather_Snow)
+    if (weather == eWeatherEffect_Snow)
     {
         params.mParticleSpace = eParticleSpace_Global;
         params.mMaxParticlesCount = 2000;
-        params.mParticleEmitFrequency = 350.0f;
+        params.mParticlesPerSecond = 520.0f;
         params.mParticleHorzVelocityRange.x = -0.2f;
         params.mParticleHorzVelocityRange.y = 0.2f;
         params.mParticleVertVelocityRange.x = -7.0f;
         params.mParticleVertVelocityRange.y = 7.2f;
         params.mParticlesGravity.y = -8.0f;
-        params.mParticleSizeRange.x = 8.0f;
-        params.mParticleSizeRange.y = 10.0f;
+        params.mParticleSizeRange.x = 6.0f;
+        params.mParticleSizeRange.y = 7.0f;
         params.mParticleLifetimeRange.x = 5.0f;
         params.mParticleLifetimeRange.y = 8.0f;
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
-        params.mParticleColor = Color32_White;
+        params.mParticleColors = { Color32_White };
         params.mParticleFadeoutDuration = 0.5f;
     }
 
-    if (weather == eGameWeather_Rain)
+    if (weather == eWeatherEffect_Rain)
     {
         params.mParticleSpace = eParticleSpace_Global;
         params.mMaxParticlesCount = 2200;
-        params.mParticleEmitFrequency = 1080.0f;
+        params.mParticlesPerSecond = 1080.0f;
         params.mParticleHorzVelocityRange.x = -1.0f;
         params.mParticleHorzVelocityRange.y = 1.0f;
         params.mParticleVertVelocityRange.x = 0.0f;
@@ -123,14 +127,14 @@ void WeatherManager::GetParticleEffectParams(eGameWeather weather, ParticleEffec
         params.mParticleLifetimeRange.y = 5.0f;
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
-        params.mParticleColor = Color32_SkyBlue;
+        params.mParticleColors = { Color32_SkyBlue };
         params.mParticleFadeoutDuration = 0.15f;
     }
 }
 
-void WeatherManager::GetParticleEffectShape(eGameWeather weather, ParticleEmitterShape& shape) const
+void WeatherManager::GetParticleEffectShape(eWeatherEffect weather, ParticleEmitterShape& shape) const
 {
-    if ((weather == eGameWeather_Snow) || (weather == eGameWeather_Rain))
+    if ((weather == eWeatherEffect_Snow) || (weather == eWeatherEffect_Rain))
     {
         const float EffectCellSize = Convert::MapUnitsToMeters(10.0f);
         const float EffectHeight = Convert::MapUnitsToMeters(6.0f);

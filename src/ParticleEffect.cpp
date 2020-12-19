@@ -15,18 +15,35 @@ void ParticleEffect::UpdateFrame()
     if (IsEffectInactive())
         return;
 
-    if (mEffectParams.mMaxParticlesCount > 0)
+    if (mEffectParams.mMaxParticlesCount == 0)
     {
-        mSpawnTimer += gTimeManager.mGameFrameDelta;
+        debug_assert(false);
+        return;
+    }
 
-        UpdateAliveParticles(gTimeManager.mGameFrameDelta);
-        GenerateNewParticles();
+    float deltaTime = gTimeManager.mGameFrameDelta;
+    mParticleTimer += deltaTime;
+    mActivityTimer += deltaTime;
 
-        if (mRenderdata)
+    UpdateAliveParticles(deltaTime);
+
+    if (mEffectState == eParticleEffectState_Active)
+    {
+        bool effectTimeDone = mEffectParams.IsEffectFinite() && (mActivityTimer > mEffectParams.mEffectDuration);
+        if (effectTimeDone)
         {
-            mRenderdata->Invalidate();
+            StopEffect();
         }
-    }  
+        else
+        {
+            GenerateNewParticles();
+        }
+    }
+
+    if ((mAliveParticlesCount > 0) && mRenderdata)
+    {
+        mRenderdata->Invalidate();
+    }
 
     if ((mAliveParticlesCount == 0) && (mEffectState == eParticleEffectState_Stopping))
     {
@@ -62,11 +79,6 @@ void ParticleEffect::GetEffectParameters(ParticleEffectParams& effectParams) con
 void ParticleEffect::SetEffectParameters(const ParticleEffectParams& effectParams)
 {
     mEffectParams = effectParams;
-    debug_assert(mEffectParams.mParticleEmitFrequency);
-    if (mEffectParams.mParticleEmitFrequency <= 0.0f)
-    {
-        mEffectParams.mParticleEmitFrequency = 1.0f;
-    }
     ResetParticles();
 }
 
@@ -103,7 +115,37 @@ void ParticleEffect::ClearEffect()
     ResetParticles();
 
     mEffectState = eParticleEffectState_Initial;
-    mSpawnTimer = 0.0f;
+    mParticleTimer = 0.0f;
+    mActivityTimer = 0.0f;
+}
+
+bool ParticleEffect::PutParticle(const glm::vec3& position)
+{
+    if (mAliveParticlesCount < mEffectParams.mMaxParticlesCount)
+    {
+        Particle& particle = mParticles[mAliveParticlesCount++];
+        SpawnParticle(particle);
+        // fix start params
+        particle.mStartPosition = position;
+        particle.mPosition = position;
+        return true;
+    }
+    return false;
+}
+
+bool ParticleEffect::PutParticle(const glm::vec3& position, const glm::vec3& velocity)
+{
+    if (mAliveParticlesCount < mEffectParams.mMaxParticlesCount)
+    {
+        Particle& particle = mParticles[mAliveParticlesCount++];
+        SpawnParticle(particle);
+        // fix start params
+        particle.mStartPosition = position;
+        particle.mPosition = position;
+        particle.mVelocity += velocity; // accumulate
+        return true;
+    }
+    return false;
 }
 
 bool ParticleEffect::IsEffectInactive() const
@@ -135,7 +177,7 @@ bool ParticleEffect::UpdateParticle(Particle& particle, float deltaTime)
         // check timeout
         if (mEffectParams.mParticleDieOnTimeout && (particle.mAge > particle.mLifeTime))
         {
-            if (mEffectParams.IsFadeoutOnDie())
+            if (mEffectParams.IsParticleFadeoutOnDie())
             {
                 particle.mState = eParticleState_Fade;
             }
@@ -145,6 +187,18 @@ bool ParticleEffect::UpdateParticle(Particle& particle, float deltaTime)
         // update current position based on velocity and time
         particle.mPosition += (particle.mVelocity + mEffectParams.mParticlesGravity) * deltaTime;
 
+        // update color
+        if (mEffectParams.mParticleChangesColorOverTime)
+        {
+            int colorCount = (int) mEffectParams.mParticleColors.size();
+            if (colorCount > 1)
+            {
+                float progression = (particle.mAge / particle.mLifeTime); // [0,1]
+                int colorIndex = glm::min((int) ((colorCount - 1) * progression + 0.5f), (colorCount - 1));
+                particle.mColor = mEffectParams.mParticleColors[colorIndex];
+            }
+        }
+
         // check collision
         if (mEffectParams.mParticleDieOnCollision)
         {
@@ -152,7 +206,7 @@ bool ParticleEffect::UpdateParticle(Particle& particle, float deltaTime)
             if (height > particle.mPosition.y)
             {
                 particle.mPosition.y = height; // fix height
-                if (mEffectParams.IsFadeoutOnDie())
+                if (mEffectParams.IsParticleFadeoutOnDie())
                 {
                     particle.mState = eParticleState_Fade;
                 }
@@ -212,19 +266,31 @@ void ParticleEffect::SpawnParticle(Particle& particle)
     particle.mLifeTime = random.generate_float(mEffectParams.mParticleLifetimeRange.x, mEffectParams.mParticleLifetimeRange.y);
 
     // choose color
-    particle.mColor = mEffectParams.mParticleColor;
+    Color32 color = Color32_White;
+    if (!mEffectParams.mParticleColors.empty())
+    {
+        int colorIndex = 0;
+        int colorCount = (int) mEffectParams.mParticleColors.size();
+        if ((colorCount > 1) && !mEffectParams.mParticleChangesColorOverTime)
+        {
+            colorIndex = random.generate_int() % colorCount;
+        }
+        color = mEffectParams.mParticleColors[colorIndex];
+    }
+    particle.mColor = color;
 }
 
 void ParticleEffect::GenerateNewParticles()
 {
-    if (mEffectState != eParticleEffectState_Active)
+    debug_assert(mEffectState == eParticleEffectState_Active);
+    if ((mEffectParams.mMaxParticlesCount == mAliveParticlesCount) ||
+        (mEffectParams.mParticlesPerSecond == 0.0f))
+    {
         return;
+    }
 
-    if (mAliveParticlesCount == mEffectParams.mMaxParticlesCount)
-        return;
-
-    const float timePerParticle = 1.0f / mEffectParams.mParticleEmitFrequency;
-    int particlesToGenerate = (int) (mSpawnTimer / timePerParticle);
+    const float timePerParticle = 1.0f / mEffectParams.mParticlesPerSecond;
+    int particlesToGenerate = (int) (mParticleTimer / timePerParticle);
     if (particlesToGenerate == 0)
         return;
 
@@ -232,7 +298,7 @@ void ParticleEffect::GenerateNewParticles()
     {
         particlesToGenerate = (mEffectParams.mMaxParticlesCount - mAliveParticlesCount);
     }
-    mSpawnTimer -= (particlesToGenerate * timePerParticle);
+    mParticleTimer -= (particlesToGenerate * timePerParticle);
 
     for (int icurr = 0; icurr < particlesToGenerate; ++icurr)
     {

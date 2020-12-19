@@ -629,3 +629,11 @@ impl_enum_strings(ePedestrianType)
     {ePedestrianType_Medical, "medical"},
     {ePedestrianType_Fireman, "fireman"},
 };
+
+impl_enum_strings(eWeatherEffect)
+{
+    {eWeatherEffect_Sun, "sun"},
+    {eWeatherEffect_Snow, "snow"},
+    {eWeatherEffect_Rain, "rain"},
+    {eWeatherEffect_Fog, "fog"},
+};
