@@ -65,6 +65,9 @@ public:
     float mHudBigFontMessageShowDuration; // how long show 'wasted' on screen, seconds
     float mHudCarNameShowDuration; // how long show car name on screen, seconds
     float mHudDistrictNameShowDuration; // how long show district name on screen, seconds
+
+    // collision
+    float mSparksOnCarsContactThreshold; // how strong should the collision be for sparks to appear
 };
 
 extern GameParams gGameParams;

@@ -80,6 +80,7 @@ private:
     // post solve collisions
     void HandleCollision(b2Contact* contact, PedPhysicsBody* ped, CarPhysicsBody* car, const b2ContactImpulse* impulse);
     void HandleCollision(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB, const b2ContactImpulse* impulse);
+    void HandleCollisionWithMap(b2Contact* contact, CarPhysicsBody* car, const b2ContactImpulse* impulse);
 
     // sensors
     bool ProcessSensorContact(b2Contact* contact, bool onBegin);

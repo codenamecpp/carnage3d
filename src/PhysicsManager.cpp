@@ -425,6 +425,12 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
             PedPhysicsBody* ped = CastFixtureBody<PedPhysicsBody>(fixturePed);
             HandleCollision(contact, ped, car, impulse);
         }
+
+        if (fixtureMapSolidBlock && fixtureCar)
+        {
+            CarPhysicsBody* car = CastFixtureBody<CarPhysicsBody>(fixtureCar);
+            HandleCollisionWithMap(contact, car, impulse);
+        }
     }
 }
 
@@ -739,39 +745,66 @@ void PhysicsManager::HandleCollision(b2Contact* contact, PedPhysicsBody* ped, Ca
 void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysicsBody* carA, CarPhysicsBody* carB, const b2ContactImpulse* impulse)
 {
     int pointCount = contact->GetManifold()->pointCount;
-    float maxImpulse = 0.0f;
+    float impact = 0.0f;
     for (int i = 0; i < pointCount; ++i) 
     {
-        maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+        impact = b2Max(impact, impulse->normalImpulses[i]);
     }
-
-    if (maxImpulse < 62.0f) // todo: magic numbers
-        return;
 
     b2WorldManifold wmanifold;
     contact->GetWorldManifold(&wmanifold);
 
     glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
+
     if (gParticleManager.IsCarSparksEffectEnabled())
     {
-        glm::vec3 sparksPoint { contactPoint.x, carA->mHeight, contactPoint.y };
-        glm::vec2 velocity2 = glm::normalize(
-            carA->GetLinearVelocity() + 
-            carB->GetLinearVelocity());
-        glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
-        gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
+        if (impact > gGameParams.mSparksOnCarsContactThreshold)
+        {
+            glm::vec3 sparksPoint { contactPoint.x, carA->mHeight, contactPoint.y };
+            glm::vec2 velocity2 = glm::normalize(
+                carA->GetLinearVelocity() + 
+                carB->GetLinearVelocity());
+            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
+            gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
+        }
     }
 
     for (CarPhysicsBody* currCar: {carA, carB})
     {
         DamageInfo damageInfo;
-        damageInfo.mDamageCause = eDamageCause_CarCrash;
-        damageInfo.mSourceObject = (currCar == carA) ? carB->mReferenceCar : carA->mReferenceCar;
-        damageInfo.mContactImpulse = maxImpulse;
-        damageInfo.mContactPoint = glm::vec3 ( contactPoint.x, currCar->mHeight, contactPoint.y );
+        damageInfo.SetDamageFromCarCrash(glm::vec3(contactPoint.x, currCar->mHeight, contactPoint.y), impact,
+            (currCar == carA) ? carB->mReferenceCar : carA->mReferenceCar);
 
         currCar->mReferenceCar->ReceiveDamage(damageInfo);
     }
+}
+
+void PhysicsManager::HandleCollisionWithMap(b2Contact* contact, CarPhysicsBody* car, const b2ContactImpulse* impulse)
+{
+    int pointCount = contact->GetManifold()->pointCount;
+    float impact = 0.0f;
+    for (int i = 0; i < pointCount; ++i) 
+    {
+        impact = b2Max(impact, impulse->normalImpulses[i]);
+    }
+
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
+
+    if (gParticleManager.IsCarSparksEffectEnabled())
+    {
+        if (impact > gGameParams.mSparksOnCarsContactThreshold)
+        {
+            glm::vec3 sparksPoint { contactPoint.x, car->mHeight, contactPoint.y };
+            glm::vec2 velocity2 = glm::normalize(car->GetLinearVelocity());
+            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
+            gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
+        }
+    }
+
+    // todo: make damage
 }
 
 bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysicsBody* projectile, int mapx, int mapy) const

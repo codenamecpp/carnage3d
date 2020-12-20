@@ -660,6 +660,9 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
             return false;
 
+        if (damageInfo.mContactImpulse < 100.0f) // todo: magic numbers
+            return false;
+
         glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(glm::vec2(damageInfo.mContactPoint.x, damageInfo.mContactPoint.z));
 
         // clockwise from top left corner
