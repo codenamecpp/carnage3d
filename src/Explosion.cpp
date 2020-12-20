@@ -10,8 +10,11 @@
 #include "GameObjectsManager.h"
 #include "AudioManager.h"
 
-Explosion::Explosion() 
+Explosion::Explosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType) 
     : GameObject(eGameObjectClass_Explosion, GAMEOBJECT_ID_NULL)
+    , mExplosionType(explosionType)
+    , mExplodingObject(explodingObject)
+    , mExplosionCauser(causer)
 {
 }
 
@@ -35,25 +38,38 @@ void Explosion::UpdateFrame()
         }
     }
 
-    if (!IsDamageDone())
+    if (mUpdatesCounter == 0)
     {
-        ProcessPrimaryDamage();
-        ProcessSecondaryDamage();
+        if (mExplosionType == eExplosionType_Rocket)
+        {
+            DamageObjectInContact();
+        }
+
+        DamagePedsNearby(mExplosionType == eExplosionType_Rocket);
+    }
+
+    mDamageTimer += deltaTime;
+
+    debug_assert(gGameParams.mExplosionDamageRate > 0.0f);
+    float timePerDamage = (1.0f / gGameParams.mExplosionDamageRate);
+    while (mDamageTimer > timePerDamage)
+    {
+        mDamageTimer -= timePerDamage;
+        DamageCarsNearby();
     }
 
     if (!mAnimationState.IsActive())
     {
         MarkForDeletion();
     }
+
+    ++mUpdatesCounter;
 }
 
 void Explosion::DebugDraw(DebugRenderer& debugRender)
 {
-    float damageRadiusA = gGameParams.mExplosionPrimaryDamageDistance;
-    float damageRadiusB = gGameParams.mExplosionSecondaryDamageDistance;
-
-    debugRender.DrawSphere(mSpawnPosition, damageRadiusA, Color32_Red, false);
-    debugRender.DrawSphere(mSpawnPosition, damageRadiusB, Color32_Yellow, false);
+    float damageRadius = gGameParams.mExplosionRadius;
+    debugRender.DrawSphere(mSpawnPosition, damageRadius, Color32_Red, false);
 }
 
 glm::vec3 Explosion::GetPosition() const
@@ -70,6 +86,8 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
     mSpawnPosition = position;
     mSpawnHeading = heading;
+    mDamageTimer = 0.0f;
+    mUpdatesCounter = 0;
 
     mDrawSprite.mPosition.x = position.x;
     mDrawSprite.mPosition.y = position.z;
@@ -88,9 +106,6 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
         debug_assert(false);
     }
 
-    mPrimaryDamageDone = false;
-    mSecondaryDamageDone = false;
-
     // broadcast event
     glm::vec2 position2 (position.x, position.z);
     gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
@@ -98,24 +113,16 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
     gAudioManager.PlaySfxLevel(SfxLevel_HugeExplosion, GetPosition(), false);
 }
 
-bool Explosion::IsDamageDone() const
+void Explosion::DamagePedsNearby(bool enableInstantKill)
 {
-    return mPrimaryDamageDone && mSecondaryDamageDone;
-}
+    float killHitDistance = gGameParams.mExplosionRadius * 0.5f;
+    float killlHitDistance2 = killHitDistance * killHitDistance;
+    float burnDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
 
-void Explosion::ProcessPrimaryDamage()
-{
-    if (mPrimaryDamageDone)
-        return;
-
-    mPrimaryDamageDone = true;
-
-    // primary damage
     glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
-    glm::vec2 extents (
-        gGameParams.mExplosionPrimaryDamageDistance,
-        gGameParams.mExplosionPrimaryDamageDistance
-    );
+    glm::vec2 extents ( 
+        gGameParams.mExplosionRadius, 
+        gGameParams.mExplosionRadius );
 
     PhysicsQueryResult queryResult;
     gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
@@ -124,38 +131,62 @@ void Explosion::ProcessPrimaryDamage()
     {
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
-        DamageInfo damageInfo;
-        damageInfo.SetDamageFromExplosion(gGameParams.mExplosionPrimaryDamage, this);
-
-        if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
+        Pedestrian* currPedestrian = nullptr;
+        if (PedPhysicsBody* physicsComponent = currElement.mPedComponent)
         {
-            // todo: temporary implementation
-            carPhysics->mReferenceCar->ReceiveDamage(damageInfo);
+            currPedestrian = physicsComponent->mReferencePed;
+        }
+
+        if (currPedestrian == nullptr)
+            continue;
+
+        glm::vec2 pedestrianPosition = currPedestrian->GetPosition2();
+        float distanceToExplosionCenter2 = glm::distance2(centerPoint, pedestrianPosition);
+
+        if (enableInstantKill)
+        {
+            if (distanceToExplosionCenter2 < killlHitDistance2)
+            {
+                // kill instantly
+                DamageInfo damageInfo;
+                damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+                currPedestrian->ReceiveDamage(damageInfo);
+                continue;
+            }
+        }
+
+        if (distanceToExplosionCenter2 < burnDistance2)
+        {
+            // burn
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromFire(gGameParams.mExplosionDamagePoints, this);
+            currPedestrian->ReceiveDamage(damageInfo);
             continue;
         }
 
-        if (PedPhysicsBody* pedPhysics = currElement.mPedComponent)
-        {
-            // todo: temporary implementation
-            pedPhysics->mReferencePed->ReceiveDamage(damageInfo);
-            continue;
-        }
     }
-
     queryResult.Clear();
 }
 
-void Explosion::ProcessSecondaryDamage()
+void Explosion::DamageObjectInContact()
 {
-    if (mSecondaryDamageDone)
+    if (!mExplodingObject)
         return;
 
-    // do secondary damage
+    DamageInfo damageInfo;
+    damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+    mExplodingObject->ReceiveDamage(damageInfo);
+    mExplodingObject.reset();
+}
+
+void Explosion::DamageCarsNearby()
+{
+    float burnDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
+
     glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
-    glm::vec2 extents (
-        gGameParams.mExplosionSecondaryDamageDistance,
-        gGameParams.mExplosionSecondaryDamageDistance
-    );
+    glm::vec2 extents ( 
+        gGameParams.mExplosionRadius, 
+        gGameParams.mExplosionRadius );
 
     PhysicsQueryResult queryResult;
     gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
@@ -164,44 +195,19 @@ void Explosion::ProcessSecondaryDamage()
     {
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
+        Vehicle* currentCar = nullptr;
+        if (CarPhysicsBody* physicsComponent = currElement.mCarComponent)
+        {
+            currentCar = physicsComponent->mReferenceCar;
+        }
+
+        if (currentCar == nullptr)
+            continue;
+
+        // burn
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromFire(gGameParams.mExplosionSecondaryDamage, this);
-
-        if (CarPhysicsBody* carPhysics = currElement.mCarComponent)
-        {
-            // todo: temporary implementation
-            carPhysics->mReferenceCar->ReceiveDamage(damageInfo);
-            continue;
-        }
-
-        if (PedPhysicsBody* pedPhysics = currElement.mPedComponent)
-        {
-            // todo: temporary implementation
-            pedPhysics->mReferencePed->ReceiveDamage(damageInfo);
-            continue;
-        }
+        damageInfo.SetDamageFromFire(gGameParams.mExplosionDamagePoints, this);
+        currentCar->ReceiveDamage(damageInfo);
     }
-
     queryResult.Clear();
-}
-
-void Explosion::DisablePrimaryDamage()
-{
-    mPrimaryDamageDone = true;
-}
-
-void Explosion::DisableSecondaryDamage()
-{
-    mSecondaryDamageDone = true;
-}
-
-void Explosion::SetIsCarExplosion(Vehicle* carObject)
-{
-    debug_assert(carObject);
-    mIsCarExplosion = true;
-}
-
-bool Explosion::IsCarExplosion() const
-{
-    return mIsCarExplosion;
 }

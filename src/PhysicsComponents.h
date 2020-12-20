@@ -95,9 +95,6 @@ public:
     // Cancel currently active forces
     void ClearForces();
 
-    // Clear state
-    void SetRespawned();
-
 protected:
     // only derived classes could be instantiated
     PhysicsBody(b2World* physicsWorld);

@@ -7,7 +7,11 @@ class Explosion final: public GameObject
     friend class GameObjectsManager;
   
 public:
-    Explosion();
+    // ctor
+    // @param explodingObject: Object that exploded
+    // @param causer: Object causing explosion
+    // @param explosionType: Type identifier
+    Explosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType);
 
     // override GameObject
     void PreDrawFrame() override;
@@ -19,25 +23,18 @@ public:
     glm::vec3 GetPosition() const override;
     glm::vec2 GetPosition2() const override;
 
-    // Disable primary of secondary damage of explosion
-    void DisablePrimaryDamage();
-    void DisableSecondaryDamage();
-
-    // Set if it was car explosion
-    void SetIsCarExplosion(Vehicle* carObject);
-
-    // Test whether explosion did its damage and can't hurt
-    bool IsDamageDone() const;
-    bool IsCarExplosion() const;
+private:
+    void DamageObjectInContact();
+    void DamagePedsNearby(bool enableInstantKill);
+    void DamageCarsNearby();
 
 private:
-    void ProcessPrimaryDamage();
-    void ProcessSecondaryDamage();
-
-private:
+    // params
+    eExplosionType mExplosionType = eExplosionType_Rocket;
+    GameObjectHandle mExplodingObject;
+    GameObjectHandle mExplosionCauser;
+    // state
     SpriteAnimation mAnimationState;
-
-    bool mIsCarExplosion = false;
-    bool mPrimaryDamageDone = false;
-    bool mSecondaryDamageDone = false;
+    float mDamageTimer = 0.0f;
+    int mUpdatesCounter = 0;
 };

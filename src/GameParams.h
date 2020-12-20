@@ -45,10 +45,9 @@ public:
     float mTrafficGenCarsCooldownTime; // seconds between traffic generation
 
     // explosion
-    float mExplosionPrimaryDamageDistance; // how far explosion can do maximum damage, meters
-    float mExplosionSecondaryDamageDistance; // how far explosion can do significant damage, meters
-    int mExplosionPrimaryDamage; // hit points to injure at Primary Damage Distance
-    int mExplosionSecondaryDamage; // hit points to injure at Secondary Damage Distance
+    float mExplosionRadius; // how far explosion can do damage, meters
+    float mExplosionDamageRate; // damages to vehicles per second
+    int mExplosionDamagePoints; // damage to vehicles
 
     // vehicles
     float mVehicleBurnDuration; // time before flame will go out by itself, seconds

@@ -60,7 +60,7 @@ void GameObject::Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading
 
 void GameObject::MarkForDeletion()
 {
-    gGameObjectsManager.MarkForDeletion(this);
+    mMarkedForDeletion = true;
 }
 
 bool GameObject::IsMarkedForDeletion() const

@@ -40,14 +40,24 @@ void GameObjectsManager::ClearWorld()
 
 void GameObjectsManager::UpdateFrame()
 {
-    DestroyMarkedForDeletionObjects();
+    bool hasDeadObjects = false;
 
     // if is safe to add new objects during loop by adding them to the end of the list
 
     for (size_t i = 0, NumElements = mAllObjects.size(); i < NumElements; ++i)
     {
         GameObject* currentObject = mAllObjects[i];
+        if (currentObject->IsMarkedForDeletion())
+        {
+            hasDeadObjects = true;
+            continue;
+        }
         currentObject->UpdateFrame();
+    }
+
+    if (hasDeadObjects)
+    {
+        DestroyMarkedForDeletionObjects();
     }
 }
 
@@ -134,7 +144,6 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
 
         instance = mObstaclesPool.create(objectID, desc);
         debug_assert(instance);
-
         mAllObjects.push_back(instance);
         // init
         instance->Spawn(position, heading);
@@ -142,14 +151,13 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
     return instance;
 }
 
-Explosion* GameObjectsManager::CreateExplosion(const glm::vec3& position)
+Explosion* GameObjectsManager::CreateExplosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType, const glm::vec3& position)
 {
-    Explosion* instance = mExplosionsPool.create();
+    Explosion* instance = mExplosionsPool.create(explodingObject, causer, explosionType);
     debug_assert(instance);
-
     mAllObjects.push_back(instance);
     // init
-    cxx::angle_t zeroAngle;
+    static const cxx::angle_t zeroAngle;
     instance->Spawn(position, zeroAngle);
     return instance;
 }
@@ -165,7 +173,6 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
 
     instance = mDecorationsPool.create(objectID, desc);
     debug_assert(instance);
-
     mAllObjects.push_back(instance);
     // init
     instance->Spawn(position, heading);
@@ -284,15 +291,6 @@ GameObject* GameObjectsManager::GetGameObjectByID(GameObjectID objectID) const
     return nullptr;
 }
 
-void GameObjectsManager::MarkForDeletion(GameObject* object)
-{
-    if (object->IsMarkedForDeletion())
-        return;
-
-    mDeleteObjectsList.push_back(object);
-    object->mMarkedForDeletion = true;
-}
-
 void GameObjectsManager::DestroyGameObject(GameObject* object)
 {
     if (object == nullptr)
@@ -301,7 +299,6 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         return;
     }
 
-    cxx::erase_elements(mDeleteObjectsList, object);
     cxx::erase_elements(mAllObjects, object);
 
     switch (object->mClassID)
@@ -373,9 +370,18 @@ void GameObjectsManager::DestroyAllObjects()
 
 void GameObjectsManager::DestroyMarkedForDeletionObjects()
 {
-    while (!mDeleteObjectsList.empty())
+    std::vector<GameObject*> objectsList;
+    for (GameObject* currGameObject: mAllObjects)
     {
-        DestroyGameObject(mDeleteObjectsList.back());
+        if (currGameObject->IsMarkedForDeletion())
+        {
+            objectsList.push_back(currGameObject);
+        }
+    }
+
+    for (GameObject* currGameObject: objectsList)
+    {
+        DestroyGameObject(currGameObject);
     }
 }
 

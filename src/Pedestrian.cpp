@@ -81,19 +81,17 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
     mCurrentWeapon = eWeapon_Fists;
     mChangeWeapon = eWeapon_Fists;
     
-    if (mPhysicsBody == nullptr)
+    // recreate physical body on respawn
+    if (mPhysicsBody)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
-        debug_assert(mPhysicsBody);
+        gPhysics.DestroyPhysicsObject(mPhysicsBody);
+        mPhysicsBody = nullptr;
     }
-    else
-    {
-        mPhysicsBody->SetRespawned();
-        mPhysicsBody->SetPosition(position, heading);
-    }
+
+    mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
+    debug_assert(mPhysicsBody);
 
     mDeathReason = ePedestrianDeathReason_null;
-
     mCurrentAnimID = ePedestrianAnim_Null;
 
     PedestrianStateEvent evData { ePedestrianStateEvent_Spawn };

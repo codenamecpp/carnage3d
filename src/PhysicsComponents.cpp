@@ -200,13 +200,6 @@ glm::vec2 PhysicsBody::GetLocalVector(const glm::vec2& worldVector) const
     return b2LocalVector;
 }
 
-void PhysicsBody::SetRespawned()
-{
-    mFalling = false;
-    mWaterContact = false;
-    mFallStartHeight = 0.0f;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 PedPhysicsBody::PedPhysicsBody(b2World* physicsWorld, Pedestrian* object)

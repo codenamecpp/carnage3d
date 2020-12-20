@@ -682,6 +682,15 @@ enum eWeatherEffect
 
 decl_enum_strings(eWeatherEffect);
 
+// explosion type
+enum eExplosionType
+{
+    eExplosionType_Rocket, // explosion caused by rocket launcher
+    eExplosionType_Vehicle, // car explosion
+};
+
+decl_enum_strings(eExplosionType);
+
 // pedestrian animations
 enum ePedestrianAnimID
 {

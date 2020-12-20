@@ -103,7 +103,7 @@ void Projectile::UpdateFrame()
             mPhysicsBody->mContactPoint.y += Convert::MapUnitsToMeters(1.0f);
         }
 
-        Explosion* explosion = gGameObjectsManager.CreateExplosion(mPhysicsBody->mContactPoint);
+        Explosion* explosion = gGameObjectsManager.CreateExplosion(mPhysicsBody->mContactObject, mShooter, eExplosionType_Rocket, mPhysicsBody->mContactPoint);
         debug_assert(explosion);
     }
 

@@ -13,7 +13,6 @@ class GameObjectsManager final: public cxx::noncopyable
 public:
     // readonly
     std::vector<GameObject*> mAllObjects;
-    std::vector<GameObject*> mDeleteObjectsList;
     std::vector<Pedestrian*> mPedestriansList;
     std::vector<Vehicle*> mVehiclesList;
 
@@ -51,7 +50,7 @@ public:
     Decoration* CreateBigSmoke(const glm::vec3& position);
 
     // Add explosion instance to map at specific location 
-    Explosion* CreateExplosion(const glm::vec3& position);
+    Explosion* CreateExplosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType, const glm::vec3& position);
 
     // Add new obstacle instance to map at specific location
     Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc);
@@ -67,10 +66,6 @@ public:
     // Will immediately destroy gameobject, don't call this mehod during UpdateFrame
     // @param object: Object to destroy
     void DestroyGameObject(GameObject* object);
-
-    // Queue gameobject for deletion, it will be destroyed next frame
-    // @param object: Object to queue
-    void MarkForDeletion(GameObject* object);
 
 private:
     bool CreateStartupObjects();

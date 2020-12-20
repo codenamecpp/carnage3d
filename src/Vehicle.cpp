@@ -53,15 +53,15 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
 
     debug_assert(mCarInfo);
     
-    if (mPhysicsBody == nullptr)
+    // recreate physical body on respawn
+    if (mPhysicsBody)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
-        debug_assert(mPhysicsBody);
+        gPhysics.DestroyPhysicsObject(mPhysicsBody);
+        mPhysicsBody = nullptr;
     }
-    else
-    {   
-        mPhysicsBody->SetPosition(position, heading);
-    }
+
+    mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
+    debug_assert(mPhysicsBody);
 
     mCarWrecked = false;
     mCurrentDamage = 0;
@@ -573,12 +573,8 @@ void Vehicle::Explode()
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
     mRemapIndex = NO_REMAP;
 
-    Explosion* explosion = gGameObjectsManager.CreateExplosion(explosionPos);
+    Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_Vehicle, explosionPos);
     debug_assert(explosion);
-    if (explosion)
-    {
-        explosion->DisablePrimaryDamage();
-    }
 
     SetBurnEffectActive(true);
 
