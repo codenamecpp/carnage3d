@@ -262,7 +262,7 @@ void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
         return;
 
     float currentSpeed = targetCar->mPhysicsBody->GetCurrentSpeed();
-    if (currentSpeed >= gGameParams.mVehicleSpeedPassengerCanEnter)
+    if (currentSpeed >= gGameParams.mCarSpeedPassengerCanEnter)
         return;
 
     if (IsBurn()) // cannot enter vehicle while burn
@@ -282,7 +282,7 @@ void Pedestrian::LeaveCar()
     if (IsCarPassenger())
     {
         float currentSpeed = mCurrentCar->mPhysicsBody->GetCurrentSpeed();
-        if (currentSpeed >= gGameParams.mVehicleSpeedPassengerCanEnter)
+        if (currentSpeed >= gGameParams.mCarSpeedPassengerCanEnter)
             return;
 
         PedestrianStateEvent evData { ePedestrianStateEvent_ExitCar };

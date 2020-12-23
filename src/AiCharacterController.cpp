@@ -390,7 +390,7 @@ void AiCharacterController::StopDriving()
     mCharacter->mCtlState.Clear();
 
     float currentSpeed = mCharacter->mCurrentCar->mPhysicsBody->GetCurrentSpeed();
-    if (currentSpeed > gGameParams.mVehicleSpeedPassengerCanEnter)
+    if (currentSpeed > gGameParams.mCarSpeedPassengerCanEnter)
     {
         mCharacter->mCtlState.mAcceleration = -1.0f;
     }

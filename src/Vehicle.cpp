@@ -81,8 +81,14 @@ void Vehicle::UpdateFrame()
         return;
 
     // check if car destroyed
-    if (mCurrentDamage >= 100)
+    if (IsCriticalDamageState())
     {
+        if (mExplosionWaitTime > 0.0f)
+        {
+            mExplosionWaitTime -= gTimeManager.mGameFrameDelta;
+            if (mExplosionWaitTime > 0.0f)
+                return;
+        }
         SetWrecked();
         Explode();
         return;
@@ -573,7 +579,7 @@ void Vehicle::Explode()
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
     mRemapIndex = NO_REMAP;
 
-    Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_Vehicle, explosionPos);
+    Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_CarDetonate, explosionPos);
     debug_assert(explosion);
 
     SetBurnEffectActive(true);
@@ -583,6 +589,8 @@ void Vehicle::Explode()
     {
         currentPed->DieFromDamage(eDamageCause_Explosion);
     }
+
+    mExplosionWaitTime = 0.0f;
 }
 
 bool Vehicle::HasHardTop() const
@@ -633,7 +641,19 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 
     if (damageInfo.mDamageCause == eDamageCause_Explosion)
     {
-        mCurrentDamage += damageInfo.mHitPoints;
+        if (IsCriticalDamageState())
+            return false; // ignore explosions
+
+        Explosion* explosion = (Explosion*)damageInfo.mSourceObject;
+        if (explosion && explosion->IsExplosionClass())
+        {
+            eExplosionType explosionType = explosion->GetExplosionType();
+            if (explosionType == eExplosionType_CarDetonate)
+            {
+                mExplosionWaitTime = gGameParams.mCarExplosionChainDelayTime;
+            }
+        }
+        mCurrentDamage = 100; // force max damage
         return true;
     }
 
@@ -648,8 +668,8 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if (damageInfo.mDamageCause == eDamageCause_Bullet ||
-        damageInfo.mDamageCause == eDamageCause_Burning)
+    if ((damageInfo.mDamageCause == eDamageCause_Bullet) ||
+        (damageInfo.mDamageCause == eDamageCause_Burning))
     {
         mCurrentDamage += damageInfo.mHitPoints;
         return true;
@@ -781,7 +801,7 @@ void Vehicle::UpdateBurnEffect()
     if (!IsBurn())
         return;
 
-    if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mVehicleBurnDuration))
+    if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mCarBurnDuration))
     {
         SetBurnEffectActive(false);
         return;
@@ -805,6 +825,7 @@ void Vehicle::Repair()
 
     mCurrentDamage = 0;
     mDamageDeltaBits = 0;
+    mExplosionWaitTime = 0.0f;
 }
 
 int Vehicle::GetCurrentDamage() const
@@ -865,4 +886,9 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
         gAudioManager.PlaySfxLevel(openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, GetPosition(), false);
     }
     return true;
+}
+
+bool Vehicle::IsCriticalDamageState() const
+{
+    return mCurrentDamage >= 100;
 }

@@ -96,6 +96,7 @@ public:
     // Test whether vehicle is wrecked
     bool IsWrecked() const;
     bool IsBurn() const;
+    bool IsCriticalDamageState() const;
 
     // Whether vehicle is fall in water
     bool IsInWater() const;
@@ -129,6 +130,7 @@ private:
     Decoration* mFireEffect = nullptr;
     float mBurnStartTime = 0.0f;
     float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
+    float mExplosionWaitTime = 0.0f;
 
     int mRemapIndex = NO_REMAP;
     int mSpriteIndex = 0;

@@ -44,18 +44,8 @@ void Explosion::UpdateFrame()
         {
             DamageObjectInContact();
         }
-
-        DamagePedsNearby(mExplosionType == eExplosionType_Rocket);
-    }
-
-    mDamageTimer += deltaTime;
-
-    debug_assert(gGameParams.mExplosionDamageRate > 0.0f);
-    float timePerDamage = (1.0f / gGameParams.mExplosionDamageRate);
-    while (mDamageTimer > timePerDamage)
-    {
-        mDamageTimer -= timePerDamage;
         DamageCarsNearby();
+        DamagePedsNearby(mExplosionType == eExplosionType_Rocket);
     }
 
     if (!mAnimationState.IsActive())
@@ -86,7 +76,6 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
 {
     mSpawnPosition = position;
     mSpawnHeading = heading;
-    mDamageTimer = 0.0f;
     mUpdatesCounter = 0;
 
     mDrawSprite.mPosition.x = position.x;
@@ -159,7 +148,7 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
         {
             // burn
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromFire(gGameParams.mExplosionDamagePoints, this);
+            damageInfo.SetDamageFromFire(1, this);
             currPedestrian->ReceiveDamage(damageInfo);
             continue;
         }
@@ -170,18 +159,17 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
 
 void Explosion::DamageObjectInContact()
 {
-    if (!mExplodingObject)
-        return;
-
-    DamageInfo damageInfo;
-    damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
-    mExplodingObject->ReceiveDamage(damageInfo);
-    mExplodingObject.reset();
+    if (mExplodingObject)
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+        mExplodingObject->ReceiveDamage(damageInfo);
+    }
 }
 
 void Explosion::DamageCarsNearby()
 {
-    float burnDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
+    float explodeDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
 
     glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
     glm::vec2 extents ( 
@@ -201,13 +189,22 @@ void Explosion::DamageCarsNearby()
             currentCar = physicsComponent->mReferenceCar;
         }
 
-        if (currentCar == nullptr)
+        if ((currentCar == nullptr) || (currentCar == mExplodingObject))
             continue;
 
-        // burn
-        DamageInfo damageInfo;
-        damageInfo.SetDamageFromFire(gGameParams.mExplosionDamagePoints, this);
-        currentCar->ReceiveDamage(damageInfo);
+        glm::vec2 carPosition = currentCar->GetPosition2();
+        float distanceToExplosionCenter2 = glm::distance2(centerPoint, carPosition);
+        if (distanceToExplosionCenter2 < explodeDistance2)
+        {
+            DamageInfo damageInfo;
+            damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+            currentCar->ReceiveDamage(damageInfo);
+        }
     }
     queryResult.Clear();
+}
+
+eExplosionType Explosion::GetExplosionType() const
+{
+    return mExplosionType;
 }

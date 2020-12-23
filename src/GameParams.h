@@ -46,12 +46,11 @@ public:
 
     // explosion
     float mExplosionRadius; // how far explosion can do damage, meters
-    float mExplosionDamageRate; // damages to vehicles per second
-    int mExplosionDamagePoints; // damage to vehicles
 
     // vehicles
-    float mVehicleBurnDuration; // time before flame will go out by itself, seconds
-    float mVehicleSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
+    float mCarBurnDuration; // time before flame will go out by itself, seconds
+    float mCarSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
+    float mCarExplosionChainDelayTime; // delay before car explode, seconds
 
     // broadcast events
     float mBroadcastGunShotEventDuration; // how long event affects, seconds

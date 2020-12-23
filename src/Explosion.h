@@ -23,6 +23,8 @@ public:
     glm::vec3 GetPosition() const override;
     glm::vec2 GetPosition2() const override;
 
+    eExplosionType GetExplosionType() const;
+
 private:
     void DamageObjectInContact();
     void DamagePedsNearby(bool enableInstantKill);
@@ -35,6 +37,5 @@ private:
     GameObjectHandle mExplosionCauser;
     // state
     SpriteAnimation mAnimationState;
-    float mDamageTimer = 0.0f;
     int mUpdatesCounter = 0;
 };

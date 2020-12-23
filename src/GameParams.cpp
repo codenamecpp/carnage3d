@@ -41,12 +41,11 @@ void GameParams::SetToDefaults()
     mTrafficGenCarsMaxDistance = 4;
     mTrafficGenCarsCooldownTime = 3.0f;
     // explosion
-    mExplosionRadius = Convert::MapUnitsToMeters(0.75f);
-    mExplosionDamageRate = 10.0f;
-    mExplosionDamagePoints = 10;
+    mExplosionRadius = Convert::MapUnitsToMeters(0.8f);
     // vehicles
-    mVehicleBurnDuration = 20.0f;
-    mVehicleSpeedPassengerCanEnter = 8.0f;
+    mCarBurnDuration = 20.0f;
+    mCarSpeedPassengerCanEnter = 8.0f;
+    mCarExplosionChainDelayTime = 0.45f;
     // broadcast events
     mBroadcastGunShotEventDuration = 1.0f;
     mBroadcastExplosionEventDuration = 1.5f;

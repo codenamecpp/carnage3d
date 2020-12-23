@@ -686,7 +686,7 @@ decl_enum_strings(eWeatherEffect);
 enum eExplosionType
 {
     eExplosionType_Rocket, // explosion caused by rocket launcher
-    eExplosionType_Vehicle, // car explosion
+    eExplosionType_CarDetonate, // car explosion
 };
 
 decl_enum_strings(eExplosionType);
