@@ -644,14 +644,9 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         if (IsCriticalDamageState())
             return false; // ignore explosions
 
-        Explosion* explosion = (Explosion*)damageInfo.mSourceObject;
-        if (explosion && explosion->IsExplosionClass())
+        if (damageInfo.mHitPoints == 1) // hack to simulate delayed explosion
         {
-            eExplosionType explosionType = explosion->GetExplosionType();
-            if (explosionType == eExplosionType_CarDetonate)
-            {
-                mExplosionWaitTime = gGameParams.mCarExplosionChainDelayTime;
-            }
+            mExplosionWaitTime = gGameParams.mCarExplosionChainDelayTime;
         }
         mCurrentDamage = 100; // force max damage
         return true;

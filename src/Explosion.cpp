@@ -162,7 +162,7 @@ void Explosion::DamageObjectInContact()
     if (mExplodingObject)
     {
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+        damageInfo.SetDamageFromExplosion(100, this); // max hitpoints, explode instantly
         mExplodingObject->ReceiveDamage(damageInfo);
     }
 }
@@ -197,14 +197,9 @@ void Explosion::DamageCarsNearby()
         if (distanceToExplosionCenter2 < explodeDistance2)
         {
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+            damageInfo.SetDamageFromExplosion(1, this); // explode with delay
             currentCar->ReceiveDamage(damageInfo);
         }
     }
     queryResult.Clear();
-}
-
-eExplosionType Explosion::GetExplosionType() const
-{
-    return mExplosionType;
 }
