@@ -1176,7 +1176,7 @@ int StyleData::GetWreckedVehicleSpriteIndex(eVehicleClass vehicleClass) const
         break;
 
         case eVehicleClass_Boat:
-            spriteID = 2; // actually there is no sprite for wrecked boat
+            spriteID = 6;
         break;
 
         case eVehicleClass_Tank:
