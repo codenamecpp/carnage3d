@@ -24,7 +24,7 @@ build_release: box2d premake
 get_demoversion:
 	mkdir -p gamedata/demoversions
 	cd gamedata/demoversions 
-	wget "https://www.rockstargames.com/gta/demos/gtaects.zip" -O gamedata/demoversions/gtaects.zip
+	wget "https://web.archive.org/web/20200930091556/https://www.rockstargames.com/gta/demos/gtaects.zip" -O gamedata/demoversions/gtaects.zip
 	unzip gamedata/demoversions/gtaects.zip -d gamedata/demoversions
 
 clean:
