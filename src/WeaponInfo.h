@@ -57,6 +57,7 @@ public:
     float mBaseFireRate = 1.0f; // num shots per seconds
     float mProjectileSize = 1.0f; // radius of projectile bounding sphere, meters
     float mProjectileSpeed = 1.0f; // how fast projectile moves, meters
+    int mShotsPerClip = 1; // how much shots can be done for single ammo point
     int mProjectileHitEffect = GameObjectType_Null;
     int mProjectileHitObjectSound = -1; // level sfx
     int mProjectileObject = GameObjectType_BulletProjectile;

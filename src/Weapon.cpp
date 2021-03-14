@@ -95,7 +95,11 @@ bool Weapon::Fire(Pedestrian* shooter)
     ++mShotsCounter;
     if (IsUsesAmmunition())
     {
-        DecAmmunition(1);
+        if (mShotsCounter >= weaponInfo->mShotsPerClip)
+        {
+            DecAmmunition(1);
+            ClearShotsCounter();
+        }
     }
 
     if (!IsOutOfAmmunition())
