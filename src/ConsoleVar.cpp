@@ -14,11 +14,34 @@ Cvar::~Cvar()
 {
 }
 
+void Cvar::CallWithParams(const std::string& params)
+{
+    if (params.empty()) // print cvar info
+    {
+        std::string currValue;
+        GetPrintableValue(currValue);
+
+        std::string defaultValue;
+        GetPrintableDefaultValue(defaultValue);
+
+        gConsole.LogMessage(eLogMessage_Info, "Current value: '%s', default value: '%s', description: '%s'",
+            currValue.c_str(), defaultValue.c_str(), mDescription.c_str());
+    }
+    else // try set new value
+    {
+        SetFromString(params, eCvarSetMethod_Console);
+    }
+}
+
 bool Cvar::SetFromString(const std::string& input, eCvarSetMethod setMethod)
 {
     if (setMethod == eCvarSetMethod_Console)
     {
         debug_assert(!IsHidden());
+    }
+    if (IsCommand())
+    {
+        debug_assert(false);
     }
     // check rom access
     if (IsReadonly() && (setMethod != eCvarSetMethod_Config))
@@ -73,6 +96,89 @@ bool Cvar::LoadCvar(cxx::json_document_node rootNode)
         return false;
 
     return SetFromString(printableValue, eCvarSetMethod_Config);
+}
+
+void Cvar::PrintInfo()
+{
+    std::string cvarInfo;
+    cvarInfo += mName;
+    if (IsModified())
+    {
+        cvarInfo += "*";
+    }
+    cvarInfo += " [";
+    if (IsArchive())
+    {
+        cvarInfo += " ";
+        cvarInfo += "archieve";
+    }
+    if (IsReadonly())
+    {
+        cvarInfo += " ";
+        cvarInfo += "readonly"; 
+    }
+    if (IsCheat())
+    {
+        cvarInfo += " ";
+        cvarInfo += "cheat";
+    }
+    if (IsInit())
+    {
+        cvarInfo += " ";
+        cvarInfo += "init";
+    }
+    if (IsHidden())
+    {
+        cvarInfo += " ";
+        cvarInfo += "hidden";
+    }
+    if (IsString())
+    {
+        cvarInfo += " ";
+        cvarInfo += "string";
+    }
+    if (IsBool())
+    {
+        cvarInfo += " ";
+        cvarInfo += "bool";
+    }
+    if (IsEnum())
+    {
+        cvarInfo += " ";
+        cvarInfo += "enum";
+    }
+    if (IsInt())
+    {
+        cvarInfo += " ";
+        cvarInfo += "int";
+    }
+    if (IsFloat())
+    {
+        cvarInfo += " ";
+        cvarInfo += "float";
+    }
+    if (IsColor())
+    {
+        cvarInfo += " ";
+        cvarInfo += "rgba";
+    }
+    if (IsVec3())
+    {
+        cvarInfo += " ";
+        cvarInfo += "vec3";
+    }
+    if (IsPoint())
+    {
+        cvarInfo += " ";
+        cvarInfo += "point";
+    }
+    if (IsCommand())
+    {
+        cvarInfo += " ";
+        cvarInfo += "command";
+    }
+    cvarInfo += " ]";
+    gConsole.LogMessage(eLogMessage_Info, cvarInfo.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -269,7 +375,7 @@ bool CvarColor::DeserializeValue(const std::string& input, bool& valueChanged)
 
     if (::sscanf(input.c_str(), "%d %d %d %d", &colorR, &colorG, &colorB, &colorA) < 4)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse color32 value");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse RGBA color value, expect 4 ints, for example: 255 255 0 125");
         return false;
     }
 
@@ -305,7 +411,7 @@ bool CvarPoint::DeserializeValue(const std::string& input, bool& valueChanged)
     Point newValue;
     if (::sscanf(input.c_str(), "%d %d", &newValue.x, &newValue.y) < 2)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse point2 value");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse point2 value, expect 2 ints, for example: 0 42");
         return false;
     }
 
@@ -342,7 +448,7 @@ bool CvarVec3::DeserializeValue(const std::string& input, bool& valueChanged)
     glm::vec3 newValue;
     if (::sscanf(input.c_str(), "%f %f %f", &newValue.x, &newValue.y, &newValue.z) < 3)
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse vec3 value");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot parse vec3 value, expect 3 floats, for example: 1.0 1.0 1.0");
         return false;
     }
     valueChanged = (prevValue != newValue);
@@ -351,4 +457,42 @@ bool CvarVec3::DeserializeValue(const std::string& input, bool& valueChanged)
         mValue = newValue;
     }
     return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+CvarCommand::CvarCommand(const std::string& name, const std::string& description, CvarCommandProc commandProc, CvarFlags cvarFlags)
+    : Cvar(name, description, cvarFlags | CvarFlags_CvarCommand)
+    , mCommandProc(commandProc)
+{
+    debug_assert(!IsArchive());
+    debug_assert(!IsReadonly());
+    debug_assert(!IsModified());
+}
+
+void CvarCommand::GetPrintableValue(std::string& output) const
+{
+    // do nothing
+
+    debug_assert(false);
+}
+
+void CvarCommand::GetPrintableDefaultValue(std::string& output) const
+{
+    // do nothing
+
+    debug_assert(false);
+}
+
+bool CvarCommand::DeserializeValue(const std::string& input, bool& valueChanged)
+{
+    return false;
+}
+
+void CvarCommand::CallWithParams(const std::string& params)
+{
+    if (mCommandProc)
+    {
+        mCommandProc(params.c_str());
+    }
 }

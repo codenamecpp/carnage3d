@@ -11,7 +11,7 @@ class Projectile final: public GameObject
 public:
     // readonly
     WeaponInfo* mWeaponInfo = nullptr;
-    ProjectilePhysicsBody* mPhysicsBody = nullptr;
+    ProjectilePhysics* mPhysicsBody = nullptr;
     PedestrianHandle mShooter;
     
 public:

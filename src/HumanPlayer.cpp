@@ -267,7 +267,7 @@ void HumanPlayer::EnterOrExitCar(bool alternative)
     // process all cars
     for (int icar = 0; icar < linecastResult.mHitsCount; ++icar)
     {
-        CarPhysicsBody* carBody = linecastResult.mHits[icar].mCarComponent;
+        CarPhysics* carBody = linecastResult.mHits[icar].mCarComponent;
         if (carBody == nullptr)
             continue;
 

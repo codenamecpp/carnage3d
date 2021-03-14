@@ -35,8 +35,16 @@ extern CvarEnum<eWeatherEffect> gCvarWeatherEffect; // currently active weather
 
 //////////////////////////////////////////////////////////////////////////
 
+// console commands
+
+extern CvarCommand gConSysQuit; // quit application
+extern CvarCommand gConSysListCvars; // print all non-hidden cvars to console
+
+//////////////////////////////////////////////////////////////////////////
+
 inline void CvarsRegisterGlobal()
 {
+    // vars
     gConsole.RegisterVariable(&gCvarGraphicsScreenDims);
     gConsole.RegisterVariable(&gCvarGraphicsFullscreen);
     gConsole.RegisterVariable(&gCvarGraphicsVSync);
@@ -52,4 +60,7 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarNumPlayers);
     gConsole.RegisterVariable(&gCvarWeatherActive);
     gConsole.RegisterVariable(&gCvarWeatherEffect);
+    // commands
+    gConsole.RegisterVariable(&gConSysQuit);
+    gConsole.RegisterVariable(&gConSysListCvars);
 }

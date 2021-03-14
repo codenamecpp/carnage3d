@@ -121,7 +121,7 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
         Pedestrian* currPedestrian = nullptr;
-        if (PedPhysicsBody* physicsComponent = currElement.mPedComponent)
+        if (PedestrianPhysics* physicsComponent = currElement.mPedComponent)
         {
             currPedestrian = physicsComponent->mReferencePed;
         }
@@ -184,7 +184,7 @@ void Explosion::DamageCarsNearby()
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
         Vehicle* currentCar = nullptr;
-        if (CarPhysicsBody* physicsComponent = currElement.mCarComponent)
+        if (CarPhysics* physicsComponent = currElement.mCarComponent)
         {
             currentCar = physicsComponent->mReferenceCar;
         }

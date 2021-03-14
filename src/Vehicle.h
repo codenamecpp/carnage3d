@@ -14,7 +14,7 @@ class Vehicle final: public GameObject
 
 public:
     // public for convenience, should not be modified directly
-    CarPhysicsBody* mPhysicsBody;
+    CarPhysics* mPhysicsBody;
 
     float mDrawHeight;
 

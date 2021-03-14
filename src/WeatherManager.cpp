@@ -105,7 +105,9 @@ void WeatherManager::GetParticleEffectParams(eWeatherEffect weather, ParticleEff
         params.mParticleLifetimeRange.y = 8.0f;
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
-        params.mParticleColors = { Color32_White };
+        Color32 snowflakesColor = Color32_White;
+        snowflakesColor.mA = 212;
+        params.mParticleColors = { snowflakesColor };
         params.mParticleFadeoutDuration = 0.5f;
     }
 
@@ -127,8 +129,10 @@ void WeatherManager::GetParticleEffectParams(eWeatherEffect weather, ParticleEff
         params.mParticleLifetimeRange.y = 5.0f;
         params.mParticleDieOnTimeout = true;
         params.mParticleDieOnCollision = true;
-        params.mParticleColors = { Color32_SkyBlue };
-        params.mParticleFadeoutDuration = 0.15f;
+        Color32 raindropsColor = Color32_SkyBlue;
+        raindropsColor.mA = 162;
+        params.mParticleColors = { raindropsColor };
+        params.mParticleFadeoutDuration = 0.2f;
     }
 }
 

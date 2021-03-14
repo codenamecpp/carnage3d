@@ -80,7 +80,6 @@ namespace cxx
             if (enum_value == curr.mEnumValue)
                 return curr.mEnumString;
         }
-        debug_assert(false);
         return "";
     }
 
@@ -95,7 +94,6 @@ namespace cxx
                 return true;
             }
         }
-        debug_assert(false);
         return false;
     }
 
@@ -110,8 +108,16 @@ namespace cxx
                 return true;
             }
         }
-        debug_assert(false);
         return false;
+    }
+    
+    template<typename TEnum>
+    inline void get_enum_strings(std::vector<const char*>& out_values)
+    {
+        for (const enum_string_elem<TEnum>& curr: enum_strings<TEnum>::mEnumValueStrings)
+        {
+            out_values.push_back(curr.mEnumString);
+        }
     }
 
 } // namespace cxx

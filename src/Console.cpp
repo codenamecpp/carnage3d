@@ -76,22 +76,7 @@ void Console::ExecuteCommands(const char* commands)
             {
                 cxx::trim(commandParams);
             }
-            cxx::trim(commandName);
-            if (commandParams.empty()) // print cvar info
-            {
-                std::string currValue;
-                consoleVariable->GetPrintableValue(currValue);
-
-                std::string defaultValue;
-                consoleVariable->GetPrintableDefaultValue(defaultValue);
-
-                LogMessage(eLogMessage_Info, "Current value: '%s', default value: '%s', description: '%s'",
-                    currValue.c_str(), defaultValue.c_str(), consoleVariable->mDescription.c_str());
-            }
-            else // try set new value
-            {
-                consoleVariable->SetFromString(commandParams, eCvarSetMethod_Console);
-            }
+            consoleVariable->CallWithParams(commandParams);
             break;
         }
         LogMessage(eLogMessage_Warning, "Unknown command %s", commandName.c_str());

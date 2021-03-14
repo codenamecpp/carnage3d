@@ -1,8 +1,8 @@
 #pragma once
 
 // forwards
-class PedPhysicsBody;
-class CarPhysicsBody;
+class PedestrianPhysics;
+class CarPhysics;
 
 // physics objects categories
 enum
@@ -31,8 +31,8 @@ public:
     }
 public:
     // ped or car physical object
-    PedPhysicsBody* mPedComponent = nullptr;
-    CarPhysicsBody* mCarComponent = nullptr;
+    PedestrianPhysics* mPedComponent = nullptr;
+    CarPhysics* mCarComponent = nullptr;
 
     glm::vec2 mNormal;
     glm::vec2 mIntersectionPoint;
@@ -50,8 +50,8 @@ public:
     }
 public:
     // ped or car physical object
-    PedPhysicsBody* mPedComponent = nullptr;
-    CarPhysicsBody* mCarComponent = nullptr;
+    PedestrianPhysics* mPedComponent = nullptr;
+    CarPhysics* mCarComponent = nullptr;
 };
 
 // linecast result

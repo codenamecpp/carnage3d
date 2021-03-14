@@ -7,9 +7,9 @@ class PhysicsBody: public cxx::noncopyable
 {
     friend class PhysicsManager;
 
-    friend class PedPhysicsBody;
-    friend class CarPhysicsBody;
-    friend class ProjectilePhysicsBody;
+    friend class PedestrianPhysics;
+    friend class CarPhysics;
+    friend class ProjectilePhysics;
 
 public:    
     // readonly
@@ -107,7 +107,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 // pedestrian physics component
-class PedPhysicsBody: public PhysicsBody
+class PedestrianPhysics: public PhysicsBody
 {
     friend class PhysicsManager;
 
@@ -119,7 +119,7 @@ public:
     int mContactingCars = 0; // number of contacting cars
 
 public:
-    PedPhysicsBody(b2World* physicsWorld, Pedestrian* object);
+    PedestrianPhysics(b2World* physicsWorld, Pedestrian* object);
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
@@ -141,7 +141,7 @@ enum eCarTire
 };
 
 // car chassis physics component
-class CarPhysicsBody: public PhysicsBody
+class CarPhysics: public PhysicsBody
 {
     friend class PhysicsManager;
 
@@ -150,7 +150,7 @@ public:
     Vehicle* mReferenceCar = nullptr;
 
 public:
-    CarPhysicsBody(b2World* physicsWorld, Vehicle* object);
+    CarPhysics(b2World* physicsWorld, Vehicle* object);
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;
@@ -211,7 +211,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ProjectilePhysicsBody: public PhysicsBody
+class ProjectilePhysics: public PhysicsBody
 {
     friend class PhysicsManager;
 
@@ -225,7 +225,7 @@ public:
     bool mContactDetected = false;
 
 public:
-    ProjectilePhysicsBody(b2World* physicsWorld, Projectile* object);
+    ProjectilePhysics(b2World* physicsWorld, Projectile* object);
     // override PhysicsComponent
     void SimulationStep() override;
     bool ShouldContactWith(unsigned int objCatBits) const override;

@@ -33,6 +33,21 @@ CvarBoolean gCvarMemEnableFrameHeapAllocator("mem_enableFrameHeapAllocator", tru
 // audio
 CvarBoolean gCvarAudioActive("a_audioActive", true, "Enable audio system", CvarFlags_Archive | CvarFlags_Init);
 
+// commands
+CvarCommand gConSysQuit("quit", "Quit application", [](const char*)
+{
+    gSystem.QuitRequest();
+});
+CvarCommand gConSysListCvars("print_cvars", "Print all registered console variables", [](const char*)
+{
+    for (Cvar* currCvar: gConsole.mCvarsList)
+    {
+        if (currCvar->IsHidden())
+            continue;
+        currCvar->PrintInfo();
+    };
+});
+
 //////////////////////////////////////////////////////////////////////////
 
 System gSystem;

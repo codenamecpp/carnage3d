@@ -19,7 +19,9 @@ enum CvarFlags: unsigned long
     CvarFlags_CvarColor          = (1 << 13), // rgba, 4 unsigned bytes
     CvarFlags_CvarPoint          = (1 << 14), // 2 ints
     CvarFlags_CvarVec3           = (1 << 15), // 3 floats
-    CvarFlags_CVarEnum           = (1 << 16), // int
+    CvarFlags_CvarEnum           = (1 << 16), // int
+    // special value types
+    CvarFlags_CvarCommand        = (1 << 17), // does not holds any data but executes command
 };
 decl_enum_as_flags(CvarFlags)
 
@@ -29,6 +31,9 @@ enum eCvarSetMethod
     eCvarSetMethod_CommandLine,
     eCvarSetMethod_Console,
 };
+
+class CvarCommand;
+using CvarCommandProc = std::function<void(const char*)>;
 
 // Base console variable class
 class Cvar: public cxx::noncopyable
@@ -58,6 +63,9 @@ public:
     void SaveCvar(cxx::json_document_node rootNode) const;
     bool LoadCvar(cxx::json_document_node rootNode);
 
+    // Print brief info about variable to console
+    void PrintInfo();
+
     // Get current value string representation
     virtual void GetPrintableValue(std::string& output) const = 0;
     virtual void GetPrintableDefaultValue(std::string& output) const = 0;
@@ -73,9 +81,13 @@ public:
     bool IsRequiresAppRestart() const { return (mCvarFlags & CvarFlags_RequiresAppRestart) > 0; }
     bool IsString()     const { return (mCvarFlags & CvarFlags_CvarString) > 0; }
     bool IsBool()       const { return (mCvarFlags & CvarFlags_CvarBool)   > 0; }
-    bool IsEnum()       const { return (mCvarFlags & CvarFlags_CVarEnum)   > 0; }
+    bool IsEnum()       const { return (mCvarFlags & CvarFlags_CvarEnum)   > 0; }
     bool IsInt()        const { return (mCvarFlags & CvarFlags_CvarInt)    > 0; }
     bool IsFloat()      const { return (mCvarFlags & CvarFlags_CvarFloat)  > 0; }
+    bool IsColor()      const { return (mCvarFlags & CvarFlags_CvarColor)  > 0; }
+    bool IsPoint()      const { return (mCvarFlags & CvarFlags_CvarPoint)  > 0; }
+    bool IsVec3()       const { return (mCvarFlags & CvarFlags_CvarVec3)   > 0; }
+    bool IsCommand()    const { return (mCvarFlags & CvarFlags_CvarCommand)> 0; }
 
 protected:
     Cvar(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags);
@@ -83,6 +95,8 @@ protected:
 
     // Load new value from input string
     virtual bool DeserializeValue(const std::string& input, bool& valueChanged) = 0;
+
+    virtual void CallWithParams(const std::string& params);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -242,7 +256,7 @@ public:
 
 public:
     CvarEnum(const std::string& cvarName, TEnum cvarValue, const std::string& description, CvarFlags cvarFlags)
-        : Cvar(cvarName, description, cvarFlags | CvarFlags_CVarEnum)
+        : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarEnum)
         , mValue(cvarValue)
         , mDefaultValue(cvarValue)
     {
@@ -266,6 +280,18 @@ protected:
         if (!cxx::parse_enum(input.c_str(), deserializeValue))
         {
             gConsole.LogMessage(eLogMessage_Debug, "Cannot parse enum value '%s'", input.c_str());
+            
+            std::vector<const char*> enumStrings;
+            cxx::get_enum_strings<TEnum>(enumStrings);
+
+            if (!enumStrings.empty())
+            {
+                gConsole.LogMessage(eLogMessage_Debug, "Possible values:");
+                for (const char* currString: enumStrings)
+                {
+                    gConsole.LogMessage(eLogMessage_Debug, " - %s", currString);
+                }
+            }
             return false;
         }
         valueChanged = (deserializeValue != mValue);
@@ -275,4 +301,25 @@ protected:
         }
         return true;
     }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class CvarCommand: public Cvar
+{
+public:
+    CvarCommandProc mCommandProc;
+
+public:
+    CvarCommand(const std::string& name, const std::string& description, CvarCommandProc commandProc, CvarFlags cvarFlags = CvarFlags_None);
+
+protected:
+    // Get current value string representation
+    void GetPrintableValue(std::string& output) const override;
+    void GetPrintableDefaultValue(std::string& output) const override;
+
+    // Load new value from input string
+    bool DeserializeValue(const std::string& input, bool& valueChanged) override;
+
+    void CallWithParams(const std::string& params) override;
 };

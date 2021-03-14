@@ -14,7 +14,7 @@ class Pedestrian final: public GameObject
     , public SpriteAnimListener
 {
     friend class GameObjectsManager;
-    friend class PedPhysicsBody;
+    friend class PedestrianPhysics;
     friend class PedestrianStatesManager;
     friend class GameCheatsWindow;
 
@@ -23,7 +23,7 @@ public:
     ePedestrianType mPedestrianTypeID = ePedestrianType_Civilian;
 
     CharacterController* mController; // controls pedestrian actions
-    PedPhysicsBody* mPhysicsBody;
+    PedestrianPhysics* mPhysicsBody;
 
     PedestrianCtlState mCtlState;
 

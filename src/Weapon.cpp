@@ -46,7 +46,7 @@ bool Weapon::Fire(Pedestrian* shooter)
         gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
         for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
         {
-            PedPhysicsBody* pedBody = linecastResult.mHits[icurr].mPedComponent;
+            PedestrianPhysics* pedBody = linecastResult.mHits[icurr].mPedComponent;
             if (pedBody == nullptr || pedBody->mReferencePed == shooter) // ignore self
                 continue; 
 
