@@ -33,13 +33,8 @@ SfxEmitter::~SfxEmitter()
     StopAllSounds();
 }
 
-void SfxEmitter::ReleaseEmitter(bool stopAudio)
+void SfxEmitter::ReleaseEmitter()
 {
-    if (!stopAudio)
-    {
-        mAudioChannels.clear();
-    }
-
     gAudioManager.DestroyEmitter(this);
 }
 
@@ -56,8 +51,19 @@ void SfxEmitter::UpdateEmitterParams(const glm::vec3& emitterPosition)
     }
 }
 
-void SfxEmitter::UpdateSounds(float deltaTime)
+void SfxEmitter::UpdateSounds()
 {
+    for (SfxChannel& currChannel: mAudioChannels)
+    {
+        if (currChannel.mHardwareSource == nullptr)
+            continue;
+
+        if (currChannel.mHardwareSource->IsStopped())
+        {
+            currChannel.mHardwareSource = nullptr;
+            continue;
+        }
+    }
 }
 
 void SfxEmitter::StopAllSounds()
@@ -92,26 +98,6 @@ void SfxEmitter::ResumeAllSounds()
             currChannel.mHardwareSource->Resume();
         }
     }
-}
-
-bool SfxEmitter::CheckForCompletion()
-{
-    bool isComplete = true;
-    for (SfxChannel& currChannel: mAudioChannels)
-    {
-        if (currChannel.mHardwareSource == nullptr)
-            continue;
-
-        if (currChannel.mHardwareSource->IsStopped())
-        {
-            currChannel.mHardwareSource = nullptr;
-            continue;
-        }
-
-        isComplete = false;
-    }
-
-    return isComplete && IsAutoreleaseEmitter();
 }
 
 bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags)
@@ -170,6 +156,7 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
             debug_assert(false);
         }
     }
+    gAudioManager.RegisterActiveEmitter(this);
     return true;
 }
 
@@ -186,20 +173,20 @@ bool SfxEmitter::StopSound(int ichannel)
     return true;
 }
 
-bool SfxEmitter::IsCurrentlyPlaying(int ichannel) const
+bool SfxEmitter::IsPlaying(int ichannel) const
 {
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
     if (mAudioChannels[ichannel].mHardwareSource)
     {
-        return !mAudioChannels[ichannel].mHardwareSource->IsStopped();
+        return mAudioChannels[ichannel].mHardwareSource->IsPlaying();
     }
 
     return false;
 }
 
-bool SfxEmitter::IsCurrentlyPlaying() const
+bool SfxEmitter::IsActiveEmitter() const
 {
     for (const SfxChannel& currChannel: mAudioChannels)
     {

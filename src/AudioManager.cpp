@@ -21,14 +21,14 @@ void AudioManager::Deinit()
 {
     StopAllSounds();
 
-    ReleaseSoundEmitters();
+    ReleaseActiveEmitters();
     ReleaseAudioSources();
     ReleaseLevelSounds();
 }
 
 void AudioManager::UpdateFrame()
 {
-    UpdateSoundEmitters();
+    UpdateActiveEmitters();
 }
 
 bool AudioManager::PreloadLevelSounds()
@@ -195,7 +195,6 @@ SfxEmitter* AudioManager::CreateEmitter(const glm::vec3& emitterPosition, SfxEmi
     SfxEmitter* emitter = mEmittersPool.create(emitterFlags);
     debug_assert(emitter);
     emitter->UpdateEmitterParams(emitterPosition);
-    mAllEmitters.push_back(emitter);
     return emitter;
 }
 
@@ -208,32 +207,55 @@ void AudioManager::DestroyEmitter(SfxEmitter* sfxEmitter)
     }
 
     mEmittersPool.destroy(sfxEmitter);
-    cxx::erase_elements(mAllEmitters, sfxEmitter);
+    cxx::erase_elements(mActiveEmitters, sfxEmitter);
 }
 
-void AudioManager::ReleaseSoundEmitters()
+void AudioManager::ReleaseActiveEmitters()
 {
-    for (SfxEmitter* currEmitter: mAllEmitters)
-    {
-        mEmittersPool.destroy(currEmitter);
-    }
-    mAllEmitters.clear();
-}
+    if (mActiveEmitters.empty())
+        return;
 
-void AudioManager::UpdateSoundEmitters()
-{
+    std::vector<SfxEmitter*> activeEmitters;
     std::vector<SfxEmitter*> deleteEmitters;
-    for (SfxEmitter* currEmitter: mAllEmitters)
+    activeEmitters.swap(mActiveEmitters);
+
+    for (SfxEmitter* currEmitter: activeEmitters)
     {
-        if (currEmitter->CheckForCompletion())
+        currEmitter->StopAllSounds();
+        if (currEmitter->IsAutoreleaseEmitter())
         {
             deleteEmitters.push_back(currEmitter);
         }
     }
-    // destroy dead emitters
+    // destroy autorelease emitters
     for (SfxEmitter* currEmitter: deleteEmitters)
     {
-        DestroyEmitter(currEmitter);
+        mEmittersPool.destroy(currEmitter);
+    }
+}
+
+void AudioManager::UpdateActiveEmitters()
+{
+    if (mActiveEmitters.empty())
+        return;
+
+    std::vector<SfxEmitter*> inactiveEmitters;
+    for (SfxEmitter* currEmitter: mActiveEmitters)
+    {
+        currEmitter->UpdateSounds();
+        if (!currEmitter->IsActiveEmitter())
+        {
+            inactiveEmitters.push_back(currEmitter);
+        }
+    }
+
+    for (SfxEmitter* currEmitter: inactiveEmitters)
+    {
+        cxx::erase_elements(mActiveEmitters, currEmitter);
+        if (currEmitter->IsAutoreleaseEmitter())
+        {
+            mEmittersPool.destroy(currEmitter);
+        }
     }
 }
 
@@ -261,4 +283,18 @@ float AudioManager::NextRandomPitch()
 
     int randomIndex = gCarnageGame.mGameRand.generate_int() % CountOf(_pitchValues);
     return _pitchValues[randomIndex];
+}
+
+void AudioManager::RegisterActiveEmitter(SfxEmitter* emitter)
+{
+    if (emitter == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
+
+    if (!cxx::contains(mActiveEmitters, emitter))
+    {
+        mActiveEmitters.push_back(emitter);
+    }
 }

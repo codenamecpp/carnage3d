@@ -49,8 +49,9 @@ private:
     bool AllocateAudioSources();
     void ReleaseAudioSources();
 
-    void UpdateSoundEmitters();
-    void ReleaseSoundEmitters();
+    void UpdateActiveEmitters();
+    void ReleaseActiveEmitters();
+    void RegisterActiveEmitter(SfxEmitter* emitter);
 
     // generate random pitch value
     float NextRandomPitch();
@@ -59,7 +60,7 @@ private:
     std::vector<AudioSource*> mAudioSources; // all available hardware audio sources
     std::vector<SfxSample*> mLevelSfxSamples;
     std::vector<SfxSample*> mVoiceSfxSamples;
-    std::vector<SfxEmitter*> mAllEmitters;
+    std::vector<SfxEmitter*> mActiveEmitters;
 
     cxx::object_pool<SfxEmitter> mEmittersPool;
 };

@@ -47,10 +47,14 @@ public:
     ~SfxEmitter();
 
     // Free emitter
-    void ReleaseEmitter(bool stopAudio);
+    void ReleaseEmitter();
 
     void UpdateEmitterParams(const glm::vec3& emitterPosition);
-    void UpdateSounds(float deltaTime);
+    void UpdateSounds();
+
+    void StopAllSounds();
+    void PauseAllSounds();
+    void ResumeAllSounds();
 
     bool StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags);
     bool StopSound(int ichannel);
@@ -59,18 +63,11 @@ public:
     bool SetPitch(int ichannel, float pitchValue);
     bool SetGain(int ichannel, float gainValue);
 
-    void StopAllSounds();
-    void PauseAllSounds();
-    void ResumeAllSounds();
-
-    bool IsCurrentlyPlaying(int ichannel) const;
-    bool IsCurrentlyPlaying() const;
+    bool IsPlaying(int ichannel) const;
     bool IsPaused(int ichannel) const;
     
     bool IsAutoreleaseEmitter() const;
-
-private:
-    bool CheckForCompletion();
+    bool IsActiveEmitter() const;
 
 private:
     std::vector<SfxChannel> mAudioChannels;
