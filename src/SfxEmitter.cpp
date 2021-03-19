@@ -22,8 +22,9 @@ SfxSample::~SfxSample()
 
 //////////////////////////////////////////////////////////////////////////
 
-SfxEmitter::SfxEmitter(SfxEmitterFlags emitterFlags)
+SfxEmitter::SfxEmitter(GameObject* gameObject, SfxEmitterFlags emitterFlags)
     : mEmitterFlags(emitterFlags)
+    , mGameObject(gameObject)
 {
 }
 
@@ -33,8 +34,12 @@ SfxEmitter::~SfxEmitter()
     StopAllSounds();
 }
 
-void SfxEmitter::ReleaseEmitter()
+void SfxEmitter::ReleaseEmitter(bool stopSounds)
 {
+    if (!stopSounds)
+    {
+        mAudioChannels.clear();
+    }
     gAudioManager.DestroyEmitter(this);
 }
 

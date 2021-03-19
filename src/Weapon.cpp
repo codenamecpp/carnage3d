@@ -80,8 +80,7 @@ bool Weapon::Fire(Pedestrian* shooter)
 
         if (weaponInfo->mShotSound != -1)
         {
-            SfxSample* shotSample = gAudioManager.GetSound(eSfxType_Level, weaponInfo->mShotSound);
-            shooter->mSfxEmitter->StartSound(ePedSfxChannelIndex_Weapon, shotSample, SfxFlags_RandomPitch);
+            shooter->StartGameObjectSound(ePedSfxChannelIndex_Weapon, eSfxType_Level, weaponInfo->mShotSound, SfxFlags_RandomPitch);
         }
 
         // broardcast event

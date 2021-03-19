@@ -8,7 +8,6 @@
 #include "PedestrianStates.h"
 #include "Weapon.h"
 #include "PedestrianInfo.h"
-#include "SfxEmitter.h"
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
@@ -25,7 +24,6 @@ public:
 
     CharacterController* mController; // controls pedestrian actions
     PedestrianPhysics* mPhysicsBody;
-    SfxEmitter* mSfxEmitter = nullptr;
 
     PedestrianCtlState mCtlState;
 
@@ -58,7 +56,7 @@ public:
     void UpdateFrame() override;
     void PreDrawFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
+    void OnGameObjectSpawn() override;
 
     // Process damage, it may be ignored depending on type of damage and objects current state
     // @param damageInfo: Damage details

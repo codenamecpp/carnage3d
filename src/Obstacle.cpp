@@ -35,17 +35,14 @@ void Obstacle::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-void Obstacle::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Obstacle::OnGameObjectSpawn()
 {
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
-
     debug_assert(mGameObjectDesc);
 
-    mDrawSprite.mPosition.x = position.x;
-    mDrawSprite.mPosition.y = position.z;
-    mDrawSprite.mHeight = position.y;
-    mDrawSprite.mRotateAngle = heading;
+    mDrawSprite.mPosition.x = mSpawnPosition.x;
+    mDrawSprite.mPosition.y = mSpawnPosition.z;
+    mDrawSprite.mHeight = mSpawnPosition.y;
+    mDrawSprite.mRotateAngle = mSpawnHeading;
 
     mAnimationState.Clear();
     mAnimationState.mAnimDesc = mGameObjectDesc->mAnimationData;

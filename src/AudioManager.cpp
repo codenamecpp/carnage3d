@@ -190,9 +190,9 @@ SfxSample* AudioManager::GetSound(eSfxType sfxType, SfxIndex sfxIndex)
     return samples[sfxIndex];
 }
 
-SfxEmitter* AudioManager::CreateEmitter(const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags)
+SfxEmitter* AudioManager::CreateEmitter(GameObject* gameObject, const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags)
 {
-    SfxEmitter* emitter = mEmittersPool.create(emitterFlags);
+    SfxEmitter* emitter = mEmittersPool.create(gameObject, emitterFlags);
     debug_assert(emitter);
     emitter->UpdateEmitterParams(emitterPosition);
     return emitter;
@@ -242,6 +242,12 @@ void AudioManager::UpdateActiveEmitters()
     std::vector<SfxEmitter*> inactiveEmitters;
     for (SfxEmitter* currEmitter: mActiveEmitters)
     {
+        if (currEmitter->mGameObject) // sync audio params
+        {
+            glm::vec3 gameObjectPosition = currEmitter->mGameObject->GetPosition();
+            currEmitter->UpdateEmitterParams(gameObjectPosition);
+        }
+
         currEmitter->UpdateSounds();
         if (!currEmitter->IsActiveEmitter())
         {
@@ -265,7 +271,7 @@ bool AudioManager::StartSound(eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxF
     if (audioSample == nullptr)
         return false;
 
-    SfxEmitter* autoreleaseEmitter = CreateEmitter(emitterPosition, SfxEmitterFlags_Autorelease);
+    SfxEmitter* autoreleaseEmitter = CreateEmitter(nullptr, emitterPosition, SfxEmitterFlags_Autorelease);
     debug_assert(autoreleaseEmitter);
     if (autoreleaseEmitter)
     {

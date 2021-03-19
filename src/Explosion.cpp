@@ -72,15 +72,13 @@ glm::vec2 Explosion::GetPosition2() const
     return { mSpawnPosition.x, mSpawnPosition.z };
 }
 
-void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Explosion::OnGameObjectSpawn()
 {
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
     mUpdatesCounter = 0;
 
-    mDrawSprite.mPosition.x = position.x;
-    mDrawSprite.mPosition.y = position.z;
-    mDrawSprite.mHeight = position.y;
+    mDrawSprite.mPosition.x = mSpawnPosition.x;
+    mDrawSprite.mPosition.y = mSpawnPosition.z;
+    mDrawSprite.mHeight = mSpawnPosition.y;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;
 
     mAnimationState.Clear();
@@ -96,10 +94,10 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
     }
 
     // broadcast event
-    glm::vec2 position2 (position.x, position.z);
+    glm::vec2 position2 (mSpawnPosition.x, mSpawnPosition.z);
     gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
 
-    gAudioManager.StartSound(eSfxType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch, GetPosition());
+    StartGameObjectSound(0, eSfxType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch);
 }
 
 void Explosion::DamagePedsNearby(bool enableInstantKill)

@@ -382,8 +382,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 
     if (mPedestrian->IsHumanPlayerCharacter())
     {
-        SfxSample* dieSample = gAudioManager.GetSound(eSfxType_Voice, SfxVoice_PlayerDies);
-        mPedestrian->mSfxEmitter->StartSound(ePedSfxChannelIndex_Voice, dieSample, SfxFlags_None);
+        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Voice, SfxVoice_PlayerDies, SfxFlags_None);
     }
 }
 
@@ -624,8 +623,7 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
     {
         if (stateEvent.mDamageInfo.mDamageCause == eDamageCause_Punch)
         {
-            SfxSample* punchSample = gAudioManager.GetSound(eSfxType_Level, SfxLevel_Punch);
-            mPedestrian->mSfxEmitter->StartSound(ePedSfxChannelIndex_Voice, punchSample, SfxFlags_RandomPitch);
+            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_Punch, SfxFlags_RandomPitch);
         }
     }
 

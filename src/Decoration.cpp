@@ -54,9 +54,9 @@ glm::vec2 Decoration::GetPosition2() const
     return {mSpawnPosition.x, mSpawnPosition.z};
 }
 
-void Decoration::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Decoration::OnGameObjectSpawn()
 {
-    SetTransform(position, heading);
+    SetTransform(mSpawnPosition, mSpawnHeading);
 
     mAnimationState.ClearState();
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);

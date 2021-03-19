@@ -23,18 +23,16 @@ Projectile::~Projectile()
     }
 }
 
-void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Projectile::OnGameObjectSpawn()
 {
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
     if (mPhysicsBody == nullptr)
     {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
+        mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
         debug_assert(mPhysicsBody);
     }
     else
     {   
-        mPhysicsBody->SetPosition(position, heading);
+        mPhysicsBody->SetPosition(mSpawnPosition, mSpawnHeading);
     }
 
     // setup animation
@@ -63,7 +61,7 @@ void Projectile::Spawn(const glm::vec3& position, cxx::angle_t heading)
     }
 
     // setup sprite rotation and scale
-    cxx::angle_t rotationAngle = heading + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t rotationAngle = mSpawnHeading + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
     mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Projectiles;
 }
@@ -122,7 +120,7 @@ void Projectile::UpdateFrame()
 
     if (mWeaponInfo->mProjectileHitObjectSound != -1)
     {
-        gAudioManager.StartSound(eSfxType_Level, mWeaponInfo->mProjectileHitObjectSound, SfxFlags_RandomPitch, GetPosition());
+        StartGameObjectSound(0, eSfxType_Level, mWeaponInfo->mProjectileHitObjectSound, SfxFlags_RandomPitch);
     }
 
     MarkForDeletion();

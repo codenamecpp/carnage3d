@@ -44,11 +44,8 @@ Vehicle::~Vehicle()
     gSpriteManager.FlushSpritesCache(mObjectID);
 }
 
-void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Vehicle::OnGameObjectSpawn()
 {
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
-
     mStandingOnRailwaysTimer = 0.0f;
 
     debug_assert(mCarInfo);
@@ -60,7 +57,7 @@ void Vehicle::Spawn(const glm::vec3& position, cxx::angle_t heading)
         mPhysicsBody = nullptr;
     }
 
-    mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
+    mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
     debug_assert(mPhysicsBody);
 
     mCarWrecked = false;
@@ -878,7 +875,7 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
     if (actionID == eSpriteAnimAction_CarDoors)
     {
         bool openDoors = animation->IsRunsForwards();
-        gAudioManager.StartSound(eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch, GetPosition());
+        StartGameObjectSound(0, eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch);
     }
     return true;
 }

@@ -10,8 +10,6 @@
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
 #include "CarnageGame.h"
-#include "SfxDefs.h"
-#include "AudioManager.h"
 
 Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier) 
     : GameObject(eGameObjectClass_Pedestrian, id)
@@ -29,12 +27,6 @@ Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier)
 
 Pedestrian::~Pedestrian()
 {
-    if (mSfxEmitter)
-    {
-        gAudioManager.DestroyEmitter(mSfxEmitter);
-        mSfxEmitter = nullptr;
-    }
-
     if (mController)
     {
         mController->DeactivateConstroller();
@@ -49,20 +41,12 @@ Pedestrian::~Pedestrian()
     }
 }
 
-void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
+void Pedestrian::OnGameObjectSpawn()
 {
     debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
     PedestrianInfo& pedestrianInfo = gGameMap.mStyleData.mPedestrianTypes[mPedestrianTypeID];
 
     mFearFlags = pedestrianInfo.mFearFlags;
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
-
-    if (mSfxEmitter == nullptr)
-    {
-        mSfxEmitter = gAudioManager.CreateEmitter(position);
-        debug_assert(mSfxEmitter);
-    }
 
     if (pedestrianInfo.mRemapType == ePedestrianRemapType_Index)
     {
@@ -100,7 +84,7 @@ void Pedestrian::Spawn(const glm::vec3& position, cxx::angle_t heading)
         mPhysicsBody = nullptr;
     }
 
-    mPhysicsBody = gPhysics.CreatePhysicsObject(this, position, heading);
+    mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
     debug_assert(mPhysicsBody);
 
     mDeathReason = ePedestrianDeathReason_null;
@@ -144,13 +128,6 @@ void Pedestrian::UpdateFrame()
     mStatesManager.ProcessFrame();
 
     UpdateBurnEffect();
-
-    // update sound emitter pos
-    if (mSfxEmitter)
-    {
-        glm::vec3 currPosition = GetPosition();
-        mSfxEmitter->UpdateEmitterParams(currPosition);
-    }
 }
 
 void Pedestrian::PreDrawFrame()
@@ -653,8 +630,8 @@ bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, e
     {
         if ((stateID == ePedestrianState_Runs) || (stateID == ePedestrianState_Walks))
         {
-            SfxSample* footstepsSample = gAudioManager.GetSound(eSfxType_Level, (stateID == ePedestrianState_Runs) ? SfxLevel_FootStep2 : SfxLevel_FootStep1);
-            mSfxEmitter->StartSound(ePedSfxChannelIndex_Misc, footstepsSample, SfxFlags_None);
+            SfxIndex sfxIndex = (stateID == ePedestrianState_Runs) ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
+            StartGameObjectSound(ePedSfxChannelIndex_Misc, eSfxType_Level, sfxIndex, SfxFlags_None);
         }
     }
 

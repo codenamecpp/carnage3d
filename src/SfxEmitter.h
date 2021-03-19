@@ -2,6 +2,9 @@
 
 #include "SfxDefs.h"
 
+// forwards
+class GameObject;
+
 //////////////////////////////////////////////////////////////////////////
 
 // Loaded audio effect
@@ -43,11 +46,15 @@ private:
     //////////////////////////////////////////////////////////////////////////
 
 public:
-    SfxEmitter(SfxEmitterFlags emitterFlags);
+    // readonly
+    GameObject* mGameObject = nullptr; // optional
+
+public:
+    SfxEmitter(GameObject* gameObject, SfxEmitterFlags emitterFlags);
     ~SfxEmitter();
 
     // Free emitter
-    void ReleaseEmitter();
+    void ReleaseEmitter(bool stopSounds);
 
     void UpdateEmitterParams(const glm::vec3& emitterPosition);
     void UpdateSounds();

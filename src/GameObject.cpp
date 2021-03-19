@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "GameObjectsManager.h"
 #include "RenderingManager.h"
+#include "AudioManager.h"
 
 GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     : mObjectID(uniqueID)
@@ -17,6 +18,13 @@ void GameObject::RefreshDrawBounds()
 GameObject::~GameObject()
 {
     SetDetached();
+
+    // audio
+    if (mSfxEmitter)
+    {
+        mSfxEmitter->ReleaseEmitter(false); // leave sounds
+        mSfxEmitter = nullptr;
+    }
 }
 
 glm::vec3 GameObject::GetPosition() const
@@ -56,6 +64,24 @@ void GameObject::Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading
 {
     mSpawnPosition = spawnPosition;
     mSpawnHeading = spawnHeading;
+
+    // init audio
+    if (mSfxEmitter == nullptr)
+    {
+        mSfxEmitter = gAudioManager.CreateEmitter(this, spawnPosition);
+        debug_assert(mSfxEmitter);
+    }
+    else
+    {
+        mSfxEmitter->StopAllSounds(); // reset
+    }
+
+    OnGameObjectSpawn();
+}
+
+void GameObject::OnGameObjectSpawn()
+{
+    // do nothing
 }
 
 void GameObject::MarkForDeletion()
@@ -131,4 +157,28 @@ GameObject* GameObject::GetAttachedObject(int index) const
         gameobject = mAttachedObjects[index];
     }
     return gameobject;
+}
+
+bool GameObject::StartGameObjectSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags)
+{
+    if (mSfxEmitter)
+    {
+        mSfxEmitter->UpdateEmitterParams(GetPosition()); // force sync params
+        return mSfxEmitter->StartSound(ichannel, sfxSample, sfxFlags);
+    }
+    return false;
+}
+
+bool GameObject::StartGameObjectSound(int ichannel, eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags)
+{
+    if (mSfxEmitter)
+    {
+        SfxSample* sfxSample = gAudioManager.GetSound(sfxType, sfxIndex);
+        if (sfxSample)
+        {
+            mSfxEmitter->UpdateEmitterParams(GetPosition()); // force sync params
+            return mSfxEmitter->StartSound(ichannel, sfxSample, sfxFlags);
+        }
+    }
+    return false;
 }

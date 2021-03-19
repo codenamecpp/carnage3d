@@ -34,7 +34,8 @@ public:
     SfxSample* GetSound(eSfxType sfxType, SfxIndex sfxIndex);
 
     // Allocate new sound emitter instance
-    SfxEmitter* CreateEmitter(const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags = SfxEmitterFlags_None);
+    // @param gameObject: Game object which emitting sounds, optional
+    SfxEmitter* CreateEmitter(GameObject* gameObject, const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags = SfxEmitterFlags_None);
 
     // Free emitter instance and stop all its active sounds
     void DestroyEmitter(SfxEmitter* sfxEmitter);

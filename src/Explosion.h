@@ -17,7 +17,7 @@ public:
     void PreDrawFrame() override;
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void Spawn(const glm::vec3& position, cxx::angle_t heading) override;
+    void OnGameObjectSpawn() override;
 
     // Current world position
     glm::vec3 GetPosition() const override;

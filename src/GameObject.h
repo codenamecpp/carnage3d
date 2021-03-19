@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 #include "DamageInfo.h"
+#include "SfxDefs.h"
 
 // defines base class of game entity
 class GameObject: public cxx::handled_object
@@ -16,12 +17,20 @@ public:
     // readonly
     eGameObjectFlags mFlags = eGameObjectFlags_None;
 
+    SfxEmitter* mSfxEmitter = nullptr;
+
     // initial position and heading
     glm::vec3 mSpawnPosition;
     cxx::angle_t mSpawnHeading;
 
 public:
     virtual ~GameObject();
+
+    // Setup initial state when spawned or respawned on level
+    void Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading);
+
+    // Setup initial state when spawned or respawned on level
+    virtual void OnGameObjectSpawn();
 
     // Update drawing sprite
     virtual void PreDrawFrame();
@@ -36,9 +45,6 @@ public:
     // @param damageInfo: Damage details
     // @returns false if damage is ignored
     virtual bool ReceiveDamage(const DamageInfo& damageInfo);
-
-    // Setup initial state when spawned or respawned on level
-    virtual void Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading);
 
     // Get current position within game world, meters
     virtual glm::vec3 GetPosition() const;
@@ -64,6 +70,10 @@ public:
     // Inspect hierarchy
     GameObject* GetParentObject() const;
     GameObject* GetAttachedObject(int index) const;
+
+    // Audio shortcuts
+    bool StartGameObjectSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags);
+    bool StartGameObjectSound(int ichannel, eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags);
 
     // Class shortcuts
     inline bool IsPedestrianClass() const { return mClassID == eGameObjectClass_Pedestrian; }
