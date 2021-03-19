@@ -3,27 +3,27 @@
 enum CvarFlags: unsigned long
 {
     CvarFlags_None               = 0,
-    CvarFlags_Archive            = (1 << 1), // will save and load from json
-    CvarFlags_Readonly           = (1 << 2), // cannot change either via console nor command line
-    CvarFlags_Init               = (1 << 3), // don't allow change from console at all, but can be set from the command line
-    CvarFlags_Modified           = (1 << 4), // was modified
-    CvarFlags_Cheat              = (1 << 5), // treat as cheat cvar
-    CvarFlags_RequiresMapRestart = (1 << 6), // requires current level restart to apply
-    CvarFlags_RequiresAppRestart = (1 << 7), // requires application restart to apply
-    CvarFlags_Hidden             = (1 << 8), // invisible to console, but can be set from the command line
+    CvarFlags_Archive            = BIT(0), // will save and load from json
+    CvarFlags_Readonly           = BIT(1), // cannot change either via console nor command line
+    CvarFlags_Init               = BIT(2), // don't allow change from console at all, but can be set from the command line
+    CvarFlags_Modified           = BIT(3), // was modified
+    CvarFlags_Cheat              = BIT(4), // treat as cheat cvar
+    CvarFlags_RequiresMapRestart = BIT(5), // requires current level restart to apply
+    CvarFlags_RequiresAppRestart = BIT(6), // requires application restart to apply
+    CvarFlags_Hidden             = BIT(7), // invisible to console, but can be set from the command line
     // cvar value type flags
-    CvarFlags_CvarString         = (1 << 9),
-    CvarFlags_CvarInt            = (1 << 10),
-    CvarFlags_CvarFloat          = (1 << 11),
-    CvarFlags_CvarBool           = (1 << 12), 
-    CvarFlags_CvarColor          = (1 << 13), // rgba, 4 unsigned bytes
-    CvarFlags_CvarPoint          = (1 << 14), // 2 ints
-    CvarFlags_CvarVec3           = (1 << 15), // 3 floats
-    CvarFlags_CvarEnum           = (1 << 16), // int
+    CvarFlags_CvarString         = BIT(8),
+    CvarFlags_CvarInt            = BIT(9),
+    CvarFlags_CvarFloat          = BIT(10),
+    CvarFlags_CvarBool           = BIT(11), 
+    CvarFlags_CvarColor          = BIT(12), // rgba, 4 unsigned bytes
+    CvarFlags_CvarPoint          = BIT(13), // 2 ints
+    CvarFlags_CvarVec3           = BIT(14), // 3 floats
+    CvarFlags_CvarEnum           = BIT(15), // int
     // special value types
-    CvarFlags_CvarCommand        = (1 << 17), // does not holds any data but executes command
+    CvarFlags_CvarCommand        = BIT(16), // does not holds any data but executes command
 };
-decl_enum_as_flags(CvarFlags)
+decl_enum_as_flags(CvarFlags);
 
 enum eCvarSetMethod
 {

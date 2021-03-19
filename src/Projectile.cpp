@@ -122,7 +122,7 @@ void Projectile::UpdateFrame()
 
     if (mWeaponInfo->mProjectileHitObjectSound != -1)
     {
-        gAudioManager.PlaySfxLevel(mWeaponInfo->mProjectileHitObjectSound, GetPosition(), false);
+        gAudioManager.StartSound(eSfxType_Level, mWeaponInfo->mProjectileHitObjectSound, SfxFlags_RandomPitch, GetPosition());
     }
 
     MarkForDeletion();

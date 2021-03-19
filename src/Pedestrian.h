@@ -8,6 +8,7 @@
 #include "PedestrianStates.h"
 #include "Weapon.h"
 #include "PedestrianInfo.h"
+#include "SfxEmitter.h"
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject
@@ -24,6 +25,7 @@ public:
 
     CharacterController* mController; // controls pedestrian actions
     PedestrianPhysics* mPhysicsBody;
+    SfxEmitter* mSfxEmitter = nullptr;
 
     PedestrianCtlState mCtlState;
 

@@ -72,7 +72,7 @@ void AudioDevice::Deinit()
     mAllSources.clear();
 
     // destroy buffers
-    for (AudioBuffer* currBuffer: mAllBuffers)
+    for (AudioSampleBuffer* currBuffer: mAllBuffers)
     {
         mBuffersPool.destroy(currBuffer);
     }
@@ -110,9 +110,9 @@ bool AudioDevice::SetMasterVolume(float gainValue)
     return false;
 }
 
-AudioBuffer* AudioDevice::CreateAudioBuffer()
+AudioSampleBuffer* AudioDevice::CreateSampleBuffer()
 {
-    AudioBuffer* audioBuffer = nullptr;
+    AudioSampleBuffer* audioBuffer = nullptr;
     if (IsInitialized())
     {
         audioBuffer = mBuffersPool.create();
@@ -125,12 +125,12 @@ AudioBuffer* AudioDevice::CreateAudioBuffer()
     return audioBuffer;
 }
 
-AudioBuffer* AudioDevice::CreateAudioBuffer(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData)
+AudioSampleBuffer* AudioDevice::CreateSampleBuffer(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData)
 {
-    AudioBuffer* audioBuffer = nullptr;
+    AudioSampleBuffer* audioBuffer = nullptr;
     if (IsInitialized())
     {
-        audioBuffer = CreateAudioBuffer();
+        audioBuffer = CreateSampleBuffer();
         debug_assert(audioBuffer);
 
         if (audioBuffer)
@@ -144,7 +144,7 @@ AudioBuffer* AudioDevice::CreateAudioBuffer(int sampleRate, int bitsPerSample, i
     return audioBuffer;
 }
 
-void AudioDevice::DestroyAudioBuffer(AudioBuffer* audioBuffer)
+void AudioDevice::DestroySampleBuffer(AudioSampleBuffer* audioBuffer)
 {
     if (audioBuffer)
     {
@@ -253,4 +253,26 @@ void AudioDevice::QueryAudioDeviceCaps()
     gConsole.LogMessage(eLogMessage_Info, "Audio Device caps:");
     gConsole.LogMessage(eLogMessage_Info, " - max sources mono: %d", mDeviceCaps.mMaxSourcesMono);
     gConsole.LogMessage(eLogMessage_Info, " - max sources stereo: %d", mDeviceCaps.mMaxSourcesStereo);
+}
+
+AudioSampleBuffer* AudioDevice::GetSampleBufferWithID(unsigned int bufferID) const
+{
+    for (AudioSampleBuffer* currBuffer: mAllBuffers)
+    {
+        if (currBuffer->mBufferID == bufferID)
+            return currBuffer;
+    }
+    debug_assert(false);
+    return nullptr;
+}
+
+AudioSource* AudioDevice::GetAudioSourceWithID(unsigned int sourceID) const
+{
+    for (AudioSource* currSource: mAllSources)
+    {
+        if (currSource->mSourceID == sourceID)
+            return currSource;
+    }
+    debug_assert(false);
+    return nullptr;
 }

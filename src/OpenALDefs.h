@@ -11,6 +11,7 @@
         if (errcode != AL_NO_ERROR)\
         {\
             gConsole.LogMessage(eLogMessage_Error, "OpenAL error detected in %s, code 0x%04X", __FUNCTION__, errcode);\
+            gConsole.LogMessage(eLogMessage_Error, "(%s)", ::alGetString(errcode)); \
             debug_assert(false); \
         }\
     }

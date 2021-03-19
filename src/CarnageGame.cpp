@@ -379,7 +379,7 @@ bool CarnageGame::StartScenario(const std::string& mapName)
         gConsole.LogMessage(eLogMessage_Warning, "Cannot load map '%s'", mapName.c_str());
         return false;
     }
-    if (!gAudioManager.LoadLevelSounds())
+    if (!gAudioManager.PreloadLevelSounds())
     {
         // ignore
     }
@@ -469,7 +469,7 @@ void CarnageGame::ShutdownCurrentScenario()
     gPhysics.ClearWorld();
     gGameMap.Cleanup();
     gBroadcastEvents.ClearEvents();
-    gAudioManager.FreeLevelSounds();
+    gAudioManager.ReleaseLevelSounds();
     gParticleManager.ClearWorld();
     mCurrentStateID = eGameStateID_Initial;
 }

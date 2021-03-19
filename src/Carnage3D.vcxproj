@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiManager.h" />
+    <ClInclude Include="SfxEmitter.h" />
     <ClInclude Include="AudioListener.h" />
     <ClInclude Include="AudioSource.h" />
     <ClInclude Include="ConsoleVar.h" />
@@ -165,7 +166,7 @@
     <ClInclude Include="ParticleEffect.h" />
     <ClInclude Include="ParticleEffectsManager.h" />
     <ClInclude Include="ParticleRenderdata.h" />
-    <ClInclude Include="SfxArchive.h" />
+    <ClInclude Include="AudioSampleArchive.h" />
     <ClInclude Include="SfxDefs.h" />
     <ClInclude Include="AudioDevice.h" />
     <ClInclude Include="AudioManager.h" />
@@ -277,12 +278,13 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
+    <ClCompile Include="SfxEmitter.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="ConsoleVar.cpp" />
     <ClCompile Include="ParticleEffect.cpp" />
     <ClCompile Include="ParticleEffectsManager.cpp" />
     <ClCompile Include="ParticleRenderdata.cpp" />
-    <ClCompile Include="SfxArchive.cpp" />
+    <ClCompile Include="AudioSampleArchive.cpp" />
     <ClCompile Include="AudioDevice.cpp" />
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="BroadcastEventsManager.cpp" />

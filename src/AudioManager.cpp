@@ -20,19 +20,20 @@ bool AudioManager::Initialize()
 void AudioManager::Deinit()
 {
     StopAllSounds();
-    FreeLevelSounds();
 
+    ReleaseSoundEmitters();
     ReleaseAudioSources();
+    ReleaseLevelSounds();
 }
 
 void AudioManager::UpdateFrame()
 {
-
+    UpdateSoundEmitters();
 }
 
-bool AudioManager::LoadLevelSounds()
+bool AudioManager::PreloadLevelSounds()
 {
-    FreeLevelSounds();
+    ReleaseLevelSounds();
 
     gConsole.LogMessage(eLogMessage_Debug, "Loading level sounds...");
     if (!mVoiceSounds.LoadArchive("AUDIO/VOCALCOM"))
@@ -46,45 +47,36 @@ bool AudioManager::LoadLevelSounds()
         gConsole.LogMessage(eLogMessage_Warning, "Cannot load Level sounds");
     }
 
-    mLevelSoundsBuffers.resize(mLevelSounds.GetEntriesCount());
-    mVoiceSoundsBuffers.resize(mVoiceSounds.GetEntriesCount());
+    mLevelSfxSamples.resize(mLevelSounds.GetEntriesCount());
+    mVoiceSfxSamples.resize(mVoiceSounds.GetEntriesCount());
 
     return true;
 }
 
-void AudioManager::FreeLevelSounds()
+void AudioManager::ReleaseLevelSounds()
 {
+    // stop all sources and detach buffers
+    for (AudioSource* source: mAudioSources)
+    {
+        source->Stop();
+        source->SetSampleBuffer(nullptr);
+    }
+
     mLevelSounds.FreeArchive();
     mVoiceSounds.FreeArchive();
 
-    // detach buffers
-    for (AudioSource* currSource: mAudioSources)
+    for (SfxSample* currSample: mLevelSfxSamples)
     {
-        if (currSource)
-        {
-            currSource->SetupSourceBuffer(nullptr);
-        }
+        SafeDelete(currSample);
     }
 
-    // free audio buffers
-    for (AudioBuffer* currBuffer: mLevelSoundsBuffers)
+    for (SfxSample* currSample: mVoiceSfxSamples)
     {
-        if (currBuffer)
-        {
-            gAudioDevice.DestroyAudioBuffer(currBuffer);
-        }
+        SafeDelete(currSample);
     }
-    mLevelSoundsBuffers.clear();
 
-    // free audio buffers
-    for (AudioBuffer* currBuffer: mVoiceSoundsBuffers)
-    {
-        if (currBuffer)
-        {
-            gAudioDevice.DestroyAudioBuffer(currBuffer);
-        }
-    }
-    mVoiceSoundsBuffers.clear();
+    mLevelSfxSamples.clear();
+    mVoiceSfxSamples.clear();
 }
 
 void AudioManager::ReleaseAudioSources()
@@ -99,99 +91,7 @@ void AudioManager::ReleaseAudioSources()
     mAudioSources.clear();
 }
 
-AudioSource* AudioManager::PlaySfxLevel(int sfxIndex, const glm::vec3& position, bool enableLoop)
-{
-    if (sfxIndex < 0 || sfxIndex >= mLevelSounds.GetEntriesCount())
-    {
-        debug_assert(false);
-        return nullptr;
-    }
-
-    AudioSource* audioSource = GetFreeSfxAudioSource();
-    if (audioSource == nullptr)
-        return nullptr; // out of free audio channels
-
-    if (mLevelSoundsBuffers[sfxIndex] == nullptr)
-    {
-        SfxArchiveEntry archiveEntry;
-        if (!mLevelSounds.GetEntryData(sfxIndex, archiveEntry))
-        {
-            debug_assert(false);
-            return nullptr;
-        }
-        // upload audio data
-        AudioBuffer* audioBuffer = gAudioDevice.CreateAudioBuffer(
-            archiveEntry.mSampleRate,
-            archiveEntry.mBitsPerSample,
-            archiveEntry.mChannelsCount,
-            archiveEntry.mDataLength,
-            archiveEntry.mData);
-
-        // free source data
-        mLevelSounds.FreeEntryData(sfxIndex);
-
-        debug_assert(audioBuffer && !audioBuffer->IsBufferError());
-
-        mLevelSoundsBuffers[sfxIndex] = audioBuffer;
-    }
-    // get buffer
-    if (!audioSource->SetupSourceBuffer(mLevelSoundsBuffers[sfxIndex]))
-    {
-        debug_assert(false);
-    }
-    audioSource->SetPitch(1.0f);
-    audioSource->SetPosition3D(position.x, position.y, position.z);
-    audioSource->Start(enableLoop);
-    return audioSource;
-}
-
-AudioSource* AudioManager::PlaySfxVoice(int sfxIndex, const glm::vec3& position, bool enableLoop)
-{
-    if (sfxIndex < 0 || sfxIndex >= mVoiceSounds.GetEntriesCount())
-    {
-        debug_assert(false);
-        return nullptr;
-    }
-
-    AudioSource* audioSource = GetFreeSfxAudioSource();
-    if (audioSource == nullptr)
-        return nullptr; // out of free audio channels
-
-    if (mVoiceSoundsBuffers[sfxIndex] == nullptr)
-    {
-        SfxArchiveEntry archiveEntry;
-        if (!mVoiceSounds.GetEntryData(sfxIndex, archiveEntry))
-        {
-            debug_assert(false);
-            return nullptr;
-        }
-        // upload audio data
-        AudioBuffer* audioBuffer = gAudioDevice.CreateAudioBuffer(
-            archiveEntry.mSampleRate,
-            archiveEntry.mBitsPerSample,
-            archiveEntry.mChannelsCount,
-            archiveEntry.mDataLength,
-            archiveEntry.mData);
-
-        // free source data
-        mVoiceSounds.FreeEntryData(sfxIndex);
-
-        debug_assert(audioBuffer && !audioBuffer->IsBufferError());
-
-        mVoiceSoundsBuffers[sfxIndex] = audioBuffer;
-    }
-    // get buffer
-    if (!audioSource->SetupSourceBuffer(mVoiceSoundsBuffers[sfxIndex]))
-    {
-        debug_assert(false);
-    }
-    audioSource->SetPitch(1.0f);
-    audioSource->SetPosition3D(position.x, position.y, position.z);
-    audioSource->Start(enableLoop);
-    return audioSource;
-}
-
-AudioSource* AudioManager::GetFreeSfxAudioSource() const
+AudioSource* AudioManager::GetFreeAudioSource() const
 {
     for (AudioSource* currSource: mAudioSources)
     {
@@ -247,4 +147,118 @@ void AudioManager::ResumeAllSounds()
             currSource->Resume();
         }
     }
+}
+
+SfxSample* AudioManager::GetSound(eSfxType sfxType, SfxIndex sfxIndex)
+{
+    AudioSampleArchive& sampleArchive = (sfxType == eSfxType_Level) ? mLevelSounds : mVoiceSounds;
+    if ((int) sfxIndex >= sampleArchive.GetEntriesCount())
+    {
+        debug_assert(false);
+        return nullptr;
+    }
+
+    std::vector<SfxSample*>& samples = (sfxType == eSfxType_Level) ? 
+        mLevelSfxSamples : 
+        mVoiceSfxSamples;
+
+    if (samples[sfxIndex] == nullptr)
+    {
+        AudioSampleArchive::SampleEntry archiveEntry;
+        if (!sampleArchive.GetEntryData(sfxIndex, archiveEntry))
+        {
+            debug_assert(false);
+            return nullptr;
+        }
+        // upload audio data
+        AudioSampleBuffer* audioBuffer = gAudioDevice.CreateSampleBuffer(
+            archiveEntry.mSampleRate,
+            archiveEntry.mBitsPerSample,
+            archiveEntry.mChannelsCount,
+            archiveEntry.mDataLength,
+            archiveEntry.mData);
+        debug_assert(audioBuffer && !audioBuffer->IsBufferError());
+
+        // free source data
+        sampleArchive.FreeEntryData(sfxIndex);
+
+        if (audioBuffer)
+        {
+            samples[sfxIndex] = new SfxSample(sfxType, sfxIndex, audioBuffer);
+        }
+    }
+    return samples[sfxIndex];
+}
+
+SfxEmitter* AudioManager::CreateEmitter(const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags)
+{
+    SfxEmitter* emitter = mEmittersPool.create(emitterFlags);
+    debug_assert(emitter);
+    emitter->UpdateEmitterParams(emitterPosition);
+    mAllEmitters.push_back(emitter);
+    return emitter;
+}
+
+void AudioManager::DestroyEmitter(SfxEmitter* sfxEmitter)
+{
+    if (sfxEmitter == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
+
+    mEmittersPool.destroy(sfxEmitter);
+    cxx::erase_elements(mAllEmitters, sfxEmitter);
+}
+
+void AudioManager::ReleaseSoundEmitters()
+{
+    for (SfxEmitter* currEmitter: mAllEmitters)
+    {
+        mEmittersPool.destroy(currEmitter);
+    }
+    mAllEmitters.clear();
+}
+
+void AudioManager::UpdateSoundEmitters()
+{
+    std::vector<SfxEmitter*> deleteEmitters;
+    for (SfxEmitter* currEmitter: mAllEmitters)
+    {
+        if (currEmitter->CheckForCompletion())
+        {
+            deleteEmitters.push_back(currEmitter);
+        }
+    }
+    // destroy dead emitters
+    for (SfxEmitter* currEmitter: deleteEmitters)
+    {
+        DestroyEmitter(currEmitter);
+    }
+}
+
+bool AudioManager::StartSound(eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition)
+{
+    SfxSample* audioSample = GetSound(sfxType, sfxIndex);
+    if (audioSample == nullptr)
+        return false;
+
+    SfxEmitter* autoreleaseEmitter = CreateEmitter(emitterPosition, SfxEmitterFlags_Autorelease);
+    debug_assert(autoreleaseEmitter);
+    if (autoreleaseEmitter)
+    {
+        if (autoreleaseEmitter->StartSound(0, audioSample, sfxFlags))
+            return true;
+
+        DestroyEmitter(autoreleaseEmitter);
+    }
+    return false;
+}
+
+float AudioManager::NextRandomPitch()
+{
+    static const float _pitchValues[] = {0.95f, 1.0f, 1.1f};
+
+    int randomIndex = gCarnageGame.mGameRand.generate_int() % CountOf(_pitchValues);
+    return _pitchValues[randomIndex];
 }

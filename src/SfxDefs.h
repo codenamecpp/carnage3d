@@ -1,7 +1,43 @@
 #pragma once
 
+// forwards 
+class SfxEmitter;
+class SfxSample;
+class AudioSource;
+class AudioSampleBuffer;
+
+// sound table index
+using SfxIndex = unsigned int; 
+
+// sound effect type identifier
+enum eSfxType
+{
+    eSfxType_Level,
+    eSfxType_Voice,
+};
+
+// sound playback flags
+enum SfxFlags
+{
+    SfxFlags_None           = 0,
+    SfxFlags_Loop           = BIT(1),
+    SfxFlags_RandomPitch    = BIT(2), // randomize pitch a bit
+    SfxFlags_StartPaused    = BIT(3), // start and pause
+};
+
+decl_enum_as_flags(SfxFlags);
+
+// sound emitter flags
+enum SfxEmitterFlags
+{
+    SfxEmitterFlags_None = 0,
+    SfxEmitterFlags_Autorelease = BIT(0), // emitter will be automatically released when playback complete
+};
+
+decl_enum_as_flags(SfxEmitterFlags);
+
 // level sound constants
-enum 
+enum : SfxIndex
 {
     SfxLevel_CarDoorOpen = 0,
     SfxLevel_CarDoorClose = 1,
@@ -45,7 +81,7 @@ enum
 };
 
 // voice sound constants
-enum
+enum : SfxIndex
 {
     SfxVoice_GrandTheftAuto = 0,
     SfxVoice_MissionComplete = 1,
@@ -55,4 +91,12 @@ enum
     SfxVoice_PlayerDies = 12,
 
     SfxVoice_COUT
+};
+
+// virtual channels
+enum ePedSfxChannelIndex
+{
+    ePedSfxChannelIndex_Voice,
+    ePedSfxChannelIndex_Weapon,
+    ePedSfxChannelIndex_Misc,
 };

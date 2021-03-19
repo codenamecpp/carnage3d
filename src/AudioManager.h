@@ -1,15 +1,17 @@
 #pragma once
 
-#include "SfxArchive.h"
+#include "AudioSampleArchive.h"
 #include "SfxDefs.h"
-#include "AudioSource.h"
+#include "SfxEmitter.h"
 
 // This class manages in game music and sounds
 class AudioManager final: public cxx::noncopyable
 {
+    friend class SfxEmitter;
+
 public:
-    SfxArchive mLevelSounds;
-    SfxArchive mVoiceSounds;
+    AudioSampleArchive mLevelSounds;
+    AudioSampleArchive mVoiceSounds;
 
 public:
     bool Initialize();
@@ -18,29 +20,48 @@ public:
     void UpdateFrame();
 
     // Preload sound archives for current level
-    bool LoadLevelSounds();
-    void FreeLevelSounds();
+    bool PreloadLevelSounds();
+    void ReleaseLevelSounds();
 
-    // @param sfxIndex: Sound index, one of SfxLevel_*
-    AudioSource* PlaySfxLevel(int sfxIndex, const glm::vec3& position, bool enableLoop);
+    // Simple play one shot sound within world
+    // @param sfxType, sfxIndex: Sound identifier
+    // @param emitterPosition: Sound position
+    bool StartSound(eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition);
 
-    // @param sfxIndex: Sound index, one of SfxVoice_*
-    AudioSource* PlaySfxVoice(int sfxIndex, const glm::vec3& position, bool enableLoop);
+    // Get game sound by its identifier, will load audio data if it is not loaded yet
+    // @param sfxType: Sound type
+    // @param sfxIndex: Sound index
+    SfxSample* GetSound(eSfxType sfxType, SfxIndex sfxIndex);
+
+    // Allocate new sound emitter instance
+    SfxEmitter* CreateEmitter(const glm::vec3& emitterPosition, SfxEmitterFlags emitterFlags = SfxEmitterFlags_None);
+
+    // Free emitter instance and stop all its active sounds
+    void DestroyEmitter(SfxEmitter* sfxEmitter);
 
     void StopAllSounds();
     void PauseAllSounds();
     void ResumeAllSounds();
 
 private:
-    AudioSource* GetFreeSfxAudioSource() const;
+    AudioSource* GetFreeAudioSource() const;
 
     bool AllocateAudioSources();
     void ReleaseAudioSources();
 
+    void UpdateSoundEmitters();
+    void ReleaseSoundEmitters();
+
+    // generate random pitch value
+    float NextRandomPitch();
+
 private:
-    std::vector<AudioSource*> mAudioSources; // all audio sources
-    std::vector<AudioBuffer*> mLevelSoundsBuffers;
-    std::vector<AudioBuffer*> mVoiceSoundsBuffers;
+    std::vector<AudioSource*> mAudioSources; // all available hardware audio sources
+    std::vector<SfxSample*> mLevelSfxSamples;
+    std::vector<SfxSample*> mVoiceSfxSamples;
+    std::vector<SfxEmitter*> mAllEmitters;
+
+    cxx::object_pool<SfxEmitter> mEmittersPool;
 };
 
 extern AudioManager gAudioManager;

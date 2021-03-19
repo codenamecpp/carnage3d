@@ -99,7 +99,7 @@ void Explosion::Spawn(const glm::vec3& position, cxx::angle_t heading)
     glm::vec2 position2 (position.x, position.z);
     gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
 
-    gAudioManager.PlaySfxLevel(SfxLevel_HugeExplosion, GetPosition(), false);
+    gAudioManager.StartSound(eSfxType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch, GetPosition());
 }
 
 void Explosion::DamagePedsNearby(bool enableInstantKill)

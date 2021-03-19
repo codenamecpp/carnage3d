@@ -382,7 +382,8 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 
     if (mPedestrian->IsHumanPlayerCharacter())
     {
-        gAudioManager.PlaySfxVoice(SfxVoice_PlayerDies, mPedestrian->GetPosition(), false);
+        SfxSample* dieSample = gAudioManager.GetSound(eSfxType_Voice, SfxVoice_PlayerDies);
+        mPedestrian->mSfxEmitter->StartSound(ePedSfxChannelIndex_Voice, dieSample, SfxFlags_None);
     }
 }
 
@@ -623,7 +624,8 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
     {
         if (stateEvent.mDamageInfo.mDamageCause == eDamageCause_Punch)
         {
-            gAudioManager.PlaySfxLevel(SfxLevel_Punch, mPedestrian->GetPosition(), false);
+            SfxSample* punchSample = gAudioManager.GetSound(eSfxType_Level, SfxLevel_Punch);
+            mPedestrian->mSfxEmitter->StartSound(ePedSfxChannelIndex_Voice, punchSample, SfxFlags_RandomPitch);
         }
     }
 

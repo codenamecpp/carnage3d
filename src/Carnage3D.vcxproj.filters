@@ -395,9 +395,6 @@
     <ClInclude Include="AudioDevice.h">
       <Filter>AudioDevice</Filter>
     </ClInclude>
-    <ClInclude Include="SfxArchive.h">
-      <Filter>Game\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="SfxDefs.h">
       <Filter>Game\Audio</Filter>
     </ClInclude>
@@ -431,6 +428,12 @@
     </ClInclude>
     <ClInclude Include="WeatherManager.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSampleArchive.h">
+      <Filter>Game\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="SfxEmitter.h">
+      <Filter>Game\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -664,9 +667,6 @@
     <ClCompile Include="AudioDevice.cpp">
       <Filter>AudioDevice</Filter>
     </ClCompile>
-    <ClCompile Include="SfxArchive.cpp">
-      <Filter>Game\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="AudioSource.cpp">
       <Filter>AudioDevice</Filter>
     </ClCompile>
@@ -684,6 +684,12 @@
     </ClCompile>
     <ClCompile Include="WeatherManager.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSampleArchive.cpp">
+      <Filter>Game\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="SfxEmitter.cpp">
+      <Filter>Game\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

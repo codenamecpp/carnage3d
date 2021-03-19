@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "AudioSource.h"
 #include "OpenALDefs.h"
+#include "AudioDevice.h"
 
-AudioBuffer::AudioBuffer()
+AudioSampleBuffer::AudioSampleBuffer()
 {
     ::alGenBuffers(1, &mBufferID);
     alCheckError();
 }
 
-AudioBuffer::~AudioBuffer()
+AudioSampleBuffer::~AudioSampleBuffer()
 {
     if (::alIsBuffer(mBufferID))
     {
@@ -17,7 +18,7 @@ AudioBuffer::~AudioBuffer()
     }
 }
 
-bool AudioBuffer::SetupBufferData(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData)
+bool AudioSampleBuffer::SetupBufferData(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData)
 {
     if (::alIsBuffer(mBufferID))
     {
@@ -32,6 +33,10 @@ bool AudioBuffer::SetupBufferData(int sampleRate, int bitsPerSample, int channel
             return false;
         }
 
+        mSampleRate = sampleRate;
+        mBitsPerSample = bitsPerSample;
+        mChannelsCount = channelsCount;
+
         ALenum alFormat = (channelsCount == 1) ? 
             (bitsPerSample == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16) : 
             (bitsPerSample == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16);
@@ -44,9 +49,19 @@ bool AudioBuffer::SetupBufferData(int sampleRate, int bitsPerSample, int channel
     return false;
 }
 
-bool AudioBuffer::IsBufferError() const
+bool AudioSampleBuffer::IsBufferError() const
 {
     return ::alIsBuffer(mBufferID) == AL_FALSE;
+}
+
+bool AudioSampleBuffer::IsMono() const
+{
+    return mChannelsCount == 1;
+}
+
+bool AudioSampleBuffer::IsStereo() const
+{
+    return mChannelsCount == 2;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -83,10 +98,9 @@ AudioSource::~AudioSource()
     }
 }
 
-bool AudioSource::SetupSourceBuffer(AudioBuffer* audioBuffer)
+bool AudioSource::SetSampleBuffer(AudioSampleBuffer* audioBuffer)
 {
-    if (mAudioBuffer == audioBuffer)
-        return true;
+    unsigned int bufferID = audioBuffer ? audioBuffer->mBufferID : 0;
 
     if (::alIsSource(mSourceID))
     {
@@ -95,21 +109,85 @@ bool AudioSource::SetupSourceBuffer(AudioBuffer* audioBuffer)
 
         ::alSourcei(mSourceID, AL_BUFFER, 0);
         alCheckError();
-    }
-    mAudioBuffer = audioBuffer;
-    if (mAudioBuffer)
-    {
-        ::alSourcei(mSourceID, AL_BUFFER, mAudioBuffer->mBufferID);
+
+        ::alSourcei(mSourceID, AL_BUFFER, bufferID);
         alCheckError();
+
+        return true;
+    }
+    return false;
+}
+
+bool AudioSource::QueueSampleBuffer(AudioSampleBuffer* audioBuffer)
+{
+    if (audioBuffer == nullptr)
+    {
+        debug_assert(false);
+        return false;
     }
 
-    return true;
+    if (::alIsSource(mSourceID))
+    {
+        ALint currentSourceType = AL_UNDETERMINED;
+        ::alGetSourcei(mSourceID, AL_SOURCE_TYPE, &currentSourceType);
+        alCheckError();
+
+        if (currentSourceType != AL_STREAMING)
+        {
+            ::alSourceStop(mSourceID);
+            alCheckError();
+
+            ::alSourcei(mSourceID, AL_BUFFER, 0);
+            alCheckError();
+        }
+
+        ::alSourceQueueBuffers(mSourceID, 1, &audioBuffer->mBufferID);
+        alCheckError();
+
+        return true;
+    }
+    return false;
+}
+
+bool AudioSource::ProcessBuffersQueue(std::vector<AudioSampleBuffer*>& audioBuffers)
+{
+    if (::alIsSource(mSourceID))
+    {
+        ALint currentSourceType = AL_UNDETERMINED;
+        ::alGetSourcei(mSourceID, AL_SOURCE_TYPE, &currentSourceType);
+        alCheckError();
+
+        if (currentSourceType != AL_STREAMING)
+        {
+            debug_assert(false);
+            return false;
+        }
+
+        int numBuffersProcessed = 0;
+        ::alGetSourcei(mSourceID, AL_BUFFERS_PROCESSED, &numBuffersProcessed);
+        alCheckError();
+
+        for (int icurr = 0; icurr < numBuffersProcessed; ++icurr)
+        {
+            ALuint bufferID = 0;
+            ::alSourceUnqueueBuffers(mSourceID, 1, &bufferID);
+            alCheckError();
+
+            AudioSampleBuffer* sampleBuffer = gAudioDevice.GetSampleBufferWithID(bufferID);
+            debug_assert(sampleBuffer);
+            if (sampleBuffer)
+            {
+                audioBuffers.push_back(sampleBuffer);
+            }
+        }
+
+        return true;
+    }
+    return false;
 }
 
 bool AudioSource::Start(bool enableLoop)
 {
-    debug_assert(mAudioBuffer);
-
     if (::alIsSource(mSourceID))
     {
         ::alSourcePlay(mSourceID);
@@ -171,7 +249,7 @@ bool AudioSource::SetLoop(bool enableLoop)
     return false;
 }
 
-bool AudioSource::SetVolume(float value)
+bool AudioSource::SetGain(float value)
 {
     if (::alIsSource(mSourceID))
     {
@@ -209,46 +287,54 @@ bool AudioSource::SetPosition3D(float positionx, float positiony, float position
     return false;
 }
 
-bool AudioSource::IsPlaying() const
-{
-    if (::alIsSource(mSourceID))
-    {
-        ALint currentState = AL_STOPPED;
-        ::alGetSourcei(mSourceID, AL_SOURCE_STATE, &currentState);
-        alCheckError();
-
-        return currentState == AL_PLAYING;
-    }
-    return false;
-}
-
-bool AudioSource::IsStopped() const
-{
-    if (::alIsSource(mSourceID))
-    {
-        ALint currentState = AL_STOPPED;
-        ::alGetSourcei(mSourceID, AL_SOURCE_STATE, &currentState);
-        alCheckError();
-
-        return currentState == AL_STOPPED;
-    }
-    return false;
-}
-
-bool AudioSource::IsPaused() const
-{
-    if (::alIsSource(mSourceID))
-    {
-        ALint currentState = AL_STOPPED;
-        ::alGetSourcei(mSourceID, AL_SOURCE_STATE, &currentState);
-        alCheckError();
-
-        return currentState == AL_PAUSED;
-    }
-    return false;
-}
-
 bool AudioSource::IsSourceError() const
 {
     return ::alIsSource(mSourceID) == AL_FALSE;
+}
+
+bool AudioSource::SetVelocity3D(float velocityx, float velocityy, float velocityz)
+{
+    if (::alIsSource(mSourceID))
+    {
+        ::alSource3f(mSourceID, AL_VELOCITY, velocityx, velocityy, velocityz);
+        alCheckError();
+
+        return true;
+    }
+    return false;
+}
+
+eAudioSourceStatus AudioSource::GetSourceStatus() const
+{
+    if (::alIsSource(mSourceID))
+    {
+        ALint currentState = AL_STOPPED;
+        ::alGetSourcei(mSourceID, AL_SOURCE_STATE, &currentState);
+        alCheckError();
+
+        if (currentState == AL_PLAYING)
+            return eAudioSourceStatus_Playing;
+
+        if (currentState == AL_PAUSED)
+            return eAudioSourceStatus_Paused;
+    }
+
+    return eAudioSourceStatus_Stopped;
+}
+
+eAudioSourceType AudioSource::GetSourceType() const
+{
+    if (::alIsSource(mSourceID))
+    {
+        ALint currentSourceType = AL_UNDETERMINED;
+        ::alGetSourcei(mSourceID, AL_SOURCE_TYPE, &currentSourceType);
+        alCheckError();
+
+        if (currentSourceType == AL_STREAMING)
+            return eAudioSourceType_Streaming;
+
+        return eAudioSourceType_Static;
+    }
+
+    return eAudioSourceType_Static;
 }

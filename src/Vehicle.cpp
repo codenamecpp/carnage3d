@@ -878,7 +878,7 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
     if (actionID == eSpriteAnimAction_CarDoors)
     {
         bool openDoors = animation->IsRunsForwards();
-        gAudioManager.PlaySfxLevel(openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, GetPosition(), false);
+        gAudioManager.StartSound(eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch, GetPosition());
     }
     return true;
 }
