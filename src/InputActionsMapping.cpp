@@ -42,6 +42,7 @@ static const DefaultActionMapping gDefaultActionsMapping[] =
     {eInputActionsGroup_OnFoot, eInputAction_Shoot,                 eKeycode_LEFT_CTRL},
     {eInputActionsGroup_OnFoot, eInputAction_EnterCar,              eKeycode_ENTER},
     {eInputActionsGroup_OnFoot, eInputAction_EnterCarAsPassenger,   eKeycode_F},
+    {eInputActionsGroup_OnFoot, eInputAction_Special,               eKeycode_TAB},
 };
 
 InputActionsMapping::InputActionsMapping()
@@ -168,6 +169,7 @@ eInputActionsGroup InputActionsMapping::GetInputActionsGroup(eInputAction action
         case eInputAction_Shoot:
         case eInputAction_EnterCar:
         case eInputAction_EnterCarAsPassenger:
+        case eInputAction_Special:
             return eInputActionsGroup_OnFoot;
 
         case eInputAction_HandBrake:

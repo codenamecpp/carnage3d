@@ -868,6 +868,7 @@ public:
         bool mRun = false;
         bool mShoot = false;
         bool mJump = false;
+        bool mSpecial = false;
     };
     struct // in car control actions
     {

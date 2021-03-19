@@ -113,6 +113,7 @@ private:
     void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations();
+    void UpdateEngineSound();
 
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();

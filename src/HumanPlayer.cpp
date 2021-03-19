@@ -190,6 +190,10 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
             }
         break;
 
+        case eInputAction_Special:
+            ctlState.mSpecial = isActivated;
+        break;
+
         case eInputAction_EnterCar:
         case eInputAction_LeaveCar:
         case eInputAction_EnterCarAsPassenger:

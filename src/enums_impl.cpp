@@ -417,6 +417,7 @@ impl_enum_strings(eInputAction)
     {eInputAction_PrevWeapon, "PrevWeapon"},
     {eInputAction_EnterCar, "EnterCar"},
     {eInputAction_EnterCarAsPassenger, "EnterCarAsPassenger"},
+    {eInputAction_Special, "Special"},
     {eInputAction_LeaveCar, "LeaveCar"},
     {eInputAction_HandBrake, "HandBrake"},
     {eInputAction_Accelerate, "Accelerate"},

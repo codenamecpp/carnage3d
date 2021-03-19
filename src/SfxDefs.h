@@ -51,16 +51,17 @@ enum : SfxIndex
     SfxLevel_CrateBreak = 11,
     SfxLevel_CarJacking = 15,
     SfxLevel_Punch = 16,
+    SfxLevel_Squashed = 17,
     SfxLevel_WaterSplash = 18,
     SfxLevel_FootStep1 = 19,
     SfxLevel_FootStep2 = 20,
-    SfxLevel_Scream1 = 21,
-    SfxLevel_Scream2 = 22,
-    SfxLevel_Scream3 = 23,
-    SfxLevel_Scream4 = 24,
-    SfxLevel_Scream5 = 25,
-    SfxLevel_Scream6 = 26,
-    SfxLevel_Scream7 = 27,
+    SfxLevel_ScaredScream1 = 21,
+    SfxLevel_ScaredScream2 = 22,
+    SfxLevel_ScaredScream3 = 23,
+    SfxLevel_DieScream1 = 24, // burn
+    SfxLevel_DieScream2 = 25,
+    SfxLevel_DieScream3 = 26,
+    SfxLevel_DieScream4 = 27, // electrocuted
     SfxLevel_PhoneRing = 28,
     SfxLevel_PistolShot = 33,
     SfxLevel_MachineGunShot = 34,
@@ -76,6 +77,11 @@ enum : SfxIndex
     // car engine sounds
     SfxLevel_FirstCarHornSound = 58,
     // car horn sounds
+
+    SfxLevel_CarAlarm = 64,
+
+    SfxLevel_SpecialSound1 = 76, // burp
+    SfxLevel_SpecialSound2 = 77, // farts
 
     SfxLevel_COUNT
 };
@@ -99,4 +105,10 @@ enum ePedSfxChannelIndex
     ePedSfxChannelIndex_Voice,
     ePedSfxChannelIndex_Weapon,
     ePedSfxChannelIndex_Misc,
+};
+enum eCarSfxChannelIndex
+{
+    eCarSfxChannelIndex_Doors,
+    eCarSfxChannelIndex_Engine,
+    eCarSfxChannelIndex_Misc, // horn, etc
 };

@@ -15,7 +15,8 @@
             {"action":"Run", "keycode":"Up", "gpbutton":"Up"},
             {"action":"Shoot", "keycode":"LCtrl", "gpbutton":"B"},
             {"action":"EnterCar", "keycode":"Enter", "gpbutton":"X"},
-            {"action":"EnterCarAsPassenger", "keycode":"f", "gpbutton":"A"},          
+            {"action":"EnterCarAsPassenger", "keycode":"f", "gpbutton":"A"},
+            {"action":"Special", "keycode":"Tab"},
             // in car
             {"action":"HandBrake", "keycode":"Space", "gpbutton":"Y"},
             {"action":"Accelerate", "keycode":"Up", "gpbutton":"Up"},

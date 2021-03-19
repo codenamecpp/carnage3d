@@ -36,6 +36,12 @@ Vehicle::~Vehicle()
         }
         mPassengers.clear();
     }
+
+    // force stop sounds
+    if (mSfxEmitter)
+    {
+        mSfxEmitter->StopAllSounds();
+    }
     
     if (mPhysicsBody)
     {
@@ -73,7 +79,7 @@ void Vehicle::UpdateFrame()
 {
     UpdateBurnEffect();
     UpdateDamageFromRailways();
-
+    UpdateEngineSound();
     if (IsWrecked())
         return;
 
@@ -875,7 +881,7 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
     if (actionID == eSpriteAnimAction_CarDoors)
     {
         bool openDoors = animation->IsRunsForwards();
-        StartGameObjectSound(0, eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch);
+        StartGameObjectSound(eCarSfxChannelIndex_Doors, eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch);
     }
     return true;
 }
@@ -883,4 +889,39 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
 bool Vehicle::IsCriticalDamageState() const
 {
     return mCurrentDamage >= 100;
+}
+
+void Vehicle::UpdateEngineSound()
+{
+    if (mSfxEmitter == nullptr)
+        return;
+
+    if (IsWrecked())
+    {
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Engine);
+        return;
+    }
+
+    if (!HasPassengers())
+    {
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Engine);
+        return;
+    }
+
+    SfxIndex sfxIndex = SfxLevel_FirstCarEngineSound + mCarInfo->mEngine;
+
+    if (!mSfxEmitter->IsPlaying(eCarSfxChannelIndex_Engine))
+    {
+        if (!StartGameObjectSound(eCarSfxChannelIndex_Engine, eSfxType_Level, sfxIndex, SfxFlags_Loop))
+            return;
+
+        mSfxEmitter->SetGain(eCarSfxChannelIndex_Engine, 0.35f);
+    }
+    // todo: this is temporary solution!
+
+    float speed = fabs(mPhysicsBody->GetCurrentSpeed());
+    float maxSpeed = 3.0f;
+    float pitchValue = 0.8f + (speed / maxSpeed);
+    pitchValue = std::min(pitchValue, 4.0f);
+    mSfxEmitter->SetPitch(eCarSfxChannelIndex_Engine, pitchValue);
 }

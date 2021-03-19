@@ -162,6 +162,7 @@ enum eInputAction
     eInputAction_Shoot,
     eInputAction_EnterCar,
     eInputAction_EnterCarAsPassenger,
+    eInputAction_Special,
 
     // in car
     eInputAction_HandBrake,

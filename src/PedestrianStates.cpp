@@ -697,6 +697,13 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
         isShooting = !((mCurrentStateID == ePedestrianState_Walks) && (mPedestrian->mCurrentWeapon == eWeapon_Fists));
     }
 
+    // do special sounds :)
+    if (ctlState.mSpecial)
+    {
+        SfxIndex specialSound = gCarnageGame.mGameRand.random_chance(50) ? SfxLevel_SpecialSound1 : SfxLevel_SpecialSound2;
+        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, specialSound, SfxFlags_RandomPitch);
+    }
+
     // update animation
     ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
     if (animID != mPedestrian->mCurrentAnimID)
