@@ -133,27 +133,37 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
     channel.mSfxFlags = sfxFlags;
     channel.mSfxSample = sfxSample;
 
+    channel.mHardwareSource->Stop();
     if (!channel.mHardwareSource->SetSampleBuffer(sfxSample->mSampleBuffer))
     {
         debug_assert(false);
     }
+
     float pitchValue = 1.0f;
     if ((sfxFlags & SfxFlags_RandomPitch) > 0)
     {
         pitchValue = gAudioManager.NextRandomPitch();
     }
-    if (!channel.mHardwareSource->SetPitch(pitchValue)) 
+    else
+    {
+        pitchValue = channel.mPitchValue;
+    }
+    if (!channel.mHardwareSource->SetPitch(pitchValue) ||
+        !channel.mHardwareSource->SetGain(channel.mGainValue)) 
     {
         debug_assert(false);
     }
+
     if (!channel.mHardwareSource->SetPosition3D(mEmitterPosition.x, mEmitterPosition.y, mEmitterPosition.y))
     {
         debug_assert(false);
     }
+
     if (!channel.mHardwareSource->Start((sfxFlags & SfxFlags_Loop) > 0))
     {
         debug_assert(false);
     }
+
     if ((sfxFlags & SfxFlags_StartPaused) > 0)
     {
         if (!channel.mHardwareSource->Pause())
@@ -170,10 +180,11 @@ bool SfxEmitter::StopSound(int ichannel)
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        mAudioChannels[ichannel].mHardwareSource->Stop();
-        mAudioChannels[ichannel].mHardwareSource = nullptr;
+        channel.mHardwareSource->Stop();
+        channel.mHardwareSource = nullptr;
     }
     return true;
 }
@@ -183,9 +194,10 @@ bool SfxEmitter::IsPlaying(int ichannel) const
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    const SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->IsPlaying();
+        return channel.mHardwareSource->IsPlaying();
     }
 
     return false;
@@ -206,9 +218,10 @@ bool SfxEmitter::IsPaused(int ichannel) const
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    const SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->IsPaused();
+        return channel.mHardwareSource->IsPaused();
     }
 
     return false;
@@ -219,9 +232,10 @@ bool SfxEmitter::PauseSound(int ichannel)
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->Pause();
+        return channel.mHardwareSource->Pause();
     }
 
     return false;
@@ -232,9 +246,10 @@ bool SfxEmitter::ResumeSound(int ichannel)
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->Resume();
+        return channel.mHardwareSource->Resume();
     }
 
     return false;
@@ -245,9 +260,14 @@ bool SfxEmitter::SetPitch(int ichannel, float pitchValue)
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->SetPitch(pitchValue);
+        if (channel.mPitchValue == pitchValue)
+            return true;
+
+        channel.mPitchValue = pitchValue;
+        return channel.mHardwareSource->SetPitch(pitchValue);
     }
 
     return false;
@@ -258,9 +278,14 @@ bool SfxEmitter::SetGain(int ichannel, float gainValue)
     if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
         return false;
 
-    if (mAudioChannels[ichannel].mHardwareSource)
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
     {
-        return mAudioChannels[ichannel].mHardwareSource->SetGain(gainValue);
+        if (channel.mGainValue == gainValue)
+            return true;
+
+        channel.mGainValue = gainValue;
+        return channel.mHardwareSource->SetGain(gainValue);
     }
 
     return false;

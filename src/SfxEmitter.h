@@ -41,6 +41,9 @@ private:
         AudioSource* mHardwareSource = nullptr; // channel is only active when source set
         SfxSample* mSfxSample = nullptr;
         SfxFlags mSfxFlags = SfxFlags_None;
+        // audio params
+        float mPitchValue = 1.0f;
+        float mGainValue = 1.0f;
     };
 
     //////////////////////////////////////////////////////////////////////////

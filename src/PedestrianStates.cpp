@@ -332,6 +332,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
         float killSpeed = 6.0f; // todo: magic numbers
         if (speedInDirection > killSpeed)
         {
+            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_Squashed, SfxFlags_RandomPitch);
             mPedestrian->DieFromDamage(eDamageCause_CarCrash);
         }
         else if (speedInDirection > 1.0f)// todo: magic numbers
@@ -834,4 +835,5 @@ void PedestrianStatesManager::StateElectrocuted_ProcessEnter(const PedestrianSta
     mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
     mPedestrian->mPhysicsBody->ClearForces();
     mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
+    mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_DieScream4, SfxFlags_RandomPitch);
 }
