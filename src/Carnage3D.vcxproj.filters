@@ -435,6 +435,12 @@
     <ClInclude Include="SfxEmitter.h">
       <Filter>Game\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="wave_utils.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioDataStream.h">
+      <Filter>Game\Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -689,6 +695,12 @@
       <Filter>Game\Audio</Filter>
     </ClCompile>
     <ClCompile Include="SfxEmitter.cpp">
+      <Filter>Game\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="wave_utils.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioDataStream.cpp">
       <Filter>Game\Audio</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,32 +3,44 @@
 #include "GameMapManager.h"
 #include "AudioDevice.h"
 #include "CarnageGame.h"
+#include "cvars.h"
 
 AudioManager gAudioManager;
 
+//////////////////////////////////////////////////////////////////////////
+// cvars
+
+CvarEnum<eGameMusicMode> gCvarGameMusicMode("g_musicMode", eGameMusicMode_Radio, "Game music mode", CvarFlags_Archive);
+
+//////////////////////////////////////////////////////////////////////////
+
 bool AudioManager::Initialize()
 {
-    if (!AllocateAudioSources())
+    if (!PrepareAudioResources())
     {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot allocate audio sources");
+        gConsole.LogMessage(eLogMessage_Warning, "Cannot allocate audio resources");
         return false;
     }
-
+    
     return true;
 }
 
 void AudioManager::Deinit()
 {
+    StopMusic();
     StopAllSounds();
 
     ReleaseActiveEmitters();
-    ReleaseAudioSources();
     ReleaseLevelSounds();
+
+    ShutdownAudioResources();
 }
 
 void AudioManager::UpdateFrame()
 {
     UpdateActiveEmitters();
+
+    UpdateMusic();
 }
 
 bool AudioManager::PreloadLevelSounds()
@@ -56,7 +68,7 @@ bool AudioManager::PreloadLevelSounds()
 void AudioManager::ReleaseLevelSounds()
 {
     // stop all sources and detach buffers
-    for (AudioSource* source: mAudioSources)
+    for (AudioSource* source: mSfxAudioSources)
     {
         source->Stop();
         source->SetSampleBuffer(nullptr);
@@ -79,21 +91,31 @@ void AudioManager::ReleaseLevelSounds()
     mVoiceSfxSamples.clear();
 }
 
-void AudioManager::ReleaseAudioSources()
+void AudioManager::ShutdownAudioResources()
 {
-    for (AudioSource* currSource: mAudioSources)
+    for (AudioSource* currSource: mSfxAudioSources)
     {
-        if (currSource)
-        {
-            gAudioDevice.DestroyAudioSource(currSource);
-        }
+        gAudioDevice.DestroyAudioSource(currSource);
     }
-    mAudioSources.clear();
+    mSfxAudioSources.clear();
+
+    if (mMusicAudioSource)
+    {
+        gAudioDevice.DestroyAudioSource(mMusicAudioSource);
+        mMusicAudioSource = nullptr;
+    }
+
+    for (AudioSampleBuffer* currBuffer: mMusicSampleBuffers)
+    {
+        gAudioDevice.DestroySampleBuffer(currBuffer);
+    }
+    debug_assert(MaxMusicSampleBuffers == mMusicSampleBuffers.size()); // check for leaks
+    mMusicSampleBuffers.clear();
 }
 
 AudioSource* AudioManager::GetFreeAudioSource() const
 {
-    for (AudioSource* currSource: mAudioSources)
+    for (AudioSource* currSource: mSfxAudioSources)
     {
         if (currSource && !currSource->IsPlaying() && !currSource->IsPaused())
             return currSource;
@@ -102,23 +124,43 @@ AudioSource* AudioManager::GetFreeAudioSource() const
     return nullptr;
 }
 
-bool AudioManager::AllocateAudioSources()
+bool AudioManager::PrepareAudioResources()
 {
-    const int MaxAudioSources = 32;
-    for (int icurr = 0; icurr < MaxAudioSources; ++icurr)
+    for (int icurr = 0; icurr < MaxSfxAudioSources; ++icurr)
     {
         AudioSource* audioSource = gAudioDevice.CreateAudioSource();
         if (audioSource == nullptr)
             break;
 
-        mAudioSources.push_back(audioSource);
+        mSfxAudioSources.push_back(audioSource);
     }
+
+    // allocate additional music source
+    mMusicAudioSource = gAudioDevice.CreateAudioSource();
+    debug_assert(mMusicAudioSource);
+
+    if (mMusicAudioSource)
+    {
+        // todo: move to settings
+        mMusicAudioSource->SetGain(0.3f);
+    }
+
+    // allocate music sample buffers
+    for (int icurr = 0; icurr < MaxMusicSampleBuffers; ++icurr)
+    {
+        AudioSampleBuffer* sampleBuffer = gAudioDevice.CreateSampleBuffer();
+        if (sampleBuffer == nullptr)
+            break;
+
+        mMusicSampleBuffers.push_back(sampleBuffer);
+    }
+
     return true;
 }
 
 void AudioManager::StopAllSounds()
 {
-    for (AudioSource* currSource: mAudioSources)
+    for (AudioSource* currSource: mSfxAudioSources)
     {
         if (currSource->IsPlaying() || currSource->IsPaused())
         {
@@ -129,7 +171,7 @@ void AudioManager::StopAllSounds()
 
 void AudioManager::PauseAllSounds()
 {
-    for (AudioSource* currSource: mAudioSources)
+    for (AudioSource* currSource: mSfxAudioSources)
     {
         if (currSource->IsPlaying())
         {
@@ -140,7 +182,7 @@ void AudioManager::PauseAllSounds()
 
 void AudioManager::ResumeAllSounds()
 {
-    for (AudioSource* currSource: mAudioSources)
+    for (AudioSource* currSource: mSfxAudioSources)
     {
         if (currSource->IsPaused())
         {
@@ -303,4 +345,135 @@ void AudioManager::RegisterActiveEmitter(SfxEmitter* emitter)
     {
         mActiveEmitters.push_back(emitter);
     }
+}
+
+void AudioManager::UpdateMusic()
+{
+    if ((gCvarGameMusicMode.mValue == eGameMusicMode_Disabled) || (mMusicStatus == eMusicStatus_Stopped))
+        return;
+
+    if (mMusicStatus == eMusicStatus_NextTrackRequest)
+    {
+        StartMusic("MUSIC/Track11"); // ambient 
+        return;
+    }
+
+    if (mMusicStatus == eMusicStatus_Playing)
+    {
+        // process buffers
+        std::vector<AudioSampleBuffer*> sampleBuffers;
+        if (!mMusicAudioSource->ProcessBuffersQueue(sampleBuffers))
+        {
+            StopMusic();
+            return;
+        }
+        if (!sampleBuffers.empty())
+        {
+            mMusicSampleBuffers.insert(mMusicSampleBuffers.end(), sampleBuffers.begin(), sampleBuffers.end());
+        }
+
+        if (!QueueMusicSampleBuffers())
+        {
+            if (mMusicDataStream->EndOfStream())
+            {
+                StopMusic();
+                mMusicStatus = eMusicStatus_NextTrackRequest;
+                return;
+            }
+        }
+
+        if (!mMusicAudioSource->IsPlaying() && !mMusicAudioSource->Start())
+        {
+            StopMusic();
+            return;
+        }
+
+        return;
+    }
+}
+
+bool AudioManager::StartMusic(const char* music)
+{
+    StopMusic();
+
+    if (mMusicAudioSource == nullptr)
+        return false;
+
+    mMusicDataStream = OpenAudioFileStream(music);
+    if (mMusicDataStream == nullptr)
+        return false;
+
+    if (!QueueMusicSampleBuffers())
+    {
+        SafeDelete(mMusicDataStream);
+        return false;
+    }
+
+    if (!mMusicAudioSource->Start())
+    {
+        StopMusic();
+        return false;
+    }
+
+    mMusicStatus = eMusicStatus_Playing;
+    return true;
+}
+
+void AudioManager::StopMusic()
+{
+    mMusicStatus = eMusicStatus_Stopped;
+
+    if (mMusicAudioSource)
+    {
+        std::vector<AudioSampleBuffer*> sampleBuffers;
+        mMusicAudioSource->Stop();
+        mMusicAudioSource->ProcessBuffersQueue(sampleBuffers);
+        if (!sampleBuffers.empty())
+        {
+            mMusicSampleBuffers.insert(mMusicSampleBuffers.end(), sampleBuffers.begin(), sampleBuffers.end());
+        }
+    }
+
+    SafeDelete(mMusicDataStream);
+}
+
+bool AudioManager::QueueMusicSampleBuffers()
+{
+    debug_assert(mMusicDataStream);
+    debug_assert(mMusicAudioSource);
+
+    int bytesPerSample = mMusicDataStream->GetChannelsCount() * (mMusicDataStream->GetSampleBits() / 8);
+    int samplesPerBuffer = MusicSampleBufferSize / bytesPerSample;
+    // fill sample buffers
+    int totalSamplesProcessed = 0;
+    for (;;)
+    {
+        if (mMusicSampleBuffers.empty())
+            break;
+
+        int numSamplesRead = mMusicDataStream->ReadPCMSamples(samplesPerBuffer, mMusicSampleData);
+        if (numSamplesRead == 0)
+            break;
+
+        int dataLength = numSamplesRead * bytesPerSample;
+        totalSamplesProcessed += numSamplesRead;
+
+        AudioSampleBuffer* sampleBuffer = mMusicSampleBuffers.front();
+        if (!sampleBuffer->SetupBufferData(mMusicDataStream->GetSampleRate(), 
+            mMusicDataStream->GetSampleBits(), 
+            mMusicDataStream->GetChannelsCount(), dataLength, mMusicSampleData))
+        {
+            debug_assert(false);
+            break;
+        }
+        if (!mMusicAudioSource->QueueSampleBuffer(sampleBuffer))
+        {
+            debug_assert(false);
+            break;
+        }
+
+        mMusicSampleBuffers.pop_front();
+    }
+
+    return totalSamplesProcessed > 0;
 }

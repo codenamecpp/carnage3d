@@ -6,6 +6,10 @@ class AudioListener final: public cxx::noncopyable
     friend class AudioDevice;
 
 public:
+    // readonly
+    glm::vec3 mPosition;
+
+public:
     AudioListener() 
         : mPosition(0.0f, 0.0f, 1.0f)
     {
@@ -20,6 +24,4 @@ public:
         mPosition.x = position.x;
         mPosition.y = position.y;
     }
-private:
-    glm::vec3 mPosition;
 };

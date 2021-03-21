@@ -159,7 +159,7 @@ bool AudioSource::ProcessBuffersQueue(std::vector<AudioSampleBuffer*>& audioBuff
 
         if (currentSourceType != AL_STREAMING)
         {
-            debug_assert(false);
+            debug_assert(currentSourceType == AL_UNDETERMINED);
             return false;
         }
 

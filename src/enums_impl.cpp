@@ -638,3 +638,10 @@ impl_enum_strings(eWeatherEffect)
     {eWeatherEffect_Rain, "rain"},
     {eWeatherEffect_Fog, "fog"},
 };
+
+impl_enum_strings(eGameMusicMode)
+{
+    {eGameMusicMode_Disabled, "disabled" },
+    {eGameMusicMode_Radio, "radio" },
+    {eGameMusicMode_Constant, "constant" },
+};

@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiManager.h" />
+    <ClInclude Include="AudioDataStream.h" />
     <ClInclude Include="SfxEmitter.h" />
     <ClInclude Include="AudioListener.h" />
     <ClInclude Include="AudioSource.h" />
@@ -271,6 +272,7 @@
     <ClInclude Include="TrimeshBuffer.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VertexFormats.h" />
+    <ClInclude Include="wave_utils.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponInfo.h" />
     <ClInclude Include="WeatherManager.h" />
@@ -278,6 +280,7 @@
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
+    <ClCompile Include="AudioDataStream.cpp" />
     <ClCompile Include="SfxEmitter.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="ConsoleVar.cpp" />
@@ -364,6 +367,7 @@
     <ClCompile Include="PixelsArray.cpp" />
     <ClCompile Include="TrimeshBuffer.cpp" />
     <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="wave_utils.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponInfo.cpp" />
     <ClCompile Include="WeatherManager.cpp" />

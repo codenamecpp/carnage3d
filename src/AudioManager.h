@@ -3,15 +3,12 @@
 #include "AudioSampleArchive.h"
 #include "SfxDefs.h"
 #include "SfxEmitter.h"
+#include "AudioDataStream.h"
 
 // This class manages in game music and sounds
 class AudioManager final: public cxx::noncopyable
 {
     friend class SfxEmitter;
-
-public:
-    AudioSampleArchive mLevelSounds;
-    AudioSampleArchive mVoiceSounds;
 
 public:
     bool Initialize();
@@ -47,8 +44,8 @@ public:
 private:
     AudioSource* GetFreeAudioSource() const;
 
-    bool AllocateAudioSources();
-    void ReleaseAudioSources();
+    bool PrepareAudioResources();
+    void ShutdownAudioResources();
 
     void UpdateActiveEmitters();
     void ReleaseActiveEmitters();
@@ -57,12 +54,43 @@ private:
     // generate random pitch value
     float NextRandomPitch();
 
+    // music
+    bool StartMusic(const char* music);
+    void StopMusic();
+    void UpdateMusic();
+    bool QueueMusicSampleBuffers();
+
 private:
-    std::vector<AudioSource*> mAudioSources; // all available hardware audio sources
+    // constants
+    static const int MusicSampleBufferSize = 32768;
+    static const int MaxSfxAudioSources = 32;
+    static const int MaxMusicSampleBuffers = 4;
+
+    enum eMusicStatus
+    {
+        eMusicStatus_Stopped,
+        eMusicStatus_Playing,
+        eMusicStatus_NextTrackRequest,
+    };
+
+    // audio resources
+    std::vector<AudioSource*> mSfxAudioSources; // available hardware audio sources
     std::vector<SfxSample*> mLevelSfxSamples;
     std::vector<SfxSample*> mVoiceSfxSamples;
     std::vector<SfxEmitter*> mActiveEmitters;
+    AudioSource* mMusicAudioSource = nullptr;
+    std::deque<AudioSampleBuffer*> mMusicSampleBuffers;
 
+    AudioSampleArchive mLevelSounds;
+    AudioSampleArchive mVoiceSounds;
+
+    // music data
+    eMusicStatus mMusicStatus = eMusicStatus_NextTrackRequest;
+    AudioDataStream* mMusicDataStream = nullptr; // active music stream
+
+    unsigned char mMusicSampleData[MusicSampleBufferSize];
+
+    // object pools
     cxx::object_pool<SfxEmitter> mEmittersPool;
 };
 

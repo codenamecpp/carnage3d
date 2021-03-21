@@ -154,7 +154,7 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
         debug_assert(false);
     }
 
-    if (!channel.mHardwareSource->SetPosition3D(mEmitterPosition.x, mEmitterPosition.y, mEmitterPosition.y))
+    if (!channel.mHardwareSource->SetPosition3D(mEmitterPosition.x, mEmitterPosition.y, mEmitterPosition.z))
     {
         debug_assert(false);
     }

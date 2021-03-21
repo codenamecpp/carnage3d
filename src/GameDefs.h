@@ -836,6 +836,15 @@ enum eAccidentServise
 
 decl_enum_strings(eAccidentServise);
 
+enum eGameMusicMode
+{
+    eGameMusicMode_Disabled,
+    eGameMusicMode_Radio,
+    eGameMusicMode_Constant,
+};
+
+decl_enum_strings(eGameMusicMode);
+
 // Game map navigation data sector
 struct DistrictInfo
 {
