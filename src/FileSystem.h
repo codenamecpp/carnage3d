@@ -6,6 +6,7 @@ class FileSystem final: public cxx::noncopyable
 public:
     // standard places paths
     std::string mExecutablePath;
+    std::string mExecutableDirectory;
     std::string mWorkingDirectoryPath;
     std::vector<std::string> mSearchPlaces;
     std::vector<std::string> mGameMapsList;

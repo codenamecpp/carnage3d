@@ -110,7 +110,7 @@ void HUDWeaponPanel::SetWeaponInfo(Weapon& weaponState)
     if ((mPrevAmmunitionCount == 0) || (mPrevAmmunitionCount != weaponState.mAmmunition))
     {
         mPrevAmmunitionCount = weaponState.mAmmunition;
-        mAmmunitionText = cxx::va("%d", weaponState.mAmmunition);
+        mAmmunitionText = cxx::va("%02d", weaponState.mAmmunition);
     }
 
     WeaponInfo* weaponInfo = weaponState.GetWeaponInfo();

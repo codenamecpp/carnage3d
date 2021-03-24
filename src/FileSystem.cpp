@@ -18,7 +18,8 @@ FileSystem gFiles;
 bool FileSystem::Initialize()
 {
     mExecutablePath = cxx::get_executable_path();
-    mWorkingDirectoryPath = cxx::get_parent_directory(mExecutablePath);
+    mExecutableDirectory = cxx::get_parent_directory(mExecutablePath);
+    mWorkingDirectoryPath = mExecutableDirectory;
     mWorkingDirectoryPath = cxx::get_parent_directory(mWorkingDirectoryPath); // root
     if (!mWorkingDirectoryPath.empty())
     {
@@ -34,6 +35,7 @@ bool FileSystem::Initialize()
 void FileSystem::Deinit()
 {
     mExecutablePath.clear();
+    mExecutableDirectory.clear();
     mWorkingDirectoryPath.clear();
     mGameMapsList.clear();
 }

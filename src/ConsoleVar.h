@@ -20,8 +20,7 @@ enum CvarFlags: unsigned long
     CvarFlags_CvarPoint          = BIT(13), // 2 ints
     CvarFlags_CvarVec3           = BIT(14), // 3 floats
     CvarFlags_CvarEnum           = BIT(15), // int
-    // special value types
-    CvarFlags_CvarCommand        = BIT(16), // does not holds any data but executes command
+    CvarFlags_CvarVoid           = BIT(16), // cvar contains to data and acts like command
 };
 decl_enum_as_flags(CvarFlags);
 
@@ -87,7 +86,7 @@ public:
     bool IsColor()      const { return (mCvarFlags & CvarFlags_CvarColor)  > 0; }
     bool IsPoint()      const { return (mCvarFlags & CvarFlags_CvarPoint)  > 0; }
     bool IsVec3()       const { return (mCvarFlags & CvarFlags_CvarVec3)   > 0; }
-    bool IsCommand()    const { return (mCvarFlags & CvarFlags_CvarCommand)> 0; }
+    bool IsVoid()       const { return (mCvarFlags & CvarFlags_CvarVoid)   > 0; }
 
 protected:
     Cvar(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags);
@@ -247,6 +246,25 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
+class CvarVoid: public Cvar
+{
+public:
+    std::string mCallingArgs;
+
+public:
+    CvarVoid(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags);
+
+protected:
+    // Get current value string representation
+    void GetPrintableValue(std::string& output) const override;
+    void GetPrintableDefaultValue(std::string& output) const override;
+
+    // Load new value from input string
+    bool DeserializeValue(const std::string& input, bool& valueChanged) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 template<typename TEnum>
 class CvarEnum: public Cvar
 {
@@ -301,25 +319,4 @@ protected:
         }
         return true;
     }
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class CvarCommand: public Cvar
-{
-public:
-    CvarCommandProc mCommandProc;
-
-public:
-    CvarCommand(const std::string& name, const std::string& description, CvarCommandProc commandProc, CvarFlags cvarFlags = CvarFlags_None);
-
-protected:
-    // Get current value string representation
-    void GetPrintableValue(std::string& output) const override;
-    void GetPrintableDefaultValue(std::string& output) const override;
-
-    // Load new value from input string
-    bool DeserializeValue(const std::string& input, bool& valueChanged) override;
-
-    void CallWithParams(const std::string& params) override;
 };

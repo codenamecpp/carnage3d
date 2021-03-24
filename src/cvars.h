@@ -33,13 +33,20 @@ extern CvarString gCvarGameLanguage; // current game language
 extern CvarInt gCvarNumPlayers; // number of players in split screen mode
 extern CvarBoolean gCvarWeatherActive; // whether weather effects enabled
 extern CvarEnum<eWeatherEffect> gCvarWeatherEffect; // currently active weather
+extern CvarBoolean gCvarCarSparksActive; // enable car sparks effect
 
 //////////////////////////////////////////////////////////////////////////
 
 // console commands
 
-extern CvarCommand gConSysQuit; // quit application
-extern CvarCommand gConSysListCvars; // print all non-hidden cvars to console
+extern CvarVoid gCvarSysQuit; // quit application
+extern CvarVoid gCvarSysListCvars; // print all non-hidden cvars to console
+
+// debug commands
+extern CvarVoid gCvarDbgDumpSpriteDeltas; // dump sprite deltas
+extern CvarVoid gCvarDbgDumpBlockTextures; // dump block textures
+extern CvarVoid gCvarDbgDumpSprites; // dump all sprites
+extern CvarVoid gCvarDbgDumpCarSprites; // dump car sprites
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +69,12 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarWeatherActive);
     gConsole.RegisterVariable(&gCvarWeatherEffect);
     gConsole.RegisterVariable(&gCvarGameMusicMode);
+    gConsole.RegisterVariable(&gCvarCarSparksActive);
     // commands
-    gConsole.RegisterVariable(&gConSysQuit);
-    gConsole.RegisterVariable(&gConSysListCvars);
+    gConsole.RegisterVariable(&gCvarSysQuit);
+    gConsole.RegisterVariable(&gCvarSysListCvars);
+    gConsole.RegisterVariable(&gCvarDbgDumpSpriteDeltas);
+    gConsole.RegisterVariable(&gCvarDbgDumpBlockTextures);
+    gConsole.RegisterVariable(&gCvarDbgDumpSprites);
+    gConsole.RegisterVariable(&gCvarDbgDumpCarSprites);
 }

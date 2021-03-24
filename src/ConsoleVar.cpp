@@ -16,8 +16,14 @@ Cvar::~Cvar()
 
 void Cvar::CallWithParams(const std::string& params)
 {
-    if (params.empty()) // print cvar info
+    if (IsVoid() || !params.empty())
     {
+        // try set new value
+        SetFromString(params, eCvarSetMethod_Console);
+    }
+    else
+    {
+        // print cvar info
         std::string currValue;
         GetPrintableValue(currValue);
 
@@ -27,10 +33,6 @@ void Cvar::CallWithParams(const std::string& params)
         gConsole.LogMessage(eLogMessage_Info, "Current value: '%s', default value: '%s', description: '%s'",
             currValue.c_str(), defaultValue.c_str(), mDescription.c_str());
     }
-    else // try set new value
-    {
-        SetFromString(params, eCvarSetMethod_Console);
-    }
 }
 
 bool Cvar::SetFromString(const std::string& input, eCvarSetMethod setMethod)
@@ -38,10 +40,6 @@ bool Cvar::SetFromString(const std::string& input, eCvarSetMethod setMethod)
     if (setMethod == eCvarSetMethod_Console)
     {
         debug_assert(!IsHidden());
-    }
-    if (IsCommand())
-    {
-        debug_assert(false);
     }
     // check rom access
     if (IsReadonly() && (setMethod != eCvarSetMethod_Config))
@@ -171,11 +169,6 @@ void Cvar::PrintInfo()
     {
         cvarInfo += " ";
         cvarInfo += "point";
-    }
-    if (IsCommand())
-    {
-        cvarInfo += " ";
-        cvarInfo += "command";
     }
     cvarInfo += " ]";
     gConsole.LogMessage(eLogMessage_Info, cvarInfo.c_str());
@@ -461,38 +454,24 @@ bool CvarVec3::DeserializeValue(const std::string& input, bool& valueChanged)
 
 //////////////////////////////////////////////////////////////////////////
 
-CvarCommand::CvarCommand(const std::string& name, const std::string& description, CvarCommandProc commandProc, CvarFlags cvarFlags)
-    : Cvar(name, description, cvarFlags | CvarFlags_CvarCommand)
-    , mCommandProc(commandProc)
+CvarVoid::CvarVoid(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarVoid)
 {
-    debug_assert(!IsArchive());
-    debug_assert(!IsReadonly());
-    debug_assert(!IsModified());
 }
 
-void CvarCommand::GetPrintableValue(std::string& output) const
+void CvarVoid::GetPrintableValue(std::string& output) const
 {
-    // do nothing
-
-    debug_assert(false);
+    output.clear();
 }
 
-void CvarCommand::GetPrintableDefaultValue(std::string& output) const
+void CvarVoid::GetPrintableDefaultValue(std::string& output) const
 {
-    // do nothing
-
-    debug_assert(false);
+    output.clear();
 }
 
-bool CvarCommand::DeserializeValue(const std::string& input, bool& valueChanged)
+bool CvarVoid::DeserializeValue(const std::string& input, bool& valueChanged)
 {
-    return false;
-}
-
-void CvarCommand::CallWithParams(const std::string& params)
-{
-    if (mCommandProc)
-    {
-        mCommandProc(params.c_str());
-    }
+    mCallingArgs = input;
+    valueChanged = true;
+    return true;
 }

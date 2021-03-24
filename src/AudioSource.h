@@ -32,15 +32,20 @@ public:
     bool SetupBufferData(int sampleRate, int bitsPerSample, int channelsCount, int dataLength, const void* bufferData);
     bool IsBufferError() const;
 
+    float GetBufferDurationSeconds() const;
+
     // Sample data desc
     bool IsStereo() const;
     bool IsMono() const;
+
+    bool ContainsData() const;
 
 private:
     unsigned int mBufferID = 0; // openal buffer handle
     int mSampleRate = 0;
     int mBitsPerSample = 0;
     int mChannelsCount = 0;
+    int mDataLength = 0;
 };
 
 // Represents audio channel instance which can play sounds

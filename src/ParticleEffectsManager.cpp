@@ -1,8 +1,19 @@
 #include "stdafx.h"
 #include "ParticleEffectsManager.h"
 #include "RenderingManager.h"
+#include "cvars.h"
+
+//////////////////////////////////////////////////////////////////////////
+// cvars
+//////////////////////////////////////////////////////////////////////////
+
+CvarBoolean gCvarCarSparksActive("g_carSparks", true, "Enable or disable car sparks effect", CvarFlags_Archive);
+
+//////////////////////////////////////////////////////////////////////////
 
 ParticleEffectsManager gParticleManager;
+
+//////////////////////////////////////////////////////////////////////////
 
 ParticleEffectsManager::ParticleEffectsManager()
 {
@@ -137,5 +148,5 @@ void ParticleEffectsManager::StartCarSparks(const glm::vec3& position, const glm
 
 bool ParticleEffectsManager::IsCarSparksEffectEnabled() const
 {
-    return true;
+    return gCvarCarSparksActive.mValue;
 }

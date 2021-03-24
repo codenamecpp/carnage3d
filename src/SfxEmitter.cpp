@@ -163,14 +163,6 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
     {
         debug_assert(false);
     }
-
-    if ((sfxFlags & SfxFlags_StartPaused) > 0)
-    {
-        if (!channel.mHardwareSource->Pause())
-        {
-            debug_assert(false);
-        }
-    }
     gAudioManager.RegisterActiveEmitter(this);
     return true;
 }

@@ -22,7 +22,6 @@ enum SfxFlags
     SfxFlags_None           = 0,
     SfxFlags_Loop           = BIT(1),
     SfxFlags_RandomPitch    = BIT(2), // randomize pitch a bit
-    SfxFlags_StartPaused    = BIT(3), // start and pause
 };
 
 decl_enum_as_flags(SfxFlags);

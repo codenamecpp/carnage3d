@@ -31,6 +31,12 @@ CvarEnum<eGtaGameVersion> gCvarGameVersion("g_gamever", eGtaGameVersion_Unknown,
 CvarString gCvarGameLanguage("g_gamelang", "en", "Current game language", CvarFlags_Init);
 CvarInt gCvarNumPlayers("g_numplayers", 1, "Number of players in split screen mode", CvarFlags_Init);
 
+// debug
+CvarVoid gCvarDbgDumpSpriteDeltas("dbg_dumpSpriteDeltas", "Dump sprite deltas", CvarFlags_None);
+CvarVoid gCvarDbgDumpBlockTextures("dbg_dumpBlocks", "Dump block textures", CvarFlags_None);
+CvarVoid gCvarDbgDumpSprites("dbg_dumpSprites", "Dump all sprites", CvarFlags_None);
+CvarVoid gCvarDbgDumpCarSprites("dbg_dumpCarSprites", "Dump car sprites", CvarFlags_None);
+
 //////////////////////////////////////////////////////////////////////////
 
 CarnageGame gCarnageGame;
@@ -127,6 +133,8 @@ void CarnageGame::UpdateFrame()
     // advance game state
     if (IsInGameState())
     {
+        ProcessDebugCvars();
+
         gSpriteManager.UpdateBlocksAnimations(deltaTime);
         gPhysics.UpdateFrame();
         gGameObjectsManager.UpdateFrame();
@@ -389,10 +397,6 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     {
         debug_assert(false);
     }
-    //gSpriteManager.DumpSpriteDeltas("D:/Temp/gta1_deltas");
-    //gSpriteCache.DumpBlocksTexture("D:/Temp/gta1_blocks");
-    //gSpriteManager.DumpSpriteTextures("D:/Temp/gta1_sprites");
-    //gSpriteManager.DumpCarsTextures("D:/Temp/gta_cars");
 
     gPhysics.EnterWorld();
     gParticleManager.EnterWorld();
@@ -578,4 +582,39 @@ std::string CarnageGame::GetTextsLanguageFileName(const std::string& languageID)
     }
    
     return "ENGLISH.FXT";
+}
+
+void CarnageGame::ProcessDebugCvars()
+{
+    if (gCvarDbgDumpSpriteDeltas.IsModified())
+    {
+        gCvarDbgDumpSpriteDeltas.ClearModified();
+        std::string savePath = gFiles.mExecutableDirectory + "/sprite_deltas";
+        gSpriteManager.DumpSpriteDeltas(savePath);
+        gConsole.LogMessage(eLogMessage_Info, "Sprite deltas path is '%s'", savePath.c_str());
+    }
+
+    if (gCvarDbgDumpBlockTextures.IsModified())
+    {
+        gCvarDbgDumpBlockTextures.ClearModified();
+        std::string savePath = gFiles.mExecutableDirectory + "/block_textures";
+        gSpriteManager.DumpBlocksTexture(savePath);
+        gConsole.LogMessage(eLogMessage_Info, "Blocks textures path is '%s'", savePath.c_str());
+    }
+
+    if (gCvarDbgDumpSprites.IsModified())
+    {
+        gCvarDbgDumpSprites.ClearModified();
+        std::string savePath = gFiles.mExecutableDirectory + "/sprites";
+        gSpriteManager.DumpSpriteTextures(savePath);
+        gConsole.LogMessage(eLogMessage_Info, "Sprites path is '%s'", savePath.c_str());
+    }
+
+    if (gCvarDbgDumpCarSprites.IsModified())
+    {
+        gCvarDbgDumpCarSprites.ClearModified();
+        std::string savePath = gFiles.mExecutableDirectory + "/car_sprites";
+        gSpriteManager.DumpCarsTextures(savePath);
+        gConsole.LogMessage(eLogMessage_Info, "Car sprites path is '%s'", savePath.c_str());
+    }
 }

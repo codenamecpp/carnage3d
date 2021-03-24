@@ -33,6 +33,7 @@ bool AudioSampleBuffer::SetupBufferData(int sampleRate, int bitsPerSample, int c
             return false;
         }
 
+        mDataLength = dataLength;
         mSampleRate = sampleRate;
         mBitsPerSample = bitsPerSample;
         mChannelsCount = channelsCount;
@@ -62,6 +63,22 @@ bool AudioSampleBuffer::IsMono() const
 bool AudioSampleBuffer::IsStereo() const
 {
     return mChannelsCount == 2;
+}
+
+float AudioSampleBuffer::GetBufferDurationSeconds() const
+{
+    float durationSeconds = 0.0f;
+    if (ContainsData())
+    {
+        int samplesCount = mDataLength / (mChannelsCount * (mBitsPerSample / 8));
+        durationSeconds = (1.0f * samplesCount) / mSampleRate;
+    }
+    return durationSeconds;
+}
+
+bool AudioSampleBuffer::ContainsData() const
+{
+    return (mDataLength > 0) && (mChannelsCount > 0) && (mBitsPerSample > 0) && (mSampleRate > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////

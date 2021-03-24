@@ -34,19 +34,8 @@ CvarBoolean gCvarMemEnableFrameHeapAllocator("mem_enableFrameHeapAllocator", tru
 CvarBoolean gCvarAudioActive("a_audioActive", true, "Enable audio system", CvarFlags_Archive | CvarFlags_Init);
 
 // commands
-CvarCommand gConSysQuit("quit", "Quit application", [](const char*)
-{
-    gSystem.QuitRequest();
-});
-CvarCommand gConSysListCvars("print_cvars", "Print all registered console variables", [](const char*)
-{
-    for (Cvar* currCvar: gConsole.mCvarsList)
-    {
-        if (currCvar->IsHidden())
-            continue;
-        currCvar->PrintInfo();
-    };
-});
+CvarVoid gCvarSysQuit("quit", "Quit application", CvarFlags_None);
+CvarVoid gCvarSysListCvars("print_cvars", "Print all registered console variables", CvarFlags_None);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -273,6 +262,26 @@ bool System::ExecuteFrame()
     {
         gAudioManager.UpdateFrame();
         gAudioDevice.UpdateFrame(); // update at logic frame end
+    }
+
+    // process quit command
+    if (gCvarSysQuit.IsModified())
+    {
+        gCvarSysQuit.ClearModified();
+        QuitRequest();
+    }
+
+    // process list cvars command
+    if (gCvarSysListCvars.IsModified())
+    {
+        gCvarSysListCvars.ClearModified();
+        for (Cvar* currCvar: gConsole.mCvarsList)
+        {
+            if (currCvar->IsHidden())
+                continue;
+
+            currCvar->PrintInfo();
+        };
     }
 
     // update screen params
