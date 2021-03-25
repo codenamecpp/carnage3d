@@ -2,6 +2,7 @@
 #include "InputsManager.h"
 #include "ImGuiManager.h"
 #include "CarnageGame.h"
+#include "ConsoleWindow.h"
 
 InputsManager gInputs;
 
@@ -73,6 +74,12 @@ void InputsManager::InputEvent(GamepadInputEvent& inputEvent)
 
 void InputsManager::InputEvent(KeyInputEvent& inputEvent)
 {
+    if (HandleDebugKeys(inputEvent))
+    {
+        InputEventConsumed(nullptr);
+        return;
+    }
+
     mKeyboardKeys[inputEvent.mKeycode] = inputEvent.mPressed;
 
     for (InputEventsHandler* currentHandler: mInputHandlers)
@@ -141,4 +148,20 @@ void InputsManager::UpdateFrame()
     }
     mInputHandlers.push_back(&gGuiManager);
     mInputHandlers.push_back(&gCarnageGame);
+}
+
+bool InputsManager::HandleDebugKeys(KeyInputEvent& inputEvent)
+{
+    // show/hide debug console window
+    if (inputEvent.HasPressed(eKeycode_TILDE) || inputEvent.HasReleased(eKeycode_TILDE))
+    {
+        if (inputEvent.HasPressed(eKeycode_TILDE))
+        {
+            gDebugConsoleWindow.ToggleWindowShown();
+        }
+        inputEvent.SetConsumed();
+        return true;
+    }
+
+    return false;
 }

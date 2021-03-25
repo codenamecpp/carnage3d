@@ -118,15 +118,6 @@ int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
     switch (data->EventFlag)
     {
-    case ImGuiInputTextFlags_CallbackCharFilter:
-        {
-            if (data->EventChar == L'`')
-            {
-                ToggleWindowShown();
-                return 1;
-            }
-            break;
-        }
     case ImGuiInputTextFlags_CallbackCompletion:
         {
             // Locate beginning of current word

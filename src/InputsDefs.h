@@ -229,10 +229,14 @@ public:
     {
         return (mMods & bits) == bits;
     }
-    // test whether specific key was pressed
+    // test whether specific key was pressed or released
     inline bool HasPressed(eKeycode keycode) const
     {
-        return mPressed && keycode == mKeycode;
+        return mPressed && (keycode == mKeycode);
+    }
+    inline bool HasReleased(eKeycode keycode) const
+    {
+        return !mPressed && (keycode == mKeycode);
     }
 public:
     eKeycode mKeycode;

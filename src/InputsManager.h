@@ -86,6 +86,7 @@ public:
 
 private:
     void InputEventConsumed(InputEventsHandler* handler);
+    bool HandleDebugKeys(KeyInputEvent& inputEvent);
 
 private:
     InputEventsHandler* mLastInputsHandler = nullptr;

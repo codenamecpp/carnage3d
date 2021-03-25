@@ -168,11 +168,6 @@ void CarnageGame::InputEventLost()
 
 void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
 {
-    if (inputEvent.HasPressed(eKeycode_TILDE)) // show debug console
-    {
-        gDebugConsoleWindow.mWindowShown = !gDebugConsoleWindow.mWindowShown;
-        return;
-    }
     if (inputEvent.HasPressed(eKeycode_F3))
     {
         gRenderManager.ReloadRenderPrograms();
