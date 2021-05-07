@@ -17,17 +17,17 @@ enum ePedestrianType
 
 decl_enum_strings(ePedestrianType);
 
-enum ePedestrianFearFlags
+enum PedestrianFearFlags
 {
-    ePedestrianFearFlags_None = 0,
-    ePedestrianFearFlags_Players = BIT(0),
-    ePedestrianFearFlags_Police = BIT(1),
-    ePedestrianFearFlags_GunShots = BIT(2),
-    ePedestrianFearFlags_Explosions = BIT(3),
-    ePedestrianFearFlags_DeadPeds = BIT(4),
+    PedestrianFearFlags_None = 0,
+    PedestrianFearFlags_Players = BIT(0),
+    PedestrianFearFlags_Police = BIT(1),
+    PedestrianFearFlags_GunShots = BIT(2),
+    PedestrianFearFlags_Explosions = BIT(3),
+    PedestrianFearFlags_DeadPeds = BIT(4),
 };
 
-decl_enum_as_flags(ePedestrianFearFlags);
+decl_enum_as_flags(PedestrianFearFlags);
 
 enum ePedestrianRemapType
 {
@@ -50,31 +50,31 @@ public:
     // Whether pedestrian has specific fears
     bool HasFear_Players() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Players) > 0;
+        return (mFearFlags & PedestrianFearFlags_Players) > 0;
     }
     bool HasFear_Police() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Police) > 0;
+        return (mFearFlags & PedestrianFearFlags_Police) > 0;
     }
     bool HasFear_GunShots() const
     {
-        return (mFearFlags & ePedestrianFearFlags_GunShots) > 0;
+        return (mFearFlags & PedestrianFearFlags_GunShots) > 0;
     }
     bool HasFear_Explosions() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Explosions) > 0;
+        return (mFearFlags & PedestrianFearFlags_Explosions) > 0;
     }
     bool HasFear_DeadPeds() const
     {
-        return (mFearFlags & ePedestrianFearFlags_DeadPeds) > 0;
+        return (mFearFlags & PedestrianFearFlags_DeadPeds) > 0;
     }
 
-    void AddFears(ePedestrianFearFlags fearFlags);
-    void RemoveFears(ePedestrianFearFlags fearFlags);
+    void AddFears(PedestrianFearFlags fearFlags);
+    void RemoveFears(PedestrianFearFlags fearFlags);
 
 public:
     ePedestrianType mTypeID = ePedestrianType_Civilian;
-    ePedestrianFearFlags mFearFlags = ePedestrianFearFlags_None;
+    PedestrianFearFlags mFearFlags = PedestrianFearFlags_None;
     ePedestrianRemapType mRemapType = ePedestrianRemapType_Index;
     int mRemapIndex = NO_REMAP; // valid if ePedestrianRemapType_Index
 };

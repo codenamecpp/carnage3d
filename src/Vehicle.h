@@ -5,39 +5,45 @@
 #include "GameObject.h"
 #include "Sprite2D.h"
 
+//////////////////////////////////////////////////////////////////////////
+
+enum eCarTire
+{
+    eCarTire_Front,
+    eCarTire_Rear,
+    eCarTire_COUNT
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // defines vehicle instance
-class Vehicle final: public GameObject
-    , public SpriteAnimListener
+class Vehicle final: public GameObject, public SpriteAnimListener
 {
     friend class GameObjectsManager;
     friend class GameCheatsWindow;
+    friend class PhysicsManager;
 
 public:
     // public for convenience, should not be modified directly
-    CarPhysics* mPhysicsBody;
-
-    float mDrawHeight;
-
     VehicleInfo* mCarInfo; // cannot be null
     std::vector<Pedestrian*> mPassengers;
 
 public:
     // @param id: Unique object identifier, constant
     Vehicle(GameObjectID id);
-    ~Vehicle();
 
     // override GameObject
     void UpdateFrame() override;
-    void PreDrawFrame() override;
+    void SimulationStep() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void OnGameObjectSpawn() override;
-    // Process damage, it may be ignored depending on type of damage and objects current state
-    // @param damageInfo: Damage details
+    void HandleSpawn() override;
+    void HandleDespawn() override;
+    void HandleCollision(const Collision& collision) override;
+    void HandleCollisionWithMap(const MapCollision& collision) override;
+    void HandleFallsOnWater(float fallDistance) override;
+    void HandleFallsOnGround(float fallDistance) override;
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
-
-    // Current world position
-    glm::vec3 GetPosition() const override;
-    glm::vec2 GetPosition2() const override;
+    bool ShouldCollide(GameObject* otherObject) const override;
 
     // adds or removes car passenger
     // @param pedestrian: Pedestrian, cannot be null
@@ -104,13 +110,15 @@ public:
     // Get current vehicle damage level
     int GetCurrentDamage() const;
 
+    // Get current vehicle speed in meters per hour
+    float GetCurrentSpeed() const;
+
 private:
     // override SpriteAnimListener
     bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID) override;
 
     void SetWrecked();
     void Explode();
-    void ComputeDrawHeight(const glm::vec3& position);
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations();
     void UpdateEngineSound();
@@ -119,13 +127,47 @@ private:
     void UpdateBurnEffect();
     void UpdateDamageFromRailways();
 
+    void SetupCarSprite();
+    void SetDrawOrder(eSpriteDrawOrder drawOrder);
+
     SpriteDeltaBits GetSpriteDeltas() const;
+
+    // physics stuff
+
+    void GetChassisCorners(glm::vec2 corners[4]) const;
+    void GetChassisCornersLocal(glm::vec2 corners[4]) const;
+    void GetTireCorners(eCarTire tireID, glm::vec2 corners[4]) const;
+
+    struct DriveCtlState
+    {
+        float mSteerDirection = 0.0f;
+        float mDriveDirection = 0.0f;
+        bool mHandBrake = false;
+    };
+
+    void UpdateSteer(const DriveCtlState& currCtlState);
+    void UpdateFriction(const DriveCtlState& currCtlState);
+    void UpdateDrive(const DriveCtlState& currCtlState);
+
+    // Get tire velocities
+    glm::vec2 GetTireLateralVelocity(eCarTire tireID) const;
+    glm::vec2 GetTireForwardVelocity(eCarTire tireID) const;
+
+    // Get tire forward direction and position in world space
+    glm::vec2 GetTirePosition(eCarTire tireID) const;
+    glm::vec2 GetTireForward(eCarTire tireID) const;
+    glm::vec2 GetTireLateral(eCarTire tireID) const;
+
+    glm::vec2 GetTireLocalPos(eCarTire tireID) const;
+    glm::vec2 GetTireLocalForward(eCarTire tireID) const;
+    glm::vec2 GetTireLocalLateral(eCarTire tireID) const;
 
 private:
     SpriteAnimation mDoorsAnims[MAX_CAR_DOORS];
     SpriteAnimation mEmergLightsAnim;
     SpriteAnimation mDrivingDeltaAnim;
     SpriteDeltaBits mDamageDeltaBits;
+    SpriteDeltaBits mPrevDeltaBits;
 
     // active effects
     Decoration* mFireEffect = nullptr;
@@ -138,4 +180,9 @@ private:
     int mCurrentDamage = 0;
 
     bool mCarWrecked = false;
+
+    // physics params
+    float mFrontTireOffset = 0.0f; // steer
+    float mRearTireOffset = 0.0f; // drive
+    float mSteeringAngleRadians = 0.0f;
 };

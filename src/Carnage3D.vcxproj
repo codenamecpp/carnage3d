@@ -97,6 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;$(SDKDIR)/openal-soft/libs/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"</Command>
@@ -131,6 +132,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SDKDIR)/glew/lib/x86;$(SDKDIR)/openal-soft/libs/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;winmm.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SDKDIR)\glew\lib\x86\glew32.dll" "$(TargetDir)"</Command>
@@ -156,6 +158,9 @@
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiManager.h" />
     <ClInclude Include="AudioDataStream.h" />
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="GameObjectHelpers.h" />
     <ClInclude Include="SfxEmitter.h" />
     <ClInclude Include="AudioListener.h" />
     <ClInclude Include="AudioSource.h" />
@@ -255,7 +260,7 @@
     <ClInclude Include="OpenGLDefs.h" />
     <ClInclude Include="path_utils.h" />
     <ClInclude Include="Pedestrian.h" />
-    <ClInclude Include="PhysicsComponents.h" />
+    <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="randomizer.h" />
     <ClInclude Include="RenderProgram.h" />
     <ClInclude Include="RenderingManager.h" />
@@ -269,6 +274,7 @@
     <ClInclude Include="strings.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="PixelsArray.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="TrimeshBuffer.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VertexFormats.h" />
@@ -281,6 +287,8 @@
     <ClCompile Include="AiCharacterController.cpp" />
     <ClCompile Include="AiManager.cpp" />
     <ClCompile Include="AudioDataStream.cpp" />
+    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="SfxEmitter.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="ConsoleVar.cpp" />
@@ -350,7 +358,7 @@
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="InputsManager.cpp" />
     <ClCompile Include="Pedestrian.cpp" />
-    <ClCompile Include="PhysicsComponents.cpp" />
+    <ClCompile Include="PhysicsBody.cpp" />
     <ClCompile Include="RenderProgram.cpp" />
     <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="SpriteAnimation.cpp" />

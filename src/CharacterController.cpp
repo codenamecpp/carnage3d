@@ -6,7 +6,7 @@
 
 CharacterController::~CharacterController()
 {
-    DeactivateConstroller();
+    DeactivateController();
 }
 
 void CharacterController::UpdateFrame()
@@ -24,7 +24,7 @@ bool CharacterController::IsHumanPlayer() const
     return false;
 }
 
-void CharacterController::DeactivateConstroller()
+void CharacterController::DeactivateController()
 {
     if (mCharacter)
     {

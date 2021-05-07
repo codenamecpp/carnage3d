@@ -23,12 +23,12 @@ public:
     // Simple play one shot sound within world
     // @param sfxType, sfxIndex: Sound identifier
     // @param emitterPosition: Sound position
-    bool StartSound(eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition);
+    bool StartSound(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition);
 
     // Get game sound by its identifier, will load audio data if it is not loaded yet
     // @param sfxType: Sound type
     // @param sfxIndex: Sound index
-    SfxSample* GetSound(eSfxType sfxType, SfxIndex sfxIndex);
+    SfxSample* GetSound(eSfxSampleType sfxType, SfxSampleIndex sfxIndex);
 
     // Allocate new sound emitter instance
     // @param gameObject: Game object which emitting sounds, optional

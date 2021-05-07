@@ -15,23 +15,19 @@ Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc)
     }
 }
 
-void Decoration::PreDrawFrame()
-{
-}
-
 void Decoration::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mAnimationState.UpdateFrame(deltaTime))
     {
         gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
+        RefreshDrawSprite();
     }
 
-    glm::vec3 currPosition = GetPosition();
-    glm::vec3 newPosition = currPosition + (mMoveVelocity * deltaTime);
-    if (newPosition != currPosition)
+    glm::vec3 newPosition = mTransform.mPosition + (mMoveVelocity * deltaTime);
+    if (newPosition != mTransform.mPosition)
     {
-        SetTransform(newPosition, mSpawnHeading);
+        SetTransform(newPosition, mTransform.mOrientation);
     }
 
     if (mLifeDuration > 0 && !mAnimationState.IsActive())
@@ -44,42 +40,18 @@ void Decoration::DebugDraw(DebugRenderer& debugRender)
 {
 }
 
-glm::vec3 Decoration::GetPosition() const
+void Decoration::HandleSpawn()
 {
-    return mSpawnPosition;
-}
-
-glm::vec2 Decoration::GetPosition2() const
-{
-    return {mSpawnPosition.x, mSpawnPosition.z};
-}
-
-void Decoration::OnGameObjectSpawn()
-{
-    SetTransform(mSpawnPosition, mSpawnHeading);
-
     mAnimationState.ClearState();
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
     gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
+    RefreshDrawSprite();
 }
 
 void Decoration::SetLifeDuration(int numCycles)
 {
     mLifeDuration = numCycles;
     mAnimationState.SetMaxRepeatCycles(numCycles);
-}
-
-void Decoration::SetTransform(const glm::vec3& position, cxx::angle_t heading)
-{
-    mSpawnPosition = position;
-    mSpawnHeading = heading;
-
-    cxx::angle_t decoRotation = heading - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-
-    mDrawSprite.mPosition.x = position.x;
-    mDrawSprite.mPosition.y = position.z;
-    mDrawSprite.mHeight = position.y;
-    mDrawSprite.mRotateAngle = decoRotation;
 }
 
 void Decoration::SetDrawOrder(eSpriteDrawOrder drawOrder)
@@ -90,6 +62,7 @@ void Decoration::SetDrawOrder(eSpriteDrawOrder drawOrder)
 void Decoration::SetScale(float scale)
 {
     mDrawSprite.mScale = scale;
+    RefreshDrawSprite();
 }
 
 void Decoration::SetMoveVelocity(const glm::vec3& moveVelocity)

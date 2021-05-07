@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Vehicle.h"
 #include "PhysicsManager.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "GameMapManager.h"
 #include "SpriteBatch.h"
 #include "RenderingManager.h"
@@ -10,19 +10,57 @@
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
 #include "AudioManager.h"
+#include "Collider.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
-    , mPhysicsBody()
     , mCarWrecked()
     , mCarInfo()
     , mDamageDeltaBits()
     , mDrivingDeltaAnim()
-    , mDrawHeight()
 {
 }
 
-Vehicle::~Vehicle()
+void Vehicle::HandleSpawn()
 {
+    mStandingOnRailwaysTimer = 0.0f;
+
+    debug_assert(mCarInfo);
+
+    mRearTireOffset = Convert::PixelsToMeters(mCarInfo->mDriveWheelOffset);
+    mFrontTireOffset = Convert::PixelsToMeters(mCarInfo->mSteeringWheelOffset);
+    mSteeringAngleRadians = 0.0f;
+    
+    glm::vec3 halfExtents { 
+        mCarInfo->mDimensions.z * 0.5f, 
+        mCarInfo->mDimensions.y * 0.5f, 
+        mCarInfo->mDimensions.x * 0.5f }; // swap z and x
+
+    CollisionShape shapeData;
+    shapeData.SetAsBox(halfExtents, glm::vec3());
+
+    PhysicsMaterial materialData;
+    materialData.mDensity = 80.0f; // todo: magic numbers
+    materialData.mFriction = 0.0f;
+    materialData.mRestitution = 0.0f;
+
+    PhysicsBody* physicsBody = gPhysics.CreateBody(this, shapeData, materialData, CollisionGroup_Car, CollisionGroup_All, ColliderFlags_None, PhysicsBodyFlags_None);
+    debug_assert(physicsBody);
+    SetPhysics(physicsBody);
+
+    mCarWrecked = false;
+    mCurrentDamage = 0;
+    mDamageDeltaBits = 0;
+    mPrevDeltaBits = 0;
+    mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
+
+    SetupDeltaAnimations();
+    SetupCarSprite();
+}
+
+void Vehicle::HandleDespawn()
+{
+    SetBurnEffectActive(false);  
+
     // eject passengers
     if (HasPassengers())
     {
@@ -38,41 +76,11 @@ Vehicle::~Vehicle()
     }
 
     // force stop sounds
-    if (mSfxEmitter)
-    {
-        mSfxEmitter->StopAllSounds();
-    }
-    
-    if (mPhysicsBody)
-    {
-        gPhysics.DestroyPhysicsObject(mPhysicsBody);
-    }
+    StopGameObjectSounds();
+
     gSpriteManager.FlushSpritesCache(mObjectID);
-}
 
-void Vehicle::OnGameObjectSpawn()
-{
-    mStandingOnRailwaysTimer = 0.0f;
-
-    debug_assert(mCarInfo);
-    
-    // recreate physical body on respawn
-    if (mPhysicsBody)
-    {
-        gPhysics.DestroyPhysicsObject(mPhysicsBody);
-        mPhysicsBody = nullptr;
-    }
-
-    mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
-    debug_assert(mPhysicsBody);
-
-    mCarWrecked = false;
-    mCurrentDamage = 0;
-    mDamageDeltaBits = 0;
-    mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
-
-    SetupDeltaAnimations();
-    SetBurnEffectActive(false);
+    GameObject::HandleDespawn();
 }
 
 void Vehicle::UpdateFrame()
@@ -100,28 +108,23 @@ void Vehicle::UpdateFrame()
     UpdateDeltaAnimations();
 }
 
-void Vehicle::PreDrawFrame()
-{   
-    // sync sprite transformation with physical body
-    cxx::angle_t rotationAngle = mPhysicsBody->mSmoothRotation;
-    glm::vec3 position = mPhysicsBody->mSmoothPosition;
-    ComputeDrawHeight(position);
+void Vehicle::SimulationStep()
+{
+    DriveCtlState currCtlState;
 
-    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
-    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
-
-    mDrawSprite.mPosition.x = position.x;
-    mDrawSprite.mPosition.y = position.z;
-    mDrawSprite.mRotateAngle = rotationAngle - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    mDrawSprite.mHeight = mDrawHeight;
-    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
-
-    // update fire effect draw pos
-    // todo: refactore
-    if (mFireEffect)
+    if (!IsWrecked())
     {
-        mFireEffect->SetTransform(position, rotationAngle);
+        Pedestrian* carDriver = GetCarDriver();
+        if (carDriver)
+        {
+            currCtlState.mDriveDirection = carDriver->mCtlState.mAcceleration;
+            currCtlState.mSteerDirection = carDriver->mCtlState.mSteerDirection;
+            currCtlState.mHandBrake = carDriver->mCtlState.mHandBrake;
+        }
     }
+    UpdateFriction(currCtlState);
+    UpdateDrive(currCtlState);
+    UpdateSteer(currCtlState);
 }
 
 void Vehicle::DebugDraw(DebugRenderer& debugRender)
@@ -129,14 +132,16 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
     glm::vec3 position = mPhysicsBody->GetPosition();
 
     glm::vec2 corners[4];
-    mPhysicsBody->GetChassisCorners(corners);
+    GetChassisCorners(corners);
+
+    float drawHeight = mPhysicsBody->mPositionY;
 
     glm::vec3 points[4];
     for (int i = 0; i < 4; ++i)
     {
         points[i].x = corners[i].x;
         points[i].z = corners[i].y;
-        points[i].y = mDrawHeight;
+        points[i].y = drawHeight;
     }
     for (int i = 0; i < 4; ++i)
     {
@@ -161,70 +166,41 @@ void Vehicle::DebugDraw(DebugRenderer& debugRender)
     // draw body velocity
     glm::vec2 bodyLinearVelocity = mPhysicsBody->GetLinearVelocity();
     debugRender.DrawLine(
-        glm::vec3 {position.x, mDrawHeight, position.z},
-        glm::vec3 {position.x + bodyLinearVelocity.x, mDrawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
+        glm::vec3 {position.x, drawHeight, position.z},
+        glm::vec3 {position.x + bodyLinearVelocity.x, drawHeight, position.z + bodyLinearVelocity.y}, Color32_Cyan, false);
 
     // draw wheels
     for (eCarTire currID: {eCarTire_Rear, eCarTire_Front})
     {
-        mPhysicsBody->GetTireCorners(currID, corners);
+        GetTireCorners(currID, corners);
 
         for (int i = 0; i < 4; ++i)
         {
             points[i].x = corners[i].x;
             points[i].z = corners[i].y;
-            points[i].y = mDrawHeight;
+            points[i].y = drawHeight;
         }
         for (int i = 0; i < 4; ++i)
         {
             debugRender.DrawLine(points[i], points[(i + 1) % 4], Color32_Yellow, false);
         }
-        glm::vec2 forwardVelocity = mPhysicsBody->GetTireForwardVelocity(currID);
-        glm::vec2 lateralVelocity = mPhysicsBody->GetTireLateralVelocity(currID);
-        glm::vec2 wheelPosition = mPhysicsBody->GetTirePosition(currID);
+
+        glm::vec2 forwardVelocity = GetTireForwardVelocity(currID);
+        glm::vec2 lateralVelocity = GetTireLateralVelocity(currID);
+        glm::vec2 wheelPosition = GetTirePosition(currID);
 
         debugRender.DrawLine(
-            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
-            glm::vec3 {wheelPosition.x + forwardVelocity.x, mDrawHeight, wheelPosition.y + forwardVelocity.y}, Color32_Green, false);
+            glm::vec3 {wheelPosition.x, drawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + forwardVelocity.x, drawHeight, wheelPosition.y + forwardVelocity.y}, Color32_Green, false);
         debugRender.DrawLine(
-            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
-            glm::vec3 {wheelPosition.x + lateralVelocity.x, mDrawHeight, wheelPosition.y + lateralVelocity.y}, Color32_Red, false);
+            glm::vec3 {wheelPosition.x, drawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + lateralVelocity.x, drawHeight, wheelPosition.y + lateralVelocity.y}, Color32_Red, false);
 
-        glm::vec2 signDirection = mPhysicsBody->GetTireForward(currID);
+        glm::vec2 signDirection = GetTireForward(currID);
         debugRender.DrawLine(
-            glm::vec3 {wheelPosition.x, mDrawHeight, wheelPosition.y},
-            glm::vec3 {wheelPosition.x + signDirection.x, mDrawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);
+            glm::vec3 {wheelPosition.x, drawHeight, wheelPosition.y},
+            glm::vec3 {wheelPosition.x + signDirection.x, drawHeight, wheelPosition.y + signDirection.y}, Color32_Yellow, false);
     }
-}
-
-glm::vec3 Vehicle::GetPosition() const
-{
-    return mPhysicsBody->GetPosition();
-}
-
-glm::vec2 Vehicle::GetPosition2() const
-{
-    return mPhysicsBody->GetPosition2();
-}
-
-void Vehicle::ComputeDrawHeight(const glm::vec3& position)
-{
-    glm::vec2 corners[4];
-    mPhysicsBody->GetChassisCorners(corners);
-
-    float maxHeight = position.y;
-
-    for (int icorner = 0; icorner < 4; ++icorner)
-    {
-        glm::vec3 cornerPosition { corners[icorner].x, position.y, corners[icorner].y };
-        float cornerHeight = gGameMap.GetHeightAtPosition(cornerPosition);
-        if (cornerHeight > maxHeight)
-        {
-            maxHeight = cornerHeight;
-        }
-    }
-
-    mDrawHeight = maxHeight;
 }
 
 SpriteDeltaBits Vehicle::GetSpriteDeltas() const
@@ -323,7 +299,7 @@ void Vehicle::SetupDeltaAnimations()
 }
 
 void Vehicle::UpdateDeltaAnimations()
-{
+{  
     float deltaTime = gTimeManager.mGameFrameDelta;
     for (int idoor = 0; idoor < MAX_CAR_DOORS; ++idoor)
     {
@@ -340,7 +316,7 @@ void Vehicle::UpdateDeltaAnimations()
 
     if (mCarInfo->mExtraDrivingAnim)
     {
-        bool shouldEnable = fabs(mPhysicsBody->GetCurrentSpeed()) > 0.5f; // todo: magic numbers
+        bool shouldEnable = fabs(GetCurrentSpeed()) > 0.5f; // todo: magic numbers
         if (mDrivingDeltaAnim.IsActive())
         {
             if (!shouldEnable)
@@ -356,6 +332,14 @@ void Vehicle::UpdateDeltaAnimations()
         {
             mDrivingDeltaAnim.PlayAnimation(eSpriteAnimLoop_FromStart);
         }
+    }
+
+    SpriteDeltaBits currDeltaBits = GetSpriteDeltas();
+    if (mPrevDeltaBits != currDeltaBits)
+    {
+        mPrevDeltaBits = currDeltaBits;
+
+        SetupCarSprite();
     }
 }
 
@@ -537,7 +521,7 @@ void Vehicle::RegisterPassenger(Pedestrian* pedestrian, eCarSeat carSeat)
         return;
     }
 
-    pedestrian->SetAttachedToObject(this);
+    AttachObject(pedestrian);
     mPassengers.push_back(pedestrian);
 }
 
@@ -545,13 +529,10 @@ void Vehicle::UnregisterPassenger(Pedestrian* pedestrian)
 {
     if (pedestrian->IsAttachedToObject(this))
     {
-        pedestrian->SetDetached();
-        cxx::erase_elements(mPassengers, pedestrian);
+        DetachObject(pedestrian);
     }
-    else
-    {
-        debug_assert(false);
-    }
+
+    cxx::erase_elements(mPassengers, pedestrian);
 }
 
 Pedestrian* Vehicle::GetCarDriver() const
@@ -577,10 +558,11 @@ Pedestrian* Vehicle::GetFirstPassenger(eCarSeat carSeat) const
 void Vehicle::Explode()
 {
     glm::vec3 explosionPos = mPhysicsBody->GetPosition();
-    explosionPos.y = mDrawHeight;
+    explosionPos.y = mDrawSprite.mHeight;
 
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
     mRemapIndex = NO_REMAP;
+    SetupCarSprite();
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_CarDetonate, explosionPos);
     debug_assert(explosion);
@@ -673,19 +655,21 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if (damageInfo.mDamageCause == eDamageCause_CarCrash)
+    if ((damageInfo.mDamageCause == eDamageCause_Collision) || (damageInfo.mDamageCause == eDamageCause_MapCollision))
     {
-        if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
-            return false;
-
+        if (damageInfo.mDamageCause == eDamageCause_Collision)
+        {
+            if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
+                return false;
+        }
         if (damageInfo.mContactImpulse < 100.0f) // todo: magic numbers
             return false;
 
-        glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(glm::vec2(damageInfo.mContactPoint.x, damageInfo.mContactPoint.z));
+        glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(damageInfo.mContactPoint.mPosition);
 
         // clockwise from top left corner
         glm::vec2 chassisCorners[4];
-        mPhysicsBody->GetLocalChassisCorners(chassisCorners);
+        GetChassisCornersLocal(chassisCorners);
 
         float miny = chassisCorners[1].y;
         float maxy = chassisCorners[2].y;
@@ -756,6 +740,51 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
     return false;
 }
 
+bool Vehicle::ShouldCollide(GameObject* otherObject) const
+{
+    if (otherObject->IsVehicleClass() || otherObject->IsObstacleClass())
+        return true;
+
+    return false;
+}
+
+void Vehicle::HandleCollision(const Collision& collision)
+{
+    DamageInfo damageInfo;
+    damageInfo.SetDamageFromCollision(collision);
+    ReceiveDamage(damageInfo);
+}
+
+void Vehicle::HandleCollisionWithMap(const MapCollision& collision)
+{
+    DamageInfo damageInfo;
+    damageInfo.SetDamageFromCollision(collision);
+    ReceiveDamage(damageInfo);
+}
+
+void Vehicle::HandleFallsOnWater(float fallDistance)
+{
+    mPhysicsBody->ClearForces();
+
+    // boats aren't receive damage from water
+    if (mCarInfo->mClassID == eVehicleClass_Boat)
+        return;
+
+    if (!IsWrecked())
+    {
+        DamageInfo damageInfo;
+        damageInfo.mDamageCause = eDamageCause_Drowning;
+        ReceiveDamage(damageInfo);
+    }
+}
+
+void Vehicle::HandleFallsOnGround(float fallDistance)
+{
+    DamageInfo damageInfo;
+    damageInfo.SetDamageFromFall(fallDistance);
+    ReceiveDamage(damageInfo);
+}
+
 bool Vehicle::IsBurn() const
 {
     return mFireEffect != nullptr;
@@ -772,14 +801,13 @@ void Vehicle::SetBurnEffectActive(bool activate)
         GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_Fire1];
         mFireEffect = gGameObjectsManager.CreateDecoration(
             mPhysicsBody->GetPosition(), 
-            mPhysicsBody->GetRotationAngle(), &objectInfo);
+            mPhysicsBody->GetOrientation(), &objectInfo);
         debug_assert(mFireEffect);
         if (mFireEffect)
         {
             mFireEffect->SetLifeDuration(0);
-            mFireEffect->SetAttachedToObject(this);
+            AttachObject(mFireEffect);
         }
-        mFireEffect->SetDrawOrder(eSpriteDrawOrder_Car);
         mBurnStartTime = gTimeManager.mGameTime;
     }
     else
@@ -787,7 +815,7 @@ void Vehicle::SetBurnEffectActive(bool activate)
         debug_assert(mFireEffect);
         if (mFireEffect)
         {
-            mFireEffect->SetDetached();
+            DetachObject(mFireEffect);
         }
         mFireEffect->MarkForDeletion();
         mFireEffect = nullptr;
@@ -847,7 +875,7 @@ void Vehicle::UpdateDamageFromRailways()
         return;
     }
 
-    glm::ivec3 logPosition = Convert::MetersToMapUnits(GetPosition());
+    glm::ivec3 logPosition = Convert::MetersToMapUnits(mTransform.mPosition);
     
     const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(logPosition.x, logPosition.z, logPosition.y);
     if ((blockInfo->mGroundType == eGroundType_Field) && blockInfo->mIsRailway)
@@ -881,7 +909,7 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
     if (actionID == eSpriteAnimAction_CarDoors)
     {
         bool openDoors = animation->IsRunsForwards();
-        StartGameObjectSound(eCarSfxChannelIndex_Doors, eSfxType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch);
+        StartGameObjectSound(eCarSfxChannelIndex_Doors, eSfxSampleType_Level, openDoors ? SfxLevel_CarDoorOpen : SfxLevel_CarDoorClose, SfxFlags_RandomPitch);
     }
     return true;
 }
@@ -894,7 +922,11 @@ bool Vehicle::IsCriticalDamageState() const
 void Vehicle::UpdateEngineSound()
 {
     if (mSfxEmitter == nullptr)
-        return;
+    {
+        InitSounds();
+        if (mSfxEmitter == nullptr)
+            return;
+    }
 
     if (IsWrecked())
     {
@@ -908,20 +940,277 @@ void Vehicle::UpdateEngineSound()
         return;
     }
 
-    SfxIndex sfxIndex = SfxLevel_FirstCarEngineSound + mCarInfo->mEngine;
+    SfxSampleIndex sfxIndex = SfxLevel_FirstCarEngineSound + mCarInfo->mEngine;
 
     if (!mSfxEmitter->IsPlaying(eCarSfxChannelIndex_Engine))
     {
-        if (!StartGameObjectSound(eCarSfxChannelIndex_Engine, eSfxType_Level, sfxIndex, SfxFlags_Loop))
+        if (!StartGameObjectSound(eCarSfxChannelIndex_Engine, eSfxSampleType_Level, sfxIndex, SfxFlags_Loop))
             return;
 
         mSfxEmitter->SetGain(eCarSfxChannelIndex_Engine, 0.35f);
     }
     // todo: this is temporary solution!
 
-    float speed = fabs(mPhysicsBody->GetCurrentSpeed());
+    float speed = fabs(GetCurrentSpeed());
     float maxSpeed = 3.0f;
     float pitchValue = 0.8f + (speed / maxSpeed);
     pitchValue = std::min(pitchValue, 4.0f);
     mSfxEmitter->SetPitch(eCarSfxChannelIndex_Engine, pitchValue);
+}
+
+float Vehicle::GetCurrentSpeed() const
+{
+    if (mPhysicsBody)
+    {
+        glm::vec2 currentForwardNormal = mPhysicsBody->GetWorldVector(LocalForwardVector);
+        glm::vec2 forwardVelocity = currentForwardNormal * glm::dot(currentForwardNormal, mPhysicsBody->GetLinearVelocity());
+        return glm::dot(forwardVelocity, currentForwardNormal);
+    }
+    return 0.0f;
+}
+
+void Vehicle::SetDrawOrder(eSpriteDrawOrder drawOrder)
+{
+    if (mFireEffect)
+    {
+        mFireEffect->SetDrawOrder(drawOrder);
+    }
+
+    mDrawSprite.mDrawOrder = drawOrder;
+}
+
+void Vehicle::SetupCarSprite()
+{
+    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
+    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
+
+    SetDrawOrder(eSpriteDrawOrder_Car);
+    RefreshDrawSprite();
+}
+
+void Vehicle::GetChassisCorners(glm::vec2 corners[4]) const
+{
+    GetChassisCornersLocal(corners);
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        corners[icorner] = mPhysicsBody->GetWorldPoint(corners[icorner]);
+    }
+}
+
+void Vehicle::GetChassisCornersLocal(glm::vec2 corners[4]) const
+{
+    Collider* chassis = mPhysicsBody->GetColliderWithIndex(0);
+    debug_assert(chassis);
+
+    const CollisionShape& shapeData = chassis->mShapeData;
+    debug_assert(shapeData.mType == eCollisionShape_Box);
+
+    corners[0] = {shapeData.mBox.mCenter.x - shapeData.mBox.mHalfExtents.x, shapeData.mBox.mCenter.z - shapeData.mBox.mHalfExtents.z};
+    corners[1] = {shapeData.mBox.mCenter.x + shapeData.mBox.mHalfExtents.x, shapeData.mBox.mCenter.z - shapeData.mBox.mHalfExtents.z};
+    corners[2] = {shapeData.mBox.mCenter.x + shapeData.mBox.mHalfExtents.x, shapeData.mBox.mCenter.z + shapeData.mBox.mHalfExtents.z};
+    corners[3] = {shapeData.mBox.mCenter.x - shapeData.mBox.mHalfExtents.x, shapeData.mBox.mCenter.z + shapeData.mBox.mHalfExtents.z};
+}
+
+void Vehicle::GetTireCorners(eCarTire tireID, glm::vec2 corners[4]) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    const float wheel_size_w = Convert::PixelsToMeters(CAR_WHEEL_SIZE_W_PX) * 0.5f;
+    const float wheel_size_h = Convert::PixelsToMeters(CAR_WHEEL_SIZE_H_PX) * 0.5f;
+    static const glm::vec2 points[4] =
+    {
+        glm::vec2(-wheel_size_h, -wheel_size_w),
+        glm::vec2( wheel_size_h, -wheel_size_w),
+        glm::vec2( wheel_size_h,  wheel_size_w),
+        glm::vec2(-wheel_size_h,  wheel_size_w),
+    };
+    float positionOffset = 0.0f;
+    if (tireID == eCarTire_Rear)
+    {
+        positionOffset = mRearTireOffset;
+    }
+    else
+    {
+        positionOffset = mFrontTireOffset;
+    }
+
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        glm::vec2 currPoint = points[icorner];
+        if ((tireID == eCarTire_Front) && mSteeringAngleRadians)
+        {
+            currPoint = glm::rotate(points[icorner], mSteeringAngleRadians);
+        }
+        glm::vec2 point = mPhysicsBody->GetWorldPoint(currPoint + glm::vec2(positionOffset, 0.0f));
+        corners[icorner] = point;
+    }
+}
+
+void Vehicle::UpdateSteer(const DriveCtlState& currCtlState)
+{
+    const float LockAngleRadians = glm::radians(30.0f);
+    const float TurnSpeedPerSec = glm::radians(270.0f * 1.0f);
+
+    float turnPerTimeStep = (TurnSpeedPerSec * gTimeManager.mGameFrameDelta);
+    float desiredAngle = (LockAngleRadians * currCtlState.mSteerDirection);
+    float angleToTurn = glm::clamp((desiredAngle - mSteeringAngleRadians), -turnPerTimeStep, turnPerTimeStep);
+    mSteeringAngleRadians = glm::clamp(mSteeringAngleRadians + angleToTurn, -LockAngleRadians, LockAngleRadians);
+}
+
+void Vehicle::UpdateFriction(const DriveCtlState& currCtlState)
+{
+    float linearSpeed = 0.0f;
+
+    glm::vec2 linearVelocityVector = mPhysicsBody->GetLinearVelocity();
+    if (glm::length2(linearVelocityVector) > 0.0f)
+    {
+        linearSpeed = glm::length(linearVelocityVector);
+    }
+
+    // kill lateral velocity front tire
+    {
+        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Front);
+        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Front));
+    }
+
+    // kill lateral velocity rear tire
+    {
+        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Rear);
+        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Rear));
+    }
+
+    // rolling resistance
+    if (linearSpeed > 0.0f)
+    {
+        float rrCoef = 50.0f;
+        mPhysicsBody->ApplyLinearImpulse(rrCoef * -linearVelocityVector, GetTirePosition(eCarTire_Front));
+        mPhysicsBody->ApplyLinearImpulse(rrCoef * -linearVelocityVector, GetTirePosition(eCarTire_Rear));
+    }
+
+    // apply drag force
+    if (linearSpeed > 0.0f)
+    {
+        float dragForceCoef = 102.0f;
+        glm::vec2 dragForce = -dragForceCoef * linearSpeed * linearVelocityVector;
+
+        mPhysicsBody->AddForce(dragForce);
+    }
+}
+
+void Vehicle::UpdateDrive(const DriveCtlState& currCtlState)
+{
+    if (currCtlState.mDriveDirection == 0.0f)
+        return;
+
+    float driveForce = 100750.0f; // todo: magic numbers
+    float brakeForce = driveForce * mCarInfo->mHandbrakeFriction;
+    float reverseForce = driveForce * 0.75f;
+
+    float currentSpeed = GetCurrentSpeed();
+    float engineForce = 0.0f;
+
+    if (currCtlState.mDriveDirection > 0.0f)
+    {
+        engineForce = driveForce;
+    }
+    else
+    {
+        if (currentSpeed > 0.0f)
+        {
+            engineForce = brakeForce;
+        }
+        else
+        {
+            engineForce = reverseForce;
+        }
+    }
+
+    glm::vec2 F = engineForce * currCtlState.mDriveDirection * GetTireForward(eCarTire_Rear);
+    mPhysicsBody->AddForce(F, GetTirePosition(eCarTire_Rear));
+}
+
+glm::vec2 Vehicle::GetTireLateralVelocity(eCarTire tireID) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    glm::vec2 normal_vector = GetTireLateral(tireID);
+    glm::vec2 local_position = GetTireLocalPos(tireID);
+
+    return normal_vector * glm::dot(normal_vector, mPhysicsBody->GetLinearVelocityFromLocalPoint(local_position));
+}
+
+glm::vec2 Vehicle::GetTireForwardVelocity(eCarTire tireID) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    glm::vec2 normal_vector = GetTireForward(tireID);
+    glm::vec2 local_position = GetTireLocalPos(tireID);
+
+    return normal_vector * glm::dot(normal_vector, mPhysicsBody->GetLinearVelocityFromLocalPoint(local_position));
+}
+
+glm::vec2 Vehicle::GetTirePosition(eCarTire tireID) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    glm::vec2 local_position = GetTireLocalPos(tireID);
+    return mPhysicsBody->GetWorldPoint(local_position);
+}
+
+glm::vec2 Vehicle::GetTireForward(eCarTire tireID) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    glm::vec2 local_vector = GetTireLocalForward(tireID);
+    return mPhysicsBody->GetWorldVector(local_vector);
+}
+
+glm::vec2 Vehicle::GetTireLateral(eCarTire tireID) const
+{
+    debug_assert(tireID < eCarTire_COUNT);
+
+    glm::vec2 local_vector = GetTireLocalLateral(tireID);
+    return mPhysicsBody->GetWorldVector(local_vector);
+}
+
+glm::vec2 Vehicle::GetTireLocalPos(eCarTire tireID) const
+{
+    if (tireID == eCarTire_Rear)
+    {
+        return (LocalForwardVector * mRearTireOffset);
+    }
+    if (tireID == eCarTire_Front)
+    {
+        return (LocalForwardVector * mFrontTireOffset);
+    }
+    debug_assert(false);
+    return {};
+}
+
+glm::vec2 Vehicle::GetTireLocalForward(eCarTire tireID) const
+{
+    if (tireID == eCarTire_Rear)
+    {
+        return LocalForwardVector;
+    }
+    if (tireID == eCarTire_Front)
+    {
+        return glm::rotate(LocalForwardVector, mSteeringAngleRadians);
+    }
+    debug_assert(false);
+    return {};
+}
+
+glm::vec2 Vehicle::GetTireLocalLateral(eCarTire tireID) const
+{
+    if (tireID == eCarTire_Rear)
+    {
+        return LocalLateralVector;
+    }
+    if (tireID == eCarTire_Front)
+    {
+        return glm::rotate(LocalLateralVector, mSteeringAngleRadians);
+    }
+    debug_assert(false);
+    return {};
 }

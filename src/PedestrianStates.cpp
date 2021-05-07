@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "PedestrianStates.h"
 #include "Pedestrian.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "Vehicle.h"
 #include "CarnageGame.h"
 #include "PhysicsManager.h"
 #include "TimeManager.h"
 #include "BroadcastEventsManager.h"
 #include "AudioManager.h"
+#include "GameObjectHelpers.h"
 
 PedestrianStatesManager::PedestrianStatesManager(Pedestrian* pedestrian)
     : mPedestrian(pedestrian)
@@ -40,72 +41,90 @@ void PedestrianStatesManager::ProcessFrame()
     (this->*mFuncsTable[mCurrentStateID].pfStateFrame)();
 }
 
+void PedestrianStatesManager::ProcessSimulationFrame()
+{
+    (this->*mFuncsTable[mCurrentStateID].pfStateSimulationFrame)();
+}
+
 void PedestrianStatesManager::InitFuncsTable()
 {
     mFuncsTable[ePedestrianState_Unspecified] = {&PedestrianStatesManager::StateDummy_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_StandingStill] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
+        &PedestrianStatesManager::StateIdle_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Walks] = {&PedestrianStatesManager::StateIdle_ProcessEnter,
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
+        &PedestrianStatesManager::StateIdle_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Runs] = {&PedestrianStatesManager::StateIdle_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit,
         &PedestrianStatesManager::StateIdle_ProcessFrame, 
-        &PedestrianStatesManager::StateIdle_ProcessEvent};
+        &PedestrianStatesManager::StateIdle_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Falling] = {&PedestrianStatesManager::StateFalling_ProcessEnter, 
         &PedestrianStatesManager::StateFalling_ProcessExit, 
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
-        &PedestrianStatesManager::StateFalling_ProcessEvent};
+        &PedestrianStatesManager::StateFalling_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_EnteringCar] = {&PedestrianStatesManager::StateEnterCar_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateEnterCar_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_ExitingCar] =  {&PedestrianStatesManager::StateExitCar_ProcessEnter, 
         &PedestrianStatesManager::StateExitCar_ProcessExit, 
         &PedestrianStatesManager::StateExitCar_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_DrivingCar] = {&PedestrianStatesManager::StateDriveCar_ProcessEnter, 
         &PedestrianStatesManager::StateDriveCar_ProcessExit, 
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
-        &PedestrianStatesManager::StateDriveCar_ProcessEvent};
+        &PedestrianStatesManager::StateDriveCar_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_SlideOnCar] = {&PedestrianStatesManager::StateSlideCar_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateSlideCar_ProcessFrame, 
-        &PedestrianStatesManager::StateSlideCar_ProcessEvent};
+        &PedestrianStatesManager::StateSlideCar_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Dead] = {&PedestrianStatesManager::StateDead_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateDummy_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Stunned] = {&PedestrianStatesManager::StateStunned_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateStunned_ProcessFrame, 
-        &PedestrianStatesManager::StateStunned_ProcessEvent};
+        &PedestrianStatesManager::StateStunned_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Drowning] = {&PedestrianStatesManager::StateDrowning_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateDrowning_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 
     mFuncsTable[ePedestrianState_Electrocuted] = {&PedestrianStatesManager::StateElectrocuted_ProcessEnter, 
         &PedestrianStatesManager::StateDummy_ProcessExit, 
         &PedestrianStatesManager::StateElectrocuted_ProcessFrame, 
-        &PedestrianStatesManager::StateDummy_ProcessEvent};
+        &PedestrianStatesManager::StateDummy_ProcessEvent,
+        &PedestrianStatesManager::StateDummy_ProcessSimulationFrame};
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,48 +150,11 @@ void PedestrianStatesManager::ProcessRotateActions()
     }
 }
 
-void PedestrianStatesManager::ProcessMotionActions()
-{
-    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
-
-    // while slding on car
-    if (mCurrentStateID == ePedestrianState_SlideOnCar)
-    {
-        glm::vec2 linearVelocity = gGameParams.mPedestrianSlideOnCarSpeed * mPedestrian->mPhysicsBody->GetSignVector();
-        mPedestrian->mPhysicsBody->SetLinearVelocity(linearVelocity);
-        return;
-    }
-
-    glm::vec2 linearVelocity {};
-    // generic case
-    if (ctlState.mWalkForward || ctlState.mWalkBackward || ctlState.mRun)
-    {
-        float moveSpeed = gGameParams.mPedestrianWalkSpeed;
-
-        linearVelocity = mPedestrian->mPhysicsBody->GetSignVector();
-        if (ctlState.mRun)
-        {
-            moveSpeed = gGameParams.mPedestrianRunSpeed;
-        }
-        else if (ctlState.mWalkBackward)
-        {
-            linearVelocity = -linearVelocity;
-        }
-
-        linearVelocity *= moveSpeed;
-    }
-    else
-    {
-        // force stop
-    }
-    mPedestrian->mPhysicsBody->SetLinearVelocity(linearVelocity); 
-}
-
 ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
     if (ctlState.mRun)
-        return ePedestrianState_Runs;
+        return mPedestrian->CanRun() ? ePedestrianState_Runs : ePedestrianState_Walks;
 
     if (ctlState.mWalkBackward || ctlState.mWalkForward)
         return ePedestrianState_Walks;
@@ -239,18 +221,22 @@ ePedestrianAnimID PedestrianStatesManager::DetectIdleAnimation(bool isShooting) 
 
 bool PedestrianStatesManager::CanStartSlideOnCarState() const
 {
-    return mPedestrian->mPhysicsBody->mContactingCars > 0;
+    return mPedestrian->mContactingCars;
 }
 
 void PedestrianStatesManager::SetInCarPositionToDoor()
 {
     int doorIndex = mPedestrian->mCurrentCar->GetDoorIndexForSeat(mPedestrian->mCurrentSeat);
-    mPedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, mPedestrian->mPhysicsBody->mCarPointLocal);
+    glm::vec2 pos2;
+    mPedestrian->mCurrentCar->GetDoorPosLocal(doorIndex, pos2);
+    mPedestrian->SetPosition2(pos2);
 }
 
 void PedestrianStatesManager::SetInCarPositionToSeat()
 {
-    mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, mPedestrian->mPhysicsBody->mCarPointLocal);
+    glm::vec2 pos2;
+    mPedestrian->mCurrentCar->GetSeatPosLocal(mPedestrian->mCurrentSeat, pos2);
+    mPedestrian->SetPosition2(pos2);
 }
 
 bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
@@ -315,27 +301,27 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     }
 
     // handle car hit
-    if (damageInfo.mDamageCause == eDamageCause_CarCrash)
+    if (damageInfo.mDamageCause == eDamageCause_CarHit)
     {
-        if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
+        if (!mPedestrian->IsOnTheGround() || mPedestrian->IsDead())
             return false;
 
-        Vehicle* vehicle = (Vehicle*)damageInfo.mSourceObject;
+        Vehicle* carObject = ToVehicle(damageInfo.mSourceObject);
+        debug_assert(carObject);
 
-        glm::vec2 carPosition = vehicle->mPhysicsBody->GetPosition2();
-        glm::vec2 pedPosition = mPedestrian->mPhysicsBody->GetPosition2();
+        glm::vec2 carPosition = carObject->mTransform.GetPosition2();
+        glm::vec2 pedPosition = mPedestrian->mTransform.GetPosition2();
         glm::vec2 directionNormal = glm::normalize(pedPosition - carPosition);
-        glm::vec2 directionVelocity = glm::dot(directionNormal, vehicle->mPhysicsBody->GetLinearVelocity()) * directionNormal;
-        float speedInDirection = glm::dot(directionVelocity, directionNormal);
-        speedInDirection = fabs(speedInDirection);
+        glm::vec2 directionVelocity = glm::dot(directionNormal, carObject->mPhysicsBody->GetLinearVelocity()) * directionNormal;
 
-        float killSpeed = 6.0f; // todo: magic numbers
+        float speedInDirection = fabs(glm::dot(directionVelocity, directionNormal));
+        float killSpeed = 8.0f; // todo: magic numbers
         if (speedInDirection > killSpeed)
         {
-            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_Squashed, SfxFlags_RandomPitch);
-            mPedestrian->DieFromDamage(eDamageCause_CarCrash);
+            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, SfxLevel_Squashed, SfxFlags_RandomPitch);
+            mPedestrian->DieFromDamage(eDamageCause_CarHit);
         }
-        else if (speedInDirection > 1.0f)// todo: magic numbers
+        else if (speedInDirection > 0.0f)
         {
             // jump over
             if (CanStartSlideOnCarState())
@@ -343,10 +329,10 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
                 ChangeState(ePedestrianState_SlideOnCar, eventData);
             } 
         }
+
         return true;
     }
 
-    debug_assert(false);
     return false;
 }
 
@@ -373,7 +359,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 
     if (createBlood)
     {
-        glm::vec3 position = mPedestrian->mPhysicsBody->GetPosition();
+        glm::vec3 position = mPedestrian->mTransform.mPosition;
         Decoration* decoration = gGameObjectsManager.CreateFirstBlood(position);
         if (decoration)
         {
@@ -383,7 +369,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
 
     if (mPedestrian->IsHumanPlayerCharacter())
     {
-        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Voice, SfxVoice_PlayerDies, SfxFlags_None);
+        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Voice, SfxVoice_PlayerDies, SfxFlags_None);
     }
 }
 
@@ -397,8 +383,8 @@ void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEv
     // dont draw pedestrian if it in car with hard top
     if (mPedestrian->mCurrentCar->HasHardTop())
     {
-        eGameObjectFlags flags = mPedestrian->mFlags | eGameObjectFlags_Invisible;
-        mPedestrian->mFlags = flags;
+        GameObjectFlags flags = mPedestrian->mObjectFlags | GameObjectFlags_Invisible;
+        mPedestrian->mObjectFlags = flags;
     }
     SetInCarPositionToSeat();
 
@@ -413,8 +399,8 @@ void PedestrianStatesManager::StateDriveCar_ProcessExit()
     // show ped
     if (mPedestrian->mCurrentCar->HasHardTop())
     {
-        eGameObjectFlags flags = mPedestrian->mFlags ^ eGameObjectFlags_Invisible;
-        mPedestrian->mFlags = flags;
+        GameObjectFlags flags = mPedestrian->mObjectFlags ^ GameObjectFlags_Invisible;
+        mPedestrian->mObjectFlags = flags;
     }
 
     if (mPedestrian->mController)
@@ -471,9 +457,9 @@ void PedestrianStatesManager::StateExitCar_ProcessExit()
 {
     if (mPedestrian->mCurrentCar)
     {
-        cxx::angle_t currentCarAngle = mPedestrian->mCurrentCar->mPhysicsBody->GetRotationAngle();
+        cxx::angle_t currentCarAngle = mPedestrian->mCurrentCar->mTransform.mOrientation;
 
-        mPedestrian->mPhysicsBody->SetRotationAngle(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
+        mPedestrian->SetOrientation(currentCarAngle - cxx::angle_t::from_degrees(30.0f));
         mPedestrian->SetCarExited();
     }
 }
@@ -531,7 +517,6 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
 void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 {
     ProcessRotateActions();
-    ProcessMotionActions();
 
     if (mPedestrian->mCurrentAnimID == ePedestrianAnim_JumpOntoCar)
     {
@@ -624,14 +609,14 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
     {
         if (stateEvent.mDamageInfo.mDamageCause == eDamageCause_Punch)
         {
-            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_Punch, SfxFlags_RandomPitch);
+            mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, SfxLevel_Punch, SfxFlags_RandomPitch);
         }
     }
 
     float impulse = 0.5f; // todo: magic numbers
 
     mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
-    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
+    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mTransform.GetDirectionVector() * impulse);
 }
 
 bool PedestrianStatesManager::StateStunned_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -701,8 +686,8 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     // do special sounds :)
     if (ctlState.mSpecial)
     {
-        SfxIndex specialSound = gCarnageGame.mGameRand.random_chance(50) ? SfxLevel_SpecialSound1 : SfxLevel_SpecialSound2;
-        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, specialSound, SfxFlags_RandomPitch);
+        SfxSampleIndex specialSound = gCarnageGame.mGameRand.random_chance(50) ? SfxLevel_SpecialSound1 : SfxLevel_SpecialSound2;
+        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, specialSound, SfxFlags_RandomPitch);
     }
 
     // update animation
@@ -721,7 +706,6 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     }
 
     ProcessRotateActions();
-    ProcessMotionActions();
 
     if (isShooting)
     {
@@ -794,8 +778,8 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
     if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime)
     {
         // force current position to underwater
-        glm::vec3 currentPosition = mPedestrian->mPhysicsBody->GetPosition();
-        mPedestrian->mPhysicsBody->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
+        glm::vec3 currentPosition = mPedestrian->mTransform.mPosition;
+        mPedestrian->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
         mPedestrian->DieFromDamage(eDamageCause_Drowning);
         return;
@@ -834,6 +818,6 @@ void PedestrianStatesManager::StateElectrocuted_ProcessEnter(const PedestrianSta
 
     mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
     mPedestrian->mPhysicsBody->ClearForces();
-    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mPhysicsBody->GetSignVector() * impulse);
-    mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxType_Level, SfxLevel_DieScream4, SfxFlags_RandomPitch);
+    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mTransform.GetDirectionVector() * impulse);
+    mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, SfxLevel_DieScream4, SfxFlags_RandomPitch);
 }

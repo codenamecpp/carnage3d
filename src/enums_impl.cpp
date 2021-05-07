@@ -4,6 +4,7 @@
 #include "GraphicsDefs.h"
 #include "GameObject.h"
 #include "PedestrianInfo.h"
+#include "PhysicsDefs.h"
 
 impl_enum_strings(eGtaGameVersion)
 {
@@ -641,7 +642,7 @@ impl_enum_strings(eWeatherEffect)
 
 impl_enum_strings(eGameMusicMode)
 {
-    {eGameMusicMode_Disabled, "disabled" },
-    {eGameMusicMode_Radio, "radio" },
-    {eGameMusicMode_Constant, "constant" },
+    {eGameMusicMode_Disabled, "disabled"},
+    {eGameMusicMode_Radio, "radio"},
+    {eGameMusicMode_Constant, "constant"},
 };

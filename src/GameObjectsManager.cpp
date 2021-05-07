@@ -2,7 +2,7 @@
 #include "GameObjectsManager.h"
 #include "Vehicle.h"
 #include "Pedestrian.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "GameMapManager.h"
 #include "Projectile.h"
 #include "RenderingManager.h"
@@ -79,7 +79,8 @@ Pedestrian* GameObjectsManager::CreatePedestrian(const glm::vec3& position, cxx:
     mPedestriansList.push_back(instance);
 
     // init
-    instance->Spawn(position, heading);
+    instance->SetTransform(position, heading);
+    instance->HandleSpawn();
     return instance;
 }
 
@@ -97,7 +98,8 @@ Vehicle* GameObjectsManager::CreateVehicle(const glm::vec3& position, cxx::angle
 
     // init
     instance->mCarInfo = carStyle;
-    instance->Spawn(position, heading);
+    instance->SetTransform(position, heading);
+    instance->HandleSpawn();
     return instance;
 }
 
@@ -128,7 +130,8 @@ Projectile* GameObjectsManager::CreateProjectile(const glm::vec3& position, cxx:
 
     mAllObjects.push_back(instance);
     // init
-    instance->Spawn(position, heading);
+    instance->SetTransform(position, heading);
+    instance->HandleSpawn();
     return instance;
 }
 
@@ -146,7 +149,8 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
         debug_assert(instance);
         mAllObjects.push_back(instance);
         // init
-        instance->Spawn(position, heading);
+        instance->SetTransform(position, heading);
+        instance->HandleSpawn();
     }
     return instance;
 }
@@ -157,8 +161,9 @@ Explosion* GameObjectsManager::CreateExplosion(GameObject* explodingObject, Game
     debug_assert(instance);
     mAllObjects.push_back(instance);
     // init
-    static const cxx::angle_t zeroAngle;
-    instance->Spawn(position, zeroAngle);
+    static const cxx::angle_t heading;
+    instance->SetTransform(position, heading);
+    instance->HandleSpawn();
     return instance;
 }
 
@@ -175,7 +180,8 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
     debug_assert(instance);
     mAllObjects.push_back(instance);
     // init
-    instance->Spawn(position, heading);
+    instance->SetTransform(position, heading);
+    instance->HandleSpawn();
     instance->SetLifeDuration(desc->mLifeDuration);
     return instance;
 }
@@ -299,6 +305,8 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         return;
     }
 
+    object->HandleDespawn();
+
     cxx::erase_elements(mAllObjects, object);
 
     switch (object->mClassID)
@@ -359,9 +367,23 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
 
 void GameObjectsManager::DestroyAllObjects()
 {
+    for (GameObject* currObject: mAllObjects)
+    {
+        currObject->MarkForDeletion();
+    }
+
     while (!mAllObjects.empty())
     {
-        DestroyGameObject(mAllObjects.back());
+        // destroy roots first
+        GameObject* gameObject = get_element_if(mAllObjects, (GameObject*) nullptr, [](GameObject* currObject)
+        {
+            if (currObject->IsAttachedToObject())
+                return false;
+
+            return true;
+        });
+        debug_assert(gameObject);
+        DestroyGameObject(gameObject);
     }
 
     debug_assert(mVehiclesList.empty());
@@ -370,16 +392,16 @@ void GameObjectsManager::DestroyAllObjects()
 
 void GameObjectsManager::DestroyMarkedForDeletionObjects()
 {
-    std::vector<GameObject*> objectsList;
+    std::vector<GameObject*> toDeleteObjectsList;
     for (GameObject* currGameObject: mAllObjects)
     {
         if (currGameObject->IsMarkedForDeletion())
         {
-            objectsList.push_back(currGameObject);
+            toDeleteObjectsList.push_back(currGameObject);
         }
     }
 
-    for (GameObject* currGameObject: objectsList)
+    for (GameObject* currGameObject: toDeleteObjectsList)
     {
         DestroyGameObject(currGameObject);
     }
@@ -411,7 +433,7 @@ bool GameObjectsManager::CreateStartupObjects()
             Convert::PixelsToMeters(currObject.mY) 
         };
 
-        cxx::angle_t start_rotation = Convert::Fix16ToAngle(currObject.mRotation);
+        cxx::angle_t start_rotation = -Convert::Fix16ToAngle(currObject.mRotation);
 
         // create startup cars
         if (currObject.IsCarObject())
@@ -424,7 +446,7 @@ bool GameObjectsManager::CreateStartupObjects()
             }
             if (Vehicle* startupCar = CreateVehicle(start_position, start_rotation, carModel))
             {
-                startupCar->mFlags = (startupCar->mFlags | eGameObjectFlags_Startup);
+                startupCar->mObjectFlags = (startupCar->mObjectFlags | GameObjectFlags_Startup);
                 continue;
             }
             debug_assert(false);
@@ -439,7 +461,7 @@ bool GameObjectsManager::CreateStartupObjects()
                 Decoration* startupDecoration = CreateDecoration(start_position, start_rotation, &objectType);
                 if (startupDecoration)
                 {
-                    startupDecoration->mFlags = (startupDecoration->mFlags | eGameObjectFlags_Startup);
+                    startupDecoration->mObjectFlags = (startupDecoration->mObjectFlags | GameObjectFlags_Startup);
                 }
                 debug_assert(startupDecoration);
             }
@@ -450,7 +472,7 @@ bool GameObjectsManager::CreateStartupObjects()
                 Obstacle* startupObstacle = CreateObstacle(start_position, start_rotation, &objectType);
                 if (startupObstacle)
                 {
-                    startupObstacle->mFlags = (startupObstacle->mFlags | eGameObjectFlags_Startup);
+                    startupObstacle->mObjectFlags = (startupObstacle->mObjectFlags | GameObjectFlags_Startup);
                 }
                 debug_assert(startupObstacle);
             }            

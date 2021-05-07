@@ -2,7 +2,7 @@
 
 #include "WeaponInfo.h"
 #include "GameObject.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 
 class Projectile final: public GameObject
 {
@@ -11,26 +11,28 @@ class Projectile final: public GameObject
 public:
     // readonly
     WeaponInfo* mWeaponInfo = nullptr;
-    ProjectilePhysics* mPhysicsBody = nullptr;
     PedestrianHandle mShooter;
+    glm::vec3 mStartPosition;
     
 public:
     Projectile(WeaponInfo* weaponInfo, Pedestrian* shooter);
-    ~Projectile();
 
     // override GameObject
     void UpdateFrame() override;
-    void PreDrawFrame() override;
+    void SimulationStep() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void OnGameObjectSpawn() override;
-
-    // Current world position
-    glm::vec3 GetPosition() const override;
-    glm::vec2 GetPosition2() const override;
+    void HandleSpawn() override;
+    bool ShouldCollide(GameObject* otherObject) const override;
+    void HandleCollisionWithMap(const MapCollision& collision) override;
 
 private:
-    void ComputeDrawHeight(const glm::vec3& position);
+    void SetupAnimFrameSprite();
+    void ClearCurrentHit();
 
 private:
     SpriteAnimation mAnimationState;
+
+    bool mHitSomething = false;
+    GameObjectHandle mHitObject; // null if hit wall
+    ContactPoint mHitPoint;
 };

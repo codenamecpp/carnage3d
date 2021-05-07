@@ -8,6 +8,14 @@
 #include "Box2D_Helpers.h"
 #include "cvars.h"
 #include "ParticleEffectsManager.h"
+#include "Collider.h"
+#include "PhysicsBody.h"
+#include "Collision.h"
+#include "GameObjectHelpers.h"
+
+//////////////////////////////////////////////////////////////////////////
+
+static cxx::object_pool<PhysicsBody> gPhysicsBodiesPool;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,27 +38,10 @@ static_assert(sizeof(b2FixtureData_map) <= sizeof(void*), "Cannot pack data into
 
 //////////////////////////////////////////////////////////////////////////
 
-// choose fixture by category bits (any of it)
-inline b2Fixture* FilterFixture(b2Fixture* fixtureA, b2Fixture* fixtureB, unsigned short categoryBits)
+inline bool CheckCollisionGroup(const b2Fixture* fixture, CollisionGroup collisionGroup)
 {
-    if ((fixtureA->GetFilterData().categoryBits & categoryBits) > 0)
-        return fixtureA;
-
-    if ((fixtureB->GetFilterData().categoryBits & categoryBits) > 0)
-        return fixtureB;
-
-    return nullptr;
-}
-
-template<typename TUserDataClass>
-inline TUserDataClass* CastFixtureBody(b2Fixture* fixture)
-{
-    debug_assert(fixture);
-    const b2Body* physicsBody = fixture->GetBody();
-
-    void* userdata = physicsBody->GetUserData();
-    debug_assert(userdata);
-    return (TUserDataClass*) userdata;
+    const b2Filter& filterData = fixture->GetFilterData();
+    return (filterData.categoryBits & collisionGroup) > 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,32 +49,32 @@ inline TUserDataClass* CastFixtureBody(b2Fixture* fixture)
 PhysicsManager gPhysics;
 
 PhysicsManager::PhysicsManager()
-    : mMapCollisionShape()
-    , mPhysicsWorld()
+    : mBox2MapBody()
+    , mBox2World()
     , mGravity()
 {
 }
 
 void PhysicsManager::EnterWorld()
 {
-    b2Vec2 gravity {0.0f, 0.0f}; // default gravity shoild be disabled
-    mPhysicsWorld = new b2World(gravity);
-    mPhysicsWorld->SetContactListener(this);
+    b2Vec2 gravity {0.0f, 0.0f};
+    mBox2World = new b2World(gravity);
+    mBox2World->SetContactListener(this);
 
     mSimulationStepTime = 1.0f / std::max(gCvarPhysicsFramerate.mValue, 1.0f);
     mGravity = Convert::MapUnitsToMeters(0.5f);
 
-    CreateMapCollisionShape();
+    CreateMapCollisionShape();    
 }
 
 void PhysicsManager::ClearWorld()
 {
-    if (mMapCollisionShape)
+    if (mBox2MapBody)
     {
-        mPhysicsWorld->DestroyBody(mMapCollisionShape);
-        mMapCollisionShape = nullptr;
+        mBox2World->DestroyBody(mBox2MapBody);
+        mBox2MapBody = nullptr;
     }
-    SafeDelete(mPhysicsWorld);
+    SafeDelete(mBox2World);
 }
 
 void PhysicsManager::UpdateFrame()
@@ -95,207 +86,189 @@ void PhysicsManager::UpdateFrame()
         ProcessSimulationStep();
         mSimulationTimeAccumulator -= mSimulationStepTime;
     }
+
     ProcessInterpolation();
 }
 
 void PhysicsManager::ProcessSimulationStep()
 {
     const int velocityIterations = 6;
-    const int positionIterations = 2;
+    const int positionIterations = 4;
 
-    // get previous position
-    for (PhysicsBody* currComponent: mCarsBodiesList)
+    // fixed update
+    for (size_t i = 0, NumElements = mBodiesList.size(); i < NumElements; ++i)
     {
-        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
-    }
-    for (PhysicsBody* currComponent: mPedsBodiesList)
-    {
-        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
-    }
-    for (PhysicsBody* currComponent: mProjectileBodiesList)
-    {
-        currComponent->mPreviousPosition = currComponent->mSmoothPosition = currComponent->GetPosition();
-        currComponent->mPreviousRotation = currComponent->mSmoothRotation = currComponent->GetRotationAngle();
+        PhysicsBody* currObjectBody = mBodiesList[i];
+        if (!currObjectBody->CheckFlags(PhysicsBodyFlags_Disabled))
+        {
+            GameObject* currGameObject = currObjectBody->mGameObject;
+            currGameObject->SimulationStep();
+        }
     }
 
-    mPhysicsWorld->Step(mSimulationStepTime, velocityIterations, positionIterations);
-
-    // process physics components
-    for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
+    // drop old contacts before new simulation frame
+    for (PhysicsBody* currObjectBody: mBodiesList)
     {
-        mCarsBodiesList[i]->SimulationStep();
-    }
-    for (size_t i = 0, NumElements = mPedsBodiesList.size(); i < NumElements; ++i)
-    {
-        mPedsBodiesList[i]->SimulationStep();
-    }
-    for (size_t i = 0, NumElements = mProjectileBodiesList.size(); i < NumElements; ++i)
-    {
-        mProjectileBodiesList[i]->SimulationStep();
+        GameObject* currGameObject = currObjectBody->mGameObject;
+        currObjectBody->SetAwake(true); // force contacting bodies awaken
+        currGameObject->ClearContacts();
     }
 
-    ProcessGravityStep();
-}
+    mBox2World->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
-void PhysicsManager::ProcessInterpolation()
-{
-    float mixFactor = mSimulationTimeAccumulator / mSimulationStepTime;
-
-    for (PhysicsBody* currComponent: mCarsBodiesList)
+    // process y position
+    for (PhysicsBody* currObjectBody: mBodiesList)
     {
-        currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
-        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
+        GameObject* currGameObject = currObjectBody->mGameObject;
+        if (currGameObject->IsAttachedToObject() || currObjectBody->CheckFlags(PhysicsBodyFlags_Disabled))
+            continue;
+
+        UpdateHeightPosition(currObjectBody);
     }
 
-    for (PhysicsBody* currComponent: mPedsBodiesList)
-    {
-        currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
-        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
-    }
+    DispatchCollisionEvents();
 
-    for (PhysicsBody* currComponent: mProjectileBodiesList)
+    // sync transform
+    for (PhysicsBody* currObjectBody: mBodiesList)
     {
-        currComponent->mSmoothPosition = glm::lerp(currComponent->mPreviousPosition, currComponent->GetPosition(), mixFactor);
-        currComponent->mSmoothRotation = cxx::lerp_angles(currComponent->mPreviousRotation, currComponent->GetRotationAngle(), mixFactor);
+        GameObject* currGameObject = currObjectBody->mGameObject;
+        if (!currGameObject->IsAttachedToObject())
+        {
+            currGameObject->SyncPhysicsTransform();
+        }
     }
 }
 
-PedestrianPhysics* PhysicsManager::CreatePhysicsObject(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle)
+PhysicsBody* PhysicsManager::CreateBody(GameObject* gameObject, PhysicsBodyFlags flags)
 {
-    debug_assert(object);
+    debug_assert(!IsSimulationStepInProgress());
 
-    PedestrianPhysics* physicsObject = mPedsBodiesPool.create(mPhysicsWorld, object);
-    physicsObject->SetPosition(position, rotationAngle);
+    debug_assert(gameObject);
+    PhysicsBody* physicsBody = gPhysicsBodiesPool.create(gameObject, flags);
+    debug_assert(physicsBody);
 
-    mPedsBodiesList.push_back(physicsObject);
-    return physicsObject;
+    mBodiesList.push_back(physicsBody);
+    return physicsBody;
 }
 
-CarPhysics* PhysicsManager::CreatePhysicsObject(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle)
+PhysicsBody* PhysicsManager::CreateBody(GameObject* gameObject, const CollisionShape& shapeData, const PhysicsMaterial& shapeMaterial,
+    CollisionGroup collisionGroup,
+    CollisionGroup collidesWith, ColliderFlags colliderFlags, PhysicsBodyFlags bodyFlags)
 {
-    debug_assert(object);
-    debug_assert(object->mCarInfo);
-
-    CarPhysics* physicsObject = mCarsBodiesPool.create(mPhysicsWorld, object);
-    physicsObject->SetPosition(position, rotationAngle);
-
-    mCarsBodiesList.push_back(physicsObject);
-    return physicsObject;
-}
-
-ProjectilePhysics* PhysicsManager::CreatePhysicsObject(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle)
-{
-    debug_assert(object);
-
-    ProjectilePhysics* physicsObject = mProjectileBodiesPool.create(mPhysicsWorld, object);
-    physicsObject->SetPosition(position, rotationAngle);
-
-    mProjectileBodiesList.push_back(physicsObject);
-    return physicsObject;
+    PhysicsBody* body = CreateBody(gameObject, bodyFlags);
+    debug_assert(body);
+    if (body)
+    {
+        Collider* collider = body->AddCollider(0, shapeData, shapeMaterial, collisionGroup, collidesWith, colliderFlags);
+        debug_assert(collider);
+    }
+    return body;
 }
 
 void PhysicsManager::CreateMapCollisionShape()
 {
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
+    bodyDef.userData = nullptr; // make sure userdata is nullptr
 
-    mMapCollisionShape = mPhysicsWorld->CreateBody(&bodyDef);
+    mBox2MapBody = mBox2World->CreateBody(&bodyDef);
+    debug_assert(mBox2MapBody);
 
     int numFixtures = 0;
     // for each block create fixture
     for (int x = 0; x < MAP_DIMENSIONS; ++x)
-    for (int y = 0; y < MAP_DIMENSIONS; ++y)
-    for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
     {
-        const MapBlockInfo* blockData = gGameMap.GetBlockInfo(x, y, layer);
-        debug_assert(blockData);
-
-        if (blockData->mGroundType != eGroundType_Building)
-            continue;
-
-        // checek blox is inner
+        for (int y = 0; y < MAP_DIMENSIONS; ++y)
         {
-            const MapBlockInfo* neighbourE = gGameMap.GetBlockInfo(x + 1, y, layer); 
-            const MapBlockInfo* neighbourW = gGameMap.GetBlockInfo(x - 1, y, layer); 
-            const MapBlockInfo* neighbourN = gGameMap.GetBlockInfo(x, y - 1, layer); 
-            const MapBlockInfo* neighbourS = gGameMap.GetBlockInfo(x, y + 1, layer);
-
-            auto is_walkable = [](eGroundType gtype)
+            for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
             {
-                return gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
-            };
+                const MapBlockInfo* blockData = gGameMap.GetBlockInfo(x, y, layer);
+                debug_assert(blockData);
 
-            if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&
-                !is_walkable(neighbourN->mGroundType) && !is_walkable(neighbourS->mGroundType))
-            {
-                continue; // just ignore this block 
+                if (blockData->mGroundType != eGroundType_Building)
+                    continue;
+
+                // checek blox is inner
+                {
+                    const MapBlockInfo* neighbourE = gGameMap.GetBlockInfo(x + 1, y, layer); 
+                    const MapBlockInfo* neighbourW = gGameMap.GetBlockInfo(x - 1, y, layer); 
+                    const MapBlockInfo* neighbourN = gGameMap.GetBlockInfo(x, y - 1, layer); 
+                    const MapBlockInfo* neighbourS = gGameMap.GetBlockInfo(x, y + 1, layer);
+
+                    auto is_walkable = [](eGroundType gtype)
+                    {
+                        return gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
+                    };
+
+                    if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&
+                        !is_walkable(neighbourN->mGroundType) && !is_walkable(neighbourS->mGroundType))
+                    {
+                        continue; // just ignore this block 
+                    }
+                }
+
+                b2PolygonShape b2shapeDef;
+
+                glm::vec2 shapeCenter (x + 0.5f, y + 0.5f);
+                shapeCenter = Convert::MapUnitsToMeters(shapeCenter);
+       
+                glm::vec2 shapeLength (0.5f, 0.5f);
+                shapeLength = Convert::MapUnitsToMeters(shapeLength);
+        
+                b2shapeDef.SetAsBox(shapeLength.x, shapeLength.y, convert_vec2(shapeCenter), 0.0f);
+
+                b2FixtureData_map fixtureData;
+                fixtureData.mX = x;
+                fixtureData.mZ = y;
+
+                b2FixtureDef b2fixtureDef;
+                b2fixtureDef.density = 0.0f;
+                b2fixtureDef.shape = &b2shapeDef;
+                b2fixtureDef.userData = fixtureData.mAsPointer;
+                b2fixtureDef.filter.categoryBits = CollisionGroup_MapBlock;
+
+                b2Fixture* b2fixture = mBox2MapBody->CreateFixture(&b2fixtureDef);
+                debug_assert(b2fixture);
+
+                ++numFixtures;
+                break; // single fixture per block column
             }
         }
-
-        b2PolygonShape b2shapeDef;
-
-        box2d::vec2 shapeCenter (x + 0.5f, y + 0.5f);
-        shapeCenter = Convert::MapUnitsToMeters(shapeCenter);
-       
-        box2d::vec2 shapeLength (0.5f, 0.5f);
-        shapeLength = Convert::MapUnitsToMeters(shapeLength);
-        
-        b2shapeDef.SetAsBox(shapeLength.x, shapeLength.y, shapeCenter, 0.0f);
-
-        b2FixtureData_map fixtureData;
-        fixtureData.mX = x;
-        fixtureData.mZ = y;
-
-        b2FixtureDef b2fixtureDef;
-        b2fixtureDef.density = 0.0f;
-        b2fixtureDef.shape = &b2shapeDef;
-        b2fixtureDef.userData = fixtureData.mAsPointer;
-        b2fixtureDef.filter.categoryBits = PHYSICS_OBJCAT_MAP_SOLID_BLOCK;
-
-        b2Fixture* b2fixture = mMapCollisionShape->CreateFixture(&b2fixtureDef);
-        debug_assert(b2fixture);
-
-        ++numFixtures;
-        break; // single fixture per block column
     }
 }
 
-void PhysicsManager::DestroyPhysicsObject(PedestrianPhysics* object)
+void PhysicsManager::DestroyBody(PhysicsBody* physicsBody)
 {
-    debug_assert(object);
-    cxx::erase_elements(mPedsBodiesList, object);
+    debug_assert(!IsSimulationStepInProgress());
 
-    mPedsBodiesPool.destroy(object);
-}
+    debug_assert(physicsBody);
+    if (physicsBody == nullptr)
+        return;
 
-void PhysicsManager::DestroyPhysicsObject(CarPhysics* object)
-{
-    debug_assert(object);
-    cxx::erase_elements(mCarsBodiesList, object);
+    GameObject* gameObject = physicsBody->mGameObject;
+    debug_assert(gameObject);
+    if (gameObject)
+    {
+        cxx::erase_elements(mBodiesList, physicsBody);
+        // remove contacts
+        for (const Contact& currContact: gameObject->mObjectsContacts)
+        {
+            currContact.mThatObject->UnregisterContactsWithObject(gameObject);
+        }
+        gameObject->ClearContacts();
+    }
 
-    mCarsBodiesPool.destroy(object);
-}
-
-void PhysicsManager::DestroyPhysicsObject(ProjectilePhysics* object)
-{
-    debug_assert(object);
-    cxx::erase_elements(mProjectileBodiesList, object);
-
-    mProjectileBodiesPool.destroy(object);
+    gPhysicsBodiesPool.destroy(physicsBody);
 }
 
 void PhysicsManager::BeginContact(b2Contact* contact)
 {
-    if (ProcessSensorContact(contact, true))
-        return;
+    // do nothing
 }
 
 void PhysicsManager::EndContact(b2Contact* contact)
 {
-    if (ProcessSensorContact(contact, false))
-        return;
+    // do nothing
 }
 
 void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
@@ -303,96 +276,24 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
     b2Fixture* fixtureA = contact->GetFixtureA();
     b2Fixture* fixtureB = contact->GetFixtureB();
 
-    bool hasCollision = true;
-    if (fixtureA->GetFilterData().categoryBits == 
-        fixtureB->GetFilterData().categoryBits)
+    bool enableCollisionResponse = true;
+
+    // check map collision
+    if (CheckCollisionGroup(fixtureA, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
-        // ped vs ped
-        if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_PED)
-        {
-            PedestrianPhysics* pedA = CastFixtureBody<PedestrianPhysics>(fixtureA);
-            PedestrianPhysics* pedB = CastFixtureBody<PedestrianPhysics>(fixtureB);
-            hasCollision = HasCollisionPedVsPed(contact, pedA, pedB);
-        }
-        // car vs car
-        if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
-        {
-            CarPhysics* carA = CastFixtureBody<CarPhysics>(fixtureA);
-            CarPhysics* carB = CastFixtureBody<CarPhysics>(fixtureB);
-            hasCollision = HasCollisionCarVsCar(contact, carA, carB);
-        }
+        // assume fixtureB is game object collider
+        enableCollisionResponse = ShouldCollide_ObjectWithMap(contact, fixtureB, fixtureA);
     }
-    else
+    else if (CheckCollisionGroup(fixtureB, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
-        b2Fixture* fixtureMapSolidBlock = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
-        b2Fixture* fixturePed = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PED);
-        b2Fixture* fixtureCar = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_CAR);
-        b2Fixture* fixtureProjectile = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PROJECTILE);
-
-        if (fixtureProjectile)
-        {
-            hasCollision = false; // projectiles doesnt collide
-
-            ProjectilePhysics* projectile = CastFixtureBody<ProjectilePhysics>(fixtureProjectile);
-
-            // projectile vs map solid block
-            if (fixtureMapSolidBlock)
-            {
-                b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
-                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK))
-                {
-                    ProcessProjectileVsMap(contact, projectile, fxdata.mX, fxdata.mZ);
-                }
-            }
-            // projectile vs car
-            else if (fixtureCar)
-            {
-                CarPhysics* car = CastFixtureBody<CarPhysics>(fixtureCar);
-                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_CAR))
-                {
-                    ProcessProjectileVsCar(contact, projectile, car);
-                }
-            }
-            // projectile vs ped
-            else if (fixturePed)
-            {
-                PedestrianPhysics* ped = CastFixtureBody<PedestrianPhysics>(fixturePed);
-                if (projectile->ShouldContactWith(PHYSICS_OBJCAT_PED))
-                {
-                    ProcessProjectileVsPed(contact, projectile, ped);
-                }
-            }
-        }
-        else if (fixturePed)
-        {
-            PedestrianPhysics* ped = CastFixtureBody<PedestrianPhysics>(fixturePed);
-
-            // ped vs map solid block
-            if (fixtureMapSolidBlock)
-            {
-                b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
-     
-                float height = gGameMap.GetHeightAtPosition(ped->GetPosition());
-                hasCollision = ped->ShouldContactWith(PHYSICS_OBJCAT_MAP_SOLID_BLOCK) &&
-                    HasCollisionPedVsMap(fxdata.mX, fxdata.mZ, height);
-            }
-            // ped vs car
-            else if (fixtureCar)
-            {
-                CarPhysics* car = CastFixtureBody<CarPhysics>(fixtureCar);
-                hasCollision = ped->ShouldContactWith(PHYSICS_OBJCAT_CAR) &&
-                    HasCollisionPedVsCar(contact, ped, car);
-            }
-        }
-        // car vs map solid block
-        else if (fixtureCar && fixtureMapSolidBlock)
-        {
-            b2FixtureData_map fxdata = fixtureMapSolidBlock->GetUserData();
-            hasCollision = HasCollisionCarVsMap(contact, fixtureCar, fxdata.mX, fxdata.mZ);
-        }
+        // assume fixtureA is game object collider
+        enableCollisionResponse = ShouldCollide_ObjectWithMap(contact, fixtureA, fixtureB);
     }
-
-    contact->SetEnabled(hasCollision);
+    else // object vs object
+    {
+        enableCollisionResponse = ShouldCollide_Objects(contact, fixtureA, fixtureB);
+    }
+    contact->SetEnabled(enableCollisionResponse);
 }
 
 void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
@@ -402,237 +303,103 @@ void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impul
 
     b2Fixture* fixtureA = contact->GetFixtureA();
     b2Fixture* fixtureB = contact->GetFixtureB();
-    // check car vs car
-    if (fixtureA->GetFilterData().categoryBits == 
-        fixtureB->GetFilterData().categoryBits)
+
+    // check map collision
+    if (CheckCollisionGroup(fixtureA, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
-        if (fixtureA->GetFilterData().categoryBits == PHYSICS_OBJCAT_CAR)
-        {
-            CarPhysics* carA = CastFixtureBody<CarPhysics>(fixtureA);
-            CarPhysics* carB = CastFixtureBody<CarPhysics>(fixtureB);
-            HandleCollision(contact, carA, carB, impulse);
-        }
-    }
-    else
-    {
-        b2Fixture* fixtureMapSolidBlock = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
-        b2Fixture* fixturePed = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_PED);
-        b2Fixture* fixtureCar = FilterFixture(fixtureA, fixtureB, PHYSICS_OBJCAT_CAR);
-
-        if (fixtureCar && fixturePed)
-        {
-            CarPhysics* car = CastFixtureBody<CarPhysics>(fixtureCar);
-            PedestrianPhysics* ped = CastFixtureBody<PedestrianPhysics>(fixturePed);
-            HandleCollision(contact, ped, car, impulse);
-        }
-
-        if (fixtureMapSolidBlock && fixtureCar)
-        {
-            CarPhysics* car = CastFixtureBody<CarPhysics>(fixtureCar);
-            HandleCollisionWithMap(contact, car, impulse);
-        }
-    }
-}
-
-void PhysicsManager::ProcessGravityStep()
-{
-    if (!gGameCheatsWindow.mEnableGravity)
+        // assume fixtureB is game object collider
+        HandleCollision_ObjectWithMap(fixtureB, fixtureA, contact, impulse);
         return;
-
-    // process vihicles
-    for (size_t i = 0, NumElements = mCarsBodiesList.size(); i < NumElements; ++i)
-    {
-        CarPhysics* currentBody = static_cast<CarPhysics*>(mCarsBodiesList[i]);
-        ProcessGravityStep(currentBody);
     }
-    // process pedestrians
-    for (size_t i = 0, NumElements = mPedsBodiesList.size(); i < NumElements; ++i)
+
+    if (CheckCollisionGroup(fixtureB, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
-        PedestrianPhysics* currentBody = static_cast<PedestrianPhysics*>(mPedsBodiesList[i]);
-        ProcessGravityStep(currentBody);
+        // assume fixtureA is game object collider
+        HandleCollision_ObjectWithMap(fixtureA, fixtureB, contact, impulse);
+        return;
+    }
+
+    // object vs object
+    {
+        HandleCollision_Objects(fixtureA, fixtureB, contact, impulse);
+        return;
     }
 }
 
-void PhysicsManager::ProcessGravityStep(CarPhysics* physicsBody)
+void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
 {
+    GameObject* gameObject = physicsBody->mGameObject;
+    debug_assert(gameObject);
+
+    if (gameObject->IsAttachedToObject())
+    {
+        debug_assert(false);
+        return;
+    }
+
     if (physicsBody->mWaterContact)
         return;
 
     float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
 
-    if (physicsBody->mFalling)
-    {
-        // whether falling ends
-        float fallingDistance = mGravity * mSimulationStepTime * 8.0f; // todo: magic numbers
-        physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
-        if (physicsBody->mHeight == groundHeight)
-        {
-            // handle water contact
-            float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
-            if (groundHeight <= waterHeight)
-            {
-                physicsBody->HandleWaterContact();
-            }
-            else
-            {
-                physicsBody->HandleFallEnd();
-            }
-        }
-    }
-    else
-    {
-        const float fallThresholdDistance = 0.1f;
-        bool onTheGround = fabsf(groundHeight - physicsBody->mHeight) <= fallThresholdDistance;
-        // whether falling starts
-        if (onTheGround)
-        {
-            physicsBody->mHeight = groundHeight;
-        }
-        else 
-        {
-            physicsBody->HandleFallBegin();
-        }
-    }
-}
-
-void PhysicsManager::ProcessGravityStep(PedestrianPhysics* physicsBody)
-{
-    Pedestrian* currPedestrian = physicsBody->mReferencePed;
-    if (physicsBody->mWaterContact)
-        return;
-
-    if (currPedestrian->mCurrentCar)
-    {
-        physicsBody->mHeight = currPedestrian->mCurrentCar->mPhysicsBody->mHeight;
-        return;
-    }
-
-    float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
-
+    float prevHeight = physicsBody->mPositionY;
     if (physicsBody->mFalling)
     {
         // whether falling ends
         float fallingDistance = mGravity * mSimulationStepTime;
-        physicsBody->mHeight = std::max(groundHeight, physicsBody->mHeight - fallingDistance);
-        if (physicsBody->mHeight == groundHeight)
+        physicsBody->mPositionY = std::max(groundHeight, physicsBody->mPositionY - fallingDistance);
+        if (physicsBody->mPositionY == groundHeight)
         {
             // handle water contact
             float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
             if (groundHeight <= waterHeight)
             {
-                physicsBody->HandleWaterContact();
+                HandleFallsOnWater(physicsBody);
             }
             else
             {
-                physicsBody->HandleFallEnd();
+                HandleFallsOnGround(physicsBody);
             }
         }
     }
     else
     {
         const float fallThresholdDistance = 0.1f;
-        bool onTheGround = fabsf(groundHeight - physicsBody->mHeight) <= fallThresholdDistance;
-        // whether falling starts
+        bool onTheGround = fabsf(groundHeight - physicsBody->mPositionY) <= fallThresholdDistance;
         if (onTheGround)
         {
-            physicsBody->mHeight = groundHeight;
+            physicsBody->mPositionY = groundHeight;
         }
-        else 
+        else // start falling
         {
-            physicsBody->HandleFallBegin();
+            if (gGameCheatsWindow.mEnableGravity)
+            {
+                HandleFallingStarts(physicsBody);
+            }
         }
     }
-}
 
-bool PhysicsManager::HasCollisionPedVsPed(b2Contact* contact, PedestrianPhysics* pedA, PedestrianPhysics* pedB) const
-{
-    // todo: temporary implementation
-
-    return false;
-}
-
-bool PhysicsManager::HasCollisionCarVsCar(b2Contact* contact, CarPhysics* carA, CarPhysics* carB) const
-{
-    int carLayerA = (int) (Convert::MetersToMapUnits(carA->mHeight) + 0.5f);
-    int carLayerB = (int) (Convert::MetersToMapUnits(carB->mHeight) + 0.5f);
-
-    // todo: handle slopes
-
-    return carLayerA == carLayerB;
-}
-
-bool PhysicsManager::HasCollisionPedVsMap(int mapx, int mapy, float height) const
-{
-    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
-
-    // todo: temporary implementation
-
-    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(mapx, mapy, mapLayer);
-    return (blockData->mGroundType == eGroundType_Building);
-}
-
-bool PhysicsManager::HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapy) const
-{
-    CarPhysics* carPhysicsComponent = CastFixtureBody<CarPhysics>(fixtureCar);
-    debug_assert(carPhysicsComponent);
-
-    int mapLayer = (int) (Convert::MetersToMapUnits(carPhysicsComponent->mHeight) + 0.5f);
-
-    // todo: temporary implementation
-
-    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(mapx, mapy, mapLayer);
-    return (blockData->mGroundType == eGroundType_Building);
-}
-
-bool PhysicsManager::HasCollisionPedVsCar(b2Contact* contact, PedestrianPhysics* ped, CarPhysics* car) const
-{
-    // check car bounds height
-    // todo: get car height!
-    return ((ped->mHeight >= car->mHeight) && 
-        (ped->mHeight <= (car->mHeight + 2.0f)));
-}
-
-bool PhysicsManager::ProcessSensorContact(b2Contact* contact, bool onBegin)
-{
-    b2Fixture* fixtureA = contact->GetFixtureA();
-    b2Fixture* fixtureB = contact->GetFixtureB();
-  
-    // make sure only one of the fixtures was a sensor
-    bool sensorA = fixtureA->IsSensor();
-    bool sensorB = fixtureB->IsSensor();
-    if (!(sensorA ^ sensorB))
-        return false;
-
-    b2Fixture* pedFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_PED | PHYSICS_OBJCAT_PED_SENSOR);
-    b2Fixture* carFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_CAR);
-    b2Fixture* mapSolidBlockFixture = FilterFixture(contact->GetFixtureA(), contact->GetFixtureB(), PHYSICS_OBJCAT_MAP_SOLID_BLOCK);
-    
-    if (pedFixture && carFixture)
+    if (prevHeight != physicsBody->mPositionY)
     {
-        PedestrianPhysics* pedPhysicsComponent = CastFixtureBody<PedestrianPhysics>(pedFixture);
-        CarPhysics* carPhysicsComponent = CastFixtureBody<CarPhysics>(carFixture);
-        if (onBegin)
-        {
-            pedPhysicsComponent->HandleCarContactBegin();
-        }
-        else
-        {
-            pedPhysicsComponent->HandleCarContactEnd();
-        }
-        return true;
+        // force body awake
+        physicsBody->SetAwake(true);
     }
-    return false;
 }
 
-void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsLinecastResult& outputResult) const
+void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult, CollisionGroup collisionMask) const
 {
     outputResult.Clear();
+
+    collisionMask = collisionMask & ~(CollisionGroup_MapBlock | CollisionGroup_Wall); // ignore map
+    if (collisionMask == CollisionGroup_None)
+        return;
 
     struct _raycast_callback: public b2RayCastCallback
     {
     public:
-        _raycast_callback(PhysicsLinecastResult& out)
+        _raycast_callback(PhysicsQueryResult& out, CollisionGroup collisionMask)
             : mOutput(out)
+            , mCollisionMask(collisionMask)
         {
         }
 	    float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction) override
@@ -640,48 +407,46 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             if (mOutput.IsFull())
                 return 0.0f;
 
-            PhysicsLinecastHit* currHit = nullptr;
-
             const b2Filter& filterData = fixture->GetFilterData();
-            if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
+            if ((filterData.categoryBits & mCollisionMask) > 0)
             {
-                currHit = &mOutput.mHits[mOutput.mHitsCount++];
-                currHit->mCarComponent = CastFixtureBody<CarPhysics>(fixture);
+                PhysicsQueryElement& currHit = mOutput.mElements[mOutput.mElementsCount];
+                currHit.mPhysicsObject = b2Fixture_get_physics_body(fixture);
+                if (currHit.mPhysicsObject)
+                {
+                    ++mOutput.mElementsCount;
 
-            }
-            if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
-            {
-                currHit = &mOutput.mHits[mOutput.mHitsCount++];
-                currHit->mPedComponent = CastFixtureBody<PedestrianPhysics>(fixture);
-            }
-            if (currHit)
-            {
-                currHit->mIntersectionPoint.x = point.x;
-                currHit->mIntersectionPoint.y = point.y;
-                currHit->mNormal.x = normal.x;
-                currHit->mNormal.y = normal.y;
+                    currHit.mIntersectionPoint = convert_vec2(point);
+                    currHit.mNormal = convert_vec2(point);
+                }
             }
             return 1.0f;
         }
     public:
-        PhysicsLinecastResult& mOutput;
+        PhysicsQueryResult& mOutput;
+        CollisionGroup mCollisionMask;
     };
 
-    _raycast_callback raycast_callback {outputResult};
-    box2d::vec2 p1 = pointA;
-    box2d::vec2 p2 = pointB;
-    mPhysicsWorld->RayCast(&raycast_callback, p1, p2);
+    _raycast_callback raycast_callback {outputResult, collisionMask};
+    b2Vec2 p1 = convert_vec2(pointA);
+    b2Vec2 p2 = convert_vec2(pointB);
+    mBox2World->RayCast(&raycast_callback, p1, p2);
 }
 
-void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const glm::vec2& aabboxExtents, PhysicsQueryResult& outputResult) const
+void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& center, const glm::vec2& extents, PhysicsQueryResult& outputResult, CollisionGroup collisionMask) const
 {
     outputResult.Clear();
+
+    collisionMask = collisionMask & ~(CollisionGroup_MapBlock | CollisionGroup_Wall); // ignore map
+    if (collisionMask == CollisionGroup_None)
+        return;
 
     struct _query_callback: public b2QueryCallback
     {
     public:
-        _query_callback(PhysicsQueryResult& out)
+        _query_callback(PhysicsQueryResult& out, CollisionGroup collisionMask)
             : mOutput(out) 
+            , mCollisionMask(collisionMask)
         {
         }
         bool ReportFixture(b2Fixture* fixture) override
@@ -690,196 +455,312 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const g
                 return false;
 
             const b2Filter& filterData = fixture->GetFilterData();
-            if (filterData.categoryBits == PHYSICS_OBJCAT_CAR)
+            if ((filterData.categoryBits & mCollisionMask) > 0)
             {
-                PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
-                currElement.mCarComponent = CastFixtureBody<CarPhysics>(fixture);
-            }
-
-            if (filterData.categoryBits == PHYSICS_OBJCAT_PED)
-            {
-                PhysicsQueryElement& currElement = mOutput.mElements[mOutput.mElementsCount++];
-                currElement.mPedComponent = CastFixtureBody<PedestrianPhysics>(fixture);
+                PhysicsQueryElement& currHit = mOutput.mElements[mOutput.mElementsCount];
+                currHit.mPhysicsObject = b2Fixture_get_physics_body(fixture);
+                if (currHit.mPhysicsObject)
+                {
+                    ++mOutput.mElementsCount;
+                }
             }
             return true;
         }
     public:
         PhysicsQueryResult& mOutput;
+        CollisionGroup mCollisionMask;
     };
-    _query_callback query_callback {outputResult};
+    _query_callback query_callback {outputResult, collisionMask};
 
     b2AABB aabb;
-    aabb.lowerBound.x = (aaboxCenter.x - aabboxExtents.x);
-    aabb.lowerBound.y = (aaboxCenter.y - aabboxExtents.y);
-    aabb.upperBound.x = (aaboxCenter.x + aabboxExtents.x);
-    aabb.upperBound.y = (aaboxCenter.y + aabboxExtents.y);
-    mPhysicsWorld->QueryAABB(&query_callback, aabb);
+    aabb.lowerBound.x = (center.x - extents.x);
+    aabb.lowerBound.y = (center.y - extents.y);
+    aabb.upperBound.x = (center.x + extents.x);
+    aabb.upperBound.y = (center.y + extents.y);
+    mBox2World->QueryAABB(&query_callback, aabb);
 }
 
-void PhysicsManager::HandleCollision(b2Contact* contact, PedestrianPhysics* ped, CarPhysics* car, const b2ContactImpulse* impulse)
+bool PhysicsManager::IsSimulationStepInProgress() const
 {
-    if (!ped->ShouldContactWith(PHYSICS_OBJCAT_CAR))
+    return mBox2World->IsLocked();
+}
+
+bool PhysicsManager::ShouldCollide_ObjectWithMap(b2Contact* contact, b2Fixture* objectFixture, b2Fixture* mapFixture) const
+{
+    GameObject* gameObject = b2Fixture_get_game_object(objectFixture);
+
+    debug_assert(gameObject);
+    debug_assert(!gameObject->IsAttachedToObject());
+
+    if (gameObject->IsMarkedForDeletion())
+        return false;
+
+    debug_assert(gameObject->mPhysicsBody);
+    if (gameObject->mPhysicsBody->CheckFlags(PhysicsBodyFlags_Disabled))
+        return false;
+
+    float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
+    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
+
+    // todo: this is temporary implementation
+
+    b2FixtureData_map fxdata = mapFixture->GetUserData();
+    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, mapLayer);
+    return (blockData->mGroundType == eGroundType_Building);
+}
+
+bool PhysicsManager::ShouldCollide_Objects(b2Contact* box2contact, b2Fixture* fixtureA, b2Fixture* fixtureB) const
+{
+    GameObject* gameObjectA = b2Fixture_get_game_object(fixtureA);
+    GameObject* gameObjectB = b2Fixture_get_game_object(fixtureB);
+
+    debug_assert(gameObjectA);
+    debug_assert(gameObjectB);
+    debug_assert(gameObjectA != gameObjectB);
+
+    if (gameObjectA->IsMarkedForDeletion() || gameObjectB->IsMarkedForDeletion())
+        return false;
+
+    debug_assert(gameObjectA->mPhysicsBody);
+    debug_assert(gameObjectB->mPhysicsBody);
+
+    if (gameObjectA->mPhysicsBody->CheckFlags(PhysicsBodyFlags_Disabled))
+        return false;
+
+    if (gameObjectB->mPhysicsBody->CheckFlags(PhysicsBodyFlags_Disabled))
+        return false;
+
+    // todo: check y positions!
+    float objectA_posY = gameObjectA->mPhysicsBody->mPositionY;
+    float objectB_posY = gameObjectB->mPhysicsBody->mPositionY;
+
+    // todo: this is temporary implementation!
+    if (fabs(objectA_posY - objectB_posY) > 2.0f)
+        return false;
+
+    if (gameObjectA->IsAttachedToObject() || gameObjectB->IsAttachedToObject())
+    {
+        if (gameObjectA->IsSameHierarchy(gameObjectB))
+            return false;
+    }
+
+    bool shouldCollide = gameObjectA->ShouldCollide(gameObjectB) && gameObjectB->ShouldCollide(gameObjectA);
+
+    if (!shouldCollide)
+    {
+        // register contact between objects
+        Contact objectsContact;
+
+        objectsContact.SetupWithBox2Data(box2contact, fixtureA, fixtureB);
+        gameObjectA->RegisterContact(objectsContact);
+
+        objectsContact.SetupWithBox2Data(box2contact, fixtureB, fixtureA);
+        gameObjectB->RegisterContact(objectsContact);
+    }
+    return shouldCollide;
+}
+
+void PhysicsManager::HandleCollision_ObjectWithMap(b2Fixture* objectFixture, b2Fixture* mapFixture, b2Contact* contact, const b2ContactImpulse* impulse)
+{
+    GameObject* gameObject = b2Fixture_get_game_object(objectFixture);
+    debug_assert(gameObject);
+
+    float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
+    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
+
+    b2FixtureData_map fxdata = mapFixture->GetUserData();
+
+    // queue collision event
+    mObjectsCollisionList.emplace_back();
+
+    CollisionEvent& collisionEvent = mObjectsCollisionList.back();
+    collisionEvent.mBox2Impulse = *impulse;
+    collisionEvent.mBox2Contact = contact;
+    collisionEvent.mBox2FixtureA = objectFixture;
+    collisionEvent.mMapBlockInfo = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, mapLayer);
+    debug_assert(collisionEvent.mMapBlockInfo);
+
+    if (Vehicle* carObject = ToVehicle(gameObject))
+    {
+        HandleCollision_CarVsMap(carObject, contact, impulse);
+        return;
+    }
+}
+
+void PhysicsManager::HandleCollision_Objects(b2Fixture* fixtureA, b2Fixture* fixtureB, b2Contact* contact, const b2ContactImpulse* impulse)
+{
+    // queue collision event
+    mObjectsCollisionList.emplace_back();
+
+    CollisionEvent& collisionEvent = mObjectsCollisionList.back();
+    collisionEvent.mBox2Impulse = *impulse;
+    collisionEvent.mBox2Contact = contact;
+    collisionEvent.mBox2FixtureA = fixtureA;
+    collisionEvent.mBox2FixtureB = fixtureB;
+
+    // handle collision
+    GameObject* objectA = b2Fixture_get_game_object(fixtureA);
+    GameObject* objectB = b2Fixture_get_game_object(fixtureB);
+    debug_assert(objectA && objectB);
+
+    if (IsSameClass(objectA, objectB, eGameObjectClass_Car))
+    {
+        Vehicle* carA = ToVehicle(objectA);
+        Vehicle* carB = ToVehicle(objectB);
+
+        HandleCollision_CarVsCar(carA, carB, contact, impulse);
+        return;
+    }
+}
+
+void PhysicsManager::HandleCollision_CarVsCar(Vehicle* carA, Vehicle* carB, b2Contact* contact, const b2ContactImpulse* impulse)
+{
+    debug_assert(carA && carB);
+
+    if (gParticleManager.IsCarSparksEffectEnabled())
+    {
+        int pointCount = contact->GetManifold()->pointCount;
+        float impact = 0.0f;
+        for (int i = 0; i < pointCount; ++i) 
+        {
+            impact = b2Max(impact, impulse->normalImpulses[i]);
+        }
+        b2WorldManifold wmanifold;
+        contact->GetWorldManifold(&wmanifold);
+
+        if (impact > gGameParams.mSparksOnCarsContactThreshold)
+        {
+            glm::vec3 contactPoint(wmanifold.points->x, carA->mPhysicsBody->mPositionY, wmanifold.points->y);
+            glm::vec2 velocity2 = glm::normalize(
+                carA->mPhysicsBody->GetLinearVelocity() + 
+                carB->mPhysicsBody->GetLinearVelocity());
+            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
+            gParticleManager.StartCarSparks(contactPoint, velocity, 3);
+        }
+    }
+}
+
+void PhysicsManager::HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, const b2ContactImpulse* impulse)
+{
+    debug_assert(car);
+
+    if (gParticleManager.IsCarSparksEffectEnabled())
+    {
+        int pointCount = contact->GetManifold()->pointCount;
+        float impact = 0.0f;
+        for (int i = 0; i < pointCount; ++i) 
+        {
+            impact = b2Max(impact, impulse->normalImpulses[i]);
+        }
+        b2WorldManifold wmanifold;
+        contact->GetWorldManifold(&wmanifold);
+
+        if (impact > gGameParams.mSparksOnCarsContactThreshold)
+        {
+            glm::vec3 contactPoint(wmanifold.points->x, car->mPhysicsBody->mPositionY, wmanifold.points->y);
+            glm::vec2 velocity2 = glm::normalize(car->mPhysicsBody->GetLinearVelocity());
+            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
+            gParticleManager.StartCarSparks(contactPoint, velocity, 3);
+        }
+    }
+}
+
+void PhysicsManager::ProcessInterpolation()
+{
+    float mixFactor = mSimulationTimeAccumulator / mSimulationStepTime;
+
+    for (PhysicsBody* currBody: mBodiesList)
+    {
+        GameObject* gameObject = currBody->mGameObject;
+        if (!gameObject->IsAttachedToObject()) // interpolate roots
+        {
+            gameObject->InterpolateTransform(mixFactor);
+        }
+    }
+}
+
+void PhysicsManager::DispatchCollisionEvents()
+{
+    for (const CollisionEvent& currCollision: mObjectsCollisionList)
+    {
+        if (currCollision.mMapBlockInfo)
+        {
+            MapCollision collisionInfo;
+
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mMapBlockInfo, &currCollision.mBox2Impulse);
+            collisionInfo.mThisObject->HandleCollisionWithMap(collisionInfo);
+        }
+        else
+        {
+            Collision collisionInfo;
+
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mBox2FixtureB, &currCollision.mBox2Impulse);
+            collisionInfo.mContactInfo.mThisObject->HandleCollision(collisionInfo);
+
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureB, currCollision.mBox2FixtureA, &currCollision.mBox2Impulse);
+            collisionInfo.mContactInfo.mThisObject->HandleCollision(collisionInfo);
+        }
+    }
+    mObjectsCollisionList.clear();
+}
+
+void PhysicsManager::HandleFallingStarts(PhysicsBody* physicsBody)
+{
+    if (physicsBody->mFalling)
         return;
 
-    int pointCount = contact->GetManifold()->pointCount;
-    float maxImpulse = 0.0f;
-    for (int i = 0; i < pointCount; ++i) 
-    {
-        maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-    }
+    physicsBody->mFalling = true;
+    physicsBody->mFallStartHeight = physicsBody->mPositionY;
 
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
-
-    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
-
-    DamageInfo damageInfo;
-    damageInfo.mDamageCause = eDamageCause_CarCrash;
-    damageInfo.mSourceObject = car->mReferenceCar;
-    damageInfo.mContactImpulse = maxImpulse;
-    damageInfo.mContactPoint = glm::vec3 ( contactPoint.x, ped->mHeight, contactPoint.y );
-
-    ped->mReferencePed->ReceiveDamage(damageInfo);
+    physicsBody->mGameObject->HandleFallingStarts();
 }
 
-void PhysicsManager::HandleCollision(b2Contact* contact, CarPhysics* carA, CarPhysics* carB, const b2ContactImpulse* impulse)
+void PhysicsManager::HandleFallsOnGround(PhysicsBody* physicsBody)
 {
-    int pointCount = contact->GetManifold()->pointCount;
-    float impact = 0.0f;
-    for (int i = 0; i < pointCount; ++i) 
+    if (!physicsBody->mFalling)
+        return;
+
+    float fallDistance = physicsBody->mFallStartHeight - physicsBody->mPositionY;
+    if (fallDistance < 0.0f)
     {
-        impact = b2Max(impact, impulse->normalImpulses[i]);
+        fallDistance = 0.0f;
     }
+    physicsBody->mFalling = false;
+    physicsBody->mGameObject->HandleFallsOnGround(fallDistance);
+}
 
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
+void PhysicsManager::HandleFallsOnWater(PhysicsBody* physicsBody)
+{
+    if (physicsBody->mWaterContact)
+        return;
 
-    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
-
-    if (gParticleManager.IsCarSparksEffectEnabled())
+    float fallDistance = physicsBody->mFallStartHeight - physicsBody->mPositionY;
+    if (fallDistance < 0.0f)
     {
-        if (impact > gGameParams.mSparksOnCarsContactThreshold)
+        fallDistance = 0.0f;
+    }
+    physicsBody->mWaterContact = true;
+    physicsBody->mFalling = false;
+
+    // create splash effect
+    if (Vehicle* carObject = ToVehicle(physicsBody->mGameObject))
+    {
+        // create effect
+        glm::vec2 splashPoints[5];
+        carObject->GetChassisCorners(splashPoints);
+        splashPoints[4] = carObject->mPhysicsBody->GetPosition2();
+        for (const glm::vec2& currPoint: splashPoints)
         {
-            glm::vec3 sparksPoint { contactPoint.x, carA->mHeight, contactPoint.y };
-            glm::vec2 velocity2 = glm::normalize(
-                carA->GetLinearVelocity() + 
-                carB->GetLinearVelocity());
-            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
-            gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
+            Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(glm::vec3(currPoint.x, carObject->mPhysicsBody->mPositionY, currPoint.y));
+            debug_assert(splashEffect);
         }
     }
-
-    for (CarPhysics* currCar: {carA, carB})
+    else // peds and small objects
     {
-        DamageInfo damageInfo;
-        damageInfo.SetDamageFromCarCrash(glm::vec3(contactPoint.x, currCar->mHeight, contactPoint.y), impact,
-            (currCar == carA) ? carB->mReferenceCar : carA->mReferenceCar);
-
-        currCar->mReferenceCar->ReceiveDamage(damageInfo);
+        Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(physicsBody->GetPosition());
+        debug_assert(splashEffect);
     }
-}
+    physicsBody->mGameObject->HandleFallsOnWater(fallDistance);
 
-void PhysicsManager::HandleCollisionWithMap(b2Contact* contact, CarPhysics* car, const b2ContactImpulse* impulse)
-{
-    int pointCount = contact->GetManifold()->pointCount;
-    float impact = 0.0f;
-    for (int i = 0; i < pointCount; ++i) 
-    {
-        impact = b2Max(impact, impulse->normalImpulses[i]);
-    }
-
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
-
-    glm::vec2 contactPoint = box2d::vec2(wmanifold.points[0]);
-
-    if (gParticleManager.IsCarSparksEffectEnabled())
-    {
-        if (impact > gGameParams.mSparksOnCarsContactThreshold)
-        {
-            glm::vec3 sparksPoint { contactPoint.x, car->mHeight, contactPoint.y };
-            glm::vec2 velocity2 = glm::normalize(car->GetLinearVelocity());
-            glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
-            gParticleManager.StartCarSparks(sparksPoint, velocity, 3);
-        }
-    }
-
-    // todo: make damage
-}
-
-bool PhysicsManager::ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysics* projectile, int mapx, int mapy) const
-{
-    // check same height
-    int layer = (int) (Convert::MetersToMapUnits(projectile->mHeight) + 0.5f);
-
-    const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(mapx, mapy, layer);
-    if (mapBlock->mGroundType != eGroundType_Building)
-        return false;
-
-    // get collision point
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
-
-    int pointsCount = contact->GetManifold()->pointCount;
-    if (pointsCount > 0)
-    {
-        glm::vec3 contactPoint( 
-            wmanifold.points[0].x, projectile->mHeight, 
-            wmanifold.points[0].y );
-
-        return projectile->ProcessContactWithMap(contactPoint);
-    }
-    return false;
-}
-
-bool PhysicsManager::ProcessProjectileVsCar(b2Contact* contact, ProjectilePhysics* projectile, CarPhysics* car) const
-{
-    // check car bounds height
-    // todo: get car height!
-    bool hasContact = ((projectile->mHeight >= car->mHeight) && 
-        (projectile->mHeight <= (car->mHeight + 2.0f)));
-
-    if (!hasContact)
-        return false;
-
-    // get collision point
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
-
-    int pointsCount = contact->GetManifold()->pointCount;
-    if (pointsCount > 0)
-    {
-        glm::vec3 contactPoint( 
-            wmanifold.points[0].x, projectile->mHeight, 
-            wmanifold.points[0].y );
-
-        return projectile->ProcessContactWithObject(contactPoint, car->mReferenceCar);
-    }
-    return false;
-}
-
-bool PhysicsManager::ProcessProjectileVsPed(b2Contact* contact, ProjectilePhysics* projectile, PedestrianPhysics* ped) const
-{
-    // check ped bounds height
-    // todo: get car height!
-    bool hasContact = ((projectile->mHeight >= ped->mHeight) && 
-        (projectile->mHeight <= (ped->mHeight + 2.0f)));
-
-    if (!hasContact)
-        return false;
-
-    // get collision point
-    b2WorldManifold wmanifold;
-    contact->GetWorldManifold(&wmanifold);
-
-    int pointsCount = contact->GetManifold()->pointCount;
-    if (pointsCount > 0)
-    {
-        glm::vec3 contactPoint( 
-            wmanifold.points[0].x, projectile->mHeight, 
-            wmanifold.points[0].y );
-
-        return projectile->ProcessContactWithObject(contactPoint, ped->mReferencePed);
-    }
-    return false;
+    physicsBody->mPositionY -= Convert::MapUnitsToMeters(1.0f); // put it down
 }

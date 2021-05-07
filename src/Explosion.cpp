@@ -18,20 +18,17 @@ Explosion::Explosion(GameObject* explodingObject, GameObject* causer, eExplosion
 {
 }
 
-void Explosion::PreDrawFrame()
-{
-}
-
 void Explosion::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mAnimationState.UpdateFrame(deltaTime))
     {
         gSpriteManager.GetExplosionTexture(mAnimationState.GetSpriteIndex(), mDrawSprite);
+        RefreshDrawSprite();
 
         if (mAnimationState.mFrameCursor == 6) // todo: magic numbers
         {
-            glm::vec3 currentPosition = GetPosition();
+            glm::vec3 currentPosition = mTransform.mPosition;
             // create smoke effect
             Decoration* bigSmoke = gGameObjectsManager.CreateBigSmoke(currentPosition);
             debug_assert(bigSmoke);
@@ -59,26 +56,13 @@ void Explosion::UpdateFrame()
 void Explosion::DebugDraw(DebugRenderer& debugRender)
 {
     float damageRadius = gGameParams.mExplosionRadius;
-    debugRender.DrawSphere(mSpawnPosition, damageRadius, Color32_Red, false);
+    debugRender.DrawSphere(mTransform.mPosition, damageRadius, Color32_Red, false);
 }
 
-glm::vec3 Explosion::GetPosition() const
-{
-    return mSpawnPosition;
-}
-
-glm::vec2 Explosion::GetPosition2() const
-{
-    return { mSpawnPosition.x, mSpawnPosition.z };
-}
-
-void Explosion::OnGameObjectSpawn()
+void Explosion::HandleSpawn()
 {
     mUpdatesCounter = 0;
 
-    mDrawSprite.mPosition.x = mSpawnPosition.x;
-    mDrawSprite.mPosition.y = mSpawnPosition.z;
-    mDrawSprite.mHeight = mSpawnPosition.y;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;
 
     mAnimationState.Clear();
@@ -92,12 +76,12 @@ void Explosion::OnGameObjectSpawn()
     {
         debug_assert(false);
     }
-
+    RefreshDrawSprite();
     // broadcast event
-    glm::vec2 position2 (mSpawnPosition.x, mSpawnPosition.z);
+    glm::vec2 position2 (mTransform.mPosition.x, mTransform.mPosition.z);
     gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
 
-    StartGameObjectSound(0, eSfxType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch);
+    StartGameObjectSound(0, eSfxSampleType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch);
 }
 
 void Explosion::DamagePedsNearby(bool enableInstantKill)
@@ -106,28 +90,36 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
     float killlHitDistance2 = killHitDistance * killHitDistance;
     float burnDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
 
-    glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
+    glm::vec2 centerPoint (mTransform.mPosition.x, mTransform.mPosition.z);
     glm::vec2 extents ( 
         gGameParams.mExplosionRadius, 
         gGameParams.mExplosionRadius );
 
     PhysicsQueryResult queryResult;
-    gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
+    gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult, CollisionGroup_Pedestrian);
 
     for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)
     {
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
-        Pedestrian* currPedestrian = nullptr;
-        if (PedestrianPhysics* physicsComponent = currElement.mPedComponent)
+        if (currElement.mPhysicsObject == nullptr)
         {
-            currPedestrian = physicsComponent->mReferencePed;
+            debug_assert(false);
+            continue;
         }
 
+        GameObject* gameObject = currElement.mPhysicsObject->mGameObject;
+        if ((gameObject == nullptr) || !gameObject->IsPedestrianClass())
+        {
+            debug_assert(false);
+            continue;
+        }
+
+        Pedestrian* currPedestrian = (Pedestrian*) gameObject;
         if (currPedestrian == nullptr)
             continue;
 
-        glm::vec2 pedestrianPosition = currPedestrian->GetPosition2();
+        glm::vec2 pedestrianPosition = currPedestrian->mTransform.GetPosition2();
         float distanceToExplosionCenter2 = glm::distance2(centerPoint, pedestrianPosition);
 
         if (enableInstantKill)
@@ -169,28 +161,36 @@ void Explosion::DamageCarsNearby()
 {
     float explodeDistance2 = gGameParams.mExplosionRadius * gGameParams.mExplosionRadius;
 
-    glm::vec2 centerPoint (mSpawnPosition.x, mSpawnPosition.z);
+    glm::vec2 centerPoint (mTransform.mPosition.x, mTransform.mPosition.z);
     glm::vec2 extents ( 
         gGameParams.mExplosionRadius, 
         gGameParams.mExplosionRadius );
 
     PhysicsQueryResult queryResult;
-    gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult);
+    gPhysics.QueryObjectsWithinBox(centerPoint, extents, queryResult, CollisionGroup_Car);
 
     for (int icurr = 0; icurr < queryResult.mElementsCount; ++icurr)
     {
         PhysicsQueryElement& currElement = queryResult.mElements[icurr];
 
-        Vehicle* currentCar = nullptr;
-        if (CarPhysics* physicsComponent = currElement.mCarComponent)
+        if (currElement.mPhysicsObject == nullptr)
         {
-            currentCar = physicsComponent->mReferenceCar;
+            debug_assert(false);
+            continue;
         }
 
-        if ((currentCar == nullptr) || (currentCar == mExplodingObject))
+        GameObject* gameObject = currElement.mPhysicsObject->mGameObject;
+        if ((gameObject == nullptr) || !gameObject->IsVehicleClass())
+        {
+            debug_assert(false);
+            continue;
+        }
+
+        Vehicle* currentCar = (Vehicle*) gameObject;
+        if (currentCar == mExplodingObject)
             continue;
 
-        glm::vec2 carPosition = currentCar->GetPosition2();
+        glm::vec2 carPosition = currentCar->mTransform.GetPosition2();
         float distanceToExplosionCenter2 = glm::distance2(centerPoint, carPosition);
         if (distanceToExplosionCenter2 < explodeDistance2)
         {

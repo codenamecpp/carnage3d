@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "PedestrianInfo.h"
 
-void PedestrianInfo::AddFears(ePedestrianFearFlags fearFlags)
+void PedestrianInfo::AddFears(PedestrianFearFlags fearFlags)
 {
     mFearFlags = mFearFlags | fearFlags;
 }
 
-void PedestrianInfo::RemoveFears(ePedestrianFearFlags fearFlags)
+void PedestrianInfo::RemoveFears(PedestrianFearFlags fearFlags)
 {
     mFearFlags = (mFearFlags & ~fearFlags);
 }
@@ -41,31 +41,31 @@ bool PedestrianInfo::SetupFromConfg(cxx::json_document_node configNode)
 
             if (fearName == "players")
             {
-                AddFears(ePedestrianFearFlags_Players);
+                AddFears(PedestrianFearFlags_Players);
                 continue;
             }
 
             if (fearName == "police")
             {
-                AddFears(ePedestrianFearFlags_Police);
+                AddFears(PedestrianFearFlags_Police);
                 continue;
             }
 
             if (fearName == "gunShots")
             {
-                AddFears(ePedestrianFearFlags_GunShots);
+                AddFears(PedestrianFearFlags_GunShots);
                 continue;
             }
 
             if (fearName == "explosions")
             {
-                AddFears(ePedestrianFearFlags_Explosions);
+                AddFears(PedestrianFearFlags_Explosions);
                 continue;
             }
 
             if (fearName == "deadPeds")
             {
-                AddFears(ePedestrianFearFlags_DeadPeds);
+                AddFears(PedestrianFearFlags_DeadPeds);
                 continue;
             }
 
@@ -80,7 +80,7 @@ bool PedestrianInfo::SetupFromConfg(cxx::json_document_node configNode)
 void PedestrianInfo::Clear()
 {
     mTypeID = ePedestrianType_Civilian;
-    mFearFlags = ePedestrianFearFlags_None;
+    mFearFlags = PedestrianFearFlags_None;
     mRemapIndex = NO_REMAP;
     mRemapType = ePedestrianRemapType_Index;
 }

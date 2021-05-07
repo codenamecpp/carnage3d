@@ -16,7 +16,7 @@ inline bool ParseMapUnits(cxx::json_document_node node, const std::string& attri
 }
 
 // read gameobject flags
-inline bool ParseObjectFlags(cxx::json_document_node node, const std::string& attribute, eGameObjectFlags& flags)
+inline bool ParseObjectFlags(cxx::json_document_node node, const std::string& attribute, GameObjectFlags& flags)
 {
     if (cxx::json_node_array flagsNode = node[attribute])
     {
@@ -26,13 +26,13 @@ inline bool ParseObjectFlags(cxx::json_document_node node, const std::string& at
             std::string flag_string = currFlag.get_value();
             if (flag_string == "invisible")
             {
-                flags = (flags | eGameObjectFlags_Invisible);
+                flags = (flags | GameObjectFlags_Invisible);
                 continue;
             }
 
             if (flag_string == "carobject")
             {
-                flags = (flags | eGameObjectFlags_CarPart);
+                flags = (flags | GameObjectFlags_CarPart);
                 continue;
             }
 

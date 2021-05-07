@@ -36,6 +36,16 @@ namespace cxx
 {
     // stl containers helpers
 
+    template<typename TContainer, typename TElement, typename TFunc>
+    inline TElement get_element_if(TContainer& container, const TElement& defaultElement, TFunc&& func)
+    {
+        auto found_iter = std::find_if(container.begin(), container.end(), func);
+        if (found_iter == container.end())
+            return defaultElement;
+
+        return *found_iter;
+    }
+
     template<typename TContainer, typename TElement>
     inline void erase_elements(TContainer& container, const TElement& element)
     {

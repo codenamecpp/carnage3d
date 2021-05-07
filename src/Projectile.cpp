@@ -15,25 +15,23 @@ Projectile::Projectile(WeaponInfo* weaponInfo, Pedestrian* shooter)
 {
 }
 
-Projectile::~Projectile()
+void Projectile::HandleSpawn()
 {
-    if (mPhysicsBody)
-    {
-        gPhysics.DestroyPhysicsObject(mPhysicsBody);
-    }
-}
+    debug_assert(mWeaponInfo);
 
-void Projectile::OnGameObjectSpawn()
-{
-    if (mPhysicsBody == nullptr)
-    {
-        mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
-        debug_assert(mPhysicsBody);
-    }
-    else
-    {   
-        mPhysicsBody->SetPosition(mSpawnPosition, mSpawnHeading);
-    }
+    mStartPosition = mTransform.mPosition;
+
+    PhysicsBody* projectilePhysics = gPhysics.CreateBody(this, PhysicsBodyFlags_Bullet | PhysicsBodyFlags_FixRotation | PhysicsBodyFlags_NoGravity);
+    debug_assert(projectilePhysics);
+
+    CollisionShape shapeData;
+    shapeData.SetAsCircle(mWeaponInfo ? mWeaponInfo->mProjectileSize : 0.1f);
+    PhysicsMaterial shapeMaterial;
+    Collider* collisionShape = projectilePhysics->AddCollider(0, shapeData, shapeMaterial, CollisionGroup_Projectile, 
+        CollisionGroup_Pedestrian | CollisionGroup_Car | CollisionGroup_Obstacle | CollisionGroup_MapBlock, ColliderFlags_None);
+    debug_assert(collisionShape);
+
+    SetPhysics(projectilePhysics);
 
     // setup animation
     mAnimationState.Clear();
@@ -48,7 +46,6 @@ void Projectile::OnGameObjectSpawn()
             GameObjectInfo& objectInfo = cityStyle.mObjects[objectindex];
             debug_assert(objectInfo.mClassID == eGameObjectClass_Projectile);
             
-            mAnimationState.Clear();
             mAnimationState.mAnimDesc = objectInfo.mAnimationData;
 
             eSpriteAnimLoop loopType = eSpriteAnimLoop_FromStart;
@@ -57,58 +54,134 @@ void Projectile::OnGameObjectSpawn()
                 loopType = eSpriteAnimLoop_None;
             }
             mAnimationState.PlayAnimation(loopType, eSpriteAnimMode_Normal, 24.0f); // todo: move to config
+            SetupAnimFrameSprite();
         }
     }
-
-    // setup sprite rotation and scale
-    cxx::angle_t rotationAngle = mSpawnHeading + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    mDrawSprite.mRotateAngle = rotationAngle;
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Projectiles;
+    ClearCurrentHit();
+}
+
+void Projectile::SimulationStep()
+{
+    debug_assert(mPhysicsBody);
+
+    if (mHitObject)
+    {
+        mPhysicsBody->ClearForces(); // stop
+        return;
+    }
+
+    if (mWeaponInfo == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
+
+    // setup physics
+    glm::vec2 velocity = mTransform.GetDirectionVector();
+    mPhysicsBody->SetLinearVelocity(velocity * mWeaponInfo->mProjectileSpeed);
+
+    glm::vec2 currPosition = mTransform.GetPosition2();
+    glm::vec2 startPosition(mStartPosition.x, mStartPosition.z);
+
+    if (glm::distance(startPosition, currPosition) >= mWeaponInfo->mBaseHitRange)
+    {
+        MarkForDeletion();
+    }
+
+    // inspect current contacts
+    for (const Contact& currContact: mObjectsContacts)
+    {
+        if (!currContact.HasContactPoints())
+            continue;
+
+        if (currContact.mThatObject->IsPedestrianClass())
+        {
+            Pedestrian* otherPedestrian = (Pedestrian*) currContact.mThatObject;
+            if (mShooter && (mShooter == otherPedestrian)) // ignore shooter ped
+                continue;
+
+            if (otherPedestrian->IsDead() || otherPedestrian->IsAttachedToObject())
+                continue;
+
+            if (mWeaponInfo->IsFireDamage() && otherPedestrian->IsBurn())
+                continue;
+        }
+
+        if (currContact.mThatObject->IsVehicleClass())
+        {
+            Vehicle* otherCar = (Vehicle*) currContact.mThatObject;
+            if (mWeaponInfo->IsFireDamage() && otherCar->IsWrecked())
+                continue;
+        }
+
+        mHitSomething = true;
+        mHitObject = currContact.mThatObject;
+        mHitPoint = currContact.mContactPoints[0]; // get first contact point
+        break;
+    }
+}
+
+bool Projectile::ShouldCollide(GameObject* otherObject) const
+{
+    // disable collision resolving
+    return false;
+}
+
+void Projectile::HandleCollisionWithMap(const MapCollision& collision)
+{
+    if (!collision.HasContactPoints())
+    {
+        debug_assert(false);
+        return;
+    }
+
+    mHitSomething = true;
+    mHitPoint = collision.mContactPoints[0]; // get first contact point
 }
 
 void Projectile::UpdateFrame()
 {
-    float deltaTime = gTimeManager.mGameFrameDelta;
-    mAnimationState.UpdateFrame(deltaTime);
-
-    if (!mPhysicsBody->mContactDetected)
-        return;
-
     if (mWeaponInfo == nullptr)
     {
         MarkForDeletion();
         return;
     }
 
-    if (mPhysicsBody->mContactObject)
+    float deltaTime = gTimeManager.mGameFrameDelta;
+    if (mAnimationState.UpdateFrame(deltaTime))
+    {
+        SetupAnimFrameSprite();
+    }
+
+    if (!mHitSomething)
+        return;
+
+    if (mHitObject)
     {
         DamageInfo damageInfo;
         damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
-        if (!mPhysicsBody->mContactObject->ReceiveDamage(damageInfo))
-        {
-            if (mWeaponInfo->IsFireDamage() || mPhysicsBody->mContactObject->IsPedestrianClass()) // todo: fix!
-            {
-                mPhysicsBody->ClearCurrentContact();
-                return; // ignore contact
-            }
-        }
+
+        mHitObject->ReceiveDamage(damageInfo);
     }
+
+    glm::vec3 hitPosition(mHitPoint.mPosition.x, mHitPoint.mPositionY, mHitPoint.mPosition.y);
 
     if (mWeaponInfo->IsExplosionDamage())
     {
-        if (mPhysicsBody->mContactObject == nullptr)
+        if (!mHitObject)
         {
-            mPhysicsBody->mContactPoint.y += Convert::MapUnitsToMeters(1.0f);
+            hitPosition.y += Convert::MapUnitsToMeters(1.0f);
         }
 
-        Explosion* explosion = gGameObjectsManager.CreateExplosion(mPhysicsBody->mContactObject, mShooter, eExplosionType_Rocket, mPhysicsBody->mContactPoint);
+        Explosion* explosion = gGameObjectsManager.CreateExplosion(mHitObject, mShooter, eExplosionType_Rocket, hitPosition);
         debug_assert(explosion);
     }
 
     if (mWeaponInfo->mProjectileHitEffect > GameObjectType_Null)
     {
         GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[mWeaponInfo->mProjectileHitEffect];
-        Decoration* hitEffect = gGameObjectsManager.CreateDecoration(mPhysicsBody->mContactPoint, cxx::angle_t(), &objectInfo);
+        Decoration* hitEffect = gGameObjectsManager.CreateDecoration(hitPosition, cxx::angle_t(), &objectInfo);
         debug_assert(hitEffect);
 
         if (hitEffect)
@@ -120,20 +193,9 @@ void Projectile::UpdateFrame()
 
     if (mWeaponInfo->mProjectileHitObjectSound != -1)
     {
-        StartGameObjectSound(0, eSfxType_Level, mWeaponInfo->mProjectileHitObjectSound, SfxFlags_RandomPitch);
+        StartGameObjectSound(0, eSfxSampleType_Level, mWeaponInfo->mProjectileHitObjectSound, SfxFlags_RandomPitch);
     }
-
     MarkForDeletion();
-}
-
-void Projectile::PreDrawFrame()
-{
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
-
-    glm::vec3 position = mPhysicsBody->mSmoothPosition;
-    ComputeDrawHeight(position);
-
-    mDrawSprite.mPosition = glm::vec2(position.x, position.z);
 }
 
 void Projectile::DebugDraw(DebugRenderer& debugRender)
@@ -145,30 +207,18 @@ void Projectile::DebugDraw(DebugRenderer& debugRender)
     }
 }
 
-void Projectile::ComputeDrawHeight(const glm::vec3& position)
+void Projectile::SetupAnimFrameSprite()
 {
-    float maxHeight = position.y;
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
 
-    glm::vec2 corners[4];
-    mDrawSprite.GetCorners(corners);
-    for (glm::vec2& currCorner: corners)
-    {
-        float height = gGameMap.GetHeightAtPosition(glm::vec3(currCorner.x, position.y, currCorner.y));
-        if (height > maxHeight)
-        {
-            maxHeight = height;
-        }
-    }
+    // mirror vertically
+    std::swap(mDrawSprite.mTextureRegion.mV1, mDrawSprite.mTextureRegion.mV0);
 
-    mDrawSprite.mHeight = maxHeight;
+    RefreshDrawSprite();
 }
 
-glm::vec3 Projectile::GetPosition() const
+void Projectile::ClearCurrentHit()
 {
-    return mPhysicsBody->GetPosition();
-}
-
-glm::vec2 Projectile::GetPosition2() const
-{
-    return mPhysicsBody->GetPosition2();
+    mHitObject.reset();
+    mHitSomething = false;
 }

@@ -1,39 +1,52 @@
 #pragma once
 
-namespace box2d
+#include "GameObject.h"
+#include "PhysicsBody.h"
+#include "Collider.h"
+
+// b2Vec <- -> glm::vec2 conversion
+
+//////////////////////////////////////////////////////////////////////////
+
+inline glm::vec2 convert_vec2(const b2Vec2& vector_value)
 {
-    // simple wrapper for seamlessly cast between math libraries
-    struct vec2: public b2Vec2
+    return { vector_value.x, vector_value.y };
+}
+
+inline b2Vec2 convert_vec2(const glm::vec2& vector_value)
+{
+    return { vector_value.x, vector_value.y };
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+inline Collider* b2Fixture_get_collider(b2Fixture* fixture)
+{
+    debug_assert(fixture);
+    Collider* collisionShape = (Collider*) fixture->GetUserData();
+
+    return collisionShape;
+}
+
+inline PhysicsBody* b2Fixture_get_physics_body(b2Fixture* fixture)
+{
+    debug_assert(fixture);
+
+    PhysicsBody* physicsBoxy = (PhysicsBody*) fixture->GetBody()->GetUserData();
+    return physicsBoxy;
+}
+
+inline GameObject* b2Fixture_get_game_object(b2Fixture* fixture)
+{
+    debug_assert(fixture);
+
+    PhysicsBody* physicsBoxy = (PhysicsBody*) fixture->GetBody()->GetUserData();
+    GameObject* gameObject = nullptr;
+    if (physicsBoxy)
     {
-    public:
-        vec2() = default;
-        vec2(float xIn, float yIn): b2Vec2(xIn, yIn) 
-        {
-        }
-        template<typename TVec2>
-        vec2(const TVec2& in_vec2): b2Vec2(in_vec2.x, in_vec2.y) 
-        { 
-        }
-        template<typename TVec2>
-        inline vec2& operator = (const TVec2& in_vec2)
-        {
-            x = in_vec2.x;
-            y = in_vec2.y;
-            return *this;
-        }
-        inline operator glm::vec2 () const
-        {
-            return {x, y};
-        }
-        inline vec2 operator * (float scalar) const
-        {
-            return {x * scalar, y * scalar};
-        }
-    };
+        gameObject = physicsBoxy->mGameObject;
+    }
+    return gameObject;
+}
 
-    // vectors
-    static const vec2 NullVector { 0.0f, 0.0f };
-    static const vec2 ForwardVector (1.0f, 0.0f);
-    static const vec2 LateralVector (0.0f, 1.0f);
-
-} // namespace box2d
+//////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,7 @@
 #include "GameObjectsManager.h"
 #include "PhysicsManager.h"
 #include "AudioManager.h"
+#include "GameObjectHelpers.h"
 
 void Weapon::Setup(eWeaponID weaponID, int ammunition)
 {
@@ -34,26 +35,31 @@ bool Weapon::Fire(Pedestrian* shooter)
         return false;
 
     debug_assert(shooter);
-    glm::vec3 currPosition = shooter->mPhysicsBody->GetPosition();
+    glm::vec3 currPosition = shooter->mTransform.mPosition;
 
     WeaponInfo* weaponInfo = GetWeaponInfo();
     if (weaponInfo->IsMelee())
     {
         glm::vec2 posA { currPosition.x, currPosition.z };
-        glm::vec2 posB = posA + (shooter->mPhysicsBody->GetSignVector() * weaponInfo->mBaseHitRange);
+        glm::vec2 posB = posA + (shooter->mTransform.GetDirectionVector() * weaponInfo->mBaseHitRange);
         // find candidates
-        PhysicsLinecastResult linecastResult;
-        gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
-        for (int icurr = 0; icurr < linecastResult.mHitsCount; ++icurr)
+        PhysicsQueryResult queryResults;
+        gPhysics.QueryObjectsLinecast(posA, posB, queryResults, CollisionGroup_Pedestrian);
+        for (int icurr = 0; icurr < queryResults.mElementsCount; ++icurr)
         {
-            PedestrianPhysics* pedBody = linecastResult.mHits[icurr].mPedComponent;
-            if (pedBody == nullptr || pedBody->mReferencePed == shooter) // ignore self
-                continue; 
+            GameObject* currGameObject = queryResults.mElements[icurr].mPhysicsObject->mGameObject;
+            debug_assert(currGameObject);
+
+            Pedestrian* otherPedestrian = ToPedestrian(currGameObject);
+            debug_assert(otherPedestrian);
+
+            if (otherPedestrian == shooter) // ignore self
+                continue;
 
             // todo: check distance in y direction
             DamageInfo damageInfo;
             damageInfo.SetDamageFromWeapon(*weaponInfo, shooter);         
-            pedBody->mReferencePed->ReceiveDamage(damageInfo);
+            otherPedestrian->ReceiveDamage(damageInfo);
         }
     }
     else if (weaponInfo->IsRange())
@@ -62,25 +68,25 @@ bool Weapon::Fire(Pedestrian* shooter)
         glm::vec2 offset;
         if (weaponInfo->GetProjectileOffsetForAnimation(shooter->GetCurrentAnimationID(), offset))
         {
-            offset = shooter->mPhysicsBody->GetWorldPoint(offset);
+            offset = shooter->mTransform.GetPoint2(offset, eTransformSpace_World);
             projectilePos.x = offset.x;
             projectilePos.z = offset.y;
         }
         else
         {
             float defaultOffsetLength = gGameParams.mPedestrianBoundsSphereRadius + weaponInfo->mProjectileSize;
-            offset = shooter->mPhysicsBody->GetSignVector() * defaultOffsetLength;
+            offset = shooter->mTransform.GetDirectionVector() * defaultOffsetLength;
             projectilePos.x += offset.x; 
             projectilePos.z += offset.y;
         }
 
         debug_assert(weaponInfo->mProjectileTypeID < eProjectileType_COUNT);
-        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, shooter->mPhysicsBody->GetRotationAngle(), weaponInfo, shooter);
+        Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePos, shooter->mTransform.mOrientation, weaponInfo, shooter);
         debug_assert(projectile);
 
         if (weaponInfo->mShotSound != -1)
         {
-            shooter->StartGameObjectSound(ePedSfxChannelIndex_Weapon, eSfxType_Level, weaponInfo->mShotSound, SfxFlags_RandomPitch);
+            shooter->StartGameObjectSound(ePedSfxChannelIndex_Weapon, eSfxSampleType_Level, weaponInfo->mShotSound, SfxFlags_RandomPitch);
         }
 
         // broardcast event

@@ -10,8 +10,7 @@
 #include "PedestrianInfo.h"
 
 // defines generic city pedestrian
-class Pedestrian final: public GameObject
-    , public SpriteAnimListener
+class Pedestrian final: public GameObject, public SpriteAnimListener
 {
     friend class GameObjectsManager;
     friend class PedestrianPhysics;
@@ -23,11 +22,8 @@ public:
     ePedestrianType mPedestrianTypeID = ePedestrianType_Civilian;
 
     CharacterController* mController; // controls pedestrian actions
-    PedestrianPhysics* mPhysicsBody;
-
     PedestrianCtlState mCtlState;
 
-    float mDrawHeight;
     int mRemapIndex;
     
     ePedestrianDeathReason mDeathReason = ePedestrianDeathReason_null; // has meaning only in 'dead state'
@@ -37,7 +33,7 @@ public:
     eCarSeat mCurrentSeat;
 
     // properties
-    ePedestrianFearFlags mFearFlags = ePedestrianFearFlags_None;
+    PedestrianFearFlags mFearFlags = PedestrianFearFlags_None;
 
     // inventory
     eWeaponID mCurrentWeapon = eWeapon_Fists;
@@ -54,17 +50,15 @@ public:
 
     // override GameObject
     void UpdateFrame() override;
-    void PreDrawFrame() override;
+    void SimulationStep() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void OnGameObjectSpawn() override;
-
-    // Process damage, it may be ignored depending on type of damage and objects current state
-    // @param damageInfo: Damage details
+    void HandleSpawn() override;
+    void HandleDespawn() override;
+    bool ShouldCollide(GameObject* otherObject) const override;
+    void HandleFallingStarts() override;
+    void HandleFallsOnGround(float fallDistance) override;
+    void HandleFallsOnWater(float fallDistance) override;
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
-
-    // Current world position
-    glm::vec3 GetPosition() const override;
-    glm::vec2 GetPosition2() const override;
 
     // set next weapon type
     void ChangeWeapon(eWeaponID weapon);
@@ -78,6 +72,9 @@ public:
 
     // Instant kill, pedestrian will remain in dead state until respawn
     void DieFromDamage(eDamageCause damageCause);
+
+    // Process push by other pedestrian
+    void PushByPedestrian(Pedestrian* otherPedestrian);
 
     // Gracefully enter or exit car
     // @param targetCar: Cannot be null
@@ -115,23 +112,23 @@ public:
     // Whether pedestrian has specific fears
     bool HasFear_Players() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Players) > 0;
+        return (mFearFlags & PedestrianFearFlags_Players) > 0;
     }
     bool HasFear_Police() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Police) > 0;
+        return (mFearFlags & PedestrianFearFlags_Police) > 0;
     }
     bool HasFear_GunShots() const
     {
-        return (mFearFlags & ePedestrianFearFlags_GunShots) > 0;
+        return (mFearFlags & PedestrianFearFlags_GunShots) > 0;
     }
     bool HasFear_Explosions() const
     {
-        return (mFearFlags & ePedestrianFearFlags_Explosions) > 0;
+        return (mFearFlags & PedestrianFearFlags_Explosions) > 0;
     }
     bool HasFear_DeadPeds() const
     {
-        return (mFearFlags & ePedestrianFearFlags_DeadPeds) > 0;
+        return (mFearFlags & PedestrianFearFlags_DeadPeds) > 0;
     }
 
     ePedestrianAnimID GetCurrentAnimationID() const;
@@ -140,19 +137,20 @@ private:
     // override SpriteAnimListener
     bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID) override;
 
+    bool CanRun() const;
+
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);
-    void ComputeDrawHeight(const glm::vec3& position);
-
     void SetDead(ePedestrianDeathReason deathReason);
-
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();
-
     void SetBurnEffectActive(bool isActive);
+    void SetupAnimFrameSprite();
+
     void UpdateBurnEffect();
     void UpdateDamageFromRailways();
+    void UpdateDrawOrder();
 
-    void SetDrawOrder(eSpriteDrawOrder drawOrder);
+    void UpdateLocomotion();
 
     // Detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;
@@ -165,6 +163,9 @@ private:
     float mCurrentStateTime = 0.0f; // time since current state has started
     float mBurnStartTime = 0.0f;
     float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
+
+    bool mContactingOtherPeds = false;
+    bool mContactingCars = false;
 
     // active effects
     Decoration* mFireEffect = nullptr;

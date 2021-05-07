@@ -3,40 +3,58 @@
 #include "GameDefs.h"
 #include "DamageInfo.h"
 #include "SfxDefs.h"
+#include "Transform.h"
+#include "PhysicsDefs.h"
+#include "Collision.h"
 
 // defines base class of game entity
 class GameObject: public cxx::handled_object
 {
     friend class GameObjectsManager;
     friend class MapRenderer;
+    friend class PhysicsManager;
 
 public:
-    const GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
-    const eGameObjectClass mClassID;
-
     // readonly
-    eGameObjectFlags mFlags = eGameObjectFlags_None;
+    GameObjectID mObjectID; // its unique for all game objects except projectiles or effects, see GAMEOBJECT_ID_NULL
+    GameObjectFlags mObjectFlags = GameObjectFlags_None;
+    eGameObjectClass mClassID;
 
-    SfxEmitter* mSfxEmitter = nullptr;
+    // world space transform
+    Transform mPreviousTransform; // prev frame transform, world space
+    Transform mTransform; // current transform, world space
+    Transform mTransformSmooth; // interpolated transform between prev and current frames for rendering, world space
+    Transform mTransformLocal; // relative to parent transform, valid only if attached object
 
-    // initial position and heading
-    glm::vec3 mSpawnPosition;
-    cxx::angle_t mSpawnHeading;
+    PhysicsBody* mPhysicsBody = nullptr; // note that not all game objects has physics body
 
 public:
+    GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
     virtual ~GameObject();
 
     // Setup initial state when spawned or respawned on level
-    void Spawn(const glm::vec3& spawnPosition, cxx::angle_t spawnHeading);
+    virtual void HandleSpawn();
 
-    // Setup initial state when spawned or respawned on level
-    virtual void OnGameObjectSpawn();
-
-    // Update drawing sprite
-    virtual void PreDrawFrame();
+    // Cleanup all game object related resources - physics, logic, audio etc
+    virtual void HandleDespawn();
 
     // Process logic
     virtual void UpdateFrame();
+
+    // Process physics simulation
+    virtual void SimulationStep();
+
+    // Whether collision is possible between two contacting game objects
+    virtual bool ShouldCollide(GameObject* otherObject) const;
+
+    // Handle collision contact between game objects - after it was resolved
+    virtual void HandleCollision(const Collision& collision);
+    virtual void HandleCollisionWithMap(const MapCollision& collision);
+
+    // Handle additional physics events
+    virtual void HandleFallingStarts();
+    virtual void HandleFallsOnGround(float fallDistance);
+    virtual void HandleFallsOnWater(float fallDistance);
 
     // Draw debug info
     virtual void DebugDraw(DebugRenderer& debugRender);
@@ -46,11 +64,18 @@ public:
     // @returns false if damage is ignored
     virtual bool ReceiveDamage(const DamageInfo& damageInfo);
 
-    // Get current position within game world, meters
-    virtual glm::vec3 GetPosition() const;
-    virtual glm::vec2 GetPosition2() const;
+    // Set object's position and orientation within game world
+    // @param transformSpace: Has meaning only for attached objects, otherwise 'world' and 'parent' are the same
+    // @param newPosition, newOrientation: Position and rotation angle
+    void SetTransform(const glm::vec3& newPosition, cxx::angle_t newOrientation, eTransformSpace transformSpace = eTransformSpace_Local);
 
-    // schedule object to delete from game
+    void SetPosition(const glm::vec3& newPosition, eTransformSpace transformSpace = eTransformSpace_Local);
+    void SetPosition2(const glm::vec2& newPosition, eTransformSpace transformSpace = eTransformSpace_Local);
+
+    void SetOrientation(cxx::angle_t newOrientation, eTransformSpace transformSpace = eTransformSpace_Local);
+    void SetOrientation(const glm::vec2& directionVector);
+
+    // Schedule object to delete from game
     void MarkForDeletion();
     bool IsMarkedForDeletion() const;
 
@@ -58,13 +83,14 @@ public:
     // @param screenBounds: Visible area
     bool IsOnScreen(const cxx::aabbox2d_t& screenBounds) const;
 
-    // Attach or detach object to other object
-    void SetAttachedToObject(GameObject* parentObject);
-    void SetDetached();
+    // Attach or detach object
+    void AttachObject(GameObject* gameObject);
+    void DetachObject(GameObject* gameObject);
 
     // Inspect hierarchy
     bool IsAttachedToObject() const;
-    bool IsAttachedToObject(GameObject* parentObject) const;
+    bool IsAttachedToObject(GameObject* gameObject) const;
+    bool IsSameHierarchy(GameObject* gameObject);
     bool HasAttachedObjects();
 
     // Inspect hierarchy
@@ -73,8 +99,9 @@ public:
 
     // Audio shortcuts
     bool StartGameObjectSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags);
-    bool StartGameObjectSound(int ichannel, eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags);
-
+    bool StartGameObjectSound(int ichannel, eSfxSampleType sampleType, SfxSampleIndex sampleIndex, SfxFlags sfxFlags);
+    void StopGameObjectSounds();
+    
     // Class shortcuts
     inline bool IsPedestrianClass() const { return mClassID == eGameObjectClass_Pedestrian; }
     inline bool IsProjectileClass() const { return mClassID == eGameObjectClass_Projectile; }
@@ -85,22 +112,36 @@ public:
     inline bool IsExplosionClass() const { return mClassID == eGameObjectClass_Explosion; }
 
     // Flag shortcuts
-    inline bool IsInvisibleFlag() const { return (mFlags & eGameObjectFlags_Invisible) != 0; }
-    inline bool IsCarPartFlag() const { return (mFlags & eGameObjectFlags_CarPart) != 0; }
-    inline bool IsTrafficFlag() const { return (mFlags & eGameObjectFlags_Traffic) != 0; }
-    inline bool IsMissionFlag() const { return (mFlags & eGameObjectFlags_Mission) != 0; }
-    inline bool IsStartupFlag() const { return (mFlags & eGameObjectFlags_Startup) != 0; }
+    inline bool IsInvisibleFlag() const { return (mObjectFlags & GameObjectFlags_Invisible) > 0; }
+    inline bool IsCarPartFlag() const { return (mObjectFlags & GameObjectFlags_CarPart) > 0; }
+    inline bool IsTrafficFlag() const { return (mObjectFlags & GameObjectFlags_Traffic) > 0; }
+    inline bool IsMissionFlag() const { return (mObjectFlags & GameObjectFlags_Mission) > 0; }
+    inline bool IsStartupFlag() const { return (mObjectFlags & GameObjectFlags_Startup) > 0; }
 
 protected:
-    GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID);
+    void InitSounds();
+    void FreeSounds();
 
-    void RefreshDrawBounds();
+    void SetPhysics(PhysicsBody* physicsBody);
+    void SetParentObject(GameObject* gameObject);
+    void RefreshDrawSprite();
+
+    void OnParentTransformChanged();
+    void OnTransformChanged();
+
+    void SyncPhysicsTransform();
+    void ClearContacts();
+    void RegisterContact(const Contact& contactInfo);
+    void UnregisterContactsWithObject(GameObject* otherObject);
+
+    void InterpolateTransform(float factor);
 
 protected:
-    // todo: add attachment point and angle
-
+    SfxEmitter* mSfxEmitter = nullptr;
     GameObject* mParentObject = nullptr;
+
     std::vector<GameObject*> mAttachedObjects;
+    std::vector<Contact> mObjectsContacts; // lsit of contacting colliders (non triggers) on last simulation frame
 
     // drawing spricific data
     Sprite2D mDrawSprite;

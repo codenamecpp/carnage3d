@@ -39,7 +39,7 @@ void Sprite2D::GetCorners(glm::vec2 positions[4]) const
     positions[3].y = positions[2].y;
 
     mRotateAngle.to_degrees_normalize_360();
-    if (mRotateAngle.non_zero()) // has rotation
+    if (mRotateAngle) // has rotation
     {
         for (int icorner = 0; icorner < 4; ++icorner)
         {

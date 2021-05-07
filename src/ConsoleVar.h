@@ -12,15 +12,15 @@ enum CvarFlags: unsigned long
     CvarFlags_RequiresAppRestart = BIT(6), // requires application restart to apply
     CvarFlags_Hidden             = BIT(7), // invisible to console, but can be set from the command line
     // cvar value type flags
-    CvarFlags_CvarString         = BIT(8),
-    CvarFlags_CvarInt            = BIT(9),
-    CvarFlags_CvarFloat          = BIT(10),
-    CvarFlags_CvarBool           = BIT(11), 
-    CvarFlags_CvarColor          = BIT(12), // rgba, 4 unsigned bytes
-    CvarFlags_CvarPoint          = BIT(13), // 2 ints
-    CvarFlags_CvarVec3           = BIT(14), // 3 floats
-    CvarFlags_CvarEnum           = BIT(15), // int
-    CvarFlags_CvarVoid           = BIT(16), // cvar contains to data and acts like command
+    CvarFlags_TypeString         = BIT(8),
+    CvarFlags_TypeInt            = BIT(9),
+    CvarFlags_TypeFloat          = BIT(10),
+    CvarFlags_TypeBool           = BIT(11), 
+    CvarFlags_TypeColor          = BIT(12), // rgba, 4 unsigned bytes
+    CvarFlags_TypePoint          = BIT(13), // 2 ints
+    CvarFlags_TypeVec3           = BIT(14), // 3 floats
+    CvarFlags_TypeEnum           = BIT(15), // int
+    CvarFlags_TypeVoid           = BIT(16), // cvar contains to data and acts like command
 };
 decl_enum_as_flags(CvarFlags);
 
@@ -78,15 +78,16 @@ public:
     bool IsHidden()     const { return (mCvarFlags & CvarFlags_Hidden)   > 0; }
     bool IsRequiresMapRestart() const { return (mCvarFlags & CvarFlags_RequiresMapRestart) > 0; }
     bool IsRequiresAppRestart() const { return (mCvarFlags & CvarFlags_RequiresAppRestart) > 0; }
-    bool IsString()     const { return (mCvarFlags & CvarFlags_CvarString) > 0; }
-    bool IsBool()       const { return (mCvarFlags & CvarFlags_CvarBool)   > 0; }
-    bool IsEnum()       const { return (mCvarFlags & CvarFlags_CvarEnum)   > 0; }
-    bool IsInt()        const { return (mCvarFlags & CvarFlags_CvarInt)    > 0; }
-    bool IsFloat()      const { return (mCvarFlags & CvarFlags_CvarFloat)  > 0; }
-    bool IsColor()      const { return (mCvarFlags & CvarFlags_CvarColor)  > 0; }
-    bool IsPoint()      const { return (mCvarFlags & CvarFlags_CvarPoint)  > 0; }
-    bool IsVec3()       const { return (mCvarFlags & CvarFlags_CvarVec3)   > 0; }
-    bool IsVoid()       const { return (mCvarFlags & CvarFlags_CvarVoid)   > 0; }
+    // cvar type shortcuts
+    bool IsString()     const { return (mCvarFlags & CvarFlags_TypeString) > 0; }
+    bool IsBool()       const { return (mCvarFlags & CvarFlags_TypeBool)   > 0; }
+    bool IsEnum()       const { return (mCvarFlags & CvarFlags_TypeEnum)   > 0; }
+    bool IsInt()        const { return (mCvarFlags & CvarFlags_TypeInt)    > 0; }
+    bool IsFloat()      const { return (mCvarFlags & CvarFlags_TypeFloat)  > 0; }
+    bool IsColor()      const { return (mCvarFlags & CvarFlags_TypeColor)  > 0; }
+    bool IsPoint()      const { return (mCvarFlags & CvarFlags_TypePoint)  > 0; }
+    bool IsVec3()       const { return (mCvarFlags & CvarFlags_TypeVec3)   > 0; }
+    bool IsVoid()       const { return (mCvarFlags & CvarFlags_TypeVoid)   > 0; }
 
 protected:
     Cvar(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags);
@@ -274,7 +275,7 @@ public:
 
 public:
     CvarEnum(const std::string& cvarName, TEnum cvarValue, const std::string& description, CvarFlags cvarFlags)
-        : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarEnum)
+        : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeEnum)
         , mValue(cvarValue)
         , mDefaultValue(cvarValue)
     {

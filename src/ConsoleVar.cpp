@@ -177,7 +177,7 @@ void Cvar::PrintInfo()
 //////////////////////////////////////////////////////////////////////////
 
 CvarBoolean::CvarBoolean(const std::string& cvarName, bool cvarValue, const std::string& description, CvarFlags cvarFlags) 
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarBool)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeBool)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
 {
@@ -216,7 +216,7 @@ bool CvarBoolean::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarString::CvarString(const std::string& cvarName, const std::string& cvarValue, const std::string& description, CvarFlags cvarFlags) 
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarString)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeString)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
 {
@@ -245,7 +245,7 @@ bool CvarString::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarInt::CvarInt(const std::string& cvarName, int cvarValue, int cvarMin, int cvarMax, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarInt)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeInt)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
     , mMinValue(cvarMin)
@@ -254,7 +254,7 @@ CvarInt::CvarInt(const std::string& cvarName, int cvarValue, int cvarMin, int cv
 }
 
 CvarInt::CvarInt(const std::string& cvarName, int cvarValue, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarInt)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeInt)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
     , mMinValue(std::numeric_limits<int>::min())
@@ -293,7 +293,7 @@ bool CvarInt::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarFloat::CvarFloat(const std::string& cvarName, float cvarValue, float cvarMin, float cvarMax, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarFloat)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeFloat)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
     , mMinValue(cvarMin)
@@ -302,7 +302,7 @@ CvarFloat::CvarFloat(const std::string& cvarName, float cvarValue, float cvarMin
 }
 
 CvarFloat::CvarFloat(const std::string& cvarName, float cvarValue, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarFloat)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeFloat)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
     , mMinValue(std::numeric_limits<float>::min())
@@ -341,7 +341,7 @@ bool CvarFloat::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarColor::CvarColor(const std::string& cvarName, Color32 cvarValue, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarColor)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeColor)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
 {
@@ -382,7 +382,7 @@ bool CvarColor::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarPoint::CvarPoint(const std::string& cvarName, const Point& cvarValue, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarPoint)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypePoint)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
 {
@@ -419,7 +419,7 @@ bool CvarPoint::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarVec3::CvarVec3(const std::string& cvarName, const glm::vec3& cvarValue, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarVec3)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeVec3)
     , mValue(cvarValue)
     , mDefaultValue(cvarValue)
 {
@@ -455,7 +455,7 @@ bool CvarVec3::DeserializeValue(const std::string& input, bool& valueChanged)
 //////////////////////////////////////////////////////////////////////////
 
 CvarVoid::CvarVoid(const std::string& cvarName, const std::string& description, CvarFlags cvarFlags)
-    : Cvar(cvarName, description, cvarFlags | CvarFlags_CvarVoid)
+    : Cvar(cvarName, description, cvarFlags | CvarFlags_TypeVoid)
 {
 }
 
