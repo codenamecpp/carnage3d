@@ -139,6 +139,7 @@ enum eSpriteDrawOrder: unsigned char
     eSpriteDrawOrder_CarPassenger,
     eSpriteDrawOrder_Car,
     eSpriteDrawOrder_ConvetibleCarPassenger,
+    eSpriteDrawOrder_CarRoof,
     eSpriteDrawOrder_JumpingPedestrian,
     eSpriteDrawOrder_Trees,
     eSpriteDrawOrder_Projectiles,
@@ -157,6 +158,7 @@ decl_enum_strings(eSpriteDrawOrder);
 enum
 {
     // hud
+    eSpriteID_Arrow_Pointer = 24,
     eSpriteID_Arrow_AreaDisplayLeft = 25,
     eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,

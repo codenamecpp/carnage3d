@@ -799,13 +799,12 @@ void Vehicle::SetBurnEffectActive(bool activate)
     {
         debug_assert(mFireEffect == nullptr);
         GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_Fire1];
-        mFireEffect = gGameObjectsManager.CreateDecoration(
-            mPhysicsBody->GetPosition(), 
-            mPhysicsBody->GetOrientation(), &objectInfo);
+        mFireEffect = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &objectInfo);
         debug_assert(mFireEffect);
         if (mFireEffect)
         {
             mFireEffect->SetLifeDuration(0);
+            mFireEffect->SetDrawOrder(eSpriteDrawOrder_CarRoof);
             AttachObject(mFireEffect);
         }
         mBurnStartTime = gTimeManager.mGameTime;
@@ -969,22 +968,12 @@ float Vehicle::GetCurrentSpeed() const
     return 0.0f;
 }
 
-void Vehicle::SetDrawOrder(eSpriteDrawOrder drawOrder)
-{
-    if (mFireEffect)
-    {
-        mFireEffect->SetDrawOrder(drawOrder);
-    }
-
-    mDrawSprite.mDrawOrder = drawOrder;
-}
 
 void Vehicle::SetupCarSprite()
 {
     int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
     gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
-
-    SetDrawOrder(eSpriteDrawOrder_Car);
+    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
     RefreshDrawSprite();
 }
 

@@ -140,6 +140,21 @@ bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx:
     return true;
 }
 
+bool GameCamera::ProjectPointToScreen(const glm::vec3& point, glm::vec2& resultScreenPoint)
+{
+    const glm::ivec4 viewport { 
+        mViewportRect.x, 
+        mViewportRect.y, 
+        mViewportRect.w, 
+        mViewportRect.h };
+    glm::vec3 screenCoordinate = glm::project(point, mViewMatrix, mProjectionMatrix, viewport);
+    
+    resultScreenPoint.x = (screenCoordinate.x);
+    resultScreenPoint.y = (mViewportRect.h - 1.0f - screenCoordinate.y);
+
+    return true;
+}
+
 void GameCamera::SetTopDownOrientation()
 {
     mFrontDirection = -SceneAxisY;

@@ -128,7 +128,6 @@ private:
     void UpdateDamageFromRailways();
 
     void SetupCarSprite();
-    void SetDrawOrder(eSpriteDrawOrder drawOrder);
 
     SpriteDeltaBits GetSpriteDeltas() const;
 

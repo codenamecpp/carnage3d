@@ -609,6 +609,7 @@ impl_enum_strings(eSpriteDrawOrder)
     {eSpriteDrawOrder_CarPassenger, "carPassenger"},
     {eSpriteDrawOrder_Car, "car"},
     {eSpriteDrawOrder_ConvetibleCarPassenger, "convertibleCarPassenger"},
+    {eSpriteDrawOrder_CarRoof, "carRoof"},
     {eSpriteDrawOrder_JumpingPedestrian, "jumpingPedestrian"},
     {eSpriteDrawOrder_Trees, "trees"},
     {eSpriteDrawOrder_Projectiles, "projectiles"},
