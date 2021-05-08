@@ -19,16 +19,18 @@ public:
     HumanPlayer(Pedestrian* character);
     ~HumanPlayer();
 
+    // override HumanPlayer
+    void UpdateFrame() override;
+    void DeactivateController() override;
+    bool IsHumanPlayer() const override;
+    void OnCharacterStartCarDrive() override;
+
     // Get or set current police attention level
     int GetWantedLevel() const;
     void SetWantedLevel(int wantedLevel);
 
-    // Process controller logic
-    void UpdateFrame() override;
-    void DeactivateConstroller() override;
-    bool IsHumanPlayer() const override;
-
-    void OnCharacterStartCarDrive() override;
+    void SetMouseAiming(bool isEnabled);
+    bool IsMouseAmingEnabled() const;
 
     // process players inputs
     // @param inputEvent: Event data
@@ -54,6 +56,7 @@ private:
     bool GetActionState(eInputAction action) const;
 
     void UpdateDistrictLocation();
+    void UpdateMouseAiming();
 
 private:
     int mLastDistrictIndex = 0; // district index where character was last time
@@ -61,4 +64,5 @@ private:
     
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;
+    bool mMouseAimingEnabled = false;
 };

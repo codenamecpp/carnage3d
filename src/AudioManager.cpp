@@ -191,16 +191,16 @@ void AudioManager::ResumeAllSounds()
     }
 }
 
-SfxSample* AudioManager::GetSound(eSfxType sfxType, SfxIndex sfxIndex)
+SfxSample* AudioManager::GetSound(eSfxSampleType sfxType, SfxSampleIndex sfxIndex)
 {
-    AudioSampleArchive& sampleArchive = (sfxType == eSfxType_Level) ? mLevelSounds : mVoiceSounds;
+    AudioSampleArchive& sampleArchive = (sfxType == eSfxSampleType_Level) ? mLevelSounds : mVoiceSounds;
     if ((int) sfxIndex >= sampleArchive.GetEntriesCount())
     {
         debug_assert(false);
         return nullptr;
     }
 
-    std::vector<SfxSample*>& samples = (sfxType == eSfxType_Level) ? 
+    std::vector<SfxSample*>& samples = (sfxType == eSfxSampleType_Level) ? 
         mLevelSfxSamples : 
         mVoiceSfxSamples;
 
@@ -286,7 +286,7 @@ void AudioManager::UpdateActiveEmitters()
     {
         if (currEmitter->mGameObject) // sync audio params
         {
-            glm::vec3 gameObjectPosition = currEmitter->mGameObject->GetPosition();
+            glm::vec3 gameObjectPosition = currEmitter->mGameObject->mTransform.mPosition;
             currEmitter->UpdateEmitterParams(gameObjectPosition);
         }
 
@@ -307,7 +307,7 @@ void AudioManager::UpdateActiveEmitters()
     }
 }
 
-bool AudioManager::StartSound(eSfxType sfxType, SfxIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition)
+bool AudioManager::StartSound(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, SfxFlags sfxFlags, const glm::vec3& emitterPosition)
 {
     SfxSample* audioSample = GetSound(sfxType, sfxIndex);
     if (audioSample == nullptr)

@@ -120,7 +120,7 @@ void GameCamera::Translate(const glm::vec3& direction)
 bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay)
 {
     // wrap y
-    const int32_t mouseY = mViewportRect.h - screenCoordinate.y;
+    const int32_t mouseY = mViewportRect.h - 1 - screenCoordinate.y;
     const glm::ivec4 viewport { 
         mViewportRect.x, 
         mViewportRect.y, 
@@ -137,6 +137,21 @@ bool GameCamera::CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx:
 
     resultRay.mOrigin = v0;
     resultRay.mDirection = glm::normalize(v1 - v0);
+    return true;
+}
+
+bool GameCamera::ProjectPointToScreen(const glm::vec3& point, glm::vec2& resultScreenPoint)
+{
+    const glm::ivec4 viewport { 
+        mViewportRect.x, 
+        mViewportRect.y, 
+        mViewportRect.w, 
+        mViewportRect.h };
+    glm::vec3 screenCoordinate = glm::project(point, mViewMatrix, mProjectionMatrix, viewport);
+    
+    resultScreenPoint.x = (screenCoordinate.x);
+    resultScreenPoint.y = (mViewportRect.h - 1.0f - screenCoordinate.y);
+
     return true;
 }
 

@@ -14,14 +14,9 @@ public:
     Explosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType);
 
     // override GameObject
-    void PreDrawFrame() override;
     void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
-    void OnGameObjectSpawn() override;
-
-    // Current world position
-    glm::vec3 GetPosition() const override;
-    glm::vec2 GetPosition2() const override;
+    void HandleSpawn() override;
 
 private:
     void DamageObjectInContact();

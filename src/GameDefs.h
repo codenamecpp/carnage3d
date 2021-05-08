@@ -139,6 +139,7 @@ enum eSpriteDrawOrder: unsigned char
     eSpriteDrawOrder_CarPassenger,
     eSpriteDrawOrder_Car,
     eSpriteDrawOrder_ConvetibleCarPassenger,
+    eSpriteDrawOrder_CarRoof,
     eSpriteDrawOrder_JumpingPedestrian,
     eSpriteDrawOrder_Trees,
     eSpriteDrawOrder_Projectiles,
@@ -157,6 +158,7 @@ decl_enum_strings(eSpriteDrawOrder);
 enum
 {
     // hud
+    eSpriteID_Arrow_Pointer = 24,
     eSpriteID_Arrow_AreaDisplayLeft = 25,
     eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,
@@ -186,17 +188,17 @@ enum eGameObjectClass
 
 decl_enum_strings(eGameObjectClass);
 
-enum eGameObjectFlags: unsigned int
+enum GameObjectFlags: unsigned int
 {
-    eGameObjectFlags_None = 0,
-    eGameObjectFlags_Invisible = BIT(0),
-    eGameObjectFlags_CarPart = BIT(1),
-    eGameObjectFlags_Traffic = BIT(2), // temporary lifetime
-    eGameObjectFlags_Mission = BIT(3), // was spawned for mission
-    eGameObjectFlags_Startup = BIT(4), // was spawned on game start
+    GameObjectFlags_None = 0,
+    GameObjectFlags_Invisible = BIT(0),
+    GameObjectFlags_CarPart = BIT(1),
+    GameObjectFlags_Traffic = BIT(2), // temporary lifetime
+    GameObjectFlags_Mission = BIT(3), // was spawned for mission
+    GameObjectFlags_Startup = BIT(4), // was spawned on game start
 };
 
-decl_enum_as_flags(eGameObjectFlags);
+decl_enum_as_flags(GameObjectFlags);
 
 // game object type indices, mapped to gta1 values
 enum
@@ -220,7 +222,7 @@ enum
 struct GameObjectInfo
 {
     eGameObjectClass mClassID = eGameObjectClass_COUNT;
-    eGameObjectFlags mFlags = eGameObjectFlags_None;
+    GameObjectFlags mFlags = GameObjectFlags_None;
 
     // index in the gameobject types table that are loaded with the style data
     int mObjectType = GameObjectType_Null;

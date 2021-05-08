@@ -10,13 +10,13 @@
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
 #include "CarnageGame.h"
+#include "Collision.h"
+#include "GameObjectHelpers.h"
 
 Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier) 
     : GameObject(eGameObjectClass_Pedestrian, id)
-    , mPhysicsBody()
     , mCurrentAnimID(ePedestrianAnim_Null)
     , mController()
-    , mDrawHeight()
     , mRemapIndex(NO_REMAP)
     , mStatesManager(this)
     , mPedestrianTypeID(typeIdentifier)
@@ -29,19 +29,12 @@ Pedestrian::~Pedestrian()
 {
     if (mController)
     {
-        mController->DeactivateConstroller();
+        mController->DeactivateController();
         mController = nullptr;
-    }
-
-    SetCarExited();
-
-    if (mPhysicsBody)
-    {
-        gPhysics.DestroyPhysicsObject(mPhysicsBody);
     }
 }
 
-void Pedestrian::OnGameObjectSpawn()
+void Pedestrian::HandleSpawn()
 {
     debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
     PedestrianInfo& pedestrianInfo = gGameMap.mStyleData.mPedestrianTypes[mPedestrianTypeID];
@@ -71,36 +64,94 @@ void Pedestrian::OnGameObjectSpawn()
     // reset actions
     mCtlState.Clear();
 
-    // reset weapon
-    ClearAmmunition();
-
     mCurrentWeapon = eWeapon_Fists;
     mChangeWeapon = eWeapon_Fists;
     
-    // recreate physical body on respawn
-    if (mPhysicsBody)
-    {
-        gPhysics.DestroyPhysicsObject(mPhysicsBody);
-        mPhysicsBody = nullptr;
-    }
-
-    mPhysicsBody = gPhysics.CreatePhysicsObject(this, mSpawnPosition, mSpawnHeading);
-    debug_assert(mPhysicsBody);
+    // create physical body
+    CollisionShape collisionShape;
+    collisionShape.SetAsCircle(gGameParams.mPedestrianBoundsSphereRadius);
+    PhysicsMaterial physicsMaterial;
+    physicsMaterial.mDensity = 0.3f; // todo: magic numbers
+    PhysicsBody* physicsBody = gPhysics.CreateBody(this, collisionShape, physicsMaterial, 
+        CollisionGroup_Pedestrian, CollisionGroup_All, 
+        ColliderFlags_None, 
+        PhysicsBodyFlags_FixRotation);
+    debug_assert(physicsBody);
+    SetPhysics(physicsBody);
 
     mDeathReason = ePedestrianDeathReason_null;
     mCurrentAnimID = ePedestrianAnim_Null;
 
     PedestrianStateEvent evData { ePedestrianStateEvent_Spawn };
     mStatesManager.ChangeState(ePedestrianState_StandingStill, evData); // force idle state
+}
 
-    SetCarExited();
+void Pedestrian::HandleDespawn()
+{
     SetBurnEffectActive(false);
+    SetCarExited();
+
+    // reset weapon
+    ClearAmmunition();
+
+    GameObject::HandleDespawn();
+}
+
+bool Pedestrian::ShouldCollide(GameObject* otherObject) const
+{
+    return false;
+}
+
+void Pedestrian::HandleFallingStarts()
+{
+    debug_assert(mPhysicsBody);
+
+    glm::vec2 velocity = mPhysicsBody->GetLinearVelocity();
+    if (glm::length2(velocity) > 0.0f)
+    {
+        velocity = glm::normalize(velocity);
+        debug_assert(!glm::isnan(velocity.x) && !glm::isnan(velocity.y));
+    }
+    mPhysicsBody->ClearForces();
+    mPhysicsBody->SetLinearVelocity(velocity);
+
+    // notify
+    PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightStart };
+    mStatesManager.ProcessEvent(evData);
+}
+
+void Pedestrian::HandleFallsOnGround(float fallDistance)
+{
+    debug_assert(mPhysicsBody);
+
+    // notify
+    PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightEnd };
+    mStatesManager.ProcessEvent(evData);
+
+    // damage
+    if (fallDistance > 0.0f)
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromFall(fallDistance);
+        ReceiveDamage(damageInfo);
+    }
+}
+
+void Pedestrian::HandleFallsOnWater(float fallDistance)
+{
+    debug_assert(mPhysicsBody);
+
+    PedestrianStateEvent evData { ePedestrianStateEvent_WaterContact };
+    mStatesManager.ProcessEvent(evData);
 }
 
 void Pedestrian::UpdateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
-    mCurrentAnimState.UpdateFrame(deltaTime);
+    if (mCurrentAnimState.UpdateFrame(deltaTime))
+    {
+        SetupAnimFrameSprite();
+    }
 
     // update weapons state
     for (Weapon& currWeapon: mWeapons)
@@ -126,32 +177,151 @@ void Pedestrian::UpdateFrame()
 
     // update current state logic
     mStatesManager.ProcessFrame();
-
+    
     UpdateBurnEffect();
+    UpdateDrawOrder();
 }
 
-void Pedestrian::PreDrawFrame()
+void Pedestrian::SimulationStep()
 {
-    glm::vec3 position = mPhysicsBody->mSmoothPosition;
-    ComputeDrawHeight(position);
+    mContactingOtherPeds = false;
+    mContactingCars = false;
 
-    cxx::angle_t rotationAngle = mPhysicsBody->mSmoothRotation;
+    mStatesManager.ProcessSimulationFrame();
 
-    int spriteIndex = mCurrentAnimState.GetSpriteIndex();
+    Vehicle* hitCarObject = nullptr;
+    float maxCarSpeed = 0.0f;
 
-    int remapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
+    // inspect current contacts
+    for (const Contact& currContact: mObjectsContacts)
+    {
+        if (Pedestrian* otherPedestrian = ToPedestrian(currContact.mThatObject))
+        {
+            mContactingOtherPeds = otherPedestrian->IsOnTheGround() && 
+                !otherPedestrian->IsDead() && 
+                !otherPedestrian->IsStunned() && 
+                !otherPedestrian->IsDies(); // slowdown
+        }
 
-    mDrawSprite.mPosition = glm::vec2(position.x, position.z);
-    mDrawSprite.mRotateAngle = rotationAngle - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
-    mDrawSprite.mHeight = mDrawHeight;
+        // check car hit
+        if (Vehicle* contactCar = ToVehicle(currContact.mThatObject))
+        {
+            mContactingCars = true;
+            if (currContact.mContactPoints->mSeparation > 0.0f)
+                continue;
 
-    // update fire effect draw pos
-    // todo: refactore
+            float penetration = fabsf(currContact.mContactPoints->mSeparation);
+            if (penetration < gGameParams.mPedestrianBoundsSphereRadius * 0.9f) // todo: magic numbers
+                continue;
+
+            float carSpeed = fabsf(contactCar->GetCurrentSpeed());
+            if (carSpeed < maxCarSpeed)
+                continue;
+
+            hitCarObject = contactCar;
+            maxCarSpeed = carSpeed;
+        }
+    }
+
+    if (hitCarObject)
+    {
+        DamageInfo damageInfo;
+        damageInfo.SetDamageFromCarHit(hitCarObject);
+        ReceiveDamage(damageInfo);
+    }
+
+    UpdateLocomotion();
+}
+
+void Pedestrian::UpdateDrawOrder()
+{
+    eSpriteDrawOrder newDrawOrder = eSpriteDrawOrder_Pedestrian;
+
+    if (mCurrentCar)
+    {
+        newDrawOrder = eSpriteDrawOrder_CarPassenger;
+        if (!mCurrentCar->HasHardTop())
+        {
+            newDrawOrder = eSpriteDrawOrder_ConvetibleCarPassenger;
+        }
+    }
+    else
+    {
+        if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
+        {
+            newDrawOrder = eSpriteDrawOrder_JumpingPedestrian;
+        }
+
+        if (IsStunned() || IsDead())
+        {
+            newDrawOrder = eSpriteDrawOrder_Corpse;
+        }
+    }
+
     if (mFireEffect)
     {
-        mFireEffect->SetTransform(position, rotationAngle);
+        mFireEffect->SetDrawOrder(newDrawOrder);
     }
+
+    mDrawSprite.mDrawOrder = newDrawOrder;
+}
+
+void Pedestrian::UpdateLocomotion()
+{
+    if (mPhysicsBody == nullptr)
+        return;
+
+    float walkingSpeed = 0.0f;
+
+    bool inverseDirection = false;
+    bool isSlideOverCar = (ePedestrianState_SlideOnCar == GetCurrentStateID());
+
+    if (isSlideOverCar)
+    {
+        walkingSpeed = gGameParams.mPedestrianSlideOnCarSpeed;
+    }
+    else if (IsIdle())
+    {
+        // generic case
+        if (mCtlState.mWalkForward || mCtlState.mWalkBackward || mCtlState.mRun)
+        {
+            if (mCtlState.mRun && CanRun())
+            {
+                walkingSpeed = gGameParams.mPedestrianRunSpeed;
+            }
+            else
+            {
+                walkingSpeed = gGameParams.mPedestrianWalkSpeed;
+
+                inverseDirection = mCtlState.mWalkBackward;
+            }
+        }
+    }
+
+    glm::vec2 desiredVelocity (0.0f, 0.0f);
+    if (walkingSpeed)
+    {
+        glm::vec2 moveDirection = mPhysicsBody->GetSignVector() * (inverseDirection ? -1.0f : 1.0f);
+        desiredVelocity = moveDirection * walkingSpeed;
+        
+        if (!isSlideOverCar)
+        {
+            // prevent walking through cars
+            for (const Contact& currContact: mObjectsContacts)
+            {
+                if (!currContact.mThatObject->IsVehicleClass())
+                    continue;
+
+                const ContactPoint& cp = currContact.mContactPoints[0];
+                if (glm::dot(-cp.mNormal, moveDirection) > 0.0f)
+                {
+                    desiredVelocity = glm::vec2(0.0f, 0.0f);
+                }
+            }
+        }
+    }
+
+    mPhysicsBody->SetLinearVelocity(desiredVelocity);
 }
 
 void Pedestrian::DebugDraw(DebugRenderer& debugRender)
@@ -162,75 +332,13 @@ void Pedestrian::DebugDraw(DebugRenderer& debugRender)
 
         WeaponInfo& meleeWeapon = gGameMap.mStyleData.mWeaponTypes[eWeaponFireType_Melee];
 
-        glm::vec2 signVector = mPhysicsBody->GetSignVector() * meleeWeapon.mBaseHitRange;
-        debugRender.DrawLine(position, position + glm::vec3(signVector.x, 0.0f, signVector.y), Color32_White, false);
+        glm::vec2 signVector = mPhysicsBody->GetSignVector();
+        debugRender.DrawLine(position, position + 
+            glm::vec3(signVector.x * meleeWeapon.mBaseHitRange, 0.0f, signVector.y * meleeWeapon.mBaseHitRange), Color32_White, false);
 
         cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), gGameParams.mPedestrianBoundsSphereRadius);
         debugRender.DrawSphere(bsphere, Color32_Orange, false);
     }
-}
-
-void Pedestrian::ComputeDrawHeight(const glm::vec3& position)
-{
-    if (mCurrentCar)
-    {
-        mDrawHeight = mCurrentCar->mDrawHeight;
-
-        eSpriteDrawOrder drawOrder = eSpriteDrawOrder_CarPassenger;
-        if (!mCurrentCar->HasHardTop())
-        {
-            drawOrder = eSpriteDrawOrder_ConvetibleCarPassenger;
-        }
-        SetDrawOrder(drawOrder);
-        return;
-    }
-    
-    float maxHeight = position.y;
-    if (!mPhysicsBody->mFalling)
-    {
-        float halfBox = Convert::PixelsToMeters(PED_SPRITE_DRAW_BOX_SIZE_PX) * 0.5f;
-        //glm::vec3 points[4] = {
-        //    { 0.0f,     position.y + 0.01f, -halfBox },
-        //    { halfBox,  position.y + 0.01f, 0.0f },
-        //    { 0.0f,     position.y + 0.01f, halfBox },
-        //    { -halfBox, position.y + 0.01f, 0.0f },
-        //};
-
-        glm::vec3 points[4] = {
-            { -halfBox, position.y + 0.01f, -halfBox },
-            { halfBox,  position.y + 0.01f, -halfBox },
-            { halfBox,  position.y + 0.01f, halfBox },
-            { -halfBox, position.y + 0.01f, halfBox },
-        };
-        for (glm::vec3& currPoint: points)
-        {
-            //currPoint = glm::rotate(currPoint, angleRadians, glm::vec3(0.0f, -1.0f, 0.0f)); // dont rotate for peds
-            currPoint.x += position.x;
-            currPoint.z += position.z;
-
-            // get height
-            float height = gGameMap.GetHeightAtPosition(currPoint);
-            if (height > maxHeight)
-            {
-                maxHeight = height;
-            }
-        }
-    }
-
-    eSpriteDrawOrder drawOrder = eSpriteDrawOrder_Pedestrian;
-
-    if (GetCurrentStateID() == ePedestrianState_SlideOnCar)
-    {
-        drawOrder = eSpriteDrawOrder_JumpingPedestrian;
-    }
-
-    if (IsStunned() || IsDead())
-    {
-        drawOrder = eSpriteDrawOrder_Corpse;
-    }
-
-    SetDrawOrder(drawOrder);
-    mDrawHeight = maxHeight;
 }
 
 Weapon& Pedestrian::GetWeapon()
@@ -257,7 +365,7 @@ void Pedestrian::EnterCar(Vehicle* targetCar, eCarSeat targetSeat)
     if (targetCar->IsWrecked())
         return;
 
-    float currentSpeed = targetCar->mPhysicsBody->GetCurrentSpeed();
+    float currentSpeed = targetCar->GetCurrentSpeed();
     if (currentSpeed >= gGameParams.mCarSpeedPassengerCanEnter)
         return;
 
@@ -277,7 +385,7 @@ void Pedestrian::LeaveCar()
 {
     if (IsCarPassenger())
     {
-        float currentSpeed = mCurrentCar->mPhysicsBody->GetCurrentSpeed();
+        float currentSpeed = mCurrentCar->GetCurrentSpeed();
         if (currentSpeed >= gGameParams.mCarSpeedPassengerCanEnter)
             return;
 
@@ -293,16 +401,6 @@ bool Pedestrian::ReceiveDamage(const DamageInfo& damageInfo)
     return mStatesManager.ProcessEvent(evData);
 }
 
-glm::vec3 Pedestrian::GetPosition() const
-{
-    return mPhysicsBody->GetPosition();
-}
-
-glm::vec2 Pedestrian::GetPosition2() const
-{
-    return mPhysicsBody->GetPosition2();
-}
-
 void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode)
 {
     if (mCurrentAnimID == animation)
@@ -314,6 +412,7 @@ void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopM
         }
 
         mCurrentAnimState.PlayAnimation(loopMode);
+        SetupAnimFrameSprite();
         return;
     }
 
@@ -324,6 +423,7 @@ void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopM
     }
     mCurrentAnimID = animation;
     mCurrentAnimState.PlayAnimation(loopMode);
+    SetupAnimFrameSprite();
 }
 
 ePedestrianState Pedestrian::GetCurrentStateID() const
@@ -448,7 +548,7 @@ void Pedestrian::DieFromDamage(eDamageCause damageCause)
         case eDamageCause_Drowning: 
             evData.mDeathReason = ePedestrianDeathReason_Drowned;
         break;
-        case eDamageCause_CarCrash: 
+        case eDamageCause_CarHit: 
             evData.mDeathReason = ePedestrianDeathReason_Smashed;
         break;
         case eDamageCause_Explosion: 
@@ -474,14 +574,13 @@ void Pedestrian::SetBurnEffectActive(bool activate)
     {
         debug_assert(mFireEffect == nullptr);
         GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[GameObjectType_LFire];
-        mFireEffect = gGameObjectsManager.CreateDecoration(
-            mPhysicsBody->GetPosition(), 
-            mPhysicsBody->GetRotationAngle(), &objectInfo);
+
+        mFireEffect = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &objectInfo);
         debug_assert(mFireEffect);
         if (mFireEffect)
         {
             mFireEffect->SetLifeDuration(0);
-            mFireEffect->SetAttachedToObject(this);
+            AttachObject(mFireEffect);
         }
         mBurnStartTime = gTimeManager.mGameTime;
     }
@@ -489,8 +588,8 @@ void Pedestrian::SetBurnEffectActive(bool activate)
     {
         debug_assert(mFireEffect);
         if (mFireEffect)
-        {
-            mFireEffect->SetDetached();
+        {   
+            DetachObject(mFireEffect);
         }
         mFireEffect->MarkForDeletion();
         mFireEffect = nullptr;
@@ -515,16 +614,6 @@ void Pedestrian::UpdateBurnEffect()
 bool Pedestrian::IsBurn() const
 {
     return (mFireEffect != nullptr);
-}
-
-void Pedestrian::SetDrawOrder(eSpriteDrawOrder drawOrder)
-{
-    if (mFireEffect)
-    {
-        mFireEffect->SetDrawOrder(drawOrder);
-    }
-
-    mDrawSprite.mDrawOrder = drawOrder;
 }
 
 bool Pedestrian::IsOnTheGround() const
@@ -602,7 +691,7 @@ void Pedestrian::UpdateDamageFromRailways()
         return;
     }
 
-    glm::ivec3 logPosition = Convert::MetersToMapUnits(GetPosition());
+    glm::ivec3 logPosition = Convert::MetersToMapUnits(mTransform.mPosition);
 
     const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(logPosition.x, logPosition.z, logPosition.y);
     if ((blockInfo->mGroundType == eGroundType_Field) && blockInfo->mIsRailway)
@@ -630,8 +719,8 @@ bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, e
     {
         if ((stateID == ePedestrianState_Runs) || (stateID == ePedestrianState_Walks))
         {
-            SfxIndex sfxIndex = (stateID == ePedestrianState_Runs) ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
-            StartGameObjectSound(ePedSfxChannelIndex_Misc, eSfxType_Level, sfxIndex, SfxFlags_None);
+            SfxSampleIndex sfxIndex = (stateID == ePedestrianState_Runs) ? SfxLevel_FootStep2 : SfxLevel_FootStep1;
+            StartGameObjectSound(ePedSfxChannelIndex_Misc, eSfxSampleType_Level, sfxIndex, SfxFlags_None);
         }
     }
 
@@ -641,4 +730,28 @@ bool Pedestrian::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, e
 ePedestrianAnimID Pedestrian::GetCurrentAnimationID() const
 {
     return mCurrentAnimID;
+}
+
+void Pedestrian::PushByPedestrian(Pedestrian* otherPedestrian)
+{
+    debug_assert(otherPedestrian);
+    debug_assert(this != otherPedestrian);
+    if ((otherPedestrian == nullptr) || (mPhysicsBody == nullptr))
+        return;
+
+    // todo: implement
+}
+
+void Pedestrian::SetupAnimFrameSprite()
+{
+    int spriteIndex = mCurrentAnimState.GetSpriteIndex();
+
+    int remapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
+    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
+    RefreshDrawSprite();
+}
+
+bool Pedestrian::CanRun() const
+{
+    return !(mContactingOtherPeds && IsHumanPlayerCharacter());
 }

@@ -15,12 +15,12 @@ class SfxSample
     friend class SfxEmitter;
 
 public:
-    SfxSample(eSfxType sfxType, SfxIndex sfxIndex, AudioSampleBuffer* sampleBuffer);
+    SfxSample(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, AudioSampleBuffer* sampleBuffer);
     ~SfxSample();
 
 private:
-    eSfxType mSfxType;
-    SfxIndex mSfxIndex;
+    eSfxSampleType mSfxType;
+    SfxSampleIndex mSfxIndex;
     AudioSampleBuffer* mSampleBuffer;
 };
 

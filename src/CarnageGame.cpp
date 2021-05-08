@@ -25,6 +25,8 @@ static const char* InputsConfigPath = "config/inputs.json";
 // cvars
 //////////////////////////////////////////////////////////////////////////
 
+CvarBoolean gCvarMouseAiming("mouse_aiming", false, "Enable mouse aiming", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+
 CvarString gCvarMapname("g_mapname", "", "Current map name", CvarFlags_Init);
 CvarString gCvarCurrentBaseDir("g_basedir", "", "Current gta data location", CvarFlags_Init);
 CvarEnum<eGtaGameVersion> gCvarGameVersion("g_gamever", eGtaGameVersion_Unknown, "Current gta game version", CvarFlags_Init);
@@ -298,7 +300,13 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
     HumanPlayer* humanPlayer = new HumanPlayer(pedestrian);
     mHumanPlayers[humanIndex] = humanPlayer;
 
-    humanPlayer->mSpawnPosition = pedestrian->GetPosition();
+    // enable mouse aiming for player 0
+    if (humanIndex == 0)
+    {
+        humanPlayer->SetMouseAiming(gCvarMouseAiming.mValue);
+    }
+
+    humanPlayer->mSpawnPosition = pedestrian->mTransform.mPosition;
     humanPlayer->mPlayerView.mFollowCameraController.SetFollowTarget(pedestrian);
     humanPlayer->mPlayerView.mHUD.SetupHUD(humanPlayer);
 }

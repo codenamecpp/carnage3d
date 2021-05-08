@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AiCharacterController.h"
 #include "Pedestrian.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "CarnageGame.h"
 #include "DebugRenderer.h"
 #include "BroadcastEventsManager.h"
@@ -115,7 +115,7 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
     if (mAiMode == ePedestrianAiMode_None || mAiMode == ePedestrianAiMode_Disabled)
         return;
 
-    glm::vec3 currpos = mCharacter->mPhysicsBody->GetPosition();
+    glm::vec3 currpos = mCharacter->mTransform.mPosition;
     glm::vec3 destpos (mDestinationPoint.x, currpos.y, mDestinationPoint.y);
 
     debugRender.DrawLine(currpos, destpos, Color32_Red, false);
@@ -137,9 +137,10 @@ bool AiCharacterController::ScanForExplosions()
     float reactionDistance2 = glm::pow(gGameParams.mAiReactOnExplosionsDistance, 2.0f);
 
     BroadcastEvent eventData;
-    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_Explosion, mCharacter->GetPosition2(), eventData))
+    glm::vec2 position2 = mCharacter->mTransform.GetPosition2();
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_Explosion, position2, eventData))
     {
-        if (glm::distance2(eventData.mPosition, mCharacter->GetPosition2()) > reactionDistance2) // too far away
+        if (glm::distance2(eventData.mPosition, position2) > reactionDistance2) // too far away
             return false;
 
         return true;
@@ -152,12 +153,13 @@ bool AiCharacterController::ScanForGunshots()
     float reactionDistance2 = glm::pow(gGameParams.mAiReactOnGunshotsDistance, 2.0f);
 
     BroadcastEvent eventData;
-    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_GunShot, mCharacter->GetPosition2(), eventData))
+    glm::vec2 position2 = mCharacter->mTransform.GetPosition2();
+    if (gBroadcastEvents.PeekClosestEvent(eBroadcastEvent_GunShot, position2, eventData))
     {
         if (eventData.mCharacter == mCharacter) // hear own gunshots
             return false; 
 
-        if (glm::distance2(eventData.mPosition, mCharacter->GetPosition2()) > reactionDistance2) // too far away
+        if (glm::distance2(eventData.mPosition, position2) > reactionDistance2) // too far away
             return false;
 
         return true;
@@ -249,7 +251,7 @@ void AiCharacterController::UpdateWandering()
     if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
 
-    bool canFollowHuman = HasAiFlags(ePedestrianAiFlags_FollowHumanCharacter);
+    bool canFollowHuman = HasAiFlags(PedestrianAiFlags_FollowHumanCharacter);
     if (canFollowHuman)
     {
         if (TryFollowHumanCharacterNearby())
@@ -290,7 +292,7 @@ void AiCharacterController::StartWandering()
 
 bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
 {
-    cxx::angle_t currHeading = mCharacter->mPhysicsBody->GetRotationAngle();
+    cxx::angle_t currHeading = mCharacter->mTransform.mOrientation;
 
     // choose new block ir next order: forward, left, right, backward
     eMapDirection currentMapDirection = GetMapDirectionFromHeading(currHeading.mDegrees);
@@ -302,7 +304,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
         GetMapDirectionOpposite(currentMapDirection)
     };
 
-    glm::ivec3 currentLogPos = Convert::MetersToMapUnits(mCharacter->GetPosition());
+    glm::ivec3 currentLogPos = Convert::MetersToMapUnits(mCharacter->mTransform.mPosition);
     glm::ivec3 newWayPoint (0, 0, 0);
     for (eMapDirection curr: moveDirs)
     {
@@ -325,7 +327,7 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
                 break;
             }
 
-            bool canSuicide = HasAiFlags(ePedestrianAiFlags_LemmingBehavior);
+            bool canSuicide = HasAiFlags(PedestrianAiFlags_LemmingBehavior);
             if (canSuicide && (groundType == eGroundType_Air))
             {
                 newWayPoint = moveBlockPos;
@@ -352,17 +354,16 @@ bool AiCharacterController::ContinueWalkToWaypoint(float distance)
 {
     float tolerance2 = pow(gGameParams.mPedestrianBoundsSphereRadius, 2.0f);
 
-    glm::vec2 currentPosition = mCharacter->mPhysicsBody->GetPosition2();
-    if (glm::distance2(currentPosition, mDestinationPoint) <= tolerance2)
+    glm::vec2 currentPos2 = mCharacter->mTransform.GetPosition2();
+    if (glm::distance2(currentPos2, mDestinationPoint) <= tolerance2)
     {
         mCharacter->mCtlState.Clear();
         return false;
     }
 
     // setup sign direction
-    glm::vec2 currentPos2 = mCharacter->mPhysicsBody->GetPosition2();
     glm::vec2 toTarget = glm::normalize(mDestinationPoint - currentPos2);
-    mCharacter->mPhysicsBody->SetOrientation2(toTarget);
+    mCharacter->SetOrientation(toTarget);
 
     // set control
     mCharacter->mCtlState.mWalkForward = true;
@@ -389,7 +390,7 @@ void AiCharacterController::StopDriving()
 
     mCharacter->mCtlState.Clear();
 
-    float currentSpeed = mCharacter->mCurrentCar->mPhysicsBody->GetCurrentSpeed();
+    float currentSpeed = mCharacter->mCurrentCar->GetCurrentSpeed();
     if (currentSpeed > gGameParams.mCarSpeedPassengerCanEnter)
     {
         mCharacter->mCtlState.mAcceleration = -1.0f;
@@ -460,7 +461,7 @@ void AiCharacterController::StartFollowTarget()
     mCharacter->mCtlState.Clear();
     mAiMode = ePedestrianAiMode_FollowTarget;
 
-    mDestinationPoint = mFollowPedestrian->mPhysicsBody->GetPosition2();
+    mDestinationPoint = mFollowPedestrian->mTransform.GetPosition2();
 }
 
 void AiCharacterController::UpdateFollowTarget()
@@ -480,8 +481,8 @@ void AiCharacterController::UpdateFollowTarget()
     if (ContinueWalkToWaypoint(mFollowNearDistance))
         return;
 
-    glm::vec2 characterPosition2 = mCharacter->mPhysicsBody->GetPosition2();
-    glm::vec2 targetPosition2 = mFollowPedestrian->mPhysicsBody->GetPosition2();
+    glm::vec2 characterPosition2 = mCharacter->mTransform.GetPosition2();
+    glm::vec2 targetPosition2 = mFollowPedestrian->mTransform.GetPosition2();
 
     float distanceToTarget2 = glm::distance2(characterPosition2, targetPosition2);
     if (distanceToTarget2 < glm::pow(mFollowNearDistance, 2.0f))
@@ -495,17 +496,17 @@ void AiCharacterController::UpdateFollowTarget()
     ContinueWalkToWaypoint(mFollowNearDistance);
 }
 
-void AiCharacterController::EnableAiFlags(ePedestrianAiFlags aiFlags)
+void AiCharacterController::EnableAiFlags(PedestrianAiFlags aiFlags)
 {
     mAiFlags = (mAiFlags | aiFlags);
 }
 
-void AiCharacterController::DisableAiFlags(ePedestrianAiFlags aiFlags)
+void AiCharacterController::DisableAiFlags(PedestrianAiFlags aiFlags)
 {
     mAiFlags = (mAiFlags & ~aiFlags);
 }
 
-bool AiCharacterController::HasAiFlags(ePedestrianAiFlags aiFlags) const
+bool AiCharacterController::HasAiFlags(PedestrianAiFlags aiFlags) const
 {
     return (mAiFlags & aiFlags) == aiFlags;
 }
@@ -524,7 +525,7 @@ bool AiCharacterController::TryFollowHumanCharacterNearby()
         if (!currentPlayer->mCharacter->IsStanding())
             continue;
 
-        float currDistance2 = glm::distance2(currentPlayer->mCharacter->GetPosition2(), mCharacter->GetPosition2());
+        float currDistance2 = glm::distance2(currentPlayer->mCharacter->mTransform.GetPosition2(), mCharacter->mTransform.GetPosition2());
         if (currDistance2 > bestDistance2)
             continue;
 

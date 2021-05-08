@@ -39,7 +39,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     }
 
     Pedestrian* playerCharacter = gCarnageGame.mHumanPlayers[0]->mCharacter;
-    glm::ivec3 characterLogPos = Convert::MetersToMapUnits(playerCharacter->GetPosition());
+    glm::ivec3 characterLogPos = Convert::MetersToMapUnits(playerCharacter->mTransform.mPosition);
 
     if (ImGui::BeginMenuBar())
     {
@@ -64,7 +64,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 debug_assert(character);
                 if (character)
                 {
-                    character->mController->DeactivateConstroller();
+                    character->mController->DeactivateController();
                 }
             }
             if (ImGui::MenuItem("Wandering"))
@@ -101,10 +101,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         ImGui::HorzSpacing();
 
-        cxx::angle_t pedHeading = playerCharacter->mPhysicsBody->GetRotationAngle();
+        cxx::angle_t pedHeading = playerCharacter->mTransform.mOrientation;
         ImGui::Text("heading: %.1f degs", pedHeading.to_degrees_normalize_360());
 
-        glm::vec3 pedPosition = playerCharacter->mPhysicsBody->GetPosition();
+        glm::vec3 pedPosition = playerCharacter->mTransform.mPosition;
         ImGui::Text("physical pos: %.3f, %.3f, %.3f", pedPosition.x, pedPosition.y, pedPosition.z);
         ImGui::Text("logical pos: %d, %d, %d", characterLogPos.x, characterLogPos.y, characterLogPos.z);
 
@@ -121,7 +121,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             ImGui::Text("  E: %s", blockInfo->mRightDirection ? "OK" : "--");
             ImGui::Text("  S: %s", blockInfo->mDownDirection ? "OK" : "--");
             ImGui::Text("  W: %s", blockInfo->mLeftDirection ? "OK" : "--");
-            ImGui::Text("Car speed : %.3f", currCar->mPhysicsBody->GetCurrentSpeed());
+            ImGui::Text("Car speed : %.3f", currCar->GetCurrentSpeed());
         }
 
         ImGui::Text("state: %s", cxx::enum_to_string(playerCharacter->GetCurrentStateID()));
@@ -149,11 +149,11 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             {
                 if (playerCharacter->IsCarPassenger())
                 {
-                    playerCharacter->mCurrentCar->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                    playerCharacter->mCurrentCar->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
                 }
                 else
                 {
-                    playerCharacter->mPhysicsBody->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
+                    playerCharacter->SetPosition(Convert::MapUnitsToMeters(setLocalPosition));
                 }
             }
             ImGui::EndPopup();
@@ -284,7 +284,7 @@ void GameCheatsWindow::CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedest
     if (carStyle == nullptr || pedestrian == nullptr)
         return;
 
-    glm::vec3 currPosition = pedestrian->mPhysicsBody->GetPosition();
+    glm::vec3 currPosition = pedestrian->mTransform.mPosition;
     currPosition.x += 0.5f;
     currPosition.z += 0.5f;
 
@@ -293,6 +293,6 @@ void GameCheatsWindow::CreateCarNearby(VehicleInfo* carStyle, Pedestrian* pedest
 
     if (vehicle)
     {
-        vehicle->mFlags = (vehicle->mFlags | eGameObjectFlags_Traffic);
+        vehicle->mObjectFlags = (vehicle->mObjectFlags | GameObjectFlags_Traffic);
     }
 }

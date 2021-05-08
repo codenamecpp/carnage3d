@@ -4,9 +4,12 @@
 #include "ConsoleVar.h"
 #include "GameDefs.h"
 
-// all console variables declarations
-
 //////////////////////////////////////////////////////////////////////////
+// all console variables declarations
+//////////////////////////////////////////////////////////////////////////
+
+// inputs
+extern CvarBoolean gCvarMouseAiming; // aim with mouse
 
 // graphics
 extern CvarPoint gCvarGraphicsScreenDims; // screen dimensions
@@ -36,8 +39,8 @@ extern CvarEnum<eWeatherEffect> gCvarWeatherEffect; // currently active weather
 extern CvarBoolean gCvarCarSparksActive; // enable car sparks effect
 
 //////////////////////////////////////////////////////////////////////////
-
 // console commands
+//////////////////////////////////////////////////////////////////////////
 
 extern CvarVoid gCvarSysQuit; // quit application
 extern CvarVoid gCvarSysListCvars; // print all non-hidden cvars to console
@@ -70,6 +73,7 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarWeatherEffect);
     gConsole.RegisterVariable(&gCvarGameMusicMode);
     gConsole.RegisterVariable(&gCvarCarSparksActive);
+    gConsole.RegisterVariable(&gCvarMouseAiming);
     // commands
     gConsole.RegisterVariable(&gCvarSysQuit);
     gConsole.RegisterVariable(&gCvarSysListCvars);

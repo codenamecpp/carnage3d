@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 #include "WeaponInfo.h"
+#include "Collision.h"
 
 // Game object damage type
 enum eDamageCause
@@ -10,10 +11,12 @@ enum eDamageCause
     eDamageCause_Electricity, // rails
     eDamageCause_Burning,
     eDamageCause_Drowning,
-    eDamageCause_CarCrash,
+    eDamageCause_Collision, // physics contact between two object
+    eDamageCause_MapCollision, // physics contact with map blocks or walls
     eDamageCause_Explosion,
     eDamageCause_Bullet,
     eDamageCause_Punch,
+    eDamageCause_CarHit,
 };
 
 // Game object damage information
@@ -28,10 +31,12 @@ public:
     void SetDamageFromFire(int hitpoints, GameObject* object);
     void SetDamageFromWeapon(const WeaponInfo& weaponInfo, GameObject* object);
     void SetDamageFromWater(int hitpoints);
-    void SetDamageFromCarCrash(const glm::vec3& contactPoint, float contactImpulse, GameObject* object);
+    void SetDamageFromCollision(const Collision& collisionInfo);
+    void SetDamageFromCollision(const MapCollision& collisionInfo);
     void SetDamageFromExplosion(int hitpoints, GameObject* object);
     void SetDamageFromBullet(int hitpoints, GameObject* object);
     void SetDamageFromPunch(int hitpoints, GameObject* object);
+    void SetDamageFromCarHit(GameObject* carObject);
 
     void Clear();
 
@@ -39,15 +44,13 @@ public:
     // depending on cause of damage object reaction may vary
     eDamageCause mDamageCause = eDamageCause_Punch;
 
-    // has meaning only if car crash
-    glm::vec3 mContactPoint;
-    glm::vec2 mNormal;
+    // collision specific data
+    ContactPoint mContactPoint;
+    float mContactImpulse = 0.0f;
 
     // object which cause damage, optional
     GameObject* mSourceObject = nullptr;
 
-    float mContactImpulse = 0.0f; // has meaning only if car crash
     float mFallHeight = 0.0f; // has meaning only if fall
-
     int mHitPoints = 0;
 };

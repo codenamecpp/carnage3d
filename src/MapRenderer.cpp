@@ -6,7 +6,7 @@
 #include "SpriteManager.h"
 #include "GpuTexture2D.h"
 #include "GameCheatsWindow.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
 #include "Vehicle.h"
@@ -89,18 +89,10 @@ void MapRenderer::PreDrawGameObject(GameObject* gameObject)
     if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
         return;
 
-    // update draw sprite and compute bounds
-    gameObject->PreDrawFrame();
-    gameObject->RefreshDrawBounds();
-
-    // update attached objects
-    for (int ichild = 0; ; ++ichild)
+    // process attached objects
+    for (GameObject* currAttachment: gameObject->mAttachedObjects)
     {
-        GameObject* currentChild = gameObject->GetAttachedObject(ichild);
-        if (currentChild == nullptr)
-            break;
-
-        PreDrawGameObject(currentChild);
+        PreDrawGameObject(currAttachment);
     }
 }
 
@@ -162,13 +154,9 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
     }
 
     // draw attached objects
-    for (int ichild = 0; ; ++ichild)
+    for (GameObject* currAttachment: gameObject->mAttachedObjects)
     {
-        GameObject* currentChild = gameObject->GetAttachedObject(ichild);
-        if (currentChild == nullptr)
-            break;
-
-        DrawGameObject(renderview, currentChild);
+        DrawGameObject(renderview, currAttachment);
     }
 }
 

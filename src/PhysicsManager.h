@@ -2,13 +2,14 @@
 
 #include "PhysicsDefs.h"
 #include "GameDefs.h"
-#include "PhysicsComponents.h"
 
-// note that the physics only works with meter units (Mt) rather then map units
+// note that the physics only works with meter units (Mt) not map units
 
 // this class manages physics and collision detections for map and objects
 class PhysicsManager final: private b2ContactListener
 {
+    friend class PhysicsBody;
+
 public:
     PhysicsManager();
 
@@ -16,93 +17,84 @@ public:
     void ClearWorld();
     void UpdateFrame();
 
-    // Create pedestrian specific physical body
-    // @param object: Reference object
-    // @param position: World position, meters
-    // @param rotationAngle: Heading
-    PedestrianPhysics* CreatePhysicsObject(Pedestrian* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    bool IsSimulationStepInProgress() const;
 
-    // Create car specific physical body
-    // @param object: Reference object
-    // @param position: World position, meters
-    // @param rotationAngle: Heading
-    CarPhysics* CreatePhysicsObject(Vehicle* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    // Create physical body for game object
+    // @param object: Reference object, cannot be null
+    PhysicsBody* CreateBody(GameObject* gameObject, PhysicsBodyFlags flags);
+    PhysicsBody* CreateBody(GameObject* gameObject, const CollisionShape& shapeData, const PhysicsMaterial& shapeMaterial,
+        CollisionGroup collisionGroup,
+        CollisionGroup collidesWith, ColliderFlags colliderFlags, PhysicsBodyFlags bodyFlags);
 
-    // Create projectile specific physical body
-    // @param object: Reference object
-    // @param position: World position, meters
-    // @param rotationAngle: Heading
-    ProjectilePhysics* CreatePhysicsObject(Projectile* object, const glm::vec3& position, cxx::angle_t rotationAngle);
+    void DestroyBody(PhysicsBody* physicsBody);
 
-    // Free physics object
-    // @param object: Object to destroy, pointer becomes invalid
-    void DestroyPhysicsObject(PedestrianPhysics* object);
-    void DestroyPhysicsObject(CarPhysics* object);
-    void DestroyPhysicsObject(ProjectilePhysics* object);
-
-    // query all physics objects that intersects with line
+    // query physics objects
     // note that depth is ignored so pointA and pointB has only 2 components
     // @param pointA, pointB: Line of intersect points
     // @param aaboxCenter, aabboxExtents: AABBox area of intersections
     // @param outputResult: Output objects
-    void QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsLinecastResult& outputResult) const;
-    void QueryObjectsWithinBox(const glm::vec2& aaboxCenter, const glm::vec2& aabboxExtents, PhysicsQueryResult& outputResult) const;
+    void QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult, CollisionGroup collisionMask) const;
+    void QueryObjectsWithinBox(const glm::vec2& center, const glm::vec2& extents, PhysicsQueryResult& outputResult, CollisionGroup collisionMask) const;
 
 private:
+    // override b2ContactListener
+    void BeginContact(b2Contact* contact) override;
+    void EndContact(b2Contact* contact) override;
+    void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
+    void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
+
+    bool ShouldCollide_ObjectWithMap(b2Contact* contact, b2Fixture* objectFixture, b2Fixture* mapFixture) const;
+    bool ShouldCollide_Objects(b2Contact* contact, b2Fixture* fixtureA, b2Fixture* fixtureB) const;
+
+    void HandleCollision_ObjectWithMap(b2Fixture* objectFixture, b2Fixture* mapFixture, b2Contact* contact, const b2ContactImpulse* impulse);
+    void HandleCollision_Objects(b2Fixture* fixtureA, b2Fixture* fixtureB, b2Contact* contact, const b2ContactImpulse* impulse);
+
+    // collision handlers
+    void HandleCollision_CarVsCar(Vehicle* carA, Vehicle* carB, b2Contact* contact, const b2ContactImpulse* impulse);
+    void HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, const b2ContactImpulse* impulse);
+
     // create level map body, used internally
     void CreateMapCollisionShape();
 
-    // apply gravity forces and correct y coord for objects
-    void ProcessGravityStep();
-    void ProcessGravityStep(CarPhysics* body);
-    void ProcessGravityStep(PedestrianPhysics* body);
-
-    void ProcessSimulationStep();
     void ProcessInterpolation();
+    void ProcessSimulationStep();
+    void UpdateHeightPosition(PhysicsBody* physicsBody);
 
-    // override b2ContactFilter
-	void BeginContact(b2Contact* contact) override;
-	void EndContact(b2Contact* contact) override;
-	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
-	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
+    void DispatchCollisionEvents();
 
-    // pre solve collisions
-    bool HasCollisionPedVsPed(b2Contact* contact, PedestrianPhysics* pedA, PedestrianPhysics* pedB) const;
-    bool HasCollisionCarVsCar(b2Contact* contact, CarPhysics* carA, CarPhysics* carB) const;
-    bool HasCollisionPedVsMap(int mapx, int mapy, float height) const;
-    bool HasCollisionCarVsMap(b2Contact* contact, b2Fixture* fixtureCar, int mapx, int mapy) const;
-    bool HasCollisionPedVsCar(b2Contact* contact, PedestrianPhysics* ped, CarPhysics* car) const;
-
-    bool ProcessProjectileVsMap(b2Contact* contact, ProjectilePhysics* projectile, int mapx, int mapy) const;
-    bool ProcessProjectileVsCar(b2Contact* contact, ProjectilePhysics* projectile, CarPhysics* car) const;
-    bool ProcessProjectileVsPed(b2Contact* contact, ProjectilePhysics* projectile, PedestrianPhysics* ped) const;
-
-    // post solve collisions
-    void HandleCollision(b2Contact* contact, PedestrianPhysics* ped, CarPhysics* car, const b2ContactImpulse* impulse);
-    void HandleCollision(b2Contact* contact, CarPhysics* carA, CarPhysics* carB, const b2ContactImpulse* impulse);
-    void HandleCollisionWithMap(b2Contact* contact, CarPhysics* car, const b2ContactImpulse* impulse);
-
-    // sensors
-    bool ProcessSensorContact(b2Contact* contact, bool onBegin);
+    void HandleFallingStarts(PhysicsBody* physicsBody);
+    void HandleFallsOnGround(PhysicsBody* physicsBody);
+    void HandleFallsOnWater(PhysicsBody* physicsBody);
 
 private:
-    b2Body* mMapCollisionShape;
-    b2World* mPhysicsWorld;
+
+    struct CollisionEvent
+    {
+    public:
+        CollisionEvent() = default;
+
+        // object vs map
+        const MapBlockInfo* mMapBlockInfo = nullptr;
+        // object vs object
+        b2Fixture* mBox2FixtureA = nullptr;
+        b2Fixture* mBox2FixtureB = nullptr;
+        // common
+        b2Contact* mBox2Contact = nullptr;
+        b2ContactImpulse mBox2Impulse;
+    };
+
+private:
+
+    b2Body* mBox2MapBody;
+    b2World* mBox2World;
 
     float mSimulationTimeAccumulator;
     float mSimulationStepTime;
 
     float mGravity; // meters per second
+    std::vector<PhysicsBody*> mBodiesList;
 
-    // bodies pools
-    cxx::object_pool<PedestrianPhysics> mPedsBodiesPool;
-    cxx::object_pool<CarPhysics> mCarsBodiesPool;
-    cxx::object_pool<ProjectilePhysics> mProjectileBodiesPool;
-
-    // bodies lists
-    std::vector<PhysicsBody*> mPedsBodiesList;
-    std::vector<PhysicsBody*> mCarsBodiesList;
-    std::vector<PhysicsBody*> mProjectileBodiesList;
+    std::vector<CollisionEvent> mObjectsCollisionList;
 };
 
 extern PhysicsManager gPhysics;

@@ -24,7 +24,7 @@ public:
     virtual bool IsHumanPlayer() const;
 
     // Inactive ai controllers will be automatically destroyed on next frame
-    virtual void DeactivateConstroller();
+    virtual void DeactivateController();
 
     bool IsControllerActive() const;
 

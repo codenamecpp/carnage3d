@@ -205,9 +205,14 @@ private:
     void ArrangePanelsHorz(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels);
     void ArrangePanelsVert(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels);
 
+    void DrawArrowAboveCharacter(GuiContext& guiContext);
+
     // Manager auto-hide panels
     void ShowAutoHidePanel(HUDPanel* panel, float showDuration);
     void TickAutoHidePanels();
+
+    // Test whether character is hidden by solid geometry
+    bool CheckCharacterObscure() const;
 
 private:
     HumanPlayer* mHumanPlayer = nullptr;

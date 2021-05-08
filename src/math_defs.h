@@ -541,8 +541,8 @@ namespace cxx
         {
             float angleRadians = to_radians();
 
-            outSin = sin(angleRadians);
-            outCos = cos(angleRadians);
+            outSin = sinf(angleRadians);
+            outCos = cosf(angleRadians);
         }
 
         // clear angle
@@ -552,8 +552,11 @@ namespace cxx
         }
 
         // test whether angle is nearly zero
-        inline bool is_zero() const { return fabs(mDegrees) < 0.01f; }
-        inline bool non_zero() const { return fabs(mDegrees) >= 0.01f; }
+        inline bool is_zero() const { return cxx::equals_zero(mDegrees); }
+        inline operator bool () const
+        {
+            return !cxx::equals_zero(mDegrees);
+        }
 
         // operators
         inline angle_t operator + (angle_t rhs) const { return from_degrees(mDegrees + rhs.mDegrees); }
@@ -759,11 +762,11 @@ namespace cxx
         const float sqRadius = theSphere.mRadius * theSphere.mRadius;
 
         // Sphere behind the ray origin and ray origin outside the sphere
-        if (vecProjection < 0 && sqDistance > sqRadius)
+        if ((vecProjection < 0) && (sqDistance > sqRadius))
             return false;
 
         // Squared distance from sphere center to the projection
-        const float sqCenterToProj = sqDistance - vecProjection * vecProjection;
+        const float sqCenterToProj = sqDistance - (vecProjection * vecProjection);
         if (sqCenterToProj > sqRadius)
             return false;
 

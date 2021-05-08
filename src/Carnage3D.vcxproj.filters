@@ -235,9 +235,6 @@
     <ClInclude Include="PixelsArray.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsComponents.h">
-      <Filter>Game\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Vehicle.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
@@ -441,6 +438,21 @@
     <ClInclude Include="AudioDataStream.h">
       <Filter>Game\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsBody.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectHelpers.h">
+      <Filter>Game\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -545,9 +557,6 @@
     </ClCompile>
     <ClCompile Include="PixelsArray.cpp">
       <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsComponents.cpp">
-      <Filter>Game\Physics</Filter>
     </ClCompile>
     <ClCompile Include="Vehicle.cpp">
       <Filter>Game\GameObjects</Filter>
@@ -702,6 +711,15 @@
     </ClCompile>
     <ClCompile Include="AudioDataStream.cpp">
       <Filter>Game\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsBody.cpp">
+      <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

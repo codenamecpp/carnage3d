@@ -57,6 +57,7 @@ public:
 
     // update current state
     void ProcessFrame();
+    void ProcessSimulationFrame();
 
     bool CanStartSlideOnCarState() const;
 
@@ -65,7 +66,6 @@ private:
     
     // state helpers
     void ProcessRotateActions();
-    void ProcessMotionActions();
 
     ePedestrianState GetNextIdleState();
 
@@ -82,6 +82,7 @@ private:
     void StateDummy_ProcessEnter(const PedestrianStateEvent& stateEvent) {}
     void StateDummy_ProcessExit() {}
     bool StateDummy_ProcessEvent(const PedestrianStateEvent& stateEvent) { return false; }
+    void StateDummy_ProcessSimulationFrame() {}
 
     // state dead
     void StateDead_ProcessEnter(const PedestrianStateEvent& stateEvent);
@@ -132,10 +133,30 @@ private:
 
     struct StateFuncs
     {
-        void (PedestrianStatesManager::*pfStateEnter)(const PedestrianStateEvent& stateEvent);
-        void (PedestrianStatesManager::*pfStateExit)();
-        void (PedestrianStatesManager::*pfStateFrame)();
-        bool (PedestrianStatesManager::*pfStateEvent)(const PedestrianStateEvent& stateEvent);
+        using PFStateEnter = void (PedestrianStatesManager::*)(const PedestrianStateEvent& stateEvent);
+        PFStateEnter pfStateEnter = nullptr;
+
+        using PFStateExit = void (PedestrianStatesManager::*)();
+        PFStateExit pfStateExit = nullptr;
+
+        using PFStateFrame = void (PedestrianStatesManager::*)();
+        PFStateFrame pfStateFrame = nullptr;
+
+        using PFStateEvent = bool (PedestrianStatesManager::*)(const PedestrianStateEvent& stateEvent);
+        PFStateEvent pfStateEvent = nullptr;
+
+        using PFStateSimulationFrame = void (PedestrianStatesManager::*)();
+        PFStateSimulationFrame pfStateSimulationFrame = nullptr;
+
+        StateFuncs(PFStateEnter _pfEnter, PFStateExit _pfExit, PFStateFrame _pfFrame, PFStateEvent _pfEvent, PFStateSimulationFrame _pfSimulationFrame)
+            : pfStateEnter(_pfEnter)
+            , pfStateExit(_pfExit)
+            , pfStateFrame(_pfFrame)
+            , pfStateEvent(_pfEvent)
+            , pfStateSimulationFrame(_pfSimulationFrame)
+        {
+        }
+        StateFuncs() = default;
     };
 
     Pedestrian* mPedestrian;

@@ -7,21 +7,21 @@ class AudioSource;
 class AudioSampleBuffer;
 
 // sound table index
-using SfxIndex = unsigned int; 
+using SfxSampleIndex = unsigned int; 
 
 // sound effect type identifier
-enum eSfxType
+enum eSfxSampleType
 {
-    eSfxType_Level,
-    eSfxType_Voice,
+    eSfxSampleType_Level,
+    eSfxSampleType_Voice,
 };
 
 // sound playback flags
 enum SfxFlags
 {
-    SfxFlags_None           = 0,
-    SfxFlags_Loop           = BIT(1),
-    SfxFlags_RandomPitch    = BIT(2), // randomize pitch a bit
+    SfxFlags_None        = 0,
+    SfxFlags_Loop        = BIT(0),
+    SfxFlags_RandomPitch = BIT(1), // randomize pitch a bit
 };
 
 decl_enum_as_flags(SfxFlags);
@@ -36,7 +36,7 @@ enum SfxEmitterFlags
 decl_enum_as_flags(SfxEmitterFlags);
 
 // level sound constants
-enum : SfxIndex
+enum : SfxSampleIndex
 {
     SfxLevel_CarDoorOpen = 0,
     SfxLevel_CarDoorClose = 1,
@@ -86,7 +86,7 @@ enum : SfxIndex
 };
 
 // voice sound constants
-enum : SfxIndex
+enum : SfxSampleIndex
 {
     SfxVoice_GrandTheftAuto = 0,
     SfxVoice_MissionComplete = 1,

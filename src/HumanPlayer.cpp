@@ -2,13 +2,14 @@
 #include "HumanPlayer.h"
 #include "Pedestrian.h"
 #include "PhysicsManager.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "PhysicsDefs.h"
 #include "Vehicle.h"
 #include "GameMapManager.h"
 #include "CarnageGame.h"
 #include "TimeManager.h"
 #include "AudioDevice.h"
+#include "DebugRenderer.h"
 
 HumanPlayer::HumanPlayer(Pedestrian* character)
     : mLastDistrictIndex()
@@ -260,25 +261,28 @@ void HumanPlayer::EnterOrExitCar(bool alternative)
         return;
     }
 
-    PhysicsLinecastResult linecastResult;
+    PhysicsQueryResult queryResults;
 
     glm::vec3 pos = mCharacter->mPhysicsBody->GetPosition();
     glm::vec2 posA { pos.x, pos.z };
     glm::vec2 posB = posA + (mCharacter->mPhysicsBody->GetSignVector() * gGameParams.mPedestrianSpotTheCarDistance);
 
-    gPhysics.QueryObjectsLinecast(posA, posB, linecastResult);
+    gPhysics.QueryObjectsLinecast(posA, posB, queryResults, CollisionGroup_Car);
 
     // process all cars
-    for (int icar = 0; icar < linecastResult.mHitsCount; ++icar)
+    for (int iElement = 0; iElement < queryResults.mElementsCount; ++iElement)
     {
-        CarPhysics* carBody = linecastResult.mHits[icar].mCarComponent;
-        if (carBody == nullptr)
-            continue;
+        PhysicsBody* physicsBody = queryResults.mElements[iElement].mPhysicsObject;
+        debug_assert(physicsBody);
+        debug_assert(physicsBody->mGameObject);
+        debug_assert(physicsBody->mGameObject->IsVehicleClass());
+
+        Vehicle* carObject = (Vehicle*) physicsBody->mGameObject;
 
         eCarSeat carSeat = alternative ? eCarSeat_Passenger : eCarSeat_Driver;
-        if (carBody->mReferenceCar->IsSeatPresent(carSeat))
+        if (carObject->IsSeatPresent(carSeat))
         {
-            mCharacter->EnterCar(carBody->mReferenceCar, carSeat);
+            mCharacter->EnterCar(carObject, carSeat);
         }
         return;
     }
@@ -292,7 +296,9 @@ void HumanPlayer::Respawn()
 
     // todo : exit from car
 
-    mCharacter->Spawn(mSpawnPosition, mCharacter->mPhysicsBody->GetRotationAngle());
+    mCharacter->HandleDespawn();
+    mCharacter->SetPosition(mSpawnPosition);
+    mCharacter->HandleSpawn();
 
     Cheat_GiveAllWeapons();
 }
@@ -341,6 +347,11 @@ void HumanPlayer::ProcessRepetitiveActions()
         ctlState.mWalkForward = GetActionState(eInputAction_WalkForward);
         ctlState.mJump = GetActionState(eInputAction_Jump);
         ctlState.mShoot = GetActionState(eInputAction_Shoot);
+
+        if ((ctlState.mTurnLeft == false) && (ctlState.mTurnRight == false))
+        {
+            UpdateMouseAiming();
+        }
     }
 }
 
@@ -360,7 +371,7 @@ bool HumanPlayer::GetActionState(eInputAction action) const
     return false;
 }
 
-void HumanPlayer::DeactivateConstroller()
+void HumanPlayer::DeactivateController()
 {
     // do nothing
 }
@@ -384,7 +395,7 @@ void HumanPlayer::OnCharacterStartCarDrive()
 
 void HumanPlayer::UpdateDistrictLocation()
 {
-    const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->GetPosition2());
+    const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->mTransform.GetPosition2());
     if (currentDistrict == nullptr)
         return;
 
@@ -401,5 +412,47 @@ void HumanPlayer::Cheat_GiveAllWeapons()
     for (int icurr = 0; icurr < eWeapon_COUNT; ++icurr)
     {
         mCharacter->mWeapons[icurr].AddAmmunition(99);
+    }
+}
+
+void HumanPlayer::SetMouseAiming(bool isEnabled)
+{
+    mMouseAimingEnabled = isEnabled;
+}
+
+bool HumanPlayer::IsMouseAmingEnabled() const
+{
+    return mMouseAimingEnabled;
+}
+
+void HumanPlayer::UpdateMouseAiming()
+{
+    if (!mMouseAimingEnabled)
+        return;
+
+    debug_assert(mCharacter);
+
+    // get current mouse position in world space
+    glm::ivec2 screenPosition(gInputs.mCursorPositionX, gInputs.mCursorPositionY);
+    cxx::ray3d_t raycastResult;
+    if (!mPlayerView.mCamera.CastRayFromScreenPoint(screenPosition, raycastResult))
+        return;
+
+    float distanceFromCameraToCharacter = mPlayerView.mCamera.mPosition.y - mCharacter->mTransform.mPosition.y;
+    glm::vec2 worldPosition
+    (
+        raycastResult.mOrigin.x + (raycastResult.mDirection.x * distanceFromCameraToCharacter), 
+        raycastResult.mOrigin.z + (raycastResult.mDirection.z * distanceFromCameraToCharacter)
+    );
+    glm::vec2 mousePointVector = worldPosition - mCharacter->mTransform.GetPosition2();
+    if (glm::length2(mousePointVector) > 0.0f)
+    {
+        mousePointVector = glm::normalize(mousePointVector);
+
+        glm::vec2 characterRightVector = mCharacter->mTransform.GetRightVector();
+        float dot_ = glm::dot(characterRightVector, mousePointVector);
+
+        mCharacter->mCtlState.mTurnLeft = (dot_ < -0.1f);
+        mCharacter->mCtlState.mTurnRight = (dot_ > 0.1f);
     }
 }

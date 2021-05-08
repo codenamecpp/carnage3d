@@ -3,7 +3,7 @@
 #include "AudioDevice.h"
 #include "AudioManager.h"
 
-SfxSample::SfxSample(eSfxType sfxType, SfxIndex sfxIndex, AudioSampleBuffer* sampleBuffer)
+SfxSample::SfxSample(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, AudioSampleBuffer* sampleBuffer)
     : mSfxType(sfxType)
     , mSfxIndex(sfxIndex)
     , mSampleBuffer(sampleBuffer)

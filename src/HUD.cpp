@@ -523,6 +523,11 @@ void HUD::DrawFrame(GuiContext& guiContext)
             currentPanel->DrawFrame(guiContext);
         }
     }
+
+    if (CheckCharacterObscure())
+    {
+        DrawArrowAboveCharacter(guiContext);
+    }
 }
 
 void HUD::PushPagerMessage()
@@ -734,4 +739,45 @@ void HUD::TickAutoHidePanels()
 
         ++panels_iterator;
     }
+}
+
+bool HUD::CheckCharacterObscure() const
+{
+    Pedestrian* pedestrian = mHumanPlayer->mCharacter;
+    debug_assert(pedestrian);
+
+    const glm::vec3& worldPosition = pedestrian->mTransformSmooth.mPosition;
+    // convert to map position
+    glm::ivec3 mapPosition = Convert::MetersToMapUnits(worldPosition);
+    for (int currentBlockLayer = mapPosition.y + 1; currentBlockLayer < MAP_LAYERS_COUNT; ++currentBlockLayer)
+    {
+        const MapBlockInfo* currBlock = gGameMap.GetBlockInfo(mapPosition.x, mapPosition.z, currentBlockLayer);
+        if (currBlock->mFaces[eBlockFace_Lid] > 0)
+        {
+            int bp = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+void HUD::DrawArrowAboveCharacter(GuiContext& guiContext)
+{
+    Pedestrian* pedestrian = mHumanPlayer->mCharacter;
+    debug_assert(pedestrian);
+
+    // setup arrow sprite
+    Sprite2D arrowSprite;
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, eSpriteID_Arrow_Pointer, 0, arrowSprite);
+
+    arrowSprite.mScale = HUD_SPRITE_SCALE;
+    arrowSprite.mDrawOrder = eSpriteDrawOrder_HUD_Arrow;
+    // set rotation
+    arrowSprite.mRotateAngle = pedestrian->mTransformSmooth.mOrientation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+
+    // convert character position to screen position
+    GameCamera& gameCamera = mHumanPlayer->mPlayerView.mCamera;
+    gameCamera.ProjectPointToScreen(pedestrian->mTransformSmooth.mPosition, arrowSprite.mPosition);
+
+    guiContext.mSpriteBatch.DrawSprite(arrowSprite);
 }

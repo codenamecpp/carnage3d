@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FollowCameraController.h"
-#include "PhysicsComponents.h"
+#include "PhysicsBody.h"
 #include "CarnageGame.h"
 #include "Pedestrian.h"
 #include "TimeManager.h"
@@ -27,7 +27,7 @@ void FollowCameraController::Setup(GameCamera* gameCamera)
     
     if (mFollowPedestrian)
     {
-        glm::vec3 position = mFollowPedestrian->mPhysicsBody->mSmoothPosition;
+        glm::vec3 position = mFollowPedestrian->mTransformSmooth.mPosition;
         mCamera->SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
     }
     else
@@ -42,7 +42,7 @@ void FollowCameraController::UpdateFrame()
     if (mFollowPedestrian == nullptr)
         return;
 
-    glm::vec3 position = mFollowPedestrian->mPhysicsBody->mSmoothPosition;
+    glm::vec3 position = mFollowPedestrian->mTransformSmooth.mPosition;
     position.y = position.y + (mFollowPedCameraHeight + mScrollHeightOffset);
 
     float catchSpeed = mFollowPedCameraCatchSpeed;

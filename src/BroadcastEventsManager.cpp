@@ -60,7 +60,7 @@ void BroadcastEventsManager::RegisterEvent(eBroadcastEvent eventType, GameObject
         {
             evData.mEventTimestamp = currentGameTime;
             evData.mEventDurationTime = durationTime;
-            evData.mPosition = subject->GetPosition2();
+            evData.mPosition = subject->mTransform.GetPosition2();
             return;
         }
     }
@@ -72,7 +72,7 @@ void BroadcastEventsManager::RegisterEvent(eBroadcastEvent eventType, GameObject
     evData.mEventSubject = subjectType;
     evData.mEventTimestamp = currentGameTime;
     evData.mEventDurationTime = durationTime;
-    evData.mPosition = subject->GetPosition2();
+    evData.mPosition = subject->mTransform.GetPosition2();
     evData.mSubject = subject;
     evData.mCharacter = character;
 }

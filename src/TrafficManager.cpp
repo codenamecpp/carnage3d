@@ -495,7 +495,7 @@ Vehicle* TrafficManager::GenerateRandomTrafficCar(int posx, int posy, int posz)
     debug_assert(vehicle);
     if (vehicle)
     {
-        vehicle->mFlags = (vehicle->mFlags | eGameObjectFlags_Traffic);
+        vehicle->mObjectFlags = (vehicle->mObjectFlags | GameObjectFlags_Traffic);
         // todo: remap
 
         Pedestrian* carDriver = GenerateRandomTrafficCarDriver(vehicle);
@@ -527,7 +527,7 @@ Pedestrian* TrafficManager::GenerateRandomTrafficPedestrian(int posx, int posy, 
     debug_assert(pedestrian);
     if (pedestrian)
     {
-        pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
+        pedestrian->mObjectFlags = (pedestrian->mObjectFlags | GameObjectFlags_Traffic);
 
         AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
         debug_assert(controller);
@@ -559,12 +559,12 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
         Pedestrian* character = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, ePedestrianType_HareKrishnasGang);
         debug_assert(character);
 
-        character->mFlags = (character->mFlags | eGameObjectFlags_Traffic);
+        character->mObjectFlags = (character->mObjectFlags | GameObjectFlags_Traffic);
         AiCharacterController* controller = gAiManager.CreateAiController(character);
         debug_assert(controller);
         if (controller && characterLeader == nullptr)
         {
-            controller->EnableAiFlags(ePedestrianAiFlags_FollowHumanCharacter);
+            controller->EnableAiFlags(PedestrianAiFlags_FollowHumanCharacter);
             characterLeader = character;
         }
         if (controller && characterPrev)
@@ -576,28 +576,25 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
     return characterLeader;
 }
 
-Pedestrian* TrafficManager::GenerateRandomTrafficCarDriver(Vehicle* vehicle)
+Pedestrian* TrafficManager::GenerateRandomTrafficCarDriver(Vehicle* car)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
-    debug_assert(vehicle);
+    debug_assert(car);
 
     int remapIndex = random.generate_int(0, MAX_PED_REMAPS - 1); // todo: find out correct list of traffic peds skins
-    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(
-        vehicle->mPhysicsBody->GetPosition(), 
-        vehicle->mPhysicsBody->GetRotationAngle(), ePedestrianType_Civilian);
-
+    Pedestrian* pedestrian = gGameObjectsManager.CreatePedestrian(car->mTransform.mPosition, car->mTransform.mOrientation, ePedestrianType_Civilian);
     debug_assert(pedestrian);
 
     if (pedestrian)
     {
-        pedestrian->mFlags = (pedestrian->mFlags | eGameObjectFlags_Traffic);
+        pedestrian->mObjectFlags = (pedestrian->mObjectFlags | GameObjectFlags_Traffic);
 
         AiCharacterController* controller = gAiManager.CreateAiController(pedestrian);
         debug_assert(controller);
         if (controller)
         {
-            pedestrian->PutInsideCar(vehicle, eCarSeat_Driver);
+            pedestrian->PutInsideCar(car, eCarSeat_Driver);
         }
     }
     return pedestrian;

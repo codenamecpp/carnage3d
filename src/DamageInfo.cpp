@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DamageInfo.h"
+#include "Collision.h"
 
 void DamageInfo::SetDamageFromFall(float fallHeight)
 {
@@ -59,12 +60,32 @@ void DamageInfo::SetDamageFromWater(int hitpoints)
     mHitPoints = hitpoints;
 }
 
-void DamageInfo::SetDamageFromCarCrash(const glm::vec3& contactPoint, float contactImpulse, GameObject* object)
+void DamageInfo::SetDamageFromCollision(const Collision& collisionInfo)
 {
-    mDamageCause = eDamageCause_CarCrash;
-    mContactPoint = contactPoint;
-    mContactImpulse = contactImpulse;
-    mSourceObject = object;
+    mDamageCause = eDamageCause_Collision;
+    mHitPoints = 0; // not used
+    mContactImpulse = collisionInfo.GetContactImpulse();
+    if (!collisionInfo.mContactInfo.HasContactPoints())
+    {
+        debug_assert(false);
+        return;
+    }
+    mContactPoint = collisionInfo.mContactInfo.mContactPoints[0];
+    mSourceObject = collisionInfo.mContactInfo.mThatObject;
+    debug_assert(mSourceObject);
+}
+
+void DamageInfo::SetDamageFromCollision(const MapCollision& collisionInfo)
+{
+    mDamageCause = eDamageCause_MapCollision;
+    mHitPoints = 0; // not used
+    mContactImpulse = collisionInfo.GetContactImpulse();
+    if (!collisionInfo.HasContactPoints())
+    {
+        debug_assert(false);
+        return;
+    }
+    mContactPoint = collisionInfo.mContactPoints[0];
 }
 
 void DamageInfo::SetDamageFromExplosion(int hitpoints, GameObject* object)
@@ -88,16 +109,16 @@ void DamageInfo::SetDamageFromPunch(int hitpoints, GameObject* object)
     mSourceObject = object;
 }
 
+void DamageInfo::SetDamageFromCarHit(GameObject* carObject)
+{
+    mDamageCause = eDamageCause_CarHit;
+    mSourceObject = carObject;
+    mHitPoints = 0; // not used
+}
+
 void DamageInfo::Clear()
 {
     mDamageCause = eDamageCause_Punch;
-
-    mContactPoint.x = 0.0f;
-    mContactPoint.y = 0.0f;
-    mContactPoint.z = 0.0f;
-    mNormal.x = 0.0f;
-    mNormal.y = 0.0f;
-
     mSourceObject = nullptr;
     mHitPoints = 0;
     mContactImpulse = 0.0f;

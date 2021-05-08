@@ -9,6 +9,7 @@
 #include "TrafficManager.h"
 #include "ParticleEffectsManager.h"
 #include "ParticleRenderdata.h"
+#include "CarnageGame.h"
 
 RenderingManager gRenderManager;
 

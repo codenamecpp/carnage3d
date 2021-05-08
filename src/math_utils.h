@@ -108,4 +108,15 @@ namespace cxx
         return lhs.x * rhs.y - lhs.y * rhs.x;
     }
 
+    // floats comparsion
+    inline bool equals(float lhs, float rhs)
+    {
+        return fabsf(lhs - rhs) < FLT_EPSILON;
+    }
+
+    inline bool equals_zero(float value)
+    {
+        return fabsf(value) < FLT_EPSILON;
+    }
+
 } // namespace cxx

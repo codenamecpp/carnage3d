@@ -89,6 +89,9 @@ public:
     // @param resultRay: Output ray info
     bool CastRayFromScreenPoint(const glm::ivec2& screenCoordinate, cxx::ray3d_t& resultRay);
 
+    // Transform world space point to screen space point, make sure to ComputeMatricesAndFrustum
+    bool ProjectPointToScreen(const glm::vec3& point, glm::vec2& resultScreenPoint);
+
     // Will swap Z and Y direction vectors
     void SetTopDownOrientation();
 
