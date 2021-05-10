@@ -72,10 +72,7 @@ void Explosion::HandleSpawn()
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
     mAnimationState.SetMaxRepeatCycles(1);
 
-    if (!gSpriteManager.GetExplosionTexture(0, mDrawSprite))
-    {
-        debug_assert(false);
-    }
+    gSpriteManager.GetExplosionTexture(0, mDrawSprite);
     RefreshDrawSprite();
     // broadcast event
     glm::vec2 position2 (mTransform.mPosition.x, mTransform.mPosition.z);

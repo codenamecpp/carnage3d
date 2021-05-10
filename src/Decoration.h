@@ -26,6 +26,9 @@ public:
     void SetDrawOrder(eSpriteDrawOrder drawOrder);
 
 private:
+    void SetupSpriteFrame();
+
+private:
     SpriteAnimation mAnimationState;
     glm::vec3 mMoveVelocity;
     int mLifeDuration = 0; // number of animation cycles before decoration will be deleted, or 0 for endless lifetime

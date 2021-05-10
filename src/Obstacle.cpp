@@ -19,8 +19,7 @@ void Obstacle::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mAnimationState.UpdateFrame(deltaTime))
     {
-        gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
-        RefreshDrawSprite();
+        SetupSpriteFrame();
     }
 }
 
@@ -36,4 +35,12 @@ void Obstacle::HandleSpawn()
     mAnimationState.mAnimDesc = mGameObjectDesc->mAnimationData;
 
     //mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
+
+    SetupSpriteFrame();
+}
+
+void Obstacle::SetupSpriteFrame()
+{
+    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
+    RefreshDrawSprite();
 }

@@ -40,7 +40,7 @@ public:
     {  
         return {
             MetersToMapUnits(units.x),
-            MetersToMapUnits(units.y),
+            MetersToMapUnits(units.y + 0.5f), // extra offset for height to get things work
             MetersToMapUnits(units.z)
         };
     }

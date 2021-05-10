@@ -30,6 +30,11 @@ void SpriteBatch::Clear()
 
 void SpriteBatch::DrawSprite(const Sprite2D& sourceSprite)
 {
+    if (sourceSprite.mTexture == nullptr)
+    {
+        debug_assert(false);
+        return;
+    }
     mSpritesList.push_back(sourceSprite);
 }
 

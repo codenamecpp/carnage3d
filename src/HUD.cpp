@@ -746,17 +746,20 @@ bool HUD::CheckCharacterObscure() const
     Pedestrian* pedestrian = mHumanPlayer->mCharacter;
     debug_assert(pedestrian);
 
-    const glm::vec3& worldPosition = pedestrian->mTransformSmooth.mPosition;
+    const glm::vec3& worldPosition = pedestrian->mTransform.mPosition;
     // convert to map position
     glm::ivec3 mapPosition = Convert::MetersToMapUnits(worldPosition);
-    for (int currentBlockLayer = mapPosition.y + 1; currentBlockLayer < MAP_LAYERS_COUNT; ++currentBlockLayer)
+    for (int currentBlockLayer = mapPosition.y; currentBlockLayer < MAP_LAYERS_COUNT; ++currentBlockLayer)
     {
         const MapBlockInfo* currBlock = gGameMap.GetBlockInfo(mapPosition.x, mapPosition.z, currentBlockLayer);
-        if (currBlock->mFaces[eBlockFace_Lid] > 0)
+        if (currentBlockLayer == mapPosition.y)
         {
-            int bp = 0;
-            return true;
+            if (currBlock->mSlopeType)
+                continue;
         }
+
+        if (currBlock->mFaces[eBlockFace_Lid] && !currBlock->mIsFlat)
+            return true;
     }
     return false;
 }

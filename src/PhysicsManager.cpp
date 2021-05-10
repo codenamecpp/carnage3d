@@ -12,6 +12,7 @@
 #include "PhysicsBody.h"
 #include "Collision.h"
 #include "GameObjectHelpers.h"
+#include "AudioManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -644,14 +645,15 @@ void PhysicsManager::HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, 
 {
     debug_assert(car);
 
+    int pointCount = contact->GetManifold()->pointCount;
+    float impact = 0.0f;
+    for (int i = 0; i < pointCount; ++i) 
+    {
+        impact = b2Max(impact, impulse->normalImpulses[i]);
+    }
+
     if (gParticleManager.IsCarSparksEffectEnabled())
     {
-        int pointCount = contact->GetManifold()->pointCount;
-        float impact = 0.0f;
-        for (int i = 0; i < pointCount; ++i) 
-        {
-            impact = b2Max(impact, impulse->normalImpulses[i]);
-        }
         b2WorldManifold wmanifold;
         contact->GetWorldManifold(&wmanifold);
 
@@ -663,6 +665,16 @@ void PhysicsManager::HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, 
             gParticleManager.StartCarSparks(contactPoint, velocity, 3);
         }
     }
+
+
+    // sound
+    if (impact > 700.0f)
+    {
+        //gAudioManager.StartSound(eSfxSampleType_Level, SfxLevel_CarCrash4, SfxFlags_RandomPitch, car->mTransform.mPosition);
+    }
+
+    // bounce
+   
 }
 
 void PhysicsManager::ProcessInterpolation()
