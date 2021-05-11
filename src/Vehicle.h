@@ -123,11 +123,10 @@ private:
     void UpdateDeltaAnimations();
     void UpdateEngineSound();
 
+    void SetRemap(int remapIndex);
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
     void UpdateDamageFromRailways();
-
-    void SetupCarSprite();
 
     SpriteDeltaBits GetSpriteDeltas() const;
 

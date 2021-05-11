@@ -43,12 +43,12 @@ void Pedestrian::HandleSpawn()
 
     if (pedestrianInfo.mRemapType == ePedestrianRemapType_Index)
     {
-        mRemapIndex = pedestrianInfo.mRemapIndex;
+        SetRemap(pedestrianInfo.mRemapIndex);
     }
     if (pedestrianInfo.mRemapType == ePedestrianRemapType_RandomCivilian)
     {
         // todo: find out correct civilian peds indices
-        mRemapIndex = gCarnageGame.mGameRand.generate_int(0, MAX_PED_REMAPS - 1);
+        SetRemap(gCarnageGame.mGameRand.generate_int(0, MAX_PED_REMAPS - 1));
     }
 
     mCurrentStateTime = 0.0f;
@@ -150,7 +150,7 @@ void Pedestrian::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mCurrentAnimState.UpdateFrame(deltaTime))
     {
-        SetupAnimFrameSprite();
+        SetSprite(mCurrentAnimState.GetSpriteIndex());
     }
 
     // update weapons state
@@ -410,20 +410,19 @@ void Pedestrian::SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopM
             mCurrentAnimState.SetCurrentLoop(loopMode);
             return;
         }
-
-        mCurrentAnimState.PlayAnimation(loopMode);
-        SetupAnimFrameSprite();
-        return;
     }
-
-    mCurrentAnimState.Clear();
-    if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
+    else
     {
-        debug_assert(false);
+        mCurrentAnimState.Clear();
+        if (!gGameMap.mStyleData.GetPedestrianAnimation(animation, mCurrentAnimState.mAnimDesc))
+        {
+            debug_assert(false);
+        }
+        mCurrentAnimID = animation;
     }
-    mCurrentAnimID = animation;
+
     mCurrentAnimState.PlayAnimation(loopMode);
-    SetupAnimFrameSprite();
+    SetSprite(mCurrentAnimState.GetSpriteIndex());
 }
 
 ePedestrianState Pedestrian::GetCurrentStateID() const
@@ -742,16 +741,13 @@ void Pedestrian::PushByPedestrian(Pedestrian* otherPedestrian)
     // todo: implement
 }
 
-void Pedestrian::SetupAnimFrameSprite()
-{
-    int spriteIndex = mCurrentAnimState.GetSpriteIndex();
-
-    int remapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
-    gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, remapClut, mDrawSprite);
-    RefreshDrawSprite();
-}
-
 bool Pedestrian::CanRun() const
 {
     return !(mContactingOtherPeds && IsHumanPlayerCharacter());
+}
+
+void Pedestrian::SetRemap(int remapIndex)
+{
+    mRemapIndex = remapIndex;
+    mRemapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
 }

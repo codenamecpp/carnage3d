@@ -122,6 +122,7 @@ protected:
     void InitSounds();
     void FreeSounds();
 
+    void SetSprite(int spriteIndex, SpriteDeltaBits deltaBits = 0);
     void SetPhysics(PhysicsBody* physicsBody);
     void SetParentObject(GameObject* gameObject);
     void RefreshDrawSprite();
@@ -145,6 +146,8 @@ protected:
 
     // drawing spricific data
     Sprite2D mDrawSprite;
+    eSpriteOrientation mDrawSpriteOrientation = eSpriteOrientation_S;
+    int mRemapClut = 0;
     cxx::aabbox2d_t mDrawBounds; // sprite bounds cache
 
 private:

@@ -5,6 +5,7 @@
 #include "AudioManager.h"
 #include "PhysicsManager.h"
 #include "GameMapManager.h"
+#include "SpriteManager.h"
 
 GameObject::GameObject(eGameObjectClass objectTypeID, GameObjectID uniqueID)
     : mObjectID(uniqueID)
@@ -38,6 +39,19 @@ void GameObject::FreeSounds()
         mSfxEmitter->ReleaseEmitter(false); // leave sounds
         mSfxEmitter = nullptr;
     }
+}
+
+void GameObject::SetSprite(int spriteIndex, SpriteDeltaBits deltaBits)
+{
+    if (deltaBits > 0)
+    {
+        gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, mRemapClut, deltaBits, mDrawSprite);
+    }
+    else
+    {
+        gSpriteManager.GetSpriteTexture(mObjectID, spriteIndex, mRemapClut, mDrawSprite);
+    }
+    RefreshDrawSprite();
 }
 
 void GameObject::SetPhysics(PhysicsBody* physicsBody)
@@ -120,7 +134,17 @@ bool GameObject::ReceiveDamage(const DamageInfo& damageInfo)
 
 void GameObject::RefreshDrawSprite()
 {
-    mDrawSprite.mRotateAngle = mTransformSmooth.mOrientation - cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    cxx::angle_t angleOffset;
+    if (mDrawSpriteOrientation == eSpriteOrientation_N)
+    {
+        angleOffset = cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    }
+    if (mDrawSpriteOrientation == eSpriteOrientation_S)
+    {
+        angleOffset = -cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
+    }
+
+    mDrawSprite.mRotateAngle = mTransformSmooth.mOrientation + angleOffset;
 
     mDrawSprite.mPosition.x = mTransformSmooth.mPosition.x;
     mDrawSprite.mPosition.y = mTransformSmooth.mPosition.z;

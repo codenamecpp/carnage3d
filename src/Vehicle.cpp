@@ -54,7 +54,10 @@ void Vehicle::HandleSpawn()
     mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
 
     SetupDeltaAnimations();
-    SetupCarSprite();
+    SetRemap(NO_REMAP);
+
+    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
+    SetSprite(mSpriteIndex, GetSpriteDeltas());
 }
 
 void Vehicle::HandleDespawn()
@@ -338,8 +341,7 @@ void Vehicle::UpdateDeltaAnimations()
     if (mPrevDeltaBits != currDeltaBits)
     {
         mPrevDeltaBits = currDeltaBits;
-
-        SetupCarSprite();
+        SetSprite(mSpriteIndex, currDeltaBits);
     }
 }
 
@@ -561,8 +563,8 @@ void Vehicle::Explode()
     explosionPos.y = mDrawSprite.mHeight;
 
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
-    mRemapIndex = NO_REMAP;
-    SetupCarSprite();
+    SetRemap(NO_REMAP);
+    SetSprite(mSpriteIndex, GetSpriteDeltas());
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_CarDetonate, explosionPos);
     debug_assert(explosion);
@@ -968,15 +970,6 @@ float Vehicle::GetCurrentSpeed() const
     return 0.0f;
 }
 
-
-void Vehicle::SetupCarSprite()
-{
-    int remapClut = mRemapIndex == NO_REMAP ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
-    gSpriteManager.GetSpriteTexture(mObjectID, mSpriteIndex, remapClut, GetSpriteDeltas(), mDrawSprite);
-    mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
-    RefreshDrawSprite();
-}
-
 void Vehicle::GetChassisCorners(glm::vec2 corners[4]) const
 {
     GetChassisCornersLocal(corners);
@@ -1202,4 +1195,10 @@ glm::vec2 Vehicle::GetTireLocalLateral(eCarTire tireID) const
     }
     debug_assert(false);
     return {};
+}
+
+void Vehicle::SetRemap(int remapIndex)
+{
+    mRemapIndex = remapIndex;
+    mRemapClut = (mRemapIndex == NO_REMAP) ? 0 : (mCarInfo->mRemapsBaseIndex + mRemapIndex);
 }

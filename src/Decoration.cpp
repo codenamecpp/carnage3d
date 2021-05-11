@@ -20,7 +20,7 @@ void Decoration::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mAnimationState.UpdateFrame(deltaTime))
     {
-        SetupSpriteFrame();
+        SetSprite(mAnimationState.GetSpriteIndex(), 0);
     }
 
     glm::vec3 newPosition = mTransform.mPosition + (mMoveVelocity * deltaTime);
@@ -41,10 +41,12 @@ void Decoration::DebugDraw(DebugRenderer& debugRender)
 
 void Decoration::HandleSpawn()
 {
+    mRemapClut = 0;
+
     mAnimationState.ClearState();
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
 
-    SetupSpriteFrame();
+    SetSprite(mAnimationState.GetSpriteIndex(), 0);
 }
 
 void Decoration::SetLifeDuration(int numCycles)
@@ -67,10 +69,4 @@ void Decoration::SetScale(float scale)
 void Decoration::SetMoveVelocity(const glm::vec3& moveVelocity)
 {
     mMoveVelocity = moveVelocity;
-}
-
-void Decoration::SetupSpriteFrame()
-{
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
-    RefreshDrawSprite();
 }

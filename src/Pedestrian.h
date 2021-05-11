@@ -23,8 +23,6 @@ public:
 
     CharacterController* mController; // controls pedestrian actions
     PedestrianCtlState mCtlState;
-
-    int mRemapIndex;
     
     ePedestrianDeathReason mDeathReason = ePedestrianDeathReason_null; // has meaning only in 'dead state'
 
@@ -139,12 +137,12 @@ private:
 
     bool CanRun() const;
 
+    void SetRemap(int remapIndex);
     void SetAnimation(ePedestrianAnimID animation, eSpriteAnimLoop loopMode);
     void SetDead(ePedestrianDeathReason deathReason);
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();
     void SetBurnEffectActive(bool isActive);
-    void SetupAnimFrameSprite();
 
     void UpdateBurnEffect();
     void UpdateDamageFromRailways();
@@ -166,6 +164,8 @@ private:
 
     bool mContactingOtherPeds = false;
     bool mContactingCars = false;
+
+    int mRemapIndex;
 
     // active effects
     Decoration* mFireEffect = nullptr;

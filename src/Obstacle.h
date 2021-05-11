@@ -15,9 +15,6 @@ public:
     void HandleSpawn() override;
 
 private:
-    void SetupSpriteFrame();
-
-private:
     SpriteAnimation mAnimationState;
     GameObjectInfo* mGameObjectDesc = nullptr;
 };

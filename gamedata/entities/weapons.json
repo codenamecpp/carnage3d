@@ -19,9 +19,9 @@
         "projectile_hit_object_sfx": 43, // sound index
         "projectile_offset":
         [
-            { "anim": "shoot_pistol_while_standing", "px": [8, -1] },
-            { "anim": "shoot_pistol_while_walking", "px": [11, -2] },
-            { "anim": "shoot_pistol_while_running", "px": [11, 2] }
+            { "anim": "shoot_pistol_while_standing", "px": [8, 2] },
+            { "anim": "shoot_pistol_while_walking", "px": [11, 0] },
+            { "anim": "shoot_pistol_while_running", "px": [11, 5] }
         ],
         // base params
         "base_hit_range": 4.5,
@@ -44,9 +44,9 @@
         "projectile_hit_object_sfx": 43, // sound index
         "projectile_offset":
         [
-            { "anim": "shoot_machinegun_while_standing", "px": [6, 0] },
-            { "anim": "shoot_machinegun_while_walking", "px": [8, 0] },
-            { "anim": "shoot_machinegun_while_running", "px": [12, 4] }
+            { "anim": "shoot_machinegun_while_standing", "px": [6, 3] },
+            { "anim": "shoot_machinegun_while_walking", "px": [10, 3] },
+            { "anim": "shoot_machinegun_while_running", "px": [11, 7] }
         ],
         // base params
         "base_hit_range": 4.5,
@@ -68,9 +68,9 @@
         "projectile_object": 75,
         "projectile_offset":
         [
-            { "anim": "shoot_flamethrower_while_standing", "px": [18, 2] },
-            { "anim": "shoot_flamethrower_while_walking", "px": [18, 2] },
-            { "anim": "shoot_flamethrower_while_running", "px": [20, 5] }
+            { "anim": "shoot_flamethrower_while_standing", "px": [16, 3] },
+            { "anim": "shoot_flamethrower_while_walking", "px": [16, 3] },
+            { "anim": "shoot_flamethrower_while_running", "px": [18, 6] }
         ],
         // base params
         "base_hit_range": 1.1,

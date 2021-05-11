@@ -61,6 +61,7 @@ void Explosion::DebugDraw(DebugRenderer& debugRender)
 
 void Explosion::HandleSpawn()
 {
+    mRemapClut = 0;
     mUpdatesCounter = 0;
 
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;

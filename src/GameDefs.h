@@ -126,6 +126,13 @@ enum eSpriteOriginMode: unsigned char
     eSpriteOrigin_Center,
 };
 
+enum eSpriteOrientation: unsigned char
+{
+    eSpriteOrientation_N, // +90 degrees
+    eSpriteOrientation_E, // 0 degrees, default
+    eSpriteOrientation_S // -90 degrees
+};
+
 // Object sprites draw prioriry
 enum eSpriteDrawOrder: unsigned char
 {

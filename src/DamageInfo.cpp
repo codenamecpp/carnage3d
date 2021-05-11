@@ -81,10 +81,8 @@ void DamageInfo::SetDamageFromCollision(const MapCollision& collisionInfo)
     mHitPoints = 0; // not used
     mContactImpulse = collisionInfo.GetContactImpulse();
     if (!collisionInfo.HasContactPoints())
-    {
-        debug_assert(false);
         return;
-    }
+
     mContactPoint = collisionInfo.mContactPoints[0];
 }
 

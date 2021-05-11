@@ -26,7 +26,6 @@ public:
     void HandleCollisionWithMap(const MapCollision& collision) override;
 
 private:
-    void SetupAnimFrameSprite();
     void ClearCurrentHit();
 
 private:

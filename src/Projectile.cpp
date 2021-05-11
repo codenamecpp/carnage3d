@@ -20,6 +20,9 @@ void Projectile::HandleSpawn()
     debug_assert(mWeaponInfo);
 
     mStartPosition = mTransform.mPosition;
+    mDrawSpriteOrientation = eSpriteOrientation_N;
+
+    mRemapClut = 0;
 
     PhysicsBody* projectilePhysics = gPhysics.CreateBody(this, PhysicsBodyFlags_Bullet | PhysicsBodyFlags_FixRotation | PhysicsBodyFlags_NoGravity);
     debug_assert(projectilePhysics);
@@ -54,7 +57,7 @@ void Projectile::HandleSpawn()
                 loopType = eSpriteAnimLoop_None;
             }
             mAnimationState.PlayAnimation(loopType, eSpriteAnimMode_Normal, 24.0f); // todo: move to config
-            SetupAnimFrameSprite();
+            SetSprite(mAnimationState.GetSpriteIndex(), 0);
         }
     }
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Projectiles;
@@ -151,7 +154,7 @@ void Projectile::UpdateFrame()
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mAnimationState.UpdateFrame(deltaTime))
     {
-        SetupAnimFrameSprite();
+        SetSprite(mAnimationState.GetSpriteIndex(), 0);
     }
 
     if (!mHitSomething)
@@ -205,16 +208,6 @@ void Projectile::DebugDraw(DebugRenderer& debugRender)
         cxx::bounding_sphere_t bsphere (mPhysicsBody->GetPosition(), mWeaponInfo->mProjectileSize);
         debugRender.DrawSphere(bsphere, Color32_Orange, false);
     }
-}
-
-void Projectile::SetupAnimFrameSprite()
-{
-    gSpriteManager.GetSpriteTexture(mObjectID, mAnimationState.GetSpriteIndex(), 0, mDrawSprite);
-
-    // mirror vertically
-    std::swap(mDrawSprite.mTextureRegion.mV1, mDrawSprite.mTextureRegion.mV0);
-
-    RefreshDrawSprite();
 }
 
 void Projectile::ClearCurrentHit()
