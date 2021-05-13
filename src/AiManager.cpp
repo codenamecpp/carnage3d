@@ -16,11 +16,7 @@ void AiManager::UpdateFrame()
     for (size_t iController = 0, Count = mCharacterControllers.size(); iController < Count; ++iController)
     {
         AiCharacterController* currController = mCharacterControllers[iController];
-        if (currController->IsControllerActive())
-        {
-            currController->UpdateFrame();
-        }
-        else
+        if (!currController->IsControllerActive())
         {
             SafeDelete(mCharacterControllers[iController]);
             hasInactiveControllers = true;

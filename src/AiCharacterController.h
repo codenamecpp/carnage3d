@@ -3,6 +3,8 @@
 #include "CharacterController.h"
 #include "Pedestrian.h"
 
+//////////////////////////////////////////////////////////////////////////
+
 enum ePedestrianAiMode
 {
     ePedestrianAiMode_None,
@@ -27,7 +29,10 @@ enum PedestrianAiFlags
     PedestrianAiFlags_LemmingBehavior = BIT(0), // can suicide
     PedestrianAiFlags_FollowHumanCharacter = BIT(1),
 };
+
 decl_enum_as_flags(PedestrianAiFlags);
+
+//////////////////////////////////////////////////////////////////////////
 
 // defines ai character controller
 class AiCharacterController final: public CharacterController
@@ -36,8 +41,8 @@ public:
     AiCharacterController(Pedestrian* character);
 
     // process controller logic
-    void UpdateFrame() override;
     void DebugDraw(DebugRenderer& debugRender) override;
+    void OnCharacterUpdateFrame() override;
 
     void EnableAiFlags(PedestrianAiFlags aiFlags);
     void DisableAiFlags(PedestrianAiFlags aiFlags);

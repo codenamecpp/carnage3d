@@ -12,10 +12,14 @@ AudioManager gAudioManager;
 
 CvarEnum<eGameMusicMode> gCvarGameMusicMode("g_musicMode", eGameMusicMode_Radio, "Game music mode", CvarFlags_Archive);
 
+CvarInt gCvarMusicVolume("g_musicVolume", 3, "Game music volume in range 0-7", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+CvarInt gCvarSoundsVolume("g_soundsVolume", 3, "Audio effects volume in range 0-7", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+
 //////////////////////////////////////////////////////////////////////////
 
 bool AudioManager::Initialize()
 {
+    InitSoundsAndMusicGainValue();
     if (!PrepareAudioResources())
     {
         gConsole.LogMessage(eLogMessage_Warning, "Cannot allocate audio resources");
@@ -141,8 +145,7 @@ bool AudioManager::PrepareAudioResources()
 
     if (mMusicAudioSource)
     {
-        // todo: move to settings
-        mMusicAudioSource->SetGain(0.3f);
+        mMusicAudioSource->SetGain(mMusicGain);
     }
 
     // allocate music sample buffers
@@ -476,4 +479,26 @@ bool AudioManager::QueueMusicSampleBuffers()
     }
 
     return totalSamplesProcessed > 0;
+}
+
+void AudioManager::InitSoundsAndMusicGainValue()
+{
+    int musicVolume = glm::clamp(gCvarMusicVolume.mValue, AudioMinVolume, AudioMaxVolume);
+    if (gCvarMusicVolume.mValue != musicVolume)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Music volume is '%d', must be in range [%d-%d]", gCvarMusicVolume.mValue, AudioMinVolume, AudioMaxVolume);
+        gCvarMusicVolume.mValue = musicVolume;
+        gCvarMusicVolume.ClearModified();
+    }
+    
+    int soundsVolume = glm::clamp(gCvarSoundsVolume.mValue, AudioMinVolume, AudioMaxVolume);
+    if (gCvarSoundsVolume.mValue != soundsVolume)
+    {
+        gConsole.LogMessage(eLogMessage_Warning, "Sounds volume is '%d', must be in range [%d-%d]", gCvarSoundsVolume.mValue, AudioMinVolume, AudioMaxVolume);
+        gCvarSoundsVolume.mValue = soundsVolume;
+        gCvarSoundsVolume.ClearModified();
+    }
+
+    mMusicGain = (1.0f * musicVolume) / (1.0f * AudioMaxVolume);
+    mSoundsGain = (1.0f * soundsVolume) / (1.0f * AudioMaxVolume);
 }

@@ -29,8 +29,7 @@ Pedestrian::~Pedestrian()
 {
     if (mController)
     {
-        mController->DeactivateController();
-        mController = nullptr;
+        mController->AssignCharacter(nullptr);
     }
 }
 
@@ -60,9 +59,6 @@ void Pedestrian::HandleSpawn()
 
     mBurnStartTime = 0.0f;
     mStandingOnRailwaysTimer = 0.0f;
-
-    // reset actions
-    mCtlState.Clear();
 
     mCurrentWeapon = eWeapon_Fists;
     mChangeWeapon = eWeapon_Fists;
@@ -147,6 +143,11 @@ void Pedestrian::HandleFallsOnWater(float fallDistance)
 
 void Pedestrian::UpdateFrame()
 {
+    if (mController)
+    {
+        mController->OnCharacterUpdateFrame();
+    }
+
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mCurrentAnimState.UpdateFrame(deltaTime))
     {
@@ -282,18 +283,18 @@ void Pedestrian::UpdateLocomotion()
     }
     else if (IsIdle())
     {
+        const PedestrianCtlState& ctlState = GetCtlState();
         // generic case
-        if (mCtlState.mWalkForward || mCtlState.mWalkBackward || mCtlState.mRun)
+        if (ctlState.mWalkForward || ctlState.mWalkBackward || ctlState.mRun)
         {
-            if (mCtlState.mRun && CanRun())
+            if (ctlState.mRun && CanRun())
             {
                 walkingSpeed = gGameParams.mPedestrianRunSpeed;
             }
             else
             {
                 walkingSpeed = gGameParams.mPedestrianWalkSpeed;
-
-                inverseDirection = mCtlState.mWalkBackward;
+                inverseDirection = ctlState.mWalkBackward;
             }
         }
     }
@@ -750,4 +751,13 @@ void Pedestrian::SetRemap(int remapIndex)
 {
     mRemapIndex = remapIndex;
     mRemapClut = (mRemapIndex == NO_REMAP) ? 0 : mRemapIndex + gGameMap.mStyleData.GetPedestrianRemapsBaseIndex();
+}
+
+const PedestrianCtlState& Pedestrian::GetCtlState() const
+{
+    static const PedestrianCtlState dummyCtlState;
+    if (mController)
+        return mController->mCtlState;
+
+    return dummyCtlState;
 }

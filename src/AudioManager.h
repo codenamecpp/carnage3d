@@ -44,6 +44,7 @@ public:
 private:
     AudioSource* GetFreeAudioSource() const;
 
+    void InitSoundsAndMusicGainValue();
     bool PrepareAudioResources();
     void ShutdownAudioResources();
 
@@ -89,6 +90,9 @@ private:
     AudioDataStream* mMusicDataStream = nullptr; // active music stream
 
     unsigned char mMusicSampleData[MusicSampleBufferSize];
+
+    float mMusicGain = 1.0f;
+    float mSoundsGain = 1.0f;
 
     // object pools
     cxx::object_pool<SfxEmitter> mEmittersPool;

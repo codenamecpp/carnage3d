@@ -120,9 +120,10 @@ void Vehicle::SimulationStep()
         Pedestrian* carDriver = GetCarDriver();
         if (carDriver)
         {
-            currCtlState.mDriveDirection = carDriver->mCtlState.mAcceleration;
-            currCtlState.mSteerDirection = carDriver->mCtlState.mSteerDirection;
-            currCtlState.mHandBrake = carDriver->mCtlState.mHandBrake;
+            const PedestrianCtlState& ctlState = carDriver->GetCtlState();
+            currCtlState.mDriveDirection = ctlState.mAcceleration;
+            currCtlState.mSteerDirection = ctlState.mSteerDirection;
+            currCtlState.mHandBrake = ctlState.mHandBrake;
         }
     }
     UpdateFriction(currCtlState);
@@ -947,8 +948,6 @@ void Vehicle::UpdateEngineSound()
     {
         if (!StartGameObjectSound(eCarSfxChannelIndex_Engine, eSfxSampleType_Level, sfxIndex, SfxFlags_Loop))
             return;
-
-        mSfxEmitter->SetGain(eCarSfxChannelIndex_Engine, 0.35f);
     }
     // todo: this is temporary solution!
 

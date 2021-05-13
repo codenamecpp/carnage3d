@@ -6,6 +6,10 @@ class SfxSample;
 class AudioSource;
 class AudioSampleBuffer;
 
+// constants
+static const int AudioMinVolume = 0;
+static const int AudioMaxVolume = 7;
+
 // sound table index
 using SfxSampleIndex = unsigned int; 
 

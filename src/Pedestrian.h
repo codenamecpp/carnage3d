@@ -22,7 +22,6 @@ public:
     ePedestrianType mPedestrianTypeID = ePedestrianType_Civilian;
 
     CharacterController* mController; // controls pedestrian actions
-    PedestrianCtlState mCtlState;
     
     ePedestrianDeathReason mDeathReason = ePedestrianDeathReason_null; // has meaning only in 'dead state'
 
@@ -130,6 +129,9 @@ public:
     }
 
     ePedestrianAnimID GetCurrentAnimationID() const;
+
+    // Get current pedestrian control state
+    const PedestrianCtlState& GetCtlState() const;
 
 private:
     // override SpriteAnimListener

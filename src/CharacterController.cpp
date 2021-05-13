@@ -4,12 +4,36 @@
 #include "Vehicle.h"
 #include "DebugRenderer.h"
 
-CharacterController::~CharacterController()
+CharacterController::CharacterController(Pedestrian* character)
 {
-    DeactivateController();
+    AssignCharacter(character);
 }
 
-void CharacterController::UpdateFrame()
+CharacterController::~CharacterController()
+{
+    AssignCharacter(nullptr);
+}
+
+void CharacterController::AssignCharacter(Pedestrian* character)
+{
+    if (mCharacter == character)
+        return;
+
+    if (mCharacter)
+    {
+        debug_assert(mCharacter->mController == this);
+        mCharacter->mController = nullptr;
+    }
+    mCharacter = character;
+    if (mCharacter)
+    {
+        debug_assert(mCharacter->mController == nullptr);
+        mCharacter->mController = this;
+    }
+    mCtlState.Clear();
+}
+
+void CharacterController::OnCharacterUpdateFrame()
 {
     // do nothing
 }
@@ -24,26 +48,12 @@ bool CharacterController::IsHumanPlayer() const
     return false;
 }
 
-void CharacterController::DeactivateController()
+void CharacterController::OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState)
 {
-    if (mCharacter)
-    {
-        debug_assert(mCharacter->mController == this);
-        mCharacter->mController = nullptr;
-        mCharacter->mCtlState.Clear();
-        mCharacter = nullptr;
-    }
+    // do nothing
 }
 
 bool CharacterController::IsControllerActive() const
 {
     return mCharacter != nullptr;
-}
-
-void CharacterController::OnCharacterStartCarDrive()
-{
-}
-
-void CharacterController::OnCharacterStopCarDrive()
-{
 }

@@ -21,7 +21,8 @@ void PedestrianStatesManager::ChangeState(ePedestrianState nextState, const Pede
 {
     if (nextState == mCurrentStateID)
         return;
-
+    
+    ePedestrianState prevState = mCurrentStateID;
     mPedestrian->mCurrentStateTime = 0;
     debug_assert(nextState > ePedestrianState_Unspecified && nextState < ePedestrianState_COUNT);
     // process exit current state
@@ -29,6 +30,11 @@ void PedestrianStatesManager::ChangeState(ePedestrianState nextState, const Pede
     mCurrentStateID = nextState;
     // process enter next state
     (this->*mFuncsTable[mCurrentStateID].pfStateEnter)(evData);
+    // notify controller
+    if (mPedestrian->mController)
+    {
+        mPedestrian->mController->OnCharacterChangeState(prevState, mCurrentStateID);
+    }
 }
 
 bool PedestrianStatesManager::ProcessEvent(const PedestrianStateEvent& evData)
@@ -131,7 +137,7 @@ void PedestrianStatesManager::InitFuncsTable()
 
 void PedestrianStatesManager::ProcessRotateActions()
 {
-    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
+    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
     if (ctlState.mTurnLeft || ctlState.mTurnRight)
     {
         float turnSpeed = gGameParams.mPedestrianTurnSpeed;
@@ -152,7 +158,7 @@ void PedestrianStatesManager::ProcessRotateActions()
 
 ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
-    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
+    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
     if (ctlState.mRun)
         return mPedestrian->CanRun() ? ePedestrianState_Runs : ePedestrianState_Walks;
 
@@ -387,11 +393,6 @@ void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEv
         mPedestrian->mObjectFlags = flags;
     }
     SetInCarPositionToSeat();
-
-    if (mPedestrian->mController)
-    {
-        mPedestrian->mController->OnCharacterStartCarDrive();
-    }
 }
 
 void PedestrianStatesManager::StateDriveCar_ProcessExit()
@@ -401,11 +402,6 @@ void PedestrianStatesManager::StateDriveCar_ProcessExit()
     {
         GameObjectFlags flags = mPedestrian->mObjectFlags ^ GameObjectFlags_Invisible;
         mPedestrian->mObjectFlags = flags;
-    }
-
-    if (mPedestrian->mController)
-    {
-        mPedestrian->mController->OnCharacterStopCarDrive();
     }
 }
 
@@ -674,7 +670,7 @@ bool PedestrianStatesManager::StateFalling_ProcessEvent(const PedestrianStateEve
 
 void PedestrianStatesManager::StateIdle_ProcessFrame()
 {
-    const PedestrianCtlState& ctlState = mPedestrian->mCtlState;
+    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
 
     bool isShooting = false;
     if (ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition())
@@ -734,7 +730,8 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
 
 void PedestrianStatesManager::StateIdle_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    bool isShooting = mPedestrian->mCtlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
+    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
+    bool isShooting = ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
 
     ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
     mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
@@ -744,7 +741,8 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 {
     if (stateEvent.mID == ePedestrianStateEvent_WeaponChange)
     {
-        bool isShooting = mPedestrian->mCtlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
+        const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
+        bool isShooting = ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition();
 
         ePedestrianAnimID animID = DetectIdleAnimation(isShooting);
         mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 

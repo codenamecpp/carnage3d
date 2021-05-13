@@ -149,7 +149,7 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
         pitchValue = channel.mPitchValue;
     }
     if (!channel.mHardwareSource->SetPitch(pitchValue) ||
-        !channel.mHardwareSource->SetGain(channel.mGainValue)) 
+        !channel.mHardwareSource->SetGain(channel.mGainValue * gAudioManager.mSoundsGain)) 
     {
         debug_assert(false);
     }
@@ -277,7 +277,7 @@ bool SfxEmitter::SetGain(int ichannel, float gainValue)
             return true;
 
         channel.mGainValue = gainValue;
-        return channel.mHardwareSource->SetGain(gainValue);
+        return channel.mHardwareSource->SetGain(gainValue * gAudioManager.mSoundsGain);
     }
 
     return false;

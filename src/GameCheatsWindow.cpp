@@ -62,9 +62,10 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
             {
                 Pedestrian* character = gTrafficManager.GenerateRandomTrafficPedestrian(characterLogPos.x, characterLogPos.y, characterLogPos.z);
                 debug_assert(character);
-                if (character)
+                if (character && character->mController)
                 {
-                    character->mController->DeactivateController();
+                    // disable controller
+                    character->mController->AssignCharacter(nullptr);
                 }
             }
             if (ImGui::MenuItem("Wandering"))

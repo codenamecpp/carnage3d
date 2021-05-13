@@ -97,17 +97,11 @@ inline const glm::ivec3& GetVectorFromMapDirection(eMapDirection direction)
 //////////////////////////////////////////////////////////////////////////
 
 AiCharacterController::AiCharacterController(Pedestrian* character)
+    : CharacterController(character)
 {
-    mCharacter = character;
     mFollowNearDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
     mFollowFarDistance = Convert::MapUnitsToMeters(0.5f);
     mDefaultNearDistance = gGameParams.mPedestrianBoundsSphereRadius;
-
-    if (mCharacter)
-    {
-        debug_assert(mCharacter->mController == nullptr);
-        mCharacter->mController = this;
-    }
 }
 
 void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
@@ -167,7 +161,7 @@ bool AiCharacterController::ScanForGunshots()
     return false;
 }
 
-void AiCharacterController::UpdateFrame()
+void AiCharacterController::OnCharacterUpdateFrame()
 {
     // choose current activity
     if (mAiMode == ePedestrianAiMode_None)
@@ -271,7 +265,7 @@ void AiCharacterController::StartPanic()
 
     mRunToTarget = true;
 
-    mCharacter->mCtlState.Clear();
+    mCtlState.Clear();
     if (!ChooseWalkWaypoint(true) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         mAiMode = ePedestrianAiMode_Disabled; // disable ai
@@ -283,7 +277,7 @@ void AiCharacterController::StartWandering()
     mAiMode = ePedestrianAiMode_Wandering;
     mFollowPedestrian.reset();
 
-    mCharacter->mCtlState.Clear();
+    mCtlState.Clear();
     if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
         StartPanic();
@@ -357,7 +351,7 @@ bool AiCharacterController::ContinueWalkToWaypoint(float distance)
     glm::vec2 currentPos2 = mCharacter->mTransform.GetPosition2();
     if (glm::distance2(currentPos2, mDestinationPoint) <= tolerance2)
     {
-        mCharacter->mCtlState.Clear();
+        mCtlState.Clear();
         return false;
     }
 
@@ -366,8 +360,8 @@ bool AiCharacterController::ContinueWalkToWaypoint(float distance)
     mCharacter->SetOrientation(toTarget);
 
     // set control
-    mCharacter->mCtlState.mWalkForward = true;
-    mCharacter->mCtlState.mRun = mRunToTarget;
+    mCtlState.mWalkForward = true;
+    mCtlState.mRun = mRunToTarget;
     return true;
 }
 
@@ -376,7 +370,7 @@ void AiCharacterController::StartDrivingCar()
     mAiMode = ePedestrianAiMode_DrivingCar;
     mFollowPedestrian.reset();
 
-    mCharacter->mCtlState.Clear();
+    mCtlState.Clear();
     if (!ChooseDriveWaypoint() || !ContinueDriveToWaypoint())
     {
         StopDriving();
@@ -388,12 +382,12 @@ void AiCharacterController::StopDriving()
     if (!mCharacter->IsCarDriver())
         return;
 
-    mCharacter->mCtlState.Clear();
+    mCtlState.Clear();
 
     float currentSpeed = mCharacter->mCurrentCar->GetCurrentSpeed();
     if (currentSpeed > gGameParams.mCarSpeedPassengerCanEnter)
     {
-        mCharacter->mCtlState.mAcceleration = -1.0f;
+        mCtlState.mAcceleration = -1.0f;
     }
     else
     {
@@ -458,7 +452,7 @@ void AiCharacterController::StartFollowTarget()
         return;
     }
 
-    mCharacter->mCtlState.Clear();
+    mCtlState.Clear();
     mAiMode = ePedestrianAiMode_FollowTarget;
 
     mDestinationPoint = mFollowPedestrian->mTransform.GetPosition2();
@@ -487,7 +481,7 @@ void AiCharacterController::UpdateFollowTarget()
     float distanceToTarget2 = glm::distance2(characterPosition2, targetPosition2);
     if (distanceToTarget2 < glm::pow(mFollowNearDistance, 2.0f))
     {
-        mCharacter->mCtlState.Clear();
+        mCtlState.Clear();
         return;
     }
 

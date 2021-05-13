@@ -12,16 +12,14 @@
 #include "DebugRenderer.h"
 
 HumanPlayer::HumanPlayer(Pedestrian* character)
-    : mLastDistrictIndex()
+    : CharacterController(character)
+    , mLastDistrictIndex()
 {
     mAudioListener = gAudioDevice.CreateAudioListener();
     debug_assert(mAudioListener);
 
-    // setup character
-    mCharacter = character;
     if (mCharacter)
     {
-        mCharacter->mController = this;
         Cheat_GiveAllWeapons();
     }
 }
@@ -35,7 +33,7 @@ HumanPlayer::~HumanPlayer()
     }
 }
 
-void HumanPlayer::UpdateFrame()
+void HumanPlayer::OnCharacterUpdateFrame()
 {
     mPlayerView.UpdateFrame();
 
@@ -137,18 +135,13 @@ void HumanPlayer::InputEventLost()
 {
     mPlayerView.InputEventLost();
 
-    if (mCharacter)
-    {
-        // reset actions
-        mCharacter->mCtlState.Clear();
-    }
-
+    // reset actions
+    mCtlState.Clear();
     mUpdateInputs = false;
 }
 
 void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
 {    
-    PedestrianCtlState& ctlState = mCharacter->mCtlState;
     switch (action)
     {
         case eInputAction_SteerLeft:
@@ -169,7 +162,7 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
         case eInputAction_Horn:
             if (mCharacter->IsCarPassenger())
             {
-                ctlState.mHorn = isActivated;
+                mCtlState.mHorn = isActivated;
                 if (mCharacter->mCurrentCar->HasEmergencyLightsAnimation())
                 {
                     mCharacter->mCurrentCar->EnableEmergencyLights(isActivated);
@@ -192,7 +185,7 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
         break;
 
         case eInputAction_Special:
-            ctlState.mSpecial = isActivated;
+            mCtlState.mSpecial = isActivated;
         break;
 
         case eInputAction_EnterCar:
@@ -309,46 +302,45 @@ void HumanPlayer::ProcessRepetitiveActions()
         return;
 
     debug_assert(mCharacter);
-    PedestrianCtlState& ctlState = mCharacter->mCtlState;
-    ctlState.Clear();
+    mCtlState.Clear();
 
     // update in car
     if (mCharacter->IsCarPassenger())
     {
-        ctlState.mSteerDirection = 0.0f;
+        mCtlState.mSteerDirection = 0.0f;
         if (GetActionState(eInputAction_SteerRight))
         {
-            ctlState.mSteerDirection += 1.0f;
+            mCtlState.mSteerDirection += 1.0f;
         }
         if (GetActionState(eInputAction_SteerLeft))
         {
-            ctlState.mSteerDirection -= 1.0f;
+            mCtlState.mSteerDirection -= 1.0f;
         }
 
-        ctlState.mAcceleration = 0.0f;
+        mCtlState.mAcceleration = 0.0f;
         if (GetActionState(eInputAction_Accelerate))
         {
-            ctlState.mAcceleration += 1.0f;
+            mCtlState.mAcceleration += 1.0f;
         }
         if (GetActionState(eInputAction_Reverse))
         {
-            ctlState.mAcceleration -= 1.0f;
+            mCtlState.mAcceleration -= 1.0f;
         }
 
-        ctlState.mHandBrake = GetActionState(eInputAction_HandBrake);
+        mCtlState.mHandBrake = GetActionState(eInputAction_HandBrake);
     }
     // update on foot
     else
     {
-        ctlState.mTurnLeft = GetActionState(eInputAction_TurnLeft);
-        ctlState.mTurnRight = GetActionState(eInputAction_TurnRight);
-        ctlState.mRun = GetActionState(eInputAction_Run);
-        ctlState.mWalkBackward = GetActionState(eInputAction_WalkBackward);
-        ctlState.mWalkForward = GetActionState(eInputAction_WalkForward);
-        ctlState.mJump = GetActionState(eInputAction_Jump);
-        ctlState.mShoot = GetActionState(eInputAction_Shoot);
+        mCtlState.mTurnLeft = GetActionState(eInputAction_TurnLeft);
+        mCtlState.mTurnRight = GetActionState(eInputAction_TurnRight);
+        mCtlState.mRun = GetActionState(eInputAction_Run);
+        mCtlState.mWalkBackward = GetActionState(eInputAction_WalkBackward);
+        mCtlState.mWalkForward = GetActionState(eInputAction_WalkForward);
+        mCtlState.mJump = GetActionState(eInputAction_Jump);
+        mCtlState.mShoot = GetActionState(eInputAction_Shoot);
 
-        if ((ctlState.mTurnLeft == false) && (ctlState.mTurnRight == false))
+        if ((mCtlState.mTurnLeft == false) && (mCtlState.mTurnRight == false))
         {
             UpdateMouseAiming();
         }
@@ -371,26 +363,27 @@ bool HumanPlayer::GetActionState(eInputAction action) const
     return false;
 }
 
-void HumanPlayer::DeactivateController()
-{
-    // do nothing
-}
-
 bool HumanPlayer::IsHumanPlayer() const
 {
     return true;
 }
 
-void HumanPlayer::OnCharacterStartCarDrive()
+void HumanPlayer::OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState)
 {
-    Vehicle* currentCar = mCharacter->mCurrentCar;
-    if (currentCar == nullptr)
+    debug_assert(mCharacter);
+
+    if (newState == ePedestrianState_DrivingCar)
     {
-        debug_assert(false);
-        return;
+        Vehicle* currentCar = mCharacter->mCurrentCar;
+        debug_assert(currentCar);
+        if (currentCar)
+        {
+            eVehicleModel carModel = currentCar->mCarInfo->mModelID;
+            mPlayerView.mHUD.ShowCarNameMessage(carModel);
+        }   
     }
-    eVehicleModel carModel = currentCar->mCarInfo->mModelID;
-    mPlayerView.mHUD.ShowCarNameMessage(carModel);
+
+    // todo: handle more states
 }
 
 void HumanPlayer::UpdateDistrictLocation()
@@ -451,8 +444,7 @@ void HumanPlayer::UpdateMouseAiming()
 
         glm::vec2 characterRightVector = mCharacter->mTransform.GetRightVector();
         float dot_ = glm::dot(characterRightVector, mousePointVector);
-
-        mCharacter->mCtlState.mTurnLeft = (dot_ < -0.1f);
-        mCharacter->mCtlState.mTurnRight = (dot_ > 0.1f);
+        mCtlState.mTurnLeft = (dot_ < -0.1f);
+        mCtlState.mTurnRight = (dot_ > 0.1f);
     }
 }

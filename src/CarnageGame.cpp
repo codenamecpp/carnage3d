@@ -142,15 +142,6 @@ void CarnageGame::UpdateFrame()
         gGameObjectsManager.UpdateFrame();
         gWeatherManager.UpdateFrame();
         gParticleManager.UpdateFrame();
-
-        for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
-        {
-            if (mHumanPlayers[ihuman] == nullptr)
-                continue;
-
-            mHumanPlayers[ihuman]->UpdateFrame();
-        }
-
         gTrafficManager.UpdateFrame();
         gAiManager.UpdateFrame();
         gBroadcastEvents.UpdateFrame();

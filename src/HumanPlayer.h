@@ -19,11 +19,10 @@ public:
     HumanPlayer(Pedestrian* character);
     ~HumanPlayer();
 
-    // override HumanPlayer
-    void UpdateFrame() override;
-    void DeactivateController() override;
+    // override CharacterController
     bool IsHumanPlayer() const override;
-    void OnCharacterStartCarDrive() override;
+    void OnCharacterUpdateFrame() override;
+    void OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState);
 
     // Get or set current police attention level
     int GetWantedLevel() const;

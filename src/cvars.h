@@ -26,6 +26,8 @@ extern CvarBoolean gCvarMemEnableFrameHeapAllocator; // enable frame heap alloca
 // audio
 extern CvarBoolean gCvarAudioActive; // enable audio system
 extern CvarEnum<eGameMusicMode> gCvarGameMusicMode; // ingame music mode
+extern CvarInt gCvarMusicVolume; // ingame music volume in range [0-7]
+extern CvarInt gCvarSoundsVolume; // ingame effects volume in range [0-7]
 
 // game
 extern CvarString gCvarGtaDataPath; // config gta data location
@@ -74,6 +76,8 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarGameMusicMode);
     gConsole.RegisterVariable(&gCvarCarSparksActive);
     gConsole.RegisterVariable(&gCvarMouseAiming);
+    gConsole.RegisterVariable(&gCvarMusicVolume);
+    gConsole.RegisterVariable(&gCvarSoundsVolume);
     // commands
     gConsole.RegisterVariable(&gCvarSysQuit);
     gConsole.RegisterVariable(&gCvarSysListCvars);
