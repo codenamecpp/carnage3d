@@ -231,6 +231,7 @@ void Pedestrian::SimulationStep()
         ReceiveDamage(damageInfo);
     }
 
+    UpdateRotation();
     UpdateLocomotion();
 }
 
@@ -269,8 +270,7 @@ void Pedestrian::UpdateDrawOrder()
 
 void Pedestrian::UpdateLocomotion()
 {
-    if (mPhysicsBody == nullptr)
-        return;
+    debug_assert(mPhysicsBody);
 
     float walkingSpeed = 0.0f;
 
@@ -323,6 +323,48 @@ void Pedestrian::UpdateLocomotion()
     }
 
     mPhysicsBody->SetLinearVelocity(desiredVelocity);
+}
+
+void Pedestrian::UpdateRotation()
+{
+    cxx::angle_t angularVelocity;
+
+    bool isSlideOverCar = (ePedestrianState_SlideOnCar == GetCurrentStateID());
+    if (isSlideOverCar || IsIdle())
+    {
+        const PedestrianCtlState& ctlState = GetCtlState();
+        if (ctlState.mTurnLeft || ctlState.mTurnRight || ctlState.mRotateToDesiredAngle)
+        {
+            if (ctlState.mRotateToDesiredAngle)
+            {
+                static const float instantTurnSpeed = 360.0f * 10.0f;
+
+                float turnSpeed = instantTurnSpeed;
+
+                const float angleDelta = cxx::wrap_angle_neg_180((ctlState.mDesiredRotationAngle - mPhysicsBody->GetOrientation()).to_degrees());
+                const float desiredSpeedPerTurn = gPhysics.GetSimulationStepTime() * turnSpeed;
+                if (angleDelta < desiredSpeedPerTurn)
+                {
+                    turnSpeed = angleDelta / gPhysics.GetSimulationStepTime();
+                }
+
+                if (::fabs(turnSpeed) > 1.0f)
+                {
+                    angularVelocity.set_angle(turnSpeed, cxx::angle_t::units::degrees);
+                }
+            }
+            else
+            {
+                float turnSpeed = isSlideOverCar ? 
+                    gGameParams.mPedestrianTurnSpeedSlideOnCar : 
+                    gGameParams.mPedestrianTurnSpeed;
+
+                angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (ctlState.mTurnLeft ? -1.0f : 1.0f));
+            }
+        }
+    }
+        
+    mPhysicsBody->SetAngularVelocity(angularVelocity);
 }
 
 void Pedestrian::DebugDraw(DebugRenderer& debugRender)

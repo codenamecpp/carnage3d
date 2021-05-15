@@ -22,7 +22,7 @@ public:
     // override CharacterController
     bool IsHumanPlayer() const override;
     void OnCharacterUpdateFrame() override;
-    void OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState);
+    void OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState) override;
 
     // Get or set current police attention level
     int GetWantedLevel() const;

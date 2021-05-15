@@ -44,8 +44,7 @@ public:
     void DebugDraw(DebugRenderer& debugRender) override;
     void OnCharacterUpdateFrame() override;
 
-    void EnableAiFlags(PedestrianAiFlags aiFlags);
-    void DisableAiFlags(PedestrianAiFlags aiFlags);
+    void ChangeAiFlags(PedestrianAiFlags enableFlags, PedestrianAiFlags disableFlags);
     bool HasAiFlags(PedestrianAiFlags aiFlags) const;
 
     // objectives

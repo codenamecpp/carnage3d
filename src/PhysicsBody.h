@@ -60,7 +60,7 @@ public:
     glm::vec2 GetSignVector() const;
 
     // Set or get current angular velocity
-    // @param velocity: New angular velocity in degrees/second
+    // @param velocity: New angular velocity angle per second
     void SetAngularVelocity(cxx::angle_t angularVelocity);
     cxx::angle_t GetAngularVelocity() const;
 

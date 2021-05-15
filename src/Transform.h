@@ -28,7 +28,7 @@ public:
     // @param directionVector: Direction vector, should be normalized
     inline void SetOrientation(const glm::vec2& signDirection)
     {
-        float rotationAngleRadians = atan2f(signDirection.y, signDirection.x);
+        float rotationAngleRadians = ::atan2f(signDirection.y, signDirection.x);
         mOrientation.set_angle(rotationAngleRadians, cxx::angle_t::units::radians);
     }
 

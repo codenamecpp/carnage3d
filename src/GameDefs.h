@@ -887,6 +887,10 @@ public:
         bool mShoot = false;
         bool mJump = false;
         bool mSpecial = false;
+
+        // overrides mTurnLeft/mTurnRight
+        bool mRotateToDesiredAngle = false;
+        cxx::angle_t mDesiredRotationAngle;
     };
     struct // in car control actions
     {

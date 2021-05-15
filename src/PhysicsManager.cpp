@@ -776,3 +776,8 @@ void PhysicsManager::HandleFallsOnWater(PhysicsBody* physicsBody)
 
     physicsBody->mPositionY -= Convert::MapUnitsToMeters(1.0f); // put it down
 }
+
+float PhysicsManager::GetSimulationStepTime() const
+{
+    return mSimulationStepTime;
+}

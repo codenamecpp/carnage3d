@@ -10,6 +10,8 @@
 #include "Box2D_Helpers.h"
 #include "CarnageGame.h"
 #include "Collider.h"
+#include "Cvars.h"
+#include <glm/gtx/fast_trigonometry.hpp>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -243,7 +245,7 @@ cxx::angle_t PhysicsBody::GetOrientation() const
 
 void PhysicsBody::SetSignVector(const glm::vec2& signDirection)
 {
-    float rotationAngleRadians = atan2f(signDirection.y, signDirection.x);
+    float rotationAngleRadians = ::atan2f(signDirection.y, signDirection.x);
     mBox2Body->SetTransform(mBox2Body->GetPosition(), rotationAngleRadians);
 }
 

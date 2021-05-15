@@ -135,27 +135,6 @@ void PedestrianStatesManager::InitFuncsTable()
 
 //////////////////////////////////////////////////////////////////////////
 
-void PedestrianStatesManager::ProcessRotateActions()
-{
-    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
-    if (ctlState.mTurnLeft || ctlState.mTurnRight)
-    {
-        float turnSpeed = gGameParams.mPedestrianTurnSpeed;
-        if (mCurrentStateID == ePedestrianState_SlideOnCar)
-        {
-            turnSpeed = gGameParams.mPedestrianTurnSpeedSlideOnCar;
-        }
-
-        cxx::angle_t angularVelocity = cxx::angle_t::from_degrees(turnSpeed * (ctlState.mTurnLeft ? -1.0f : 1.0f));
-        mPedestrian->mPhysicsBody->SetAngularVelocity(angularVelocity);
-    }
-    else
-    {
-        cxx::angle_t angularVelocity;
-        mPedestrian->mPhysicsBody->SetAngularVelocity(angularVelocity);
-    }
-}
-
 ePedestrianState PedestrianStatesManager::GetNextIdleState()
 {
     const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
@@ -512,8 +491,6 @@ void PedestrianStatesManager::StateEnterCar_ProcessEnter(const PedestrianStateEv
 
 void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 {
-    ProcessRotateActions();
-
     if (mPedestrian->mCurrentAnimID == ePedestrianAnim_JumpOntoCar)
     {
         if (!mPedestrian->mCurrentAnimState.IsActive())
@@ -700,8 +677,6 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
             mPedestrian->SetAnimation(animID, eSpriteAnimLoop_FromStart); 
         }
     }
-
-    ProcessRotateActions();
 
     if (isShooting)
     {

@@ -513,12 +513,12 @@ namespace cxx
 
         inline float to_degrees_normalize_180() const
         {
-            return normalize_angle_180(mDegrees);
+            return cxx::wrap_angle_neg_180(mDegrees);
         }
 
         inline float to_degrees_normalize_360() const 
         { 
-            return normalize_angle_360(mDegrees);
+            return cxx::wrap_angle_neg_180(mDegrees);
         }
 
         // init angle

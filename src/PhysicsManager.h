@@ -17,6 +17,7 @@ public:
     void ClearWorld();
     void UpdateFrame();
 
+    float GetSimulationStepTime() const;
     bool IsSimulationStepInProgress() const;
 
     // Create physical body for game object

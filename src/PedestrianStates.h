@@ -64,9 +64,6 @@ public:
 private:
     void InitFuncsTable();
     
-    // state helpers
-    void ProcessRotateActions();
-
     ePedestrianState GetNextIdleState();
 
     // anims helpers

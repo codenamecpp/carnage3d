@@ -437,14 +437,7 @@ void HumanPlayer::UpdateMouseAiming()
         raycastResult.mOrigin.x + (raycastResult.mDirection.x * distanceFromCameraToCharacter), 
         raycastResult.mOrigin.z + (raycastResult.mDirection.z * distanceFromCameraToCharacter)
     );
-    glm::vec2 mousePointVector = worldPosition - mCharacter->mTransform.GetPosition2();
-    if (glm::length2(mousePointVector) > 0.0f)
-    {
-        mousePointVector = glm::normalize(mousePointVector);
-
-        glm::vec2 characterRightVector = mCharacter->mTransform.GetRightVector();
-        float dot_ = glm::dot(characterRightVector, mousePointVector);
-        mCtlState.mTurnLeft = (dot_ < -0.1f);
-        mCtlState.mTurnRight = (dot_ > 0.1f);
-    }
+    glm::vec2 toTarget = worldPosition - mCharacter->mTransform.GetPosition2();
+    mCtlState.mRotateToDesiredAngle = true;
+    mCtlState.mDesiredRotationAngle = cxx::angle_t::from_radians(::atan2f(toTarget.y, toTarget.x));
 }

@@ -32,26 +32,32 @@ namespace cxx
     inline bool is_even(unsigned int value) { return (value % 2) == 0; }
     inline bool is_odd(unsigned int value)  { return (value % 2)  > 0; }
 
-    // normalize angle to [-180,180), degrees
-    inline float normalize_angle_180(float angleDegrees)
+    // wrap angle to [-PI..PI)
+    // radians
+    inline float wrap_angle_neg_pi(float angleRadians)
     {
-        angleDegrees = std::fmod(angleDegrees + 180.0f, 360.0f);
-        if (angleDegrees < 0.0f)
-        {
-            angleDegrees += 360.0f;
-        }
-        return angleDegrees - 180.0f;
+        return glm::mod(angleRadians + glm::pi<float>(), glm::two_pi<float>()) - glm::pi<float>();
     }
 
-    // normalize angle to range [0, 360), degrees
-    inline float normalize_angle_360(float angleDegrees)
+    // wrap angle to [0..TWO_PI)
+    // radians
+    inline float wrap_angle_two_pi(float angleRadians)
     {
-        angleDegrees = fmod(angleDegrees, 360.0f);
-        if (angleDegrees < 0.0f)
-        {
-            angleDegrees += 360.0f;
-        }
-        return angleDegrees;
+        return glm::mod(angleRadians, glm::two_pi<float>());
+    }
+
+    // wrap angle to [-180..180)
+    // degrees
+    inline float wrap_angle_neg_180(float angleDegrees)
+    {
+        return glm::mod(angleDegrees + 180.0f, 360.0f) - 180.0f;
+    }
+
+    // wrap angle to [0..360)
+    // degrees
+    inline float wrap_angle_360(float angleDegrees)
+    {
+        return glm::mod(angleDegrees, 360.0f);
     }
 
     // round up value

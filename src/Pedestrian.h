@@ -151,6 +151,7 @@ private:
     void UpdateDrawOrder();
 
     void UpdateLocomotion();
+    void UpdateRotation();
 
     // Detects identifier of current pedestrian state
     ePedestrianState GetCurrentStateID() const;

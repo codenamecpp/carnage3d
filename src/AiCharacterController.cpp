@@ -31,7 +31,7 @@ inline eMapDirection GetMapDirectionFromHeading(float angleDegrees)
         {270.0f, eMapDirection_N},
     };
 
-    angleDegrees = cxx::normalize_angle_360(angleDegrees);
+    angleDegrees = cxx::wrap_angle_360(angleDegrees);
 
     for (const auto& curr: Directions)
     {
@@ -356,10 +356,9 @@ bool AiCharacterController::ContinueWalkToWaypoint(float distance)
     }
 
     // setup sign direction
-    glm::vec2 toTarget = glm::normalize(mDestinationPoint - currentPos2);
-    mCharacter->SetOrientation(toTarget);
-
-    // set control
+    glm::vec2 toTarget = mDestinationPoint - currentPos2;
+    mCtlState.mDesiredRotationAngle = cxx::angle_t::from_radians(::atan2f(toTarget.y, toTarget.x));
+    mCtlState.mRotateToDesiredAngle = true;
     mCtlState.mWalkForward = true;
     mCtlState.mRun = mRunToTarget;
     return true;
@@ -490,14 +489,9 @@ void AiCharacterController::UpdateFollowTarget()
     ContinueWalkToWaypoint(mFollowNearDistance);
 }
 
-void AiCharacterController::EnableAiFlags(PedestrianAiFlags aiFlags)
+void AiCharacterController::ChangeAiFlags(PedestrianAiFlags enableFlags, PedestrianAiFlags disableFlags)
 {
-    mAiFlags = (mAiFlags | aiFlags);
-}
-
-void AiCharacterController::DisableAiFlags(PedestrianAiFlags aiFlags)
-{
-    mAiFlags = (mAiFlags & ~aiFlags);
+    mAiFlags = (mAiFlags & ~disableFlags) | enableFlags;
 }
 
 bool AiCharacterController::HasAiFlags(PedestrianAiFlags aiFlags) const
