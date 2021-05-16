@@ -50,7 +50,7 @@ public:
     Decoration* CreateBigSmoke(const glm::vec3& position);
 
     // Add explosion instance to map at specific location 
-    Explosion* CreateExplosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType, const glm::vec3& position);
+    Explosion* CreateExplosion(GameObject* explodingObject, Pedestrian* causer, eExplosionType explosionType, const glm::vec3& position);
 
     // Add new obstacle instance to map at specific location
     Obstacle* CreateObstacle(const glm::vec3& position, cxx::angle_t heading, GameObjectInfo* desc);

@@ -60,10 +60,6 @@ bool HUDPanel::IsPanelVisible() const
 
 //////////////////////////////////////////////////////////////////////////
 
-HUDWeaponPanel::HUDWeaponPanel()
-{
-}
-
 void HUDWeaponPanel::SetupHUD()
 {
     mWeaponIcon.mHeight = 0.0f;
@@ -76,13 +72,13 @@ void HUDWeaponPanel::SetupHUD()
 
 void HUDWeaponPanel::DrawFrame(GuiContext& guiContext)
 {
-    if (mWeaponIcon.IsNull())
-        return;
+    if (mWeaponIcon)
+    {
+        mWeaponIcon.mPosition.x = mPanelPosition.x * 1.0f;
+        mWeaponIcon.mPosition.y = mPanelPosition.y * 1.0f;
 
-    mWeaponIcon.mPosition.x = mPanelPosition.x * 1.0f;
-    mWeaponIcon.mPosition.y = mPanelPosition.y * 1.0f;
-
-    guiContext.mSpriteBatch.DrawSprite(mWeaponIcon);
+        guiContext.mSpriteBatch.DrawSprite(mWeaponIcon);
+    }
 
     if (mAmmunitionFont)
     {
@@ -105,7 +101,7 @@ void HUDWeaponPanel::UpdatePanelSize(const Point& maxSize)
     mPanelSize.y = mWeaponIcon.mTextureRegion.mRectangle.h;
 }
 
-void HUDWeaponPanel::SetWeaponInfo(Weapon& weaponState)
+void HUDWeaponPanel::SetWeapon(Weapon& weaponState)
 {
     if ((mPrevAmmunitionCount == 0) || (mPrevAmmunitionCount != weaponState.mAmmunition))
     {
@@ -120,10 +116,6 @@ void HUDWeaponPanel::SetWeaponInfo(Weapon& weaponState)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-HUDBigFontMessage::HUDBigFontMessage()
-{
-}
 
 void HUDBigFontMessage::SetupHUD()
 {
@@ -154,10 +146,6 @@ void HUDBigFontMessage::SetMessageText(const std::string& messageText)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-HUDCarNamePanel::HUDCarNamePanel()
-{
-}
 
 void HUDCarNamePanel::SetMessageText(const std::string& messageText)
 {
@@ -204,10 +192,6 @@ void HUDCarNamePanel::UpdatePanelSize(const Point& maxSize)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-HUDDistrictNamePanel::HUDDistrictNamePanel()
-{
-}
 
 void HUDDistrictNamePanel::SetMessageText(const std::string& messageText)
 {
@@ -264,10 +248,6 @@ void HUDDistrictNamePanel::UpdatePanelSize(const Point& maxSize)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-HUDWantedLevelPanel::HUDWantedLevelPanel()
-{
-}
 
 void HUDWantedLevelPanel::SetWantedLevel(int wantedLevel)
 {
@@ -328,10 +308,6 @@ void HUDWantedLevelPanel::UpdatePanelSize(const Point& maxSize)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-HUDScoresPanel::HUDScoresPanel()
-{
-}
 
 void HUDScoresPanel::SetScores(int score, int lives, int multiplier)
 {
@@ -434,6 +410,130 @@ void HUDScoresPanel::UpdatePanelSize(const Point& maxSize)
 
 //////////////////////////////////////////////////////////////////////////
 
+void HUDBonusPanel::SetBonus(bool showBonusKey, int armorCount)
+{
+    if ((mAmmunitionCount == 0) || (mAmmunitionCount != armorCount))
+    {
+        mAmmunitionText = cxx::va("%d", armorCount);
+        mAmmunitionCount = armorCount;
+    }
+
+    mShowBonusKey = showBonusKey;
+}
+
+void HUDBonusPanel::SetupHUD()
+{
+    mKeyIcon.mHeight = 0.0f;
+    mKeyIcon.mScale = HUD_SPRITE_SCALE;
+    mKeyIcon.mOriginMode = eSpriteOrigin_TopLeft;
+
+    mKeyAnimation.Clear();
+    mKeyAnimation.mAnimDesc.SetFrames(
+        {
+            eSpriteID_Arrow_BonusKeyFrame1,
+            eSpriteID_Arrow_BonusKeyFrame2
+        });
+    mKeyAnimation.PlayAnimation(eSpriteAnimLoop_FromStart);
+    // setup sprite
+    int keySpriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, mKeyAnimation.GetSpriteIndex());
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, keySpriteIndex, 0, mKeyIcon);
+
+    mArmorIcon.mHeight = 0.0f;
+    mArmorIcon.mScale = HUD_SPRITE_SCALE;
+    mArmorIcon.mOriginMode = eSpriteOrigin_TopLeft;
+
+    mArmorAnimation.Clear();
+    mArmorAnimation.mAnimDesc.SetFrames(
+        {
+            eSpriteID_Arrow_BonusArmorFrame1,
+            eSpriteID_Arrow_BonusArmorFrame2
+        });
+    mArmorAnimation.PlayAnimation(eSpriteAnimLoop_FromStart);
+    // setup sprite
+    int armorSpriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, mArmorAnimation.GetSpriteIndex());
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, armorSpriteIndex, 0, mArmorIcon);
+
+    mAmmunitionFont = gFontManager.GetFont("SUB1.FON");
+    debug_assert(mAmmunitionFont);
+}
+
+void HUDBonusPanel::DrawFrame(GuiContext& guiContext)
+{
+    Point currpos = mPanelPosition;
+    if (mShowBonusKey)
+    {
+        if (mKeyIcon)
+        {
+            mKeyIcon.mPosition.x = currpos.x * 1.0f;
+            mKeyIcon.mPosition.y = currpos.y * 1.0f;
+            currpos.x += mKeyIcon.mTextureRegion.mRectangle.w;
+            currpos.x += 4; // spacing
+
+            guiContext.mSpriteBatch.DrawSprite(mKeyIcon);
+        }
+    }
+
+    if (mAmmunitionCount > 0)
+    {
+        if (mArmorIcon)
+        {
+            mArmorIcon.mPosition.x = currpos.x * 1.0f;
+            mArmorIcon.mPosition.y = currpos.y * 1.0f;
+            currpos.x += mArmorIcon.mTextureRegion.mRectangle.w;
+
+            guiContext.mSpriteBatch.DrawSprite(mArmorIcon);
+        }
+
+        if (mAmmunitionFont)
+        {
+            Point textDims;
+            mAmmunitionFont->MeasureString(mAmmunitionText, textDims);
+
+            Point textPos 
+            {
+                (mPanelPosition.x + mPanelSize.x) - textDims.x + 4,
+                (mPanelPosition.y + mPanelSize.y) - textDims.y,
+            };
+            int fontPaletteIndex = gGameMap.mStyleData.GetFontPaletteIndex(FontRemap_Red);
+            mAmmunitionFont->DrawString(guiContext, mAmmunitionText, textPos, mPanelSize, fontPaletteIndex);
+        }
+    }
+}
+
+void HUDBonusPanel::UpdateFrame()
+{
+    if (mKeyAnimation.UpdateFrame(gTimeManager.mUiFrameDelta))
+    {
+        int keySpriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, mKeyAnimation.GetSpriteIndex());
+        gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, keySpriteIndex, 0, mKeyIcon);
+    }
+
+    if (mArmorAnimation.UpdateFrame(gTimeManager.mUiFrameDelta))
+    {
+        int keySpriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, mArmorAnimation.GetSpriteIndex());
+        gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, keySpriteIndex, 0, mArmorIcon);
+    }
+}
+
+void HUDBonusPanel::UpdatePanelSize(const Point& maxSize)
+{
+    mPanelSize.x = 0;
+    mPanelSize.y = 0;
+
+    if (mShowBonusKey)
+    {
+        mPanelSize.x += mKeyIcon.mTextureRegion.mRectangle.w;
+        mPanelSize.y = std::max(mPanelSize.y, mKeyIcon.mTextureRegion.mRectangle.h);
+    }
+    if (mAmmunitionCount > 0)
+    {
+        mPanelSize.x += mArmorIcon.mTextureRegion.mRectangle.w;
+        mPanelSize.y = std::max(mPanelSize.y, mArmorIcon.mTextureRegion.mRectangle.h);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void HUD::SetupHUD(HumanPlayer* humanPlayer)
 {
     mHumanPlayer = humanPlayer;
@@ -458,6 +558,7 @@ void HUD::SetupHUD(HumanPlayer* humanPlayer)
     mWantedLevelPanel.HidePanel();
 
     mScoresPanel.SetupHUD();
+    mBonusPanel.SetupHUD();
 
     mPanelsList.clear();
     mPanelsList.push_back(&mWeaponPanel);
@@ -466,6 +567,7 @@ void HUD::SetupHUD(HumanPlayer* humanPlayer)
     mPanelsList.push_back(&mDistrictNamePanel);
     mPanelsList.push_back(&mWantedLevelPanel);
     mPanelsList.push_back(&mScoresPanel);
+    mPanelsList.push_back(&mBonusPanel);
 }
 
 void HUD::UpdateFrame()
@@ -479,7 +581,7 @@ void HUD::UpdateFrame()
     }
     else
     {
-        mWeaponPanel.SetWeaponInfo(character->mWeapons[character->mCurrentWeapon]);
+        mWeaponPanel.SetWeapon(character->mWeapons[character->mCurrentWeapon]);
         mWeaponPanel.ShowPanel();
     }
 
@@ -497,6 +599,13 @@ void HUD::UpdateFrame()
 
     // update scores
     mScoresPanel.SetScores(100, 4, 1); // todo: implement scores system
+
+    // todo: implement bonus
+    if (true)
+    {
+        mBonusPanel.SetBonus(true, character->mArmorHitPoints);
+        mBonusPanel.ShowPanel();
+    }
 
     TickAutoHidePanels();
 
@@ -560,6 +669,7 @@ void HUD::ArrangePanels(const Rect& viewportRect)
         ArrangePanelsVert(bounds, eHUDPanelAlign_Left, screen_offset, 
             {
                 &mWeaponPanel,
+                &mBonusPanel,
             });
     }
 

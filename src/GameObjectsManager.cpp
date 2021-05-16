@@ -155,7 +155,7 @@ Obstacle* GameObjectsManager::CreateObstacle(const glm::vec3& position, cxx::ang
     return instance;
 }
 
-Explosion* GameObjectsManager::CreateExplosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType, const glm::vec3& position)
+Explosion* GameObjectsManager::CreateExplosion(GameObject* explodingObject, Pedestrian* causer, eExplosionType explosionType, const glm::vec3& position)
 {
     Explosion* instance = mExplosionsPool.create(explodingObject, causer, explosionType);
     debug_assert(instance);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "BroadcastEventsManager.h"
 #include "TimeManager.h"
+#include "CarnageGame.h"
 
 BroadcastEventsManager gBroadcastEvents;
 
@@ -75,6 +76,12 @@ void BroadcastEventsManager::RegisterEvent(eBroadcastEvent eventType, GameObject
     evData.mPosition = subject->mTransform.GetPosition2();
     evData.mSubject = subject;
     evData.mCharacter = character;
+
+    // notify current gamestate controller
+    if (gCarnageGame.mCurrentGamestate)
+    {
+        gCarnageGame.mCurrentGamestate->OnGamestateBroadcastEvent(evData);
+    }
 }
 
 void BroadcastEventsManager::RegisterEvent(eBroadcastEvent eventType, const glm::vec2& position, float durationTime)
@@ -102,6 +109,12 @@ void BroadcastEventsManager::RegisterEvent(eBroadcastEvent eventType, const glm:
     evData.mEventTimestamp = currentGameTime;
     evData.mEventDurationTime = durationTime;
     evData.mPosition = position;
+
+    // notify current gamestate controller
+    if (gCarnageGame.mCurrentGamestate)
+    {
+        gCarnageGame.mCurrentGamestate->OnGamestateBroadcastEvent(evData);
+    }
 }
 
 bool BroadcastEventsManager::PeekEvent(eBroadcastEvent eventType, BroadcastEvent& outputEventData) const

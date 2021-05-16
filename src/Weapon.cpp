@@ -58,7 +58,7 @@ bool Weapon::Fire(Pedestrian* shooter)
 
             // todo: check distance in y direction
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromWeapon(*weaponInfo, shooter);         
+            damageInfo.SetDamage(*weaponInfo, shooter);         
             otherPedestrian->ReceiveDamage(damageInfo);
         }
     }

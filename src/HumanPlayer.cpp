@@ -20,7 +20,7 @@ HumanPlayer::HumanPlayer(Pedestrian* character)
 
     if (mCharacter)
     {
-        Cheat_GiveAllWeapons();
+        Cheat_GiveAllAmmunitions();
     }
 }
 
@@ -44,26 +44,11 @@ void HumanPlayer::OnCharacterUpdateFrame()
 
     if (mCharacter->IsDead())
     {
-        // detect death
-        if (mRespawnTime == 0.0f)
-        {
-            mRespawnTime = gGameParams.mGamePlayerRespawnTime;
-
-            int playerIndex = gCarnageGame.GetHumanPlayerIndex(this);
-            gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", (playerIndex + 1), cxx::enum_to_string(mCharacter->mDeathReason));
-            // todo: cleanup this mess
-            mPlayerView.mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
-        }
-
-        float deltaTime = gTimeManager.mGameFrameDelta;
-        mRespawnTime -= deltaTime;
-        if (mRespawnTime < 0)
-        {
-            Respawn();
-        }
+        UpdateRespawnTimer();
     }
 
     ProcessRepetitiveActions();
+
     UpdateDistrictLocation();
 
     // update audio listener location
@@ -293,7 +278,7 @@ void HumanPlayer::Respawn()
     mCharacter->SetPosition(mSpawnPosition);
     mCharacter->HandleSpawn();
 
-    Cheat_GiveAllWeapons();
+    Cheat_GiveAllAmmunitions();
 }
 
 void HumanPlayer::ProcessRepetitiveActions()
@@ -368,24 +353,6 @@ bool HumanPlayer::IsHumanPlayer() const
     return true;
 }
 
-void HumanPlayer::OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState)
-{
-    debug_assert(mCharacter);
-
-    if (newState == ePedestrianState_DrivingCar)
-    {
-        Vehicle* currentCar = mCharacter->mCurrentCar;
-        debug_assert(currentCar);
-        if (currentCar)
-        {
-            eVehicleModel carModel = currentCar->mCarInfo->mModelID;
-            mPlayerView.mHUD.ShowCarNameMessage(carModel);
-        }   
-    }
-
-    // todo: handle more states
-}
-
 void HumanPlayer::UpdateDistrictLocation()
 {
     const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->mTransform.GetPosition2());
@@ -399,13 +366,14 @@ void HumanPlayer::UpdateDistrictLocation()
     }
 }
 
-void HumanPlayer::Cheat_GiveAllWeapons()
+void HumanPlayer::Cheat_GiveAllAmmunitions()
 {
     debug_assert(mCharacter);
     for (int icurr = 0; icurr < eWeapon_COUNT; ++icurr)
     {
         mCharacter->mWeapons[icurr].AddAmmunition(99);
     }
+    mCharacter->IncArmorMax();
 }
 
 void HumanPlayer::SetMouseAiming(bool isEnabled)
@@ -440,4 +408,25 @@ void HumanPlayer::UpdateMouseAiming()
     glm::vec2 toTarget = worldPosition - mCharacter->mTransform.GetPosition2();
     mCtlState.mRotateToDesiredAngle = true;
     mCtlState.mDesiredRotationAngle = cxx::angle_t::from_radians(::atan2f(toTarget.y, toTarget.x));
+}
+
+void HumanPlayer::UpdateRespawnTimer()
+{
+    if (mRespawnTime <= 0.0f)
+        return;
+
+    float deltaTime = gTimeManager.mGameFrameDelta;
+    mRespawnTime -= deltaTime;
+    if (mRespawnTime > 0.0f)
+        return;
+
+    Respawn();
+}
+
+void HumanPlayer::SetRespawnTimer()
+{
+    if (mCharacter && mCharacter->IsDead())
+    {
+        mRespawnTime = gGameParams.mGamePlayerRespawnTime;
+    }
 }

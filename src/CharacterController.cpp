@@ -48,11 +48,6 @@ bool CharacterController::IsHumanPlayer() const
     return false;
 }
 
-void CharacterController::OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState)
-{
-    // do nothing
-}
-
 bool CharacterController::IsControllerActive() const
 {
     return mCharacter != nullptr;

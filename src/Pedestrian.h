@@ -65,10 +65,13 @@ public:
     Weapon& GetWeapon();
     Weapon& GetWeapon(eWeaponID weapon);
 
+    void IncArmorMax();
+    void IncArmor();
+    void DecArmor();
     void ClearAmmunition();
 
     // Instant kill, pedestrian will remain in dead state until respawn
-    void DieFromDamage(eDamageCause damageCause);
+    void DieFromDamage(const DamageInfo& damageInfo);
 
     // Process push by other pedestrian
     void PushByPedestrian(Pedestrian* otherPedestrian);

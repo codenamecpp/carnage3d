@@ -3,24 +3,21 @@
 #include "GameMapManager.h"
 #include "GameObjectsManager.h"
 #include "HumanPlayer.h"
-
-// Current game state identifier
-enum eGameStateID
-{
-    eGameStateID_Initial,
-    eGameStateID_MainMenu,
-    eGameStateID_InGame,
-    eGameStateID_Error
-};
+#include "GameplayGamestate.h"
+#include "MainMenuGamestate.h"
 
 // top level game application controller
 class CarnageGame final: public InputEventsHandler
 {
+    friend class GameplayGamestate;
+    friend class MainMenuGamestate;
+
 public:
-    // gamestate
-    HumanPlayer* mHumanPlayers[GAME_MAX_PLAYERS];
-    eGameStateID mCurrentStateID = eGameStateID_Initial;
     cxx::randomizer mGameRand;
+
+    // readonly
+    GenericGamestate* mCurrentGamestate = nullptr;
+    HumanPlayer* mHumanPlayers[GAME_MAX_PLAYERS];
 
 public:
     // Setup resources and switch to initial game state
@@ -44,7 +41,6 @@ public:
     // Current game state
     bool IsMenuGameState() const;
     bool IsInGameState() const;
-    bool IsErrorGameState() const;
 
     // Initialize player data
     void SetupHumanPlayer(int playerIndex, Pedestrian* pedestrian);
@@ -54,7 +50,7 @@ public:
 
     // Get index or human player in players list
     // @returns -1 on error
-    int GetHumanPlayerIndex(const HumanPlayer* controller) const;
+    int GetHumanPlayerIndex(Pedestrian* pedestrian) const;
     int GetHumanPlayersCount() const;
 
 private:
@@ -66,7 +62,13 @@ private:
     bool StartScenario(const std::string& mapName);
     void ShutdownCurrentScenario();
 
+    void SetCurrentGamestate(GenericGamestate* gamestate);
+
     void ProcessDebugCvars();
+
+private:
+    GameplayGamestate mGameplayGamestate;
+    MainMenuGamestate mMainMenuGamestate;
 };
 
 extern CarnageGame gCarnageGame;

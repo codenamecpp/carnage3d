@@ -1,52 +1,50 @@
 #include "stdafx.h"
 #include "DamageInfo.h"
 #include "Collision.h"
+#include "GameObjectHelpers.h"
 
-void DamageInfo::SetDamageFromFall(float fallHeight)
+void DamageInfo::SetFallDamage(float fallHeight)
 {
     mDamageCause = eDamageCause_Gravity;
     mFallHeight = fallHeight;
     // no hitpoints damage
 }
 
-void DamageInfo::SetDamageFromElectricity()
+void DamageInfo::SetElectricityDamage()
 {
     mDamageCause = eDamageCause_Electricity;
     // no hitpoints damage
 }
 
-void DamageInfo::SetDamageFromFire(int hitpoints, GameObject* object)
+void DamageInfo::SetFireDamage(GameObject* object)
 {
-    mDamageCause = eDamageCause_Burning;
-    mHitPoints = hitpoints;
+    mDamageCause = eDamageCause_Flame;
     mSourceObject = object;
 }
 
-void DamageInfo::SetDamageFromWeapon(const WeaponInfo& weaponInfo, GameObject* object)
-{
-    int hitpoints = weaponInfo.mBaseDamage;
-    
+void DamageInfo::SetDamage(const WeaponInfo& weaponInfo, GameObject* object)
+{    
     if (weaponInfo.IsBulletDamage())
     {
-        SetDamageFromBullet(hitpoints, object);
+        SetBulletDamage(object);
         return;
     }
 
     if (weaponInfo.IsFireDamage())
     {
-        SetDamageFromFire(hitpoints, object);
+        SetFireDamage(object);
         return;
     }
 
     if (weaponInfo.IsMelee())
     {
-        SetDamageFromPunch(hitpoints, object);
+        SetPunchDamage(object);
         return;
     }
 
     if (weaponInfo.IsExplosionDamage())
     {
-        SetDamageFromExplosion(hitpoints, object);
+        SetExplosionDamage(object);
         return;
     }
 
@@ -54,16 +52,14 @@ void DamageInfo::SetDamageFromWeapon(const WeaponInfo& weaponInfo, GameObject* o
     // unknown damage type
 }
 
-void DamageInfo::SetDamageFromWater(int hitpoints)
+void DamageInfo::SetWaterDamage()
 {
-    mDamageCause = eDamageCause_Drowning;
-    mHitPoints = hitpoints;
+    mDamageCause = eDamageCause_Water;
 }
 
-void DamageInfo::SetDamageFromCollision(const Collision& collisionInfo)
+void DamageInfo::SetCollisionDamage(const Collision& collisionInfo)
 {
     mDamageCause = eDamageCause_Collision;
-    mHitPoints = 0; // not used
     mContactImpulse = collisionInfo.GetContactImpulse();
     if (!collisionInfo.mContactInfo.HasContactPoints())
     {
@@ -75,10 +71,9 @@ void DamageInfo::SetDamageFromCollision(const Collision& collisionInfo)
     debug_assert(mSourceObject);
 }
 
-void DamageInfo::SetDamageFromCollision(const MapCollision& collisionInfo)
+void DamageInfo::SetCollisionDamage(const MapCollision& collisionInfo)
 {
     mDamageCause = eDamageCause_MapCollision;
-    mHitPoints = 0; // not used
     mContactImpulse = collisionInfo.GetContactImpulse();
     if (!collisionInfo.HasContactPoints())
         return;
@@ -86,39 +81,67 @@ void DamageInfo::SetDamageFromCollision(const MapCollision& collisionInfo)
     mContactPoint = collisionInfo.mContactPoints[0];
 }
 
-void DamageInfo::SetDamageFromExplosion(int hitpoints, GameObject* object)
+void DamageInfo::SetExplosionDamage(GameObject* object)
 {
     mDamageCause = eDamageCause_Explosion;
-    mHitPoints = hitpoints;
     mSourceObject = object;
 }
 
-void DamageInfo::SetDamageFromBullet(int hitpoints, GameObject* object)
+void DamageInfo::SetExplosionChainDamage(GameObject* object)
+{
+    mDamageCause = eDamageCause_ExplosionChain;
+    mSourceObject = object;
+}
+
+void DamageInfo::SetBulletDamage(GameObject* object)
 {
     mDamageCause = eDamageCause_Bullet;
-    mHitPoints = hitpoints;
     mSourceObject = object;
 }
 
-void DamageInfo::SetDamageFromPunch(int hitpoints, GameObject* object)
+void DamageInfo::SetPunchDamage(GameObject* object)
 {
     mDamageCause = eDamageCause_Punch;
-    mHitPoints = hitpoints;
     mSourceObject = object;
 }
 
-void DamageInfo::SetDamageFromCarHit(GameObject* carObject)
+void DamageInfo::SetCarHitDamage(GameObject* carObject)
 {
     mDamageCause = eDamageCause_CarHit;
     mSourceObject = carObject;
-    mHitPoints = 0; // not used
 }
 
 void DamageInfo::Clear()
 {
     mDamageCause = eDamageCause_Punch;
     mSourceObject = nullptr;
-    mHitPoints = 0;
     mContactImpulse = 0.0f;
     mFallHeight = 0.0f;
+}
+
+Pedestrian* DamageInfo::GetDamageCauser() const
+{
+    if (mSourceObject)
+    {
+        if (Pedestrian* pedestrian = ToPedestrian(mSourceObject))
+        {
+            return pedestrian;
+        }
+
+        if (Vehicle* carObject = ToVehicle(mSourceObject))
+        {
+            return carObject->GetCarDriver();
+        }
+
+        if (Explosion* explosionObjet = ToExplosion(mSourceObject))
+        {
+            return explosionObjet->mExplosionCauser;
+        }
+
+        if (Projectile* projectileObject = ToProjectile(mSourceObject))
+        {
+            return projectileObject->mShooter;
+        }
+    }
+    return nullptr;
 }

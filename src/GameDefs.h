@@ -171,6 +171,10 @@ enum
     eSpriteID_Arrow_VehicleDisplay = 27,
     eSpriteID_Arrow_WantedFrame1 = 41,
     eSpriteID_Arrow_WantedFrame2 = 42,
+    eSpriteID_Arrow_BonusArmorFrame1 = 43,
+    eSpriteID_Arrow_BonusArmorFrame2 = 44,
+    eSpriteID_Arrow_BonusKeyFrame1 = 45,
+    eSpriteID_Arrow_BonusKeyFrame2 = 46,
 
     // traffic light
     eSpriteID_TrafficLight_Red = 0,

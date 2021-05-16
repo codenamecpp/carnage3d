@@ -30,11 +30,6 @@ void PedestrianStatesManager::ChangeState(ePedestrianState nextState, const Pede
     mCurrentStateID = nextState;
     // process enter next state
     (this->*mFuncsTable[mCurrentStateID].pfStateEnter)(evData);
-    // notify controller
-    if (mPedestrian->mController)
-    {
-        mPedestrian->mController->OnCharacterChangeState(prevState, mCurrentStateID);
-    }
 }
 
 bool PedestrianStatesManager::ProcessEvent(const PedestrianStateEvent& evData)
@@ -241,7 +236,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     {
         if (damageInfo.mFallHeight >= gGameParams.mPedestrianFallDeathHeight)
         {
-            mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+            mPedestrian->DieFromDamage(damageInfo);
             return true;
         }
         return false;
@@ -255,7 +250,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     }
 
     // handle fireball
-    if (damageInfo.mDamageCause == eDamageCause_Burning)
+    if (damageInfo.mDamageCause == eDamageCause_Flame)
     {
         if (mPedestrian->IsBurn()) // already burning
             return false;
@@ -263,25 +258,23 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    // handle water contact
-    if (damageInfo.mDamageCause == eDamageCause_Drowning)
+    // handle water contact and boom
+    if ((damageInfo.mDamageCause == eDamageCause_Water) || 
+        (damageInfo.mDamageCause == eDamageCause_Explosion))
     {
-        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
-        return true;
-    }
-
-    // handle boom
-    if (damageInfo.mDamageCause == eDamageCause_Explosion)
-    {
-        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        mPedestrian->DieFromDamage(damageInfo);
         return true;
     }
 
     // handle bullet
     if (damageInfo.mDamageCause == eDamageCause_Bullet)
     {
-        // todo: hitpoints/armor
-        mPedestrian->DieFromDamage(damageInfo.mDamageCause);
+        if (mPedestrian->mArmorHitPoints > 0)
+        {
+            mPedestrian->DecArmor();
+            return true;
+        }
+        mPedestrian->DieFromDamage(damageInfo);
         return true;
     }
 
@@ -304,7 +297,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
         if (speedInDirection > killSpeed)
         {
             mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, SfxLevel_Squashed, SfxFlags_RandomPitch);
-            mPedestrian->DieFromDamage(eDamageCause_CarHit);
+            mPedestrian->DieFromDamage(damageInfo);
         }
         else if (speedInDirection > 0.0f)
         {
@@ -352,10 +345,8 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
         }
     }
 
-    if (mPedestrian->IsHumanPlayerCharacter())
-    {
-        mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Voice, SfxVoice_PlayerDies, SfxFlags_None);
-    }
+    Pedestrian* attacker = stateEvent.mDamageInfo.GetDamageCauser();
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_PedestrianDead, mPedestrian, attacker, 0.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -372,6 +363,9 @@ void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEv
         mPedestrian->mObjectFlags = flags;
     }
     SetInCarPositionToSeat();
+
+    // broadcast event
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_StartDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
 }
 
 void PedestrianStatesManager::StateDriveCar_ProcessExit()
@@ -382,6 +376,8 @@ void PedestrianStatesManager::StateDriveCar_ProcessExit()
         GameObjectFlags flags = mPedestrian->mObjectFlags ^ GameObjectFlags_Invisible;
         mPedestrian->mObjectFlags = flags;
     }
+
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_StopDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
 }
 
 bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)
@@ -754,7 +750,9 @@ void PedestrianStatesManager::StateDrowning_ProcessFrame()
         glm::vec3 currentPosition = mPedestrian->mTransform.mPosition;
         mPedestrian->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
 
-        mPedestrian->DieFromDamage(eDamageCause_Drowning);
+        DamageInfo damageInfo;
+        damageInfo.SetWaterDamage();
+        mPedestrian->DieFromDamage(damageInfo);
         return;
     }
 }
@@ -779,7 +777,9 @@ void PedestrianStatesManager::StateElectrocuted_ProcessFrame()
         
         if (mPedestrian->mCurrentAnimID == ePedestrianAnim_Electrocuted)
         {
-            mPedestrian->DieFromDamage(eDamageCause_Electricity);
+            DamageInfo damageInfo;
+            damageInfo.SetElectricityDamage();
+            mPedestrian->DieFromDamage(damageInfo);
             return;
         }
     }

@@ -163,7 +163,7 @@ void Projectile::UpdateFrame()
     if (mHitObject)
     {
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromWeapon(*mWeaponInfo, this);
+        damageInfo.SetDamage(*mWeaponInfo, this);
 
         mHitObject->ReceiveDamage(damageInfo);
     }

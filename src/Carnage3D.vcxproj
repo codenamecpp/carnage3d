@@ -161,6 +161,9 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="GameObjectHelpers.h" />
+    <ClInclude Include="GameplayGamestate.h" />
+    <ClInclude Include="GenericGamestate.h" />
+    <ClInclude Include="MainMenuGamestate.h" />
     <ClInclude Include="SfxEmitter.h" />
     <ClInclude Include="AudioListener.h" />
     <ClInclude Include="AudioSource.h" />
@@ -289,6 +292,9 @@
     <ClCompile Include="AudioDataStream.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="GameplayGamestate.cpp" />
+    <ClCompile Include="GenericGamestate.cpp" />
+    <ClCompile Include="MainMenuGamestate.cpp" />
     <ClCompile Include="SfxEmitter.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="ConsoleVar.cpp" />

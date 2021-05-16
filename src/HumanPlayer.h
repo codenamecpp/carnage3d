@@ -22,14 +22,16 @@ public:
     // override CharacterController
     bool IsHumanPlayer() const override;
     void OnCharacterUpdateFrame() override;
-    void OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState) override;
 
     // Get or set current police attention level
     int GetWantedLevel() const;
     void SetWantedLevel(int wantedLevel);
-
+   
+    // Mouse aiming control
     void SetMouseAiming(bool isEnabled);
     bool IsMouseAmingEnabled() const;
+
+    void SetRespawnTimer();
 
     // process players inputs
     // @param inputEvent: Event data
@@ -41,7 +43,7 @@ public:
     void InputEventLost();
 
     // cheats
-    void Cheat_GiveAllWeapons();
+    void Cheat_GiveAllAmmunitions();
 
 private:
     void SwitchNextWeapon();
@@ -56,6 +58,7 @@ private:
 
     void UpdateDistrictLocation();
     void UpdateMouseAiming();
+    void UpdateRespawnTimer();
 
 private:
     int mLastDistrictIndex = 0; // district index where character was last time

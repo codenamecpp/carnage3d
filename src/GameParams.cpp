@@ -28,6 +28,7 @@ void GameParams::SetToDefaults()
     mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
     mPedestrianDrowningTime = 0.05f;
     mPedestrianBurnDuration = 4.0f;
+    mPedestrianMaxArmor = 3;
     // traffic - common
     mTrafficGenHareKrishnasTime = 60.0f;
     // traffic - pedestrians

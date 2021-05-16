@@ -27,7 +27,6 @@
         "base_hit_range": 4.5,
         "base_fire_rate": 2.3,
         "base_ammo_limit": 99,
-        "base_damage": 5,
         "shot_sfx": 33, // sound index
         "hud_sprite": 30
     },
@@ -53,7 +52,6 @@
         "base_fire_rate": 16.0,
         "base_ammo_limit": 999,
         "shots_per_clip": 5,
-        "base_damage": 5,
         "shot_sfx": 34, // sound index
         "hud_sprite": 31
     },
@@ -77,7 +75,6 @@
         "base_fire_rate": 16.0,
         "base_ammo_limit": 999,
         "shots_per_clip": 5,
-        "base_damage": 15,
         "shot_sfx": 35, // sound index
         "hud_sprite": 33
     },
@@ -100,7 +97,6 @@
         "base_hit_range": 20.0,
         "base_fire_rate": 1.17,
         "base_ammo_limit": 99,
-        "base_damage": 100,
         "shot_sfx": 36, // sound index
         "hud_sprite": 32
     }

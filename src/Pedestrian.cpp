@@ -128,7 +128,7 @@ void Pedestrian::HandleFallsOnGround(float fallDistance)
     if (fallDistance > 0.0f)
     {
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromFall(fallDistance);
+        damageInfo.SetFallDamage(fallDistance);
         ReceiveDamage(damageInfo);
     }
 }
@@ -227,7 +227,7 @@ void Pedestrian::SimulationStep()
     if (hitCarObject)
     {
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromCarHit(hitCarObject);
+        damageInfo.SetCarHitDamage(hitCarObject);
         ReceiveDamage(damageInfo);
     }
 
@@ -571,12 +571,13 @@ void Pedestrian::SetDead(ePedestrianDeathReason deathReason)
     mDeathReason = deathReason;
 }
 
-void Pedestrian::DieFromDamage(eDamageCause damageCause)
+void Pedestrian::DieFromDamage(const DamageInfo& damageInfo)
 {
     PedestrianStateEvent evData { ePedestrianStateEvent_Die };
     evData.mDeathReason = ePedestrianDeathReason_Unknown;
+    evData.mDamageInfo = damageInfo;
 
-    switch (damageCause)
+    switch (damageInfo.mDamageCause)
     {
         case eDamageCause_Gravity: 
             evData.mDeathReason = ePedestrianDeathReason_FallFromHeight;
@@ -584,10 +585,10 @@ void Pedestrian::DieFromDamage(eDamageCause damageCause)
         case eDamageCause_Electricity: 
             evData.mDeathReason = ePedestrianDeathReason_Electrocuted;
         break;
-        case eDamageCause_Burning: 
+        case eDamageCause_Flame: 
             evData.mDeathReason = ePedestrianDeathReason_Fried;
         break;
-        case eDamageCause_Drowning: 
+        case eDamageCause_Water: 
             evData.mDeathReason = ePedestrianDeathReason_Drowned;
         break;
         case eDamageCause_CarHit: 
@@ -648,7 +649,9 @@ void Pedestrian::UpdateBurnEffect()
 
     if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mPedestrianBurnDuration))
     {
-        DieFromDamage(eDamageCause_Burning);
+        DamageInfo damageInfo;
+        damageInfo.SetFireDamage(nullptr);
+        DieFromDamage(damageInfo);
         return;
     }
 }
@@ -713,6 +716,21 @@ bool Pedestrian::IsHumanPlayerCharacter() const
     return false;
 }
 
+void Pedestrian::IncArmorMax()
+{
+    mArmorHitPoints = gGameParams.mPedestrianMaxArmor;
+}
+
+void Pedestrian::IncArmor()
+{
+    mArmorHitPoints = std::min(mArmorHitPoints + 1, gGameParams.mPedestrianMaxArmor);
+}
+
+void Pedestrian::DecArmor()
+{
+    mArmorHitPoints = std::max(mArmorHitPoints - 1, 0);
+}
+
 void Pedestrian::ClearAmmunition()
 {
     for (int icurrent = 0; icurrent < eWeapon_COUNT; ++icurrent)
@@ -742,7 +760,7 @@ void Pedestrian::UpdateDamageFromRailways()
         if (mStandingOnRailwaysTimer > gGameParams.mGameRailwaysDamageDelay)
         {
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromElectricity();
+            damageInfo.SetElectricityDamage();
             ReceiveDamage(damageInfo);
         }
     }
@@ -803,3 +821,4 @@ const PedestrianCtlState& Pedestrian::GetCtlState() const
 
     return dummyCtlState;
 }
+

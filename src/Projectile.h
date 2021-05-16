@@ -12,7 +12,6 @@ public:
     // readonly
     WeaponInfo* mWeaponInfo = nullptr;
     PedestrianHandle mShooter;
-    glm::vec3 mStartPosition;
     
 public:
     Projectile(WeaponInfo* weaponInfo, Pedestrian* shooter);
@@ -30,6 +29,7 @@ private:
 
 private:
     SpriteAnimation mAnimationState;
+    glm::vec3 mStartPosition;
 
     bool mHitSomething = false;
     GameObjectHandle mHitObject; // null if hit wall

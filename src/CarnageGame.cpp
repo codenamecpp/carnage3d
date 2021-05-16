@@ -47,7 +47,7 @@ CarnageGame gCarnageGame;
 
 bool CarnageGame::Initialize()
 {
-    debug_assert(mCurrentStateID == eGameStateID_Initial);
+    debug_assert(mCurrentGamestate == nullptr);
 
     // init randomizer
     std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -96,11 +96,8 @@ bool CarnageGame::Initialize()
     {
         ShutdownCurrentScenario();
         gConsole.LogMessage(eLogMessage_Warning, "Fail to start game"); 
-
-        mCurrentStateID = eGameStateID_Error;
+        return false;
     }
-
-    gDebugConsoleWindow.mWindowShown = IsErrorGameState();
     return true;
 }
 
@@ -110,52 +107,32 @@ void CarnageGame::Deinit()
 
     gGameTexts.Deinit();
 
-    mCurrentStateID = eGameStateID_Initial;
+    debug_assert(mCurrentGamestate == nullptr);
 }
 
 bool CarnageGame::IsMenuGameState() const
 {
-    return mCurrentStateID == eGameStateID_MainMenu;
+    return mCurrentGamestate == &mMainMenuGamestate;
 }
 
 bool CarnageGame::IsInGameState() const
 {
-    return mCurrentStateID == eGameStateID_InGame;
-}
-
-bool CarnageGame::IsErrorGameState() const
-{
-    return mCurrentStateID == eGameStateID_Error;
+    return mCurrentGamestate == &mGameplayGamestate;
 }
 
 void CarnageGame::UpdateFrame()
 {
-    float deltaTime = gTimeManager.mGameFrameDelta;
-
-    // advance game state
-    if (IsInGameState())
+    if (mCurrentGamestate)
     {
-        ProcessDebugCvars();
-
-        gSpriteManager.UpdateBlocksAnimations(deltaTime);
-        gPhysics.UpdateFrame();
-        gGameObjectsManager.UpdateFrame();
-        gWeatherManager.UpdateFrame();
-        gParticleManager.UpdateFrame();
-        gTrafficManager.UpdateFrame();
-        gAiManager.UpdateFrame();
-        gBroadcastEvents.UpdateFrame();
+        mCurrentGamestate->OnGamestateFrame();
     }
 }
 
 void CarnageGame::InputEventLost()
 {
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEventLost();
+        mCurrentGamestate->OnGamestateInputEventLost();
     }
 }
 
@@ -179,60 +156,49 @@ void CarnageGame::InputEvent(KeyInputEvent& inputEvent)
         return;
     }
 
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEvent(inputEvent);
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
     }
 }
 
 void CarnageGame::InputEvent(MouseButtonInputEvent& inputEvent)
 {
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEvent(inputEvent);
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
     }
 }
 
 void CarnageGame::InputEvent(MouseMovedInputEvent& inputEvent)
 {
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEvent(inputEvent);
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
     }
 }
 
 void CarnageGame::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEvent(inputEvent);
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
     }
 }
 
 void CarnageGame::InputEvent(KeyCharEvent& inputEvent)
 {
+    if (mCurrentGamestate)
+    {
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
+    }
 }
 
 void CarnageGame::InputEvent(GamepadInputEvent& inputEvent)
 {
-    for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
+    if (mCurrentGamestate)
     {
-        if (mHumanPlayers[ihuman] == nullptr)
-            continue;
-
-        mHumanPlayers[ihuman]->InputEvent(inputEvent);
+        mCurrentGamestate->OnGamestateInputEvent(inputEvent);
     }
 }
 
@@ -351,16 +317,15 @@ void CarnageGame::SetupScreenLayout()
     }
 }
 
-int CarnageGame::GetHumanPlayerIndex(const HumanPlayer* controller) const
+int CarnageGame::GetHumanPlayerIndex(Pedestrian* pedestrian) const
 {
-    if (controller == nullptr)
-    {
-        debug_assert(false);
+    debug_assert(pedestrian);
+    if ((pedestrian == nullptr) || (pedestrian->mController == nullptr))
         return -1;
-    }
+
     for (int icurr = 0; icurr < GAME_MAX_PLAYERS; ++icurr)
     {
-        if (mHumanPlayers[icurr] == controller)
+        if (mHumanPlayers[icurr] == pedestrian->mController)
             return icurr;
     }
     return -1;
@@ -450,12 +415,13 @@ bool CarnageGame::StartScenario(const std::string& mapName)
     gTrafficManager.StartupTraffic();
     gWeatherManager.EnterWorld();
 
-    mCurrentStateID = eGameStateID_InGame;
+    SetCurrentGamestate(&mGameplayGamestate);
     return true;
 }
 
 void CarnageGame::ShutdownCurrentScenario()
 {
+    SetCurrentGamestate(nullptr);
     for (int ihuman = 0; ihuman < GAME_MAX_PLAYERS; ++ihuman)
     {
         DeleteHumanPlayer(ihuman);
@@ -469,7 +435,6 @@ void CarnageGame::ShutdownCurrentScenario()
     gBroadcastEvents.ClearEvents();
     gAudioManager.ReleaseLevelSounds();
     gParticleManager.ClearWorld();
-    mCurrentStateID = eGameStateID_Initial;
 }
 
 int CarnageGame::GetHumanPlayersCount() const
@@ -610,5 +575,22 @@ void CarnageGame::ProcessDebugCvars()
         std::string savePath = gFiles.mExecutableDirectory + "/car_sprites";
         gSpriteManager.DumpCarsTextures(savePath);
         gConsole.LogMessage(eLogMessage_Info, "Car sprites path is '%s'", savePath.c_str());
+    }
+}
+
+void CarnageGame::SetCurrentGamestate(GenericGamestate* gamestate)
+{
+    if (mCurrentGamestate == gamestate)
+        return;
+
+    if (mCurrentGamestate)
+    {
+        mCurrentGamestate->OnGamestateLeave();
+    }
+
+    mCurrentGamestate = gamestate;
+    if (mCurrentGamestate)
+    {
+        mCurrentGamestate->OnGamestateEnter();
     }
 }

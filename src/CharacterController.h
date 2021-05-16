@@ -28,5 +28,4 @@ public:
 
     // Events
     virtual void OnCharacterUpdateFrame();
-    virtual void OnCharacterChangeState(ePedestrianState prevState, ePedestrianState newState);
 };

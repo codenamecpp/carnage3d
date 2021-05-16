@@ -10,7 +10,7 @@
 #include "GameObjectsManager.h"
 #include "AudioManager.h"
 
-Explosion::Explosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType) 
+Explosion::Explosion(GameObject* explodingObject, Pedestrian* causer, eExplosionType explosionType) 
     : GameObject(eGameObjectClass_Explosion, GAMEOBJECT_ID_NULL)
     , mExplosionType(explosionType)
     , mExplodingObject(explodingObject)
@@ -67,7 +67,7 @@ void Explosion::HandleSpawn()
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Explosion;
 
     mAnimationState.Clear();
-    // todo
+    // todo: what should be done here ?
     int numFrames = gSpriteManager.GetExplosionFramesCount();
     mAnimationState.mAnimDesc.SetFrames(0, numFrames);
     mAnimationState.PlayAnimation(eSpriteAnimLoop_FromStart);
@@ -75,9 +75,9 @@ void Explosion::HandleSpawn()
 
     gSpriteManager.GetExplosionTexture(0, mDrawSprite);
     RefreshDrawSprite();
+
     // broadcast event
-    glm::vec2 position2 (mTransform.mPosition.x, mTransform.mPosition.z);
-    gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, position2, gGameParams.mBroadcastExplosionEventDuration);
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, mTransform.GetPosition2(), gGameParams.mBroadcastExplosionEventDuration);
 
     StartGameObjectSound(0, eSfxSampleType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch);
 }
@@ -126,7 +126,7 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
             {
                 // kill instantly
                 DamageInfo damageInfo;
-                damageInfo.SetDamageFromExplosion(100, this); // max hitpoints
+                damageInfo.SetExplosionDamage(this);
                 currPedestrian->ReceiveDamage(damageInfo);
                 continue;
             }
@@ -136,7 +136,7 @@ void Explosion::DamagePedsNearby(bool enableInstantKill)
         {
             // burn
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromFire(1, this);
+            damageInfo.SetFireDamage(this);
             currPedestrian->ReceiveDamage(damageInfo);
             continue;
         }
@@ -150,7 +150,7 @@ void Explosion::DamageObjectInContact()
     if (mExplodingObject)
     {
         DamageInfo damageInfo;
-        damageInfo.SetDamageFromExplosion(100, this); // max hitpoints, explode instantly
+        damageInfo.SetExplosionDamage(this);
         mExplodingObject->ReceiveDamage(damageInfo);
     }
 }
@@ -193,7 +193,7 @@ void Explosion::DamageCarsNearby()
         if (distanceToExplosionCenter2 < explodeDistance2)
         {
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromExplosion(1, this); // explode with delay
+            damageInfo.SetExplosionChainDamage(this);
             currentCar->ReceiveDamage(damageInfo);
         }
     }

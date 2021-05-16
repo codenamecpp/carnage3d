@@ -44,7 +44,7 @@ public:
     void Clear();
 
     // Whether sprite graphics is not specified
-    bool IsNull() const;
+    inline operator bool () const { return mTexture != nullptr; }
 
 public:
     GpuTexture2D* mTexture = nullptr;

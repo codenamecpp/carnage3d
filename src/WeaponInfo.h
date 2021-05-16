@@ -62,7 +62,6 @@ public:
     int mProjectileHitObjectSound = -1; // level sfx
     int mProjectileObject = GameObjectType_BulletProjectile;
     int mBaseMaxAmmo = 0; // max ammo, 0 is unlimited
-    int mBaseDamage = 1; // hp
     int mShotSound = -1; // level sfx
     int mSpriteIndex = 0;
 };

@@ -74,6 +74,9 @@
     <Filter Include="Game\Particles">
       <UniqueIdentifier>{9702cb17-25cc-44a7-92ba-65a8c47323d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\GameStates">
+      <UniqueIdentifier>{1ba8bbc1-0de7-4c68-83e9-ab609908dc23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -453,6 +456,15 @@
     <ClInclude Include="GameObjectHelpers.h">
       <Filter>Game\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GenericGamestate.h">
+      <Filter>Game\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayGamestate.h">
+      <Filter>Game\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuGamestate.h">
+      <Filter>Game\GameStates</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -720,6 +732,15 @@
     </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericGamestate.cpp">
+      <Filter>Game\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayGamestate.cpp">
+      <Filter>Game\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGamestate.cpp">
+      <Filter>Game\GameStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

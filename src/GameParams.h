@@ -28,6 +28,7 @@ public:
     float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, meters
     float mPedestrianDrowningTime; // seconds
     float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
+    int mPedestrianMaxArmor; // max armor points
 
     // traffic - common params
     float mTrafficGenHareKrishnasTime; // time to generate hare krishnas, seconds

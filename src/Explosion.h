@@ -5,13 +5,19 @@
 class Explosion final: public GameObject
 {
     friend class GameObjectsManager;
+
+public:
+    // readonly
+    eExplosionType mExplosionType = eExplosionType_Rocket;
+    GameObjectHandle mExplodingObject;
+    PedestrianHandle mExplosionCauser;
   
 public:
     // ctor
     // @param explodingObject: Object that exploded
-    // @param causer: Object causing explosion
+    // @param causer: Pedestrian causing explosion
     // @param explosionType: Type identifier
-    Explosion(GameObject* explodingObject, GameObject* causer, eExplosionType explosionType);
+    Explosion(GameObject* explodingObject, Pedestrian* causer, eExplosionType explosionType);
 
     // override GameObject
     void UpdateFrame() override;
@@ -24,11 +30,6 @@ private:
     void DamageCarsNearby();
 
 private:
-    // params
-    eExplosionType mExplosionType = eExplosionType_Rocket;
-    GameObjectHandle mExplodingObject;
-    GameObjectHandle mExplosionCauser;
-    // state
     SpriteAnimation mAnimationState;
     int mUpdatesCounter = 0;
 };

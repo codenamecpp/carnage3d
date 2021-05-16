@@ -32,9 +32,8 @@ public:
     Vehicle* mTargetCar = nullptr;
     eCarSeat mTargetSeat;
 
-    DamageInfo mDamageInfo; // specified for ReceiveDamage event
-
-    ePedestrianDeathReason mDeathReason; // specified for Die event
+    DamageInfo mDamageInfo; // Die, ReceiveDamage
+    ePedestrianDeathReason mDeathReason; // Die
 };
 
 //////////////////////////////////////////////////////////////////////////

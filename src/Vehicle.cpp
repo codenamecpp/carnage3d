@@ -573,11 +573,12 @@ void Vehicle::Explode()
     SetBurnEffectActive(true);
 
     // kill passengers inside
+    DamageInfo damageInfo;
+    damageInfo.SetExplosionDamage(nullptr);
     for (Pedestrian* currentPed: mPassengers)
     {
-        currentPed->DieFromDamage(eDamageCause_Explosion);
+        currentPed->DieFromDamage(damageInfo);
     }
-
     mExplosionWaitTime = 0.0f;
 }
 
@@ -627,12 +628,13 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if (damageInfo.mDamageCause == eDamageCause_Explosion)
+    if ((damageInfo.mDamageCause == eDamageCause_Explosion) ||
+        (damageInfo.mDamageCause == eDamageCause_ExplosionChain))
     {
         if (IsCriticalDamageState())
             return false; // ignore explosions
 
-        if (damageInfo.mHitPoints == 1) // hack to simulate delayed explosion
+        if (damageInfo.mDamageCause == eDamageCause_ExplosionChain) // delayed explosion
         {
             mExplosionWaitTime = gGameParams.mCarExplosionChainDelayTime;
         }
@@ -640,21 +642,26 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if (damageInfo.mDamageCause == eDamageCause_Drowning)
+    if (damageInfo.mDamageCause == eDamageCause_Water)
     {
         SetWrecked();
         // kill passengers inside
         for (Pedestrian* currentPed: mPassengers)
         {
-            currentPed->DieFromDamage(eDamageCause_Drowning);
+            currentPed->DieFromDamage(damageInfo);
         }
         return true;
     }
 
-    if ((damageInfo.mDamageCause == eDamageCause_Bullet) ||
-        (damageInfo.mDamageCause == eDamageCause_Burning))
+    if (damageInfo.mDamageCause == eDamageCause_Bullet)
     {
-        mCurrentDamage += damageInfo.mHitPoints;
+        mCurrentDamage += 5; // todo: magic numbers
+        return true;
+    }
+    
+    if (damageInfo.mDamageCause == eDamageCause_Flame)
+    {
+        mCurrentDamage += 15; // todo: magic numbers
         return true;
     }
 
@@ -754,14 +761,14 @@ bool Vehicle::ShouldCollide(GameObject* otherObject) const
 void Vehicle::HandleCollision(const Collision& collision)
 {
     DamageInfo damageInfo;
-    damageInfo.SetDamageFromCollision(collision);
+    damageInfo.SetCollisionDamage(collision);
     ReceiveDamage(damageInfo);
 }
 
 void Vehicle::HandleCollisionWithMap(const MapCollision& collision)
 {
     DamageInfo damageInfo;
-    damageInfo.SetDamageFromCollision(collision);
+    damageInfo.SetCollisionDamage(collision);
     ReceiveDamage(damageInfo);
 }
 
@@ -776,7 +783,7 @@ void Vehicle::HandleFallsOnWater(float fallDistance)
     if (!IsWrecked())
     {
         DamageInfo damageInfo;
-        damageInfo.mDamageCause = eDamageCause_Drowning;
+        damageInfo.mDamageCause = eDamageCause_Water;
         ReceiveDamage(damageInfo);
     }
 }
@@ -784,7 +791,7 @@ void Vehicle::HandleFallsOnWater(float fallDistance)
 void Vehicle::HandleFallsOnGround(float fallDistance)
 {
     DamageInfo damageInfo;
-    damageInfo.SetDamageFromFall(fallDistance);
+    damageInfo.SetFallDamage(fallDistance);
     ReceiveDamage(damageInfo);
 }
 
@@ -886,7 +893,7 @@ void Vehicle::UpdateDamageFromRailways()
         if (mStandingOnRailwaysTimer > gGameParams.mGameRailwaysDamageDelay)
         {
             DamageInfo damageInfo;
-            damageInfo.SetDamageFromElectricity();
+            damageInfo.SetElectricityDamage();
             ReceiveDamage(damageInfo);
         }
     }

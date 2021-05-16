@@ -4,6 +4,8 @@
 #include "GameObject.h"
 #include "Pedestrian.h"
 
+//////////////////////////////////////////////////////////////////////////
+
 // When something is happening on game map broadcast event gets fired up
 enum eBroadcastEvent
 {
@@ -13,9 +15,14 @@ enum eBroadcastEvent
     eBroadcastEvent_StealCar,
     eBroadcastEvent_Explosion,
     eBroadcastEvent_CarBurns,
+
+    eBroadcastEvent_StartDriveCar,
+    eBroadcastEvent_StopDriveCar,
 };
 
 decl_enum_strings(eBroadcastEvent);
+
+//////////////////////////////////////////////////////////////////////////
 
 enum eBroadcastEventSubject
 {
@@ -26,6 +33,8 @@ enum eBroadcastEventSubject
 };
 
 decl_enum_strings(eBroadcastEventSubject);
+
+//////////////////////////////////////////////////////////////////////////
 
 // Broadcast event data
 struct BroadcastEvent
@@ -38,13 +47,15 @@ public:
     eBroadcastEventSubject mEventSubject;
 
     float mEventTimestamp; // time when event was created
-    float mEventDurationTime; // how long event lives
+    float mEventDurationTime; // how long event lives, seconds
 
     glm::vec2 mPosition; // position in the world where event did happen, meters
 
     GameObjectHandle mSubject; // object that was affected
     PedestrianHandle mCharacter; // character which causes event 
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // Broadcast events manager
 class BroadcastEventsManager final: public cxx::noncopyable

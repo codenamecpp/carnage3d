@@ -39,9 +39,8 @@ class Weapon;
 class HUDWeaponPanel: public HUDPanel
 {
 public:
-    HUDWeaponPanel();
     // Setup current weapon info
-    void SetWeaponInfo(Weapon& weaponState);
+    void SetWeapon(Weapon& weaponState);
     // override HUDPanel methods
     void SetupHUD() override;
     void DrawFrame(GuiContext& guiContext) override;
@@ -58,7 +57,6 @@ private:
 class HUDBigFontMessage: public HUDPanel
 {
 public:
-    HUDBigFontMessage();
     void SetMessageText(const std::string& messageText);
     // override HUDPanel methods
     void SetupHUD() override;
@@ -74,7 +72,6 @@ private:
 class HUDCarNamePanel: public HUDPanel
 {
 public:
-    HUDCarNamePanel();
     void SetMessageText(const std::string& messageText);
     // override HUDPanel methods
     void SetupHUD() override;
@@ -92,7 +89,6 @@ private:
 class HUDDistrictNamePanel: public HUDPanel
 {
 public:
-    HUDDistrictNamePanel();
     void SetMessageText(const std::string& messageText);
     // override HUDPanel methods
     void SetupHUD() override;
@@ -111,7 +107,6 @@ private:
 class HUDWantedLevelPanel: public HUDPanel
 {
 public:
-    HUDWantedLevelPanel();
     void SetWantedLevel(int level);
     // override HUDPanel methods
     void SetupHUD() override;
@@ -132,7 +127,6 @@ private:
 class HUDScoresPanel: public HUDPanel
 {
 public:
-    HUDScoresPanel();
     void SetScores(int score, int lives, int multiplier);
     // override HUDPanel methods
     void SetupHUD() override;
@@ -167,7 +161,22 @@ public:
 class HUDBonusPanel: public HUDPanel
 {
 public:
-
+    // Setup current weapon info
+    void SetBonus(bool showBonusKey, int armorCount);
+    // override HUDPanel methods
+    void SetupHUD() override;
+    void DrawFrame(GuiContext& guiContext) override;
+    void UpdateFrame() override;
+    void UpdatePanelSize(const Point& maxSize) override;
+private:
+    Font* mAmmunitionFont = nullptr;
+    Sprite2D mKeyIcon;
+    SpriteAnimation mKeyAnimation;
+    Sprite2D mArmorIcon;
+    SpriteAnimation mArmorAnimation;
+    bool mShowBonusKey = false;
+    int mAmmunitionCount = 0;
+    std::string mAmmunitionText; // cached message text
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -237,4 +246,5 @@ private:
     HUDDistrictNamePanel mDistrictNamePanel;
     HUDWantedLevelPanel mWantedLevelPanel;
     HUDScoresPanel mScoresPanel;
+    HUDBonusPanel mBonusPanel;
 };
