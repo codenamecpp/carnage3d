@@ -10,8 +10,6 @@
 #include "Box2D_Helpers.h"
 #include "CarnageGame.h"
 #include "Collider.h"
-#include "Cvars.h"
-#include <glm/gtx/fast_trigonometry.hpp>
 
 //////////////////////////////////////////////////////////////////////////
 
