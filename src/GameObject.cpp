@@ -134,6 +134,9 @@ bool GameObject::ReceiveDamage(const DamageInfo& damageInfo)
 
 void GameObject::RefreshDrawSprite()
 {
+    if (!mDrawSprite)
+        return;
+
     cxx::angle_t angleOffset;
     if (mDrawSpriteOrientation == eSpriteOrientation_N)
     {
