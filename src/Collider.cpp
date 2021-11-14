@@ -15,7 +15,7 @@ Collider::Collider(PhysicsBody* physicsBody, const CollisionShape& shapeData, co
 
     // allocate new shape
     b2FixtureDef fixtureDef;
-    fixtureDef.userData = this;
+    fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(this);
     fixtureDef.friction = shapeMaterial.mFriction;
     fixtureDef.restitution = shapeMaterial.mRestitution;
     fixtureDef.density = shapeMaterial.mDensity;
@@ -31,7 +31,7 @@ Collider::Collider(PhysicsBody* physicsBody, const CollisionShape& shapeData, co
     };
 
     FixtureShapeDefs fixtureShapeDefs;
-    
+
     switch (shapeData.mType)
     {
         case eCollisionShape_Circle:
@@ -40,7 +40,7 @@ Collider::Collider(PhysicsBody* physicsBody, const CollisionShape& shapeData, co
         break;
 
         case eCollisionShape_Edge:
-            fixtureShapeDefs.mEdgeShape.Set(
+            fixtureShapeDefs.mEdgeShape.SetTwoSided(
                 convert_vec2(shapeData.mEdge.mEdgePoint0),
                 convert_vec2(shapeData.mEdge.mEdgePoint1));
             fixtureDef.shape = &fixtureShapeDefs.mEdgeShape;

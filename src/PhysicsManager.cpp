@@ -65,7 +65,7 @@ void PhysicsManager::EnterWorld()
     mSimulationStepTime = 1.0f / std::max(gCvarPhysicsFramerate.mValue, 1.0f);
     mGravity = Convert::MapUnitsToMeters(0.5f);
 
-    CreateMapCollisionShape();    
+    CreateMapCollisionShape();
 }
 
 void PhysicsManager::ClearWorld()
@@ -170,7 +170,7 @@ void PhysicsManager::CreateMapCollisionShape()
 {
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
-    bodyDef.userData = nullptr; // make sure userdata is nullptr
+    bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(nullptr); // make sure userdata is nullptr
 
     mBox2MapBody = mBox2World->CreateBody(&bodyDef);
     debug_assert(mBox2MapBody);
@@ -191,9 +191,9 @@ void PhysicsManager::CreateMapCollisionShape()
 
                 // checek blox is inner
                 {
-                    const MapBlockInfo* neighbourE = gGameMap.GetBlockInfo(x + 1, y, layer); 
-                    const MapBlockInfo* neighbourW = gGameMap.GetBlockInfo(x - 1, y, layer); 
-                    const MapBlockInfo* neighbourN = gGameMap.GetBlockInfo(x, y - 1, layer); 
+                    const MapBlockInfo* neighbourE = gGameMap.GetBlockInfo(x + 1, y, layer);
+                    const MapBlockInfo* neighbourW = gGameMap.GetBlockInfo(x - 1, y, layer);
+                    const MapBlockInfo* neighbourN = gGameMap.GetBlockInfo(x, y - 1, layer);
                     const MapBlockInfo* neighbourS = gGameMap.GetBlockInfo(x, y + 1, layer);
 
                     auto is_walkable = [](eGroundType gtype)
@@ -204,7 +204,7 @@ void PhysicsManager::CreateMapCollisionShape()
                     if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&
                         !is_walkable(neighbourN->mGroundType) && !is_walkable(neighbourS->mGroundType))
                     {
-                        continue; // just ignore this block 
+                        continue; // just ignore this block
                     }
                 }
 
@@ -212,10 +212,10 @@ void PhysicsManager::CreateMapCollisionShape()
 
                 glm::vec2 shapeCenter (x + 0.5f, y + 0.5f);
                 shapeCenter = Convert::MapUnitsToMeters(shapeCenter);
-       
+
                 glm::vec2 shapeLength (0.5f, 0.5f);
                 shapeLength = Convert::MapUnitsToMeters(shapeLength);
-        
+
                 b2shapeDef.SetAsBox(shapeLength.x, shapeLength.y, convert_vec2(shapeCenter), 0.0f);
 
                 b2FixtureData_map fixtureData;
@@ -225,7 +225,7 @@ void PhysicsManager::CreateMapCollisionShape()
                 b2FixtureDef b2fixtureDef;
                 b2fixtureDef.density = 0.0f;
                 b2fixtureDef.shape = &b2shapeDef;
-                b2fixtureDef.userData = fixtureData.mAsPointer;
+                b2fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(fixtureData.mAsPointer);
                 b2fixtureDef.filter.categoryBits = CollisionGroup_MapBlock;
 
                 b2Fixture* b2fixture = mBox2MapBody->CreateFixture(&b2fixtureDef);
@@ -403,7 +403,7 @@ void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::ve
             , mCollisionMask(collisionMask)
         {
         }
-	    float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction) override
+	    float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override
         {
             if (mOutput.IsFull())
                 return 0.0f;
@@ -446,7 +446,7 @@ void PhysicsManager::QueryObjectsWithinBox(const glm::vec2& center, const glm::v
     {
     public:
         _query_callback(PhysicsQueryResult& out, CollisionGroup collisionMask)
-            : mOutput(out) 
+            : mOutput(out)
             , mCollisionMask(collisionMask)
         {
         }
@@ -505,7 +505,7 @@ bool PhysicsManager::ShouldCollide_ObjectWithMap(b2Contact* contact, b2Fixture* 
 
     // todo: this is temporary implementation
 
-    b2FixtureData_map fxdata = mapFixture->GetUserData();
+    b2FixtureData_map fxdata = (b2FixtureData_map*) mapFixture->GetUserData().pointer;
     const MapBlockInfo* blockData = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, mapLayer);
     return (blockData->mGroundType == eGroundType_Building);
 }
@@ -569,7 +569,7 @@ void PhysicsManager::HandleCollision_ObjectWithMap(b2Fixture* objectFixture, b2F
     float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
     int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
 
-    b2FixtureData_map fxdata = mapFixture->GetUserData();
+    b2FixtureData_map fxdata = (b2FixtureData_map*) mapFixture->GetUserData().pointer;
 
     // queue collision event
     mObjectsCollisionList.emplace_back();
@@ -622,7 +622,7 @@ void PhysicsManager::HandleCollision_CarVsCar(Vehicle* carA, Vehicle* carB, b2Co
     {
         int pointCount = contact->GetManifold()->pointCount;
         float impact = 0.0f;
-        for (int i = 0; i < pointCount; ++i) 
+        for (int i = 0; i < pointCount; ++i)
         {
             impact = b2Max(impact, impulse->normalImpulses[i]);
         }
@@ -633,7 +633,7 @@ void PhysicsManager::HandleCollision_CarVsCar(Vehicle* carA, Vehicle* carB, b2Co
         {
             glm::vec3 contactPoint(wmanifold.points->x, carA->mPhysicsBody->mPositionY, wmanifold.points->y);
             glm::vec2 velocity2 = glm::normalize(
-                carA->mPhysicsBody->GetLinearVelocity() + 
+                carA->mPhysicsBody->GetLinearVelocity() +
                 carB->mPhysicsBody->GetLinearVelocity());
             glm::vec3 velocity = -glm::vec3(velocity2.x, 0.0f, velocity2.y) * 1.8f;
             gParticleManager.StartCarSparks(contactPoint, velocity, 3);
@@ -647,7 +647,7 @@ void PhysicsManager::HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, 
 
     int pointCount = contact->GetManifold()->pointCount;
     float impact = 0.0f;
-    for (int i = 0; i < pointCount; ++i) 
+    for (int i = 0; i < pointCount; ++i)
     {
         impact = b2Max(impact, impulse->normalImpulses[i]);
     }
@@ -674,7 +674,7 @@ void PhysicsManager::HandleCollision_CarVsMap(Vehicle* car, b2Contact* contact, 
     }
 
     // bounce
-   
+
 }
 
 void PhysicsManager::ProcessInterpolation()

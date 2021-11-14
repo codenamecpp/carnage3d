@@ -77,16 +77,16 @@ project "carnage3d"
 		"src/*.h", 
 		"src/*.cpp"
 	}
-	includedirs { "third_party/Box2D" }
+	includedirs { "third_party/Box2D/include" }
 	includedirs { "GLFW" }
-	links { "GL", "GLEW", "stdc++fs", "openal", "Box2D", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl", "GLFW" }
+	links { "GL", "GLEW", "stdc++fs", "openal", "box2d", "X11", "Xrandr", "Xinerama", "Xcursor", "pthread", "dl", "GLFW" }
 
 	filter { "configurations:Debug" }
 		defines { "DEBUG", "_DEBUG" }
 		symbols "On"
-		libdirs { "third_party/Box2D/Build/bin/x86_64/Debug" }
+		libdirs { "third_party/Box2D/build/bin" }
 
 	filter { "configurations:Release" }
 		defines { "NDEBUG" }
 		optimize "On"
-		libdirs { "third_party/Box2D/Build/bin/x86_64/Release" }
+		libdirs { "third_party/Box2D/build/bin" }
