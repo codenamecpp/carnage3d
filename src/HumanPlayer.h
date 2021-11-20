@@ -56,6 +56,8 @@ private:
     void ProcessInputAction(eInputAction action, bool isActivated);
     bool GetActionState(eInputAction action) const;
 
+    void ShowLastDistrictLocation();
+
     void UpdateDistrictLocation();
     void UpdateMouseAiming();
     void UpdateRespawnTimer();

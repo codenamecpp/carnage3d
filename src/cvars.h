@@ -40,6 +40,9 @@ extern CvarBoolean gCvarWeatherActive; // whether weather effects enabled
 extern CvarEnum<eWeatherEffect> gCvarWeatherEffect; // currently active weather
 extern CvarBoolean gCvarCarSparksActive; // enable car sparks effect
 
+// ui
+extern CvarFloat gCvarUiScale; // ui elements scale factor
+
 //////////////////////////////////////////////////////////////////////////
 // console commands
 //////////////////////////////////////////////////////////////////////////
@@ -78,6 +81,7 @@ inline void CvarsRegisterGlobal()
     gConsole.RegisterVariable(&gCvarMouseAiming);
     gConsole.RegisterVariable(&gCvarMusicVolume);
     gConsole.RegisterVariable(&gCvarSoundsVolume);
+    gConsole.RegisterVariable(&gCvarUiScale);
     // commands
     gConsole.RegisterVariable(&gCvarSysQuit);
     gConsole.RegisterVariable(&gCvarSysListCvars);

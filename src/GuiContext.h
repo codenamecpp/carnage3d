@@ -8,6 +8,8 @@ public:
     GameCamera2D& mCamera;
     SpriteBatch& mSpriteBatch;
 
+    float mUiScale = 1.0f;
+
 public:
     GuiContext(GameCamera2D& camera, SpriteBatch& spriteBatch)
         : mCamera(camera)

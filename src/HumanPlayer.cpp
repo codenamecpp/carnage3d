@@ -92,6 +92,13 @@ void HumanPlayer::InputEvent(KeyInputEvent& inputEvent)
         ProcessInputAction(action, inputEvent.mPressed);
         inputEvent.SetConsumed();
     }
+
+    // handle special keys
+    if (inputEvent.HasPressed(eKeycode_F9))
+    {
+        ShowLastDistrictLocation();
+        inputEvent.SetConsumed();
+    }
 }
 
 void HumanPlayer::InputEvent(GamepadInputEvent& inputEvent)
@@ -268,7 +275,7 @@ void HumanPlayer::EnterOrExitCar(bool alternative)
 
 void HumanPlayer::Respawn()
 {
-    SetWantedLevel(0);
+    SetWantedLevel(GAME_MAX_WANTED_LEVEL);//todo
     mLastDistrictIndex = 0;
     mRespawnTime = 0.0f;
 
@@ -429,4 +436,9 @@ void HumanPlayer::SetRespawnTimer()
     {
         mRespawnTime = gGameParams.mGamePlayerRespawnTime;
     }
+}
+
+void HumanPlayer::ShowLastDistrictLocation()
+{
+    mPlayerView.mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
 }

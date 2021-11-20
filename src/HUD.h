@@ -8,30 +8,112 @@
 // Base class of all HUD elements
 class HUDPanel: public cxx::noncopyable
 {
+    friend class HUD;
+
 public:
     // readonly
-    Point mPanelPosition;
-    Point mPanelSize; // manual compute it with UpdatePanelSize
+    Point mScreenPosition;
+    Point mSize; // manual compute it with UpdatePanelSize
+    Point mMinSize;
+    Point mMaxSize;
+    Point mLocalPosition; 
+
+    enum eHorzAlignMode { eHorzAlignMode_None, eHorzAlignMode_Left, eHorzAlignMode_Right, eHorzAlignMode_Center };
+    eHorzAlignMode mHorzAlignMode = eHorzAlignMode_None;
+
+    enum eVertAlignMode { eVertAlignMode_None, eVertAlignMode_Top, eVertAlignMode_Bottom, eVertAlignMode_Center };
+    eVertAlignMode mVertAlignMode = eVertAlignMode_None;
+
+    enum eLayoutMode { eLayoutMode_None, eLayoutMode_Vert, eLayoutMode_Horz };
+    eLayoutMode mLayoutMode = eLayoutMode_None;
+
+    HUDPanel* mParentContainer = nullptr;
 
 public:
     HUDPanel();
     virtual ~HUDPanel();
-    // overridable methods
-    virtual void SetupHUD();
-    virtual void DrawFrame(GuiContext& guiContext);
-    virtual void UpdateFrame();
-    virtual void UpdatePanelSize(const Point& maxSize);
+
+    void SetupHUD();
+    void DrawFrame(GuiContext& guiContext);
+    void UpdateFrame();
+
     // Set top left corner position on screen
-    void SetPanelPosition(const Point& tlcornerPosition)
-    {
-        mPanelPosition = tlcornerPosition;
-    }
+    void SetPosition(const Point& position);
+    void SetSizeLimits(const Point& minSize, const Point& maxSize);
+
+    void SetAlignMode(eHorzAlignMode horzAlignMode, eVertAlignMode vertAlignMode);
+    void SetBorders(int borderL, int borderR, int borderT, int borderB);
+
+    // set attached panels layout
+    void SetLayoutMode(eLayoutMode layoutMode);
+
+    // set attached panels spacing
+    // @param innerSpacing: additional spacing between attached panels, works only if layout mode set
+    void SetInnerSpacing(int innerSpacing);
+
+    // manage attached panels
+    void AttachPanel(HUDPanel* panel);
+    void DetachPanel(HUDPanel* panel);
+    void DetachPanels();
+
     // Show or hide panel
-    void ShowPanel();
-    void HidePanel();
-    bool IsPanelVisible() const;
+    void SetVisible(bool isVisible);
+    bool IsVisible() const;
+
 protected:
-    bool mIsPanelVisible = true; // whether the panel should draw and update
+    // overridable methods
+    virtual void Self_ComputeSize(Point& outputSize) const;
+    virtual void Self_DrawFrame(GuiContext& guiContext);
+    virtual void Self_UpdateFrame();
+    virtual void Self_SetupHUD();
+
+protected:
+    void SetParentContainer(HUDPanel* parentContainer);
+    void ComputeSize();
+    void ComputePosition();
+    void ComputeOwnScreenPosition();
+
+protected:
+    bool mIsVisible = true; // whether the panel should draw and update
+
+    std::vector<HUDPanel*> mChildPanels; // all attached panels
+    int mInnerSpacing = 0; // attached panels spacing
+    int mBorderL = 0; // child area offset from left
+    int mBorderR = 0; // child area offset from right
+    int mBorderT = 0; // child area offset from top
+    int mBorderB = 0; // child area offset from bottom
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class HUDText: public HUDPanel
+{
+public:
+    void SetTextFont(Font* textFont, int fontRemap);
+    void SetText(const std::string& textString);
+    void SetTextRemap(int fontRemap);
+protected:
+    // override HUDPanel
+    void Self_ComputeSize(Point& outputSize) const override;
+    void Self_DrawFrame(GuiContext& guiContext) override;
+protected:
+    Font* mTextFont = nullptr;
+    std::string mText;
+    int mTextPaletteIndex = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class HUDSprite: public HUDPanel
+{
+public:
+    Sprite2D mSprite;
+    SpriteAnimation mAnimationState; // optional
+protected:
+    // override HUDPanel
+    void Self_ComputeSize(Point& outputSize) const override;
+    void Self_DrawFrame(GuiContext& guiContext) override;
+    void Self_UpdateFrame() override;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,49 +121,36 @@ class Weapon;
 class HUDWeaponPanel: public HUDPanel
 {
 public:
-    // Setup current weapon info
     void SetWeapon(Weapon& weaponState);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdatePanelSize(const Point& maxSize) override;
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 private:
-    Sprite2D mWeaponIcon;
-    Font* mAmmunitionFont = nullptr;
-    int mPrevAmmunitionCount = 0;
-    std::string mAmmunitionText; // cached message text
+    HUDSprite mIcon;
+    HUDText mCounter;
+    int mCurrAmmoAmount = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class HUDBigFontMessage: public HUDPanel
+class HUDBigFontMessage: public HUDText
 {
-public:
-    void SetMessageText(const std::string& messageText);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdatePanelSize(const Point& maxSize) override; 
-private:
-    Font* mMessageFont = nullptr;
-    std::string mMessageText; // cached message text
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class HUDCarNamePanel: public HUDPanel
+class HUDCarNamePanel: public HUDSprite
 {
 public:
     void SetMessageText(const std::string& messageText);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdatePanelSize(const Point& maxSize) override; 
-
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 private:
-    Font* mMessageFont = nullptr;
-    Sprite2D mBackgroundSprite;
-    std::string mMessageText; // cached message text
+    HUDText mMessageText;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,16 +159,14 @@ class HUDDistrictNamePanel: public HUDPanel
 {
 public:
     void SetMessageText(const std::string& messageText);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdatePanelSize(const Point& maxSize) override; 
-
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 private:
-    Font* mMessageFont = nullptr;
-    Sprite2D mBackgroundSpriteLeftPart;
-    Sprite2D mBackgroundSpriteRightPart;
-    std::string mMessageText; // cached message text
+    HUDText mMessageText;
+    HUDPanel mBgContainer;
+    HUDSprite mBgLeftPart;
+    HUDSprite mBgRightPart;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -108,18 +175,12 @@ class HUDWantedLevelPanel: public HUDPanel
 {
 public:
     void SetWantedLevel(int level);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdateFrame() override;
-    void UpdatePanelSize(const Point& maxSize) override;
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 private:
-    struct CopSprite: public Sprite2D
-    {
-        SpriteAnimation mAnimationState;
-    };
-    CopSprite mCopSprites[GAME_MAX_WANTED_LEVEL];
-    int mCopSpritesCount = 0;
+    HUDSprite mLevels[GAME_MAX_WANTED_LEVEL];
+    int mCurrWantedLevel = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -128,32 +189,19 @@ class HUDScoresPanel: public HUDPanel
 {
 public:
     void SetScores(int score, int lives, int multiplier);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdateFrame() override;
-    void UpdatePanelSize(const Point& maxSize) override;
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
+    void Self_UpdateFrame() override;
 private:
-    Font* mFontScore = nullptr;
-    Font* mFontLives = nullptr;
-    Font* mFontMultiplier = nullptr;
-    Point mColumnCountersDims;
+    HUDPanel mSmallInfoContainer;
+    HUDText mScoreCounter;
+    HUDText mLivesCounter;
+    HUDText mMultiplierCounter;
     // cache score values
-    int mPrevScore = 0;
-    int mPrevLives = 0;
-    int mPrevMultiplier = 0;
-    // cache texts
-    std::string mScoreText;
-    std::string mLivesText;
-    std::string mMultiplierText;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class HUDPagerPanel: public HUDPanel
-{
-public:
-
+    int mCurrScore = 0;
+    int mCurrLives = 0;
+    int mCurrMultiplier = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,22 +209,16 @@ public:
 class HUDBonusPanel: public HUDPanel
 {
 public:
-    // Setup current weapon info
     void SetBonus(bool showBonusKey, int armorCount);
-    // override HUDPanel methods
-    void SetupHUD() override;
-    void DrawFrame(GuiContext& guiContext) override;
-    void UpdateFrame() override;
-    void UpdatePanelSize(const Point& maxSize) override;
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
 private:
-    Font* mAmmunitionFont = nullptr;
-    Sprite2D mKeyIcon;
-    SpriteAnimation mKeyAnimation;
-    Sprite2D mArmorIcon;
-    SpriteAnimation mArmorAnimation;
+    HUDSprite mKeyIcon;
+    HUDSprite mArmorIcon;
+    HUDText mArmorCounter;
+    int mCurrArmorAmount = 0;
     bool mShowBonusKey = false;
-    int mAmmunitionCount = 0;
-    std::string mAmmunitionText; // cached message text
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,17 +245,6 @@ public:
     void ShowDistrictNameMessage(int districtIndex);
 
 private:
-
-    enum eHUDPanelAlign
-    {
-        eHUDPanelAlign_Left,
-        eHUDPanelAlign_Center,
-        eHUDPanelAlign_Right
-    };
-    void ArrangePanels(const Rect& viewportRect);
-    void ArrangePanelsHorz(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels);
-    void ArrangePanelsVert(const Rect& bounds, eHUDPanelAlign panelsAlign, int spacing, const std::initializer_list<HUDPanel*>& panels);
-
     void DrawArrowAboveCharacter(GuiContext& guiContext);
 
     // Manager auto-hide panels
@@ -228,7 +259,7 @@ private:
 
     std::deque<HUDMessageData> mTextMessagesQueue;
 
-    std::vector<HUDPanel*> mPanelsList;
+    HUDPanel mPanelsContainer;
 
     // show panel for a limited time and then automatically hide it
     struct AutoHidePanel
@@ -240,6 +271,10 @@ private:
     std::vector<AutoHidePanel> mAutoHidePanels;
 
     // all hud panels
+    HUDPanel mTopLeftContainer;
+    HUDPanel mTopMiddleContainer;
+    HUDPanel mTopRightContainer;
+
     HUDWeaponPanel mWeaponPanel;
     HUDBigFontMessage mBigFontMessage;
     HUDCarNamePanel mCarNamePanel;

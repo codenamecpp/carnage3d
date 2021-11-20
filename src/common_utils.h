@@ -96,12 +96,13 @@ namespace cxx
     }
 
     template<typename TContainer, typename TElement>
-    inline void push_back_if_unique(TContainer& container, const TElement& element)
+    inline bool push_back_if_unique(TContainer& container, const TElement& element)
     {
         if (contains(container, element))
-            return;
+            return false;
 
         container.push_back(element);
+        return true;
     }
 
     template<typename TContainer>
