@@ -35,4 +35,13 @@ public:
         outx = (xcoord * 1.0f) / mCamera.mViewportRect.w;
         outy = (ycoord * 1.0f) / mCamera.mViewportRect.h;
     }
+
+    bool EnterChildClipArea(const Rect& rcLocal);
+    void LeaveChildClipArea();
+
+private:
+    void TransformClipRect(Rect& rectangle) const;
+
+private:
+    std::vector<Rect> mClipRectsStack;
 };

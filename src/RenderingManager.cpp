@@ -59,7 +59,7 @@ void RenderingManager::RenderFrame()
     gSpriteManager.RenderFrameBegin();
     mMapRenderer.RenderFrameBegin();
 
-    Rect viewportRectangle = gGraphicsDevice.mViewportRect;
+    Rect prevScreenRect = gGraphicsDevice.mViewportRect;
     for (RenderView* currRenderview: mActiveRenderViews)
     {
         currRenderview->DrawFrameBegin();
@@ -77,7 +77,7 @@ void RenderingManager::RenderFrame()
             mDebugRenderer.RenderFrameEnd();
         }
     }
-    gGraphicsDevice.SetViewportRect(viewportRectangle);
+    gGraphicsDevice.SetViewportRect(prevScreenRect);
 
     gGuiManager.RenderFrame();
 

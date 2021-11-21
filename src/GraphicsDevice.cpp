@@ -826,7 +826,7 @@ void GraphicsDevice::SetViewportRect(const Rect& sourceRectangle)
         return;
 
     mViewportRect = sourceRectangle;
-    ::glViewport(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
+    ::glViewport(mViewportRect.x, mScreenResolution.y - (mViewportRect.y + mViewportRect.h), mViewportRect.w, mViewportRect.h);
     glCheckError();
 }
 

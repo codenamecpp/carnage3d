@@ -60,6 +60,9 @@ public:
     void SetVisible(bool isVisible);
     bool IsVisible() const;
 
+    void SetClipChildren(bool isClipChildren);
+    bool IsClippingChildren() const;
+
 protected:
     // overridable methods
     virtual void Self_ComputeSize(Point& outputSize) const;
@@ -75,6 +78,7 @@ protected:
 
 protected:
     bool mIsVisible = true; // whether the panel should draw and update
+    bool mClipChildren = false;
 
     std::vector<HUDPanel*> mChildPanels; // all attached panels
     int mInnerSpacing = 0; // attached panels spacing
@@ -223,6 +227,31 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class HUDPagerMessage: public HUDPanel
+{
+public:
+    void SetTextScrolling(bool isScrolling);
+    bool IsTextScrolling() const;
+protected:
+    // override HUDPanel
+    void Self_SetupHUD() override;
+    void Self_UpdateFrame() override;
+private:
+    void UpdateTextScroll(float dt);
+    void UpdatePagerFlash(float dt);
+private:
+    HUDSprite mBackground;
+    HUDSprite mFlash;
+    HUDText mMessageText;
+    HUDPanel mMessageContainer;
+    float mFlashTimeDelta = 0.0; // seconds since last flash state change
+    float mScrollTimeDelta = 0.0; // seconds since last text scroll
+    int mScrollTextValue = 0;
+    bool mScrollingText = false;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // In-game heads-up-display
 class HUD final: public cxx::noncopyable
 {
@@ -282,4 +311,5 @@ private:
     HUDWantedLevelPanel mWantedLevelPanel;
     HUDScoresPanel mScoresPanel;
     HUDBonusPanel mBonusPanel;
+    HUDPagerMessage mPagerPanel;
 };

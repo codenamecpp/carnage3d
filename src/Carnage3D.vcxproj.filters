@@ -742,6 +742,9 @@
     <ClCompile Include="MainMenuGamestate.cpp">
       <Filter>Game\GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="GuiContext.cpp">
+      <Filter>Game\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">

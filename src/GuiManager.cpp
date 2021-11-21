@@ -72,12 +72,15 @@ void GuiManager::RenderFrame()
             mCamera2D.SetProjection(0.0f, mCamera2D.mViewportRect.w * 1.0f, mCamera2D.mViewportRect.h * 1.0f, 0.0f);
 
             gGraphicsDevice.SetViewportRect(mCamera2D.mViewportRect);
-            gGraphicsDevice.SetScissorRect(mCamera2D.mViewportRect);
-
             gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(mCamera2D);
 
             GuiContext uiContext ( mCamera2D, mSpriteBatch );
-            currPlayer->mPlayerView.mHUD.DrawFrame(uiContext);
+            Rect clipRect { 0, 0, mCamera2D.mViewportRect.w, mCamera2D.mViewportRect.h };
+            if (uiContext.EnterChildClipArea(clipRect))
+            {
+                currPlayer->mPlayerView.mHUD.DrawFrame(uiContext);
+                uiContext.LeaveChildClipArea();
+            }
             mSpriteBatch.Flush();
         }
 

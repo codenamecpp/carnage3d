@@ -288,12 +288,12 @@ void CarnageGame::SetupScreenLayout()
 
     debug_assert(playersCount > 0);
 
-    Rect fullViewport = gGraphicsDevice.mViewportRect;
+    Point screenResolution = gGraphicsDevice.mScreenResolution;
 
     int numRows = (playersCount + MaxCols - 1) / MaxCols;
     debug_assert(numRows > 0);
 
-    int frameSizePerH = fullViewport.h / numRows;
+    int frameSizePerH = screenResolution.y / numRows;
 
     for (int icurr = 0; icurr < playersCount; ++icurr)
     {
@@ -304,12 +304,12 @@ void CarnageGame::SetupScreenLayout()
 
         int colsOnCurrentRow = glm::clamp(playersCount - (currRow * MaxCols), 1, MaxCols);
         debug_assert(colsOnCurrentRow);
-        int frameSizePerW = fullViewport.w / colsOnCurrentRow;
+        int frameSizePerW = screenResolution.x / colsOnCurrentRow;
         
         HumanPlayerView& currView = mHumanPlayers[icurr]->mPlayerView;
         currView.mCamera.mViewportRect.h = frameSizePerH;
         currView.mCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
-        currView.mCamera.mViewportRect.y = (numRows - currRow - 1) * (frameSizePerH + 1);
+        currView.mCamera.mViewportRect.y = currRow * frameSizePerH;
         currView.mCamera.mViewportRect.w = frameSizePerW;
  
         currView.SetCameraController(&currView.mFollowCameraController);

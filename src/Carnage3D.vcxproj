@@ -294,6 +294,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="GameplayGamestate.cpp" />
     <ClCompile Include="GenericGamestate.cpp" />
+    <ClCompile Include="GuiContext.cpp" />
     <ClCompile Include="MainMenuGamestate.cpp" />
     <ClCompile Include="SfxEmitter.cpp" />
     <ClCompile Include="AudioSource.cpp" />

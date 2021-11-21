@@ -169,6 +169,8 @@ enum
     eSpriteID_Arrow_AreaDisplayLeft = 25,
     eSpriteID_Arrow_AreaDisplayRight = 26,
     eSpriteID_Arrow_VehicleDisplay = 27,
+    eSpriteID_Arrow_Pager = 28,
+    eSpriteID_Arrow_PagerFlash = 29,
     eSpriteID_Arrow_WantedFrame1 = 41,
     eSpriteID_Arrow_WantedFrame2 = 42,
     eSpriteID_Arrow_BonusArmorFrame1 = 43,

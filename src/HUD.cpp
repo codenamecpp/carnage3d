@@ -238,6 +238,16 @@ bool HUDPanel::IsVisible() const
     return mIsVisible;
 }
 
+void HUDPanel::SetClipChildren(bool isClipChildren)
+{
+    mClipChildren = isClipChildren;
+}
+
+bool HUDPanel::IsClippingChildren() const
+{
+    return mClipChildren;
+}
+
 void HUDPanel::SetLayoutMode(eLayoutMode layoutMode)
 {
     mLayoutMode = layoutMode;
@@ -298,12 +308,26 @@ void HUDPanel::SetupHUD()
 void HUDPanel::DrawFrame(GuiContext& guiContext)
 {
     Self_DrawFrame(guiContext);
+
+    bool enableClipChildren = mClipChildren && !mChildPanels.empty();
+    if (enableClipChildren)
+    {
+        Rect cliprect {mScreenPosition.x, mScreenPosition.y, mSize.x, mSize.y};
+        if (!guiContext.EnterChildClipArea(cliprect))
+            return;
+    }
+
     for (HUDPanel* currPanel: mChildPanels)
     {
         if (currPanel->IsVisible())
         {
             currPanel->DrawFrame(guiContext);
         }
+    }
+
+    if (enableClipChildren)
+    {
+        guiContext.LeaveChildClipArea();
     }
 }
 
@@ -596,6 +620,7 @@ void HUDBonusPanel::SetBonus(bool showBonusKey, int armorCount)
     }
 
     mShowBonusKey = showBonusKey;
+    mArmorIcon.SetVisible(mCurrArmorAmount > 0);
 }
 
 void HUDBonusPanel::Self_SetupHUD()
@@ -645,6 +670,107 @@ void HUDBonusPanel::Self_SetupHUD()
 
 //////////////////////////////////////////////////////////////////////////
 
+void HUDPagerMessage::SetTextScrolling(bool isScrolling)
+{
+    if (isScrolling)
+    {
+        mScrollTimeDelta = 0.0f;
+        mScrollTextValue = 0;
+    }
+    mScrollingText = isScrolling;
+}
+
+bool HUDPagerMessage::IsTextScrolling() const
+{
+    return mScrollingText;
+}
+
+void HUDPagerMessage::Self_SetupHUD()
+{
+    int spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_Pager);
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mBackground.mSprite);
+
+    mBackground.mSprite.mHeight = 0.0f;
+    mBackground.mSprite.mScale = HUD_SPRITE_SCALE;
+    mBackground.mSprite.mOriginMode = eSpriteOrigin_TopLeft;
+
+    AttachPanel(&mBackground);
+
+    spriteIndex = gGameMap.mStyleData.GetSpriteIndex(eSpriteType_Arrow, eSpriteID_Arrow_PagerFlash);
+    gSpriteManager.GetSpriteTexture(GAMEOBJECT_ID_NULL, spriteIndex, 0, mFlash.mSprite);
+
+    mFlash.mSprite.mHeight = 0.0f;
+    mFlash.mSprite.mScale = HUD_SPRITE_SCALE;
+    mFlash.mSprite.mOriginMode = eSpriteOrigin_TopLeft;
+    mFlash.SetAlignMode(HUDPanel::eHorzAlignMode_None, HUDPanel::eVertAlignMode_Bottom);
+    mFlash.SetPosition(Point(22, 0));
+    AttachPanel(&mFlash);
+
+    mMessageContainer.SetAlignMode(HUDPanel::eHorzAlignMode_None, HUDPanel::eVertAlignMode_Center);
+    mMessageContainer.SetPosition(Point(22, 16));
+    mMessageContainer.SetSizeLimits(Point(114, 32), Point(114, 32));
+    mMessageContainer.SetClipChildren(true);
+    AttachPanel(&mMessageContainer);
+
+    Font* messageFont = gFontManager.GetFont("PAGER1.FON");
+    debug_assert(messageFont);
+    mMessageText.SetTextFont(messageFont, FontRemap_Default);
+    mMessageText.SetText("HELLO, WORLD! THIS IS LONG PAGER MESSAGE!");
+    mMessageContainer.AttachPanel(&mMessageText);
+
+    SetTextScrolling(true);
+}
+
+void HUDPagerMessage::Self_UpdateFrame()
+{
+    UpdatePagerFlash(gTimeManager.mUiFrameDelta);
+    UpdateTextScroll(gTimeManager.mUiFrameDelta);
+}
+
+void HUDPagerMessage::UpdateTextScroll(float dt)
+{
+    static const float TextScrollSpeed = 24.0f; // pixels per second
+    static const float SinglePixelScrollTime = 1.0f / TextScrollSpeed;
+
+    if (IsTextScrolling())
+    {
+        mScrollTimeDelta += dt;
+        int pixelsToScroll = (int)(mScrollTimeDelta / SinglePixelScrollTime);
+        if (pixelsToScroll > 0)
+        {
+            mScrollTimeDelta -= (pixelsToScroll * SinglePixelScrollTime);
+            mScrollTextValue += pixelsToScroll;
+        }
+    }
+
+    if (mScrollTextValue)
+    {
+        int x_position = mMessageContainer.mMaxSize.x - mScrollTextValue;
+        mMessageText.SetPosition(Point(x_position, mMessageText.mLocalPosition.y));
+    }
+
+    if (IsTextScrolling())
+    {
+        if (mScrollTextValue > (mMessageText.mSize.x + mMessageContainer.mSize.x))
+        {
+            SetTextScrolling(true);
+        }  
+    }
+}
+
+void HUDPagerMessage::UpdatePagerFlash(float dt)
+{
+    static const float PagerFlashStateChangeTime = 0.5f; // seconds
+    mFlashTimeDelta += dt;
+    if (mFlashTimeDelta > PagerFlashStateChangeTime)
+    {
+        mFlashTimeDelta = 0.0f;
+        mFlash.SetVisible(!mFlash.IsVisible());
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void HUD::SetupHUD(HumanPlayer* humanPlayer)
 {
     mHumanPlayer = humanPlayer;
@@ -656,6 +782,7 @@ void HUD::SetupHUD(HumanPlayer* humanPlayer)
     // setup hud panels
     mTopLeftContainer.SetAlignMode(HUDPanel::eHorzAlignMode_Left, HUDPanel::eVertAlignMode_Top);
     mTopLeftContainer.SetLayoutMode(HUDPanel::eLayoutMode_Vert);
+    mTopLeftContainer.AttachPanel(&mPagerPanel);
     mTopLeftContainer.AttachPanel(&mWeaponPanel);
     mTopLeftContainer.AttachPanel(&mBonusPanel);
 
@@ -726,7 +853,7 @@ void HUD::UpdateFrame()
 void HUD::DrawFrame(GuiContext& guiContext)
 {
     Rect viewportRect = guiContext.mCamera.mViewportRect;
-    mPanelsContainer.SetPosition(Point(viewportRect.x, viewportRect.y));
+    mPanelsContainer.SetPosition(Point(0, 0));
     mPanelsContainer.SetSizeLimits(
         Point(viewportRect.w, viewportRect.h), 
         Point(viewportRect.w, viewportRect.h));
