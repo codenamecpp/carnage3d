@@ -44,8 +44,8 @@ PhysicsBody::PhysicsBody(GameObject* owner, PhysicsBodyFlags flags)
 
     bodyDef.fixedRotation = CheckFlags(PhysicsBodyFlags_FixRotation);
     bodyDef.bullet = CheckFlags(PhysicsBodyFlags_Bullet);
-    bodyDef.active = CheckFlags(PhysicsBodyFlags_Disabled) == false;
-    bodyDef.userData = this;
+    bodyDef.enabled = CheckFlags(PhysicsBodyFlags_Disabled) == false;
+    bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(this);
     // setup initial transform
     if (mGameObject)
     {
@@ -98,7 +98,7 @@ void PhysicsBody::SetupFlags(PhysicsBodyFlags flags)
     }
 
     bool isDisabled = CheckFlags(PhysicsBodyFlags_Disabled);
-    mBox2Body->SetActive(!isDisabled);
+    mBox2Body->SetEnabled(!isDisabled);
 
     bool isHovering = CheckFlags(PhysicsBodyFlags_NoGravity);
 
@@ -126,7 +126,7 @@ bool PhysicsBody::CheckFlags(PhysicsBodyFlags flags) const
 }
 
 Collider* PhysicsBody::AddCollider(int colliderIndex, const CollisionShape& shapeData, const PhysicsMaterial& shapeMaterial,
-    CollisionGroup collisionGroup, 
+    CollisionGroup collisionGroup,
     CollisionGroup collidesWith, ColliderFlags colliderFlags)
 {
     debug_assert(!gPhysics.IsSimulationStepInProgress());
@@ -326,7 +326,7 @@ void PhysicsBody::ApplyAngularImpulse(float impulse)
 {
     if (cxx::equals_zero(impulse))
         return;
-        
+
     mBox2Body->ApplyAngularImpulse(impulse, true);
 }
 
@@ -350,8 +350,8 @@ void PhysicsBody::ClearForces()
 glm::vec2 PhysicsBody::GetSignVector() const
 {
     float angleRadians = mBox2Body->GetAngle();
-    return { 
-        cos(angleRadians), 
+    return {
+        cos(angleRadians),
         sin(angleRadians)
     };
 }

@@ -29,7 +29,7 @@ get_demoversion:
 
 clean:
 	.build/premake5 gmake --cc=clang
-	make -C third_party/Box2D/Build clean
+	rm -rf third_party/Box2D/build
 	make -C .build clean
 
 run:
@@ -43,13 +43,12 @@ builddir:
 
 premake: builddir
 	test -e .build/premake5 || (cd .build && \
-	wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha14/premake-5.0.0-alpha14-linux.tar.gz && \
-	tar xzf premake-5.0.0-alpha14-linux.tar.gz && \
-	rm premake-5.0.0-alpha14-linux.tar.gz)
+	wget https://github.com/premake/premake-core/releases/download/v5.0.0-beta1/premake-5.0.0-beta1-linux.tar.gz && \
+	tar xzf premake-5.0.0-beta1-linux.tar.gz && \
+	rm premake-5.0.0-beta1-linux.tar.gz)
 
-box2d: premake
-	.build/premake5 --file=third_party/Box2D/premake5.lua gmake
-	make -C third_party/Box2D/Build config=debug_x86_64 -j$(CPUS)
-	make -C third_party/Box2D/Build config=release_x86_64 -j$(CPUS)
-
-
+box2d:
+	cd third_party/Box2D && \
+	mkdir -p build && cd build && \
+	cmake -DCMAKE_BUILD_TYPE=Release -DBOX2D_BUILD_DOCS=Off -DBOX2D_BUILD_UNIT_TESTS=Off -DBOX2D_BUILD_TESTBED=Off .. && \
+	cmake --build .

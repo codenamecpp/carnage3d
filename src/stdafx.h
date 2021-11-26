@@ -67,7 +67,7 @@
 #include <glm/glm.hpp>
 
 // physics
-#include <Box2D/Box2D.h>
+#include <box2d/box2d.h>
 
 // lib
 #include "common_utils.h"
