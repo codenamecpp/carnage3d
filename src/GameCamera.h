@@ -21,6 +21,7 @@ public:
     eSceneCameraMode mCurrentMode;
 
     Rect mViewportRect;
+    cxx::aabbox2d_t mOnScreenMapArea; // current visible map rectangle
 
     // projection parameters
 
@@ -60,6 +61,9 @@ public:
     // Will not do any unnecessary calculations if nothing changed
     void ComputeMatricesAndFrustum();
 
+    // Compute on screen view area
+    void ComputeViewBounds2();
+
     // Reset camera to initial state, but does not clear viewport
     void SetIdentity();
 
@@ -94,9 +98,6 @@ public:
 
     // Will swap Z and Y direction vectors
     void SetTopDownOrientation();
-
-    // Compute on screen view area
-    cxx::aabbox2d_t ComputeViewBounds2() const;
 
 private:
     bool mProjMatrixDirty; // projection matrix need recomputation

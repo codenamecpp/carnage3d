@@ -10,7 +10,6 @@
 #include "PhysicsManager.h"
 #include "Pedestrian.h"
 #include "Vehicle.h"
-#include "RenderView.h"
 #include "TrafficManager.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,7 +95,7 @@ void MapRenderer::PreDrawGameObject(GameObject* gameObject)
     }
 }
 
-void MapRenderer::RenderFrame(RenderView* renderview)
+void MapRenderer::RenderFrame(GameCamera* renderview)
 {
     debug_assert(renderview);
 
@@ -121,7 +120,7 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     }
 
     gRenderManager.mSpritesProgram.Activate();
-    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(renderview->mCamera);
+    gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(*renderview);
 
     RenderStates renderStates = RenderStates()
         .Disable(RenderStateFlags_FaceCulling)
@@ -133,7 +132,7 @@ void MapRenderer::RenderFrame(RenderView* renderview)
     gRenderManager.mSpritesProgram.Deactivate();
 }
 
-void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
+void MapRenderer::DrawGameObject(GameCamera* renderview, GameObject* gameObject)
 {
     if (gameObject->IsMarkedForDeletion() || gameObject->IsInvisibleFlag())
         return;
@@ -145,7 +144,7 @@ void MapRenderer::DrawGameObject(RenderView* renderview, GameObject* gameObject)
         (!gGameCheatsWindow.mEnableDrawDecorations && gameObject->IsDecorationClass());
 
     // detect if gameobject is visible on screen
-    if (!debugSkipDraw && gameObject->IsOnScreen(renderview->mOnScreenArea))
+    if (!debugSkipDraw && gameObject->IsOnScreen(renderview->mOnScreenMapArea))
     {
         mSpriteBatch.DrawSprite(gameObject->mDrawSprite);
 
@@ -172,14 +171,14 @@ void MapRenderer::DebugDraw(DebugRenderer& debugRender)
     }
 }
 
-void MapRenderer::DrawCityMesh(RenderView* renderview)
+void MapRenderer::DrawCityMesh(GameCamera* renderview)
 {
     RenderStates cityMeshRenderStates;
 
     gGraphicsDevice.SetRenderStates(cityMeshRenderStates);
 
     gRenderManager.mCityMeshProgram.Activate();
-    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(renderview->mCamera);
+    gRenderManager.mCityMeshProgram.UploadCameraTransformMatrices(*renderview);
 
     if (mCityMeshBufferV && mCityMeshBufferI)
     {
@@ -190,7 +189,7 @@ void MapRenderer::DrawCityMesh(RenderView* renderview)
 
         for (const MapBlocksChunk& currChunk: mMapBlocksChunks)
         {
-            if (!renderview->mCamera.mFrustum.contains(currChunk.mBounds))
+            if (!renderview->mFrustum.contains(currChunk.mBounds))
                 continue;
 
             gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, eIndicesType_i32, 

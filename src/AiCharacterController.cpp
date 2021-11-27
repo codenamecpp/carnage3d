@@ -97,7 +97,7 @@ inline const glm::ivec3& GetVectorFromMapDirection(eMapDirection direction)
 //////////////////////////////////////////////////////////////////////////
 
 AiCharacterController::AiCharacterController(Pedestrian* character)
-    : CharacterController(character)
+    : CharacterController(character, eCharacterControllerType_Ai)
 {
     mFollowNearDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
     mFollowFarDistance = Convert::MapUnitsToMeters(0.5f);

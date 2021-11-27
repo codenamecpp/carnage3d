@@ -771,13 +771,10 @@ void HUDPagerMessage::UpdatePagerFlash(float dt)
 
 //////////////////////////////////////////////////////////////////////////
 
-void HUD::SetupHUD(HumanPlayer* humanPlayer)
+void HUD::InitHUD(HumanPlayer* humanPlayer)
 {
     mHumanPlayer = humanPlayer;
     debug_assert(mHumanPlayer);
-
-    mAutoHidePanels.clear();
-    mTextMessagesQueue.clear();
 
     // setup hud panels
     mTopLeftContainer.SetAlignMode(HUDPanel::eHorzAlignMode_Left, HUDPanel::eVertAlignMode_Top);
@@ -807,64 +804,14 @@ void HUD::SetupHUD(HumanPlayer* humanPlayer)
     mCarNamePanel.SetVisible(false);
     mDistrictNamePanel.SetVisible(false);
     mWantedLevelPanel.SetVisible(false);
+    gGuiManager.AttachScreen(this);
 }
 
-void HUD::UpdateFrame()
+void HUD::DeinitHUD()
 {
-    Pedestrian* character = mHumanPlayer->mCharacter;
-
-    // update weapon info
-    if (character->mCurrentWeapon == eWeapon_Fists)
-    {
-        mWeaponPanel.SetVisible(false);
-    }
-    else
-    {
-        mWeaponPanel.SetWeapon(character->mWeapons[character->mCurrentWeapon]);
-        mWeaponPanel.SetVisible(true);
-    }
-
-    // update wanted level
-    int currentWantedLevel = mHumanPlayer->GetWantedLevel();
-    mWantedLevelPanel.SetWantedLevel(currentWantedLevel);
-    if (currentWantedLevel == 0)
-    {
-        mWantedLevelPanel.SetVisible(false);
-    }
-    else
-    {
-        mWantedLevelPanel.SetVisible(true);
-    }
-
-    // update scores
-    mScoresPanel.SetScores(100, 4, 1); // todo: implement scores system
-
-    // todo: implement bonus
-    if (true)
-    {
-        mBonusPanel.SetBonus(true, character->mArmorHitPoints);
-        mBonusPanel.SetVisible(true);
-    }
-
-    TickAutoHidePanels();
-    mPanelsContainer.UpdateFrame();
-}
-
-void HUD::DrawFrame(GuiContext& guiContext)
-{
-    Rect viewportRect = guiContext.mCamera.mViewportRect;
-    mPanelsContainer.SetPosition(Point(0, 0));
-    mPanelsContainer.SetSizeLimits(
-        Point(viewportRect.w, viewportRect.h), 
-        Point(viewportRect.w, viewportRect.h));
-    mPanelsContainer.ComputeSize();
-    mPanelsContainer.ComputePosition();
-    mPanelsContainer.DrawFrame(guiContext);
-
-    if (CheckCharacterObscure())
-    {
-        DrawArrowAboveCharacter(guiContext);
-    }
+    mAutoHidePanels.clear();
+    mTextMessagesQueue.clear();
+    gGuiManager.DetachScreen(this);
 }
 
 void HUD::PushPagerMessage()
@@ -936,6 +883,64 @@ void HUD::ShowDistrictNameMessage(int districtIndex)
     const std::string& messageText = gGameTexts.GetText(textID);
     mDistrictNamePanel.SetMessageText(messageText);
     ShowAutoHidePanel(&mDistrictNamePanel, gGameParams.mHudDistrictNameShowDuration);
+}
+
+void HUD::UpdateScreen()
+{
+    Pedestrian* character = mHumanPlayer->mCharacter;
+
+    // update weapon info
+    if (character->mCurrentWeapon == eWeapon_Fists)
+    {
+        mWeaponPanel.SetVisible(false);
+    }
+    else
+    {
+        mWeaponPanel.SetWeapon(character->mWeapons[character->mCurrentWeapon]);
+        mWeaponPanel.SetVisible(true);
+    }
+
+    // update wanted level
+    int currentWantedLevel = mHumanPlayer->GetWantedLevel();
+    mWantedLevelPanel.SetWantedLevel(currentWantedLevel);
+    if (currentWantedLevel == 0)
+    {
+        mWantedLevelPanel.SetVisible(false);
+    }
+    else
+    {
+        mWantedLevelPanel.SetVisible(true);
+    }
+
+    // update scores
+    mScoresPanel.SetScores(100, 4, 1); // todo: implement scores system
+
+                                       // todo: implement bonus
+    if (true)
+    {
+        mBonusPanel.SetBonus(true, character->mArmorHitPoints);
+        mBonusPanel.SetVisible(true);
+    }
+
+    TickAutoHidePanels();
+    mPanelsContainer.UpdateFrame();
+}
+
+void HUD::DrawScreen(GuiContext& context)
+{
+    Rect viewportRect = context.mCamera.mViewportRect;
+    mPanelsContainer.SetPosition(Point(0, 0));
+    mPanelsContainer.SetSizeLimits(
+        Point(viewportRect.w, viewportRect.h), 
+        Point(viewportRect.w, viewportRect.h));
+    mPanelsContainer.ComputeSize();
+    mPanelsContainer.ComputePosition();
+    mPanelsContainer.DrawFrame(context);
+
+    if (CheckCharacterObscure())
+    {
+        DrawArrowAboveCharacter(context);
+    }
 }
 
 void HUD::ShowAutoHidePanel(HUDPanel* panel, float showDuration)
@@ -1031,8 +1036,6 @@ void HUD::DrawArrowAboveCharacter(GuiContext& guiContext)
     arrowSprite.mRotateAngle = pedestrian->mTransformSmooth.mOrientation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     // convert character position to screen position
-    GameCamera& gameCamera = mHumanPlayer->mPlayerView.mCamera;
-    gameCamera.ProjectPointToScreen(pedestrian->mTransformSmooth.mPosition, arrowSprite.mPosition);
-
+    mHumanPlayer->mViewCamera.ProjectPointToScreen(pedestrian->mTransformSmooth.mPosition, arrowSprite.mPosition);
     guiContext.mSpriteBatch.DrawSprite(arrowSprite);
 }

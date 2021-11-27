@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ParticleDefs.h"
-#include "RenderView.h"
 
 // forwards
 class ParticleRenderdata;

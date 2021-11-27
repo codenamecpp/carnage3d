@@ -4,7 +4,8 @@
 #include "Vehicle.h"
 #include "DebugRenderer.h"
 
-CharacterController::CharacterController(Pedestrian* character)
+CharacterController::CharacterController(Pedestrian* character, eCharacterControllerType controllerType)
+    : mControllerType(controllerType)
 {
     AssignCharacter(character);
 }
@@ -41,11 +42,6 @@ void CharacterController::OnCharacterUpdateFrame()
 void CharacterController::DebugDraw(DebugRenderer& debugRender)
 {
     // do nothing
-}
-
-bool CharacterController::IsHumanPlayer() const
-{
-    return false;
 }
 
 bool CharacterController::IsControllerActive() const

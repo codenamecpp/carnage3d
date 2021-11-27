@@ -163,15 +163,15 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
 
     { // choose camera modes
         const char* modeStrings[] = { "Follow", "Free Look" };
-        CameraController* modeControllers[] =
+        static const ePlayerCameraMode CameraModesList[] =
         {
-            &gCarnageGame.mHumanPlayers[0]->mPlayerView.mFollowCameraController, 
-            &gCarnageGame.mHumanPlayers[0]->mPlayerView.mFreeLookCameraController,
+            ePlayerCameraMode_Follow,
+            ePlayerCameraMode_FreeLook,
         }; 
         int currentCameraMode = 0;
-        for (int i = 0; i < IM_ARRAYSIZE(modeControllers); ++i)
+        for (int i = 0; i < IM_ARRAYSIZE(CameraModesList); ++i)
         {
-            if (gCarnageGame.mHumanPlayers[0]->mPlayerView.mCameraController == modeControllers[i])
+            if (gCarnageGame.mHumanPlayers[0]->GetCurrentCameraMode() == CameraModesList[i])
             {
                 currentCameraMode = i;
                 break;
@@ -186,7 +186,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 if (ImGui::Selectable(modeStrings[n], is_selected))
                 {
                     currentCameraMode = n;
-                    gCarnageGame.mHumanPlayers[0]->mPlayerView.SetCameraController(modeControllers[n]);
+                    gCarnageGame.mHumanPlayers[0]->SetCurrentCameraMode(CameraModesList[n]);
                 }
                 if (is_selected)
                 {

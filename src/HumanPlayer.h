@@ -1,26 +1,42 @@
 #pragma once
 
-#include "HumanPlayerView.h"
+#include "GameDefs.h"
 #include "CharacterController.h"
 #include "InputActionsMapping.h"
 #include "AudioListener.h"
+#include "FollowCameraController.h"
+#include "FreeLookCameraController.h"
+#include "HUD.h"
+
+//////////////////////////////////////////////////////////////////////////
+
+enum ePlayerCameraMode
+{
+    ePlayerCameraMode_Follow, // default
+    ePlayerCameraMode_FreeLook, // debug
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 // Contains human player related information but also processes character controller logic
 class HumanPlayer final: public CharacterController
 {
 public:
     // readonly
-    HumanPlayerView mPlayerView;
     InputActionsMapping mActionsMapping;
     glm::vec3 mSpawnPosition;
     AudioListener* mAudioListener = nullptr;
+    GameCamera mViewCamera;
+    HUD mHUD;
 
 public:
     HumanPlayer(Pedestrian* character);
     ~HumanPlayer();
 
+    void EnterGameScenario();
+    void LeaveGameScenario();
+
     // override CharacterController
-    bool IsHumanPlayer() const override;
     void OnCharacterUpdateFrame() override;
 
     // Get or set current police attention level
@@ -32,6 +48,7 @@ public:
     bool IsMouseAmingEnabled() const;
 
     void SetRespawnTimer();
+    void SetScreenViewArea(const Rect& screenViewArea);
 
     // process players inputs
     // @param inputEvent: Event data
@@ -41,6 +58,10 @@ public:
     void InputEvent(MouseMovedInputEvent& inputEvent);
     void InputEvent(MouseScrollInputEvent& inputEvent);
     void InputEventLost();
+
+    // public for debug purposes
+    void SetCurrentCameraMode(ePlayerCameraMode cameraMode);
+    ePlayerCameraMode GetCurrentCameraMode() const;
 
     // cheats
     void Cheat_GiveAllAmmunitions();
@@ -69,4 +90,8 @@ private:
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;
     bool mMouseAimingEnabled = false;
+
+    FollowCameraController mFollowCameraController;
+    FreeLookCameraController mFreeLookCameraController;
+    CameraController* mCameraController = nullptr;
 };

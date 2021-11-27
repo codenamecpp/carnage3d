@@ -3,7 +3,6 @@
 #include "RenderingManager.h"
 #include "GpuProgram.h"
 #include "SpriteManager.h"
-#include "RenderView.h"
 #include "GuiContext.h"
 #include "CarnageGame.h"
 #include "ImGuiManager.h"
@@ -39,8 +38,9 @@ bool GuiManager::Initialize()
 void GuiManager::Deinit()
 {
     mSpriteBatch.Deinit();
-
     gFontManager.Deinit();
+    // drop screens
+    mScreensList.clear();
 }
 
 void GuiManager::RenderFrame()
@@ -62,13 +62,10 @@ void GuiManager::RenderFrame()
             .Disable(RenderStateFlags_DepthTest);
         gGraphicsDevice.SetRenderStates(guiRenderStates);
 
-        for (HumanPlayer* currPlayer: gCarnageGame.mHumanPlayers)
-        {   
-            if (currPlayer == nullptr)
-                continue;
-
+        for (GuiScreen* currScreen: mScreensList)
+        {
             mCamera2D.SetIdentity();
-            mCamera2D.mViewportRect = currPlayer->mPlayerView.mCamera.mViewportRect;
+            mCamera2D.mViewportRect = currScreen->mScreenArea;
             mCamera2D.SetProjection(0.0f, mCamera2D.mViewportRect.w * 1.0f, mCamera2D.mViewportRect.h * 1.0f, 0.0f);
 
             gGraphicsDevice.SetViewportRect(mCamera2D.mViewportRect);
@@ -78,10 +75,10 @@ void GuiManager::RenderFrame()
             Rect clipRect { 0, 0, mCamera2D.mViewportRect.w, mCamera2D.mViewportRect.h };
             if (uiContext.EnterChildClipArea(clipRect))
             {
-                currPlayer->mPlayerView.mHUD.DrawFrame(uiContext);
+                currScreen->DrawScreen(uiContext);
                 uiContext.LeaveChildClipArea();
             }
-            mSpriteBatch.Flush();
+            mSpriteBatch.Flush();   
         }
 
         gRenderManager.mSpritesProgram.Deactivate();
@@ -113,7 +110,10 @@ void GuiManager::RenderFrame()
 
 void GuiManager::UpdateFrame()
 {
-    // do nothing
+    for (GuiScreen* currScreen: mScreensList)
+    {
+        currScreen->UpdateScreen();
+    }
 }
 
 void GuiManager::InputEvent(MouseMovedInputEvent& inputEvent)
@@ -144,4 +144,19 @@ void GuiManager::InputEvent(KeyCharEvent& inputEvent)
 void GuiManager::InputEvent(GamepadInputEvent& inputEvent)
 {
     // do nothing
+}
+
+void GuiManager::AttachScreen(GuiScreen* screen)
+{
+    debug_assert(screen);
+    if (cxx::contains(mScreensList, screen))
+        return;
+
+    mScreensList.push_back(screen);
+}
+
+void GuiManager::DetachScreen(GuiScreen* screen)
+{
+    debug_assert(screen);
+    cxx::erase_elements(mScreensList, screen);
 }

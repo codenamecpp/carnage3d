@@ -2,7 +2,6 @@
 #include "TrafficManager.h"
 #include "DebugRenderer.h"
 #include "CarnageGame.h"
-#include "RenderView.h"
 #include "TimeManager.h"
 #include "AiManager.h"
 #include "GameCheatsWindow.h"
@@ -69,10 +68,10 @@ void TrafficManager::GeneratePeds()
         if (humanPlayer == nullptr)
             continue;
 
-        int generatePedsCount = GetPedsToGenerateCount(humanPlayer->mPlayerView);
+        int generatePedsCount = GetPedsToGenerateCount(humanPlayer->mViewCamera);
         if (generatePedsCount > 0)
         {
-            GenerateTrafficPeds(generatePedsCount, humanPlayer->mPlayerView);
+            GenerateTrafficPeds(generatePedsCount, humanPlayer->mViewCamera);
         }
     }
 }
@@ -96,7 +95,7 @@ void TrafficManager::RemoveOffscreenPeds()
             if (humanPlayer == nullptr)
                 continue;
 
-            cxx::aabbox2d_t onScreenArea = humanPlayer->mPlayerView.mOnScreenArea;
+            cxx::aabbox2d_t onScreenArea = humanPlayer->mViewCamera.mOnScreenMapArea;
             onScreenArea.mMax.x += offscreenDistance;
             onScreenArea.mMax.y += offscreenDistance;
             onScreenArea.mMin.x -= offscreenDistance;
@@ -117,7 +116,7 @@ void TrafficManager::RemoveOffscreenPeds()
     }
 }
 
-void TrafficManager::GenerateTrafficPeds(int pedsCount, RenderView& view)
+void TrafficManager::GenerateTrafficPeds(int pedsCount, GameCamera& view)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
@@ -128,12 +127,12 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, RenderView& view)
     // get map area on screen
     {
         Point minBlock;
-        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.x);
-        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.y);
+        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.x);
+        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.y);
 
         Point maxBlock;
-        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.x) + 1;
-        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.y) + 1;
+        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.x) + 1;
+        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.y) + 1;
 
         innerRect.x = minBlock.x;
         innerRect.y = minBlock.y;
@@ -209,13 +208,13 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, RenderView& view)
     }
 }
 
-int TrafficManager::GetPedsToGenerateCount(RenderView& view) const
+int TrafficManager::GetPedsToGenerateCount(GameCamera& view) const
 {
     int pedestriansCounter = 0;
 
     float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenPedsMaxDistance * 1.0f);
 
-    cxx::aabbox2d_t onScreenArea = view.mOnScreenArea;
+    cxx::aabbox2d_t onScreenArea = view.mOnScreenMapArea;
     onScreenArea.mMax.x += offscreenDistance;
     onScreenArea.mMax.y += offscreenDistance;
     onScreenArea.mMin.x -= offscreenDistance;
@@ -261,13 +260,13 @@ int TrafficManager::CountTrafficCars() const
     return counter;
 }
 
-int TrafficManager::GetCarsToGenerateCount(RenderView& view) const
+int TrafficManager::GetCarsToGenerateCount(GameCamera& view) const
 {
     int carsCounter = 0;
 
     float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenCarsMaxDistance * 1.0f);
 
-    cxx::aabbox2d_t onScreenArea = view.mOnScreenArea;
+    cxx::aabbox2d_t onScreenArea = view.mOnScreenMapArea;
     onScreenArea.mMax.x += offscreenDistance;
     onScreenArea.mMax.y += offscreenDistance;
     onScreenArea.mMin.x -= offscreenDistance;
@@ -307,15 +306,15 @@ void TrafficManager::GenerateCars()
         if (humanPlayer == nullptr)
             continue;
 
-        int generateCarsCount = GetCarsToGenerateCount(humanPlayer->mPlayerView);
+        int generateCarsCount = GetCarsToGenerateCount(humanPlayer->mViewCamera);
         if (generateCarsCount > 0)
         {
-            GenerateTrafficCars(generateCarsCount, humanPlayer->mPlayerView);
+            GenerateTrafficCars(generateCarsCount, humanPlayer->mViewCamera);
         }
     }
 }
 
-void TrafficManager::GenerateTrafficCars(int carsCount, RenderView& view)
+void TrafficManager::GenerateTrafficCars(int carsCount, GameCamera& view)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
@@ -326,12 +325,12 @@ void TrafficManager::GenerateTrafficCars(int carsCount, RenderView& view)
     // get map area on screen
     {
         Point minBlock;
-        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.x);
-        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMin.y);
+        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.x);
+        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.y);
 
         Point maxBlock;
-        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.x) + 1;
-        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenArea.mMax.y) + 1;
+        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.x) + 1;
+        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.y) + 1;
 
         innerRect.x = minBlock.x;
         innerRect.y = minBlock.y;
@@ -417,7 +416,7 @@ void TrafficManager::RemoveOffscreenCars()
             if (humanPlayer == nullptr)
                 continue;
 
-            cxx::aabbox2d_t onScreenArea = humanPlayer->mPlayerView.mOnScreenArea;
+            cxx::aabbox2d_t onScreenArea = humanPlayer->mViewCamera.mOnScreenMapArea;
             onScreenArea.mMax.x += offscreenDistance;
             onScreenArea.mMax.y += offscreenDistance;
             onScreenArea.mMin.x -= offscreenDistance;

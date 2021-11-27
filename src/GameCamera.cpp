@@ -6,6 +6,7 @@ GameCamera::GameCamera()
     , mViewMatrixDirty(true)
     , mCurrentMode(eSceneCameraMode_Perspective)
     , mViewportRect()
+    , mOnScreenMapArea()
 {
     SetIdentity();
 }
@@ -171,7 +172,7 @@ void GameCamera::SetOrientation(const glm::vec3& dirForward, const glm::vec3& di
     mViewMatrixDirty = true;
 }
 
-cxx::aabbox2d_t GameCamera::ComputeViewBounds2() const
+void GameCamera::ComputeViewBounds2()
 {
     cxx::aabbox2d_t areaBounds;
     if (mCurrentMode == eSceneCameraMode_Perspective)
@@ -186,7 +187,7 @@ cxx::aabbox2d_t GameCamera::ComputeViewBounds2() const
         areaBounds.mMax.y = mPosition.z + Hfar;
     }
 
-    return areaBounds;
+    mOnScreenMapArea = areaBounds;
 }
 
 //////////////////////////////////////////////////////////////////////////

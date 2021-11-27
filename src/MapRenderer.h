@@ -4,7 +4,6 @@
 #include "GameDefs.h"
 
 class DebugRenderer;
-class RenderView;
 
 // map renderer statistics info
 struct MapRenderStats
@@ -31,14 +30,14 @@ public:
     bool Initialize();
     void Deinit();
     void RenderFrameBegin();
-    void RenderFrame(RenderView* renderview);
+    void RenderFrame(GameCamera* renderview);
     void DebugDraw(DebugRenderer& debugRender);
     void RenderFrameEnd();
     void BuildMapMesh();
 
 private:
-    void DrawCityMesh(RenderView* renderview);
-    void DrawGameObject(RenderView* renderview, GameObject* gameObject);
+    void DrawCityMesh(GameCamera* renderview);
+    void DrawGameObject(GameCamera* renderview, GameObject* gameObject);
     void PreDrawGameObject(GameObject* gameObject);
 
 private:

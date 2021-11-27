@@ -2,8 +2,6 @@
 
 #include "GraphicsDefs.h"
 
-class RenderView;
-
 // debug geometry visualization manager
 class DebugRenderer: public cxx::noncopyable
 {
@@ -13,7 +11,7 @@ public:
     bool Initialize();
     void Deinit();
 
-    void RenderFrameBegin(RenderView* renderview);
+    void RenderFrameBegin(GameCamera* camera);
     void RenderFrameEnd();
 
     // push line to debug draw queue
@@ -78,5 +76,5 @@ private:
     Vertex3D_Debug mDebugVertices[MaxDebugVertices];
 
     GpuBuffer* mGpuVerticesBuffer = nullptr;
-    RenderView* mCurrentRenderView = nullptr;
+    GameCamera* mCurrentCamera = nullptr;
 };

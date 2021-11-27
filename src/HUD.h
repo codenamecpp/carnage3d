@@ -2,6 +2,7 @@
 
 #include "GuiDefs.h"
 #include "GameDefs.h"
+#include "GuiScreen.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -253,15 +254,13 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 // In-game heads-up-display
-class HUD final: public cxx::noncopyable
+class HUD: public GuiScreen
 {
 public:
     // Initialze HUD
-    void SetupHUD(HumanPlayer* humanPlayer);
+    void InitHUD(HumanPlayer* humanPlayer);
+    void DeinitHUD();
     
-    void UpdateFrame();
-    void DrawFrame(GuiContext& guiContext);
-
     // Show messages
     void PushPagerMessage();
     void PushHelpMessage();
@@ -272,6 +271,10 @@ public:
     void ShowCarNameMessage(eVehicleModel carModel);
     // Show district name where player is located now
     void ShowDistrictNameMessage(int districtIndex);
+
+    // override GuiScreen
+    void UpdateScreen() override;
+    void DrawScreen(GuiContext& context) override;
 
 private:
     void DrawArrowAboveCharacter(GuiContext& guiContext);

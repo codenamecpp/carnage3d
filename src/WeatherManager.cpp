@@ -143,7 +143,7 @@ void WeatherManager::GetParticleEffectShape(eWeatherEffect weather, ParticleEmit
         const float EffectCellSize = Convert::MapUnitsToMeters(10.0f);
         const float EffectHeight = Convert::MapUnitsToMeters(6.0f);
 
-        GameCamera& currentCamera = gCarnageGame.mHumanPlayers[0]->mPlayerView.mCamera;
+        GameCamera& currentCamera = gCarnageGame.mHumanPlayers[0]->mViewCamera;
 
         glm::vec3 cameraPosition = currentCamera.mPosition;
         glm::vec3 minPos {cameraPosition.x - EffectCellSize * 0.5f, EffectHeight, cameraPosition.z - EffectCellSize * 0.5f};

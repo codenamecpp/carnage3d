@@ -6,8 +6,6 @@
 #include "DebugRenderer.h"
 #include "ParticleEffect.h"
 
-class RenderView;
-
 // master render system, it is intended to manage rendering pipeline of the game
 class RenderingManager final: public cxx::noncopyable
 {
@@ -21,7 +19,7 @@ public:
 
     MapRenderer mMapRenderer;
 
-    std::vector<RenderView*> mActiveRenderViews;
+    std::vector<GameCamera*> mActiveRenderViews;
 
 public:
     RenderingManager();
@@ -41,16 +39,16 @@ public:
     // Force reload all render programs
     void ReloadRenderPrograms();
     
-    void AttachRenderView(RenderView* renderview);
-    void DetachRenderView(RenderView* renderview);
+    void AttachRenderView(GameCamera* renderview);
+    void DetachRenderView(GameCamera* renderview);
 
     // Register particle effect for rendering
     void RegisterParticleEffect(ParticleEffect* particleEffect);
     void UnregisterParticleEffect(ParticleEffect* particleEffect);
 
 private:
-    void RenderParticleEffects(RenderView* renderview);
-    void RenderParticleEffect(RenderView* renderview, ParticleEffect* particleEffect);
+    void RenderParticleEffects(GameCamera* renderview);
+    void RenderParticleEffect(GameCamera* renderview, ParticleEffect* particleEffect);
 
 private:
     bool InitRenderPrograms();

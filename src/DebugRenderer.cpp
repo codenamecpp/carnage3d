@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "DebugRenderer.h"
 #include "RenderingManager.h"
-#include "RenderView.h"
 #include "GpuBuffer.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,18 +78,20 @@ void DebugRenderer::Deinit()
     }
 }
 
-void DebugRenderer::RenderFrameBegin(RenderView* renderview)
+void DebugRenderer::RenderFrameBegin(GameCamera* camera)
 {
     gRenderManager.mDebugProgram.Activate();
-    mCurrentRenderView = renderview;
-
-    debug_assert(mCurrentRenderView);
-    gRenderManager.mDebugProgram.UploadCameraTransformMatrices(mCurrentRenderView->mCamera);
+    mCurrentCamera = camera;
+    debug_assert(mCurrentCamera);
+    if (mCurrentCamera)
+    {
+        gRenderManager.mDebugProgram.UploadCameraTransformMatrices(*mCurrentCamera);
+    }
 }
 
 void DebugRenderer::RenderFrameEnd()
 {
-    debug_assert(mCurrentRenderView);        
+    debug_assert(mCurrentCamera);        
 
     if (HasPendingDraws())
     {

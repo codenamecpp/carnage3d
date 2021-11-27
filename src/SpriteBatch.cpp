@@ -2,7 +2,6 @@
 #include "SpriteBatch.h"
 #include "RenderingManager.h"
 #include "SpriteManager.h"
-#include "RenderView.h"
 #include "GpuTexture2D.h"
 
 const unsigned int NumVerticesPerSprite = 4;

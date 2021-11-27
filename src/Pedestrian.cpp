@@ -708,12 +708,7 @@ void Pedestrian::PutOnFoot()
 
 bool Pedestrian::IsHumanPlayerCharacter() const
 {
-    if (mController)
-    {
-        return mController->IsHumanPlayer();
-    }
-
-    return false;
+    return mController && mController->IsControllerTypeHuman();
 }
 
 void Pedestrian::IncArmorMax()

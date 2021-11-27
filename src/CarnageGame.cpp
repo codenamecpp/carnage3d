@@ -263,9 +263,7 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
         humanPlayer->SetMouseAiming(gCvarMouseAiming.mValue);
     }
 
-    humanPlayer->mSpawnPosition = pedestrian->mTransform.mPosition;
-    humanPlayer->mPlayerView.mFollowCameraController.SetFollowTarget(pedestrian);
-    humanPlayer->mPlayerView.mHUD.SetupHUD(humanPlayer);
+    humanPlayer->EnterGameScenario();
 }
 
 void CarnageGame::DeleteHumanPlayer(int playerIndex)
@@ -274,9 +272,7 @@ void CarnageGame::DeleteHumanPlayer(int playerIndex)
 
     if (mHumanPlayers[playerIndex])
     {
-        gRenderManager.DetachRenderView(&mHumanPlayers[playerIndex]->mPlayerView);
-        mHumanPlayers[playerIndex]->mPlayerView.SetCameraController(nullptr);
-
+        mHumanPlayers[playerIndex]->LeaveGameScenario();
         SafeDelete(mHumanPlayers[playerIndex]);
     }
 }
@@ -297,23 +293,19 @@ void CarnageGame::SetupScreenLayout()
 
     for (int icurr = 0; icurr < playersCount; ++icurr)
     {
-        debug_assert(mHumanPlayers[icurr]);
+        HumanPlayer* currHuman = mHumanPlayers[icurr];
+        debug_assert(currHuman);
 
         int currRow = icurr / MaxCols;
         int currCol = icurr % MaxCols;
 
         int colsOnCurrentRow = glm::clamp(playersCount - (currRow * MaxCols), 1, MaxCols);
-        debug_assert(colsOnCurrentRow);
+        debug_assert(colsOnCurrentRow > 0);
         int frameSizePerW = screenResolution.x / colsOnCurrentRow;
-        
-        HumanPlayerView& currView = mHumanPlayers[icurr]->mPlayerView;
-        currView.mCamera.mViewportRect.h = frameSizePerH;
-        currView.mCamera.mViewportRect.x = currCol * (frameSizePerW + 1);
-        currView.mCamera.mViewportRect.y = currRow * frameSizePerH;
-        currView.mCamera.mViewportRect.w = frameSizePerW;
- 
-        currView.SetCameraController(&currView.mFollowCameraController);
-        gRenderManager.AttachRenderView(&currView);
+
+        Rect viewportArea { currCol * (frameSizePerW + 1), currRow * frameSizePerH, frameSizePerW, frameSizePerH };
+        currHuman->SetScreenViewArea(viewportArea);
+        currHuman->SetCurrentCameraMode(ePlayerCameraMode_Follow);
     }
 }
 

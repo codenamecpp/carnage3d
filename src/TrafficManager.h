@@ -1,7 +1,6 @@
 #pragma once
 
 class DebugRenderer;
-class RenderView;
 
 // This class generates randomly wander pedestrians and vehicles on currently visible area on map
 class TrafficManager final: public cxx::noncopyable
@@ -24,15 +23,15 @@ public:
 private:
     // traffic pedestrians generation
     void GeneratePeds();
-    void GenerateTrafficPeds(int pedsCount, RenderView& view);
+    void GenerateTrafficPeds(int pedsCount, GameCamera& view);
     void RemoveOffscreenPeds();
-    int GetPedsToGenerateCount(RenderView& view) const;
+    int GetPedsToGenerateCount(GameCamera& view) const;
 
     // traffic cars generation
     void GenerateCars();
-    void GenerateTrafficCars(int carsCount, RenderView& view);
+    void GenerateTrafficCars(int carsCount, GameCamera& view);
     void RemoveOffscreenCars();
-    int GetCarsToGenerateCount(RenderView& view) const;
+    int GetCarsToGenerateCount(GameCamera& view) const;
 
     // traffic objects generation
     Pedestrian* GenerateRandomTrafficCarDriver(Vehicle* vehicle);

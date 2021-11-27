@@ -148,7 +148,7 @@ void GameplayGamestate::OnHumanPlayerDie(int playerIndex)
 
     gConsole.LogMessage(eLogMessage_Info, "Player %d died (%s)", (playerIndex + 1), cxx::enum_to_string(humanPlayer->mCharacter->mDeathReason));
 
-    humanPlayer->mPlayerView.mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
+    humanPlayer->mHUD.ShowBigFontMessage(eHUDBigFontMessage_Wasted);
 }
 
 void GameplayGamestate::OnHumanPlayerStartDriveCar(int playerIndex)
@@ -165,6 +165,6 @@ void GameplayGamestate::OnHumanPlayerStartDriveCar(int playerIndex)
     if (currentCar)
     {
         eVehicleModel carModel = currentCar->mCarInfo->mModelID;
-        humanPlayer->mPlayerView.mHUD.ShowCarNameMessage(carModel);
+        humanPlayer->mHUD.ShowCarNameMessage(carModel);
     }   
 }

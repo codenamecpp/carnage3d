@@ -3,7 +3,6 @@
 #include "GpuTexture2D.h"
 #include "GpuProgram.h"
 #include "SpriteManager.h"
-#include "RenderView.h"
 #include "GameCheatsWindow.h"
 #include "AiManager.h"
 #include "TrafficManager.h"
@@ -60,9 +59,11 @@ void RenderingManager::RenderFrame()
     mMapRenderer.RenderFrameBegin();
 
     Rect prevScreenRect = gGraphicsDevice.mViewportRect;
-    for (RenderView* currRenderview: mActiveRenderViews)
+    for (GameCamera* currRenderview: mActiveRenderViews)
     {
-        currRenderview->DrawFrameBegin();
+        currRenderview->ComputeMatricesAndFrustum();
+        gGraphicsDevice.SetViewportRect(currRenderview->mViewportRect);
+
         mMapRenderer.RenderFrame(currRenderview);
         RenderParticleEffects(currRenderview);
 
@@ -81,10 +82,6 @@ void RenderingManager::RenderFrame()
 
     gGuiManager.RenderFrame();
 
-    for (RenderView* currRenderview: mActiveRenderViews)
-    {
-        currRenderview->DrawFrameEnd();
-    }
     mMapRenderer.RenderFrameEnd();
     gSpriteManager.RenderFrameEnd();
     gGraphicsDevice.Present();
@@ -124,7 +121,7 @@ void RenderingManager::ReloadRenderPrograms()
     mCityMeshProgram.Reinitialize();
 }
 
-void RenderingManager::AttachRenderView(RenderView* renderview)
+void RenderingManager::AttachRenderView(GameCamera* renderview)
 {
     debug_assert(renderview);
 
@@ -137,7 +134,7 @@ void RenderingManager::AttachRenderView(RenderView* renderview)
     debug_assert(false);
 }
 
-void RenderingManager::DetachRenderView(RenderView* renderview)
+void RenderingManager::DetachRenderView(GameCamera* renderview)
 {
     debug_assert(renderview);
 
@@ -183,7 +180,7 @@ void RenderingManager::UnregisterParticleEffect(ParticleEffect* particleEffect)
     particleEffect->SetRenderdata(nullptr);
 }
 
-void RenderingManager::RenderParticleEffects(RenderView* renderview)
+void RenderingManager::RenderParticleEffects(GameCamera* renderview)
 {
     bool hasActiveParticleEffects = false;
     // check if there is something to draw
@@ -202,7 +199,7 @@ void RenderingManager::RenderParticleEffects(RenderView* renderview)
     debug_assert(renderview);
 
     mParticleProgram.Activate();
-    mParticleProgram.UploadCameraTransformMatrices(renderview->mCamera);
+    mParticleProgram.UploadCameraTransformMatrices(*renderview);
 
     RenderStates renderStates = RenderStates()
         .Enable(RenderStateFlags_AlphaBlend)
@@ -221,7 +218,7 @@ void RenderingManager::RenderParticleEffects(RenderView* renderview)
     mParticleProgram.Deactivate();
 }
 
-void RenderingManager::RenderParticleEffect(RenderView* renderview, ParticleEffect* particleEffect)
+void RenderingManager::RenderParticleEffect(GameCamera* renderview, ParticleEffect* particleEffect)
 {
     ParticleRenderdata* renderdata = particleEffect->mRenderdata;
     if (renderdata == nullptr)

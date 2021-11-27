@@ -77,6 +77,9 @@
     <Filter Include="Game\GameStates">
       <UniqueIdentifier>{1ba8bbc1-0de7-4c68-83e9-ab609908dc23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Ai\AiBehavior">
+      <UniqueIdentifier>{4c27b973-1673-4648-a91b-3c0b7c6454a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -280,9 +283,6 @@
     <ClInclude Include="TrimeshBuffer.h">
       <Filter>Game\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderView.h">
-      <Filter>Game\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="GameParams.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -377,9 +377,6 @@
     <ClInclude Include="HumanPlayer.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="HumanPlayerView.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -464,6 +461,12 @@
     </ClInclude>
     <ClInclude Include="MainMenuGamestate.h">
       <Filter>Game\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="AiPedestrianBehavior.h">
+      <Filter>Game\Ai\AiBehavior</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiScreen.h">
+      <Filter>Game\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -604,9 +607,6 @@
     <ClCompile Include="TrimeshBuffer.cpp">
       <Filter>Game\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="RenderView.cpp">
-      <Filter>Game\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="GameParams.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -676,9 +676,6 @@
     <ClCompile Include="HumanPlayer.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="HumanPlayerView.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterController.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -744,6 +741,9 @@
     </ClCompile>
     <ClCompile Include="GuiContext.cpp">
       <Filter>Game\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="AiPedestrianBehavior.cpp">
+      <Filter>Game\Ai\AiBehavior</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -10,9 +10,10 @@
 #include "TimeManager.h"
 #include "AudioDevice.h"
 #include "DebugRenderer.h"
+#include "RenderingManager.h"
 
 HumanPlayer::HumanPlayer(Pedestrian* character)
-    : CharacterController(character)
+    : CharacterController(character, eCharacterControllerType_Human)
     , mLastDistrictIndex()
 {
     mAudioListener = gAudioDevice.CreateAudioListener();
@@ -33,9 +34,57 @@ HumanPlayer::~HumanPlayer()
     }
 }
 
+void HumanPlayer::EnterGameScenario()
+{
+    debug_assert(mCharacter);
+    if (mCharacter)
+    {
+        mSpawnPosition = mCharacter->mTransform.mPosition;
+        mFollowCameraController.SetFollowTarget(mCharacter);
+        mHUD.InitHUD(this);
+    }
+    gRenderManager.AttachRenderView(&mViewCamera);
+}
+
+void HumanPlayer::LeaveGameScenario()
+{
+    mHUD.DeinitHUD();
+    gRenderManager.DetachRenderView(&mViewCamera);
+}
+
+void HumanPlayer::SetCurrentCameraMode(ePlayerCameraMode cameraMode)
+{
+    CameraController* newController = (cameraMode == ePlayerCameraMode_Follow) ? 
+        (CameraController*) &mFollowCameraController : 
+        (CameraController*) &mFreeLookCameraController;
+
+    if (mCameraController == newController)
+        return;
+
+    mCameraController = newController;
+    if (mCameraController)
+    {
+        mCameraController->Setup(&mViewCamera);
+    }
+}
+
+ePlayerCameraMode HumanPlayer::GetCurrentCameraMode() const
+{
+    if (mCameraController == &mFollowCameraController)
+        return ePlayerCameraMode_Follow;
+
+    debug_assert(mCameraController == &mFreeLookCameraController);
+    return ePlayerCameraMode_FreeLook;
+}
+
 void HumanPlayer::OnCharacterUpdateFrame()
 {
-    mPlayerView.UpdateFrame();
+    if (mCameraController)
+    {
+        mCameraController->UpdateFrame();
+    }
+
+    mViewCamera.ComputeViewBounds2();
 
     if (mCharacter->GetWeapon().IsOutOfAmmunition())
     {
@@ -54,30 +103,42 @@ void HumanPlayer::OnCharacterUpdateFrame()
     // update audio listener location
     if (mAudioListener)
     {
-        mAudioListener->SetPosition(mPlayerView.mCamera.mPosition);
+        mAudioListener->SetPosition(mViewCamera.mPosition);
     }
 }
 
 void HumanPlayer::InputEvent(MouseButtonInputEvent& inputEvent)
 {
-    mPlayerView.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void HumanPlayer::InputEvent(MouseMovedInputEvent& inputEvent)
 {
-    mPlayerView.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void HumanPlayer::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    mPlayerView.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 }
 
 void HumanPlayer::InputEvent(KeyInputEvent& inputEvent)
 {
     debug_assert(mCharacter);
 
-    mPlayerView.InputEvent(inputEvent);
+    if (mCameraController)
+    {
+        mCameraController->InputEvent(inputEvent);
+    }
 
     eInputActionsGroup actionGroup = mCharacter->IsCarPassenger() ? eInputActionsGroup_InCar : eInputActionsGroup_OnFoot;
     eInputAction action = mActionsMapping.GetAction(actionGroup, inputEvent.mKeycode);
@@ -125,7 +186,10 @@ void HumanPlayer::InputEvent(GamepadInputEvent& inputEvent)
 
 void HumanPlayer::InputEventLost()
 {
-    mPlayerView.InputEventLost();
+    if (mCameraController)
+    {
+        mCameraController->InputEventLost();
+    }
 
     // reset actions
     mCtlState.Clear();
@@ -355,11 +419,6 @@ bool HumanPlayer::GetActionState(eInputAction action) const
     return false;
 }
 
-bool HumanPlayer::IsHumanPlayer() const
-{
-    return true;
-}
-
 void HumanPlayer::UpdateDistrictLocation()
 {
     const DistrictInfo* currentDistrict = gGameMap.GetDistrictAtPosition2(mCharacter->mTransform.GetPosition2());
@@ -369,7 +428,7 @@ void HumanPlayer::UpdateDistrictLocation()
     if (currentDistrict->mSampleIndex != mLastDistrictIndex)
     {
         mLastDistrictIndex = currentDistrict->mSampleIndex;
-        mPlayerView.mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
+        mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
     }
 }
 
@@ -403,10 +462,10 @@ void HumanPlayer::UpdateMouseAiming()
     // get current mouse position in world space
     glm::ivec2 screenPosition(gInputs.mCursorPositionX, gInputs.mCursorPositionY);
     cxx::ray3d_t raycastResult;
-    if (!mPlayerView.mCamera.CastRayFromScreenPoint(screenPosition, raycastResult))
+    if (!mViewCamera.CastRayFromScreenPoint(screenPosition, raycastResult))
         return;
 
-    float distanceFromCameraToCharacter = mPlayerView.mCamera.mPosition.y - mCharacter->mTransform.mPosition.y;
+    float distanceFromCameraToCharacter = mViewCamera.mPosition.y - mCharacter->mTransform.mPosition.y;
     glm::vec2 worldPosition
     (
         raycastResult.mOrigin.x + (raycastResult.mDirection.x * distanceFromCameraToCharacter), 
@@ -440,5 +499,11 @@ void HumanPlayer::SetRespawnTimer()
 
 void HumanPlayer::ShowLastDistrictLocation()
 {
-    mPlayerView.mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
+    mHUD.ShowDistrictNameMessage(mLastDistrictIndex);
+}
+
+void HumanPlayer::SetScreenViewArea(const Rect& screenViewArea)
+{
+    mViewCamera.mViewportRect = screenViewArea;
+    mHUD.mScreenArea = screenViewArea;
 }
