@@ -3,7 +3,6 @@
 #include "GameDefs.h"
 #include "GraphicsDefs.h"
 #include "GameObject.h"
-#include "PedestrianInfo.h"
 #include "PhysicsDefs.h"
 
 impl_enum_strings(eGtaGameVersion)

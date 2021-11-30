@@ -215,6 +215,40 @@ const MapBlockInfo* GameMapManager::GetBlockInfo(int coordx, int coordz, int lay
     return &mMapTiles[layer][coordz][coordx];
 }
 
+const MapBlockInfo* GameMapManager::GetNeighbourBlock(int coordx, int coordz, int layer, eMapDirection2D dir) const
+{
+    int neighbour_coordx = coordx;
+    int neighbour_coordz = coordz;
+    int neighbour_layer = layer;
+
+    switch (dir)
+    {
+    // straight
+        case eMapDirection2D_N: neighbour_coordz -= 1; break;
+        case eMapDirection2D_E: neighbour_coordx += 1; break;
+        case eMapDirection2D_S: neighbour_coordz += 1; break;
+        case eMapDirection2D_W: neighbour_coordx -= 1; break;
+    // diagonals
+        case eMapDirection2D_NE:
+            neighbour_coordz -= 1;
+            neighbour_coordx += 1;
+        break;
+        case eMapDirection2D_NW:
+            neighbour_coordz -= 1;
+            neighbour_coordx -= 1;
+        break;
+        case eMapDirection2D_SE:
+            neighbour_coordz += 1;
+            neighbour_coordx += 1;
+        break;
+        case eMapDirection2D_SW:
+            neighbour_coordz += 1;
+            neighbour_coordx -= 1;
+        break;
+    }
+    return GetBlockInfo(neighbour_coordx, neighbour_coordz, neighbour_layer);
+}
+
 void GameMapManager::FixShiftedBits()
 {
     // as CityScape Data Structure document says:

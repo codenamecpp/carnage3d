@@ -24,27 +24,17 @@ decl_enum_strings(eBroadcastEvent);
 
 //////////////////////////////////////////////////////////////////////////
 
-enum eBroadcastEventSubject
-{
-    eBroadcastEventSubject_None,
-    eBroadcastEventSubject_Pedestrian,
-    eBroadcastEventSubject_Vehicle,
-    eBroadcastEventSubject_Object
-};
-
-decl_enum_strings(eBroadcastEventSubject);
-
-//////////////////////////////////////////////////////////////////////////
-
 // Broadcast event data
 struct BroadcastEvent
 {
 public:
-    BroadcastEvent() = default;
-
-public:
-    eBroadcastEvent mEventType; 
-    eBroadcastEventSubject mEventSubject;
+    eBroadcastEvent mEventType;
+    enum Status
+    {
+        Status_Active, // event is ok
+        Status_CanDelete, // event will be deleted at end of current frame
+    };
+    Status mStatus = Status_Active;
 
     float mEventTimestamp; // time when event was created
     float mEventDurationTime; // how long event lives, seconds
@@ -52,7 +42,21 @@ public:
     glm::vec2 mPosition; // position in the world where event did happen, meters
 
     GameObjectHandle mSubject; // object that was affected
-    PedestrianHandle mCharacter; // character which causes event 
+    PedestrianHandle mCharacter; // character which causes event, afflictor
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class BroadcastEventsIterator
+{
+public:
+    BroadcastEventsIterator() = default;
+    void Reset();
+    bool NextEvent(eBroadcastEvent eventType, BroadcastEvent& outputEventData);
+    bool NextEventInDistance(eBroadcastEvent eventType, const glm::vec2& position, float maxDistance, BroadcastEvent& outputEventData);
+    void DeleteCurrentEvent();
+private:
+    int mCurrentIndex = -1;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -60,21 +64,14 @@ public:
 // Broadcast events manager
 class BroadcastEventsManager final: public cxx::noncopyable
 {
+    friend class BroadcastEventsIterator;
 public:
-    BroadcastEventsManager();
-
+    BroadcastEventsManager() = default;
     void ClearEvents();
     void UpdateFrame();
     // broadcasting event
-    void RegisterEvent(eBroadcastEvent eventType, GameObject* subject, Pedestrian* character, float durationTime);
-    void RegisterEvent(eBroadcastEvent eventType, const glm::vec2& position, float durationTime);
-    // Finds event with specific type but don't removes it from list
-    bool PeekEvent(eBroadcastEvent eventType, BroadcastEvent& outputEventData) const;
-    bool PeekClosestEvent(eBroadcastEvent eventType, const glm::vec2& position, BroadcastEvent& outputEventData) const;
-    // Finds event with specific type and removes it from list
-    bool GetEvent(eBroadcastEvent eventType, BroadcastEvent& outputEventData);
-    bool GetClosestEvent(eBroadcastEvent eventType, const glm::vec2& position, BroadcastEvent& outputEventData);
-
+    void ReportEvent(eBroadcastEvent eventType, GameObject* subject, Pedestrian* character, float durationTime);
+    void ReportEvent(eBroadcastEvent eventType, const glm::vec2& position, float durationTime);
 private:
     std::vector<BroadcastEvent> mEventsList;
 };

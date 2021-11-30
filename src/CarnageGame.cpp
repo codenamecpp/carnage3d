@@ -254,7 +254,7 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
     debug_assert(humanIndex < GAME_MAX_PLAYERS);
     debug_assert(pedestrian);
 
-    HumanPlayer* humanPlayer = new HumanPlayer(pedestrian);
+    HumanPlayer* humanPlayer = new HumanPlayer();
     mHumanPlayers[humanIndex] = humanPlayer;
 
     // enable mouse aiming for player 0
@@ -263,7 +263,7 @@ void CarnageGame::SetupHumanPlayer(int humanIndex, Pedestrian* pedestrian)
         humanPlayer->SetMouseAiming(gCvarMouseAiming.mValue);
     }
 
-    humanPlayer->EnterGameScenario();
+    humanPlayer->StartController(pedestrian);
 }
 
 void CarnageGame::DeleteHumanPlayer(int playerIndex)
@@ -272,7 +272,7 @@ void CarnageGame::DeleteHumanPlayer(int playerIndex)
 
     if (mHumanPlayers[playerIndex])
     {
-        mHumanPlayers[playerIndex]->LeaveGameScenario();
+        mHumanPlayers[playerIndex]->StopController();
         SafeDelete(mHumanPlayers[playerIndex]);
     }
 }

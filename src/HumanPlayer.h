@@ -30,14 +30,10 @@ public:
     HUD mHUD;
 
 public:
-    HumanPlayer(Pedestrian* character);
+    HumanPlayer();
     ~HumanPlayer();
 
-    void EnterGameScenario();
-    void LeaveGameScenario();
-
-    // override CharacterController
-    void OnCharacterUpdateFrame() override;
+    void UpdateFrame();
 
     // Get or set current police attention level
     int GetWantedLevel() const;
@@ -67,6 +63,10 @@ public:
     void Cheat_GiveAllAmmunitions();
 
 private:
+    // override CharacterController
+    void OnControllerStart() override;
+    void OnControllerStop() override;
+
     void SwitchNextWeapon();
     void SwitchPrevWeapon();
     void EnterOrExitCar(bool alternative);

@@ -12,6 +12,7 @@
 #include "CarnageGame.h"
 #include "Collision.h"
 #include "GameObjectHelpers.h"
+#include "AiCharacterController.h"
 
 Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier) 
     : GameObject(eGameObjectClass_Pedestrian, id)
@@ -19,9 +20,8 @@ Pedestrian::Pedestrian(GameObjectID id, ePedestrianType typeIdentifier)
     , mController()
     , mRemapIndex(NO_REMAP)
     , mStatesManager(this)
-    , mPedestrianTypeID(typeIdentifier)
+    , mPedestrianType(typeIdentifier)
 {
-    debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
     mCurrentAnimState.SetListener(this);
 }
 
@@ -29,26 +29,14 @@ Pedestrian::~Pedestrian()
 {
     if (mController)
     {
-        mController->AssignCharacter(nullptr);
+        mController->StopController();
     }
 }
 
 void Pedestrian::HandleSpawn()
 {
-    debug_assert(mPedestrianTypeID < ePedestrianType_COUNT);
-    PedestrianInfo& pedestrianInfo = gGameMap.mStyleData.mPedestrianTypes[mPedestrianTypeID];
-
-    mFearFlags = pedestrianInfo.mFearFlags;
-
-    if (pedestrianInfo.mRemapType == ePedestrianRemapType_Index)
-    {
-        SetRemap(pedestrianInfo.mRemapIndex);
-    }
-    if (pedestrianInfo.mRemapType == ePedestrianRemapType_RandomCivilian)
-    {
-        // todo: find out correct civilian peds indices
-        SetRemap(gCarnageGame.mGameRand.generate_int(0, MAX_PED_REMAPS - 1));
-    }
+    int remapIndex = gGameMap.mStyleData.GetPedestrianRandomRemap(mPedestrianType);
+    SetRemap(remapIndex);
 
     mCurrentStateTime = 0.0f;
 
@@ -143,11 +131,6 @@ void Pedestrian::HandleFallsOnWater(float fallDistance)
 
 void Pedestrian::UpdateFrame()
 {
-    if (mController)
-    {
-        mController->OnCharacterUpdateFrame();
-    }
-
     float deltaTime = gTimeManager.mGameFrameDelta;
     if (mCurrentAnimState.UpdateFrame(deltaTime))
     {
@@ -709,6 +692,66 @@ void Pedestrian::PutOnFoot()
 bool Pedestrian::IsHumanPlayerCharacter() const
 {
     return mController && mController->IsControllerTypeHuman();
+}
+
+bool Pedestrian::IsAiCharacter() const
+{
+    return mController && mController->IsControllerTypeAi();
+}
+
+bool Pedestrian::HasFear_Players() const
+{
+    bool hasFear = false;
+    if (IsAiCharacter())
+    {
+        AiCharacterController* aiController = (AiCharacterController*) mController;
+        hasFear = aiController->mAiBehavior && aiController->mAiBehavior->CheckBehaviorBits(AiBehaviorBits_Fear_Player);
+    }
+    return hasFear;
+}
+
+bool Pedestrian::HasFear_Police() const
+{
+    bool hasFear = false;
+    if (IsAiCharacter())
+    {
+        AiCharacterController* aiController = (AiCharacterController*) mController;
+        hasFear = aiController->mAiBehavior && aiController->mAiBehavior->CheckBehaviorBits(AiBehaviorBits_Fear_Police);
+    }
+    return hasFear;
+}
+
+bool Pedestrian::HasFear_GunShots() const
+{
+    bool hasFear = false;
+    if (IsAiCharacter())
+    {
+        AiCharacterController* aiController = (AiCharacterController*) mController;
+        hasFear = aiController->mAiBehavior && aiController->mAiBehavior->CheckBehaviorBits(AiBehaviorBits_Fear_GunShots);
+    }
+    return hasFear;
+}
+
+bool Pedestrian::HasFear_Explosions() const
+{
+    bool hasFear = false;
+    if (IsAiCharacter())
+    {
+        AiCharacterController* aiController = (AiCharacterController*) mController;
+        hasFear = aiController->mAiBehavior && aiController->mAiBehavior->CheckBehaviorBits(AiBehaviorBits_Fear_Explosions);
+    }
+    return hasFear;
+}
+
+bool Pedestrian::HasFear_DeadPeds() const
+{
+    bool hasFear = false;
+    if (IsAiCharacter())
+    {
+        AiCharacterController* aiController = (AiCharacterController*) mController;
+        hasFear = aiController->mAiBehavior && aiController->mAiBehavior->CheckBehaviorBits(AiBehaviorBits_Fear_DeadPeds);
+    }
+    return hasFear;
 }
 
 void Pedestrian::IncArmorMax()

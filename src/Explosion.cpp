@@ -77,7 +77,7 @@ void Explosion::HandleSpawn()
     RefreshDrawSprite();
 
     // broadcast event
-    gBroadcastEvents.RegisterEvent(eBroadcastEvent_Explosion, mTransform.GetPosition2(), gGameParams.mBroadcastExplosionEventDuration);
+    gBroadcastEvents.ReportEvent(eBroadcastEvent_Explosion, mTransform.GetPosition2(), gGameParams.mBroadcastExplosionEventDuration);
 
     StartGameObjectSound(0, eSfxSampleType_Level, SfxLevel_HugeExplosion, SfxFlags_RandomPitch);
 }

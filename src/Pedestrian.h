@@ -7,7 +7,6 @@
 #include "Sprite2D.h"
 #include "PedestrianStates.h"
 #include "Weapon.h"
-#include "PedestrianInfo.h"
 
 // defines generic city pedestrian
 class Pedestrian final: public GameObject, public SpriteAnimListener
@@ -19,7 +18,7 @@ class Pedestrian final: public GameObject, public SpriteAnimListener
 
 public:
     // public for convenience, should not be modified directly
-    ePedestrianType mPedestrianTypeID = ePedestrianType_Civilian;
+    ePedestrianType mPedestrianType = ePedestrianType_Civilian;
 
     CharacterController* mController; // controls pedestrian actions
     
@@ -28,9 +27,6 @@ public:
     // in car
     Vehicle* mCurrentCar = nullptr;
     eCarSeat mCurrentSeat;
-
-    // properties
-    PedestrianFearFlags mFearFlags = PedestrianFearFlags_None;
 
     // inventory
     eWeaponID mCurrentWeapon = eWeapon_Fists;
@@ -94,7 +90,6 @@ public:
     // check if pedestrian is in specific state
     bool IsIdle() const; // standing, shooting, walking
     bool IsStanding() const;
-    bool IsShooting() const;
     bool IsWalking() const;
     bool IsRunning() const;
     bool IsStunned() const;
@@ -108,28 +103,14 @@ public:
     
     // Whether pedestrian is under human player control
     bool IsHumanPlayerCharacter() const;
+    bool IsAiCharacter() const;
 
     // Whether pedestrian has specific fears
-    bool HasFear_Players() const
-    {
-        return (mFearFlags & PedestrianFearFlags_Players) > 0;
-    }
-    bool HasFear_Police() const
-    {
-        return (mFearFlags & PedestrianFearFlags_Police) > 0;
-    }
-    bool HasFear_GunShots() const
-    {
-        return (mFearFlags & PedestrianFearFlags_GunShots) > 0;
-    }
-    bool HasFear_Explosions() const
-    {
-        return (mFearFlags & PedestrianFearFlags_Explosions) > 0;
-    }
-    bool HasFear_DeadPeds() const
-    {
-        return (mFearFlags & PedestrianFearFlags_DeadPeds) > 0;
-    }
+    bool HasFear_Players() const;
+    bool HasFear_Police() const;
+    bool HasFear_GunShots() const;
+    bool HasFear_Explosions() const;
+    bool HasFear_DeadPeds() const;
 
     ePedestrianAnimID GetCurrentAnimationID() const;
 

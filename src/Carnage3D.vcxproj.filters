@@ -359,9 +359,6 @@
     <ClInclude Include="Font.h">
       <Filter>Game\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="AiCharacterController.h">
-      <Filter>Game\Ai</Filter>
-    </ClInclude>
     <ClInclude Include="AiManager.h">
       <Filter>Game\Ai</Filter>
     </ClInclude>
@@ -381,9 +378,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Weapon.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="PedestrianInfo.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="AudioManager.h">
@@ -467,6 +461,15 @@
     </ClInclude>
     <ClInclude Include="GuiScreen.h">
       <Filter>Game\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AiDefs.h">
+      <Filter>Game\Ai</Filter>
+    </ClInclude>
+    <ClInclude Include="MapDirection2D.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="AiCharacterController.h">
+      <Filter>Game\Ai</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -661,9 +664,6 @@
     <ClCompile Include="Font.cpp">
       <Filter>Game\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="AiCharacterController.cpp">
-      <Filter>Game\Ai</Filter>
-    </ClCompile>
     <ClCompile Include="AiManager.cpp">
       <Filter>Game\Ai</Filter>
     </ClCompile>
@@ -680,9 +680,6 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Weapon.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="PedestrianInfo.cpp">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="AudioManager.cpp">
@@ -745,6 +742,9 @@
     <ClCompile Include="AiPedestrianBehavior.cpp">
       <Filter>Game\Ai\AiBehavior</Filter>
     </ClCompile>
+    <ClCompile Include="AiCharacterController.cpp">
+      <Filter>Game\Ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\gamedata\config\sys_config.json.default">
@@ -775,9 +775,6 @@
       <Filter>Data\entities</Filter>
     </None>
     <None Include="..\gamedata\entities\weapons.json">
-      <Filter>Data\entities</Filter>
-    </None>
-    <None Include="..\gamedata\entities\pedestrians.json">
       <Filter>Data\entities</Filter>
     </None>
     <None Include="..\gamedata\shaders\particle.glsl">

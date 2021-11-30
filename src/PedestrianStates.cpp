@@ -346,7 +346,7 @@ void PedestrianStatesManager::StateDead_ProcessEnter(const PedestrianStateEvent&
     }
 
     Pedestrian* attacker = stateEvent.mDamageInfo.GetDamageCauser();
-    gBroadcastEvents.RegisterEvent(eBroadcastEvent_PedestrianDead, mPedestrian, attacker, 0.0f);
+    gBroadcastEvents.ReportEvent(eBroadcastEvent_PedestrianDead, mPedestrian, attacker, 0.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -365,7 +365,7 @@ void PedestrianStatesManager::StateDriveCar_ProcessEnter(const PedestrianStateEv
     SetInCarPositionToSeat();
 
     // broadcast event
-    gBroadcastEvents.RegisterEvent(eBroadcastEvent_StartDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
+    gBroadcastEvents.ReportEvent(eBroadcastEvent_StartDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
 }
 
 void PedestrianStatesManager::StateDriveCar_ProcessExit()
@@ -377,7 +377,7 @@ void PedestrianStatesManager::StateDriveCar_ProcessExit()
         mPedestrian->mObjectFlags = flags;
     }
 
-    gBroadcastEvents.RegisterEvent(eBroadcastEvent_StopDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
+    gBroadcastEvents.ReportEvent(eBroadcastEvent_StopDriveCar, mPedestrian->mCurrentCar, mPedestrian, 0.0f);
 }
 
 bool PedestrianStatesManager::StateDriveCar_ProcessEvent(const PedestrianStateEvent& stateEvent)

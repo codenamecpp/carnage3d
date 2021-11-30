@@ -4,18 +4,17 @@
 #include "Vehicle.h"
 #include "DebugRenderer.h"
 
-CharacterController::CharacterController(Pedestrian* character, eCharacterControllerType controllerType)
+CharacterController::CharacterController(eCharacterControllerType controllerType)
     : mControllerType(controllerType)
 {
-    AssignCharacter(character);
 }
 
 CharacterController::~CharacterController()
 {
-    AssignCharacter(nullptr);
+    SetCharacter(nullptr);
 }
 
-void CharacterController::AssignCharacter(Pedestrian* character)
+void CharacterController::SetCharacter(Pedestrian* character)
 {
     if (mCharacter == character)
         return;
@@ -34,17 +33,52 @@ void CharacterController::AssignCharacter(Pedestrian* character)
     mCtlState.Clear();
 }
 
-void CharacterController::OnCharacterUpdateFrame()
-{
-    // do nothing
-}
-
-void CharacterController::DebugDraw(DebugRenderer& debugRender)
-{
-    // do nothing
-}
-
 bool CharacterController::IsControllerActive() const
 {
     return mCharacter != nullptr;
+}
+
+bool CharacterController::IsControllerTypeAi() const 
+{ 
+    return mControllerType == eCharacterControllerType_Ai; 
+}
+
+bool CharacterController::IsControllerTypeHuman() const 
+{ 
+    return mControllerType == eCharacterControllerType_Human; 
+}
+
+void CharacterController::StartController(Pedestrian* character)
+{
+    debug_assert(character);
+    if ((character == nullptr) || (character == mCharacter))
+        return;
+
+    if (IsControllerActive())
+    {
+        debug_assert(false);
+        StopController();
+    }
+
+    SetCharacter(character);
+    OnControllerStart();
+}
+
+void CharacterController::StopController()
+{
+    if (mCharacter == nullptr)
+        return;
+
+    OnControllerStop();
+    SetCharacter(nullptr);
+}
+
+void CharacterController::OnControllerStart()
+{
+    // do nothing
+}
+
+void CharacterController::OnControllerStop()
+{
+    // do nothing
 }

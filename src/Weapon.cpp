@@ -90,7 +90,7 @@ bool Weapon::Fire(Pedestrian* shooter)
         }
 
         // broardcast event
-        gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, shooter, shooter, gGameParams.mBroadcastGunShotEventDuration);
+        gBroadcastEvents.ReportEvent(eBroadcastEvent_GunShot, shooter, shooter, gGameParams.mBroadcastGunShotEventDuration);
     }
     else
     {

@@ -12,17 +12,13 @@
 #include "DebugRenderer.h"
 #include "RenderingManager.h"
 
-HumanPlayer::HumanPlayer(Pedestrian* character)
-    : CharacterController(character, eCharacterControllerType_Human)
-    , mLastDistrictIndex()
+HumanPlayer::HumanPlayer(): CharacterController(eCharacterControllerType_Human)
 {
     mAudioListener = gAudioDevice.CreateAudioListener();
     debug_assert(mAudioListener);
 
-    if (mCharacter)
-    {
-        Cheat_GiveAllAmmunitions();
-    }
+    gRenderManager.AttachRenderView(&mViewCamera);
+    mHUD.InitHUD(this);
 }
 
 HumanPlayer::~HumanPlayer()
@@ -32,24 +28,24 @@ HumanPlayer::~HumanPlayer()
         gAudioDevice.DestroyAudioListener(mAudioListener);
         mAudioListener = nullptr;
     }
+    gRenderManager.DetachRenderView(&mViewCamera);
+    mHUD.DeinitHUD();
 }
 
-void HumanPlayer::EnterGameScenario()
+void HumanPlayer::OnControllerStart()
 {
     debug_assert(mCharacter);
-    if (mCharacter)
-    {
-        mSpawnPosition = mCharacter->mTransform.mPosition;
-        mFollowCameraController.SetFollowTarget(mCharacter);
-        mHUD.InitHUD(this);
-    }
-    gRenderManager.AttachRenderView(&mViewCamera);
+
+    mSpawnPosition = mCharacter->mTransform.mPosition;
+    mFollowCameraController.SetFollowTarget(mCharacter);
+
+    // temporary
+    Cheat_GiveAllAmmunitions();
 }
 
-void HumanPlayer::LeaveGameScenario()
+void HumanPlayer::OnControllerStop()
 {
-    mHUD.DeinitHUD();
-    gRenderManager.DetachRenderView(&mViewCamera);
+    mFollowCameraController.SetFollowTarget(nullptr);
 }
 
 void HumanPlayer::SetCurrentCameraMode(ePlayerCameraMode cameraMode)
@@ -77,7 +73,7 @@ ePlayerCameraMode HumanPlayer::GetCurrentCameraMode() const
     return ePlayerCameraMode_FreeLook;
 }
 
-void HumanPlayer::OnCharacterUpdateFrame()
+void HumanPlayer::UpdateFrame()
 {
     if (mCameraController)
     {

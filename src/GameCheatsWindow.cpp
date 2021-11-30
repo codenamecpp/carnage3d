@@ -65,7 +65,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
                 if (character && character->mController)
                 {
                     // disable controller
-                    character->mController->AssignCharacter(nullptr);
+                    character->mController->StopController();
                 }
             }
             if (ImGui::MenuItem("Wandering"))

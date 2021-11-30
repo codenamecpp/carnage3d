@@ -2,6 +2,7 @@
 
 #include "GameDefs.h"
 #include "StyleData.h"
+#include "MapDirection2D.h"
 
 // this class manages GTA map and style data which get loaded from CMP/G24-files
 class GameMapManager final: public cxx::noncopyable
@@ -31,6 +32,7 @@ public:
     // note that location coords should never exceed MAP_DIMENSIONS for x,y and MAP_LAYERS_COUNT for layer
     // @param coordx, coordy, layer: Block location
     const MapBlockInfo* GetBlockInfo(int coordx, int coordy, int layer) const;
+    const MapBlockInfo* GetNeighbourBlock(int coordx, int coordy, int layer, eMapDirection2D dir) const;
 
     // Get navigation data sector at specific map point
     // @param position: Current position on map, meters

@@ -2,7 +2,6 @@
 
 #include "GameDefs.h"
 #include "WeaponInfo.h"
-#include "PedestrianInfo.h"
 
 class PixelsArray;
 
@@ -17,7 +16,6 @@ public:
     std::vector<BlockAnimationInfo> mBlocksAnimations;
     std::vector<Palette256> mPalettes;
     std::vector<WeaponInfo> mWeaponTypes;
-    std::vector<PedestrianInfo> mPedestrianTypes;
 
     // CLUT data :
     //  tiles
@@ -111,6 +109,9 @@ public:
     // Get base clut index for pedestrian sprites
     int GetPedestrianRemapsBaseIndex() const;
 
+    // Generate remap index for pedestrian of specific type
+    int GetPedestrianRandomRemap(ePedestrianType pedestrianType) const;
+
 private:
     // apply single delta on sprite
     void ApplySpriteDelta(SpriteInfo& sprite, SpriteInfo::DeltaInfo& spriteDelta, PixelsArray* pixelsArray, int positionX, int positionY);
@@ -129,7 +130,6 @@ private:
 
     void ReadPedestrianAnimations();
     bool ReadWeaponTypes();
-    bool ReadPedestrianTypes();
 
     bool InitGameObjects();
 

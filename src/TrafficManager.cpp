@@ -563,7 +563,6 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
         debug_assert(controller);
         if (controller && characterLeader == nullptr)
         {
-            controller->ChangeAiFlags(PedestrianAiFlags_FollowHumanCharacter, PedestrianAiFlags_None);
             characterLeader = character;
         }
         if (controller && characterPrev)

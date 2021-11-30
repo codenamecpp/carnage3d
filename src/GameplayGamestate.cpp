@@ -25,6 +25,15 @@ void GameplayGamestate::OnGamestateFrame()
 {
     float deltaTime = gTimeManager.mGameFrameDelta;
     gCarnageGame.ProcessDebugCvars();
+
+    // update players
+    for (HumanPlayer* currPlayer: gCarnageGame.mHumanPlayers)
+    {
+        if (currPlayer)
+        {
+            currPlayer->UpdateFrame();
+        }
+    }
     // advance game state
     gSpriteManager.UpdateBlocksAnimations(deltaTime);
     gPhysics.UpdateFrame();

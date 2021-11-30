@@ -3,8 +3,6 @@
 #include "GameDefs.h"
 #include "DamageInfo.h"
 
-class DebugRenderer;
-
 //////////////////////////////////////////////////////////////////////////
 
 enum eCharacterControllerType
@@ -13,7 +11,6 @@ enum eCharacterControllerType
     eCharacterControllerType_Ai,
     eCharacterControllerType_Human
 };
-
 //////////////////////////////////////////////////////////////////////////
 
 // Generic character controller class
@@ -26,17 +23,20 @@ public:
     eCharacterControllerType mControllerType;
 
 public:
-    CharacterController(Pedestrian* character, eCharacterControllerType controllerType);
+    CharacterController(eCharacterControllerType controllerType);
     virtual ~CharacterController();
 
-    void AssignCharacter(Pedestrian* character);
+    // setup controllable character
+    void StartController(Pedestrian* character);
+    void StopController();
     bool IsControllerActive() const;
+    bool IsControllerTypeAi() const;
+    bool IsControllerTypeHuman() const;
 
-    bool IsControllerTypeAi() const { return mControllerType == eCharacterControllerType_Ai; }
-    bool IsControllerTypeHuman() const { return mControllerType == eCharacterControllerType_Human; }
+protected:
+    void SetCharacter(Pedestrian* character);
 
-    // Process controller logic
-    virtual void DebugDraw(DebugRenderer& debugRender);
-    // Events
-    virtual void OnCharacterUpdateFrame();
+    // overridable
+    virtual void OnControllerStart();
+    virtual void OnControllerStop();
 };

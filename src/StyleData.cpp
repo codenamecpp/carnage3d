@@ -232,8 +232,6 @@ bool StyleData::LoadFromFile(const std::string& stylesName)
 
     ReadPedestrianAnimations();
     ReadWeaponTypes();
-    ReadPedestrianTypes();
-
     // do some data verifications before go further
     if (!DoDataIntegrityCheck())
     {
@@ -996,33 +994,6 @@ bool StyleData::ReadWeaponTypes()
     return true;
 }
 
-bool StyleData::ReadPedestrianTypes()
-{
-    mPedestrianTypes.resize(ePedestrianType_COUNT);
-
-    cxx::json_document pedsConfig;
-    if (!gFiles.ReadConfig("entities/pedestrians.json", pedsConfig))
-    {
-        gConsole.LogMessage(eLogMessage_Warning, "Cannot read 'entities/pedestrians.json'");
-        return false;
-    }
-
-    for (cxx::json_node_object currentNode = pedsConfig.get_root_node().first_child();
-        currentNode; currentNode = currentNode.next_sibling())
-    {
-        PedestrianInfo currentPedestrian;
-        if (!currentPedestrian.SetupFromConfg(currentNode))
-        {
-            debug_assert(false);
-            continue;
-        }
-
-        mPedestrianTypes[currentPedestrian.mTypeID] = currentPedestrian;
-    }
-
-    return true;
-}
-
 void StyleData::ReadPedestrianAnimations()
 {
     cxx::json_document configDocument;
@@ -1188,4 +1159,24 @@ int StyleData::GetWreckedVehicleSpriteIndex(eVehicleClass vehicleClass) const
         break;
     }
     return GetSpriteIndex(eSpriteType_WBus, spriteID);
+}
+
+int StyleData::GetPedestrianRandomRemap(ePedestrianType pedestrianType) const
+{
+    static unsigned int CivilianRemapIndexVariationCounter = 0;
+    switch (pedestrianType)
+    {
+        case ePedestrianType_Player1: return -1;
+        case ePedestrianType_Player2: return 0;
+        case ePedestrianType_Player3: return 1;
+        case ePedestrianType_Player4: return 2;
+        case ePedestrianType_Civilian:
+            // todo: find out correct civilian peds indices
+            return (CivilianRemapIndexVariationCounter++ % MAX_PED_REMAPS);
+        case ePedestrianType_Police: return NO_REMAP;
+        case ePedestrianType_HareKrishnasGang: return 18;
+        case ePedestrianType_Medical: return 0; // todo
+        case ePedestrianType_Fireman: return 1; // todo
+    }
+    return NO_REMAP;
 }

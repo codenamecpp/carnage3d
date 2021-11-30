@@ -16,6 +16,11 @@ void AiManager::UpdateFrame()
     for (size_t iController = 0, Count = mCharacterControllers.size(); iController < Count; ++iController)
     {
         AiCharacterController* currController = mCharacterControllers[iController];
+        if (currController->IsControllerActive())
+        {
+            currController->UpdateFrame();
+        }
+
         if (!currController->IsControllerActive())
         {
             SafeDelete(mCharacterControllers[iController]);
@@ -60,7 +65,8 @@ AiCharacterController* AiManager::CreateAiController(Pedestrian* pedestrian)
         return nullptr;
     }
 
-    AiCharacterController* controller = new AiCharacterController(pedestrian);
+    AiCharacterController* controller = new AiCharacterController();
+    controller->StartController(pedestrian);
     mCharacterControllers.push_back(controller);
     return controller;
 }

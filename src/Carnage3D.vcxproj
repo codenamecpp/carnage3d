@@ -156,11 +156,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
+    <ClInclude Include="AiDefs.h" />
     <ClInclude Include="AiManager.h" />
     <ClInclude Include="AiPedestrianBehavior.h" />
     <ClInclude Include="AudioDataStream.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="MapDirection2D.h" />
     <ClInclude Include="GameObjectHelpers.h" />
     <ClInclude Include="GameplayGamestate.h" />
     <ClInclude Include="GenericGamestate.h" />
@@ -210,7 +212,6 @@
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="PedestrianStates.h" />
-    <ClInclude Include="PedestrianInfo.h" />
     <ClInclude Include="PhysicsDefs.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="FreeLookCameraController.h" />
@@ -325,7 +326,6 @@
     <ClCompile Include="mem_allocators.cpp" />
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="path_utils.cpp" />
-    <ClCompile Include="PedestrianInfo.cpp" />
     <ClCompile Include="PedestrianStates.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="FreeLookCameraController.cpp" />
@@ -397,7 +397,6 @@
   <ItemGroup>
     <None Include="..\gamedata\config\inputs.json.default" />
     <None Include="..\gamedata\config\sys_config.json.default" />
-    <None Include="..\gamedata\entities\pedestrians.json" />
     <None Include="..\gamedata\entities\weapons.json" />
     <None Include="..\gamedata\entities\gta_objects.json" />
     <None Include="..\gamedata\entities\ped_animations.json" />
