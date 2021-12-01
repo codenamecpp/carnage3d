@@ -21,6 +21,13 @@ on:
 jobs:
   build-with-cmake:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        compiler:
+          - [cc: gcc, cxx: g++]
+          - [cc: clang, cxx: clang++]
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -36,8 +43,8 @@ jobs:
         uses: ashutoshvarma/action-cmake-build@master
         with:
           build-dir: ${{ github.workspace }}/build
-          cc: clang
-          cxx: clang++
+          cc: ${{ matrix.compiler.cc }}
+          cxx: ${{ matrix.compiler.cxx }}
           build-type: Release
           configure-options: -DWITH_BOX2D=Yes
           parallel: 2

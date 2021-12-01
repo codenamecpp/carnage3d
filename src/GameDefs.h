@@ -883,26 +883,22 @@ public:
     }
 public:
     // on foot control actions
-    struct
-    {
-        bool mTurnLeft = false;
-        bool mTurnRight = false;
-        bool mWalkForward = false;
-        bool mWalkBackward = false;
-        bool mRun = false;
-        bool mShoot = false;
-        bool mJump = false;
-        bool mSpecial = false;
+    bool mTurnLeft = false;
+    bool mTurnRight = false;
+    bool mWalkForward = false;
+    bool mWalkBackward = false;
+    bool mRun = false;
+    bool mShoot = false;
+    bool mJump = false;
+    bool mSpecial = false;
 
-        // overrides mTurnLeft/mTurnRight
-        bool mRotateToDesiredAngle = false;
-        cxx::angle_t mDesiredRotationAngle;
-    };
-    struct // in car control actions
-    {
-        float mAcceleration = 0.0f; // 0 means no acceleration, < 0 move reverse, > 0 full acceleration
-        float mSteerDirection = 0.0f; // 0 means no steer, < 0 steer left, > 0 steer right
-        bool mHandBrake = false;
-        bool mHorn = false;
-    };
+    // overrides mTurnLeft/mTurnRight
+    bool mRotateToDesiredAngle = false;
+    cxx::angle_t mDesiredRotationAngle;
+
+    // in car control actions
+    float mAcceleration = 0.0f; // 0 means no acceleration, < 0 move reverse, > 0 full acceleration
+    float mSteerDirection = 0.0f; // 0 means no steer, < 0 steer left, > 0 steer right
+    bool mHandBrake = false;
+    bool mHorn = false;
 };
