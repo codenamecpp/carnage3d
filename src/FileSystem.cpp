@@ -294,7 +294,7 @@ bool FileSystem::ScanGtaMaps()
         {
             if (cxx::get_file_extension(curr) == GTA1MapFileExtension)
             {
-                mGameMapsList.push_back(curr);  
+                mGameMapsList.push_back(curr);
             }
         });
     }
