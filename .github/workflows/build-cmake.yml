@@ -1,0 +1,43 @@
+name: Build with cmake
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - cmake/**
+      - src/**
+      - third_party/**
+      - CMakeLists.txt
+
+  pull_request:
+    paths:
+      - cmake/**
+      - src/**
+      - third_party/**
+      - CMakeLists.txt
+
+  workflow_dispatch:
+
+jobs:
+  build-with-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Update apt
+        run: sudo apt update
+
+      - name: Install dependencies
+        run: sudo apt install --yes clang cmake libglew-dev libglfw3-dev libglm-dev libopenal-dev xorg-dev
+
+      - name: cmake
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ github.workspace }}/build
+          cc: clang
+          cxx: clang++
+          build-type: Release
+          configure-options: -DWITH_BOX2D=Yes
+          parallel: 2
