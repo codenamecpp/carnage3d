@@ -142,7 +142,7 @@ protected:
     GameObject* mParentObject = nullptr;
 
     std::vector<GameObject*> mAttachedObjects;
-    std::vector<Contact> mObjectsContacts; // lsit of contacting colliders (non triggers) on last simulation frame
+    std::vector<Contact> mObjectsContacts; // list of contacting colliders (non triggers) on last simulation frame
 
     // drawing spricific data
     Sprite2D mDrawSprite;

@@ -80,12 +80,12 @@ void AiPedestrianBehavior::AiActivity::SetActivityStatus(eAiActivityStatus newSt
 
 //////////////////////////////////////////////////////////////////////////
 
-AiPedestrianBehavior::AiActiviy_Wanter::AiActiviy_Wanter(AiPedestrianBehavior* aiBehavior)
+AiPedestrianBehavior::AiActiviy_Wander::AiActiviy_Wander(AiPedestrianBehavior* aiBehavior)
     : AiActivity(aiBehavior)
 {
 }
 
-void AiPedestrianBehavior::AiActiviy_Wanter::OnActivityStart()
+void AiPedestrianBehavior::AiActiviy_Wander::OnActivityStart()
 {
     mAiBehavior->StopCharacter();
 
@@ -96,7 +96,7 @@ void AiPedestrianBehavior::AiActiviy_Wanter::OnActivityStart()
     }
 }
 
-void AiPedestrianBehavior::AiActiviy_Wanter::OnActivityUpdate()
+void AiPedestrianBehavior::AiActiviy_Wander::OnActivityUpdate()
 {
     mAiBehavior->StopCharacter();
 
@@ -118,7 +118,7 @@ void AiPedestrianBehavior::AiActiviy_Wanter::OnActivityUpdate()
     }
 }
 
-bool AiPedestrianBehavior::AiActiviy_Wanter::ChooseDesiredPoint(eGroundType groundType)
+bool AiPedestrianBehavior::AiActiviy_Wander::ChooseDesiredPoint(eGroundType groundType)
 {
     Pedestrian* character = mAiBehavior->GetCharacter();
     debug_assert(character);
@@ -173,7 +173,7 @@ bool AiPedestrianBehavior::AiActiviy_Wanter::ChooseDesiredPoint(eGroundType grou
 //////////////////////////////////////////////////////////////////////////
 
 AiPedestrianBehavior::AiActivity_Runaway::AiActivity_Runaway(AiPedestrianBehavior* aiBehavior)
-    : AiActiviy_Wanter(aiBehavior)
+    : AiActiviy_Wander(aiBehavior)
 {
 }
 

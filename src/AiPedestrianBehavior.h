@@ -45,10 +45,10 @@ protected:
     };
 
     //////////////////////////////////////////////////////////////////////////
-    class AiActiviy_Wanter: public AiActivity
+    class AiActiviy_Wander: public AiActivity
     {
     public:
-        AiActiviy_Wanter(AiPedestrianBehavior* aiBehavior);
+        AiActiviy_Wander(AiPedestrianBehavior* aiBehavior);
     protected:
         // override AiActivity
         void OnActivityStart() override;
@@ -58,7 +58,7 @@ protected:
     };
 
     //////////////////////////////////////////////////////////////////////////
-    class AiActivity_Runaway: public AiActiviy_Wanter
+    class AiActivity_Runaway: public AiActiviy_Wander
     {
     public:
         AiActivity_Runaway(AiPedestrianBehavior* aiBehavior);
@@ -137,7 +137,7 @@ protected:
     PedestrianHandle mLeader;
 
     // standard activities
-    AiActiviy_Wanter mActivity_Wander;
+    AiActiviy_Wander mActivity_Wander;
     AiActivity_Runaway mActivity_Runaway;
     AiActivity_FollowLeader mActivity_FollowLeader;
 };
