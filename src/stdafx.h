@@ -14,7 +14,7 @@
     #define NOMINMAX
     #include <windows.h>
     #include <mmsystem.h> // for multimedia timers
-#elif OS_NAME == OS_LINUX
+#elif OS_NAME == OS_LINUX || OS_NAME == OS_MACOS
     #include <limits.h>
     #include <unistd.h>
 #endif
@@ -52,8 +52,11 @@
 
 // opengl
 #include <GL/glew.h>
+#if OS_NAME == OS_MACOS
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
-
+#endif
 #include "GLFW/glfw3.h"
 
 // glm

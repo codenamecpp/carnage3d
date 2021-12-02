@@ -1,0 +1,89 @@
+name: Build with cmake
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - cmake/**
+      - src/**
+      - third_party/**
+      - CMakeLists.txt
+
+  pull_request:
+    paths:
+      - cmake/**
+      - src/**
+      - third_party/**
+      - CMakeLists.txt
+
+  workflow_dispatch:
+
+jobs:
+  ubuntu:
+    name: "Ubuntu (${{ matrix.compiler.cc }})"
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - {cc: gcc, cxx: g++}
+          - {cc: clang, cxx: clang++}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Update apt
+        run: sudo apt update
+
+      - name: Install dependencies
+        run: sudo apt install --yes cmake libglew-dev libglfw3-dev libglm-dev libopenal-dev xorg-dev
+
+      - name: Install clang
+        run: sudo apt install --yes clang
+        if: ${{ matrix.compiler.cc == 'clang' }}
+
+      - name: cmake
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ github.workspace }}/build
+          cc: ${{ matrix.compiler.cc }}
+          cxx: ${{ matrix.compiler.cxx }}
+          build-type: Release
+          configure-options: -DWITH_BOX2D=Yes
+          parallel: 2
+
+  macos:
+    name: "macOS (${{ matrix.compiler.cc }}, box2d: ${{ matrix.with_box2d }})"
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        with_box2d: [yes, no]
+        compiler:
+          - {cc: clang, cxx: clang++}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: brew install glew glfw3 glm
+
+      - name: Install Box2D
+        run: brew install box2d
+        if: ${{ matrix.with_box2d == 'no' }}
+
+      - name: cmake
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ github.workspace }}/build
+          cc: ${{ matrix.compiler.cc }}
+          cxx: ${{ matrix.compiler.cxx }}
+          build-type: Release
+          configure-options: -DWITH_BOX2D=${{ matrix.with_box2d }}
+          parallel: 2
