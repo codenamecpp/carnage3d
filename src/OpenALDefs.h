@@ -1,7 +1,12 @@
 #pragma once
 
+#if OS_NAME == OS_MACOS
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
-#include "AL/alc.h"
+#include <AL/alc.h>
+#endif
 
 // checks current openal error code
 #ifdef _DEBUG
@@ -22,7 +27,7 @@
 // resets current openal error code
 inline void alClearError()
 {
-    for (ALenum alErrorCode = ::alGetError(); alErrorCode != AL_NO_ERROR; alErrorCode = ::alGetError()) 
+    for (ALenum alErrorCode = ::alGetError(); alErrorCode != AL_NO_ERROR; alErrorCode = ::alGetError())
     {
     }
 }
