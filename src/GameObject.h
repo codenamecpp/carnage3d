@@ -100,6 +100,7 @@ public:
     // Audio shortcuts
     bool StartGameObjectSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags);
     bool StartGameObjectSound(int ichannel, eSfxSampleType sampleType, SfxSampleIndex sampleIndex, SfxFlags sfxFlags);
+    void StopGameObjectSound(int ichannel);
     void StopGameObjectSounds();
     
     // Class shortcuts

@@ -78,6 +78,9 @@ void Pedestrian::HandleDespawn()
     // reset weapon
     ClearAmmunition();
 
+    // force stop sounds
+    StopGameObjectSounds();
+
     GameObject::HandleDespawn();
 }
 

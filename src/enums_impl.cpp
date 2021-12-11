@@ -627,7 +627,8 @@ impl_enum_strings(ePedestrianType)
     {ePedestrianType_Player4, "player4"},
     {ePedestrianType_Civilian, "civilian"},
     {ePedestrianType_Police, "police"},
-    {ePedestrianType_HareKrishnasGang, "hare_krishnas_gang"},
+    {ePedestrianType_Gang, "gang"},
+    {ePedestrianType_GangLeader, "gang_leader"},
     {ePedestrianType_Medical, "medical"},
     {ePedestrianType_Fireman, "fireman"},
 };

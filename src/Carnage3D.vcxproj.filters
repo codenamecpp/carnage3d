@@ -471,6 +471,9 @@
     <ClInclude Include="AiCharacterController.h">
       <Filter>Game\Ai</Filter>
     </ClInclude>
+    <ClInclude Include="AiGangBehavior.h">
+      <Filter>Game\Ai\AiBehavior</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -744,6 +747,9 @@
     </ClCompile>
     <ClCompile Include="AiCharacterController.cpp">
       <Filter>Game\Ai</Filter>
+    </ClCompile>
+    <ClCompile Include="AiGangBehavior.cpp">
+      <Filter>Game\Ai\AiBehavior</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

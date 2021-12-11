@@ -5,6 +5,7 @@
 #include "MapDirection2D.h"
 #include "GameMapManager.h"
 #include "CarnageGame.h"
+#include "TimeManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +24,8 @@ void AiPedestrianBehavior::AiActivity::StartActivity()
 {
     if (!IsStatusInProgress())
     {
+        ClearChildActivity(); // just in case
+
         SetActivityStatus(eAiActivityStatus_InProgress);
         OnActivityStart();
     }
@@ -36,7 +39,17 @@ void AiPedestrianBehavior::AiActivity::UpdateActivity()
 {
     if (IsStatusInProgress())
     {
-        OnActivityUpdate();      
+        // update child activity first
+        if (mChildActivity && mChildActivity->IsStatusInProgress())
+        {
+            mChildActivity->UpdateActivity();
+        }
+        OnActivityUpdate();
+
+        if (!IsStatusInProgress())
+        {
+            ClearChildActivity();
+        }
     }
 }
 
@@ -46,6 +59,8 @@ void AiPedestrianBehavior::AiActivity::CancelActivity()
     {
         SetActivityStatus(eAiActivityStatus_Cancelled);
         OnActivityCancelled();
+
+        ClearChildActivity();
     }
 }
 
@@ -71,11 +86,58 @@ bool AiPedestrianBehavior::AiActivity::IsStatusCancelled() const
 
 void AiPedestrianBehavior::AiActivity::SetActivityStatus(eAiActivityStatus newStatus)
 {
-    if (newStatus == eAiActivityStatus_Failed)
-    {
-        int bp = 0;
-    }
     mActivityStatus = newStatus;
+}
+
+void AiPedestrianBehavior::AiActivity::StartChildActivity(AiActivity* childActivity)
+{
+    debug_assert(childActivity);
+    debug_assert(childActivity != this);
+
+    if (childActivity)
+    {
+        debug_assert(!childActivity->IsStatusInProgress());
+        ClearChildActivity();
+
+        mChildActivity = childActivity;
+        mChildActivity->StartActivity();
+    }
+}
+
+void AiPedestrianBehavior::AiActivity::ClearChildActivity()
+{
+    if (mChildActivity)
+    {
+        if (mChildActivity->IsStatusInProgress())
+        {
+            mChildActivity->CancelActivity();
+        }
+        mChildActivity = nullptr;
+    }
+}
+
+bool AiPedestrianBehavior::AiActivity::IsChildActivityInProgress() const
+{
+    return mChildActivity && mChildActivity->IsStatusInProgress();
+}
+
+bool AiPedestrianBehavior::AiActivity::IsChildActivityInProgress(AiActivity* matchActivity) const
+{
+    if (matchActivity)
+    {
+        return (mChildActivity == matchActivity) && mChildActivity->IsStatusInProgress();
+    }
+    return false;
+}
+
+bool AiPedestrianBehavior::AiActivity::IsChildActivitySuccess() const
+{
+    return mChildActivity && mChildActivity->IsStatusSuccess();
+}
+
+bool AiPedestrianBehavior::AiActivity::IsChildActivityFailed() const
+{
+    return mChildActivity && mChildActivity->IsStatusFailed();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,36 +147,24 @@ AiPedestrianBehavior::AiActiviy_Wander::AiActiviy_Wander(AiPedestrianBehavior* a
 {
 }
 
-void AiPedestrianBehavior::AiActiviy_Wander::OnActivityStart()
-{
-    mAiBehavior->StopCharacter();
-
-    if (!ChooseDesiredPoint(eGroundType_Pawement))
-    {   
-        SetActivityStatus(eAiActivityStatus_Failed);
-        return;
-    }
-}
-
 void AiPedestrianBehavior::AiActiviy_Wander::OnActivityUpdate()
 {
-    mAiBehavior->StopCharacter();
+    // shortcuts
+    AiActivity_WalkToPoint* act_walk = &mAiBehavior->mActivity_WalkToPoint;
 
-    Pedestrian* character = mAiBehavior->GetCharacter();
-    debug_assert(character);
-
-    const float ArriveDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
-    if (!mAiBehavior->MoveCharacterTowardsDesiredPoint(ArriveDistance, false))
-        return; // not arrived yet
-
-    // arrived to destination, choose next position
-    if (ChooseDesiredPoint(eGroundType_Pawement))
+    // decide what to do
+    if (!IsChildActivityInProgress(act_walk))
     {
-        mAiBehavior->MoveCharacterTowardsDesiredPoint(ArriveDistance, false);
-    }
-    else
-    {
-        SetActivityStatus(eAiActivityStatus_Failed); // fail to arrive
+        // try walk somewhere
+        if (!ChooseDesiredPoint(eGroundType_Pawement))
+        {
+            SetActivityStatus(eAiActivityStatus_Failed);
+            return;
+        }
+        const float ArriveDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
+        act_walk->SetRunning(false);
+        act_walk->SetArriveDistance(ArriveDistance);
+        StartChildActivity(act_walk);
     }
 }
 
@@ -177,36 +227,24 @@ AiPedestrianBehavior::AiActivity_Runaway::AiActivity_Runaway(AiPedestrianBehavio
 {
 }
 
-void AiPedestrianBehavior::AiActivity_Runaway::OnActivityStart()
-{
-    mAiBehavior->StopCharacter();
-
-    if (!ChooseRunawayPoint())
-    {   
-        SetActivityStatus(eAiActivityStatus_Failed);
-        return;
-    }
-}
-
 void AiPedestrianBehavior::AiActivity_Runaway::OnActivityUpdate()
 {
-    mAiBehavior->StopCharacter();
+    // shortcuts
+    AiActivity_WalkToPoint* act_walk = &mAiBehavior->mActivity_WalkToPoint;
 
-    Pedestrian* character = mAiBehavior->GetCharacter();
-    debug_assert(character);
-
-    const float ArriveDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
-    if (!mAiBehavior->MoveCharacterTowardsDesiredPoint(ArriveDistance, true))
-        return; // not arrived yet
-
-    // arrived to destination, choose next position
-    if (ChooseRunawayPoint())
+    // decide what to do
+    if (!IsChildActivityInProgress(act_walk))
     {
-        mAiBehavior->MoveCharacterTowardsDesiredPoint(ArriveDistance, true);
-    }
-    else
-    {
-        SetActivityStatus(eAiActivityStatus_Failed); // fail to arrive
+        // try walk somewhere
+        if (!ChooseRunawayPoint())
+        {
+            SetActivityStatus(eAiActivityStatus_Failed);
+            return;
+        }
+        const float ArriveDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
+        act_walk->SetRunning(true);
+        act_walk->SetArriveDistance(ArriveDistance);
+        StartChildActivity(act_walk);
     }
 }
 
@@ -229,18 +267,20 @@ AiPedestrianBehavior::AiActivity_FollowLeader::AiActivity_FollowLeader(AiPedestr
 
 void AiPedestrianBehavior::AiActivity_FollowLeader::OnActivityStart()
 {
-    mAiBehavior->StopCharacter();
-
     if (!CheckCanFollowTheLeader())
     {
         SetActivityStatus(eAiActivityStatus_Failed);
         return;
     }
+    
+    StartChildActivity(&mAiBehavior->mActivity_Wait);
 }
 
 void AiPedestrianBehavior::AiActivity_FollowLeader::OnActivityUpdate()
 {
-    mAiBehavior->StopCharacter();
+    // shortcuts
+    AiActivity_WalkToPoint* act_walk = &mAiBehavior->mActivity_WalkToPoint;
+    AiActivity_Wait* act_wait = &mAiBehavior->mActivity_Wait;
 
     if (!CheckCanFollowTheLeader())
     {
@@ -248,24 +288,52 @@ void AiPedestrianBehavior::AiActivity_FollowLeader::OnActivityUpdate()
         return;
     }
 
-    const float IdleDistance = gGameParams.mPedestrianBoundsSphereRadius * 4.0f;
-    const float ApproachDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f;
-    const float RushDistance = ApproachDistance * 4.0f;
+    const float IdleDistance = gGameParams.mPedestrianBoundsSphereRadius * 3.0f;
+    const float ApproachDistance = gGameParams.mPedestrianBoundsSphereRadius * 1.5f;
+    const float RushDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f * 4.0f;
+    const float StepDistance = gGameParams.mPedestrianBoundsSphereRadius * 2.0f * 3.0f;
 
     Pedestrian* currCharacter = mAiBehavior->GetCharacter();
     Pedestrian* leadCharacter = mAiBehavior->GetLeader();
-    // update desired point
-    mAiBehavior->mDesiredPoint = leadCharacter->mTransform.GetPosition2();
-    if (currCharacter->IsStanding())
+
+    glm::vec2 charPosition = currCharacter->mTransform.GetPosition2();
+    glm::vec2 leaderPosition = leadCharacter->mTransform.GetPosition2();
+    float distanceToLeader2 = glm::distance2(charPosition, leaderPosition);
+
+    if (IsChildActivityInProgress(act_walk))
     {
-        mAiBehavior->MoveCharacterTowardsDesiredPoint(IdleDistance, false);
+        if (distanceToLeader2 < (ApproachDistance * ApproachDistance))
+        {
+            act_wait->SetWaitSeconds(1.0f);
+            StartChildActivity(act_wait);
+            return;
+        }
     }
-    else if (currCharacter->IsWalking())
+    else
     {
-        float distanceToTarget2 = glm::distance2(currCharacter->mTransform.GetPosition2(), mAiBehavior->mDesiredPoint);
-        // check whether in rush
+        // check if should start walk
+        if (distanceToLeader2 < (IdleDistance * IdleDistance))
+        {
+            // wait a bit
+            if (!IsChildActivityInProgress(act_wait))
+            {
+                act_wait->SetWaitSeconds(1.0f);
+                StartChildActivity(act_wait);
+            }
+            return;
+        }
+
+        mAiBehavior->mDesiredPoint = charPosition + glm::normalize(leaderPosition - charPosition) * StepDistance;
+        act_walk->SetArriveDistance(ApproachDistance);
+        StartChildActivity(act_walk);
+    }
+
+    // check if in rush
+    if (IsChildActivityInProgress(act_walk))
+    {
+        float distanceToTarget2 = glm::distance2(mAiBehavior->mDesiredPoint, charPosition);
         bool inRush = leadCharacter->IsRunning() || (distanceToTarget2 > (RushDistance * RushDistance));
-        mAiBehavior->MoveCharacterTowardsDesiredPoint(ApproachDistance, inRush);
+        act_walk->SetRunning(inRush);
     }
 }
 
@@ -283,6 +351,107 @@ bool AiPedestrianBehavior::AiActivity_FollowLeader::CheckCanFollowTheLeader() co
 
 //////////////////////////////////////////////////////////////////////////
 
+AiPedestrianBehavior::AiActivity_WalkToPoint::AiActivity_WalkToPoint(AiPedestrianBehavior* aiBehavior)
+    : AiActivity(aiBehavior)
+{
+}
+
+void AiPedestrianBehavior::AiActivity_WalkToPoint::SetRunning(bool setRunning)
+{
+    mSetRunning = setRunning;
+}
+
+void AiPedestrianBehavior::AiActivity_WalkToPoint::SetArriveDistance(float arriveDistance)
+{
+    mArriveDistance = arriveDistance;
+}
+
+void AiPedestrianBehavior::AiActivity_WalkToPoint::OnActivityStart()
+{
+    if (ContinueWalk())
+    {
+        SetActivityStatus(eAiActivityStatus_Success);
+    }
+}
+
+void AiPedestrianBehavior::AiActivity_WalkToPoint::OnActivityUpdate()
+{
+    if (ContinueWalk())
+    {
+        SetActivityStatus(eAiActivityStatus_Success);
+    }
+}
+
+void AiPedestrianBehavior::AiActivity_WalkToPoint::OnActivityCancelled()
+{
+    PedestrianCtlState& ctlState = mAiBehavior->mAiController->mCtlState;
+    ctlState.Clear();
+}
+
+bool AiPedestrianBehavior::AiActivity_WalkToPoint::ContinueWalk()
+{
+    Pedestrian* character = mAiBehavior->GetCharacter();
+    debug_assert(character);
+
+    PedestrianCtlState& ctlState = mAiBehavior->mAiController->mCtlState;
+    ctlState.Clear();
+
+    float tolerance2 = glm::pow(mArriveDistance * mArriveDistance, 2.0f);
+
+    glm::vec2 currentPos2 = character->mTransform.GetPosition2();
+    if (glm::distance2(currentPos2, mAiBehavior->mDesiredPoint) <= tolerance2)
+        return true; // done
+
+    // setup sign direction
+    glm::vec2 toTarget = glm::normalize(mAiBehavior->mDesiredPoint - currentPos2);
+    ctlState.mDesiredRotationAngle = cxx::angle_t::from_radians(::atan2f(toTarget.y, toTarget.x));
+    ctlState.mRotateToDesiredAngle = true;
+    ctlState.mWalkForward = true;
+    ctlState.mRun = mSetRunning;
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+AiPedestrianBehavior::AiActivity_Wait::AiActivity_Wait(AiPedestrianBehavior* aiBehavior)
+    : AiActivity(aiBehavior)
+{
+}
+
+void AiPedestrianBehavior::AiActivity_Wait::SetWaitSeconds(float waitSeconds)
+{
+    mWaitSeconds = waitSeconds;
+}
+
+void AiPedestrianBehavior::AiActivity_Wait::OnActivityStart()
+{
+    PedestrianCtlState& ctlState = mAiBehavior->mAiController->mCtlState;
+    ctlState.Clear();
+
+    mStartTime = gTimeManager.mGameTime;
+}
+
+void AiPedestrianBehavior::AiActivity_Wait::OnActivityUpdate()
+{
+    PedestrianCtlState& ctlState = mAiBehavior->mAiController->mCtlState;
+    ctlState.Clear();
+
+    // check wait time
+    if (mWaitSeconds > 0.0f)
+    {
+        float currentTime = gTimeManager.mGameTime;
+        if (currentTime > (mStartTime += mWaitSeconds))
+        {
+            mWaitSeconds = 0.0f;
+            SetActivityStatus(eAiActivityStatus_Success);
+            return;
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 AiPedestrianBehavior::AiPedestrianBehavior(AiCharacterController* aiController, eAiPedestrianBehavior behaviorID)
     : mAiController(aiController)
     , mBehaviorID(behaviorID)
@@ -290,6 +459,8 @@ AiPedestrianBehavior::AiPedestrianBehavior(AiCharacterController* aiController, 
     , mActivity_Wander(this)
     , mActivity_Runaway(this)
     , mActivity_FollowLeader(this)
+    , mActivity_WalkToPoint(this)
+    , mActivity_Wait(this)
 {
     debug_assert(mAiController);
 }
@@ -344,6 +515,8 @@ void AiPedestrianBehavior::UpdateBehavior()
     {
         mCurrentActivity->UpdateActivity();
     }
+
+    OnUpdateBehavior();
 }
 
 void AiPedestrianBehavior::ChangeMemoryBits(AiBehaviorMemoryBits enableBits, AiBehaviorMemoryBits disableBits)
@@ -432,35 +605,6 @@ void AiPedestrianBehavior::ChooseDesiredActivity()
     }
 
     mDesiredActivity = &mActivity_Wander;
-}
-
-bool AiPedestrianBehavior::MoveCharacterTowardsDesiredPoint(float minArriveDistance, bool setRunning)
-{
-    Pedestrian* character = GetCharacter();
-    debug_assert(character);
-    if (character)
-    {
-        mAiController->mCtlState.Clear();
-
-        float tolerance2 = glm::pow(minArriveDistance * minArriveDistance, 2.0f);
-
-        glm::vec2 currentPos2 = character->mTransform.GetPosition2();
-        if (glm::distance2(currentPos2, mDesiredPoint) <= tolerance2)
-            return true;
-
-        // setup sign direction
-        glm::vec2 toTarget = glm::normalize(mDesiredPoint - currentPos2);
-        mAiController->mCtlState.mDesiredRotationAngle = cxx::angle_t::from_radians(::atan2f(toTarget.y, toTarget.x));
-        mAiController->mCtlState.mRotateToDesiredAngle = true;
-        mAiController->mCtlState.mWalkForward = true;
-        mAiController->mCtlState.mRun = setRunning;
-    }
-    return false;
-}
-
-void AiPedestrianBehavior::StopCharacter()
-{
-    mAiController->mCtlState.Clear();
 }
 
 void AiPedestrianBehavior::ScanForThreats()

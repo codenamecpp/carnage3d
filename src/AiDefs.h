@@ -9,7 +9,7 @@ class AiCharacterController;
 enum eAiPedestrianBehavior
 {
     eAiPedestrianBehavior_Civilian,
-    eAiPedestrianBehavior_HareKrishnasGang,
+    eAiPedestrianBehavior_Gang, // Hare Krishnas gang member / leader
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,12 +31,14 @@ enum AiBehaviorBits: std::uint64_t
 
     AiBehaviorBits_PlayerFollower = BIT(0), // start automatically follow human character nearby
     AiBehaviorBits_CanJump = BIT(1), // ability to jump over cars
+    AiBehaviorBits_GangLeader = BIT(2),
+
     // fears
-    AiBehaviorBits_Fear_Player = BIT(2),
-    AiBehaviorBits_Fear_Police = BIT(3),
-    AiBehaviorBits_Fear_GunShots = BIT(4),
-    AiBehaviorBits_Fear_Explosions = BIT(5),
-    AiBehaviorBits_Fear_DeadPeds = BIT(6),
+    AiBehaviorBits_Fear_Player = BIT(8),
+    AiBehaviorBits_Fear_Police = BIT(9),
+    AiBehaviorBits_Fear_GunShots = BIT(10),
+    AiBehaviorBits_Fear_Explosions = BIT(11),
+    AiBehaviorBits_Fear_DeadPeds = BIT(12),
 
 };
 decl_enum_as_flags(AiBehaviorBits);

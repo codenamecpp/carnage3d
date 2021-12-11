@@ -868,7 +868,8 @@ enum ePedestrianType
     ePedestrianType_Player4,
     ePedestrianType_Civilian,
     ePedestrianType_Police,
-    ePedestrianType_HareKrishnasGang,
+    ePedestrianType_Gang, // Hare Krishnas gang member
+    ePedestrianType_GangLeader, // Hare Krishnas gang leader
     ePedestrianType_Medical,
     ePedestrianType_Fireman,
 };

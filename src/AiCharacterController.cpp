@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "AiCharacterController.h"
+#include "AiGangBehavior.h"
 
 AiCharacterController::AiCharacterController()
     : CharacterController(eCharacterControllerType_Ai)
@@ -16,6 +17,12 @@ void AiCharacterController::UpdateFrame()
     if (mAiBehavior)
     {
         mAiBehavior->UpdateBehavior();
+    }
+
+    // self detach
+    if (mCharacter && mCharacter->IsDead())
+    {
+        StopController();
     }
 }
 
@@ -34,17 +41,14 @@ void AiCharacterController::FollowPedestrian(Pedestrian* pedestrian)
 
 void AiCharacterController::OnControllerStart()
 {
-    eAiPedestrianBehavior behaviorID = eAiPedestrianBehavior_Civilian;
-    if (mCharacter->mPedestrianType == ePedestrianType_HareKrishnasGang)
+    if ((mCharacter->mPedestrianType == ePedestrianType_Gang) || 
+        (mCharacter->mPedestrianType == ePedestrianType_GangLeader))
     {
-        behaviorID = eAiPedestrianBehavior_HareKrishnasGang;
+        mAiBehavior = new AiGangBehavior(this);
     }
-
-    mAiBehavior = new AiPedestrianBehavior(this, behaviorID);
-    // todo: move to somewhere
-    if (behaviorID == eAiPedestrianBehavior_HareKrishnasGang)
+    if (mAiBehavior == nullptr)
     {
-        mAiBehavior->ChangeBehaviorBits(AiBehaviorBits_PlayerFollower, AiBehaviorBits_None);
+        mAiBehavior = new AiPedestrianBehavior(this, eAiPedestrianBehavior_Civilian);
     }
     mAiBehavior->ActivateBehavior();
 }

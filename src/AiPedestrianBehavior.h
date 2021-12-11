@@ -38,10 +38,19 @@ protected:
         bool IsStatusCancelled() const;
     protected:
         void SetActivityStatus(eAiActivityStatus newStatus);
+        void StartChildActivity(AiActivity* childActivity);
+        void ClearChildActivity();
+        bool IsChildActivityInProgress() const;
+        bool IsChildActivityInProgress(AiActivity* matchActivity) const;
+        bool IsChildActivitySuccess() const;
+        bool IsChildActivityFailed() const;
         // overridables
         virtual void OnActivityStart() {}
         virtual void OnActivityUpdate() {}
         virtual void OnActivityCancelled() {}
+    protected:
+        AiActivity* mParentActivity = nullptr;
+        AiActivity* mChildActivity = nullptr;
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -51,7 +60,6 @@ protected:
         AiActiviy_Wander(AiPedestrianBehavior* aiBehavior);
     protected:
         // override AiActivity
-        void OnActivityStart() override;
         void OnActivityUpdate() override;
     protected:
         bool ChooseDesiredPoint(eGroundType groundType);
@@ -64,7 +72,6 @@ protected:
         AiActivity_Runaway(AiPedestrianBehavior* aiBehavior);
     protected:
         // override AiActivity
-        void OnActivityStart() override;
         void OnActivityUpdate() override;
     protected:
         bool ChooseRunawayPoint();
@@ -81,6 +88,40 @@ protected:
     protected:
         bool CheckCanFollowTheLeader() const;
     };
+    //////////////////////////////////////////////////////////////////////////
+
+    class AiActivity_WalkToPoint: public AiActivity
+    {
+    public:
+        AiActivity_WalkToPoint(AiPedestrianBehavior* aiBehavior);
+        void SetRunning(bool setRunning);
+        void SetArriveDistance(float arriveDistance);
+        // override AiActivity
+        void OnActivityStart() override;
+        void OnActivityUpdate() override;
+        void OnActivityCancelled() override;
+    protected:
+        bool ContinueWalk();
+    protected:
+        bool mSetRunning = false;
+        float mArriveDistance = 0.0f;
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+
+    class AiActivity_Wait: public AiActivity
+    {
+    public:
+        AiActivity_Wait(AiPedestrianBehavior* aiBehavior);
+        void SetWaitSeconds(float waitSeconds);
+        // override AiActivity
+        void OnActivityStart() override;
+        void OnActivityUpdate() override;
+    protected:
+        float mWaitSeconds = 0.0f;
+        float mStartTime = 0.0f;
+    };
+
     //////////////////////////////////////////////////////////////////////////
 
 public:
@@ -114,12 +155,8 @@ protected:
     // overridables
     virtual void OnActivateBehavior() {}
     virtual void OnShutdownBehavior() {}
+    virtual void OnUpdateBehavior() {}
     virtual void ChooseDesiredActivity();
-
-    // common
-    // @returns true if arrived to destination
-    bool MoveCharacterTowardsDesiredPoint(float minArriveDistance, bool setRunning);
-    void StopCharacter();
 
     void ScanForThreats();
     void ScanForLeader();
@@ -140,4 +177,8 @@ protected:
     AiActiviy_Wander mActivity_Wander;
     AiActivity_Runaway mActivity_Runaway;
     AiActivity_FollowLeader mActivity_FollowLeader;
+
+    // primitive activities
+    AiActivity_WalkToPoint mActivity_WalkToPoint;
+    AiActivity_Wait mActivity_Wait;
 };

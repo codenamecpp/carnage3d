@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="AiCharacterController.h" />
     <ClInclude Include="AiDefs.h" />
+    <ClInclude Include="AiGangBehavior.h" />
     <ClInclude Include="AiManager.h" />
     <ClInclude Include="AiPedestrianBehavior.h" />
     <ClInclude Include="AudioDataStream.h" />
@@ -289,6 +290,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AiCharacterController.cpp" />
+    <ClCompile Include="AiGangBehavior.cpp" />
     <ClCompile Include="AiManager.cpp" />
     <ClCompile Include="AiPedestrianBehavior.cpp" />
     <ClCompile Include="AudioDataStream.cpp" />

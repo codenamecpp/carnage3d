@@ -1174,7 +1174,9 @@ int StyleData::GetPedestrianRandomRemap(ePedestrianType pedestrianType) const
             // todo: find out correct civilian peds indices
             return (CivilianRemapIndexVariationCounter++ % MAX_PED_REMAPS);
         case ePedestrianType_Police: return NO_REMAP;
-        case ePedestrianType_HareKrishnasGang: return 18;
+        case ePedestrianType_Gang: 
+        case ePedestrianType_GangLeader:
+            return 18;
         case ePedestrianType_Medical: return 0; // todo
         case ePedestrianType_Fireman: return 1; // todo
     }

@@ -83,6 +83,7 @@ enum : SfxSampleIndex
 
     SfxLevel_CarAlarm = 64,
 
+    SfxLevel_Gang = 73, // hare krishnas
     SfxLevel_SpecialSound1 = 76, // burp
     SfxLevel_SpecialSound2 = 77, // farts
 
