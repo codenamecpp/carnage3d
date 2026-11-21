@@ -53,10 +53,13 @@ std::string get_executable_path()
     uint32_t count = sizeof(buffer);
     if (_NSGetExecutablePath(buffer, &count) == 0) {
         char resolved[PATH_MAX];
-        realpath(buffer, resolved);
-
-        return std::string(resolved, count);
+        if (realpath(buffer, resolved) != nullptr)
+        {
+            return std::string(resolved);
+        }
+        return std::string(buffer);
     }
+    return std::string();
 #else
     debug_assert(false);
     return std::string();
