@@ -8,6 +8,7 @@ on:
       - src/**
       - third_party/**
       - CMakeLists.txt
+      - .github/workflows/build-cmake.yml
 
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - src/**
       - third_party/**
       - CMakeLists.txt
+      - .github/workflows/build-cmake.yml
 
   workflow_dispatch:
 
@@ -56,13 +58,12 @@ jobs:
           parallel: 2
 
   macos:
-    name: "macOS (${{ matrix.compiler.cc }}, box2d: ${{ matrix.with_box2d }})"
+    name: "macOS (${{ matrix.compiler.cc }})"
     runs-on: macos-latest
 
     strategy:
       fail-fast: false
       matrix:
-        with_box2d: [yes, no]
         compiler:
           - {cc: clang, cxx: clang++}
 
@@ -72,11 +73,7 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: brew install glew glfw3 glm
-
-      - name: Install Box2D
-        run: brew install box2d
-        if: ${{ matrix.with_box2d == 'no' }}
+        run: brew install glew glfw glm
 
       - name: cmake
         uses: ashutoshvarma/action-cmake-build@master
@@ -85,5 +82,5 @@ jobs:
           cc: ${{ matrix.compiler.cc }}
           cxx: ${{ matrix.compiler.cxx }}
           build-type: Release
-          configure-options: -DWITH_BOX2D=${{ matrix.with_box2d }}
+          configure-options: -DWITH_BOX2D=Yes
           parallel: 2
