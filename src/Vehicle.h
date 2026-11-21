@@ -122,6 +122,7 @@ private:
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations();
     void UpdateEngineSound();
+    void UpdateHorn();
 
     void SetRemap(int remapIndex);
     void SetBurnEffectActive(bool isActive);

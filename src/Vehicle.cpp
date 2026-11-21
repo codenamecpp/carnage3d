@@ -91,6 +91,7 @@ void Vehicle::UpdateFrame()
     UpdateBurnEffect();
     UpdateDamageFromRailways();
     UpdateEngineSound();
+    UpdateHorn();
     if (IsWrecked())
         return;
 
@@ -963,6 +964,45 @@ void Vehicle::UpdateEngineSound()
     float pitchValue = 0.8f + (speed / maxSpeed);
     pitchValue = std::min(pitchValue, 4.0f);
     mSfxEmitter->SetPitch(eCarSfxChannelIndex_Engine, pitchValue);
+}
+
+void Vehicle::UpdateHorn()
+{
+    const int SirenHornValue = 127;
+    const int HornSoundsCount = SfxLevel_CarAlarm - SfxLevel_FirstCarHornSound;
+
+    Pedestrian* carDriver = IsWrecked() ? nullptr : GetCarDriver();
+    if (carDriver == nullptr)
+    {
+        EnableEmergencyLights(false);
+    }
+
+    if (mSfxEmitter == nullptr)
+        return;
+
+    bool isSoundActive = false;
+    SfxSampleIndex sfxIndex = 0;
+    if (mCarInfo->mHorn == SirenHornValue)
+    {
+        isSoundActive = IsEmergencyLightsEnabled();
+        sfxIndex = (mCarInfo->mModelID == eVehicle_Ambulance) ? SfxLevel_AmbulanceSiren : SfxLevel_PoliceSiren;
+    }
+    else if (carDriver && carDriver->GetCtlState().mHorn)
+    {
+        isSoundActive = true;
+        sfxIndex = SfxLevel_FirstCarHornSound + (mCarInfo->mHorn % HornSoundsCount);
+    }
+
+    if (!isSoundActive)
+    {
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Misc);
+        return;
+    }
+
+    if (!mSfxEmitter->IsPlaying(eCarSfxChannelIndex_Misc))
+    {
+        StartGameObjectSound(eCarSfxChannelIndex_Misc, eSfxSampleType_Level, sfxIndex, SfxFlags_Loop);
+    }
 }
 
 float Vehicle::GetCurrentSpeed() const

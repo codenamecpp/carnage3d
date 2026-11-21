@@ -216,12 +216,12 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
         break;
 
         case eInputAction_Horn:
-            if (mCharacter->IsCarPassenger())
+            if (isActivated && mCharacter->IsCarPassenger())
             {
-                mCtlState.mHorn = isActivated;
-                if (mCharacter->mCurrentCar->HasEmergencyLightsAnimation())
+                Vehicle* currentCar = mCharacter->mCurrentCar;
+                if (currentCar->GetCarDriver() == mCharacter)
                 {
-                    mCharacter->mCurrentCar->EnableEmergencyLights(isActivated);
+                    currentCar->EnableEmergencyLights(!currentCar->IsEmergencyLightsEnabled());
                 }
             }
         break;
@@ -384,6 +384,7 @@ void HumanPlayer::ProcessRepetitiveActions()
         }
 
         mCtlState.mHandBrake = GetActionState(eInputAction_HandBrake);
+        mCtlState.mHorn = GetActionState(eInputAction_Horn);
     }
     // update on foot
     else
