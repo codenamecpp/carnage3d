@@ -212,6 +212,7 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
         case eInputAction_Jump:
         case eInputAction_HandBrake:
         case eInputAction_Shoot:
+        case eInputAction_Special:
             // those are updating in ProcessRepetitiveActions
         break;
 
@@ -238,10 +239,6 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
             {
                 SwitchPrevWeapon();
             }
-        break;
-
-        case eInputAction_Special:
-            mCtlState.mSpecial = isActivated;
         break;
 
         case eInputAction_EnterCar:
@@ -395,6 +392,7 @@ void HumanPlayer::ProcessRepetitiveActions()
         mCtlState.mWalkForward = GetActionState(eInputAction_WalkForward);
         mCtlState.mJump = GetActionState(eInputAction_Jump);
         mCtlState.mShoot = GetActionState(eInputAction_Shoot);
+        mCtlState.mSpecial = GetActionState(eInputAction_Special);
 
         if ((mCtlState.mTurnLeft == false) && (mCtlState.mTurnRight == false))
         {
