@@ -35,6 +35,25 @@ Run these commands in terminal:
 * cd carnage3d
 * make
 
+## Compiling with CMake ##
+CMake 3.13 or newer is required. The build must be out of source.
+
+Install dependencies:
+* Linux: apt install cmake libglew-dev libglfw3-dev libglm-dev libopenal-dev xorg-dev
+* macOS: brew install cmake glew glfw glm
+
+Run these commands in terminal:
+* git clone --recurse-submodules https://github.com/codenamecpp/carnage3d
+* cd carnage3d
+* cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+* cmake --build build --parallel
+
+The executable is __build/carnage3d__.
+
+Options:
+* __-DWITH_BOX2D=OFF__ - use Box2D 2.4 from the system instead of the bundled one (default is ON)
+* __-DCMAKE_BUILD_TYPE=Performance__ - Release build with __-march=native__
+
 ## Compiling on Windows ##
 You will need Visual Studio 2015 to build the project.
 Before compile, add system environment variable __SDKDIR__ with path where all the dependencies lives. These dependencies are:
