@@ -20,6 +20,8 @@ public:
 
     // current screen params
     Point mScreenResolution;
+    glm::vec2 mFramebufferScale;
+    glm::vec2 mCursorScale;
 
 public:
     GraphicsDevice();
@@ -154,6 +156,13 @@ private:
     void SetupVertexAttributes(const VertexFormat& streamDefinition);
 
     void ProcessGamepadsInputs();
+
+    void UpdateFramebufferScale();
+
+    Rect ToFramebufferRect(const Rect& sourceRectangle) const;
+
+    void ApplyViewportRect();
+    void ApplyScissorRect();
 
 private:
     GraphicsContext mGraphicsContext;

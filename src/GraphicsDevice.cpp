@@ -129,6 +129,8 @@ static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
 GraphicsDevice::GraphicsDevice()
     : mCurrentStates()
     , mViewportRect()
+    , mFramebufferScale(1.0f, 1.0f)
+    , mCursorScale(1.0f, 1.0f)
     , mGraphicsWindow()
     , mGraphicsMonitor()
 {
@@ -255,10 +257,18 @@ bool GraphicsDevice::Initialize()
         {
             MouseMovedInputEvent ev 
             { 
-                static_cast<int>(xposition),
-                static_cast<int>(yposition),
+                static_cast<int>(xposition * gGraphicsDevice.mCursorScale.x),
+                static_cast<int>(yposition * gGraphicsDevice.mCursorScale.y),
             };
             gInputs.InputEvent(ev);
+        });
+    ::glfwSetFramebufferSizeCallback(graphicsWindow, [](GLFWwindow*, int, int)
+        {
+            // framebuffer size changes when window moves to a monitor with different scale
+            // or when fullscreen mode changes
+            gGraphicsDevice.UpdateFramebufferScale();
+            gGraphicsDevice.ApplyViewportRect();
+            gGraphicsDevice.ApplyScissorRect();
         });
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
@@ -295,17 +305,14 @@ bool GraphicsDevice::Initialize()
     ::glEnable(GL_SCISSOR_TEST);
     glCheckError();
 
+    UpdateFramebufferScale();
     // setup viewport
     mViewportRect.Set(0, 0, mScreenResolution.x, mScreenResolution.y);
-
-    ::glViewport(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
-    glCheckError();
+    ApplyViewportRect();
 
     // default value for scissor is whole viewport
     mScissorBox = mViewportRect;
-
-    ::glScissor(mViewportRect.x, mViewportRect.y, mViewportRect.w, mViewportRect.h);
-    glCheckError();
+    ApplyScissorRect();
 
     ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCheckError();
@@ -347,6 +354,8 @@ void GraphicsDevice::Deinit()
 
     mScreenResolution.x = 0;
     mScreenResolution.y = 0;
+    mFramebufferScale = glm::vec2(1.0f, 1.0f);
+    mCursorScale = glm::vec2(1.0f, 1.0f);
 
     // destroy vertex array object
     ::glBindVertexArray(0);
@@ -826,8 +835,7 @@ void GraphicsDevice::SetViewportRect(const Rect& sourceRectangle)
         return;
 
     mViewportRect = sourceRectangle;
-    ::glViewport(mViewportRect.x, mScreenResolution.y - (mViewportRect.y + mViewportRect.h), mViewportRect.w, mViewportRect.h);
-    glCheckError();
+    ApplyViewportRect();
 }
 
 void GraphicsDevice::SetScissorRect(const Rect& sourceRectangle)
@@ -842,7 +850,67 @@ void GraphicsDevice::SetScissorRect(const Rect& sourceRectangle)
         return;
 
     mScissorBox = sourceRectangle;
-    ::glScissor(mScissorBox.x, mScissorBox.y, mScissorBox.w, mScissorBox.h);
+    ApplyScissorRect();
+}
+
+void GraphicsDevice::UpdateFramebufferScale()
+{
+    if (mGraphicsWindow == nullptr || mScreenResolution.x <= 0 || mScreenResolution.y <= 0)
+        return;
+
+    int windowSizex = 0;
+    int windowSizey = 0;
+    ::glfwGetWindowSize(mGraphicsWindow, &windowSizex, &windowSizey);
+
+    int framebufferSizex = 0;
+    int framebufferSizey = 0;
+    ::glfwGetFramebufferSize(mGraphicsWindow, &framebufferSizex, &framebufferSizey);
+
+    // sizes are zero when window is minimized, keep previous values
+    if (windowSizex <= 0 || windowSizey <= 0 || framebufferSizex <= 0 || framebufferSizey <= 0)
+        return;
+
+    mFramebufferScale.x = (framebufferSizex * 1.0f) / mScreenResolution.x;
+    mFramebufferScale.y = (framebufferSizey * 1.0f) / mScreenResolution.y;
+    mCursorScale.x = (mScreenResolution.x * 1.0f) / windowSizex;
+    mCursorScale.y = (mScreenResolution.y * 1.0f) / windowSizey;
+
+    gConsole.LogMessage(eLogMessage_Info, "Window size: %dx%d, framebuffer size: %dx%d, framebuffer scale: %.2fx%.2f",
+        windowSizex, windowSizey,
+        framebufferSizex, framebufferSizey,
+        mFramebufferScale.x, mFramebufferScale.y);
+}
+
+Rect GraphicsDevice::ToFramebufferRect(const Rect& sourceRectangle) const
+{
+    const int x0 = static_cast<int>(std::lround(sourceRectangle.x * mFramebufferScale.x));
+    const int y0 = static_cast<int>(std::lround(sourceRectangle.y * mFramebufferScale.y));
+    const int x1 = static_cast<int>(std::lround((sourceRectangle.x + sourceRectangle.w) * mFramebufferScale.x));
+    const int y1 = static_cast<int>(std::lround((sourceRectangle.y + sourceRectangle.h) * mFramebufferScale.y));
+    return Rect(x0, y0, x1 - x0, y1 - y0);
+}
+
+void GraphicsDevice::ApplyViewportRect()
+{
+    if (!IsDeviceInited())
+        return;
+
+    Rect viewportRect = mViewportRect;
+    viewportRect.y = mScreenResolution.y - (mViewportRect.y + mViewportRect.h);
+    viewportRect = ToFramebufferRect(viewportRect);
+
+    ::glViewport(viewportRect.x, viewportRect.y, viewportRect.w, viewportRect.h);
+    glCheckError();
+}
+
+void GraphicsDevice::ApplyScissorRect()
+{
+    if (!IsDeviceInited())
+        return;
+
+    Rect scissorRect = ToFramebufferRect(mScissorBox);
+
+    ::glScissor(scissorRect.x, scissorRect.y, scissorRect.w, scissorRect.h);
     glCheckError();
 }
 
