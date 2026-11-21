@@ -73,7 +73,7 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: brew install glew glfw glm
+        run: brew install glew glfw3 glm
 
       - name: cmake
         uses: ashutoshvarma/action-cmake-build@master
