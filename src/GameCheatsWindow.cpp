@@ -216,6 +216,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
         ImGui::Checkbox("Pedestrians", &mEnableDrawPedestrians);
         ImGui::SameLine(); ImGui::Checkbox("Vehicles", &mEnableDrawVehicles);
         ImGui::Checkbox("City mesh", &mEnableDrawCityMesh);
+        ImGui::SameLine(); ImGui::Checkbox("Traffic lanes", &mEnableDrawTrafficLanes);
     }
 
     if (ImGui::CollapsingHeader("Traffic"))
