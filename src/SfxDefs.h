@@ -82,6 +82,8 @@ enum : SfxSampleIndex
     // car horn sounds
 
     SfxLevel_CarAlarm = 64,
+    SfxLevel_AmbulanceSiren = 66,
+    SfxLevel_PoliceSiren = 67,
 
     SfxLevel_SpecialSound1 = 76, // burp
     SfxLevel_SpecialSound2 = 77, // farts
