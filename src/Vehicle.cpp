@@ -959,8 +959,6 @@ void Vehicle::SetTurretAngle(cxx::angle_t turretAngle)
 
 void Vehicle::UpdateTurret()
 {
-    const float TurretRotationSpeed = 120.0f; // degrees per second
-
     Pedestrian* carDriver = IsWrecked() ? nullptr : GetCarDriver();
     if ((mTurret == nullptr) || (carDriver == nullptr))
     {
@@ -971,7 +969,7 @@ void Vehicle::UpdateTurret()
     const PedestrianCtlState& ctlState = carDriver->GetCtlState();
     if (ctlState.mHorn && (ctlState.mSteerDirection != 0.0f))
     {
-        float rotationDegrees = ctlState.mSteerDirection * TurretRotationSpeed * gTimeManager.mGameFrameDelta;
+        float rotationDegrees = ctlState.mSteerDirection * gGameParams.mTurretRotationSpeed * gTimeManager.mGameFrameDelta;
         SetTurretAngle(mTurretAngle + cxx::angle_t::from_degrees(rotationDegrees));
     }
 

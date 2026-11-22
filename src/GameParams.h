@@ -54,6 +54,8 @@ public:
     float mCarExplosionChainDelayTime; // delay before car explode, seconds
     float mCarCollisionDamageMinSpeed; // speed change in impact below which vehicle gets no damage, meters per second
     float mCarCollisionDamageCoef; // scales collision damage, which grows with square of speed change
+    // vehicles misc
+    float mTurretRotationSpeed; // tank/firetruck turret, degrees per second
 
     // broadcast events
     float mBroadcastGunShotEventDuration; // how long event affects, seconds
