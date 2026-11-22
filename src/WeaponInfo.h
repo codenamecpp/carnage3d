@@ -58,6 +58,7 @@ public:
     float mProjectileSize = 1.0f; // radius of projectile bounding sphere, meters
     float mProjectileSpeed = 1.0f; // how fast projectile moves, meters
     int mShotsPerClip = 1; // how much shots can be done for single ammo point
+    int mVehicleDamage = 0; // damage to vehicle for each bullet or flame hit
     int mProjectileHitEffect = GameObjectType_Null;
     int mProjectileHitObjectSound = -1; // level sfx
     int mProjectileObject = GameObjectType_BulletProjectile;

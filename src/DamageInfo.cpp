@@ -27,12 +27,14 @@ void DamageInfo::SetDamage(const WeaponInfo& weaponInfo, GameObject* object)
     if (weaponInfo.IsBulletDamage())
     {
         SetBulletDamage(object);
+        mVehicleDamage = weaponInfo.mVehicleDamage;
         return;
     }
 
     if (weaponInfo.IsFireDamage())
     {
         SetFireDamage(object);
+        mVehicleDamage = weaponInfo.mVehicleDamage;
         return;
     }
 
@@ -60,7 +62,7 @@ void DamageInfo::SetWaterDamage()
 void DamageInfo::SetCollisionDamage(const Collision& collisionInfo)
 {
     mDamageCause = eDamageCause_Collision;
-    mContactImpulse = collisionInfo.GetContactImpulse();
+    mImpactSpeed = collisionInfo.GetImpactSpeed();
     if (!collisionInfo.mContactInfo.HasContactPoints())
     {
         debug_assert(false);
@@ -74,7 +76,7 @@ void DamageInfo::SetCollisionDamage(const Collision& collisionInfo)
 void DamageInfo::SetCollisionDamage(const MapCollision& collisionInfo)
 {
     mDamageCause = eDamageCause_MapCollision;
-    mContactImpulse = collisionInfo.GetContactImpulse();
+    mImpactSpeed = collisionInfo.GetImpactSpeed();
     if (!collisionInfo.HasContactPoints())
         return;
 
@@ -115,8 +117,9 @@ void DamageInfo::Clear()
 {
     mDamageCause = eDamageCause_Punch;
     mSourceObject = nullptr;
-    mContactImpulse = 0.0f;
+    mImpactSpeed = 0.0f;
     mFallHeight = 0.0f;
+    mVehicleDamage = 0;
 }
 
 Pedestrian* DamageInfo::GetDamageCauser() const

@@ -81,17 +81,10 @@ void Contact::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* thisFixture, 
 
 //////////////////////////////////////////////////////////////////////////
 
-void Collision::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* thisFixture, b2Fixture* thatFixture, const b2ContactImpulse* contactImpulse)
+void Collision::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* thisFixture, b2Fixture* thatFixture, float impactSpeed)
 {
     mContactInfo.SetupWithBox2Data(box2Contact, thisFixture, thatFixture);
-
-    debug_assert(contactImpulse);
-
-    mContactImpulse = 0.0f;
-    for (int icurr = 0; icurr < contactImpulse->count; ++icurr)
-    {
-        mContactImpulse += contactImpulse->normalImpulses[icurr];
-    }
+    mImpactSpeed = impactSpeed;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,14 +94,14 @@ bool MapCollision::HasContactPoints() const
     return mContactPointsCount > 0;
 }
 
-void MapCollision::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* objectFixture, const MapBlockInfo* mapBlockInfo, const b2ContactImpulse* contactImpulse)
+void MapCollision::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* objectFixture, const MapBlockInfo* mapBlockInfo, float impactSpeed)
 {
     debug_assert(box2Contact);
     debug_assert(objectFixture);
     debug_assert(mapBlockInfo);
-    debug_assert(contactImpulse);
 
     mMapBlockInfo = mapBlockInfo;
+    mImpactSpeed = impactSpeed;
     mThisObject = nullptr;
     mThisCollider = b2Fixture_get_collider(objectFixture);
 
@@ -132,11 +125,5 @@ void MapCollision::SetupWithBox2Data(b2Contact* box2Contact, b2Fixture* objectFi
             mContactPoints[icurrPoint].mPositionY = mThisCollider->mPhysicsBody->mPositionY;
             mContactPoints[icurrPoint].mSeparation = wmanifold.separations[icurrPoint];
         }
-    }
-
-    mContactImpulse = 0.0f;
-    for (int icurr = 0; icurr < contactImpulse->count; ++icurr)
-    {
-        mContactImpulse += contactImpulse->normalImpulses[icurr];
     }
 }

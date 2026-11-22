@@ -49,6 +49,8 @@ void Vehicle::HandleSpawn()
 
     mCarWrecked = false;
     mCurrentDamage = 0;
+    mLastCollisionTime = -1.0f;
+    mLastCollisionDamage = 0;
     mDamageDeltaBits = 0;
     mPrevDeltaBits = 0;
     mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
@@ -639,7 +641,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         {
             mExplosionWaitTime = gGameParams.mCarExplosionChainDelayTime;
         }
-        mCurrentDamage = 100; // force max damage
+        mCurrentDamage = GetMaxDamage(); // force max damage
         return true;
     }
 
@@ -654,15 +656,10 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if (damageInfo.mDamageCause == eDamageCause_Bullet)
+    if ((damageInfo.mDamageCause == eDamageCause_Bullet) ||
+        (damageInfo.mDamageCause == eDamageCause_Flame))
     {
-        mCurrentDamage += 5; // todo: magic numbers
-        return true;
-    }
-    
-    if (damageInfo.mDamageCause == eDamageCause_Flame)
-    {
-        mCurrentDamage += 15; // todo: magic numbers
+        mCurrentDamage += damageInfo.mVehicleDamage;
         return true;
     }
 
@@ -673,8 +670,28 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
             if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
                 return false;
         }
-        if (damageInfo.mContactImpulse < 100.0f) // todo: magic numbers
+        int collisionDamage = ComputeCollisionDamage(damageInfo);
+        if (collisionDamage < 1)
             return false;
+
+        // one impact can touch more than one map block in same frame, count strongest contact only
+        if (damageInfo.mDamageCause == eDamageCause_MapCollision)
+        {
+            if (mLastCollisionTime == gTimeManager.mGameTime)
+            {
+                if (collisionDamage <= mLastCollisionDamage)
+                    return false;
+
+                int prevCollisionDamage = mLastCollisionDamage;
+                mLastCollisionDamage = collisionDamage;
+                collisionDamage -= prevCollisionDamage;
+            }
+            else
+            {
+                mLastCollisionTime = gTimeManager.mGameTime;
+                mLastCollisionDamage = collisionDamage;
+            }
+        }
 
         glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(damageInfo.mContactPoint.mPosition);
 
@@ -744,7 +761,7 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
             }
         }
 
-        ++mCurrentDamage;
+        mCurrentDamage += collisionDamage;
         return true;
     }
 
@@ -860,6 +877,8 @@ void Vehicle::Repair()
         return;
 
     mCurrentDamage = 0;
+    mLastCollisionTime = -1.0f;
+    mLastCollisionDamage = 0;
     mDamageDeltaBits = 0;
     mExplosionWaitTime = 0.0f;
 }
@@ -867,6 +886,37 @@ void Vehicle::Repair()
 int Vehicle::GetCurrentDamage() const
 {
     return mCurrentDamage;
+}
+
+int Vehicle::GetMaxDamage() const
+{
+    // value from original style data, it is 100 for most vehicles
+    if (mCarInfo->mDamagable > 0)
+        return mCarInfo->mDamagable;
+
+    return 100; // default
+}
+
+int Vehicle::ComputeCollisionDamage(const DamageInfo& damageInfo) const
+{
+    // speed change of vehicle in impact
+    // in collision with other vehicle, the lighter vehicle gets the bigger speed change
+    // against map, vehicle gets all the speed change
+    float speedChange = damageInfo.mImpactSpeed;
+    if (damageInfo.mDamageCause == eDamageCause_Collision)
+    {
+        float thisMass = mPhysicsBody->GetMass();
+        float otherMass = damageInfo.mSourceObject->mPhysicsBody->GetMass();
+        speedChange *= otherMass / (thisMass + otherMass);
+    }
+
+    float minSpeedChange = gGameParams.mCarCollisionDamageMinSpeed;
+    if (speedChange <= minSpeedChange)
+        return 0;
+
+    // damage increases with square of speed change
+    float damage = gGameParams.mCarCollisionDamageCoef * (speedChange * speedChange - minSpeedChange * minSpeedChange);
+    return (int) (damage + 0.5f);
 }
 
 bool Vehicle::IsInWater() const
@@ -926,7 +976,7 @@ bool Vehicle::OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpr
 
 bool Vehicle::IsCriticalDamageState() const
 {
-    return mCurrentDamage >= 100;
+    return mCurrentDamage >= GetMaxDamage();
 }
 
 void Vehicle::UpdateEngineSound()

@@ -52,6 +52,8 @@ public:
     float mCarBurnDuration; // time before flame will go out by itself, seconds
     float mCarSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
     float mCarExplosionChainDelayTime; // delay before car explode, seconds
+    float mCarCollisionDamageMinSpeed; // speed change in impact below which vehicle gets no damage, meters per second
+    float mCarCollisionDamageCoef; // scales collision damage, which grows with square of speed change
 
     // broadcast events
     float mBroadcastGunShotEventDuration; // how long event affects, seconds

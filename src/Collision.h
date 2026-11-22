@@ -44,17 +44,16 @@ public:
     Contact mContactInfo;
 public:
     Collision() = default;
-    // Get total impulse applied to collider pair to resolve collision
-    // Sometimes it is 0, for example, when multiple objects are spawned in one place
-    inline float GetContactImpulse() const
+    // Get speed at which colliders move to each other before collision, meters per second
+    inline float GetImpactSpeed() const
     {
-        return mContactImpulse;
+        return mImpactSpeed;
     }
 private:
-    void SetupWithBox2Data(b2Contact* contact, b2Fixture* thisFixture, b2Fixture* thatFixture, const b2ContactImpulse* contactImpulse);
+    void SetupWithBox2Data(b2Contact* contact, b2Fixture* thisFixture, b2Fixture* thatFixture, float impactSpeed);
 
 private:
-    float mContactImpulse = 0.0f;
+    float mImpactSpeed = 0.0f;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,15 +76,14 @@ public:
     MapCollision() = default;
 
     bool HasContactPoints() const;
-    // Get total impulse applied to collider to resolve collision
-    // Sometimes it is 0, for example, when object spawned in wall
-    inline float GetContactImpulse() const
+    // Get speed at which colliders move to each other before collision, meters per second
+    inline float GetImpactSpeed() const
     {
-        return mContactImpulse;
+        return mImpactSpeed;
     }
 private:
-    void SetupWithBox2Data(b2Contact* contact, b2Fixture* objectFixture, const MapBlockInfo* mapBlockInfo, const b2ContactImpulse* contactImpulse);
+    void SetupWithBox2Data(b2Contact* contact, b2Fixture* objectFixture, const MapBlockInfo* mapBlockInfo, float impactSpeed);
 
 private:
-    float mContactImpulse = 0.0f;
+    float mImpactSpeed = 0.0f;
 };

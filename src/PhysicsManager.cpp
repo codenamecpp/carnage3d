@@ -115,6 +115,7 @@ void PhysicsManager::ProcessSimulationStep()
         currGameObject->ClearContacts();
     }
 
+    mContactsImpactSpeed.clear();
     mBox2World->Step(mSimulationStepTime, velocityIterations, positionIterations);
 
     // process y position
@@ -295,6 +296,45 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
         enableCollisionResponse = ShouldCollide_Objects(contact, fixtureA, fixtureB);
     }
     contact->SetEnabled(enableCollisionResponse);
+
+    // velocities are not changed by collision response yet, so impact speed is correct here
+    if (enableCollisionResponse)
+    {
+        mContactsImpactSpeed[contact] = ComputeContactImpactSpeed(contact);
+    }
+}
+
+float PhysicsManager::ComputeContactImpactSpeed(b2Contact* contact) const
+{
+    int pointCount = contact->GetManifold()->pointCount;
+    if (pointCount < 1)
+        return 0.0f;
+
+    b2Body* bodyA = contact->GetFixtureA()->GetBody();
+    b2Body* bodyB = contact->GetFixtureB()->GetBody();
+
+    b2WorldManifold wmanifold;
+    contact->GetWorldManifold(&wmanifold);
+
+    // highest closing speed at the contact points
+    float impactSpeed = 0.0f;
+    for (int icurr = 0; icurr < pointCount; ++icurr)
+    {
+        b2Vec2 velocityA = bodyA->GetLinearVelocityFromWorldPoint(wmanifold.points[icurr]);
+        b2Vec2 velocityB = bodyB->GetLinearVelocityFromWorldPoint(wmanifold.points[icurr]);
+        float normalSpeed = b2Dot(velocityB - velocityA, wmanifold.normal);
+        impactSpeed = b2Max(impactSpeed, -normalSpeed);
+    }
+    return impactSpeed;
+}
+
+float PhysicsManager::GetContactImpactSpeed(b2Contact* contact) const
+{
+    auto foundIter = mContactsImpactSpeed.find(contact);
+    if (foundIter == mContactsImpactSpeed.end())
+        return 0.0f;
+
+    return foundIter->second;
 }
 
 void PhysicsManager::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
@@ -575,9 +615,9 @@ void PhysicsManager::HandleCollision_ObjectWithMap(b2Fixture* objectFixture, b2F
     mObjectsCollisionList.emplace_back();
 
     CollisionEvent& collisionEvent = mObjectsCollisionList.back();
-    collisionEvent.mBox2Impulse = *impulse;
     collisionEvent.mBox2Contact = contact;
     collisionEvent.mBox2FixtureA = objectFixture;
+    collisionEvent.mImpactSpeed = GetContactImpactSpeed(contact);
     collisionEvent.mMapBlockInfo = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, mapLayer);
     debug_assert(collisionEvent.mMapBlockInfo);
 
@@ -594,10 +634,10 @@ void PhysicsManager::HandleCollision_Objects(b2Fixture* fixtureA, b2Fixture* fix
     mObjectsCollisionList.emplace_back();
 
     CollisionEvent& collisionEvent = mObjectsCollisionList.back();
-    collisionEvent.mBox2Impulse = *impulse;
     collisionEvent.mBox2Contact = contact;
     collisionEvent.mBox2FixtureA = fixtureA;
     collisionEvent.mBox2FixtureB = fixtureB;
+    collisionEvent.mImpactSpeed = GetContactImpactSpeed(contact);
 
     // handle collision
     GameObject* objectA = b2Fixture_get_game_object(fixtureA);
@@ -699,17 +739,17 @@ void PhysicsManager::DispatchCollisionEvents()
         {
             MapCollision collisionInfo;
 
-            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mMapBlockInfo, &currCollision.mBox2Impulse);
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mMapBlockInfo, currCollision.mImpactSpeed);
             collisionInfo.mThisObject->HandleCollisionWithMap(collisionInfo);
         }
         else
         {
             Collision collisionInfo;
 
-            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mBox2FixtureB, &currCollision.mBox2Impulse);
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureA, currCollision.mBox2FixtureB, currCollision.mImpactSpeed);
             collisionInfo.mContactInfo.mThisObject->HandleCollision(collisionInfo);
 
-            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureB, currCollision.mBox2FixtureA, &currCollision.mBox2Impulse);
+            collisionInfo.SetupWithBox2Data(currCollision.mBox2Contact, currCollision.mBox2FixtureB, currCollision.mBox2FixtureA, currCollision.mImpactSpeed);
             collisionInfo.mContactInfo.mThisObject->HandleCollision(collisionInfo);
         }
     }

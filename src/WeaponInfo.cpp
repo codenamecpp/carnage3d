@@ -77,6 +77,11 @@ bool WeaponInfo::SetupFromConfg(cxx::json_document_node configNode)
     cxx::json_get_attribute(configNode, "shot_sfx", mShotSound);
     cxx::json_get_attribute(configNode, "shots_per_clip", mShotsPerClip);
     debug_assert(mShotsPerClip >= 1);
+    if (!cxx::json_get_attribute(configNode, "vehicle_damage", mVehicleDamage))
+    {
+        mVehicleDamage = IsFireDamage() ? 15 : 5; // default
+    }
+    debug_assert(mVehicleDamage >= 0);
     return true;
 }
 
@@ -95,6 +100,7 @@ void WeaponInfo::Clear()
     mSpriteIndex = 0;
     mShotSound = 0;
     mShotsPerClip = 1;
+    mVehicleDamage = 0;
     mProjectileOffsets.clear();
 }
 
