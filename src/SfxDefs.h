@@ -116,4 +116,5 @@ enum eCarSfxChannelIndex
     eCarSfxChannelIndex_Doors,
     eCarSfxChannelIndex_Engine,
     eCarSfxChannelIndex_Misc, // horn, etc
+    eCarSfxChannelIndex_Weapon,
 };
