@@ -653,7 +653,8 @@ void PedestrianStatesManager::StateIdle_ProcessFrame()
     }
 
     // do special sounds :)
-    if (ctlState.mSpecial)
+    SfxEmitter* sfxEmitter = mPedestrian->mSfxEmitter;
+    if (ctlState.mSpecial && !(sfxEmitter && sfxEmitter->IsPlaying(ePedSfxChannelIndex_Voice)))
     {
         SfxSampleIndex specialSound = gCarnageGame.mGameRand.random_chance(50) ? SfxLevel_SpecialSound1 : SfxLevel_SpecialSound2;
         mPedestrian->StartGameObjectSound(ePedSfxChannelIndex_Voice, eSfxSampleType_Level, specialSound, SfxFlags_RandomPitch);
