@@ -225,6 +225,10 @@ enum
     GameObjectType_Body = 64,
     // todo...
     GameObjectType_MissileProjectile = 31,
+    GameObjectType_TankGun = 33,
+    GameObjectType_TankGunBarrel = 34,
+    GameObjectType_TankGunWrecked = 38,
+    GameObjectType_TankGunBarrelWrecked = 39,
     GameObjectType_BulletProjectile = 74,
     GameObjectType_FireballProjectile = 75,
     // todo...

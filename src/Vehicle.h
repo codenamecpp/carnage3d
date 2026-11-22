@@ -127,6 +127,9 @@ private:
     void SetRemap(int remapIndex);
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
+    void CreateTurret(int turretObjectType, int barrelObjectType, cxx::angle_t turretAngle);
+    void DestroyTurret();
+    void UpdateTurret();
     void UpdateDamageFromRailways();
 
     SpriteDeltaBits GetSpriteDeltas() const;
@@ -167,6 +170,9 @@ private:
     SpriteAnimation mDrivingDeltaAnim;
     SpriteDeltaBits mDamageDeltaBits;
     SpriteDeltaBits mPrevDeltaBits;
+
+    Decoration* mTurret = nullptr;
+    Decoration* mTurretBarrel = nullptr;
 
     // active effects
     Decoration* mFireEffect = nullptr;
