@@ -114,6 +114,9 @@ void Projectile::SimulationStep()
         if (currContact.mThatObject->IsVehicleClass())
         {
             Vehicle* otherCar = (Vehicle*) currContact.mThatObject;
+            if (mShooter && (mShooter->mCurrentCar == otherCar)) // ignore shooter car
+                continue;
+
             if (mWeaponInfo->IsFireDamage() && otherCar->IsWrecked())
                 continue;
         }

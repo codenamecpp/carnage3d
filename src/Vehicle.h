@@ -138,6 +138,7 @@ private:
     void SetWaterJetActive(bool isActive);
     void SetWaterJetLength(float jetLength);
     void UpdateWaterJet(bool isActive);
+    void FireTankGun(Pedestrian* carDriver);
     void UpdateDamageFromRailways();
 
     // Get damage from collision with other vehicle or map
@@ -189,6 +190,7 @@ private:
     float mTurretPivotOffset = 0.0f; // distance from the pivot point to the turret sprite center
     float mTurretMuzzleOffset = 0.0f; // distance from the turret sprite center to the muzzle
     std::vector<Decoration*> mWaterJetParts;
+    float mTankGunLastFireTime = 0.0f;
 
     // active effects
     Decoration* mFireEffect = nullptr;

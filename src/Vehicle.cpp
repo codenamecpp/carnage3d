@@ -12,6 +12,7 @@
 #include "AudioManager.h"
 #include "Collider.h"
 #include "GameObjectHelpers.h"
+#include "BroadcastEventsManager.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarWrecked()
@@ -974,7 +975,14 @@ void Vehicle::UpdateTurret()
         SetTurretAngle(mTurretAngle + cxx::angle_t::from_degrees(rotationDegrees));
     }
 
-    if (mCarInfo->mModelID == eVehicle_FireTruck)
+    if (mCarInfo->mClassID == eVehicleClass_Tank)
+    {
+        if (ctlState.mShoot)
+        {
+            FireTankGun(carDriver);
+        }
+    }
+    else
     {
         UpdateWaterJet(ctlState.mShoot);
     }
@@ -1108,6 +1116,26 @@ void Vehicle::UpdateWaterJet(bool isActive)
         damageInfo.SetWaterJetDamage(mTurret);
         pedestrian->ReceiveDamage(damageInfo);
     }
+}
+
+void Vehicle::FireTankGun(Pedestrian* carDriver)
+{
+    WeaponInfo& weaponInfo = gGameMap.mStyleData.mWeaponTypes[eWeapon_RocketLauncher];
+    if (gTimeManager.mGameTime < (mTankGunLastFireTime + (1.0f / weaponInfo.mBaseFireRate)))
+        return;
+
+    mTankGunLastFireTime = gTimeManager.mGameTime;
+
+    glm::vec2 muzzlePosition = GetTurretMuzzlePosition();
+    glm::vec3 projectilePosition(muzzlePosition.x, mTransform.mPosition.y, muzzlePosition.y);
+    Projectile* projectile = gGameObjectsManager.CreateProjectile(projectilePosition, mTurret->mTransform.mOrientation, &weaponInfo, carDriver);
+    debug_assert(projectile);
+
+    if (weaponInfo.mShotSound != -1)
+    {
+        StartGameObjectSound(eCarSfxChannelIndex_Weapon, eSfxSampleType_Level, weaponInfo.mShotSound, SfxFlags_RandomPitch);
+    }
+    gBroadcastEvents.RegisterEvent(eBroadcastEvent_GunShot, this, carDriver, gGameParams.mBroadcastGunShotEventDuration);
 }
 
 void Vehicle::UpdateBurnEffect()
