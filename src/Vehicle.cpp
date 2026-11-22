@@ -58,11 +58,17 @@ void Vehicle::HandleSpawn()
 
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
     SetSprite(mSpriteIndex, GetSpriteDeltas());
+
+    if (mCarInfo->mClassID == eVehicleClass_Tank)
+    {
+        CreateTurret(GameObjectType_TankGun, GameObjectType_TankGunBarrel, cxx::angle_t());
+    }
 }
 
 void Vehicle::HandleDespawn()
 {
     SetBurnEffectActive(false);  
+    DestroyTurret();
 
     // eject passengers
     if (HasPassengers())
@@ -89,6 +95,7 @@ void Vehicle::HandleDespawn()
 void Vehicle::UpdateFrame()
 {
     UpdateBurnEffect();
+    UpdateTurret();
     UpdateDamageFromRailways();
     UpdateEngineSound();
     UpdateHorn();
@@ -123,7 +130,8 @@ void Vehicle::SimulationStep()
         {
             const PedestrianCtlState& ctlState = carDriver->GetCtlState();
             currCtlState.mDriveDirection = ctlState.mAcceleration;
-            currCtlState.mSteerDirection = ctlState.mSteerDirection;
+            bool isTurretControl = (mTurret != nullptr) && ctlState.mHorn;
+            currCtlState.mSteerDirection = isTurretControl ? 0.0f : ctlState.mSteerDirection;
             currCtlState.mHandBrake = ctlState.mHandBrake;
         }
     }
@@ -567,6 +575,12 @@ void Vehicle::Explode()
     mSpriteIndex = gGameMap.mStyleData.GetWreckedVehicleSpriteIndex(mCarInfo->mClassID);
     SetRemap(NO_REMAP);
     SetSprite(mSpriteIndex, GetSpriteDeltas());
+    if (mTurret)
+    {
+        cxx::angle_t turretAngle = mTurret->mTransformLocal.mOrientation;
+        DestroyTurret();
+        CreateTurret(GameObjectType_TankGunWrecked, GameObjectType_TankGunBarrelWrecked, turretAngle);
+    }
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_CarDetonate, explosionPos);
     debug_assert(explosion);
@@ -832,6 +846,61 @@ void Vehicle::SetBurnEffectActive(bool activate)
     }
 }
 
+void Vehicle::CreateTurret(int turretObjectType, int barrelObjectType, cxx::angle_t turretAngle)
+{
+    debug_assert(mTurret == nullptr);
+
+    GameObjectInfo turretInfo = gGameMap.mStyleData.mObjects[turretObjectType];
+    GameObjectInfo barrelInfo = gGameMap.mStyleData.mObjects[barrelObjectType];
+    turretInfo.mClassID = eGameObjectClass_Decoration;
+    barrelInfo.mClassID = eGameObjectClass_Decoration;
+
+    mTurret = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &turretInfo);
+    mTurretBarrel = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &barrelInfo);
+    debug_assert(mTurret && mTurretBarrel);
+
+    mTurret->SetDrawOrder(eSpriteDrawOrder_CarRoof);
+    mTurretBarrel->SetDrawOrder(eSpriteDrawOrder_ConvetibleCarPassenger);
+    AttachObject(mTurret);
+    mTurret->AttachObject(mTurretBarrel);
+
+    int barrelSpriteIndex = barrelInfo.mAnimationData.mFrames[0].mSprite;
+    float barrelOffset = Convert::PixelsToMeters(gGameMap.mStyleData.mSprites[barrelSpriteIndex].mHeight / 2);
+    mTurretBarrel->SetTransform(glm::vec3(barrelOffset, 0.0f, 0.0f), cxx::angle_t(), eTransformSpace_Local);
+    mTurret->SetTransform(glm::vec3(), turretAngle, eTransformSpace_Local);
+}
+
+void Vehicle::DestroyTurret()
+{
+    if (mTurret == nullptr)
+        return;
+
+    mTurret->DetachObject(mTurretBarrel);
+    mTurretBarrel->MarkForDeletion();
+    mTurretBarrel = nullptr;
+
+    DetachObject(mTurret);
+    mTurret->MarkForDeletion();
+    mTurret = nullptr;
+}
+
+void Vehicle::UpdateTurret()
+{
+    const float TurretRotationSpeed = 120.0f; // degrees per second
+
+    Pedestrian* carDriver = GetCarDriver();
+    if ((mTurret == nullptr) || (carDriver == nullptr) || IsWrecked())
+        return;
+
+    const PedestrianCtlState& ctlState = carDriver->GetCtlState();
+    if (!ctlState.mHorn || (ctlState.mSteerDirection == 0.0f))
+        return;
+
+    float rotationDegrees = ctlState.mSteerDirection * TurretRotationSpeed * gTimeManager.mGameFrameDelta;
+    cxx::angle_t turretAngle = mTurret->mTransformLocal.mOrientation + cxx::angle_t::from_degrees(rotationDegrees);
+    mTurret->SetTransform(glm::vec3(), turretAngle, eTransformSpace_Local);
+}
+
 void Vehicle::UpdateBurnEffect()
 {
     if (!IsBurn())
@@ -987,7 +1056,7 @@ void Vehicle::UpdateHorn()
         isSoundActive = IsEmergencyLightsEnabled();
         sfxIndex = (mCarInfo->mModelID == eVehicle_Ambulance) ? SfxLevel_AmbulanceSiren : SfxLevel_PoliceSiren;
     }
-    else if (carDriver && carDriver->GetCtlState().mHorn)
+    else if (carDriver && carDriver->GetCtlState().mHorn && (mTurret == nullptr))
     {
         isSoundActive = true;
         sfxIndex = SfxLevel_FirstCarHornSound + (mCarInfo->mHorn % HornSoundsCount);
