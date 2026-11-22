@@ -113,6 +113,12 @@ void DamageInfo::SetCarHitDamage(GameObject* carObject)
     mSourceObject = carObject;
 }
 
+void DamageInfo::SetWaterJetDamage(GameObject* object)
+{
+    mDamageCause = eDamageCause_WaterJet;
+    mSourceObject = object;
+}
+
 void DamageInfo::Clear()
 {
     mDamageCause = eDamageCause_Punch;

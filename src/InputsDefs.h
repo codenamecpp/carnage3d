@@ -171,6 +171,7 @@ enum eInputAction
     eInputAction_SteerLeft,
     eInputAction_SteerRight,
     eInputAction_Horn,
+    eInputAction_FireCarWeapon,
     eInputAction_LeaveCar,
 
     eInputAction_COUNT

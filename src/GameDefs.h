@@ -229,6 +229,9 @@ enum
     GameObjectType_TankGunBarrel = 34,
     GameObjectType_TankGunWrecked = 38,
     GameObjectType_TankGunBarrelWrecked = 39,
+    GameObjectType_WaterJet = 48,
+    GameObjectType_WaterJetEnd = 49,
+    GameObjectType_FireHose = 50,
     GameObjectType_BulletProjectile = 74,
     GameObjectType_FireballProjectile = 75,
     // todo...

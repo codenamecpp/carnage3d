@@ -212,6 +212,7 @@ void HumanPlayer::ProcessInputAction(eInputAction action, bool isActivated)
         case eInputAction_Jump:
         case eInputAction_HandBrake:
         case eInputAction_Shoot:
+        case eInputAction_FireCarWeapon:
         case eInputAction_Special:
             // those are updating in ProcessRepetitiveActions
         break;
@@ -382,6 +383,7 @@ void HumanPlayer::ProcessRepetitiveActions()
 
         mCtlState.mHandBrake = GetActionState(eInputAction_HandBrake);
         mCtlState.mHorn = GetActionState(eInputAction_Horn);
+        mCtlState.mShoot = GetActionState(eInputAction_FireCarWeapon);
     }
     // update on foot
     else

@@ -231,6 +231,14 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
         return true;
     }
 
+    // handle water jet
+    if (damageInfo.mDamageCause == eDamageCause_WaterJet)
+    {
+        mPedestrian->SetBurnEffectActive(false);
+        ChangeState(ePedestrianState_Stunned, eventData);
+        return true;
+    }
+
     // handle fall from height
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
@@ -583,9 +591,17 @@ void PedestrianStatesManager::StateStunned_ProcessEnter(const PedestrianStateEve
     }
 
     float impulse = 0.5f; // todo: magic numbers
+    glm::vec2 pushDirection = -mPedestrian->mTransform.GetDirectionVector();
+
+    const DamageInfo& damageInfo = stateEvent.mDamageInfo;
+    if ((stateEvent.mID == ePedestrianStateEvent_ReceiveDamage) && (damageInfo.mDamageCause == eDamageCause_WaterJet) && damageInfo.mSourceObject)
+    {
+        impulse = 2.0f; // todo: magic numbers
+        pushDirection = glm::normalize(mPedestrian->mTransform.GetPosition2() - damageInfo.mSourceObject->mTransform.GetPosition2());
+    }
 
     mPedestrian->SetAnimation(ePedestrianAnim_FallShort, eSpriteAnimLoop_None);
-    mPedestrian->mPhysicsBody->SetLinearVelocity(-mPedestrian->mTransform.GetDirectionVector() * impulse);
+    mPedestrian->mPhysicsBody->SetLinearVelocity(pushDirection * impulse);
 }
 
 bool PedestrianStatesManager::StateStunned_ProcessEvent(const PedestrianStateEvent& stateEvent)

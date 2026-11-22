@@ -426,6 +426,7 @@ impl_enum_strings(eInputAction)
     {eInputAction_SteerLeft, "SteerLeft"},
     {eInputAction_SteerRight, "SteerRight"},
     {eInputAction_Horn, "Horn"},
+    {eInputAction_FireCarWeapon, "FireCarWeapon"},
 };
 
 impl_enum_strings(ePedestrianState)
