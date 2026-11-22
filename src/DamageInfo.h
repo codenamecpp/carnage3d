@@ -18,6 +18,7 @@ enum eDamageCause
     eDamageCause_Bullet,
     eDamageCause_Punch,
     eDamageCause_CarHit,
+    eDamageCause_WaterJet,
 };
 
 // Game object damage information
@@ -39,6 +40,7 @@ public:
     void SetBulletDamage(GameObject* object);
     void SetPunchDamage(GameObject* object);
     void SetCarHitDamage(GameObject* carObject);
+    void SetWaterJetDamage(GameObject* object);
 
     void Clear();
 

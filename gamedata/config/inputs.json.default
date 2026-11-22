@@ -24,6 +24,7 @@
             {"action":"SteerLeft", "keycode":"Left", "gpbutton":"Left"},
             {"action":"SteerRight", "keycode":"Right", "gpbutton":"Right"},
             {"action":"Horn", "keycode":"Tab", "gpbutton":"A"},
+            {"action":"FireCarWeapon", "keycode":"LCtrl", "gpbutton":"B"},
             {"action":"LeaveCar", "keycode":"Enter", "gpbutton":"X"}
         ]
     },

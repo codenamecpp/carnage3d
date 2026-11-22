@@ -127,9 +127,14 @@ private:
     void SetRemap(int remapIndex);
     void SetBurnEffectActive(bool isActive);
     void UpdateBurnEffect();
-    void CreateTurret(int turretObjectType, int barrelObjectType, cxx::angle_t turretAngle);
+    void CreateTurret(cxx::angle_t turretAngle);
     void DestroyTurret();
     void UpdateTurret();
+    void SetTurretAngle(cxx::angle_t turretAngle);
+    glm::vec2 GetTurretMuzzlePosition() const;
+    void SetWaterJetActive(bool isActive);
+    void SetWaterJetLength(float jetLength);
+    void UpdateWaterJet(bool isActive);
     void UpdateDamageFromRailways();
 
     SpriteDeltaBits GetSpriteDeltas() const;
@@ -173,6 +178,11 @@ private:
 
     Decoration* mTurret = nullptr;
     Decoration* mTurretBarrel = nullptr;
+    cxx::angle_t mTurretAngle;
+    glm::vec3 mTurretMountPosition; // turret pivot point, local space
+    float mTurretPivotOffset = 0.0f; // distance from the pivot point to the turret sprite center
+    float mTurretMuzzleOffset = 0.0f; // distance from the turret sprite center to the muzzle
+    std::vector<Decoration*> mWaterJetParts;
 
     // active effects
     Decoration* mFireEffect = nullptr;

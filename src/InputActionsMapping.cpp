@@ -32,6 +32,7 @@ static const DefaultActionMapping gDefaultActionsMapping[] =
     {eInputActionsGroup_InCar,  eInputAction_SteerLeft,             eKeycode_LEFT},
     {eInputActionsGroup_InCar,  eInputAction_SteerRight,            eKeycode_RIGHT},
     {eInputActionsGroup_InCar,  eInputAction_Horn,                  eKeycode_TAB},
+    {eInputActionsGroup_InCar,  eInputAction_FireCarWeapon,         eKeycode_LEFT_CTRL},
 
     // on foot
     {eInputActionsGroup_OnFoot, eInputAction_TurnLeft,              eKeycode_LEFT},
@@ -178,6 +179,7 @@ eInputActionsGroup InputActionsMapping::GetInputActionsGroup(eInputAction action
         case eInputAction_SteerLeft:
         case eInputAction_SteerRight:
         case eInputAction_Horn:
+        case eInputAction_FireCarWeapon:
         case eInputAction_LeaveCar:
             return eInputActionsGroup_InCar;
 

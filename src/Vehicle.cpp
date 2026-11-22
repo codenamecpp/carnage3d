@@ -11,6 +11,7 @@
 #include "GameObjectsManager.h"
 #include "AudioManager.h"
 #include "Collider.h"
+#include "GameObjectHelpers.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarWrecked()
@@ -59,10 +60,7 @@ void Vehicle::HandleSpawn()
     mDrawSprite.mDrawOrder = eSpriteDrawOrder_Car;
     SetSprite(mSpriteIndex, GetSpriteDeltas());
 
-    if (mCarInfo->mClassID == eVehicleClass_Tank)
-    {
-        CreateTurret(GameObjectType_TankGun, GameObjectType_TankGunBarrel, cxx::angle_t());
-    }
+    CreateTurret(cxx::angle_t());
 }
 
 void Vehicle::HandleDespawn()
@@ -577,9 +575,8 @@ void Vehicle::Explode()
     SetSprite(mSpriteIndex, GetSpriteDeltas());
     if (mTurret)
     {
-        cxx::angle_t turretAngle = mTurret->mTransformLocal.mOrientation;
         DestroyTurret();
-        CreateTurret(GameObjectType_TankGunWrecked, GameObjectType_TankGunBarrelWrecked, turretAngle);
+        CreateTurret(mTurretAngle);
     }
 
     Explosion* explosion = gGameObjectsManager.CreateExplosion(this, nullptr, eExplosionType_CarDetonate, explosionPos);
@@ -846,28 +843,66 @@ void Vehicle::SetBurnEffectActive(bool activate)
     }
 }
 
-void Vehicle::CreateTurret(int turretObjectType, int barrelObjectType, cxx::angle_t turretAngle)
+static Decoration* CreateCarPart(int objectType, const Transform& transform, eSpriteDrawOrder drawOrder)
 {
+    GameObjectInfo objectInfo = gGameMap.mStyleData.mObjects[objectType];
+    objectInfo.mClassID = eGameObjectClass_Decoration;
+
+    Decoration* carPart = gGameObjectsManager.CreateDecoration(transform.mPosition, transform.mOrientation, &objectInfo);
+    debug_assert(carPart);
+    carPart->SetDrawOrder(drawOrder);
+    return carPart;
+}
+
+static float GetCarPartLength(int objectType)
+{
+    const GameObjectInfo& objectInfo = gGameMap.mStyleData.mObjects[objectType];
+    int spriteIndex = objectInfo.mAnimationData.mFrames[0].mSprite;
+    return Convert::PixelsToMeters(gGameMap.mStyleData.mSprites[spriteIndex].mHeight);
+}
+
+void Vehicle::CreateTurret(cxx::angle_t turretAngle)
+{
+    const int FireHoseMountOffset = 30; // pixels behind the car center
+    const int FireHosePivotOffset = 6; // pixels from the hose pivot to the hose sprite center
+
     debug_assert(mTurret == nullptr);
 
-    GameObjectInfo turretInfo = gGameMap.mStyleData.mObjects[turretObjectType];
-    GameObjectInfo barrelInfo = gGameMap.mStyleData.mObjects[barrelObjectType];
-    turretInfo.mClassID = eGameObjectClass_Decoration;
-    barrelInfo.mClassID = eGameObjectClass_Decoration;
+    int turretObjectType = GameObjectType_Null;
+    int barrelObjectType = GameObjectType_Null;
+    mTurretMountPosition = glm::vec3();
+    mTurretPivotOffset = 0.0f;
 
-    mTurret = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &turretInfo);
-    mTurretBarrel = gGameObjectsManager.CreateDecoration(mTransform.mPosition, mTransform.mOrientation, &barrelInfo);
-    debug_assert(mTurret && mTurretBarrel);
+    if (mCarInfo->mClassID == eVehicleClass_Tank)
+    {
+        turretObjectType = IsWrecked() ? GameObjectType_TankGunWrecked : GameObjectType_TankGun;
+        barrelObjectType = IsWrecked() ? GameObjectType_TankGunBarrelWrecked : GameObjectType_TankGunBarrel;
+    }
+    else if ((mCarInfo->mModelID == eVehicle_FireTruck) && !IsWrecked())
+    {
+        turretObjectType = GameObjectType_FireHose;
+        mTurretMountPosition.x = -Convert::PixelsToMeters(FireHoseMountOffset);
+        mTurretPivotOffset = Convert::PixelsToMeters(FireHosePivotOffset);
+    }
 
-    mTurret->SetDrawOrder(eSpriteDrawOrder_CarRoof);
-    mTurretBarrel->SetDrawOrder(eSpriteDrawOrder_ConvetibleCarPassenger);
+    if (turretObjectType == GameObjectType_Null)
+        return;
+
+    mTurret = CreateCarPart(turretObjectType, mTransform, eSpriteDrawOrder_CarRoof);
     AttachObject(mTurret);
-    mTurret->AttachObject(mTurretBarrel);
+    mTurretMuzzleOffset = GetCarPartLength(turretObjectType) * 0.5f;
 
-    int barrelSpriteIndex = barrelInfo.mAnimationData.mFrames[0].mSprite;
-    float barrelOffset = Convert::PixelsToMeters(gGameMap.mStyleData.mSprites[barrelSpriteIndex].mHeight / 2);
-    mTurretBarrel->SetTransform(glm::vec3(barrelOffset, 0.0f, 0.0f), cxx::angle_t(), eTransformSpace_Local);
-    mTurret->SetTransform(glm::vec3(), turretAngle, eTransformSpace_Local);
+    if (barrelObjectType != GameObjectType_Null)
+    {
+        mTurretBarrel = CreateCarPart(barrelObjectType, mTransform, eSpriteDrawOrder_ConvetibleCarPassenger);
+        mTurret->AttachObject(mTurretBarrel);
+
+        float barrelOffset = GetCarPartLength(barrelObjectType) * 0.5f;
+        mTurretBarrel->SetTransform(glm::vec3(barrelOffset, 0.0f, 0.0f), cxx::angle_t(), eTransformSpace_Local);
+        mTurretMuzzleOffset = barrelOffset * 2.0f;
+    }
+
+    SetTurretAngle(turretAngle);
 }
 
 void Vehicle::DestroyTurret()
@@ -875,30 +910,187 @@ void Vehicle::DestroyTurret()
     if (mTurret == nullptr)
         return;
 
-    mTurret->DetachObject(mTurretBarrel);
-    mTurretBarrel->MarkForDeletion();
-    mTurretBarrel = nullptr;
+    SetWaterJetActive(false);
+
+    if (mTurretBarrel)
+    {
+        mTurret->DetachObject(mTurretBarrel);
+        mTurretBarrel->MarkForDeletion();
+        mTurretBarrel = nullptr;
+    }
 
     DetachObject(mTurret);
     mTurret->MarkForDeletion();
     mTurret = nullptr;
 }
 
+void Vehicle::SetTurretAngle(cxx::angle_t turretAngle)
+{
+    debug_assert(mTurret);
+
+    mTurretAngle = turretAngle;
+
+    float sinAngle, cosAngle;
+    turretAngle.get_sin_cos(sinAngle, cosAngle);
+
+    glm::vec3 turretPosition = mTurretMountPosition;
+    turretPosition.x += cosAngle * mTurretPivotOffset;
+    turretPosition.z += sinAngle * mTurretPivotOffset;
+    mTurret->SetTransform(turretPosition, turretAngle, eTransformSpace_Local);
+}
+
 void Vehicle::UpdateTurret()
 {
     const float TurretRotationSpeed = 120.0f; // degrees per second
 
-    Pedestrian* carDriver = GetCarDriver();
-    if ((mTurret == nullptr) || (carDriver == nullptr) || IsWrecked())
+    Pedestrian* carDriver = IsWrecked() ? nullptr : GetCarDriver();
+    if ((mTurret == nullptr) || (carDriver == nullptr))
+    {
+        SetWaterJetActive(false);
         return;
+    }
 
     const PedestrianCtlState& ctlState = carDriver->GetCtlState();
-    if (!ctlState.mHorn || (ctlState.mSteerDirection == 0.0f))
+    if (ctlState.mHorn && (ctlState.mSteerDirection != 0.0f))
+    {
+        float rotationDegrees = ctlState.mSteerDirection * TurretRotationSpeed * gTimeManager.mGameFrameDelta;
+        SetTurretAngle(mTurretAngle + cxx::angle_t::from_degrees(rotationDegrees));
+    }
+
+    if (mCarInfo->mModelID == eVehicle_FireTruck)
+    {
+        UpdateWaterJet(ctlState.mShoot);
+    }
+}
+
+glm::vec2 Vehicle::GetTurretMuzzlePosition() const
+{
+    debug_assert(mTurret);
+
+    return mTurret->mTransform.GetPoint2(glm::vec2(mTurretMuzzleOffset, 0.0f), eTransformSpace_World);
+}
+
+void Vehicle::SetWaterJetActive(bool isActive)
+{
+    const int WaterJetSegmentsCount = 4;
+
+    if (isActive == !mWaterJetParts.empty())
         return;
 
-    float rotationDegrees = ctlState.mSteerDirection * TurretRotationSpeed * gTimeManager.mGameFrameDelta;
-    cxx::angle_t turretAngle = mTurret->mTransformLocal.mOrientation + cxx::angle_t::from_degrees(rotationDegrees);
-    mTurret->SetTransform(glm::vec3(), turretAngle, eTransformSpace_Local);
+    if (isActive)
+    {
+        debug_assert(mTurret);
+
+        for (int isegment = 0; isegment < WaterJetSegmentsCount; ++isegment)
+        {
+            Decoration* jetSegment = CreateCarPart(GameObjectType_WaterJet, mTurret->mTransform, eSpriteDrawOrder_Projectiles);
+            mTurret->AttachObject(jetSegment);
+            mWaterJetParts.push_back(jetSegment);
+        }
+
+        Decoration* jetEnd = CreateCarPart(GameObjectType_WaterJetEnd, mTurret->mTransform, eSpriteDrawOrder_Projectiles);
+        mTurret->AttachObject(jetEnd);
+        mWaterJetParts.push_back(jetEnd);
+    }
+    else
+    {
+        for (Decoration* currPart: mWaterJetParts)
+        {
+            mTurret->DetachObject(currPart);
+            currPart->MarkForDeletion();
+        }
+        mWaterJetParts.clear();
+    }
+}
+
+void Vehicle::SetWaterJetLength(float jetLength)
+{
+    debug_assert(!mWaterJetParts.empty());
+
+    float segmentLength = GetCarPartLength(GameObjectType_WaterJet);
+    float segmentsLength = jetLength - GetCarPartLength(GameObjectType_WaterJetEnd) * 0.5f;
+
+    Decoration* jetEnd = mWaterJetParts.back();
+    jetEnd->SetTransform(glm::vec3(mTurretMuzzleOffset + jetLength, 0.0f, 0.0f), cxx::angle_t(), eTransformSpace_Local);
+
+    for (size_t isegment = 0; (isegment + 1) < mWaterJetParts.size(); ++isegment)
+    {
+        Decoration* jetSegment = mWaterJetParts[isegment];
+
+        float segmentStart = segmentLength * isegment;
+        if (segmentStart < segmentsLength)
+        {
+            jetSegment->mObjectFlags = (jetSegment->mObjectFlags & ~GameObjectFlags_Invisible);
+        }
+        else
+        {
+            jetSegment->mObjectFlags = (jetSegment->mObjectFlags | GameObjectFlags_Invisible);
+        }
+
+        // the last visible segment moves back to end at the splash
+        segmentStart = glm::max(glm::min(segmentStart, segmentsLength - segmentLength), 0.0f);
+        jetSegment->SetTransform(glm::vec3(mTurretMuzzleOffset + segmentStart + segmentLength * 0.5f, 0.0f, 0.0f), cxx::angle_t(), eTransformSpace_Local);
+    }
+}
+
+void Vehicle::UpdateWaterJet(bool isActive)
+{
+    SetWaterJetActive(isActive);
+    if (!isActive)
+        return;
+
+    int jetSegmentsCount = (int) mWaterJetParts.size() - 1;
+    float jetMaxLength = GetCarPartLength(GameObjectType_WaterJet) * jetSegmentsCount + GetCarPartLength(GameObjectType_WaterJetEnd) * 0.5f;
+
+    glm::vec2 jetStart = GetTurretMuzzlePosition();
+    glm::vec2 jetEnd = jetStart + mTurret->mTransform.GetDirectionVector() * jetMaxLength;
+
+    glm::vec2 wallPoint;
+    if (gGameMap.TraceSegment2D(Convert::MetersToMapUnits(jetStart), Convert::MetersToMapUnits(jetEnd), Convert::MetersToMapUnits(mTransform.mPosition.y), wallPoint))
+    {
+        jetEnd = Convert::MapUnitsToMeters(wallPoint);
+    }
+
+    PhysicsQueryResult queryResults;
+    gPhysics.QueryObjectsLinecast(jetStart, jetEnd, queryResults, CollisionGroup_Car | CollisionGroup_Pedestrian);
+
+    Vehicle* hitCar = nullptr;
+    for (int icurr = 0; icurr < queryResults.mElementsCount; ++icurr)
+    {
+        const PhysicsQueryElement& currElement = queryResults.mElements[icurr];
+        Vehicle* car = ToVehicle(currElement.mPhysicsObject->mGameObject);
+        if ((car == nullptr) || (car == this))
+            continue;
+
+        if (glm::distance(jetStart, currElement.mIntersectionPoint) < glm::distance(jetStart, jetEnd))
+        {
+            jetEnd = currElement.mIntersectionPoint;
+            hitCar = car;
+        }
+    }
+
+    if (hitCar)
+    {
+        hitCar->SetBurnEffectActive(false);
+    }
+
+    float jetLength = glm::distance(jetStart, jetEnd);
+    SetWaterJetLength(jetLength);
+
+    for (int icurr = 0; icurr < queryResults.mElementsCount; ++icurr)
+    {
+        const PhysicsQueryElement& currElement = queryResults.mElements[icurr];
+        Pedestrian* pedestrian = ToPedestrian(currElement.mPhysicsObject->mGameObject);
+        if ((pedestrian == nullptr) || (glm::distance(jetStart, currElement.mIntersectionPoint) > jetLength))
+            continue;
+
+        if (pedestrian->IsCarPassenger() || pedestrian->IsDead() || pedestrian->IsStunned() || !pedestrian->IsOnTheGround())
+            continue;
+
+        DamageInfo damageInfo;
+        damageInfo.SetWaterJetDamage(mTurret);
+        pedestrian->ReceiveDamage(damageInfo);
+    }
 }
 
 void Vehicle::UpdateBurnEffect()

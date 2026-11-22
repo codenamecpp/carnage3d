@@ -342,6 +342,12 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
 
     int mapcoord_z = (int) height;
 
+    if (GetBlockInfo(mapcoord_start.x, mapcoord_start.y, mapcoord_z)->mGroundType == eGroundType_Building)
+    {
+        outPoint = origin;
+        return true;
+    }
+
     glm::vec2 direction = glm::normalize(destination - origin);
 
     // find all cells intersecting with line
@@ -391,7 +397,7 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
     const int MaxSteps = 16;
     for (int istep = 0; ; ++istep)
     {
-        if (istep == MaxSteps)
+        if ((istep == MaxSteps) || (mapcoord_curr == mapcoord_end))
             return false;
 
         //jump to next map square, OR in x-direction, OR in y-direction
@@ -419,12 +425,7 @@ bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& de
             outPoint = (origin + direction * perpWallDist);
             return true;
         }
-
-        if (mapcoord_curr == mapcoord_end)
-            break;
     }
-
-    return false;
 }
 
 bool GameMapManager::ReadStartupObjects(std::istream& file, int dataSize)
