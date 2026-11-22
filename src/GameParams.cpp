@@ -47,6 +47,8 @@ void GameParams::SetToDefaults()
     mCarBurnDuration = 20.0f;
     mCarSpeedPassengerCanEnter = 8.0f;
     mCarExplosionChainDelayTime = 0.5f;
+    mCarCollisionDamageMinSpeed = 2.0f;
+    mCarCollisionDamageCoef = 0.2f;
     // broadcast events
     mBroadcastGunShotEventDuration = 1.0f;
     mBroadcastExplosionEventDuration = 1.5f;

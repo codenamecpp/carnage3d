@@ -595,7 +595,7 @@ struct VehicleInfo
 
     int mTurning;
 
-    int mDamagable;
+    int mDamagable; // damage level at which vehicle explodes
     int mValue[4];
 
     struct // physics props

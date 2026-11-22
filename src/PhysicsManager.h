@@ -63,6 +63,10 @@ private:
 
     void DispatchCollisionEvents();
 
+    // Get speed at which two colliders move to each other
+    float ComputeContactImpactSpeed(b2Contact* contact) const;
+    float GetContactImpactSpeed(b2Contact* contact) const;
+
     void HandleFallingStarts(PhysicsBody* physicsBody);
     void HandleFallsOnGround(PhysicsBody* physicsBody);
     void HandleFallsOnWater(PhysicsBody* physicsBody);
@@ -81,7 +85,7 @@ private:
         b2Fixture* mBox2FixtureB = nullptr;
         // common
         b2Contact* mBox2Contact = nullptr;
-        b2ContactImpulse mBox2Impulse;
+        float mImpactSpeed = 0.0f; // meters per second
     };
 
 private:
@@ -96,6 +100,10 @@ private:
     std::vector<PhysicsBody*> mBodiesList;
 
     std::vector<CollisionEvent> mObjectsCollisionList;
+
+    // speed at which colliders move to each other before collision is resolved, meters per second
+    // it is written in PreSolve and read in PostSolve during same simulation step
+    std::map<b2Contact*, float> mContactsImpactSpeed;
 };
 
 extern PhysicsManager gPhysics;

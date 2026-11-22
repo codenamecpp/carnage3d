@@ -53,6 +53,8 @@ public:
 
     // collision specific data
     ContactPoint mContactPoint;
-    float mContactImpulse = 0.0f;
+    float mImpactSpeed = 0.0f; // speed at which objects move to each other before collision, meters per second
     float mFallHeight = 0.0f; // has meaning only if fall
+
+    int mVehicleDamage = 0; // bullet/flame damage to vehicle
 };

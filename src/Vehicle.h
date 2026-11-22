@@ -110,6 +110,9 @@ public:
     // Get current vehicle damage level
     int GetCurrentDamage() const;
 
+    // Get vehicle damage level at which vehicle explodes
+    int GetMaxDamage() const;
+
     // Get current vehicle speed in meters per hour
     float GetCurrentSpeed() const;
 
@@ -131,6 +134,9 @@ private:
     void DestroyTurret();
     void UpdateTurret();
     void UpdateDamageFromRailways();
+
+    // Get damage from collision with other vehicle or map
+    int ComputeCollisionDamage(const DamageInfo& damageInfo) const;
 
     SpriteDeltaBits GetSpriteDeltas() const;
 
@@ -179,6 +185,8 @@ private:
     float mBurnStartTime = 0.0f;
     float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
     float mExplosionWaitTime = 0.0f;
+    float mLastCollisionTime = -1.0f; // game time of last map collision damage, seconds
+    int mLastCollisionDamage = 0;
 
     int mRemapIndex = NO_REMAP;
     int mSpriteIndex = 0;
