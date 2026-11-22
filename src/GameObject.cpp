@@ -645,6 +645,11 @@ bool GameObject::StartGameObjectSound(int ichannel, eSfxSampleType sampleType, S
     return false;
 }
 
+bool GameObject::CheckGameObjectSoundPlaying(int ichannel) const
+{
+    return mSfxEmitter && mSfxEmitter->IsPlaying(ichannel);
+}
+
 void GameObject::StopGameObjectSounds()
 {
     if (mSfxEmitter)
