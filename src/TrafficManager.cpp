@@ -6,8 +6,36 @@
 #include "AiManager.h"
 #include "GameCheatsWindow.h"
 #include "AiCharacterController.h"
+#include "GameMapHelpers.h"
 
 TrafficManager gTrafficManager;
+
+// get rect of map blocks on screen, in map units
+static Rect GetOnScreenMapRect(const GameCamera& view)
+{
+    glm::ivec2 minBlock = glm::ivec2(Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin));
+    glm::ivec2 maxBlock = glm::ivec2(Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax)) + 1;
+    return Rect(minBlock.x, minBlock.y, maxBlock.x - minBlock.x, maxBlock.y - minBlock.y);
+}
+
+// get top non-air block at map position
+// @returns nullptr if all layers are air
+static const MapBlockInfo* GetTopMapBlock(int mapx, int mapy, int& outLayer)
+{
+    for (outLayer = (MAP_LAYERS_COUNT - 1); outLayer >= 0; --outLayer)
+    {
+        const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(mapx, mapy, outLayer);
+        if (mapBlock->mGroundType != eGroundType_Air)
+            return mapBlock;
+    }
+    return nullptr;
+}
+
+static int GetDirectionsCount(const MapBlockInfo& mapBlock)
+{
+    return (int) mapBlock.mUpDirection + (int) mapBlock.mDownDirection +
+        (int) mapBlock.mLeftDirection + (int) mapBlock.mRightDirection;
+}
 
 TrafficManager::TrafficManager()
 {
@@ -44,8 +72,83 @@ void TrafficManager::UpdateFrame()
     GenerateCars();
 }
 
-void TrafficManager::DebugDraw(DebugRenderer& debugRender)
+void TrafficManager::DebugDraw(DebugRenderer& debugRender, GameCamera& view)
 {
+    if (gGameCheatsWindow.mEnableDrawTrafficLanes)
+    {
+        DebugDrawTrafficLanes(debugRender, view);
+    }
+}
+
+void TrafficManager::DebugDrawTrafficLanes(DebugRenderer& debugRender, GameCamera& view)
+{
+    const float DrawLiftHeight = 0.05f; // meters, keep lines above road surface
+    const float ArrowHeadLength = 0.2f; // map units
+    const float ArrowHeadWidth = 0.12f; // map units
+
+    // same order as block direction flags: up, down, left, right
+    static const glm::vec2 Directions[] = { {0.0f, -1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f}, {1.0f, 0.0f} };
+
+    Rect onScreenRect = GetOnScreenMapRect(view);
+    int minx = glm::max(onScreenRect.x, 0);
+    int miny = glm::max(onScreenRect.y, 0);
+    int maxx = glm::min(onScreenRect.x + onScreenRect.w, MAP_DIMENSIONS);
+    int maxy = glm::min(onScreenRect.y + onScreenRect.h, MAP_DIMENSIONS);
+
+    for (int iy = miny; iy < maxy; ++iy)
+    for (int ix = minx; ix < maxx; ++ix)
+    {
+        int layer = 0;
+        const MapBlockInfo* mapBlock = GetTopMapBlock(ix, iy, layer);
+        if (mapBlock == nullptr || mapBlock->mGroundType != eGroundType_Road)
+            continue;
+
+        // get world point on road surface, local point is in range [0, 1] within block
+        auto GetSurfacePoint = [&](const glm::vec2& local)
+        {
+            float height = (float) layer;
+            if (mapBlock->mSlopeType)
+            {
+                height += GameMapHelpers::GetSlopeHeight(mapBlock->mSlopeType, local.x, local.y);
+            }
+            glm::vec3 point = Convert::MapUnitsToMeters(glm::vec3(ix + local.x, height, iy + local.y));
+            point.y += DrawLiftHeight;
+            return point;
+        };
+
+        const glm::vec2 center (0.5f);
+        const glm::vec3 centerPoint = GetSurfacePoint(center);
+
+        // mark traffic lights
+        if (mapBlock->mTrafficHint == eTrafficHint_TrafficLights)
+        {
+            debugRender.DrawCube(centerPoint, glm::vec3(0.15f), Color32_Red, false);
+        }
+
+        const bool hasDirection[] =
+        {
+            mapBlock->mUpDirection, mapBlock->mDownDirection, mapBlock->mLeftDirection, mapBlock->mRightDirection
+        };
+        int directionsCount = GetDirectionsCount(*mapBlock);
+
+        // railway - gray, junction - yellow, single lane - green
+        Color32 lineColor = mapBlock->mIsRailway ? Color32_Gray : (directionsCount > 1) ? Color32_Yellow : Color32_Green;
+
+        for (int idir = 0; idir < 4; ++idir)
+        {
+            if (!hasDirection[idir])
+                continue;
+
+            // draw line through block from edge to edge, with arrow head at block center
+            const glm::vec2& dir = Directions[idir];
+            const glm::vec2 side (-dir.y, dir.x);
+            const glm::vec2 headBase = center - dir * ArrowHeadLength;
+
+            debugRender.DrawLine(GetSurfacePoint(center - dir * 0.5f), GetSurfacePoint(center + dir * 0.5f), lineColor, false);
+            debugRender.DrawLine(centerPoint, GetSurfacePoint(headBase + side * ArrowHeadWidth), lineColor, false);
+            debugRender.DrawLine(centerPoint, GetSurfacePoint(headBase - side * ArrowHeadWidth), lineColor, false);
+        }
+    }
 }
 
 void TrafficManager::GeneratePeds()
@@ -120,65 +223,10 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, GameCamera& view)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
-    int numPedsGenerated = 0;
-
-    Rect innerRect;
-    Rect outerRect;
-    // get map area on screen
+    ScanCandidatePositions(view, gGameParams.mTrafficGenPedsMaxDistance, [](const MapBlockInfo& mapBlock)
     {
-        Point minBlock;
-        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.x);
-        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.y);
-
-        Point maxBlock;
-        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.x) + 1;
-        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.y) + 1;
-
-        innerRect.x = minBlock.x;
-        innerRect.y = minBlock.y;
-        innerRect.w = (maxBlock.x - minBlock.x);
-        innerRect.h = (maxBlock.y - minBlock.y);
-
-        // expand
-        int expandSize = gGameParams.mTrafficGenPedsMaxDistance;
-        outerRect = innerRect;
-        outerRect.x -= expandSize;
-        outerRect.y -= expandSize;
-        outerRect.w += expandSize * 2;
-        outerRect.h += expandSize * 2;
-    }
-    
-    mCandidatePosArray.clear();
-
-    for (int iy = 0; iy < outerRect.h; ++iy)
-    for (int ix = 0; ix < outerRect.w; ++ix)
-    {
-        Point pos (ix + outerRect.x, iy + outerRect.y);
-        if (innerRect.PointWithin(pos))
-            continue;
-
-        // scan candidate from top
-        for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
-        {
-            const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(pos.x, pos.y, iz);
-
-            if (mapBlock->mGroundType == eGroundType_Air)
-                continue;
-
-            if (mapBlock->mGroundType == eGroundType_Pawement)
-            {
-                if (mapBlock->mIsRailway)
-                    continue;
-
-                CandidatePos candidatePos;
-                candidatePos.mMapX = pos.x;
-                candidatePos.mMapY = pos.y;
-                candidatePos.mMapLayer = iz;
-                mCandidatePosArray.push_back(candidatePos);
-            }
-            break;
-        }
-    }
+        return (mapBlock.mGroundType == eGroundType_Pawement) && !mapBlock.mIsRailway;
+    });
 
     if (mCandidatePosArray.empty())
         return;
@@ -186,7 +234,7 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, GameCamera& view)
     // shuffle candidates
     random.shuffle(mCandidatePosArray);
 
-    for (; (numPedsGenerated < pedsCount) && !mCandidatePosArray.empty(); ++numPedsGenerated)
+    for (int numPedsGenerated = 0; (numPedsGenerated < pedsCount) && !mCandidatePosArray.empty(); ++numPedsGenerated)
     {
         if (!random.random_chance(gGameParams.mTrafficGenPedsChance))
             continue;
@@ -208,6 +256,36 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, GameCamera& view)
     }
 }
 
+void TrafficManager::ScanCandidatePositions(GameCamera& view, int expandSize, bool (*isCandidate)(const MapBlockInfo& mapBlock))
+{
+    mCandidatePosArray.clear();
+
+    Rect innerRect = GetOnScreenMapRect(view);
+    Rect outerRect = innerRect;
+    outerRect.x -= expandSize;
+    outerRect.y -= expandSize;
+    outerRect.w += expandSize * 2;
+    outerRect.h += expandSize * 2;
+
+    // scan blocks around visible area
+    for (int iy = outerRect.y; iy < (outerRect.y + outerRect.h); ++iy)
+    for (int ix = outerRect.x; ix < (outerRect.x + outerRect.w); ++ix)
+    {
+        if (innerRect.PointWithin(Point(ix, iy)))
+            continue;
+
+        int layer = 0;
+        const MapBlockInfo* mapBlock = GetTopMapBlock(ix, iy, layer);
+        if (mapBlock == nullptr || !isCandidate(*mapBlock))
+            continue;
+
+        CandidatePos candidatePos;
+        candidatePos.mMapX = ix;
+        candidatePos.mMapY = iy;
+        candidatePos.mMapLayer = layer;
+        mCandidatePosArray.push_back(candidatePos);
+    }
+}
 int TrafficManager::GetPedsToGenerateCount(GameCamera& view) const
 {
     int pedestriansCounter = 0;
@@ -318,70 +396,11 @@ void TrafficManager::GenerateTrafficCars(int carsCount, GameCamera& view)
 {
     cxx::randomizer& random = gCarnageGame.mGameRand;
 
-    int numCarsGenerated = 0;
-
-    Rect innerRect;
-    Rect outerRect;
-    // get map area on screen
+    // only road blocks with one direction, to know car heading
+    ScanCandidatePositions(view, gGameParams.mTrafficGenCarsMaxDistance, [](const MapBlockInfo& mapBlock)
     {
-        Point minBlock;
-        minBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.x);
-        minBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMin.y);
-
-        Point maxBlock;
-        maxBlock.x = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.x) + 1;
-        maxBlock.y = (int) Convert::MetersToMapUnits(view.mOnScreenMapArea.mMax.y) + 1;
-
-        innerRect.x = minBlock.x;
-        innerRect.y = minBlock.y;
-        innerRect.w = (maxBlock.x - minBlock.x);
-        innerRect.h = (maxBlock.y - minBlock.y);
-
-        // expand
-        int expandSize = gGameParams.mTrafficGenCarsMaxDistance;
-        outerRect = innerRect;
-        outerRect.x -= expandSize;
-        outerRect.y -= expandSize;
-        outerRect.w += expandSize * 2;
-        outerRect.h += expandSize * 2;
-    }
-    
-    mCandidatePosArray.clear();
-
-    for (int iy = 0; iy < outerRect.h; ++iy)
-    for (int ix = 0; ix < outerRect.w; ++ix)
-    {
-        Point pos (ix + outerRect.x, iy + outerRect.y);
-        if (innerRect.PointWithin(pos))
-            continue;
-
-        // scan candidate from top
-        for (int iz = (MAP_LAYERS_COUNT - 1); iz > 0; --iz)
-        {
-            const MapBlockInfo* mapBlock = gGameMap.GetBlockInfo(pos.x, pos.y, iz);
-
-            if (mapBlock->mGroundType == eGroundType_Air)
-                continue;
-
-            if (mapBlock->mGroundType == eGroundType_Road)
-            {
-                int bits = (int) (mapBlock->mDownDirection) + 
-                    (int) (mapBlock->mUpDirection) +
-                    (int) (mapBlock->mLeftDirection) + 
-                    (int) (mapBlock->mRightDirection);
-
-                if ((bits == 0 || bits > 1) || mapBlock->mIsRailway)
-                    continue;
-
-                CandidatePos candidatePos;
-                candidatePos.mMapX = pos.x;
-                candidatePos.mMapY = pos.y;
-                candidatePos.mMapLayer = iz;
-                mCandidatePosArray.push_back(candidatePos);
-            }
-            break;
-        }
-    }
+        return (mapBlock.mGroundType == eGroundType_Road) && !mapBlock.mIsRailway && (GetDirectionsCount(mapBlock) == 1);
+    });
 
     if (mCandidatePosArray.empty())
         return;
@@ -389,7 +408,7 @@ void TrafficManager::GenerateTrafficCars(int carsCount, GameCamera& view)
     // shuffle candidates
     random.shuffle(mCandidatePosArray);
 
-    for (; (numCarsGenerated < carsCount) && !mCandidatePosArray.empty(); ++numCarsGenerated)
+    for (int numCarsGenerated = 0; (numCarsGenerated < carsCount) && !mCandidatePosArray.empty(); ++numCarsGenerated)
     {
         if (!random.random_chance(gGameParams.mTrafficGenCarsChance))
             continue;
@@ -400,7 +419,6 @@ void TrafficManager::GenerateTrafficCars(int carsCount, GameCamera& view)
         GenerateRandomTrafficCar(candidate.mMapX, candidate.mMapLayer, candidate.mMapY);
     }
 }
-
 void TrafficManager::RemoveOffscreenCars()
 {
     float offscreenDistance = Convert::MapUnitsToMeters(gGameParams.mTrafficGenCarsMaxDistance + 1.0f);

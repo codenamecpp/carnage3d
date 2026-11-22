@@ -15,7 +15,7 @@ public:
     void CleanupTraffic();
 
     void UpdateFrame();
-    void DebugDraw(DebugRenderer& debugRender);
+    void DebugDraw(DebugRenderer& debugRender, GameCamera& view);
 
     int CountTrafficPedestrians() const;
     int CountTrafficCars() const;
@@ -32,6 +32,13 @@ private:
     void GenerateTrafficCars(int carsCount, GameCamera& view);
     void RemoveOffscreenCars();
     int GetCarsToGenerateCount(GameCamera& view) const;
+
+    // debug draw traffic lane directions of road blocks in visible map area
+    void DebugDrawTrafficLanes(DebugRenderer& debugRender, GameCamera& view);
+
+    // fill candidate positions with top map blocks around visible area that pass filter
+    // @param expandSize: Max distance from visible area, in map units
+    void ScanCandidatePositions(GameCamera& view, int expandSize, bool (*isCandidate)(const MapBlockInfo& mapBlock));
 
     // traffic objects generation
     Pedestrian* GenerateRandomTrafficCarDriver(Vehicle* vehicle);

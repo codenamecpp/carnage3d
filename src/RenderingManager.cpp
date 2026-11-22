@@ -72,7 +72,7 @@ void RenderingManager::RenderFrame()
         {
             mDebugRenderer.RenderFrameBegin(currRenderview);
             mMapRenderer.DebugDraw(mDebugRenderer);
-            gTrafficManager.DebugDraw(mDebugRenderer);
+            gTrafficManager.DebugDraw(mDebugRenderer, *currRenderview);
             gAiManager.DebugDraw(mDebugRenderer);
             gParticleManager.DebugDraw(mDebugRenderer);
             mDebugRenderer.RenderFrameEnd();
