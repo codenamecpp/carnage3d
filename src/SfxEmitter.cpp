@@ -38,6 +38,14 @@ void SfxEmitter::ReleaseEmitter(bool stopSounds)
 {
     if (!stopSounds)
     {
+        // leave sounds playing, sources become free when playback completes
+        for (SfxChannel& currChannel: mAudioChannels)
+        {
+            if (currChannel.mHardwareSource)
+            {
+                gAudioManager.ReleaseAudioSource(currChannel.mHardwareSource);
+            }
+        }
         mAudioChannels.clear();
     }
     gAudioManager.DestroyEmitter(this);
@@ -65,6 +73,7 @@ void SfxEmitter::UpdateSounds()
 
         if (currChannel.mHardwareSource->IsStopped())
         {
+            gAudioManager.ReleaseAudioSource(currChannel.mHardwareSource);
             currChannel.mHardwareSource = nullptr;
             continue;
         }
@@ -78,6 +87,7 @@ void SfxEmitter::StopAllSounds()
         if (currChannel.mHardwareSource)
         {
             currChannel.mHardwareSource->Stop();
+            gAudioManager.ReleaseAudioSource(currChannel.mHardwareSource);
             currChannel.mHardwareSource = nullptr;
         }
     }
@@ -125,7 +135,7 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
     }
     if (channel.mHardwareSource == nullptr)
     {
-        channel.mHardwareSource = gAudioManager.GetFreeAudioSource();
+        channel.mHardwareSource = gAudioManager.AcquireAudioSource();
         if (channel.mHardwareSource == nullptr)
             return false; // out of audio sources
     }
@@ -176,6 +186,7 @@ bool SfxEmitter::StopSound(int ichannel)
     if (channel.mHardwareSource)
     {
         channel.mHardwareSource->Stop();
+        gAudioManager.ReleaseAudioSource(channel.mHardwareSource);
         channel.mHardwareSource = nullptr;
     }
     return true;

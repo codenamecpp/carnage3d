@@ -102,6 +102,7 @@ void AudioManager::ShutdownAudioResources()
         gAudioDevice.DestroyAudioSource(currSource);
     }
     mSfxAudioSources.clear();
+    mAcquiredSfxAudioSources.clear();
 
     if (mMusicAudioSource)
     {
@@ -117,15 +118,26 @@ void AudioManager::ShutdownAudioResources()
     mMusicSampleBuffers.clear();
 }
 
-AudioSource* AudioManager::GetFreeAudioSource() const
+AudioSource* AudioManager::AcquireAudioSource()
 {
     for (AudioSource* currSource: mSfxAudioSources)
     {
-        if (currSource && !currSource->IsPlaying() && !currSource->IsPaused())
-            return currSource;
+        if (currSource == nullptr || currSource->IsPlaying() || currSource->IsPaused())
+            continue;
+
+        if (cxx::contains(mAcquiredSfxAudioSources, currSource))
+            continue;
+
+        mAcquiredSfxAudioSources.push_back(currSource);
+        return currSource;
     }
 
     return nullptr;
+}
+
+void AudioManager::ReleaseAudioSource(AudioSource* audioSource)
+{
+    cxx::erase_elements(mAcquiredSfxAudioSources, audioSource);
 }
 
 bool AudioManager::PrepareAudioResources()
