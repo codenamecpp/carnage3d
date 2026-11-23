@@ -571,7 +571,7 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
 
     Pedestrian* characterLeader = nullptr;
     Pedestrian* characterPrev = nullptr;
-    for (int i = 0, PedsCount = 7; i < PedsCount; ++i)
+    for (int i = 0; i < gGameParams.mTrafficHareKrishnasGroupSize; ++i)
     {
         Pedestrian* character = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, ePedestrianType_HareKrishnasGang);
         debug_assert(character);

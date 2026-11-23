@@ -42,6 +42,8 @@ public:
     // Get or set current police attention level
     int GetWantedLevel() const;
     void SetWantedLevel(int wantedLevel);
+
+    void OnKillPedestrian(Pedestrian* pedestrian);
    
     // Mouse aiming control
     void SetMouseAiming(bool isEnabled);
@@ -86,6 +88,9 @@ private:
 private:
     int mLastDistrictIndex = 0; // district index where character was last time
     int mWantedLevel = 0; // current police attention level
+
+    int mGourangaKillsCount = 0; // hare krishnas killed in a row
+    float mLastGourangaKillTime = 0.0f;
     
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;

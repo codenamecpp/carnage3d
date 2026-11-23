@@ -15,6 +15,7 @@ void GameParams::SetToDefaults()
     // game - commons
     mGamePlayerRespawnTime = 6.0f;
     mGameRailwaysDamageDelay = 1.5f;
+    mGameGourangaComboTime = 0.56f;
 
     // pedestrians
     mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);
@@ -31,6 +32,7 @@ void GameParams::SetToDefaults()
     mPedestrianMaxArmor = 3;
     // traffic - common
     mTrafficGenHareKrishnasTime = 60.0f;
+    mTrafficHareKrishnasGroupSize = 7;
     // traffic - pedestrians
     mTrafficGenMaxPeds = 20;
     mTrafficGenPedsChance = 50;

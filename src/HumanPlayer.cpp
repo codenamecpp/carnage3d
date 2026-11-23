@@ -270,6 +270,27 @@ void HumanPlayer::SetWantedLevel(int wantedLevel)
     mWantedLevel = wantedLevel;
 }
 
+void HumanPlayer::OnKillPedestrian(Pedestrian* pedestrian)
+{
+    debug_assert(pedestrian);
+
+    if (pedestrian->mPedestrianTypeID != ePedestrianType_HareKrishnasGang)
+    {
+        mGourangaKillsCount = 0;
+        return;
+    }
+
+    bool isComboContinued = (mGourangaKillsCount > 0) &&
+        ((mLastGourangaKillTime + gGameParams.mGameGourangaComboTime) >= gTimeManager.mGameTime);
+
+    mLastGourangaKillTime = gTimeManager.mGameTime;
+    mGourangaKillsCount = isComboContinued ? (mGourangaKillsCount + 1) : 1;
+    if (mGourangaKillsCount == gGameParams.mTrafficHareKrishnasGroupSize)
+    {
+        mHUD.ShowBigFontMessage(eHUDBigFontMessage_Gouranga);
+    }
+}
+
 void HumanPlayer::SwitchNextWeapon()
 {
     int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;
