@@ -28,6 +28,7 @@ enum PedestrianAiFlags
 
     PedestrianAiFlags_LemmingBehavior = BIT(0), // can suicide
     PedestrianAiFlags_FollowHumanCharacter = BIT(1),
+    PedestrianAiFlags_IgnoreThreats = BIT(2),
 };
 
 decl_enum_as_flags(PedestrianAiFlags);
@@ -49,6 +50,7 @@ public:
 
     // objectives
     void FollowPedestrian(Pedestrian* pedestrian);
+    void StartPanic();
 
 private:
     void UpdatePanic();
@@ -56,12 +58,12 @@ private:
     void UpdateDrivingCar();
     void UpdateFollowTarget();
 
-    void StartPanic();
     void StartWandering();
     void StartDrivingCar();
     void StartFollowTarget();
 
     bool TryFollowHumanCharacterNearby();
+    bool IsTouchedByHumanCharacter(Pedestrian* humanCharacter) const;
 
     // walk/run
     bool ChooseWalkWaypoint(bool isPanic);

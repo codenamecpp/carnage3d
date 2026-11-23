@@ -43,7 +43,7 @@ TrafficManager::TrafficManager()
 
 void TrafficManager::StartupTraffic()
 {   
-    mLastGenHareKrishnasTime = gTimeManager.mGameTime;
+    mGenPedsSinceHareKrishnas = 0;
 
     mLastGenPedsTime = 0.0f;
     GeneratePeds();
@@ -64,12 +64,101 @@ void TrafficManager::CleanupTraffic()
     {
         TryRemoveTrafficPed(currPedestrian);
     }
+
+    mHareKrishnasGroup.clear();
 }
 
 void TrafficManager::UpdateFrame()
 {
+    UpdateHareKrishnasGroup();
     GeneratePeds();
     GenerateCars();
+}
+
+// get ai controller of character, it is null for human character
+static AiCharacterController* GetAiController(Pedestrian* pedestrian)
+{
+    if (pedestrian && pedestrian->mController && pedestrian->mController->IsControllerTypeAi())
+        return static_cast<AiCharacterController*>(pedestrian->mController);
+
+    return nullptr;
+}
+
+void TrafficManager::UpdateHareKrishnasGroup()
+{
+    if (mHareKrishnasGroup.empty())
+        return;
+
+    Pedestrian* leader = mHareKrishnasGroup[0];
+    if (leader == nullptr || leader->IsMarkedForDeletion() || leader->IsDead())
+    {
+        if (leader)
+        {
+            leader->StopGameObjectSound(ePedSfxChannelIndex_Chant);
+        }
+
+        // when leader dies followers leave the line and run away
+        for (size_t imember = 1; leader && leader->IsDead() && (imember < mHareKrishnasGroup.size()); ++imember)
+        {
+            Pedestrian* follower = mHareKrishnasGroup[imember];
+            AiCharacterController* controller = GetAiController(follower);
+            if (controller && !follower->IsDead())
+            {
+                controller->StartPanic();
+            }
+        }
+        mHareKrishnasGroup.clear();
+        return;
+    }
+
+    // remove dead followers
+    size_t firstChangedMember = mHareKrishnasGroup.size();
+    for (size_t imember = mHareKrishnasGroup.size() - 1; imember > 0; --imember)
+    {
+        Pedestrian* follower = mHareKrishnasGroup[imember];
+        if (follower && !follower->IsMarkedForDeletion() && !follower->IsDead())
+            continue;
+
+        // chant stops for good when any group member dies
+        if (follower && follower->IsDead())
+        {
+            mIsHareKrishnasChanting = false;
+        }
+        mHareKrishnasGroup.erase(mHareKrishnasGroup.begin() + imember);
+        firstChangedMember = imember;
+    }
+
+    // followers behind dead follower move up in the line
+    for (size_t imember = firstChangedMember; imember < mHareKrishnasGroup.size(); ++imember)
+    {
+        if (AiCharacterController* controller = GetAiController(mHareKrishnasGroup[imember]))
+        {
+            controller->FollowPedestrian(mHareKrishnasGroup[imember - 1]);
+        }
+    }
+
+    if (!mIsHareKrishnasChanting)
+    {
+        leader->StopGameObjectSound(ePedSfxChannelIndex_Chant);
+    }
+    else if (!leader->CheckGameObjectSoundPlaying(ePedSfxChannelIndex_Chant))
+    {
+        leader->StartGameObjectSound(ePedSfxChannelIndex_Chant, eSfxSampleType_Level, SfxLevel_HareKrishnasChant, SfxFlags_None);
+    }
+}
+
+void TrafficManager::RemoveHareKrishnasGroup()
+{
+    for (size_t imember = 0; imember < mHareKrishnasGroup.size(); ++imember)
+    {
+        Pedestrian* member = mHareKrishnasGroup[imember];
+        if (member == nullptr)
+            continue;
+
+        member->StopGameObjectSound(ePedSfxChannelIndex_Chant);
+        TryRemoveTrafficPed(member);
+    }
+    mHareKrishnasGroup.clear();
 }
 
 void TrafficManager::DebugDraw(DebugRenderer& debugRender, GameCamera& view)
@@ -192,6 +281,10 @@ void TrafficManager::RemoveOffscreenPeds()
         if (pedestrian->IsCarPassenger())
             continue;
 
+        // original game never removes hare krishnas group by distance
+        if (cxx::contains(mHareKrishnasGroup, pedestrian))
+            continue;
+
         bool isOnScreen = false;
         for (HumanPlayer* humanPlayer: gCarnageGame.mHumanPlayers)
         {   
@@ -242,11 +335,16 @@ void TrafficManager::GenerateTrafficPeds(int pedsCount, GameCamera& view)
         CandidatePos candidate = mCandidatePosArray.back();
         mCandidatePosArray.pop_back();
 
-        if ((mLastGenHareKrishnasTime + gGameParams.mTrafficGenHareKrishnasTime) < gTimeManager.mGameTime)
+        bool generateHareKrishnas = false;
+        if (mHareKrishnasGroup.empty())
         {
-            // generate hare krishnas
+            ++mGenPedsSinceHareKrishnas;
+            generateHareKrishnas = (mGenPedsSinceHareKrishnas >= gGameParams.mTrafficGenHareKrishnasPedsInterval);
+        }
+
+        if (generateHareKrishnas)
+        {
             GenerateHareKrishnas(candidate.mMapX, candidate.mMapLayer, candidate.mMapY);
-            mLastGenHareKrishnasTime = gTimeManager.mGameTime;
         }
         else
         {
@@ -569,12 +667,18 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
     // fix height
     pedestrianPosition.y = gGameMap.GetHeightAtPosition(pedestrianPosition);
 
+    // only one group lives at once, old group from cheats goes away
+    RemoveHareKrishnasGroup();
+    mGenPedsSinceHareKrishnas = 0;
+    mIsHareKrishnasChanting = true;
+
     Pedestrian* characterLeader = nullptr;
     Pedestrian* characterPrev = nullptr;
     for (int i = 0; i < gGameParams.mTrafficHareKrishnasGroupSize; ++i)
     {
         Pedestrian* character = gGameObjectsManager.CreatePedestrian(pedestrianPosition, pedestrianHeading, ePedestrianType_HareKrishnasGang);
         debug_assert(character);
+        mHareKrishnasGroup.push_back(character);
 
         character->mObjectFlags = (character->mObjectFlags | GameObjectFlags_Traffic);
         AiCharacterController* controller = gAiManager.CreateAiController(character);
@@ -586,6 +690,8 @@ Pedestrian* TrafficManager::GenerateHareKrishnas(int posx, int posy, int posz)
         }
         if (controller && characterPrev)
         {
+            // followers only keep the line, only leader reacts on threats
+            controller->ChangeAiFlags(PedestrianAiFlags_IgnoreThreats, PedestrianAiFlags_None);
             controller->FollowPedestrian(characterPrev);
         }
         characterPrev = character;

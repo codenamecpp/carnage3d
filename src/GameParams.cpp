@@ -31,7 +31,7 @@ void GameParams::SetToDefaults()
     mPedestrianBurnDuration = 4.0f;
     mPedestrianMaxArmor = 3;
     // traffic - common
-    mTrafficGenHareKrishnasTime = 60.0f;
+    mTrafficGenHareKrishnasPedsInterval = 100;
     mTrafficHareKrishnasGroupSize = 7;
     // traffic - pedestrians
     mTrafficGenMaxPeds = 20;
