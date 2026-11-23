@@ -32,7 +32,7 @@ public:
     int mPedestrianMaxArmor; // max armor points
 
     // traffic - common params
-    float mTrafficGenHareKrishnasTime; // time to generate hare krishnas, seconds
+    int mTrafficGenHareKrishnasPedsInterval; // number of traffic pedestrians to generate before next hare krishnas group
     int mTrafficHareKrishnasGroupSize; // number of pedestrians in hare krishnas group
 
     // traffic - pedestrians
