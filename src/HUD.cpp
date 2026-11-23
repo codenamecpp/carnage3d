@@ -931,7 +931,7 @@ void HUD::UpdateScreen()
 
 void HUD::DrawScreen(GuiContext& context)
 {
-    Rect viewportRect = context.mCamera.mViewportRect;
+    const Rect& viewportRect = context.mVirtualScreenRect;
     mPanelsContainer.SetPosition(Point(0, 0));
     mPanelsContainer.SetSizeLimits(
         Point(viewportRect.w, viewportRect.h), 
@@ -1039,6 +1039,11 @@ void HUD::DrawArrowAboveCharacter(GuiContext& guiContext)
     arrowSprite.mRotateAngle = pedestrian->mTransformSmooth.mOrientation + cxx::angle_t::from_degrees(SPRITE_ZERO_ANGLE);
 
     // convert character position to screen position
-    mHumanPlayer->mViewCamera.ProjectPointToScreen(pedestrian->mTransformSmooth.mPosition, arrowSprite.mPosition);
+
+    glm::vec2 arrowScreenPosition;
+    if (mHumanPlayer->mViewCamera.ProjectPointToScreen(pedestrian->mTransformSmooth.mPosition, arrowScreenPosition))
+    {
+        arrowSprite.mPosition = guiContext.ScreenToVirtualPoint(arrowScreenPosition);
+    }
     guiContext.mSpriteBatch.DrawSprite(arrowSprite);
 }

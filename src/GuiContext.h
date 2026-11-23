@@ -5,35 +5,50 @@
 class GuiContext
 {
 public:
-    GameCamera2D& mCamera;
+    Rect mVirtualScreenRect {};
+    Rect mViewportRect {};
+
+    glm::vec2 mUiScale {1.0f, 1.0f};
+
     SpriteBatch& mSpriteBatch;
 
-    float mUiScale = 1.0f;
-
 public:
-    GuiContext(GameCamera2D& camera, SpriteBatch& spriteBatch)
-        : mCamera(camera)
-        , mSpriteBatch(spriteBatch)
-    {
-    }
+    GuiContext(const Rect& virtualScreenRect, const Rect& viewportRect, SpriteBatch& spriteBatch);
 
     // helpers
-    inline int GetScreenSizex() const { return mCamera.mViewportRect.w; }
-    inline int GetScreenSizey() const { return mCamera.mViewportRect.h; }
+    inline int GetScreenSizex() const { return mVirtualScreenRect.w; }
+    inline int GetScreenSizey() const { return mVirtualScreenRect.h; }
 
-    // convert
-    inline void NormalizedToScreenPoint(float xcoord, float ycoord, int& outx, int& outy) const
+    inline glm::vec2 ScreenToVirtualPoint(const glm::vec2& screenPoint) const
     {
-        outx = static_cast<int>(mCamera.mViewportRect.w * xcoord);
-        outy = static_cast<int>(mCamera.mViewportRect.h * ycoord);
+        return glm::vec2 {
+            (screenPoint.x - static_cast<float>(mViewportRect.x)) / mUiScale.x,
+            (screenPoint.y - static_cast<float>(mViewportRect.y)) / mUiScale.y
+        };
     }
-    inline void ScreenPointToNormalized(int xcoord, int ycoord, float& outx, float& outy) const
-    {
-        debug_assert(mCamera.mViewportRect.w);
-        debug_assert(mCamera.mViewportRect.h);
 
-        outx = (xcoord * 1.0f) / mCamera.mViewportRect.w;
-        outy = (ycoord * 1.0f) / mCamera.mViewportRect.h;
+    inline glm::vec2 VirtualToScreenPoint(const glm::vec2& virtualPoint) const
+    {
+        return glm::vec2 {
+            static_cast<float>(mViewportRect.x) + virtualPoint.x * mUiScale.x,
+            static_cast<float>(mViewportRect.y) + virtualPoint.y * mUiScale.y
+        };
+    }
+
+    inline Point VirtualSizeToScreen(const glm::vec2& virtualSize) const
+    {
+        return Point {
+            static_cast<int>(std::lround(virtualSize.x * mUiScale.x)),
+            static_cast<int>(std::lround(virtualSize.y * mUiScale.y))
+        };
+    }
+
+    inline glm::vec2 ScreenSizeToVirtual(const Point& screenSize) const
+    {
+        return glm::vec2 {
+            static_cast<float>(screenSize.x) / mUiScale.x,
+            static_cast<float>(screenSize.y) / mUiScale.y
+        };
     }
 
     bool EnterChildClipArea(const Rect& rcLocal);

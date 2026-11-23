@@ -62,17 +62,28 @@ void GuiManager::RenderFrame()
             .Disable(RenderStateFlags_DepthTest);
         gGraphicsDevice.SetRenderStates(guiRenderStates);
 
+        const float uiScale = glm::max(gCvarUiScale.mValue, 0.1f);
+
         for (GuiScreen* currScreen: mScreensList)
         {
             mCamera2D.SetIdentity();
             mCamera2D.mViewportRect = currScreen->mScreenArea;
-            mCamera2D.SetProjection(0.0f, mCamera2D.mViewportRect.w * 1.0f, mCamera2D.mViewportRect.h * 1.0f, 0.0f);
+
+            const Rect virtualScreenRect 
+            {
+                mCamera2D.mViewportRect.x,
+                mCamera2D.mViewportRect.y,
+                static_cast<int>(std::lround(mCamera2D.mViewportRect.w / uiScale)),
+                static_cast<int>(std::lround(mCamera2D.mViewportRect.h / uiScale))
+            };
+
+            mCamera2D.SetProjection(0.0f, virtualScreenRect.w * 1.0f, virtualScreenRect.h * 1.0f, 0.0f);
 
             gGraphicsDevice.SetViewportRect(mCamera2D.mViewportRect);
             gRenderManager.mSpritesProgram.UploadCameraTransformMatrices(mCamera2D);
 
-            GuiContext uiContext ( mCamera2D, mSpriteBatch );
-            Rect clipRect { 0, 0, mCamera2D.mViewportRect.w, mCamera2D.mViewportRect.h };
+            GuiContext uiContext ( virtualScreenRect, mCamera2D.mViewportRect, mSpriteBatch );
+            Rect clipRect { 0, 0, virtualScreenRect.w, virtualScreenRect.h };
             if (uiContext.EnterChildClipArea(clipRect))
             {
                 currScreen->DrawScreen(uiContext);

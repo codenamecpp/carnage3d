@@ -1,6 +1,19 @@
 #include "stdafx.h"
 #include "GuiContext.h"
 
+GuiContext::GuiContext(const Rect& virtualScreenRect, const Rect& viewportRect, SpriteBatch& spriteBatch)
+    : mVirtualScreenRect(virtualScreenRect)
+    , mViewportRect(viewportRect)
+    , mSpriteBatch(spriteBatch)
+{
+    debug_assert(mVirtualScreenRect.w > 0.0f);
+    debug_assert(mVirtualScreenRect.h > 0.0f);
+
+    // precompute ui scale
+    mUiScale.x = (mVirtualScreenRect.w > 0.0f) ? (static_cast<float>(mViewportRect.w) / mVirtualScreenRect.w) : 1.0f;
+    mUiScale.y = (mVirtualScreenRect.h > 0.0f) ? (static_cast<float>(mViewportRect.h) / mVirtualScreenRect.h) : 1.0f;
+}
+
 bool GuiContext::EnterChildClipArea(const Rect& rcLocal)
 {
     Rect newCliprect = rcLocal;
@@ -43,10 +56,12 @@ void GuiContext::LeaveChildClipArea()
 
 void GuiContext::TransformClipRect(Rect& rectangle) const
 {
-    rectangle.x += mCamera.mViewportRect.x;
-    rectangle.y = gGraphicsDevice.mScreenResolution.y - (mCamera.mViewportRect.y + rectangle.y + rectangle.h);
-   // rectangle.y = gGraphicsDevice.mScreenResolution.y - (rectangle.y + rectangle.h);
+    // assume logical rectangle, (0..mVirtualScreenRect)
 
-    //rectangle.y = gGraphicsDevice.mScreenResolution.y - (rectangle.y + mCamera.mViewportRect.y + rectangle.h);
-    //rectangle.y -= gGraphicsDevice.mScreenResolution.y - (rectangle.y + rectangle.h);
+    rectangle.x = mViewportRect.x + (int)std::lround(rectangle.x * mUiScale.x);
+    rectangle.y = mViewportRect.y + (int)std::lround(rectangle.y * mUiScale.y);
+    rectangle.w = static_cast<int>(std::lround(rectangle.w * mUiScale.x));
+    rectangle.h = static_cast<int>(std::lround(rectangle.h * mUiScale.y));
+
+    rectangle.y = gGraphicsDevice.mScreenResolution.y - (rectangle.y + rectangle.h);
 }
