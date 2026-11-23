@@ -51,6 +51,8 @@ public:
 private:
     void QueryAudioDeviceCaps();
     void UpdateSourcesPositions();
+    // Set source position relative to nearest listener and fade its gain with distance
+    void UpdateSourcePosition(AudioSource* audioSource);
 
     // Find sample buffer by internal identifier
     AudioSampleBuffer* GetSampleBufferWithID(unsigned int bufferID) const;

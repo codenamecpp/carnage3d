@@ -2,6 +2,7 @@
 #include "SfxEmitter.h"
 #include "AudioDevice.h"
 #include "AudioManager.h"
+#include "GameMapManager.h"
 
 SfxSample::SfxSample(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, AudioSampleBuffer* sampleBuffer)
     : mSfxType(sfxType)
@@ -55,11 +56,13 @@ void SfxEmitter::UpdateEmitterParams(const glm::vec3& emitterPosition)
 {
     mEmitterPosition = emitterPosition;
 
+    bool isCovered = gGameMap.IsUnderRoof(emitterPosition);
     for (SfxChannel& currChannel: mAudioChannels)
     {
         if (currChannel.mHardwareSource)
         {
             currChannel.mHardwareSource->SetPosition3D(emitterPosition.x, emitterPosition.y, emitterPosition.z);
+            currChannel.mHardwareSource->SetCovered(isCovered);
         }
     }
 }
@@ -168,10 +171,14 @@ bool SfxEmitter::StartSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlag
     {
         debug_assert(false);
     }
+    channel.mHardwareSource->SetCovered(gGameMap.IsUnderRoof(mEmitterPosition));
 
     if (!channel.mHardwareSource->Start((sfxFlags & SfxFlags_Loop) > 0))
     {
-        debug_assert(false);
+        // sound is out of hearing range
+        gAudioManager.ReleaseAudioSource(channel.mHardwareSource);
+        channel.mHardwareSource = nullptr;
+        return false;
     }
     gAudioManager.RegisterActiveEmitter(this);
     return true;
@@ -190,6 +197,21 @@ bool SfxEmitter::StopSound(int ichannel)
         channel.mHardwareSource = nullptr;
     }
     return true;
+}
+
+bool SfxEmitter::SetIgnoreDistance(int ichannel, bool ignoreDistance)
+{
+    if ((ichannel < 0) || (ichannel >= (int) mAudioChannels.size()))
+        return false;
+
+    SfxChannel& channel = mAudioChannels[ichannel];
+    if (channel.mHardwareSource)
+    {
+        channel.mHardwareSource->SetIgnoreDistance(ignoreDistance);
+        return true;
+    }
+
+    return false;
 }
 
 bool SfxEmitter::IsPlaying(int ichannel) const

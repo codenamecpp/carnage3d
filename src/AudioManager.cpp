@@ -128,6 +128,7 @@ AudioSource* AudioManager::AcquireAudioSource()
         if (cxx::contains(mAcquiredSfxAudioSources, currSource))
             continue;
 
+        currSource->SetIgnoreDistance(false);
         mAcquiredSfxAudioSources.push_back(currSource);
         return currSource;
     }
@@ -148,6 +149,7 @@ bool AudioManager::PrepareAudioResources()
         if (audioSource == nullptr)
             break;
 
+        audioSource->SetMaxHearingDistance(Convert::MapUnitsToMeters(SfxMaxHearingDistance));
         mSfxAudioSources.push_back(audioSource);
     }
 

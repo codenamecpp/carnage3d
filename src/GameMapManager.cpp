@@ -271,6 +271,26 @@ float GameMapManager::GetWaterLevelAtPosition2(const glm::vec2& position) const
     return 0.0f;
 }
 
+bool GameMapManager::IsUnderRoof(const glm::vec3& position) const
+{
+    glm::ivec3 blockPosition = Convert::MetersToMapUnits(position);
+    if (blockPosition.y >= MAP_LAYERS_COUNT)
+        return false;
+
+    // solid block at position also counts, but slope does not
+    const MapBlockInfo* blockInfo = GetBlockInfo(blockPosition.x, blockPosition.z, blockPosition.y);
+    if (blockInfo->mFaces[eBlockFace_Lid] && !blockInfo->mIsFlat && (blockInfo->mSlopeType == 0))
+        return true;
+
+    for (int layer = blockPosition.y + 1; layer < MAP_LAYERS_COUNT; ++layer)
+    {
+        blockInfo = GetBlockInfo(blockPosition.x, blockPosition.z, layer);
+        if (blockInfo->mFaces[eBlockFace_Lid] && !blockInfo->mIsFlat)
+            return true;
+    }
+    return false;
+}
+
 const DistrictInfo* GameMapManager::GetDistrictAtPosition2(const glm::vec2& position) const
 {
     glm::ivec2 blockPosition = Convert::MetersToMapUnits(position);

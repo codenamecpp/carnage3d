@@ -1294,6 +1294,10 @@ void Vehicle::UpdateEngineSound()
         if (!StartGameObjectSound(eCarSfxChannelIndex_Engine, eSfxSampleType_Level, sfxIndex, SfxFlags_Loop))
             return;
     }
+
+    // player car engine keeps full gain when camera moves away
+    Pedestrian* carDriver = GetCarDriver();
+    mSfxEmitter->SetIgnoreDistance(eCarSfxChannelIndex_Engine, carDriver && carDriver->IsHumanPlayerCharacter());
     // todo: this is temporary solution!
 
     float speed = fabs(GetCurrentSpeed());
