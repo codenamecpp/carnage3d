@@ -25,6 +25,8 @@ private:
     void GeneratePeds();
     void GenerateTrafficPeds(int pedsCount, GameCamera& view);
     void RemoveOffscreenPeds();
+    void UpdateHareKrishnasGroup();
+    void RemoveHareKrishnasGroup();
     int GetPedsToGenerateCount(GameCamera& view) const;
 
     // traffic cars generation
@@ -53,7 +55,11 @@ private:
 private:
     float mLastGenPedsTime = 0.0;
     float mLastGenCarsTime = 0.0f;
-    float mLastGenHareKrishnasTime = 0.0f;
+    int mGenPedsSinceHareKrishnas = 0;
+
+    // live hare krishnas group, leader is first, each follower follows previous member
+    std::vector<PedestrianHandle> mHareKrishnasGroup;
+    bool mIsHareKrishnasChanting = false; // leader chants until any group member dies
 
     // buffers
     struct CandidatePos

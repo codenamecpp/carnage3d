@@ -650,6 +650,14 @@ bool GameObject::CheckGameObjectSoundPlaying(int ichannel) const
     return mSfxEmitter && mSfxEmitter->IsPlaying(ichannel);
 }
 
+void GameObject::StopGameObjectSound(int ichannel)
+{
+    if (mSfxEmitter)
+    {
+        mSfxEmitter->StopSound(ichannel);
+    }
+}
+
 void GameObject::StopGameObjectSounds()
 {
     if (mSfxEmitter)

@@ -117,6 +117,9 @@ void AiCharacterController::DebugDraw(DebugRenderer& debugRender)
 
 bool AiCharacterController::ScanForThreats()
 {
+    if (HasAiFlags(PedestrianAiFlags_IgnoreThreats))
+        return false;
+
     if (mCharacter->HasFear_GunShots() && ScanForGunshots())
         return true;
 
@@ -199,6 +202,10 @@ void AiCharacterController::OnCharacterUpdateFrame()
     if (!mCharacter->IsIdle())
         return;
 
+    // can start following human character in any mode
+    if (HasAiFlags(PedestrianAiFlags_FollowHumanCharacter) && TryFollowHumanCharacterNearby())
+        return;
+
     if (mAiMode == ePedestrianAiMode_Panic)
     {
         UpdatePanic();
@@ -244,13 +251,6 @@ void AiCharacterController::UpdateWandering()
 
     if (ContinueWalkToWaypoint(mDefaultNearDistance))
         return;
-
-    bool canFollowHuman = HasAiFlags(PedestrianAiFlags_FollowHumanCharacter);
-    if (canFollowHuman)
-    {
-        if (TryFollowHumanCharacterNearby())
-            return;
-    }
 
     if (!ChooseWalkWaypoint(false) || !ContinueWalkToWaypoint(mDefaultNearDistance))
     {
@@ -476,7 +476,9 @@ void AiCharacterController::StartFollowTarget()
 
 void AiCharacterController::UpdateFollowTarget()
 {
-    if (ScanForThreats())
+    // human character that touches the character wins over threats
+    bool isTouchedByTarget = HasAiFlags(PedestrianAiFlags_FollowHumanCharacter) && IsTouchedByHumanCharacter(mFollowPedestrian);
+    if (!isTouchedByTarget && ScanForThreats())
     {
         StartPanic();
         return;
@@ -516,29 +518,39 @@ bool AiCharacterController::HasAiFlags(PedestrianAiFlags aiFlags) const
     return (mAiFlags & aiFlags) == aiFlags;
 }
 
+bool AiCharacterController::IsTouchedByHumanCharacter(Pedestrian* humanCharacter) const
+{
+    // human character on foot must touch the box around the character
+    if (humanCharacter == nullptr || !humanCharacter->IsHumanPlayerCharacter() || humanCharacter->mCurrentCar || humanCharacter->IsDead())
+        return false;
+
+    float maxSignDistance = Convert::MapUnitsToMeters(0.5f);
+    glm::vec2 offset = glm::abs(humanCharacter->mTransform.GetPosition2() - mCharacter->mTransform.GetPosition2());
+    return (offset.x <= maxSignDistance) && (offset.y <= maxSignDistance);
+}
+
 bool AiCharacterController::TryFollowHumanCharacterNearby()
 {
-    float maxSignDistance = Convert::MapUnitsToMeters(0.5f);
-
-    float bestDistance2 = glm::pow(maxSignDistance, 2.0f);
+    float bestDistance2 = std::numeric_limits<float>::max();
     Pedestrian* bestHumanCharacter = nullptr;
     for (HumanPlayer* currentPlayer: gCarnageGame.mHumanPlayers)
     {
         if (currentPlayer == nullptr)
             continue;
         debug_assert(mCharacter != currentPlayer->mCharacter);
-        if (!currentPlayer->mCharacter->IsStanding())
+        Pedestrian* humanCharacter = currentPlayer->mCharacter;
+        if (!IsTouchedByHumanCharacter(humanCharacter))
             continue;
 
-        float currDistance2 = glm::distance2(currentPlayer->mCharacter->mTransform.GetPosition2(), mCharacter->mTransform.GetPosition2());
+        float currDistance2 = glm::distance2(humanCharacter->mTransform.GetPosition2(), mCharacter->mTransform.GetPosition2());
         if (currDistance2 > bestDistance2)
             continue;
 
         bestDistance2 = currDistance2;
-        bestHumanCharacter = currentPlayer->mCharacter;
+        bestHumanCharacter = humanCharacter;
     }
 
-    if (bestHumanCharacter)
+    if (bestHumanCharacter && ((mAiMode != ePedestrianAiMode_FollowTarget) || (mFollowPedestrian != bestHumanCharacter)))
     {
         FollowPedestrian(bestHumanCharacter);
         return true;
