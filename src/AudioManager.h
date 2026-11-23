@@ -42,7 +42,9 @@ public:
     void ResumeAllSounds();
 
 private:
-    AudioSource* GetFreeAudioSource() const;
+    // Get free hardware source, it stays in use until released
+    AudioSource* AcquireAudioSource();
+    void ReleaseAudioSource(AudioSource* audioSource);
 
     void InitSoundsAndMusicGainValue();
     bool PrepareAudioResources();
@@ -76,6 +78,7 @@ private:
 
     // audio resources
     std::vector<AudioSource*> mSfxAudioSources; // available hardware audio sources
+    std::vector<AudioSource*> mAcquiredSfxAudioSources; // sources in use by emitter channels
     std::vector<SfxSample*> mLevelSfxSamples;
     std::vector<SfxSample*> mVoiceSfxSamples;
     std::vector<SfxEmitter*> mActiveEmitters;
