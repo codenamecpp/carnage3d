@@ -15,6 +15,7 @@ public:
     // game - commons
     float mGamePlayerRespawnTime; // respawn time, seconds
     float mGameRailwaysDamageDelay; // how long can to stand on railways without damage, seconds
+    float mGameGourangaComboTime; // max time between hare krishnas kills to continue gouranga combo, seconds
 
     // pedestrians
     float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters
@@ -32,6 +33,7 @@ public:
 
     // traffic - common params
     float mTrafficGenHareKrishnasTime; // time to generate hare krishnas, seconds
+    int mTrafficHareKrishnasGroupSize; // number of pedestrians in hare krishnas group
 
     // traffic - pedestrians
     int mTrafficGenMaxPeds; // max number of traffic pedestrians around the player

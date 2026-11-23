@@ -117,6 +117,13 @@ void GameplayGamestate::OnGamestateBroadcastEvent(const BroadcastEvent& broadcas
             int playerIndex = gCarnageGame.GetHumanPlayerIndex(pedestrian);
             OnHumanPlayerDie(playerIndex);
         }
+
+        Pedestrian* attacker = broadcastEvent.mCharacter;
+        if (pedestrian && attacker && (attacker != pedestrian) && attacker->IsHumanPlayerCharacter())
+        {
+            int playerIndex = gCarnageGame.GetHumanPlayerIndex(attacker);
+            gCarnageGame.mHumanPlayers[playerIndex]->OnKillPedestrian(pedestrian);
+        }
         return;
     }
 
