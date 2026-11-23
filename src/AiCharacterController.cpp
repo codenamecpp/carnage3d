@@ -330,6 +330,23 @@ bool AiCharacterController::ChooseWalkWaypoint(bool isPanic)
         }
     }
 
+    // pedestrian off the pavement walks across road or field to get back on it
+    const MapBlockInfo* currentBlockInfo = gGameMap.GetBlockInfo(currentLogPos.x, currentLogPos.z, currentLogPos.y);
+    if (!isPanic && (newWayPoint == glm::ivec3(0, 0, 0)) && (currentBlockInfo->mGroundType != eGroundType_Pawement))
+    {
+        for (eMapDirection curr: moveDirs)
+        {
+            glm::ivec3 moveBlockPos = currentLogPos + GetVectorFromMapDirection(curr);
+
+            eGroundType groundType = gGameMap.GetBlockInfo(moveBlockPos.x, moveBlockPos.z, moveBlockPos.y)->mGroundType;
+            if ((groundType == eGroundType_Field) || (groundType == eGroundType_Road))
+            {
+                newWayPoint = moveBlockPos;
+                break;
+            }
+        }
+    }
+
     // nothing found
     if (newWayPoint == glm::ivec3(0, 0, 0))
     {
