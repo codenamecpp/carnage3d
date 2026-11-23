@@ -14,8 +14,11 @@
 //////////////////////////////////////////////////////////////////////////
 
 HUDPanel::HUDPanel()
-    : mLocalPosition()
+    : mScreenPosition()
     , mSize()
+    , mMinSize()
+    , mMaxSize()
+    , mLocalPosition()
 {
 }
 
