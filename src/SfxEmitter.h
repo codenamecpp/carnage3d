@@ -72,6 +72,7 @@ public:
     bool ResumeSound(int ichannel);
     bool SetPitch(int ichannel, float pitchValue);
     bool SetGain(int ichannel, float gainValue);
+    bool SetIgnoreDistance(int ichannel, bool ignoreDistance);
 
     bool IsPlaying(int ichannel) const;
     bool IsPaused(int ichannel) const;

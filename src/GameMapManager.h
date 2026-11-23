@@ -47,6 +47,10 @@ public:
     // @param position: Current position on map, meters
     float GetWaterLevelAtPosition2(const glm::vec2& position) const;
 
+    // Whether position is inside solid block or under solid block lid
+    // @param position: Current position on map, meters
+    bool IsUnderRoof(const glm::vec3& position) const;
+
     // get intersection with solid blocks on specific map layer, ignores slopes
     // @param origin: Start position
     // @param destination: End position

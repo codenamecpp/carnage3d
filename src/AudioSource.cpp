@@ -207,6 +207,12 @@ bool AudioSource::Start(bool enableLoop)
 {
     if (::alIsSource(mSourceID))
     {
+        gAudioDevice.UpdateSourcePosition(this);
+
+        // sound out of hearing range does not start
+        if (mDistanceGain <= 0.0f)
+            return false;
+
         ::alSourcePlay(mSourceID);
         alCheckError();
 
@@ -270,7 +276,9 @@ bool AudioSource::SetGain(float value)
 {
     if (::alIsSource(mSourceID))
     {
-        ::alSourcef(mSourceID, AL_GAIN, value);
+        mGain = value;
+
+        ::alSourcef(mSourceID, AL_GAIN, mGain * mDistanceGain);
         alCheckError();
 
         return true;
@@ -307,6 +315,21 @@ bool AudioSource::SetPosition3D(float positionx, float positiony, float position
 bool AudioSource::IsSourceError() const
 {
     return ::alIsSource(mSourceID) == AL_FALSE;
+}
+
+void AudioSource::SetMaxHearingDistance(float maxDistance)
+{
+    mMaxHearingDistance = maxDistance;
+}
+
+void AudioSource::SetCovered(bool isCovered)
+{
+    mCovered = isCovered;
+}
+
+void AudioSource::SetIgnoreDistance(bool ignoreDistance)
+{
+    mIgnoreDistance = ignoreDistance;
 }
 
 bool AudioSource::SetVelocity3D(float velocityx, float velocityy, float velocityz)
