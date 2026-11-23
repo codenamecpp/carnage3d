@@ -67,6 +67,7 @@ private:
     // constants
     static const int MusicSampleBufferSize = 32768;
     static const int MaxSfxAudioSources = 32;
+    static constexpr float SfxMaxHearingDistance = 16.0f; // sounds fade out linearly up to this distance, map units
     static const int MaxMusicSampleBuffers = 4;
 
     enum eMusicStatus

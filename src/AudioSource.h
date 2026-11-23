@@ -78,6 +78,12 @@ public:
     bool SetPitch(float value);
     bool SetPosition3D(float positionx, float positiony, float positionz);
     bool SetVelocity3D(float velocityx, float velocityy, float velocityz);
+    // Gain fades out linearly from full at listener position to silent at max distance, 0 disables fade
+    void SetMaxHearingDistance(float maxDistance);
+    // Covered source is half as loud, it works only with distance fade
+    void SetCovered(bool isCovered);
+    // Source keeps full gain at any distance, but it still pans and gets covered
+    void SetIgnoreDistance(bool ignoreDistance);
     // Get source current status
     eAudioSourceStatus GetSourceStatus() const;
     // Status shortcuts
@@ -112,4 +118,10 @@ private:
     unsigned int mSourceID = 0; // openal source handle
 
     glm::vec3 mSourceLocation;
+
+    float mGain = 1.0f;
+    float mDistanceGain = 1.0f;
+    float mMaxHearingDistance = 0.0f;
+    bool mCovered = false;
+    bool mIgnoreDistance = false;
 };

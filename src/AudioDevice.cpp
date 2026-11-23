@@ -209,40 +209,78 @@ void AudioDevice::UpdateSourcesPositions()
         if (!currSource->IsPlaying())
             continue;
 
-        const glm::vec3& sourceLocation = currSource->mSourceLocation;
-
-        AudioListener* nearestListener = nullptr;
-        float distanceToListener2 = 0.0f;
-        // find the nearest listener
-        for (AudioListener* currListener: mAllListeners)
-        {
-            if (nearestListener == nullptr)
-            {
-                nearestListener = currListener;
-                distanceToListener2 = glm::distance2(sourceLocation, currListener->mPosition);
-                continue;
-            }
-            float dist2 = glm::distance2(sourceLocation, currListener->mPosition);
-            if (dist2 < distanceToListener2)
-            {
-                nearestListener = currListener;
-                distanceToListener2 = dist2;
-            }
-        }
-
-        glm::vec3 listenerLocation {0.0f, 0.0f, 1.0f};
-        if (nearestListener)
-        {
-            listenerLocation = nearestListener->mPosition;
-        }
-
-        // relative position
-        float posx = sourceLocation.x - listenerLocation.x;
-        float posz = sourceLocation.z - listenerLocation.z;
-
-        ::alSource3f(currSource->mSourceID, AL_POSITION, posx, sourceLocation.y, posz);
-        alCheckError();
+        UpdateSourcePosition(currSource);
     }
+}
+
+void AudioDevice::UpdateSourcePosition(AudioSource* audioSource)
+{
+    const glm::vec3& sourceLocation = audioSource->mSourceLocation;
+
+    AudioListener* nearestListener = nullptr;
+    float distanceToListener2 = 0.0f;
+    // find the nearest listener
+    for (AudioListener* currListener: mAllListeners)
+    {
+        if (nearestListener == nullptr)
+        {
+            nearestListener = currListener;
+            distanceToListener2 = glm::distance2(sourceLocation, currListener->mPosition);
+            continue;
+        }
+        float dist2 = glm::distance2(sourceLocation, currListener->mPosition);
+        if (dist2 < distanceToListener2)
+        {
+            nearestListener = currListener;
+            distanceToListener2 = dist2;
+        }
+    }
+
+    glm::vec3 listenerLocation {0.0f, 0.0f, 1.0f};
+    if (nearestListener)
+    {
+        listenerLocation = nearestListener->mPosition;
+    }
+
+    // relative position, height does not affect attenuation
+    float posx = sourceLocation.x - listenerLocation.x;
+    float posz = sourceLocation.z - listenerLocation.z;
+
+    if (audioSource->mMaxHearingDistance <= 0.0f)
+    {
+        ::alSource3f(audioSource->mSourceID, AL_POSITION, posx, 0.0f, posz);
+        alCheckError();
+        return;
+    }
+
+    // fade out linearly with manhattan distance
+    float distance = glm::abs(posx) + glm::abs(posz);
+    audioSource->mDistanceGain = glm::clamp(1.0f - (distance / audioSource->mMaxHearingDistance), 0.0f, 1.0f);
+    if (audioSource->mIgnoreDistance)
+    {
+        audioSource->mDistanceGain = 1.0f;
+    }
+
+    // sound out of hearing range stops
+    if (audioSource->mDistanceGain <= 0.0f)
+    {
+        audioSource->Stop();
+        return;
+    }
+
+    if (audioSource->mCovered)
+    {
+        audioSource->mDistanceGain *= 0.5f;
+    }
+
+    ::alSourcef(audioSource->mSourceID, AL_GAIN, audioSource->mGain * audioSource->mDistanceGain);
+    alCheckError();
+
+    // pan changes linearly with horizontal distance, same as original game
+    // source stays at unit distance in front of listener at (0, 0, 1) that looks along -y, so openal does not attenuate it
+    float pan = glm::clamp(posx / audioSource->mMaxHearingDistance, -1.0f, 1.0f);
+    ::alSource3f(audioSource->mSourceID, AL_POSITION, pan, -std::sqrt(1.0f - pan * pan), 1.0f);
+    alCheckError();
 }
 
 void AudioDevice::QueryAudioDeviceCaps()
