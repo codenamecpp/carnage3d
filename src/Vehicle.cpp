@@ -14,6 +14,75 @@
 #include "GameObjectHelpers.h"
 #include "BroadcastEventsManager.h"
 
+// original game physics constants
+static const float CarMassScale = 60.0f; // style data mass to kilograms
+static const float CarRearTyreCoef = 1.5f;
+static const float CoachRearTyreCoef = 3.0f;
+static const float CarHandBrakeLateralCoef = 0.6f;
+static const float CarSteeringLockAngle = 0.873f; // radians
+static const float CarSteeringCenterAngle = 0.139f; // radians
+static const float CarSteeringRecenterSpeed = 3.24f; // radians per second, 0.139 per tick
+static const float CarRoadAssistSpeed = 0.65f; // radians per second, 0.0278 per tick
+static const float CarRampRiseSpeed = 5.83f; // meters per second, 4 pixels per tick
+static const float CarRoadAssistAngle = glm::radians(11.25f);
+static const float CarRoadAssistLockAngle = glm::pi<float>() / 1024.0f;
+static const int CarEngineSampleRates[] = { 18000, 33000, 41000, 48000, 53000, 58000, 62000, 66000, 69500, 72000, 74000, 76500, 77000 };
+
+// engine and skid sounds get louder with speed
+static float GetCarSoundGain(int speed)
+{
+    if (speed < 1)
+        return 0.4f;
+
+    return std::min(speed * 1.5f + 40.0f, 100.0f) / 100.0f;
+}
+
+static int GetCarEngineSampleRate(const VehicleInfo* carInfo, SfxSampleIndex sfxIndex, int speed)
+{
+    // gear changes every 10 pixels per tick
+    auto getGearsSampleRate = [](int speed)
+    {
+        if (speed < 0)
+            return CarEngineSampleRates[std::min(-speed, 12)];
+
+        return CarEngineSampleRates[std::min(speed / 10 + speed % 10 + (speed > 0 ? 1 : 0), 12)];
+    };
+
+    switch (carInfo->mSoundFunction)
+    {
+        case 0:
+        {
+            int sampleRate = getGearsSampleRate(speed);
+            if (sfxIndex == SfxLevel_FirstCarEngineSound + 9)
+                return sampleRate * 2;
+
+            return sampleRate;
+        }
+        case 1: return getGearsSampleRate(speed) / 2;
+        case 2: return 22050 + ((speed < 0) ? -speed * 400 : speed * 1400);
+        case 3: return (22050 + ((speed < 0) ? -speed * 400 : speed * 1400)) * 3;
+        case 4: return (std::abs(speed) + 2) * 2000;
+        case 5:
+        {
+            if (speed < 0) return (12 - speed) * 500;
+            if (speed < 8) return speed * 333 + 6000;
+            if (speed < 12) return speed * 750;
+            if (speed < 18) return speed * 500;
+            return speed * 333;
+        }
+    }
+    return 0;
+}
+
+static void SetCarSoundSampleRate(SfxEmitter* sfxEmitter, int ichannel, SfxSampleIndex sfxIndex, int sampleRate)
+{
+    SfxSample* sfxSample = gAudioManager.GetSound(eSfxSampleType_Level, sfxIndex);
+    if (sfxSample && (sfxSample->GetSampleRate() > 0))
+    {
+        sfxEmitter->SetPitch(ichannel, (1.0f * sampleRate) / sfxSample->GetSampleRate());
+    }
+}
+
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarWrecked()
     , mCarInfo()
@@ -49,10 +118,22 @@ void Vehicle::HandleSpawn()
     debug_assert(physicsBody);
     SetPhysics(physicsBody);
 
+    // style data has center of mass and moment of inertia in pixels
+    glm::vec2 centerOfMass = Convert::PixelsToMeters(glm::ivec2(mCarInfo->mCy, mCarInfo->mCx));
+    float rotationalInertia = mCarInfo->mMoment * MAP_SPRITE_SCALE * MAP_SPRITE_SCALE;
+    physicsBody->SetMassData(mCarInfo->mMass * CarMassScale, centerOfMass, rotationalInertia * CarMassScale);
+
+    mSteeringAngleWorld = physicsBody->GetOrientation().to_radians();
+    mSkidValue = 0.0f;
+    mCtlState = DriveCtlState();
+    mStepStartVelocity = glm::vec2();
+    mFallDamagePixels = 0.0f;
+    mFallPrevHeight = 0.0f;
+    mMapContact = false;
+    mPrevMapContact = false;
+
     mCarWrecked = false;
     mCurrentDamage = 0;
-    mLastCollisionTime = -1.0f;
-    mLastCollisionDamage = 0;
     mDamageDeltaBits = 0;
     mPrevDeltaBits = 0;
     mSpriteIndex = mCarInfo->mSpriteIndex; // todo: handle bike fallen state 
@@ -136,9 +217,14 @@ void Vehicle::SimulationStep()
             currCtlState.mHandBrake = ctlState.mHandBrake;
         }
     }
-    UpdateFriction(currCtlState);
-    UpdateDrive(currCtlState);
+    mCtlState = currCtlState;
+
+    UpdateMapContactDamage();
+    UpdateFallDamage();
     UpdateSteer(currCtlState);
+    UpdateTyreForces(currCtlState);
+
+    mStepStartVelocity = mPhysicsBody->GetLinearVelocity();
 }
 
 void Vehicle::DebugDraw(DebugRenderer& debugRender)
@@ -634,12 +720,16 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
 
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
-        float damageHeight = Convert::MapUnitsToMeters(1.3f); // todo: move to config
-        if (damageInfo.mFallHeight >= damageHeight)
+        // landing doubles current damage, but not on slope
+        if (!HasCornerOnSlope())
+        {
+            AddDamage(mCurrentDamage);
+        }
+        if ((mCurrentDamage > 50) && !IsCriticalDamageState())
         {
             mDamageDeltaBits = CAR_DAMAGE_SPRITE_DELTA_MASK; // set all damages
-            mCurrentDamage += 5; // todo: magic numbers
         }
+        gAudioManager.StartSound(eSfxSampleType_Level, SfxLevel_CarLanding, SfxFlags_None, mTransform.mPosition);
         return true;
     }
 
@@ -675,109 +765,108 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
         return true;
     }
 
-    if ((damageInfo.mDamageCause == eDamageCause_Collision) || (damageInfo.mDamageCause == eDamageCause_MapCollision))
+    if (damageInfo.mDamageCause == eDamageCause_Collision)
     {
-        if (damageInfo.mDamageCause == eDamageCause_Collision)
+        Vehicle* otherCar = ToVehicle(damageInfo.mSourceObject);
+        if (otherCar == nullptr)
+            return false;
+
+        // cars explode when they hit each other in air
+        if (IsInAir() || otherCar->IsInAir())
         {
-            if (damageInfo.mSourceObject == nullptr || !damageInfo.mSourceObject->IsVehicleClass())
-                return false;
+            AddDamage(GetMaxDamage());
+            return true;
         }
-        int collisionDamage = ComputeCollisionDamage(damageInfo);
+
+        // ignore cars that only touch each other
+        if (damageInfo.mImpactSpeed < gGameParams.mCarMinImpactSpeed)
+            return false;
+
+        if ((mCarInfo->mModelID != eVehicle_ModelCar) && ((std::max(GetSpeedPixels(), otherCar->GetSpeedPixels()) / 2) > 6))
+        {
+            SetDamageDeltaAtPoint(damageInfo.mContactPoint.mPosition);
+        }
+
+        int collisionDamage = ComputeCollisionDamage(otherCar);
         if (collisionDamage < 1)
             return false;
 
-        // one impact can touch more than one map block in same frame, count strongest contact only
-        if (damageInfo.mDamageCause == eDamageCause_MapCollision)
-        {
-            if (mLastCollisionTime == gTimeManager.mGameTime)
-            {
-                if (collisionDamage <= mLastCollisionDamage)
-                    return false;
-
-                int prevCollisionDamage = mLastCollisionDamage;
-                mLastCollisionDamage = collisionDamage;
-                collisionDamage -= prevCollisionDamage;
-            }
-            else
-            {
-                mLastCollisionTime = gTimeManager.mGameTime;
-                mLastCollisionDamage = collisionDamage;
-            }
-        }
-
-        glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(damageInfo.mContactPoint.mPosition);
-
-        // clockwise from top left corner
-        glm::vec2 chassisCorners[4];
-        GetChassisCornersLocal(chassisCorners);
-
-        float miny = chassisCorners[1].y;
-        float maxy = chassisCorners[2].y;
-        float minx = chassisCorners[0].x;
-        float maxx = chassisCorners[1].x;
-
-        /*
-                                Left
-                         _______________________
-                        |  |        |        |  |
-                        |  |        |        |  |
-                Rear    | --------- O --------- |    Front
-                        |  |        |        |  |
-                        |__|________|________|__|
-
-                                Right
-        */
-
-        float fr_bias = (maxx / 3.0f); // front-rear offset from corners
-
-        if (maxx - fabs(localPoint.x) < fr_bias)
-        {
-            if (localPoint.x > 0.0f)
-            {
-                // front left
-                if (localPoint.y < 0.0f)
-                {
-                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FL);
-                }
-                // front right
-                else
-                {
-                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FR);
-                }
-            }
-            else
-            {
-                // rear left
-                if (localPoint.y < 0.0f)
-                {
-                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BL);
-                }
-                // rear right
-                else
-                {
-                    mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BR);
-                }
-            }
-        }
-        else
-        {
-            // middle left
-            if (localPoint.y < 0.0f)
-            {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_ML);
-            }
-            // middle right
-            else
-            {
-                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_MR);
-            }
-        }
-
-        mCurrentDamage += collisionDamage;
+        AddDamage(collisionDamage);
         return true;
     }
 
     return false;
+}
+
+void Vehicle::SetDamageDeltaAtPoint(const glm::vec2& worldPoint)
+{
+    glm::vec2 localPoint = mPhysicsBody->GetLocalPoint(worldPoint);
+
+    // clockwise from top left corner
+    glm::vec2 chassisCorners[4];
+    GetChassisCornersLocal(chassisCorners);
+
+    float miny = chassisCorners[1].y;
+    float maxy = chassisCorners[2].y;
+    float minx = chassisCorners[0].x;
+    float maxx = chassisCorners[1].x;
+
+    /*
+                            Left
+                     _______________________
+                    |  |        |        |  |
+                    |  |        |        |  |
+            Rear    | --------- O --------- |    Front
+                    |  |        |        |  |
+                    |__|________|________|__|
+
+                            Right
+    */
+
+    float fr_bias = (maxx / 3.0f); // front-rear offset from corners
+
+    if (maxx - fabs(localPoint.x) < fr_bias)
+    {
+        if (localPoint.x > 0.0f)
+        {
+            // front left
+            if (localPoint.y < 0.0f)
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FL);
+            }
+            // front right
+            else
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_FR);
+            }
+        }
+        else
+        {
+            // rear left
+            if (localPoint.y < 0.0f)
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BL);
+            }
+            // rear right
+            else
+            {
+                mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_BR);
+            }
+        }
+    }
+    else
+    {
+        // middle left
+        if (localPoint.y < 0.0f)
+        {
+            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_ML);
+        }
+        // middle right
+        else
+        {
+            mDamageDeltaBits |= BIT(CAR_DAMAGE_SPRITE_DELTA_MR);
+        }
+    }
 }
 
 bool Vehicle::ShouldCollide(GameObject* otherObject) const
@@ -797,9 +886,28 @@ void Vehicle::HandleCollision(const Collision& collision)
 
 void Vehicle::HandleCollisionWithMap(const MapCollision& collision)
 {
-    DamageInfo damageInfo;
-    damageInfo.SetCollisionDamage(collision);
-    ReceiveDamage(damageInfo);
+    if (!mMapContact && !mPrevMapContact && !IsWrecked() && (GetSpeedPixels() > 1) && collision.HasContactPoints())
+    {
+        SetDamageDeltaAtPoint(collision.mContactPoints[0].mPosition);
+    }
+    mMapContact = true;
+
+    // car cannot turn while it touches wall
+    mPhysicsBody->SetAngularVelocity(cxx::angle_t());
+}
+
+void Vehicle::HandleFallingStarts()
+{
+    // faster car stays in air longer
+    mPhysicsBody->mFallHoverTime = (GetSpeedPixels() / 4) / GTA_TICKS_PER_SECOND;
+
+    // car jumps up from ramp
+    if (HasCornerOnSlope())
+    {
+        mPhysicsBody->mPositionY += Convert::PixelsToMeters(16);
+    }
+    mFallPrevHeight = mPhysicsBody->mPositionY;
+    mFallDamagePixels = 0.0f;
 }
 
 void Vehicle::HandleFallsOnWater(float fallDistance)
@@ -1164,8 +1272,6 @@ void Vehicle::Repair()
         return;
 
     mCurrentDamage = 0;
-    mLastCollisionTime = -1.0f;
-    mLastCollisionDamage = 0;
     mDamageDeltaBits = 0;
     mExplosionWaitTime = 0.0f;
 }
@@ -1177,33 +1283,84 @@ int Vehicle::GetCurrentDamage() const
 
 int Vehicle::GetMaxDamage() const
 {
-    // value from original style data, it is 100 for most vehicles
-    if (mCarInfo->mDamagable > 0)
-        return mCarInfo->mDamagable;
-
-    return 100; // default
+    // original game does not use damagable value from style data
+    return 100;
 }
 
-int Vehicle::ComputeCollisionDamage(const DamageInfo& damageInfo) const
+void Vehicle::AddDamage(int damage)
 {
-    // speed change of vehicle in impact
-    // in collision with other vehicle, the lighter vehicle gets the bigger speed change
-    // against map, vehicle gets all the speed change
-    float speedChange = damageInfo.mImpactSpeed;
-    if (damageInfo.mDamageCause == eDamageCause_Collision)
-    {
-        float thisMass = mPhysicsBody->GetMass();
-        float otherMass = damageInfo.mSourceObject->mPhysicsBody->GetMass();
-        speedChange *= otherMass / (thisMass + otherMass);
-    }
+    if (IsCriticalDamageState())
+        return;
 
-    float minSpeedChange = gGameParams.mCarCollisionDamageMinSpeed;
-    if (speedChange <= minSpeedChange)
+    mCurrentDamage = std::min(mCurrentDamage + damage, GetMaxDamage());
+}
+
+int Vehicle::ComputeCollisionDamage(const Vehicle* otherCar) const
+{
+    // only hits with player car do damage
+    Pedestrian* carDriver = GetCarDriver();
+    Pedestrian* otherCarDriver = otherCar->GetCarDriver();
+    bool isPlayerHit = (carDriver && carDriver->IsHumanPlayerCharacter()) || (otherCarDriver && otherCarDriver->IsHumanPlayerCharacter());
+    if (!isPlayerHit || (mCarInfo->mModelID == eVehicle_Tank))
         return 0;
 
-    // damage increases with square of speed change
-    float damage = gGameParams.mCarCollisionDamageCoef * (speedChange * speedChange - minSpeedChange * minSpeedChange);
-    return (int) (damage + 0.5f);
+    // difference of momentums
+    glm::vec2 thisVelocity = mStepStartVelocity / Convert::PixelsPerTickToMetersPerSecond(1.0f);
+    glm::vec2 otherVelocity = otherCar->mStepStartVelocity / Convert::PixelsPerTickToMetersPerSecond(1.0f);
+    glm::vec2 momentum = (mCarInfo->mMass * thisVelocity) - (otherCar->mCarInfo->mMass * otherVelocity);
+    int impactEnergy = ((int) std::fabs(momentum.x) + (int) std::fabs(momentum.y)) / 4;
+    if (impactEnergy < 1)
+        return 0;
+
+    float damage = impactEnergy / (2.0f * mCarInfo->mMass);
+    if (otherCar->mCarInfo->mModelID == eVehicle_Tank)
+    {
+        damage = std::max(damage, 10.0f);
+    }
+    return (int) damage;
+}
+
+void Vehicle::UpdateMapContactDamage()
+{
+    // wall hit damages car when it moves away from wall
+    if (mPrevMapContact && !mMapContact && !IsWrecked())
+    {
+        AddDamage(GetSpeedPixels() / 4);
+    }
+    mPrevMapContact = mMapContact;
+    mMapContact = false;
+}
+
+void Vehicle::UpdateFallDamage()
+{
+    if (!IsInAir())
+        return;
+
+    bool isCornerOnSlope = HasCornerOnSlope();
+
+    // car goes up while it leaves ramp
+    if ((mPhysicsBody->mFallHoverTime > 0.0f) && isCornerOnSlope)
+    {
+        mPhysicsBody->mPositionY += CarRampRiseSpeed * gPhysics.GetSimulationStepTime();
+    }
+
+    float fallDistance = mFallPrevHeight - mPhysicsBody->mPositionY;
+    mFallPrevHeight = mPhysicsBody->mPositionY;
+
+    if (IsWrecked() || IsCriticalDamageState())
+        return;
+
+    // 1 damage for each pixel of fall, but not above slope
+    if ((fallDistance > 0.0f) && !isCornerOnSlope)
+    {
+        mFallDamagePixels += fallDistance / MAP_SPRITE_SCALE;
+        int fallDamage = (int) mFallDamagePixels;
+        mFallDamagePixels -= fallDamage;
+        AddDamage(fallDamage);
+    }
+
+    // damage in air stops at 50, landing doubles it
+    mCurrentDamage = std::min(mCurrentDamage, 50);
 }
 
 bool Vehicle::IsInWater() const
@@ -1275,19 +1432,23 @@ void Vehicle::UpdateEngineSound()
             return;
     }
 
-    if (IsWrecked())
+    if (IsWrecked() || !HasPassengers())
     {
         mSfxEmitter->StopSound(eCarSfxChannelIndex_Engine);
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Skid);
         return;
     }
 
-    if (!HasPassengers())
-    {
-        mSfxEmitter->StopSound(eCarSfxChannelIndex_Engine);
-        return;
-    }
+    int speed = GetSpeedPixels();
+    UpdateSkidSound(speed);
 
     SfxSampleIndex sfxIndex = SfxLevel_FirstCarEngineSound + mCarInfo->mEngine;
+    int sampleRate = GetCarEngineSampleRate(mCarInfo, sfxIndex, speed);
+    if (sampleRate == 0)
+    {
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Engine);
+        return;
+    }
 
     if (!mSfxEmitter->IsPlaying(eCarSfxChannelIndex_Engine))
     {
@@ -1298,13 +1459,46 @@ void Vehicle::UpdateEngineSound()
     // player car engine keeps full gain when camera moves away
     Pedestrian* carDriver = GetCarDriver();
     mSfxEmitter->SetIgnoreDistance(eCarSfxChannelIndex_Engine, carDriver && carDriver->IsHumanPlayerCharacter());
-    // todo: this is temporary solution!
 
-    float speed = fabs(GetCurrentSpeed());
-    float maxSpeed = 3.0f;
-    float pitchValue = 0.8f + (speed / maxSpeed);
-    pitchValue = std::min(pitchValue, 4.0f);
-    mSfxEmitter->SetPitch(eCarSfxChannelIndex_Engine, pitchValue);
+    // engine runs faster when wheels are in air
+    if (IsInAir())
+    {
+        sampleRate *= 3;
+    }
+    SetCarSoundSampleRate(mSfxEmitter, eCarSfxChannelIndex_Engine, sfxIndex, sampleRate);
+    mSfxEmitter->SetGain(eCarSfxChannelIndex_Engine, GetCarSoundGain(speed));
+}
+
+void Vehicle::UpdateSkidSound(int speed)
+{
+    int skidValue = (int) mSkidValue;
+    bool isHandBrakeSkid = mCtlState.mHandBrake && (speed > 1);
+    bool isSkidding = false;
+    int sampleRate = 0;
+    if (mCarInfo->mSoundFunction == 5) // heavy vehicles
+    {
+        isSkidding = ((speed > 14) && (skidValue > 40)) || isHandBrakeSkid;
+        sampleRate = (skidValue / 2) * 150 + 8000;
+    }
+    else if (mCarInfo->mSoundFunction != 4) // tank does not skid
+    {
+        isSkidding = (skidValue > 12) || isHandBrakeSkid;
+        sampleRate = skidValue * 150 + 8000;
+    }
+
+    if (!isSkidding)
+    {
+        mSfxEmitter->StopSound(eCarSfxChannelIndex_Skid);
+        return;
+    }
+
+    if (!mSfxEmitter->IsPlaying(eCarSfxChannelIndex_Skid))
+    {
+        if (!StartGameObjectSound(eCarSfxChannelIndex_Skid, eSfxSampleType_Level, SfxLevel_CarSkid, SfxFlags_Loop))
+            return;
+    }
+    SetCarSoundSampleRate(mSfxEmitter, eCarSfxChannelIndex_Skid, SfxLevel_CarSkid, sampleRate);
+    mSfxEmitter->SetGain(eCarSfxChannelIndex_Skid, GetCarSoundGain(speed));
 }
 
 void Vehicle::UpdateHorn()
@@ -1344,6 +1538,40 @@ void Vehicle::UpdateHorn()
     {
         StartGameObjectSound(eCarSfxChannelIndex_Misc, eSfxSampleType_Level, sfxIndex, SfxFlags_Loop);
     }
+}
+
+int Vehicle::GetSpeedPixels() const
+{
+    return (int) Convert::MetersPerSecondToPixelsPerTick(glm::length(mPhysicsBody->GetLinearVelocity()));
+}
+
+float Vehicle::GetCurrentThrust() const
+{
+    if (mCurrentDamage > 25)
+        return (125 - std::min(mCurrentDamage, 100)) * 0.01f * mCarInfo->mThrust;
+
+    return mCarInfo->mThrust;
+}
+
+bool Vehicle::IsInAir() const
+{
+    return mPhysicsBody->mFalling;
+}
+
+bool Vehicle::HasCornerOnSlope() const
+{
+    glm::vec2 corners[4];
+    GetChassisCorners(corners);
+
+    int layer = (int) (Convert::MetersToMapUnits(mPhysicsBody->mPositionY) + 0.01f);
+    for (const glm::vec2& currCorner: corners)
+    {
+        glm::ivec2 blockPosition = Convert::MetersToMapUnits(currCorner);
+        const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(blockPosition.x, blockPosition.y, layer);
+        if (blockInfo->mSlopeType > 0)
+            return true;
+    }
+    return false;
 }
 
 float Vehicle::GetCurrentSpeed() const
@@ -1417,85 +1645,120 @@ void Vehicle::GetTireCorners(eCarTire tireID, glm::vec2 corners[4]) const
 
 void Vehicle::UpdateSteer(const DriveCtlState& currCtlState)
 {
-    const float LockAngleRadians = glm::radians(30.0f);
-    const float TurnSpeedPerSec = glm::radians(270.0f * 1.0f);
+    // front tyres keep their direction in world space when car turns
+    float timeDelta = gPhysics.GetSimulationStepTime();
+    float bodyAngle = mPhysicsBody->GetOrientation().to_radians();
 
-    float turnPerTimeStep = (TurnSpeedPerSec * gTimeManager.mGameFrameDelta);
-    float desiredAngle = (LockAngleRadians * currCtlState.mSteerDirection);
-    float angleToTurn = glm::clamp((desiredAngle - mSteeringAngleRadians), -turnPerTimeStep, turnPerTimeStep);
-    mSteeringAngleRadians = glm::clamp(mSteeringAngleRadians + angleToTurn, -LockAngleRadians, LockAngleRadians);
-}
-
-void Vehicle::UpdateFriction(const DriveCtlState& currCtlState)
-{
-    float linearSpeed = 0.0f;
-
-    glm::vec2 linearVelocityVector = mPhysicsBody->GetLinearVelocity();
-    if (glm::length2(linearVelocityVector) > 0.0f)
+    if (currCtlState.mSteerDirection != 0.0f)
     {
-        linearSpeed = glm::length(linearVelocityVector);
-    }
-
-    // kill lateral velocity front tire
-    {
-        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Front);
-        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Front));
-    }
-
-    // kill lateral velocity rear tire
-    {
-        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Rear);
-        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Rear));
-    }
-
-    // rolling resistance
-    if (linearSpeed > 0.0f)
-    {
-        float rrCoef = 50.0f;
-        mPhysicsBody->ApplyLinearImpulse(rrCoef * -linearVelocityVector, GetTirePosition(eCarTire_Front));
-        mPhysicsBody->ApplyLinearImpulse(rrCoef * -linearVelocityVector, GetTirePosition(eCarTire_Rear));
-    }
-
-    // apply drag force
-    if (linearSpeed > 0.0f)
-    {
-        float dragForceCoef = 102.0f;
-        glm::vec2 dragForce = -dragForceCoef * linearSpeed * linearVelocityVector;
-
-        mPhysicsBody->AddForce(dragForce);
-    }
-}
-
-void Vehicle::UpdateDrive(const DriveCtlState& currCtlState)
-{
-    if (currCtlState.mDriveDirection == 0.0f)
-        return;
-
-    float driveForce = 100750.0f; // todo: magic numbers
-    float brakeForce = driveForce * mCarInfo->mHandbrakeFriction;
-    float reverseForce = driveForce * 0.75f;
-
-    float currentSpeed = GetCurrentSpeed();
-    float engineForce = 0.0f;
-
-    if (currCtlState.mDriveDirection > 0.0f)
-    {
-        engineForce = driveForce;
+        if (!IsInAir())
+        {
+            // style data has turn ratio in degrees per tick
+            float turnSpeed = glm::radians(1.0f * mCarInfo->mTurnRatio) * GTA_TICKS_PER_SECOND;
+            mSteeringAngleWorld += turnSpeed * currCtlState.mSteerDirection * timeDelta;
+        }
     }
     else
     {
-        if (currentSpeed > 0.0f)
+        float steeringSin = std::sin(mSteeringAngleWorld - bodyAngle);
+        if (steeringSin >= CarSteeringCenterAngle)
         {
-            engineForce = brakeForce;
+            mSteeringAngleWorld -= CarSteeringRecenterSpeed * timeDelta;
         }
-        else
+        else if (steeringSin < -CarSteeringCenterAngle)
         {
-            engineForce = reverseForce;
+            mSteeringAngleWorld += CarSteeringRecenterSpeed * timeDelta;
+        }
+
+        // road assist turns player car to nearest road direction
+        Pedestrian* carDriver = GetCarDriver();
+        if (carDriver && carDriver->IsHumanPlayerCharacter() && (currCtlState.mDriveDirection >= 0.0f) && (GetSpeedPixels() > 6))
+        {
+            glm::ivec3 logPosition = Convert::MetersToMapUnits(mTransform.mPosition);
+            const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(logPosition.x, logPosition.z, logPosition.y);
+            if (blockInfo->mGroundType == eGroundType_Road)
+            {
+                float axisAngle = glm::round(bodyAngle / glm::half_pi<float>()) * glm::half_pi<float>();
+                float axisOffset = bodyAngle - axisAngle;
+                if (std::fabs(axisOffset) < CarRoadAssistLockAngle)
+                {
+                    bodyAngle = axisAngle;
+                    mPhysicsBody->SetOrientation(cxx::angle_t::from_radians(axisAngle));
+                    mPhysicsBody->SetAngularVelocity(cxx::angle_t());
+                    mSteeringAngleWorld = axisAngle;
+                }
+                else if (std::fabs(axisOffset) < CarRoadAssistAngle)
+                {
+                    mSteeringAngleWorld -= glm::sign(axisOffset) * CarRoadAssistSpeed * timeDelta;
+                }
+            }
         }
     }
 
-    glm::vec2 F = engineForce * currCtlState.mDriveDirection * GetTireForward(eCarTire_Rear);
-    mPhysicsBody->AddForce(F, GetTirePosition(eCarTire_Rear));
+    mSteeringAngleRadians = std::remainder(mSteeringAngleWorld - bodyAngle, glm::two_pi<float>());
+    mSteeringAngleRadians = glm::clamp(mSteeringAngleRadians, -CarSteeringLockAngle, CarSteeringLockAngle);
+    mSteeringAngleWorld = bodyAngle + mSteeringAngleRadians;
+}
+
+void Vehicle::UpdateTyreForces(const DriveCtlState& currCtlState)
+{
+    mSkidValue = 0.0f;
+
+    if (IsInAir())
+        return;
+
+    float driveForce = 0.0f;
+    if (currCtlState.mDriveDirection > 0.0f)
+    {
+        driveForce = GetCurrentThrust() * currCtlState.mDriveDirection;
+        if ((mCarInfo->mModelID == eVehicle_Tank) && (GetSpeedPixels() > mCarInfo->mMaxSpeed))
+        {
+            driveForce = 0.0f;
+        }
+    }
+    else if (currCtlState.mDriveDirection < 0.0f)
+    {
+        float reverseCoef = (mCarInfo->mClassID == eVehicleClass_Motorcycle) ? 0.15f : 0.5f;
+        driveForce = GetCurrentThrust() * reverseCoef * currCtlState.mDriveDirection;
+    }
+
+    // rear tyres have more grip, hand brake makes them slide
+    bool isCoach = (mCarInfo->mModelID == eVehicle_Coach);
+    float rearCoef = isCoach ? CoachRearTyreCoef : CarRearTyreCoef;
+    float rearForwardFriction = mCarInfo->mTyreAdhesionX * rearCoef;
+    float rearLateralFriction = mCarInfo->mTyreAdhesionY * rearCoef;
+    if (currCtlState.mHandBrake)
+    {
+        rearForwardFriction = (mCarInfo->mHandbrakeFriction + mCarInfo->mTyreAdhesionX) * rearCoef;
+        rearLateralFriction = mCarInfo->mTyreAdhesionY * (isCoach ? CoachRearTyreCoef : CarHandBrakeLateralCoef);
+    }
+
+    float lateralForce = ApplyTyreForce(eCarTire_Front, mCarInfo->mTyreAdhesionX, mCarInfo->mTyreAdhesionY, 0.0f);
+    lateralForce += ApplyTyreForce(eCarTire_Rear, rearForwardFriction, rearLateralFriction, driveForce);
+    mSkidValue = std::fabs(lateralForce);
+
+    // hand brake with gas always makes skid
+    if (currCtlState.mHandBrake && (currCtlState.mDriveDirection > 0.0f) && (GetSpeedPixels() > 2))
+    {
+        mSkidValue = 21.0f;
+    }
+}
+
+float Vehicle::ApplyTyreForce(eCarTire tireID, float forwardFriction, float lateralFriction, float driveForce)
+{
+    glm::vec2 tirePosition = GetTirePosition(tireID);
+    glm::vec2 tireForward = GetTireForward(tireID);
+    glm::vec2 tireLateral = GetTireLateral(tireID);
+
+    // tyre forces are in pixels per tick and do not use mass
+    float metersPerSecond = Convert::PixelsPerTickToMetersPerSecond(1.0f);
+    glm::vec2 tireVelocity = mPhysicsBody->GetLinearVelocityFromWorldPoint(tirePosition) / metersPerSecond;
+    float forwardForce = driveForce - forwardFriction * glm::dot(tireVelocity, tireForward);
+    float lateralForce = -lateralFriction * glm::dot(tireVelocity, tireLateral);
+
+    float forceScale = CarMassScale * metersPerSecond * GTA_TICKS_PER_SECOND;
+    mPhysicsBody->AddForce((tireForward * forwardForce + tireLateral * lateralForce) * forceScale, tirePosition);
+    return lateralForce;
 }
 
 glm::vec2 Vehicle::GetTireLateralVelocity(eCarTire tireID) const

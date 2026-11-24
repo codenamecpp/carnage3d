@@ -52,6 +52,7 @@ enum : SfxSampleIndex
     SfxLevel_CarCrash4 = 9,
     SfxLevel_Explosion = 10,
     SfxLevel_CrateBreak = 11,
+    SfxLevel_CarLanding = 14,
     SfxLevel_CarJacking = 15,
     SfxLevel_Punch = 16,
     SfxLevel_Squashed = 17,
@@ -82,6 +83,7 @@ enum : SfxSampleIndex
     // car horn sounds
 
     SfxLevel_CarAlarm = 64,
+    SfxLevel_CarSkid = 65,
     SfxLevel_AmbulanceSiren = 66,
     SfxLevel_PoliceSiren = 67,
     SfxLevel_HareKrishnasChant = 73,
@@ -119,4 +121,5 @@ enum eCarSfxChannelIndex
     eCarSfxChannelIndex_Engine,
     eCarSfxChannelIndex_Misc, // horn, etc
     eCarSfxChannelIndex_Weapon,
+    eCarSfxChannelIndex_Skid,
 };

@@ -279,23 +279,33 @@ void PhysicsManager::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
     b2Fixture* fixtureB = contact->GetFixtureB();
 
     bool enableCollisionResponse = true;
+    b2Fixture* objectWithMapFixture = nullptr;
 
     // check map collision
     if (CheckCollisionGroup(fixtureA, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
         // assume fixtureB is game object collider
         enableCollisionResponse = ShouldCollide_ObjectWithMap(contact, fixtureB, fixtureA);
+        objectWithMapFixture = fixtureB;
     }
     else if (CheckCollisionGroup(fixtureB, CollisionGroup_MapBlock | CollisionGroup_Wall))
     {
         // assume fixtureA is game object collider
         enableCollisionResponse = ShouldCollide_ObjectWithMap(contact, fixtureA, fixtureB);
+        objectWithMapFixture = fixtureA;
     }
     else // object vs object
     {
         enableCollisionResponse = ShouldCollide_Objects(contact, fixtureA, fixtureB);
     }
     contact->SetEnabled(enableCollisionResponse);
+
+    // cars bounce from walls
+    if (enableCollisionResponse && objectWithMapFixture && CheckCollisionGroup(objectWithMapFixture, CollisionGroup_Car))
+    {
+        contact->SetRestitution(gGameParams.mCarWallRestitution);
+        contact->SetRestitutionThreshold(gGameParams.mCarMinImpactSpeed);
+    }
 
     // velocities are not changed by collision response yet, so impact speed is correct here
     if (enableCollisionResponse)
@@ -382,14 +392,30 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         return;
 
     float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
+    bool isCar = gameObject->IsVehicleClass();
 
     float prevHeight = physicsBody->mPositionY;
     if (physicsBody->mFalling)
     {
         // whether falling ends
-        float fallingDistance = mGravity * mSimulationStepTime;
-        physicsBody->mPositionY = std::max(groundHeight, physicsBody->mPositionY - fallingDistance);
-        if (physicsBody->mPositionY == groundHeight)
+        bool isLanding = false;
+        if (physicsBody->mFallHoverTime > 0.0f)
+        {
+            // body stays at same height, it lands only on higher ground
+            physicsBody->mFallHoverTime -= mSimulationStepTime;
+            if (groundHeight > physicsBody->mPositionY)
+            {
+                physicsBody->mPositionY = groundHeight;
+                isLanding = true;
+            }
+        }
+        else
+        {
+            float fallingDistance = (isCar ? gGameParams.mCarFallSpeed : mGravity) * mSimulationStepTime;
+            physicsBody->mPositionY = std::max(groundHeight, physicsBody->mPositionY - fallingDistance);
+            isLanding = (physicsBody->mPositionY == groundHeight);
+        }
+        if (isLanding)
         {
             // handle water contact
             float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
@@ -407,6 +433,13 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
     {
         const float fallThresholdDistance = 0.1f;
         bool onTheGround = fabsf(groundHeight - physicsBody->mPositionY) <= fallThresholdDistance;
+        if (isCar)
+        {
+            // car follows ground that goes down a little
+            glm::vec2 nextPosition = physicsBody->GetPosition2() + (physicsBody->GetLinearVelocity() * gGameParams.mCarFallLookAheadTime);
+            float nextGroundHeight = gGameMap.GetHeightAtPosition(glm::vec3(nextPosition.x, physicsBody->mPositionY, nextPosition.y), false);
+            onTheGround = (physicsBody->mPositionY - std::min(groundHeight, nextGroundHeight)) <= gGameParams.mCarFallStartHeight;
+        }
         if (onTheGround)
         {
             physicsBody->mPositionY = groundHeight;

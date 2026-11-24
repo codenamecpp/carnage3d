@@ -49,8 +49,11 @@ void GameParams::SetToDefaults()
     mCarBurnDuration = 20.0f;
     mCarSpeedPassengerCanEnter = 8.0f;
     mCarExplosionChainDelayTime = 0.5f;
-    mCarCollisionDamageMinSpeed = 2.0f;
-    mCarCollisionDamageCoef = 0.2f;
+    mCarFallSpeed = 11.67f; // 8 pixels per tick
+    mCarFallStartHeight = Convert::PixelsToMeters(32);
+    mCarFallLookAheadTime = 0.043f; // 1 tick
+    mCarWallRestitution = 0.625f;
+    mCarMinImpactSpeed = 1.46f; // 1 pixel per tick
     mTurretRotationSpeed = 120.0f;
     // broadcast events
     mBroadcastGunShotEventDuration = 1.0f;

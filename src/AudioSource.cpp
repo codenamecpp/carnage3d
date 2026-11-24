@@ -65,6 +65,11 @@ bool AudioSampleBuffer::IsStereo() const
     return mChannelsCount == 2;
 }
 
+int AudioSampleBuffer::GetSampleRate() const
+{
+    return mSampleRate;
+}
+
 float AudioSampleBuffer::GetBufferDurationSeconds() const
 {
     float durationSeconds = 0.0f;

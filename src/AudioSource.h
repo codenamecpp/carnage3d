@@ -33,6 +33,7 @@ public:
     bool IsBufferError() const;
 
     float GetBufferDurationSeconds() const;
+    int GetSampleRate() const;
 
     // Sample data desc
     bool IsStereo() const;

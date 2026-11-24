@@ -18,6 +18,8 @@ public:
     SfxSample(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, AudioSampleBuffer* sampleBuffer);
     ~SfxSample();
 
+    int GetSampleRate() const;
+
 private:
     eSfxSampleType mSfxType;
     SfxSampleIndex mSfxIndex;

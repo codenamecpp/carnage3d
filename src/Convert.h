@@ -120,6 +120,10 @@ public:
         };
     }
 
+    // Convert speed from original game units and back
+    static float PixelsPerTickToMetersPerSecond(float speed) { return (speed * MAP_SPRITE_SCALE * GTA_TICKS_PER_SECOND); }
+    static float MetersPerSecondToPixelsPerTick(float speed) { return (speed / (MAP_SPRITE_SCALE * GTA_TICKS_PER_SECOND)); }
+
     // Convert meters directly to pixels
     static glm::ivec2 MetersToPixels(const glm::vec2& meters)
     {
