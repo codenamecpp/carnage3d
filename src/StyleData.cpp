@@ -1128,7 +1128,7 @@ bool StyleData::InitGameObjects()
                 objectRaw.mHeight = frameCount;
             }
             debug_assert(objectRaw.mHeight > 0);
-            currObject.mAnimationData.mFrameRate = (GTA_CYCLES_PER_FRAME * 1.0f) / objectRaw.mHeight;
+            currObject.mAnimationData.mFrameRate = GTA_TICKS_PER_SECOND / objectRaw.mHeight;
             currObject.mAnimationData.SetFrames(startSpriteIndex, objectRaw.mWidth);
             currObject.mLifeDuration = objectRaw.mDepth;
         }

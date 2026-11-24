@@ -307,7 +307,7 @@ void SpriteManager::InitBlocksAnimations()
     {
         BlockAnimation animData;
         animData.mBlockIndex = cityStyle.GetBlockTextureLinearIndex((currAnim.mWhich == 0 ? eBlockType_Side : eBlockType_Lid), currAnim.mBlock);
-        animData.mAnimDesc.mFrameRate = (GTA_CYCLES_PER_FRAME * 1.0f) / currAnim.mSpeed;
+        animData.mAnimDesc.mFrameRate = GTA_TICKS_PER_SECOND / currAnim.mSpeed;
         animData.mAnimDesc.SetFrames(animData.mBlockIndex, currAnim.mFrameCount + 1);
         for (int iframe = 0; iframe < currAnim.mFrameCount; ++iframe)
         {   

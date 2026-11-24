@@ -22,6 +22,7 @@ public:
     bool mWaterContact = false; // fall into water
     bool mFalling = false; // falling from a height
     float mFallStartHeight = 0.0f; // specified if mFalling is set
+    float mFallHoverTime = 0.0f; // time in air after jump before body starts to go down, seconds
 
 public:
     PhysicsBody(GameObject* owner, PhysicsBodyFlags flags);
@@ -72,6 +73,11 @@ public:
     glm::vec2 GetLinearVelocityFromLocalPoint(const glm::vec2& localPosition) const;
 
     float GetMass() const;
+
+    // Override mass properties that are computed from colliders
+    // @param centerOfMass: Local position, meters
+    // @param rotationalInertia: About center of mass
+    void SetMassData(float mass, const glm::vec2& centerOfMass, float rotationalInertia);
 
     // Convert coordinate from local to world space and vice versa
     // @param localPosition, worldPosition: Coordinate in meters

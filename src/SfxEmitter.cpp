@@ -12,6 +12,11 @@ SfxSample::SfxSample(eSfxSampleType sfxType, SfxSampleIndex sfxIndex, AudioSampl
     debug_assert(mSampleBuffer);
 }
 
+int SfxSample::GetSampleRate() const
+{
+    return mSampleBuffer->GetSampleRate();
+}
+
 SfxSample::~SfxSample()
 {
     if (mSampleBuffer)

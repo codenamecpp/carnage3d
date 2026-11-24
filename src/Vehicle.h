@@ -40,6 +40,7 @@ public:
     void HandleDespawn() override;
     void HandleCollision(const Collision& collision) override;
     void HandleCollisionWithMap(const MapCollision& collision) override;
+    void HandleFallingStarts() override;
     void HandleFallsOnWater(float fallDistance) override;
     void HandleFallsOnGround(float fallDistance) override;
     bool ReceiveDamage(const DamageInfo& damageInfo) override;
@@ -113,6 +114,8 @@ public:
     // Get vehicle damage level at which vehicle explodes
     int GetMaxDamage() const;
 
+    bool IsInAir() const;
+
     // Get current vehicle speed in meters per hour
     float GetCurrentSpeed() const;
 
@@ -125,6 +128,7 @@ private:
     void SetupDeltaAnimations();
     void UpdateDeltaAnimations();
     void UpdateEngineSound();
+    void UpdateSkidSound(int speed);
     void UpdateHorn();
 
     void SetRemap(int remapIndex);
@@ -140,9 +144,26 @@ private:
     void UpdateWaterJet(bool isActive);
     void FireTankGun(Pedestrian* carDriver);
     void UpdateDamageFromRailways();
+    void UpdateMapContactDamage();
+    void UpdateFallDamage();
 
-    // Get damage from collision with other vehicle or map
-    int ComputeCollisionDamage(const DamageInfo& damageInfo) const;
+    // Add damage, it stops at max damage
+    void AddDamage(int damage);
+
+    int ComputeCollisionDamage(const Vehicle* otherCar) const;
+
+    // Break car part that is near the point
+    // @param worldPoint: Position, meters
+    void SetDamageDeltaAtPoint(const glm::vec2& worldPoint);
+
+    // Get speed, pixels per tick
+    int GetSpeedPixels() const;
+
+    // Get engine force, it gets lower with damage
+    float GetCurrentThrust() const;
+
+    // Whether some chassis corner is on slope block
+    bool HasCornerOnSlope() const;
 
     SpriteDeltaBits GetSpriteDeltas() const;
 
@@ -160,8 +181,11 @@ private:
     };
 
     void UpdateSteer(const DriveCtlState& currCtlState);
-    void UpdateFriction(const DriveCtlState& currCtlState);
-    void UpdateDrive(const DriveCtlState& currCtlState);
+    void UpdateTyreForces(const DriveCtlState& currCtlState);
+
+    // Apply tyre friction and drive force at tyre position
+    // @returns Lateral force
+    float ApplyTyreForce(eCarTire tireID, float forwardFriction, float lateralFriction, float driveForce);
 
     // Get tire velocities
     glm::vec2 GetTireLateralVelocity(eCarTire tireID) const;
@@ -197,8 +221,11 @@ private:
     float mBurnStartTime = 0.0f;
     float mStandingOnRailwaysTimer = 0.0f; // how long standing on tracks, seconds
     float mExplosionWaitTime = 0.0f;
-    float mLastCollisionTime = -1.0f; // game time of last map collision damage, seconds
-    int mLastCollisionDamage = 0;
+    float mFallDamagePixels = 0.0f; // fall pixels not counted as damage yet
+    float mFallPrevHeight = 0.0f;
+    bool mMapContact = false; // touched map in last simulation step
+    bool mPrevMapContact = false;
+    glm::vec2 mStepStartVelocity; // velocity before last simulation step, meters per second
 
     int mRemapIndex = NO_REMAP;
     int mSpriteIndex = 0;
@@ -210,4 +237,7 @@ private:
     float mFrontTireOffset = 0.0f; // steer
     float mRearTireOffset = 0.0f; // drive
     float mSteeringAngleRadians = 0.0f;
+    float mSteeringAngleWorld = 0.0f; // front tyres direction in world space, radians
+    float mSkidValue = 0.0f; // sum of tyres lateral forces
+    DriveCtlState mCtlState;
 };

@@ -408,3 +408,12 @@ float PhysicsBody::GetMass() const
 {
     return mBox2Body->GetMass();
 }
+
+void PhysicsBody::SetMassData(float mass, const glm::vec2& centerOfMass, float rotationalInertia)
+{
+    b2MassData massData;
+    massData.mass = mass;
+    massData.center = convert_vec2(centerOfMass);
+    massData.I = rotationalInertia + mass * b2Dot(massData.center, massData.center); // box2d expects inertia about body origin
+    mBox2Body->SetMassData(&massData);
+}

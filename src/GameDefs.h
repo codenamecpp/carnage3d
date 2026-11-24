@@ -26,7 +26,7 @@
 #define CAR_WHEEL_SIZE_W_PX 6
 #define CAR_WHEEL_SIZE_H_PX 12
 
-#define GTA_CYCLES_PER_FRAME 24
+#define GTA_TICKS_PER_SECOND (70.0f / 3.0f)
 
 // in original gta1 map height levels is counting from top to bottom - 
 // 0 is highest and 5 is lowest level
@@ -598,7 +598,7 @@ struct VehicleInfo
 
     int mTurning;
 
-    int mDamagable; // damage level at which vehicle explodes
+    int mDamagable;
     int mValue[4];
 
     struct // physics props

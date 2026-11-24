@@ -54,8 +54,11 @@ public:
     float mCarBurnDuration; // time before flame will go out by itself, seconds
     float mCarSpeedPassengerCanEnter; // passenger can enter or exit vehicle only if speed is low
     float mCarExplosionChainDelayTime; // delay before car explode, seconds
-    float mCarCollisionDamageMinSpeed; // speed change in impact below which vehicle gets no damage, meters per second
-    float mCarCollisionDamageCoef; // scales collision damage, which grows with square of speed change
+    float mCarFallSpeed; // constant, meters per second
+    float mCarFallStartHeight; // vehicle falls only when ground is lower than this, meters
+    float mCarFallLookAheadTime; // ground check looks ahead this time, seconds
+    float mCarWallRestitution; // part of speed towards wall that vehicle keeps after hit
+    float mCarMinImpactSpeed; // slower hits do not bounce and do not damage, meters per second
     // vehicles misc
     float mTurretRotationSpeed; // tank/firetruck turret, degrees per second
 
