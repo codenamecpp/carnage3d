@@ -1304,10 +1304,14 @@ int Vehicle::ComputeCollisionDamage(const Vehicle* otherCar) const
     if (!isPlayerHit || (mCarInfo->mModelID == eVehicle_Tank))
         return 0;
 
-    // difference of momentums
-    glm::vec2 thisVelocity = mStepStartVelocity / Convert::PixelsPerTickToMetersPerSecond(1.0f);
-    glm::vec2 otherVelocity = otherCar->mStepStartVelocity / Convert::PixelsPerTickToMetersPerSecond(1.0f);
-    glm::vec2 momentum = (mCarInfo->mMass * thisVelocity) - (otherCar->mCarInfo->mMass * otherVelocity);
+    // difference of momentums, velocity is along heading with integer speed
+    auto getMomentum = [](const Vehicle* car)
+    {
+        int speed = (int) Convert::MetersPerSecondToPixelsPerTick(glm::length(car->mStepStartVelocity));
+        glm::vec2 velocity = glm::floor(car->mTransform.GetDirectionVector() * (float) speed);
+        return car->mCarInfo->mMass * velocity;
+    };
+    glm::vec2 momentum = getMomentum(this) - getMomentum(otherCar);
     int impactEnergy = ((int) std::fabs(momentum.x) + (int) std::fabs(momentum.y)) / 4;
     if (impactEnergy < 1)
         return 0;
