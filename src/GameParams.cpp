@@ -31,7 +31,7 @@ void GameParams::SetToDefaults()
     mPedestrianFallStartHeight = Convert::PixelsToMeters(16);
     mPedestrianFallSpeed = Convert::PixelsPerTickToMetersPerSecond(2.0f);
     mPedestrianFallMoveSpeed = Convert::PixelsPerTickToMetersPerSecond(1.0f);
-    mPedestrianDrowningTime = 0.05f;
+    mPedestrianDrowningTime = 1.46f;
     mPedestrianBurnDuration = 4.0f;
     mPedestrianMaxArmor = 3;
     // traffic - common

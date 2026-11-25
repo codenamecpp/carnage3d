@@ -765,22 +765,63 @@ bool PedestrianStatesManager::StateIdle_ProcessEvent(const PedestrianStateEvent&
 
 void PedestrianStatesManager::StateDrowning_ProcessFrame()
 {
-    if (gGameParams.mPedestrianDrowningTime < mPedestrian->mCurrentStateTime)
+    if (!mPedestrian->IsInWater())
     {
-        // force current position to underwater
-        glm::vec3 currentPosition = mPedestrian->mTransform.mPosition;
-        mPedestrian->SetPosition(currentPosition - glm::vec3{0.0f, 2.0f, 0.0f});
+        PedestrianStateEvent evData { ePedestrianStateEvent_None };
+        ChangeState(ePedestrianState_StandingStill, evData);
+        return;
+    }
 
+    float drowningTime = mPedestrian->IsHumanPlayerCharacter() ? gGameParams.mPedestrianDrowningTime : 0.0f;
+    if (mPedestrian->mCurrentStateTime >= drowningTime)
+    {
         DamageInfo damageInfo;
         damageInfo.SetWaterDamage();
         mPedestrian->DieFromDamage(damageInfo);
+        mPedestrian->HideInWater();
         return;
     }
+
+    const PedestrianCtlState& ctlState = mPedestrian->GetCtlState();
+    if (ctlState.mShoot && !mPedestrian->GetWeapon().IsOutOfAmmunition())
+    {
+        mPedestrian->GetWeapon().Fire(mPedestrian);
+    }
+
+    bool isTurningInPlace = (ctlState.mTurnLeft || ctlState.mTurnRight) && (GetNextIdleState() == ePedestrianState_StandingStill);
+    SpriteAnimation& animState = mPedestrian->mCurrentAnimState;
+    const float tickTime = 1.0f / GTA_TICKS_PER_SECOND;
+    mDrowningTickTime += gTimeManager.mGameFrameDelta;
+    while (mDrowningTickTime >= tickTime)
+    {
+        mDrowningTickTime -= tickTime;
+        if (isTurningInPlace)
+        {
+            StepDrowningAnimation();
+        }
+        animState.mFrameCursor = 0;
+        StepDrowningAnimation();
+    }
+    mPedestrian->SetSprite(animState.GetSpriteIndex());
+}
+
+void PedestrianStatesManager::StepDrowningAnimation()
+{
+    SpriteAnimation& animState = mPedestrian->mCurrentAnimState;
+    if (mDrowningAnimCounter > 5)
+    {
+        animState.mFrameCursor = (animState.mFrameCursor == 0) ? 1 : 0;
+        mDrowningAnimCounter = 0;
+    }
+    ++mDrowningAnimCounter;
 }
 
 void PedestrianStatesManager::StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
-    mPedestrian->SetAnimation(ePedestrianAnim_Drowning, eSpriteAnimLoop_FromStart);
+    mPedestrian->SetAnimation(ePedestrianAnim_Drowning, eSpriteAnimLoop_None);
+    mPedestrian->mCurrentAnimState.PauseAnimation();
+    mDrowningTickTime = 0.0f;
+    mDrowningAnimCounter = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////

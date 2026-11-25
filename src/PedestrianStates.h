@@ -120,6 +120,7 @@ private:
     // states drowning
     void StateDrowning_ProcessFrame();
     void StateDrowning_ProcessEnter(const PedestrianStateEvent& stateEvent);
+    void StepDrowningAnimation();
 
     // state electrocuted, die
     void StateElectrocuted_ProcessFrame();
@@ -156,6 +157,8 @@ private:
     };
 
     Pedestrian* mPedestrian;
+    float mDrowningTickTime = 0.0f;
+    int mDrowningAnimCounter = 0;
     ePedestrianState mCurrentStateID = ePedestrianState_Unspecified;
     StateFuncs mFuncsTable[ePedestrianState_COUNT];
 };

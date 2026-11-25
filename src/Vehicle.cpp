@@ -989,12 +989,20 @@ void Vehicle::HandleFallsOnWater(float fallDistance)
     if (mCarInfo->mClassID == eVehicleClass_Boat)
         return;
 
-    if (!IsWrecked())
+    SetBurnEffectActive(false);
+    SetWrecked();
+
+    DamageInfo damageInfo;
+    damageInfo.SetWaterDamage();
+    for (Pedestrian* currentPed: mPassengers)
     {
-        DamageInfo damageInfo;
-        damageInfo.mDamageCause = eDamageCause_Water;
-        ReceiveDamage(damageInfo);
+        if (!currentPed->IsDead())
+        {
+            currentPed->DieFromDamage(damageInfo);
+        }
+        currentPed->HideInWater();
     }
+    MarkForDeletion();
 }
 
 void Vehicle::HandleFallsOnGround(float fallDistance)

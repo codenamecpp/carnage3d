@@ -141,6 +141,13 @@ void Pedestrian::HandleFallsOnWater(float fallDistance)
 {
     debug_assert(mPhysicsBody);
 
+    SetBurnEffectActive(false);
+    if (IsDead() || IsDies())
+    {
+        HideInWater();
+        return;
+    }
+
     PedestrianStateEvent evData { ePedestrianStateEvent_WaterContact };
     mStatesManager.ProcessEvent(evData);
 }
@@ -285,7 +292,7 @@ void Pedestrian::UpdateLocomotion()
     {
         walkingSpeed = gGameParams.mPedestrianSlideOnCarSpeed;
     }
-    else if (IsIdle())
+    else if (IsIdle() || IsDrowning())
     {
         const PedestrianCtlState& ctlState = GetCtlState();
         // generic case
@@ -334,7 +341,7 @@ void Pedestrian::UpdateRotation()
     cxx::angle_t angularVelocity;
 
     bool isSlideOverCar = (ePedestrianState_SlideOnCar == GetCurrentStateID());
-    if (isSlideOverCar || IsIdle())
+    if (isSlideOverCar || IsDrowning() || IsIdle())
     {
         const PedestrianCtlState& ctlState = GetCtlState();
         if (ctlState.mTurnLeft || ctlState.mTurnRight || ctlState.mRotateToDesiredAngle)
@@ -530,6 +537,11 @@ bool Pedestrian::IsRunning() const
     return (currState == ePedestrianState_Runs);
 }
 
+bool Pedestrian::IsDrowning() const
+{
+    return (GetCurrentStateID() == ePedestrianState_Drowning);
+}
+
 bool Pedestrian::IsStunned() const
 {
     ePedestrianState currState = GetCurrentStateID();
@@ -673,6 +685,12 @@ bool Pedestrian::IsOnTheGround() const
 bool Pedestrian::IsInWater() const
 {
     return mPhysicsBody->mWaterContact;
+}
+
+void Pedestrian::HideInWater()
+{
+    mObjectFlags = (mObjectFlags | GameObjectFlags_Invisible);
+    mPhysicsBody->mWaterContact = true;
 }
 
 void Pedestrian::PutInsideCar(Vehicle* car, eCarSeat carSeat)

@@ -31,7 +31,7 @@ public:
     float mPedestrianFallStartHeight; // pedestrian falls only when ground is lower than this, meters
     float mPedestrianFallSpeed; // constant, meters per second
     float mPedestrianFallMoveSpeed; // forward speed while falling, meters per second
-    float mPedestrianDrowningTime; // seconds
+    float mPedestrianDrowningTime; // player only, other pedestrians drown at once, seconds
     float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
     int mPedestrianMaxArmor; // max armor points
 
