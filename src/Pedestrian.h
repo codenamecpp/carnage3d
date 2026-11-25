@@ -98,6 +98,7 @@ public:
     bool IsWalking() const;
     bool IsRunning() const;
     bool IsStunned() const;
+    bool IsDrowning() const;
     bool IsDead() const;
     bool IsDies() const;
     bool IsBurn() const;
@@ -105,6 +106,9 @@ public:
 
     // Whether pedestrian is fall in water
     bool IsInWater() const;
+
+    // Drowned pedestrian leaves no body
+    void HideInWater();
     
     // Whether pedestrian is under human player control
     bool IsHumanPlayerCharacter() const;

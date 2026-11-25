@@ -365,6 +365,7 @@ void HumanPlayer::Respawn()
     // todo : exit from car
 
     mCharacter->HandleDespawn();
+    mCharacter->mObjectFlags = (mCharacter->mObjectFlags & ~GameObjectFlags_Invisible); // drowned player is hidden
     mCharacter->SetPosition(mSpawnPosition);
     mCharacter->HandleSpawn();
 

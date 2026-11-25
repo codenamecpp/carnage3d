@@ -79,7 +79,7 @@
     },
     "drowning":
     {
-        "start_frame": 47, "num_frames": 1, "fps": 1.0
+        "start_frame": 47, "num_frames": 2, "fps": 1.0
     },
     "punching_while_standing":
     {

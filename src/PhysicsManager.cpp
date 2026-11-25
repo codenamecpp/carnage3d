@@ -388,12 +388,20 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         return;
     }
 
-    if (physicsBody->mWaterContact)
-        return;
-
     float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
     bool isCar = gameObject->IsVehicleClass();
     bool isPedestrian = gameObject->IsPedestrianClass();
+
+    if (physicsBody->mWaterContact)
+    {
+        // drowning player can walk out of water
+        bool isDrowning = isPedestrian && static_cast<Pedestrian*>(gameObject)->IsDrowning();
+        glm::vec3 groundPosition(physicsBody->GetPosition().x, groundHeight, physicsBody->GetPosition().z);
+        if (!isDrowning || gGameMap.IsWaterAtPosition(groundPosition))
+            return;
+
+        physicsBody->mWaterContact = false;
+    }
 
     float prevHeight = physicsBody->mPositionY;
     if (physicsBody->mFalling)
@@ -425,9 +433,7 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         }
         if (isLanding)
         {
-            // handle water contact
-            float waterHeight = gGameMap.GetWaterLevelAtPosition2(physicsBody->GetPosition2());
-            if (groundHeight <= waterHeight)
+            if (gGameMap.IsWaterAtPosition(physicsBody->GetPosition()))
             {
                 HandleFallsOnWater(physicsBody);
             }
@@ -451,6 +457,11 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         if (onTheGround)
         {
             physicsBody->mPositionY = groundHeight;
+            bool canDrown = isCar || (isPedestrian && !static_cast<Pedestrian*>(gameObject)->IsEnteringOrExitingCar());
+            if (canDrown && gGameMap.IsWaterAtPosition(physicsBody->GetPosition()))
+            {
+                HandleFallsOnWater(physicsBody);
+            }
         }
         else // start falling
         {
@@ -835,27 +846,35 @@ void PhysicsManager::HandleFallsOnWater(PhysicsBody* physicsBody)
     physicsBody->mWaterContact = true;
     physicsBody->mFalling = false;
 
-    // create splash effect
-    if (Vehicle* carObject = ToVehicle(physicsBody->mGameObject))
-    {
-        // create effect
-        glm::vec2 splashPoints[5];
-        carObject->GetChassisCorners(splashPoints);
-        splashPoints[4] = carObject->mPhysicsBody->GetPosition2();
-        for (const glm::vec2& currPoint: splashPoints)
-        {
-            Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(glm::vec3(currPoint.x, carObject->mPhysicsBody->mPositionY, currPoint.y));
-            debug_assert(splashEffect);
-        }
-    }
-    else // peds and small objects
+    Vehicle* carObject = ToVehicle(physicsBody->mGameObject);
+    if (!carObject || (carObject->mCarInfo->mClassID != eVehicleClass_Boat))
     {
         Decoration* splashEffect = gGameObjectsManager.CreateWaterSplash(physicsBody->GetPosition());
-        debug_assert(splashEffect);
+        if (splashEffect)
+        {
+            splashEffect->StartGameObjectSound(0, eSfxSampleType_Level, SfxLevel_WaterSplash, SfxFlags_None);
+        }
+
+        if (carObject)
+        {
+            glm::vec2 corners[4];
+            carObject->GetChassisCorners(corners);
+            for (const glm::vec2& currCorner: corners)
+            {
+                glm::vec3 cornerPosition(currCorner.x, physicsBody->mPositionY, currCorner.y);
+                if (gGameMap.IsWaterAtPosition(cornerPosition))
+                {
+                    gGameObjectsManager.CreateWaterSplash(cornerPosition);
+                }
+            }
+        }
     }
     physicsBody->mGameObject->HandleFallsOnWater(fallDistance);
 
-    physicsBody->mPositionY -= Convert::MapUnitsToMeters(1.0f); // put it down
+    if (!physicsBody->mGameObject->IsPedestrianClass())
+    {
+        physicsBody->mPositionY -= Convert::MapUnitsToMeters(1.0f); // put it down
+    }
 }
 
 float PhysicsManager::GetSimulationStepTime() const

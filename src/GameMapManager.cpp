@@ -255,20 +255,10 @@ void GameMapManager::FixShiftedBits()
     }
 }
 
-float GameMapManager::GetWaterLevelAtPosition2(const glm::vec2& position) const
+bool GameMapManager::IsWaterAtPosition(const glm::vec3& position) const
 {
-    glm::ivec2 blockPosition = Convert::MetersToMapUnits(position);
-
-    for (int i = MAP_LAYERS_COUNT; i > 0; --i)
-    {
-        const MapBlockInfo* blockData = GetBlockInfo(blockPosition.x, blockPosition.y, i - 1);
-        if (blockData->mGroundType == eGroundType_Water)
-        {
-            float waterHeight = Convert::MapUnitsToMeters(i - 1.0f);
-            return waterHeight;
-        }
-    }
-    return 0.0f;
+    glm::ivec3 mapBlock = Convert::MetersToMapUnits(position);
+    return GetBlockInfo(mapBlock.x, mapBlock.z, mapBlock.y)->mGroundType == eGroundType_Water;
 }
 
 bool GameMapManager::IsUnderRoof(const glm::vec3& position) const
