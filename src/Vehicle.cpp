@@ -84,7 +84,7 @@ struct SkidMarkArea
 
 static SkidMarkArea ScanSkidMarkArea(const glm::vec3& position, const glm::ivec2& mapBlock)
 {
-    const float maxBloodDistance = Convert::PixelsToMeters(8.0f);
+    const float maxBloodDistance = Convert::PixelsToMeters(8);
 
     SkidMarkArea area;
     for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
