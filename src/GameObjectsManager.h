@@ -15,6 +15,7 @@ public:
     std::vector<GameObject*> mAllObjects;
     std::vector<Pedestrian*> mPedestriansList;
     std::vector<Vehicle*> mVehiclesList;
+    int mSkidMarksCount = 0;
 
 public:
     ~GameObjectsManager();

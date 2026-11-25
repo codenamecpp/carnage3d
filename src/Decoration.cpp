@@ -12,6 +12,7 @@ Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc)
     {
         mAnimationState.mAnimDesc = gameObjectDesc->mAnimationData;
         mDrawSprite.mDrawOrder = gameObjectDesc->mDrawOrder;
+        mObjectType = gameObjectDesc->mObjectType;
     }
 }
 
@@ -58,6 +59,16 @@ void Decoration::SetLifeDuration(int numCycles)
 void Decoration::SetDrawOrder(eSpriteDrawOrder drawOrder)
 {
     mDrawSprite.mDrawOrder = drawOrder;
+}
+
+int Decoration::GetObjectType() const
+{
+    return mObjectType;
+}
+
+bool Decoration::IsSkidMark() const
+{
+    return (mObjectType == GameObjectType_SkidMark) || (mObjectType == GameObjectType_BloodSkidMark) || (mObjectType == GameObjectType_DirtSkidMark);
 }
 
 void Decoration::SetScale(float scale)

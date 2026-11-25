@@ -59,6 +59,7 @@ public:
     float mCarFallLookAheadTime; // ground check looks ahead this time, seconds
     float mCarWallRestitution; // part of speed towards wall that vehicle keeps after hit
     float mCarMinImpactSpeed; // slower hits do not bounce and do not damage, meters per second
+    int mCarSkidMarksMaxCount; // max skid marks on map, 0 for no limit
     // vehicles misc
     float mTurretRotationSpeed; // tank/firetruck turret, degrees per second
 
