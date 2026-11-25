@@ -102,14 +102,18 @@ void Pedestrian::HandleFallingStarts()
 {
     debug_assert(mPhysicsBody);
 
-    glm::vec2 velocity = mPhysicsBody->GetLinearVelocity();
-    if (glm::length2(velocity) > 0.0f)
+    glm::vec2 direction = mPhysicsBody->GetLinearVelocity();
+    if (glm::length2(direction) > 0.0f)
     {
-        velocity = glm::normalize(velocity);
-        debug_assert(!glm::isnan(velocity.x) && !glm::isnan(velocity.y));
+        direction = glm::normalize(direction);
+        debug_assert(!glm::isnan(direction.x) && !glm::isnan(direction.y));
+    }
+    else
+    {
+        direction = mTransform.GetDirectionVector();
     }
     mPhysicsBody->ClearForces();
-    mPhysicsBody->SetLinearVelocity(velocity);
+    mPhysicsBody->SetLinearVelocity(direction * gGameParams.mPedestrianFallMoveSpeed);
 
     // notify
     PedestrianStateEvent evData { ePedestrianStateEvent_FallFromHeightStart };

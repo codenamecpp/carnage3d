@@ -26,7 +26,11 @@ public:
     float mPedestrianRunSpeed; // meters per second
     float mPedestrianKnockedDownTime; // knocked down duration after the punch in face, seconds
     float mPedestrianSpotTheCarDistance; // max distance to detect the car, meters
-    float mPedestrianFallDeathHeight; // falling distance which causes pedestrian death, meters
+    float mPedestrianFallDeathHeight; // pedestrian dies when drop height is more than this, meters
+    float mPedestrianFallMaxDistance; // pedestrian dies in air after this falling distance, meters
+    float mPedestrianFallStartHeight; // pedestrian falls only when ground is lower than this, meters
+    float mPedestrianFallSpeed; // constant, meters per second
+    float mPedestrianFallMoveSpeed; // forward speed while falling, meters per second
     float mPedestrianDrowningTime; // seconds
     float mPedestrianBurnDuration; // time while pedestrian can live while burning, seconds
     int mPedestrianMaxArmor; // max armor points
