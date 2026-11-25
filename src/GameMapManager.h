@@ -43,6 +43,11 @@ public:
     // @param position: Current position on map, meters
     float GetHeightAtPosition(const glm::vec3& position, bool excludeWater = true) const;
 
+    // Get first ground at or below map layer, as in original game
+    // @param position: Point on map, meters
+    // @param layer: Map layer where search starts
+    float GetGroundHeight(const glm::vec2& position, int layer, bool excludeWater) const;
+
     // Whether position is inside solid block or under solid block lid
     // @param position: Current position on map, meters
     bool IsUnderRoof(const glm::vec3& position) const;

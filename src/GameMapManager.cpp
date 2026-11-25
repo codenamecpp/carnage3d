@@ -313,36 +313,36 @@ const DistrictInfo* GameMapManager::GetDistrictByIndex(int districtIndex) const
 
 float GameMapManager::GetHeightAtPosition(const glm::vec3& position, bool excludeWater) const
 {
-    // get map block position in which we are located
     glm::ivec3 mapBlock = Convert::MetersToMapUnits(position);
+    return GetGroundHeight(glm::vec2(position.x, position.z), mapBlock.y, excludeWater);
+}
 
-    float currentHeight = (float) mapBlock.y; // set current height to ground, map units
-    for (; currentHeight > 0.0f;)
+float GameMapManager::GetGroundHeight(const glm::vec2& position, int layer, bool excludeWater) const
+{
+    glm::vec2 mapPosition = Convert::MetersToMapUnits(position);
+    glm::ivec2 mapBlock = mapPosition;
+
+    if (layer < 1 || layer >= MAP_LAYERS_COUNT)
     {
-        const MapBlockInfo* blockData = GetBlockInfo(mapBlock.x, mapBlock.z, mapBlock.y); // y is map layer
-
-        // compute slope height
-        if (blockData->mSlopeType) 
-        {
-            // subposition within block
-            float cx = Convert::MetersToMapUnits(position.x) - mapBlock.x;
-            float cy = Convert::MetersToMapUnits(position.z) - mapBlock.z;
-
-            currentHeight += GameMapHelpers::GetSlopeHeight(blockData->mSlopeType, cx, cy);
-
-            break;
-        }
-
-        if (blockData->mGroundType == eGroundType_Air || (blockData->mGroundType == eGroundType_Water && excludeWater)) // fall through non solid block
-        {
-            currentHeight -= 1.0f;
-            mapBlock.y -= 1;
-            continue;
-        }
-
-        break; // bail out
+        layer = 1;
     }
-    return Convert::MapUnitsToMeters(currentHeight);
+    for (; layer > 1; --layer)
+    {
+        const MapBlockInfo* blockData = GetBlockInfo(mapBlock.x, mapBlock.y, layer);
+        if (blockData->mGroundType != eGroundType_Air && (blockData->mGroundType != eGroundType_Water || !excludeWater))
+            break;
+    }
+
+    const MapBlockInfo* blockData = GetBlockInfo(mapBlock.x, mapBlock.y, layer);
+    if (blockData->mSlopeType == 0)
+    {
+        // flat ground is 1 pixel above block
+        return Convert::MapUnitsToMeters(layer + Convert::PixelsToMapUnits(1));
+    }
+
+    glm::vec2 positionInBlock = mapPosition - glm::vec2(mapBlock);
+    float slopeHeight = GameMapHelpers::GetSlopeHeight(blockData->mSlopeType, positionInBlock.x, positionInBlock.y);
+    return Convert::MapUnitsToMeters(layer + slopeHeight);
 }
 
 bool GameMapManager::TraceSegment2D(const glm::vec2& origin, const glm::vec2& destination, float height, glm::vec2& outPoint)

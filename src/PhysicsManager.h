@@ -60,6 +60,18 @@ private:
     void ProcessInterpolation();
     void ProcessSimulationStep();
     void UpdateHeightPosition(PhysicsBody* physicsBody);
+    void CheckPedestrianStep(PhysicsBody* physicsBody);
+
+    // Get ground height under point, search starts above object as in original game
+    // @param position: Point on map, meters
+    // @param height: Object height, meters
+    float GetGroundHeightUnder(const glm::vec2& position, float height) const;
+
+    // Get map layers of ground under highest and lowest corner of pedestrian or car
+    void GetCornersMapLayers(GameObject* gameObject, int& topLayer, int& bottomLayer) const;
+
+    // Get map layer at which object collides with buildings
+    int GetObjectMapLayer(GameObject* gameObject) const;
 
     void DispatchCollisionEvents();
 

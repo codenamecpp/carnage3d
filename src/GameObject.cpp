@@ -165,41 +165,31 @@ void GameObject::RefreshDrawSprite()
     // compute draw height for non-attached objects
     {
         float newDrawHeight = mDrawSprite.mHeight;
+        auto GetCornerHeight = [this](const glm::vec2& corner)
+        {
+            float distance = glm::length(corner - glm::vec2(mTransformSmooth.mPosition.x, mTransformSmooth.mPosition.z));
+            float maxHeight = mDrawSprite.mHeight + distance + Convert::PixelsToMeters(1);
+            float height = gGameMap.GetGroundHeight(corner, (int) std::floor(Convert::MetersToMapUnits(maxHeight)), true);
+            return (height <= maxHeight) ? height : mDrawSprite.mHeight;
+        };
 
+        glm::vec2 corners[4];
         if (IsPedestrianClass())
         {
             const float halfBox = Convert::PixelsToMeters(PED_SPRITE_DRAW_BOX_SIZE_PX) * 0.5f;
-            glm::vec3 points[4] = 
-            {
-                { -halfBox, mTransformSmooth.mPosition.y + 0.01f, -halfBox },
-                {  halfBox, mTransformSmooth.mPosition.y + 0.01f, -halfBox },
-                {  halfBox, mTransformSmooth.mPosition.y + 0.01f,  halfBox },
-                { -halfBox, mTransformSmooth.mPosition.y + 0.01f,  halfBox },
-            };
-            for (glm::vec3& currPoint: points)
-            {
-                currPoint.x += mTransformSmooth.mPosition.x;
-                currPoint.z += mTransformSmooth.mPosition.z;
-                // get height
-                float height = gGameMap.GetHeightAtPosition(currPoint);
-                if (height > newDrawHeight)
-                {
-                    newDrawHeight = height;
-                }
-            }
+            const glm::vec2 position (mTransformSmooth.mPosition.x, mTransformSmooth.mPosition.z);
+            corners[0] = position + glm::vec2(-halfBox, -halfBox);
+            corners[1] = position + glm::vec2( halfBox, -halfBox);
+            corners[2] = position + glm::vec2( halfBox,  halfBox);
+            corners[3] = position + glm::vec2(-halfBox,  halfBox);
         }
         else
         {
-            glm::vec2 corners[4];
             mDrawSprite.GetCorners(corners);
-            for (glm::vec2& currCorner: corners)
-            {
-                float height = gGameMap.GetHeightAtPosition(glm::vec3(currCorner.x, mTransformSmooth.mPosition.y, currCorner.y));
-                if (height > newDrawHeight)
-                {
-                    newDrawHeight = height;
-                }
-            }
+        }
+        for (const glm::vec2& currCorner: corners)
+        {
+            newDrawHeight = std::max(newDrawHeight, GetCornerHeight(currCorner));
         }
 
         mDrawSprite.mHeight = newDrawHeight;
