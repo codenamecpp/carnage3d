@@ -20,11 +20,11 @@ public:
     GameObjectFlags mObjectFlags = GameObjectFlags_None;
     eGameObjectClass mClassID;
 
-    // world space transform
-    Transform mPreviousTransform; // prev frame transform, world space
+    // transforms
+    Transform mPreviousTransform;
     Transform mTransform; // current transform, world space
-    Transform mTransformSmooth; // interpolated transform between prev and current frames for rendering, world space
-    Transform mTransformLocal; // relative to parent transform, valid only if attached object
+    Transform mTransformLocal; // relative to parent transform, valid for attached objects
+    Transform mTransformSmooth; // render transform, world space
 
     PhysicsBody* mPhysicsBody = nullptr; // note that not all game objects has physics body
 
@@ -129,15 +129,17 @@ protected:
     void SetParentObject(GameObject* gameObject);
     void RefreshDrawSprite();
 
-    void OnParentTransformChanged();
-    void OnTransformChanged();
-
     void SyncPhysicsTransform();
     void ClearContacts();
     void RegisterContact(const Contact& contactInfo);
     void UnregisterContactsWithObject(GameObject* otherObject);
 
+    // update render transform of this object and attached objects
     void InterpolateTransform(float factor);
+    void ComputeSmoothTransformFromParent();
+
+    void OnParentTransformChanged();
+    void OnTransformChanged();
 
 protected:
     SfxEmitter* mSfxEmitter = nullptr;

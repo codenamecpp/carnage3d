@@ -224,7 +224,16 @@ void GameObject::OnParentTransformChanged()
 void GameObject::OnTransformChanged()
 {
     mPreviousTransform = mTransform;
-    mTransformSmooth = mTransform;
+    if (mParentObject)
+    {
+        // attached object follows parent render transform
+        ComputeSmoothTransformFromParent();
+    }
+    else
+    {
+        // instant change cancels interpolation
+        mTransformSmooth = mTransform;
+    }
 
     // sync physics
     if (mPhysicsBody)
@@ -266,12 +275,6 @@ void GameObject::SyncPhysicsTransform()
     }
     else // child
     {
-        if (mPreviousTransform != mTransform)
-        {
-            mPreviousTransform = mTransform;
-            mTransformSmooth = mTransform;
-        }
-
         Transform newTransform;
         newTransform.mPosition = mParentObject->mTransform.GetPoint(mTransformLocal.mPosition, eTransformSpace_World);
         newTransform.mOrientation = (mParentObject->mTransform.mOrientation + mTransformLocal.mOrientation);
@@ -319,16 +322,32 @@ void GameObject::UnregisterContactsWithObject(GameObject* otherObject)
     });
 }
 
+void GameObject::ComputeSmoothTransformFromParent()
+{
+    debug_assert(mParentObject);
+
+    mTransformSmooth.mPosition = mParentObject->mTransformSmooth.GetPoint(mTransformLocal.mPosition, eTransformSpace_World);
+    mTransformSmooth.mOrientation = (mParentObject->mTransformSmooth.mOrientation + mTransformLocal.mOrientation);
+}
+
 void GameObject::InterpolateTransform(float factor)
 {
-    if (mPreviousTransform == mTransform)
+    if (mParentObject)
     {
-        debug_assert(mTransformSmooth == mTransform);
-        return;
+        ComputeSmoothTransformFromParent();
+    }
+    else
+    {
+        if (mAttachedObjects.empty() && 
+            (mPreviousTransform == mTransform) && 
+            (mTransformSmooth == mTransform))
+        {
+            return; // nothing to update
+        }
+        debug_assert((factor >= 0.0f) && (factor <= 1.0f));
+        mTransformSmooth = ::InterpolateTransform(mPreviousTransform, mTransform, factor);
     }
 
-    debug_assert((factor >= 0.0f) && (factor <= 1.0f));
-    mTransformSmooth = ::InterpolateTransform(mPreviousTransform, mTransform, factor);
     RefreshDrawSprite();
     for (GameObject* currChild: mAttachedObjects)
     {
@@ -514,6 +533,13 @@ void GameObject::SetParentObject(GameObject* gameObject)
     }
     
     mTransformLocal.SetIdentity();
+
+    if (mParentObject == nullptr)
+    {
+        // drop stale interpolation state
+        mPreviousTransform = mTransform;
+        mTransformSmooth = mTransform;
+    }
 
     // link physical body to parent object
     if (mPhysicsBody)
