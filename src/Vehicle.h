@@ -129,6 +129,8 @@ private:
     void UpdateDeltaAnimations();
     void UpdateEngineSound();
     void UpdateSkidSound(int speed);
+    void UpdateSkidMarks();
+    void CreateSkidMark(const glm::vec2& localPosition, cxx::angle_t heading, int& bloodSkidMarks);
     void UpdateHorn();
 
     void SetRemap(int remapIndex);
@@ -239,5 +241,7 @@ private:
     float mSteeringAngleRadians = 0.0f;
     float mSteeringAngleWorld = 0.0f; // front tyres direction in world space, radians
     float mSkidValue = 0.0f; // sum of tyres lateral forces
+    float mSkidMarkTime = 0.0f; // time to next skid mark, seconds
+    int mBloodSkidMarks[2] = {}; // blood skid marks left for each rear tyre
     DriveCtlState mCtlState;
 };

@@ -13,6 +13,7 @@
 #include "Collider.h"
 #include "GameObjectHelpers.h"
 #include "BroadcastEventsManager.h"
+#include "CarnageGame.h"
 
 // original game physics constants
 static const float CarMassScale = 60.0f; // style data mass to kilograms
@@ -74,6 +75,73 @@ static int GetCarEngineSampleRate(const VehicleInfo* carInfo, SfxSampleIndex sfx
     return 0;
 }
 
+struct SkidMarkArea
+{
+    int mBlockTyreSmokeCount = 0;
+    int mBlockSkidMarksCount = 0;
+    bool mIsBloodNear = false;
+};
+
+static SkidMarkArea ScanSkidMarkArea(const glm::vec3& position, const glm::ivec2& mapBlock)
+{
+    const float maxBloodDistance = Convert::PixelsToMeters(8.0f);
+
+    SkidMarkArea area;
+    for (GameObject* gameObject: gGameObjectsManager.mAllObjects)
+    {
+        bool isBlood = false;
+        if (gameObject->IsDecorationClass())
+        {
+            Decoration* decoration = static_cast<Decoration*>(gameObject);
+            int objectType = decoration->GetObjectType();
+            isBlood = (objectType == GameObjectType_Blood) || (objectType == GameObjectType_FirstBlood) || (objectType == GameObjectType_Body);
+
+            bool isSkidMark = decoration->IsSkidMark();
+            bool isTyreSmoke = (objectType == GameObjectType_TyreSmoke);
+            if ((isSkidMark || isTyreSmoke) && !decoration->IsMarkedForDeletion() &&
+                (glm::ivec2(Convert::MetersToMapUnits(decoration->mTransform.GetPosition2())) == mapBlock))
+            {
+                if (isSkidMark)
+                {
+                    ++area.mBlockSkidMarksCount;
+                }
+                else
+                {
+                    ++area.mBlockTyreSmokeCount;
+                }
+            }
+        }
+        else if (gameObject->IsPedestrianClass())
+        {
+            isBlood = static_cast<Pedestrian*>(gameObject)->IsDead();
+        }
+
+        if (isBlood && !area.mIsBloodNear)
+        {
+            glm::vec3 distance = glm::abs(gameObject->mTransform.mPosition - position);
+            area.mIsBloodNear = (distance.x < maxBloodDistance) && (distance.y < maxBloodDistance) && (distance.z < maxBloodDistance);
+        }
+    }
+    return area;
+}
+
+static bool IsDirtSkidMarkLid(int lid)
+{
+    static const std::vector<int> CityLids[] =
+    {
+        { 10, 58, 78, 79, 83, 107, 108, 116 },
+        { 10, 13, 59, 70, 78, 79, 83, 88, 93, 94, 98, 106, 107, 111, 128, 129, 130, 131, 132, 133, 141, 143, 162 },
+        { 10, 17, 18, 29, 30, 31, 32, 33, 35, 52, 53, 78, 79, 107, 108, 121, 122, 123, 124, 125, 132 },
+    };
+
+    int cityIndex = gGameMap.mStyleFileNumber - 1;
+    if ((cityIndex < 0) || (cityIndex >= (int) CountOf(CityLids)))
+        return false;
+
+    const std::vector<int>& lids = CityLids[cityIndex];
+    return std::find(lids.begin(), lids.end(), lid) != lids.end();
+}
+
 static void SetCarSoundSampleRate(SfxEmitter* sfxEmitter, int ichannel, SfxSampleIndex sfxIndex, int sampleRate)
 {
     SfxSample* sfxSample = gAudioManager.GetSound(eSfxSampleType_Level, sfxIndex);
@@ -125,6 +193,8 @@ void Vehicle::HandleSpawn()
 
     mSteeringAngleWorld = physicsBody->GetOrientation().to_radians();
     mSkidValue = 0.0f;
+    mSkidMarkTime = 0.0f;
+    mBloodSkidMarks[0] = mBloodSkidMarks[1] = 0;
     mCtlState = DriveCtlState();
     mStepStartVelocity = glm::vec2();
     mFallDamagePixels = 0.0f;
@@ -223,6 +293,7 @@ void Vehicle::SimulationStep()
     UpdateFallDamage();
     UpdateSteer(currCtlState);
     UpdateTyreForces(currCtlState);
+    UpdateSkidMarks();
 
     mStepStartVelocity = mPhysicsBody->GetLinearVelocity();
 }
@@ -1499,6 +1570,89 @@ void Vehicle::UpdateSkidSound(int speed)
     }
     SetCarSoundSampleRate(mSfxEmitter, eCarSfxChannelIndex_Skid, SfxLevel_CarSkid, sampleRate);
     mSfxEmitter->SetGain(eCarSfxChannelIndex_Skid, GetCarSoundGain(speed));
+}
+
+void Vehicle::UpdateSkidMarks()
+{
+    bool isSkidMarkVehicle = (mCarInfo->mClassID == eVehicleClass_StandardCar) || (mCarInfo->mClassID == eVehicleClass_Motorcycle);
+    if (!isSkidMarkVehicle || (mSkidValue <= 20.0f) || IsInAir())
+    {
+        mSkidMarkTime = 0.0f;
+        mBloodSkidMarks[0] = mBloodSkidMarks[1] = 0;
+        return;
+    }
+
+    mSkidMarkTime -= gPhysics.GetSimulationStepTime();
+    if (mSkidMarkTime > 0.0f)
+        return;
+
+    mSkidMarkTime += 1.0f / GTA_TICKS_PER_SECOND;
+
+    glm::vec2 velocity = mPhysicsBody->GetLinearVelocity();
+    cxx::angle_t heading = mTransform.mOrientation;
+    if (glm::length(velocity) > 0.0f)
+    {
+        heading = cxx::angle_t::from_radians(::atan2f(velocity.y, velocity.x));
+    }
+
+    float rearOffset = -mCarInfo->mDimensions.z * 0.5f;
+    if (mCarInfo->mClassID == eVehicleClass_Motorcycle)
+    {
+        CreateSkidMark(LocalForwardVector * rearOffset, heading, mBloodSkidMarks[0]);
+        return;
+    }
+
+    float sideOffset = mCarInfo->mDimensions.x * 0.25f;
+    CreateSkidMark(LocalForwardVector * rearOffset + LocalLateralVector * sideOffset, heading, mBloodSkidMarks[0]);
+    CreateSkidMark(LocalForwardVector * rearOffset - LocalLateralVector * sideOffset, heading, mBloodSkidMarks[1]);
+}
+
+void Vehicle::CreateSkidMark(const glm::vec2& localPosition, cxx::angle_t heading, int& bloodSkidMarks)
+{
+    const int MaxSkidMarksInBlock = 17;
+    const int MaxTyreSmokeInBlock = 3;
+
+    glm::vec2 position2 = mPhysicsBody->GetWorldPoint(localPosition);
+    glm::vec3 position(position2.x, mTransform.mPosition.y, position2.y);
+    glm::ivec3 mapBlock = Convert::MetersToMapUnits(position);
+    const MapBlockInfo* blockInfo = gGameMap.GetBlockInfo(mapBlock.x, mapBlock.z, mapBlock.y);
+    // ground type is in block above block with lid graphic
+    const MapBlockInfo* lidBlockInfo = gGameMap.GetBlockInfo(mapBlock.x, mapBlock.z, mapBlock.y - 1);
+
+    SkidMarkArea area = ScanSkidMarkArea(position, glm::ivec2(mapBlock.x, mapBlock.z));
+    if ((blockInfo->mGroundType == eGroundType_Road) && (area.mBlockTyreSmokeCount < MaxTyreSmokeInBlock))
+    {
+        gGameObjectsManager.CreateDecoration(position, heading, &gGameMap.mStyleData.mObjects[GameObjectType_TyreSmoke]);
+    }
+
+    int objectType = GameObjectType_SkidMark;
+    if (bloodSkidMarks > 0)
+    {
+        objectType = GameObjectType_BloodSkidMark;
+        --bloodSkidMarks;
+    }
+    else if (IsDirtSkidMarkLid(lidBlockInfo->mFaces[eBlockFace_Lid]))
+    {
+        objectType = GameObjectType_DirtSkidMark;
+    }
+
+    if (area.mIsBloodNear)
+    {
+        bloodSkidMarks = gCarnageGame.mGameRand.generate_int(9) + 12;
+    }
+
+    bool isSkidMarkGround = (blockInfo->mGroundType == eGroundType_Road) ||
+        (blockInfo->mGroundType == eGroundType_Pawement) ||
+        (blockInfo->mGroundType == eGroundType_Field);
+    if (!isSkidMarkGround || (blockInfo->mSlopeType != 0) || (area.mBlockSkidMarksCount >= MaxSkidMarksInBlock) ||
+        ((gGameParams.mCarSkidMarksMaxCount > 0) && (gGameObjectsManager.mSkidMarksCount >= gGameParams.mCarSkidMarksMaxCount)))
+        return;
+
+    Decoration* skidMark = gGameObjectsManager.CreateDecoration(position, heading, &gGameMap.mStyleData.mObjects[objectType]);
+    if (skidMark)
+    {
+        skidMark->SetDrawOrder(eSpriteDrawOrder_GroundDecals);
+    }
 }
 
 void Vehicle::UpdateHorn()
