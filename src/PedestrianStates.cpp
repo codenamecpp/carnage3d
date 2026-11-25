@@ -242,7 +242,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     // handle fall from height
     if (damageInfo.mDamageCause == eDamageCause_Gravity)
     {
-        if (damageInfo.mFallHeight >= gGameParams.mPedestrianFallDeathHeight)
+        if (damageInfo.mFallHeight > gGameParams.mPedestrianFallDeathHeight)
         {
             mPedestrian->DieFromDamage(damageInfo);
             return true;

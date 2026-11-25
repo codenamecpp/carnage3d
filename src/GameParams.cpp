@@ -26,7 +26,11 @@ void GameParams::SetToDefaults()
     mPedestrianRunSpeed = Convert::MapUnitsToMeters(1.5f);
     mPedestrianSpotTheCarDistance = Convert::MapUnitsToMeters(3.0f);
     mPedestrianKnockedDownTime = 3.0f;
-    mPedestrianFallDeathHeight = Convert::MapUnitsToMeters(2.0f);
+    mPedestrianFallDeathHeight = Convert::PixelsToMeters(114); // 49 ticks of fall and 16 px to ground
+    mPedestrianFallMaxDistance = Convert::PixelsToMeters(100); // 50 ticks of fall, 2 health each
+    mPedestrianFallStartHeight = Convert::PixelsToMeters(16);
+    mPedestrianFallSpeed = Convert::PixelsPerTickToMetersPerSecond(2.0f);
+    mPedestrianFallMoveSpeed = Convert::PixelsPerTickToMetersPerSecond(1.0f);
     mPedestrianDrowningTime = 0.05f;
     mPedestrianBurnDuration = 4.0f;
     mPedestrianMaxArmor = 3;

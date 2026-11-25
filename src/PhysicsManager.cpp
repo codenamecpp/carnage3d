@@ -393,6 +393,7 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
 
     float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
     bool isCar = gameObject->IsVehicleClass();
+    bool isPedestrian = gameObject->IsPedestrianClass();
 
     float prevHeight = physicsBody->mPositionY;
     if (physicsBody->mFalling)
@@ -409,10 +410,17 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
                 isLanding = true;
             }
         }
+        else if (isPedestrian && (((physicsBody->mPositionY - groundHeight) <= gGameParams.mPedestrianFallStartHeight) ||
+            ((physicsBody->mFallStartHeight - physicsBody->mPositionY) >= gGameParams.mPedestrianFallMaxDistance)))
+        {
+            // close to ground, or died mid-air
+            physicsBody->mPositionY = groundHeight;
+            isLanding = true;
+        }
         else
         {
-            float fallingDistance = (isCar ? gGameParams.mCarFallSpeed : mGravity) * mSimulationStepTime;
-            physicsBody->mPositionY = std::max(groundHeight, physicsBody->mPositionY - fallingDistance);
+            float fallSpeed = isCar ? gGameParams.mCarFallSpeed : (isPedestrian ? gGameParams.mPedestrianFallSpeed : mGravity);
+            physicsBody->mPositionY = std::max(groundHeight, physicsBody->mPositionY - (fallSpeed * mSimulationStepTime));
             isLanding = (physicsBody->mPositionY == groundHeight);
         }
         if (isLanding)
@@ -431,7 +439,7 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
     }
     else
     {
-        const float fallThresholdDistance = 0.1f;
+        float fallThresholdDistance = isPedestrian ? gGameParams.mPedestrianFallStartHeight : 0.1f;
         bool onTheGround = fabsf(groundHeight - physicsBody->mPositionY) <= fallThresholdDistance;
         if (isCar)
         {
