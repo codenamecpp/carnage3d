@@ -203,6 +203,7 @@ void GameCheatsWindow::DoUI(ImGuiIO& imguiContext)
     {
         //ImGui::Checkbox("Enable map collisions", &mEnableMapCollisions);
         ImGui::Checkbox("Enable gravity", &mEnableGravity);
+        ImGui::Checkbox("Enable fence and post collisions", &mEnableFenceCollisions);
     }
 
     if (ImGui::CollapsingHeader("Draw"))
