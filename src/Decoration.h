@@ -25,8 +25,12 @@ public:
     // Change current draw order for decoration object
     void SetDrawOrder(eSpriteDrawOrder drawOrder);
 
+    int GetObjectType() const;
+    bool IsSkidMark() const;
+
 private:
     SpriteAnimation mAnimationState;
     glm::vec3 mMoveVelocity;
     int mLifeDuration = 0; // number of animation cycles before decoration will be deleted, or 0 for endless lifetime
+    int mObjectType = GameObjectType_Null;
 };

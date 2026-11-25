@@ -217,6 +217,11 @@ decl_enum_as_flags(GameObjectFlags);
 enum
 {
     GameObjectType_Null = 0,
+    GameObjectType_TyreSmoke = 10,
+    GameObjectType_SkidMark = 11,
+    GameObjectType_BloodSkidMark = 12,
+    GameObjectType_Blood = 15,
+    GameObjectType_DirtSkidMark = 17,
     GameObjectType_Fire1 = 18,
     GameObjectType_LFire = 46,
     GameObjectType_BigSmoke = 51,

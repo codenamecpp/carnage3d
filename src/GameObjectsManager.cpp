@@ -183,6 +183,10 @@ Decoration* GameObjectsManager::CreateDecoration(const glm::vec3& position, cxx:
     instance->SetTransform(position, heading);
     instance->HandleSpawn();
     instance->SetLifeDuration(desc->mLifeDuration);
+    if (instance->IsSkidMark())
+    {
+        ++mSkidMarksCount;
+    }
     return instance;
 }
 
@@ -339,6 +343,10 @@ void GameObjectsManager::DestroyGameObject(GameObject* object)
         case eGameObjectClass_Decoration:
         {
             Decoration* decoration = static_cast<Decoration*>(object);
+            if (decoration->IsSkidMark())
+            {
+                --mSkidMarksCount;
+            }
             mDecorationsPool.destroy(decoration);
         }
         break;

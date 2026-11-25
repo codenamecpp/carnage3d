@@ -54,6 +54,7 @@ void GameParams::SetToDefaults()
     mCarFallLookAheadTime = 0.043f; // 1 tick
     mCarWallRestitution = 0.625f;
     mCarMinImpactSpeed = 1.46f; // 1 pixel per tick
+    mCarSkidMarksMaxCount = 0; // original game has 200
     mTurretRotationSpeed = 120.0f;
     // broadcast events
     mBroadcastGunShotEventDuration = 1.0f;
