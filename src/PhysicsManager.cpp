@@ -20,6 +20,13 @@ static cxx::object_pool<PhysicsBody> gPhysicsBodiesPool;
 
 //////////////////////////////////////////////////////////////////////////
 
+enum eMapWall
+{
+    eMapWall_SlopeSide,
+    eMapWall_Fence,
+    eMapWall_Post, // cars only
+};
+
 union b2FixtureData_map
 {
     b2FixtureData_map(void* asPointer = nullptr)
@@ -32,13 +39,40 @@ union b2FixtureData_map
         unsigned char mX, mZ;
         // walls only
         unsigned char mLayer;
-        unsigned char mFace;
+        unsigned char mWall : 4;
+        unsigned char mFace : 4;
     };
 
     void* mAsPointer;
 };
 
 static_assert(sizeof(b2FixtureData_map) <= sizeof(void*), "Cannot pack data into pointer");
+
+static bool IsFenceTile(int styleNumber, int tile)
+{
+    static const std::vector<int> fenceTiles[] =
+    {
+        {},
+        {46, 51, 55, 56, 108, 114, 168, 187, 190, 194}, // NYC
+        {6, 48, 51, 108, 111, 112, 126, 142, 160, 193}, // SANB
+        {69, 70, 100, 101, 102, 106, 124, 125, 155, 156, 159, 160, 161, 162, 163, 164, 169, 170, 184, 185, 186, 197}, // MIAMI
+    };
+    if (styleNumber < 1 || styleNumber > 3)
+        return false;
+
+    return cxx::contains(fenceTiles[styleNumber], tile);
+}
+
+static bool IsPostTile(int styleNumber, int tile)
+{
+    switch (styleNumber)
+    {
+        case 1: return tile == 97; // NYC
+        case 2: return tile == 21 || tile == 180; // SANB
+        case 3: return tile == 140; // MIAMI
+    }
+    return false;
+}
 
 // Whether object can go through side of slope block
 // @param canUseSteepSlopes: Pedestrians and player motorcycles can use steep slopes (usually stairs)
@@ -326,8 +360,53 @@ void PhysicsManager::CreateMapCollisionShape()
                     fixtureData.mX = x;
                     fixtureData.mZ = y;
                     fixtureData.mLayer = layer;
+                    fixtureData.mWall = eMapWall_SlopeSide;
                     fixtureData.mFace = face;
                     CreateMapWallFixture(mBox2MapBody, b2shapeDef, fixtureData);
+                }
+            }
+        }
+    }
+
+    // fence / post
+    for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
+    {
+        for (int x = 0; x < MAP_DIMENSIONS; ++x)
+        {
+            for (int y = 0; y < MAP_DIMENSIONS; ++y)
+            {
+                const MapBlockInfo* blockData = gGameMap.GetBlockInfo(x, y, layer);
+                if (!blockData->mIsFlat)
+                    continue;
+
+                for (eBlockFace face: {eBlockFace_W, eBlockFace_N})
+                {
+                    const int tile = blockData->mFaces[face];
+                    glm::ivec2 pointA (x * PIXELS_PER_MAP_UNIT, y * PIXELS_PER_MAP_UNIT);
+                    glm::ivec2 pointB = pointA + ((face == eBlockFace_W) ? glm::ivec2(0, PIXELS_PER_MAP_UNIT) : glm::ivec2(PIXELS_PER_MAP_UNIT, 0));
+
+                    b2FixtureData_map fixtureData;
+                    fixtureData.mX = x;
+                    fixtureData.mZ = y;
+                    fixtureData.mLayer = layer;
+                    fixtureData.mFace = face;
+                    if (IsFenceTile(gGameMap.mStyleFileNumber, tile))
+                    {
+                        b2EdgeShape b2shapeDef;
+                        b2shapeDef.SetTwoSided(convert_vec2(Convert::PixelsToMeters(pointA)), convert_vec2(Convert::PixelsToMeters(pointB)));
+                        fixtureData.mWall = eMapWall_Fence;
+                        CreateMapWallFixture(mBox2MapBody, b2shapeDef, fixtureData);
+                    }
+                    else if (IsPostTile(gGameMap.mStyleFileNumber, tile))
+                    {
+                        // post is 8 pixels wide
+                        glm::vec2 postCenter = Convert::PixelsToMeters(pointA + pointB) * 0.5f;
+                        float postHalfSize = Convert::PixelsToMeters(4);
+                        b2PolygonShape b2shapeDef;
+                        b2shapeDef.SetAsBox(postHalfSize, postHalfSize, convert_vec2(postCenter), 0.0f);
+                        fixtureData.mWall = eMapWall_Post;
+                        CreateMapWallFixture(mBox2MapBody, b2shapeDef, fixtureData);
+                    }
                 }
             }
         }
@@ -791,9 +870,17 @@ bool PhysicsManager::ShouldCollide_ObjectWithMap(b2Contact* contact, b2Fixture* 
     if (!pedestrian && !carObject)
         return false;
 
+    if ((fxdata.mWall != eMapWall_SlopeSide) && !gGameCheatsWindow.mEnableFenceCollisions)
+        return false;
+
     int topLayer = 0;
     int bottomLayer = 0;
     GetCornersMapLayers(gameObject, topLayer, bottomLayer);
+    if (fxdata.mWall == eMapWall_Fence)
+        return topLayer == fxdata.mLayer;
+
+    if (fxdata.mWall == eMapWall_Post)
+        return carObject && (topLayer == fxdata.mLayer);
 
     // find slope from highest corner
     glm::vec2 blockCenter = Convert::MapUnitsToMeters(glm::vec2(fxdata.mX + 0.5f, fxdata.mZ + 0.5f));

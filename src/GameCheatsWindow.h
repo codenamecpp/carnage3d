@@ -7,6 +7,7 @@ class GameCheatsWindow: public DebugWindow
 public:
     bool mEnableMapCollisions;
     bool mEnableGravity;
+    bool mEnableFenceCollisions = true;
     bool mEnableBlocksAnimation;
     bool mEnableDebugDraw;
     bool mEnableDrawDecorations = true;
