@@ -259,96 +259,47 @@ float GameMapHelpers::GetSlopeHeight(int slopeType, float coord_x, float coord_y
     debug_assert(coord_x >= 0.0f && coord_x <= 1.0f);
     debug_assert(coord_y >= 0.0f && coord_y <= 1.0f);
 
-    // all values and calculations are in map units
+    const int px = glm::clamp((int) (coord_x * PIXELS_PER_MAP_UNIT), 0, PIXELS_PER_MAP_UNIT - 1);
+    const int py = glm::clamp((int) (coord_y * PIXELS_PER_MAP_UNIT), 0, PIXELS_PER_MAP_UNIT - 1);
 
-    float min_evelation = 0.0f;
-    float max_evelation = 0.0f;
-    float lerp_factor = 0.0f;
-
+    int heightPixels = 0;
     switch (slopeType)
     {
-        case 0: return 0.0f;
-
-        // N, 26 low, high
-        case 1: case 2:
-            min_evelation = (1.0f / 2) * (slopeType - 1 + 1);
-            max_evelation = (1.0f / 2) * (slopeType - 1 + 0);
-            lerp_factor = coord_y;
+        // 26 degrees: N, S, W, E, each in 2 blocks
+        case 1: heightPixels = 31 - py / 2; break;
+        case 2: heightPixels = 63 - py / 2; break;
+        case 3: heightPixels = py / 2; break;
+        case 4: heightPixels = 32 + py / 2; break;
+        case 5: heightPixels = 31 - px / 2; break;
+        case 6: heightPixels = 63 - px / 2; break;
+        case 7: heightPixels = px / 2; break;
+        case 8: heightPixels = 32 + px / 2; break;
+        // 7 degrees: N, S, W, E, each in 8 blocks, lowest block starts 2 pixels up
+        case 9: heightPixels = 9 - py / 8; break;
+        case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+            heightPixels = (slopeType - 9) * 8 + 7 - py / 8;
         break;
-        // S, 26 low, high
-        case 3: case 4:
-            min_evelation = (1.0f / 2) * (slopeType - 3 + 0);
-            max_evelation = (1.0f / 2) * (slopeType - 3 + 1);
-            lerp_factor = coord_y;
+        case 17: heightPixels = 2 + py / 8; break;
+        case 18: case 19: case 20: case 21: case 22: case 23: case 24:
+            heightPixels = (slopeType - 17) * 8 + py / 8;
         break;
-        // W, 26 low, high
-        case 5: case 6:
-            min_evelation = (1.0f / 2) * (slopeType - 5 + 1);
-            max_evelation = (1.0f / 2) * (slopeType - 5 + 0);
-            lerp_factor = coord_x;
+        case 25: heightPixels = 9 - px / 8; break;
+        case 26: case 27: case 28: case 29: case 30: case 31: case 32:
+            heightPixels = (slopeType - 25) * 8 + 7 - px / 8;
         break;
-        // E, 26 low, high
-        case 7: case 8:
-            min_evelation = (1.0f / 2) * (slopeType - 7 + 0);
-            max_evelation = (1.0f / 2) * (slopeType - 7 + 1);
-            lerp_factor = coord_x;
+        case 33: heightPixels = 2 + px / 8; break;
+        case 34: case 35: case 36: case 37: case 38: case 39: case 40:
+            heightPixels = (slopeType - 33) * 8 + px / 8;
         break;
-        // N, 7 low - high
-        case 9: case 10: case 11: case 12:
-        case 13: case 14: case 15: case 16:
-            min_evelation = (1.0f / 8) * (slopeType - 9 + 1);
-            max_evelation = (1.0f / 8) * (slopeType - 9 + 0);
-            lerp_factor = coord_y;
-        break;
-        // S, 7 low - high
-        case 17: case 18: case 19: case 20:
-        case 21: case 22: case 23: case 24:
-            min_evelation = (1.0f / 8) * (slopeType - 17 + 0);
-            max_evelation = (1.0f / 8) * (slopeType - 17 + 1);
-            lerp_factor = coord_y;
-        break;
-        // W, 7 low - high
-        case 25: case 26: case 27: case 28:
-        case 29: case 30: case 31: case 32:
-            min_evelation = (1.0f / 8) * (slopeType - 25 + 1);
-            max_evelation = (1.0f / 8) * (slopeType - 25 + 0);
-            lerp_factor = coord_x;
-        break;
-        // E, 7 low - high
-        case 33: case 34: case 35: case 36:
-        case 37: case 38: case 39: case 40:
-            min_evelation = (1.0f / 8) * (slopeType - 33 + 0);
-            max_evelation = (1.0f / 8) * (slopeType - 33 + 1);
-            lerp_factor = coord_x;
-        break;
-        // 41 - 44 = 45 N,S,W,E
-        case 41: 
-            min_evelation = 1.0f;
-            max_evelation = 0;
-            lerp_factor = coord_y;
-        break;
-        case 42: 
-            min_evelation = 0;
-            max_evelation = 1.0f;
-            lerp_factor = coord_y;
-        break;
-        case 43: 
-            min_evelation = 1.0f;
-            max_evelation = 0;
-            lerp_factor = coord_x;
-        break;
-        case 44: 
-            min_evelation = 0;
-            max_evelation = 1.0f;
-            lerp_factor = coord_x;
-        break;
-
+        // 45 degrees: N, S, W, E
+        case 41: heightPixels = 63 - py; break;
+        case 42: heightPixels = py; break;
+        case 43: heightPixels = 63 - px; break;
+        case 44: heightPixels = px; break;
+        case 0: break;
         default:
-        {
             debug_assert(false);
-            return 0.0f;
-        }
+        break;
     }
-    // linear interpolate elevation
-    return glm::lerp(min_evelation, max_evelation, lerp_factor);
+    return Convert::PixelsToMapUnits(heightPixels);
 }

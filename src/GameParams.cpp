@@ -16,6 +16,7 @@ void GameParams::SetToDefaults()
     mGamePlayerRespawnTime = 6.0f;
     mGameRailwaysDamageDelay = 1.5f;
     mGameGourangaComboTime = 0.56f;
+    mGameGroundSearchHeight = Convert::PixelsToMeters(32);
 
     // pedestrians
     mPedestrianBoundsSphereRadius = Convert::MapUnitsToMeters(0.10f);
@@ -29,6 +30,8 @@ void GameParams::SetToDefaults()
     mPedestrianFallDeathHeight = Convert::PixelsToMeters(114); // 49 ticks of fall and 16 px to ground
     mPedestrianFallMaxDistance = Convert::PixelsToMeters(100); // 50 ticks of fall, 2 health each
     mPedestrianFallStartHeight = Convert::PixelsToMeters(16);
+    mPedestrianStepHeight = Convert::PixelsToMeters(16);
+    mPedestrianStepBlockSpeed = Convert::PixelsPerTickToMetersPerSecond(3.0f);
     mPedestrianFallSpeed = Convert::PixelsPerTickToMetersPerSecond(2.0f);
     mPedestrianFallMoveSpeed = Convert::PixelsPerTickToMetersPerSecond(1.0f);
     mPedestrianDrowningTime = 1.46f;

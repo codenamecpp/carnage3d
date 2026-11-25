@@ -31,7 +31,7 @@ enum CollisionGroup: unsigned short
 {
     CollisionGroup_None = 0,
     CollisionGroup_MapBlock = BIT(0), // solid map block
-    CollisionGroup_Wall = BIT(1), // thin fence
+    CollisionGroup_Wall = BIT(1), // slope side
     CollisionGroup_Pedestrian = BIT(2),
     CollisionGroup_Car = BIT(3),
     CollisionGroup_Obstacle = BIT(4),

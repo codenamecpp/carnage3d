@@ -16,6 +16,7 @@ public:
     float mGamePlayerRespawnTime; // respawn time, seconds
     float mGameRailwaysDamageDelay; // how long can to stand on railways without damage, seconds
     float mGameGourangaComboTime; // max time between hare krishnas kills to continue gouranga combo, seconds
+    float mGameGroundSearchHeight; // ground search starts this much above object, meters
 
     // pedestrians
     float mPedestrianBoundsSphereRadius; // bounding sphere radius, meters
@@ -29,6 +30,8 @@ public:
     float mPedestrianFallDeathHeight; // pedestrian dies when drop height is more than this, meters
     float mPedestrianFallMaxDistance; // pedestrian dies in air after this falling distance, meters
     float mPedestrianFallStartHeight; // pedestrian falls only when ground is lower than this, meters
+    float mPedestrianStepHeight; // pedestrian steps onto ground that is not higher than this, meters
+    float mPedestrianStepBlockSpeed; // pedestrian at this speed or slower cannot go into higher ground, meters per second
     float mPedestrianFallSpeed; // constant, meters per second
     float mPedestrianFallMoveSpeed; // forward speed while falling, meters per second
     float mPedestrianDrowningTime; // player only, other pedestrians drown at once, seconds

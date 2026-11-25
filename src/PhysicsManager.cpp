@@ -30,12 +30,60 @@ union b2FixtureData_map
     struct
     {
         unsigned char mX, mZ;
+        // walls only
+        unsigned char mLayer;
+        unsigned char mFace;
     };
 
     void* mAsPointer;
 };
 
 static_assert(sizeof(b2FixtureData_map) <= sizeof(void*), "Cannot pack data into pointer");
+
+// Whether object can go through side of slope block
+// @param canUseSteepSlopes: Pedestrians and player motorcycles can use steep slopes (usually stairs)
+// @param isAcrossLayers: Object corners are on two map layers
+static bool IsSlopeSideOpen(int slopeType, eBlockFace face, bool canUseSteepSlopes, bool isAcrossLayers)
+{
+    // slopes go up to N, S, W, E: low end is always open; high end only when object already reaches layer above
+    static const eBlockFace lowEnd[] = { eBlockFace_S, eBlockFace_N, eBlockFace_E, eBlockFace_W };
+    static const eBlockFace highEnd[] = { eBlockFace_N, eBlockFace_S, eBlockFace_W, eBlockFace_E };
+
+    int direction = 0;
+    bool isLowPart = false;
+    bool isHighPart = false;
+    if (slopeType >= 9 && slopeType <= 40) // 7 degrees, 8 parts
+    {
+        direction = (slopeType - 9) / 8;
+        isLowPart = ((slopeType - 9) % 8) == 0;
+        isHighPart = !isLowPart;
+    }
+    else if (slopeType >= 1 && slopeType <= 8 && canUseSteepSlopes) // 26 degrees, 2 parts
+    {
+        direction = (slopeType - 1) / 2;
+        isLowPart = ((slopeType - 1) % 2) == 0;
+        isHighPart = !isLowPart;
+    }
+    else if (slopeType >= 41 && slopeType <= 44 && canUseSteepSlopes) // 45 degrees, 1 part
+    {
+        direction = slopeType - 41;
+        isLowPart = true;
+        isHighPart = true;
+    }
+    return (isLowPart && (face == lowEnd[direction])) || (isHighPart && isAcrossLayers && (face == highEnd[direction]));
+}
+
+static void CreateMapWallFixture(b2Body* mapBody, const b2Shape& shape, b2FixtureData_map fixtureData)
+{
+    b2FixtureDef b2fixtureDef;
+    b2fixtureDef.density = 0.0f;
+    b2fixtureDef.shape = &shape;
+    b2fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(fixtureData.mAsPointer);
+    b2fixtureDef.filter.categoryBits = CollisionGroup_Wall;
+
+    b2Fixture* b2fixture = mapBody->CreateFixture(&b2fixtureDef);
+    debug_assert(b2fixture);
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -104,6 +152,7 @@ void PhysicsManager::ProcessSimulationStep()
         {
             GameObject* currGameObject = currObjectBody->mGameObject;
             currGameObject->SimulationStep();
+            CheckPedestrianStep(currObjectBody);
         }
     }
 
@@ -199,7 +248,7 @@ void PhysicsManager::CreateMapCollisionShape()
 
                     auto is_walkable = [](eGroundType gtype)
                     {
-                        return gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road;
+                        return gtype == eGroundType_Field || gtype == eGroundType_Pawement || gtype == eGroundType_Road || gtype == eGroundType_Water;
                     };
 
                     if (!is_walkable(neighbourE->mGroundType) && !is_walkable(neighbourW->mGroundType) &&
@@ -234,6 +283,52 @@ void PhysicsManager::CreateMapCollisionShape()
 
                 ++numFixtures;
                 break; // single fixture per block column
+            }
+        }
+    }
+
+    // walls on slope sides so slopes can be entered only from their ends
+    for (int layer = 0; layer < MAP_LAYERS_COUNT; ++layer)
+    {
+        for (int x = 0; x < MAP_DIMENSIONS; ++x)
+        {
+            for (int y = 0; y < MAP_DIMENSIONS; ++y)
+            {
+                const MapBlockInfo* blockData = gGameMap.GetBlockInfo(x, y, layer);
+                if (blockData->mSlopeType == 0 || blockData->mGroundType == eGroundType_Air)
+                    continue;
+
+                for (eBlockFace face: {eBlockFace_W, eBlockFace_E, eBlockFace_N, eBlockFace_S})
+                {
+                    int neighbourX = x + (face == eBlockFace_E) - (face == eBlockFace_W);
+                    int neighbourY = y + (face == eBlockFace_S) - (face == eBlockFace_N);
+                    if (neighbourX < 0 || neighbourX >= MAP_DIMENSIONS || neighbourY < 0 || neighbourY >= MAP_DIMENSIONS)
+                        continue;
+
+                    if (gGameMap.GetBlockInfo(neighbourX, neighbourY, layer)->mSlopeType)
+                        continue;
+
+                    glm::ivec2 pointA (x * PIXELS_PER_MAP_UNIT, y * PIXELS_PER_MAP_UNIT);
+                    glm::ivec2 pointB = pointA;
+                    switch (face)
+                    {
+                        case eBlockFace_W: pointA.x = pointB.x = pointA.x - 1; pointB.y += PIXELS_PER_MAP_UNIT; break;
+                        case eBlockFace_E: pointA.x = pointB.x = pointA.x + PIXELS_PER_MAP_UNIT + 1; pointB.y += PIXELS_PER_MAP_UNIT; break;
+                        case eBlockFace_N: pointA.y = pointB.y = pointA.y - 1; pointB.x += PIXELS_PER_MAP_UNIT; break;
+                        case eBlockFace_S: pointA.y = pointB.y = pointA.y + PIXELS_PER_MAP_UNIT + 1; pointB.x += PIXELS_PER_MAP_UNIT; break;
+                        default: break;
+                    }
+
+                    b2EdgeShape b2shapeDef;
+                    b2shapeDef.SetTwoSided(convert_vec2(Convert::PixelsToMeters(pointA)), convert_vec2(Convert::PixelsToMeters(pointB)));
+
+                    b2FixtureData_map fixtureData;
+                    fixtureData.mX = x;
+                    fixtureData.mZ = y;
+                    fixtureData.mLayer = layer;
+                    fixtureData.mFace = face;
+                    CreateMapWallFixture(mBox2MapBody, b2shapeDef, fixtureData);
+                }
             }
         }
     }
@@ -388,9 +483,11 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         return;
     }
 
-    float groundHeight = gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
     bool isCar = gameObject->IsVehicleClass();
     bool isPedestrian = gameObject->IsPedestrianClass();
+    float groundHeight = (isPedestrian || isCar) ?
+        GetGroundHeightUnder(physicsBody->GetPosition2(), physicsBody->mPositionY) :
+        gGameMap.GetHeightAtPosition(physicsBody->GetPosition(), false);
 
     if (physicsBody->mWaterContact)
     {
@@ -422,7 +519,10 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
             ((physicsBody->mFallStartHeight - physicsBody->mPositionY) >= gGameParams.mPedestrianFallMaxDistance)))
         {
             // close to ground, or died mid-air
-            physicsBody->mPositionY = groundHeight;
+            if (groundHeight <= physicsBody->mPositionY + gGameParams.mPedestrianStepHeight)
+            {
+                physicsBody->mPositionY = groundHeight;
+            }
             isLanding = true;
         }
         else
@@ -451,7 +551,7 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         {
             // car follows ground that goes down a little
             glm::vec2 nextPosition = physicsBody->GetPosition2() + (physicsBody->GetLinearVelocity() * gGameParams.mCarFallLookAheadTime);
-            float nextGroundHeight = gGameMap.GetHeightAtPosition(glm::vec3(nextPosition.x, physicsBody->mPositionY, nextPosition.y), false);
+            float nextGroundHeight = GetGroundHeightUnder(nextPosition, physicsBody->mPositionY);
             onTheGround = (physicsBody->mPositionY - std::min(groundHeight, nextGroundHeight)) <= gGameParams.mCarFallStartHeight;
         }
         if (onTheGround)
@@ -463,7 +563,7 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
                 HandleFallsOnWater(physicsBody);
             }
         }
-        else // start falling
+        else if (!isPedestrian || (groundHeight < physicsBody->mPositionY)) // start falling
         {
             if (gGameCheatsWindow.mEnableGravity)
             {
@@ -477,6 +577,80 @@ void PhysicsManager::UpdateHeightPosition(PhysicsBody* physicsBody)
         // force body awake
         physicsBody->SetAwake(true);
     }
+}
+
+void PhysicsManager::CheckPedestrianStep(PhysicsBody* physicsBody)
+{
+    GameObject* gameObject = physicsBody->mGameObject;
+    if (!gameObject->IsPedestrianClass() || gameObject->IsAttachedToObject() || physicsBody->mFalling)
+        return;
+
+    glm::vec2 velocity = physicsBody->GetLinearVelocity();
+    float speed = glm::length(velocity);
+    if (speed == 0.0f || speed > gGameParams.mPedestrianStepBlockSpeed)
+        return;
+
+    glm::vec2 nextPosition = physicsBody->GetPosition2() + (velocity * mSimulationStepTime);
+    if (GetGroundHeightUnder(nextPosition, physicsBody->mPositionY) > physicsBody->mPositionY + gGameParams.mPedestrianStepHeight)
+    {
+        physicsBody->SetLinearVelocity(glm::vec2());
+    }
+}
+
+float PhysicsManager::GetGroundHeightUnder(const glm::vec2& position, float height) const
+{
+    float searchHeight = height + gGameParams.mGameGroundSearchHeight;
+    return gGameMap.GetGroundHeight(position, (int) std::floor(Convert::MetersToMapUnits(searchHeight)), false);
+}
+
+void PhysicsManager::GetCornersMapLayers(GameObject* gameObject, int& topLayer, int& bottomLayer) const
+{
+    PhysicsBody* physicsBody = gameObject->mPhysicsBody;
+    const float margin = Convert::PixelsToMeters(4);
+    const glm::vec2 signs[4] = { {-1.0f, -1.0f}, {1.0f, -1.0f}, {1.0f, 1.0f}, {-1.0f, 1.0f} };
+
+    glm::vec2 corners[4];
+    if (Vehicle* carObject = ToVehicle(gameObject))
+    {
+        carObject->GetChassisCornersLocal(corners);
+        for (int icorner = 0; icorner < 4; ++icorner)
+        {
+            corners[icorner] = physicsBody->GetWorldPoint(corners[icorner] + signs[icorner] * margin);
+        }
+    }
+    else
+    {
+        const float halfBox = gGameParams.mPedestrianBoundsSphereRadius + margin;
+        for (int icorner = 0; icorner < 4; ++icorner)
+        {
+            corners[icorner] = physicsBody->GetPosition2() + signs[icorner] * halfBox;
+        }
+    }
+
+    for (int icorner = 0; icorner < 4; ++icorner)
+    {
+        float groundHeight = GetGroundHeightUnder(corners[icorner], physicsBody->mPositionY);
+        int layer = (int) std::floor(Convert::MetersToMapUnits(groundHeight));
+        topLayer = (icorner == 0) ? layer : std::max(topLayer, layer);
+        bottomLayer = (icorner == 0) ? layer : std::min(bottomLayer, layer);
+    }
+}
+
+int PhysicsManager::GetObjectMapLayer(GameObject* gameObject) const
+{
+    if (gameObject->IsPedestrianClass())
+    {
+        return (int) std::floor(Convert::MetersToMapUnits(gameObject->mPhysicsBody->mPositionY));
+    }
+    if (gameObject->IsVehicleClass())
+    {
+        int topLayer = 0;
+        int bottomLayer = 0;
+        GetCornersMapLayers(gameObject, topLayer, bottomLayer);
+        return topLayer;
+    }
+    float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
+    return (int) (Convert::MetersToMapUnits(height) + 0.5f);
 }
 
 void PhysicsManager::QueryObjectsLinecast(const glm::vec2& pointA, const glm::vec2& pointB, PhysicsQueryResult& outputResult, CollisionGroup collisionMask) const
@@ -592,14 +766,50 @@ bool PhysicsManager::ShouldCollide_ObjectWithMap(b2Contact* contact, b2Fixture* 
     if (gameObject->mPhysicsBody->CheckFlags(PhysicsBodyFlags_Disabled))
         return false;
 
-    float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
-    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
-
-    // todo: this is temporary implementation
-
+    Pedestrian* pedestrian = ToPedestrian(gameObject);
+    Vehicle* carObject = ToVehicle(gameObject);
     b2FixtureData_map fxdata = (b2FixtureData_map*) mapFixture->GetUserData().pointer;
-    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, mapLayer);
-    return (blockData->mGroundType == eGroundType_Building);
+    bool isWall = CheckCollisionGroup(mapFixture, CollisionGroup_Wall);
+
+    if (pedestrian)
+    {
+        if (pedestrian->mPhysicsBody->mFalling)
+            return false;
+
+        glm::vec2 position = Convert::MetersToMapUnits(pedestrian->mPhysicsBody->GetPosition2());
+        const MapBlockInfo* blockData = gGameMap.GetBlockInfo((int) std::floor(position.x), (int) std::floor(position.y), GetObjectMapLayer(gameObject));
+        if (blockData->mSlopeType && (!isWall || !pedestrian->IsHumanPlayerCharacter()))
+            return false;
+    }
+
+    if (!isWall)
+    {
+        const MapBlockInfo* blockData = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, GetObjectMapLayer(gameObject));
+        return (blockData->mGroundType == eGroundType_Building);
+    }
+
+    if (!pedestrian && !carObject)
+        return false;
+
+    int topLayer = 0;
+    int bottomLayer = 0;
+    GetCornersMapLayers(gameObject, topLayer, bottomLayer);
+
+    // find slope from highest corner
+    glm::vec2 blockCenter = Convert::MapUnitsToMeters(glm::vec2(fxdata.mX + 0.5f, fxdata.mZ + 0.5f));
+    float slopeHeight = gGameMap.GetGroundHeight(blockCenter, topLayer, false);
+    if ((int) Convert::MetersToMapUnits(slopeHeight) != fxdata.mLayer)
+        return false;
+
+    const MapBlockInfo* blockData = gGameMap.GetBlockInfo(fxdata.mX, fxdata.mZ, fxdata.mLayer);
+    // only player can use motorcycles on steep slopes (stairs)
+    bool canUseSteepSlopes = !carObject;
+    if (carObject && (carObject->mCarInfo->mClassID == eVehicleClass_Motorcycle))
+    {
+        Pedestrian* carDriver = carObject->GetCarDriver();
+        canUseSteepSlopes = carDriver && carDriver->IsHumanPlayerCharacter();
+    }
+    return !IsSlopeSideOpen(blockData->mSlopeType, (eBlockFace) fxdata.mFace, canUseSteepSlopes, topLayer != bottomLayer);
 }
 
 bool PhysicsManager::ShouldCollide_Objects(b2Contact* box2contact, b2Fixture* fixtureA, b2Fixture* fixtureB) const
@@ -658,10 +868,8 @@ void PhysicsManager::HandleCollision_ObjectWithMap(b2Fixture* objectFixture, b2F
     GameObject* gameObject = b2Fixture_get_game_object(objectFixture);
     debug_assert(gameObject);
 
-    float height = gGameMap.GetHeightAtPosition(gameObject->mPhysicsBody->GetPosition());
-    int mapLayer = (int) (Convert::MetersToMapUnits(height) + 0.5f);
-
     b2FixtureData_map fxdata = (b2FixtureData_map*) mapFixture->GetUserData().pointer;
+    int mapLayer = CheckCollisionGroup(mapFixture, CollisionGroup_Wall) ? fxdata.mLayer : GetObjectMapLayer(gameObject);
 
     // queue collision event
     mObjectsCollisionList.emplace_back();
