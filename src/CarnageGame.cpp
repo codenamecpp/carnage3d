@@ -122,6 +122,16 @@ bool CarnageGame::IsInGameState() const
 
 void CarnageGame::UpdateFrame()
 {
+    // the window mode can change the screen resolution at runtime, so player view areas have to follow it
+    if (mScreenLayoutResolution != gGraphicsDevice.mScreenResolution)
+    {
+        if (GetHumanPlayersCount() > 0)
+        {
+            SetupScreenLayout();
+        }
+        mScreenLayoutResolution = gGraphicsDevice.mScreenResolution;
+    }
+
     if (mCurrentGamestate)
     {
         mCurrentGamestate->OnGamestateFrame();
@@ -285,6 +295,7 @@ void CarnageGame::SetupScreenLayout()
     debug_assert(playersCount > 0);
 
     Point screenResolution = gGraphicsDevice.mScreenResolution;
+    mScreenLayoutResolution = screenResolution;
 
     int numRows = (playersCount + MaxCols - 1) / MaxCols;
     debug_assert(numRows > 0);

@@ -41,6 +41,16 @@ public:
     // @param fullscreenEnabled: True to fullscreen or false to windowed
     void EnableFullscreen(bool fullscreenEnabled);
 
+    // Show or hide the system cursor, the client is expected to draw its own
+    // @param isVisible: True to show the system cursor or false to hide it
+    void SetCursorVisible(bool isVisible);
+
+    // Whether the window currently owns a monitor
+    bool IsFullscreen() const
+    {
+        return mGraphicsMonitor != nullptr;
+    }
+
     // Create 2D texture, client is responsible for destroying resource
     // @param textureFormat: Format
     // @param sizex, sizey: Texture dimensions, must be POT!
@@ -168,6 +178,7 @@ private:
     GraphicsContext mGraphicsContext;
     GLFWwindow* mGraphicsWindow;
     GLFWmonitor* mGraphicsMonitor;
+    Point mWindowedScreenResolution; // windowed mode resolution, restored when leaving fullscreen
 };
 
 extern GraphicsDevice gGraphicsDevice;

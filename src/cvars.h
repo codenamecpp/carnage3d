@@ -12,7 +12,7 @@
 extern CvarBoolean gCvarMouseAiming; // aim with mouse
 
 // graphics
-extern CvarPoint gCvarGraphicsScreenDims; // screen dimensions
+extern CvarPoint gCvarGraphicsWindowDims; // windowed screen dimensions
 extern CvarBoolean gCvarGraphicsFullscreen; // is fullscreen mode enabled
 extern CvarBoolean gCvarGraphicsVSync; // is vertical synchronization enabled
 extern CvarBoolean gCvarGraphicsTexFiltering; // is texture filtering enabled
@@ -61,7 +61,7 @@ extern CvarVoid gCvarDbgDumpCarSprites; // dump car sprites
 inline void CvarsRegisterGlobal()
 {
     // vars
-    gConsole.RegisterVariable(&gCvarGraphicsScreenDims);
+    gConsole.RegisterVariable(&gCvarGraphicsWindowDims);
     gConsole.RegisterVariable(&gCvarGraphicsFullscreen);
     gConsole.RegisterVariable(&gCvarGraphicsVSync);
     gConsole.RegisterVariable(&gCvarGraphicsTexFiltering);

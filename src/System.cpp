@@ -19,7 +19,7 @@ static const char* SysConfigPath = "config/sys_config.json";
 //////////////////////////////////////////////////////////////////////////
 
 // graphics
-CvarPoint gCvarGraphicsScreenDims("r_screenDims", Point(1024, 768), "Screen dimensions", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+CvarPoint gCvarGraphicsWindowDims("r_windowDims", Point(1024, 768), "Windowed screen dimensions (fullscreen runs at the monitor mode)", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
 CvarBoolean gCvarGraphicsFullscreen("r_fullscreen", false, "Is fullscreen mode enabled", CvarFlags_Archive);
 CvarBoolean gCvarGraphicsVSync("r_vsync", true, "Is vertical synchronization enabled", CvarFlags_Archive);
 CvarBoolean gCvarGraphicsTexFiltering("r_texFiltering", false, "Is texture filtering enabled", CvarFlags_Archive | CvarFlags_Readonly);
@@ -257,6 +257,18 @@ bool System::ExecuteFrame()
     gMemoryManager.FlushFrameHeapMemory();
     gImGuiManager.UpdateFrame();
     gGuiManager.UpdateFrame();
+
+    // apply a pending window mode change before the game update, so the frame that
+    // switches resolution is already laid out for the new screen size
+    if (gCvarGraphicsFullscreen.IsModified() || gCvarGraphicsVSync.IsModified())
+    {
+        gGraphicsDevice.EnableFullscreen(gCvarGraphicsFullscreen.mValue);
+        gCvarGraphicsFullscreen.ClearModified();
+
+        gGraphicsDevice.EnableVSync(gCvarGraphicsVSync.mValue);
+        gCvarGraphicsVSync.ClearModified();
+    }
+
     gCarnageGame.UpdateFrame();
     if (gAudioDevice.IsInitialized())
     {
@@ -284,15 +296,6 @@ bool System::ExecuteFrame()
         };
     }
 
-    // update screen params
-    if (gCvarGraphicsFullscreen.IsModified() || gCvarGraphicsVSync.IsModified())
-    {
-        gGraphicsDevice.EnableFullscreen(gCvarGraphicsFullscreen.mValue);
-        gCvarGraphicsFullscreen.ClearModified();
-
-        gGraphicsDevice.EnableVSync(gCvarGraphicsVSync.mValue);
-        gCvarGraphicsVSync.ClearModified();
-    }
     gRenderManager.RenderFrame();
     return true;
 }

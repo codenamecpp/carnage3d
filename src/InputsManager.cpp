@@ -3,6 +3,7 @@
 #include "ImGuiManager.h"
 #include "CarnageGame.h"
 #include "ConsoleWindow.h"
+#include "cvars.h"
 
 InputsManager gInputs;
 
@@ -74,7 +75,7 @@ void InputsManager::InputEvent(GamepadInputEvent& inputEvent)
 
 void InputsManager::InputEvent(KeyInputEvent& inputEvent)
 {
-    if (HandleDebugKeys(inputEvent))
+    if (HandleGlobalKeys(inputEvent))
     {
         InputEventConsumed(nullptr);
         return;
@@ -150,8 +151,18 @@ void InputsManager::UpdateFrame()
     mInputHandlers.push_back(&gCarnageGame);
 }
 
-bool InputsManager::HandleDebugKeys(KeyInputEvent& inputEvent)
+bool InputsManager::HandleGlobalKeys(KeyInputEvent& inputEvent)
 {
+    // toggle fullscreen mode
+    if (inputEvent.HasPressed(eKeycode_F11) ||
+        (inputEvent.HasPressed(eKeycode_ENTER) && inputEvent.HasMods(KEYMOD_ALT)))
+    {
+        gCvarGraphicsFullscreen.mValue = !gCvarGraphicsFullscreen.mValue;
+        gCvarGraphicsFullscreen.SetModified();
+        inputEvent.SetConsumed();
+        return true;
+    }
+
     // show/hide debug console window
     if (inputEvent.HasPressed(eKeycode_TILDE) || inputEvent.HasReleased(eKeycode_TILDE))
     {

@@ -133,6 +133,7 @@ GraphicsDevice::GraphicsDevice()
     , mCursorScale(1.0f, 1.0f)
     , mGraphicsWindow()
     , mGraphicsMonitor()
+    , mWindowedScreenResolution()
 {
 }
 
@@ -156,11 +157,8 @@ bool GraphicsDevice::Initialize()
     bool enableVSync = gCvarGraphicsVSync.mValue;
     bool enableFullscreen = gCvarGraphicsFullscreen.mValue;
 
-    mScreenResolution = gCvarGraphicsScreenDims.mValue;
-    gConsole.LogMessage(eLogMessage_Debug, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
-        mScreenResolution.x, mScreenResolution.y, 
-        enableVSync ? "enabled" : "disabled", 
-        enableFullscreen ? "yes" : "no");
+    mScreenResolution = gCvarGraphicsWindowDims.mValue;
+    mWindowedScreenResolution = mScreenResolution;
 
     if (::glfwInit() == GL_FALSE)
     {
@@ -184,8 +182,38 @@ bool GraphicsDevice::Initialize()
     if (enableFullscreen)
     {
         graphicsMonitor = ::glfwGetPrimaryMonitor();
-        debug_assert(graphicsMonitor);
+        if (graphicsMonitor)
+        {
+            // fullscreen runs at the monitor's current video mode, not at the windowed size
+            if (const GLFWvidmode* videoMode = ::glfwGetVideoMode(graphicsMonitor))
+            {
+                mScreenResolution.x = videoMode->width;
+                mScreenResolution.y = videoMode->height;
+            }
+            else
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot query monitor video mode, starting windowed");
+                graphicsMonitor = nullptr;
+                enableFullscreen = false;
+            }
+        }
+        else
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot find primary monitor, starting windowed");
+            enableFullscreen = false;
+        }
+
+        if (!enableFullscreen)
+        {
+            // keep the archived cvar in line with the mode the window actually got
+            gCvarGraphicsFullscreen.mValue = false;
+        }
     }
+
+    gConsole.LogMessage(eLogMessage_Info, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
+        mScreenResolution.x, mScreenResolution.y,
+        enableVSync ? "enabled" : "disabled",
+        enableFullscreen ? "yes" : "no");
 
     // opengl params
 #ifdef OPENGL_CORE_PROFILE
@@ -292,6 +320,9 @@ bool GraphicsDevice::Initialize()
     mGraphicsWindow = graphicsWindow;
     mGraphicsMonitor = graphicsMonitor;
 
+    // the system cursor is hidden in fullscreen
+    SetCursorVisible(mGraphicsMonitor == nullptr);
+
     QueryGraphicsDeviceCaps();
 
     // create global vertex array object
@@ -342,7 +373,7 @@ bool GraphicsDevice::Initialize()
 
     // reset modified cvars
     gCvarGraphicsFullscreen.ClearModified();
-    gCvarGraphicsScreenDims.ClearModified();
+    gCvarGraphicsWindowDims.ClearModified();
     gCvarGraphicsVSync.ClearModified();
     return true;
 }
@@ -393,19 +424,54 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
 
     if (fullscreenEnabled)
     {
-        if (mGraphicsMonitor == nullptr)
+        if (mGraphicsMonitor)
         {
-            mGraphicsMonitor = ::glfwGetPrimaryMonitor();
-            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+            return; // already fullscreen
         }
+
+        GLFWmonitor* monitor = ::glfwGetPrimaryMonitor();
+        const GLFWvidmode* videoMode = monitor ? ::glfwGetVideoMode(monitor) : nullptr;
+        if (videoMode == nullptr)
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot query monitor video mode");
+            return;
+        }
+
+        mGraphicsMonitor = monitor;
+        mWindowedScreenResolution = mScreenResolution;
+        mScreenResolution.x = videoMode->width;
+        mScreenResolution.y = videoMode->height;
+        ::glfwSetWindowMonitor(mGraphicsWindow, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
     }
     else
     {
-        if (mGraphicsMonitor)
+        if (mGraphicsMonitor == nullptr)
         {
-            mGraphicsMonitor = nullptr;
-            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+            return; // already windowed
         }
+        mGraphicsMonitor = nullptr;
+        mScreenResolution = mWindowedScreenResolution;
+        ::glfwSetWindowMonitor(mGraphicsWindow, nullptr, 60, 60, mScreenResolution.x, mScreenResolution.y, 0);
+    }
+
+    SetCursorVisible(mGraphicsMonitor == nullptr);
+
+    mViewportRect.Set(0, 0, mScreenResolution.x, mScreenResolution.y);
+    UpdateFramebufferScale();
+    ApplyViewportRect();
+    mScissorBox = mViewportRect;
+    ApplyScissorRect();
+}
+
+void GraphicsDevice::SetCursorVisible(bool isVisible)
+{
+    if (mGraphicsWindow == nullptr)
+        return;
+
+    const int cursorMode = isVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN;
+    if (::glfwGetInputMode(mGraphicsWindow, GLFW_CURSOR) != cursorMode)
+    {
+        ::glfwSetInputMode(mGraphicsWindow, GLFW_CURSOR, cursorMode);
     }
 }
 

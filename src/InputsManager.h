@@ -86,7 +86,8 @@ public:
 
 private:
     void InputEventConsumed(InputEventsHandler* handler);
-    bool HandleDebugKeys(KeyInputEvent& inputEvent);
+    // keys handled before gameplay input: window mode and debug console
+    bool HandleGlobalKeys(KeyInputEvent& inputEvent);
 
 private:
     InputEventsHandler* mLastInputsHandler = nullptr;
