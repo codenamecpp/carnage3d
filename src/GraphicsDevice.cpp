@@ -180,6 +180,22 @@ bool GraphicsDevice::Initialize()
 #endif   
     );
 
+    // extended gamepad mappings (SDL_GameControllerDB format), so more controllers are recognized as gamepads
+    {
+        std::string gamepadMappings;
+        if (gFiles.ReadTextFile("config/gamecontrollerdb.txt", gamepadMappings))
+        {
+            if (::glfwUpdateGamepadMappings(gamepadMappings.c_str()) == GLFW_TRUE)
+            {
+                gConsole.LogMessage(eLogMessage_Info, "Applied extended gamepad mappings");
+            }
+            else
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config/gamecontrollerdb.txt");
+            }
+        }
+    }
+
     GLFWmonitor* graphicsMonitor = nullptr;
     if (enableFullscreen)
     {
