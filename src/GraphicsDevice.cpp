@@ -124,6 +124,24 @@ static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
     return eGamepadButton_null;
 }
 
+static const float GamepadLeftStickDeadZone = 0.35f;
+
+// the game consumes only button actions, so the left stick is merged into the dpad buttons
+static bool GlfwGamepadButtonPressed(const GLFWgamepadstate& gamepadstate, int gpbutton)
+{
+    if (gamepadstate.buttons[gpbutton] == GLFW_PRESS)
+        return true;
+
+    switch (gpbutton)
+    {
+        case GLFW_GAMEPAD_BUTTON_DPAD_UP: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_DOWN: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_LEFT: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_RIGHT: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > GamepadLeftStickDeadZone;
+    };
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 GraphicsDevice::GraphicsDevice()
@@ -836,7 +854,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
             if (buttonNative == eGamepadButton_null)
                 continue;
 
-            bool newPressed = gamepadstate.buttons[ibutton] == GLFW_PRESS;
+            bool newPressed = GlfwGamepadButtonPressed(gamepadstate, ibutton);
             if (currGamepad.mButtons[buttonNative] == newPressed)
                 continue;
 
