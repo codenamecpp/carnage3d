@@ -2,6 +2,8 @@
 
 #include "CameraController.h"
 
+//////////////////////////////////////////////////////////////////////////
+
 class FollowCameraController final: public CameraController
 {
 public:
@@ -24,11 +26,7 @@ public:
     void InputEventLost() override;
 
 private:
-    // parameters
-    float mStartupCameraHeight; // meters
-    float mFollowPedCameraHeight; // meters
-    float mScrollHeightOffset; // meters
-    float mFollowPedCameraCatchSpeed; // meters per second
-
     Pedestrian* mFollowPedestrian = nullptr;
 };
+
+//////////////////////////////////////////////////////////////////////////

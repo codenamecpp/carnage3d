@@ -5,11 +5,28 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 
+//////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+    const float StartupCameraHeight = 32.0f;
+
+    const float FollowPedCameraHeight = 20.0f;
+    const float FollowCarMinCameraHeight = 20.0f;
+    const float FollowCarMaxCameraHeight = 32.0f;
+    const float CameraZoomCarSpeedTreshold = 10.0f;
+    const float CameraZoomCarSpeed = 30.0f;
+
+    const float CameraLookAheadDistance = 12.0f;
+
+    const float CameraCatchHeightStiffness = 2.0f;
+    const float CameraCatchPedPositionStiffness = 10.0f;
+    const float CameraCatchCarPositionStiffness = 5.0f;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 FollowCameraController::FollowCameraController()
-    : mStartupCameraHeight(32.0f)
-    , mFollowPedCameraHeight(20.0f)
-    , mFollowPedCameraCatchSpeed(20.0f)
-    , mScrollHeightOffset()
 {
 }
 
@@ -23,16 +40,16 @@ void FollowCameraController::Setup(GameCamera* gameCamera)
 
     // set camera defaults
     mCamera->SetIdentity();
-    mCamera->SetPerspectiveProjection(screenAspect, 55.0f, 0.1f, 1000.0f);
+    mCamera->SetPerspectiveProjection(screenAspect, 55.0f, 0.1f, 300.0f);
     
     if (mFollowPedestrian)
     {
         glm::vec3 position = mFollowPedestrian->mTransformSmooth.mPosition;
-        mCamera->SetPosition({position.x, position.y + mStartupCameraHeight, position.z}); 
+        mCamera->SetPosition({position.x, position.y + StartupCameraHeight, position.z}); 
     }
     else
     {
-        mCamera->SetPosition({0.0f, mStartupCameraHeight, 0.0f});
+        mCamera->SetPosition({0.0f, StartupCameraHeight, 0.0f});
     }
     mCamera->SetTopDownOrientation();
 }
@@ -42,27 +59,56 @@ void FollowCameraController::UpdateFrame()
     if (mFollowPedestrian == nullptr)
         return;
 
-    glm::vec3 position = mFollowPedestrian->mTransformSmooth.mPosition;
-    position.y = position.y + (mFollowPedCameraHeight + mScrollHeightOffset);
+    glm::vec3 actorPosition = mFollowPedestrian->mTransformSmooth.mPosition;
+    glm::vec2 desiredOffset {0.0f};
+    float desiredHeight = FollowPedCameraHeight;
+    float catchPositionStiffness = CameraCatchPedPositionStiffness;
 
-    float catchSpeed = mFollowPedCameraCatchSpeed;
-    // todo: temporary implementation
-    if (mFollowPedestrian->IsCarPassenger())
+    const bool isInCar = mFollowPedestrian->IsCarPassenger();
+    if (isInCar)
     {
-        glm::vec2 carVelocity = mFollowPedestrian->mCurrentCar->mPhysicsBody->GetLinearVelocity();
-        float carSpeed = glm::length(carVelocity);
-        carVelocity = glm::normalize(carVelocity);
-        position.x += (carVelocity.x * carSpeed * 0.35f); // todo: magic numbers
-        position.z += (carVelocity.y * carSpeed * 0.35f); // todo: magic numbers
-        catchSpeed *= 0.3f; // todo: magic numbers
+        Vehicle* currentCar = mFollowPedestrian->mCurrentCar;
+        debug_assert(currentCar);
+
+        actorPosition = currentCar->mTransformSmooth.mPosition;
+        desiredHeight = FollowCarMinCameraHeight;
+
+        const float carSignedSpeed = currentCar->GetCurrentSpeed();
+        const float carSpeed = fabs(carSignedSpeed);
+        if (carSpeed > CameraZoomCarSpeedTreshold)
+        {
+            // handle zoom
+            const float zoomFactor = std::min((carSpeed - CameraZoomCarSpeedTreshold) / (CameraZoomCarSpeed - CameraZoomCarSpeedTreshold), 1.0f);
+            desiredHeight = glm::lerp(FollowCarMinCameraHeight, FollowCarMaxCameraHeight, zoomFactor);
+        }
+
+        catchPositionStiffness = CameraCatchCarPositionStiffness;
+
+        if (carSpeed > 0.0f)
+        {
+            const float speedSign = glm::sign(carSignedSpeed);
+            desiredOffset = currentCar->mTransformSmooth.GetDirectionVector() * speedSign * CameraLookAheadDistance *
+                glm::clamp((desiredHeight - FollowCarMinCameraHeight) / (FollowCarMaxCameraHeight - FollowCarMinCameraHeight), 0.0f, 1.0f);
+        }
     }
 
-    float deltaTime = gTimeManager.mGameFrameDelta;
-    if (glm::length(mCamera->mPosition - position) > 0.01f)
+    const glm::vec3 desiredCameraPosition
     {
-        position = mCamera->mPosition + (position - mCamera->mPosition) * catchSpeed * deltaTime;
-        mCamera->SetPosition(position); 
-    }
+        actorPosition.x + desiredOffset.x,
+        actorPosition.y + desiredHeight,
+        actorPosition.z + desiredOffset.y
+    };
+
+    const float deltaTime = gTimeManager.mGameFrameDelta;
+
+    const glm::vec3 cameraPosition
+    {
+        cxx::damp(mCamera->mPosition.x, desiredCameraPosition.x, catchPositionStiffness, deltaTime),
+        cxx::damp(mCamera->mPosition.y, desiredCameraPosition.y, CameraCatchHeightStiffness, deltaTime),
+        cxx::damp(mCamera->mPosition.z, desiredCameraPosition.z, catchPositionStiffness, deltaTime)
+    };
+
+    mCamera->SetPosition(cameraPosition); 
 }
 
 void FollowCameraController::InputEvent(KeyInputEvent& inputEvent)
@@ -79,7 +125,6 @@ void FollowCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
 void FollowCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    mScrollHeightOffset = glm::clamp(mScrollHeightOffset - inputEvent.mScrollY, -3.0f, 23.0f);
 }
 
 void FollowCameraController::SetFollowTarget(Pedestrian* pedestrian)

@@ -125,4 +125,10 @@ namespace cxx
         return fabsf(value) < FLT_EPSILON;
     }
 
+    template <class T>
+    inline T damp(const T& current, const T& target, float smoothing, float dt)
+    {
+        return glm::lerp(current, target, 1.0f - std::exp(-smoothing * dt));
+    }
+
 } // namespace cxx
