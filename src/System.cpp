@@ -257,6 +257,18 @@ bool System::ExecuteFrame()
     gMemoryManager.FlushFrameHeapMemory();
     gImGuiManager.UpdateFrame();
     gGuiManager.UpdateFrame();
+
+    // apply a pending window mode change before the game update, so the frame that
+    // switches resolution is already laid out for the new screen size
+    if (gCvarGraphicsFullscreen.IsModified() || gCvarGraphicsVSync.IsModified())
+    {
+        gGraphicsDevice.EnableFullscreen(gCvarGraphicsFullscreen.mValue);
+        gCvarGraphicsFullscreen.ClearModified();
+
+        gGraphicsDevice.EnableVSync(gCvarGraphicsVSync.mValue);
+        gCvarGraphicsVSync.ClearModified();
+    }
+
     gCarnageGame.UpdateFrame();
     if (gAudioDevice.IsInitialized())
     {
@@ -284,15 +296,6 @@ bool System::ExecuteFrame()
         };
     }
 
-    // update screen params
-    if (gCvarGraphicsFullscreen.IsModified() || gCvarGraphicsVSync.IsModified())
-    {
-        gGraphicsDevice.EnableFullscreen(gCvarGraphicsFullscreen.mValue);
-        gCvarGraphicsFullscreen.ClearModified();
-
-        gGraphicsDevice.EnableVSync(gCvarGraphicsVSync.mValue);
-        gCvarGraphicsVSync.ClearModified();
-    }
     gRenderManager.RenderFrame();
     return true;
 }

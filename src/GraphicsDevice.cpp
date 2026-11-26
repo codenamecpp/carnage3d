@@ -133,6 +133,7 @@ GraphicsDevice::GraphicsDevice()
     , mCursorScale(1.0f, 1.0f)
     , mGraphicsWindow()
     , mGraphicsMonitor()
+    , mWindowedScreenResolution()
 {
 }
 
@@ -157,6 +158,7 @@ bool GraphicsDevice::Initialize()
     bool enableFullscreen = gCvarGraphicsFullscreen.mValue;
 
     mScreenResolution = gCvarGraphicsScreenDims.mValue;
+    mWindowedScreenResolution = mScreenResolution;
 
     if (::glfwInit() == GL_FALSE)
     {
@@ -199,6 +201,12 @@ bool GraphicsDevice::Initialize()
         {
             gConsole.LogMessage(eLogMessage_Warning, "Cannot find primary monitor, starting windowed");
             enableFullscreen = false;
+        }
+
+        if (!enableFullscreen)
+        {
+            // keep the archived cvar in line with the mode the window actually got
+            gCvarGraphicsFullscreen.mValue = false;
         }
     }
 
@@ -413,20 +421,41 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
 
     if (fullscreenEnabled)
     {
-        if (mGraphicsMonitor == nullptr)
+        if (mGraphicsMonitor)
         {
-            mGraphicsMonitor = ::glfwGetPrimaryMonitor();
-            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 0, 0, mViewportRect.w, mViewportRect.h, 0);
+            return; // already fullscreen
         }
+
+        GLFWmonitor* monitor = ::glfwGetPrimaryMonitor();
+        const GLFWvidmode* videoMode = monitor ? ::glfwGetVideoMode(monitor) : nullptr;
+        if (videoMode == nullptr)
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot query monitor video mode");
+            return;
+        }
+
+        mGraphicsMonitor = monitor;
+        mWindowedScreenResolution = mScreenResolution;
+        mScreenResolution.x = videoMode->width;
+        mScreenResolution.y = videoMode->height;
+        ::glfwSetWindowMonitor(mGraphicsWindow, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
     }
     else
     {
-        if (mGraphicsMonitor)
+        if (mGraphicsMonitor == nullptr)
         {
-            mGraphicsMonitor = nullptr;
-            ::glfwSetWindowMonitor(mGraphicsWindow, mGraphicsMonitor, 60, 60, mViewportRect.w, mViewportRect.h, 0);
+            return; // already windowed
         }
+        mGraphicsMonitor = nullptr;
+        mScreenResolution = mWindowedScreenResolution;
+        ::glfwSetWindowMonitor(mGraphicsWindow, nullptr, 60, 60, mScreenResolution.x, mScreenResolution.y, 0);
     }
+
+    mViewportRect.Set(0, 0, mScreenResolution.x, mScreenResolution.y);
+    UpdateFramebufferScale();
+    ApplyViewportRect();
+    mScissorBox = mViewportRect;
+    ApplyScissorRect();
 }
 
 GpuTexture2D* GraphicsDevice::CreateTexture2D()

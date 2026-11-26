@@ -168,6 +168,7 @@ private:
     GraphicsContext mGraphicsContext;
     GLFWwindow* mGraphicsWindow;
     GLFWmonitor* mGraphicsMonitor;
+    Point mWindowedScreenResolution; // windowed mode resolution, restored when leaving fullscreen
 };
 
 extern GraphicsDevice gGraphicsDevice;

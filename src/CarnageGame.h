@@ -69,6 +69,7 @@ private:
 private:
     GameplayGamestate mGameplayGamestate;
     MainMenuGamestate mMainMenuGamestate;
+    Point mScreenLayoutResolution { 0, 0 }; // screen resolution the player view areas were laid out for
 };
 
 extern CarnageGame gCarnageGame;
