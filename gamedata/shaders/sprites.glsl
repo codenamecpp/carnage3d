@@ -5,6 +5,8 @@
 // constants
 uniform mat4 view_projection_matrix;
 
+uniform float depth_lift = 1.0f; // half block height in meters
+
 // attributes
 in vec3 in_pos0;
 in vec2 in_texcoord0;
@@ -25,9 +27,16 @@ void main()
     Position = in_pos0;
     PaletteIndex = in_color0;
 	SpriteTextureSize = vec2(in_textureSize);
-	SpriteTexelSize = vec2(1.0 / SpriteTextureSize.x, 1.0 / SpriteTextureSize.y);
+	SpriteTexelSize = 1.0f / SpriteTextureSize;
 
     vec4 vertexPosition = view_projection_matrix * vec4(in_pos0, 1.0);
+    vec4 vertexPosition_lifted = view_projection_matrix * vec4(in_pos0 + vec3(0.0, depth_lift, 0.0), 1.0);
+
+	// temporary solution (hack):
+	// lift depth only (screen position unchanged) so sprites don't get clipped by slopes
+    float ndcZ = max(vertexPosition_lifted.z / vertexPosition_lifted.w, -1.0);
+    vertexPosition.z = ndcZ * vertexPosition.w;
+
     gl_Position = vertexPosition;
 }
 
