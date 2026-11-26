@@ -288,9 +288,16 @@ bool GraphicsDevice::Initialize()
         });
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
+            const char* joystickName = ::glfwGetJoystickName(gamepad);
+            gConsole.LogMessage(eLogMessage_Info, "Joystick %d '%s' %s",
+                gamepad,
+                joystickName ? joystickName : "unknown",
+                (gamepadStatus == GLFW_CONNECTED) ? "connected" : "disconnected");
+
             if (gamepad < eGamepadID_COUNT)
             {
-                gInputs.SetGamepadPresent(gamepad, (gamepadStatus == GLFW_CONNECTED));
+                bool isGamepad = (gamepadStatus == GLFW_CONNECTED) && (::glfwJoystickIsGamepad(gamepad) == GLFW_TRUE);
+                gInputs.SetGamepadPresent(gamepad, isGamepad);
             }
         });
 
@@ -349,10 +356,26 @@ bool GraphicsDevice::Initialize()
 
     // init gamepads
 #ifndef __EMSCRIPTEN__
-    for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
+    for (int jid = 0; jid < GLFW_JOYSTICK_LAST + 1; ++jid)
     {
-        bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
-        gInputs.SetGamepadPresent(icurr, isGamepad);
+        if (::glfwJoystickPresent(jid) == GLFW_FALSE)
+        {
+            continue;
+        }
+
+        bool isGamepad = ::glfwJoystickIsGamepad(jid) == GLFW_TRUE;
+        const char* joystickName = ::glfwGetJoystickName(jid);
+        const char* joystickGuid = ::glfwGetJoystickGUID(jid);
+        gConsole.LogMessage(eLogMessage_Info, "Joystick %d: '%s' guid '%s' gamepad: %s",
+            jid, 
+            joystickName ? joystickName : "unknown", 
+            joystickGuid ? joystickGuid : "",
+            isGamepad ? "yes" : "no");
+
+        if (jid < eGamepadID_COUNT)
+        {
+            gInputs.SetGamepadPresent(jid, isGamepad);
+        }
     }
 #endif // __EMSCRIPTEN__
 
