@@ -157,10 +157,6 @@ bool GraphicsDevice::Initialize()
     bool enableFullscreen = gCvarGraphicsFullscreen.mValue;
 
     mScreenResolution = gCvarGraphicsScreenDims.mValue;
-    gConsole.LogMessage(eLogMessage_Debug, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
-        mScreenResolution.x, mScreenResolution.y, 
-        enableVSync ? "enabled" : "disabled", 
-        enableFullscreen ? "yes" : "no");
 
     if (::glfwInit() == GL_FALSE)
     {
@@ -184,8 +180,32 @@ bool GraphicsDevice::Initialize()
     if (enableFullscreen)
     {
         graphicsMonitor = ::glfwGetPrimaryMonitor();
-        debug_assert(graphicsMonitor);
+        if (graphicsMonitor)
+        {
+            // fullscreen runs at the monitor's current video mode, not at the windowed size
+            if (const GLFWvidmode* videoMode = ::glfwGetVideoMode(graphicsMonitor))
+            {
+                mScreenResolution.x = videoMode->width;
+                mScreenResolution.y = videoMode->height;
+            }
+            else
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot query monitor video mode, starting windowed");
+                graphicsMonitor = nullptr;
+                enableFullscreen = false;
+            }
+        }
+        else
+        {
+            gConsole.LogMessage(eLogMessage_Warning, "Cannot find primary monitor, starting windowed");
+            enableFullscreen = false;
+        }
     }
+
+    gConsole.LogMessage(eLogMessage_Info, "GraphicsDevice Initialization (%dx%d, Vsync: %s, Fullscreen: %s)",
+        mScreenResolution.x, mScreenResolution.y,
+        enableVSync ? "enabled" : "disabled",
+        enableFullscreen ? "yes" : "no");
 
     // opengl params
 #ifdef OPENGL_CORE_PROFILE
