@@ -157,7 +157,7 @@ bool GraphicsDevice::Initialize()
     bool enableVSync = gCvarGraphicsVSync.mValue;
     bool enableFullscreen = gCvarGraphicsFullscreen.mValue;
 
-    mScreenResolution = gCvarGraphicsScreenDims.mValue;
+    mScreenResolution = gCvarGraphicsWindowDims.mValue;
     mWindowedScreenResolution = mScreenResolution;
 
     if (::glfwInit() == GL_FALSE)
@@ -373,7 +373,7 @@ bool GraphicsDevice::Initialize()
 
     // reset modified cvars
     gCvarGraphicsFullscreen.ClearModified();
-    gCvarGraphicsScreenDims.ClearModified();
+    gCvarGraphicsWindowDims.ClearModified();
     gCvarGraphicsVSync.ClearModified();
     return true;
 }

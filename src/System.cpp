@@ -19,7 +19,7 @@ static const char* SysConfigPath = "config/sys_config.json";
 //////////////////////////////////////////////////////////////////////////
 
 // graphics
-CvarPoint gCvarGraphicsScreenDims("r_screenDims", Point(1024, 768), "Screen dimensions", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
+CvarPoint gCvarGraphicsWindowDims("r_windowDims", Point(1024, 768), "Windowed screen dimensions (fullscreen runs at the monitor mode)", CvarFlags_Archive | CvarFlags_RequiresAppRestart);
 CvarBoolean gCvarGraphicsFullscreen("r_fullscreen", false, "Is fullscreen mode enabled", CvarFlags_Archive);
 CvarBoolean gCvarGraphicsVSync("r_vsync", true, "Is vertical synchronization enabled", CvarFlags_Archive);
 CvarBoolean gCvarGraphicsTexFiltering("r_texFiltering", false, "Is texture filtering enabled", CvarFlags_Archive | CvarFlags_Readonly);

@@ -1,5 +1,5 @@
 {
-	"r_screenDims":	"1024 768",
+	"r_windowDims":	"1024 768",
 	"r_fullscreen":	"false",
 	"r_vsync":	"true",
 	"r_texFiltering":	"false",
