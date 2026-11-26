@@ -791,7 +791,7 @@ void GraphicsDevice::ProcessGamepadsInputs()
         if (::glfwGetGamepadState(icurr, &gamepadstate) != GLFW_TRUE)
             continue;
 
-        for (int ibutton = 0; ibutton < GLFW_JOYSTICK_LAST + 1; ++ibutton)
+        for (int ibutton = 0; ibutton < GLFW_GAMEPAD_BUTTON_LAST + 1; ++ibutton)
         {
             eGamepadButton buttonNative = GlfwGamepadButtonToNative(ibutton);
             if (buttonNative == eGamepadButton_null)
