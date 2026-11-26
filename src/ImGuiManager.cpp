@@ -3,6 +3,7 @@
 #include "RenderingManager.h"
 #include "DebugWindow.h"
 #include "TimeManager.h"
+#include "cvars.h"
 
 ImGuiManager gImGuiManager;
 
@@ -90,6 +91,10 @@ void ImGuiManager::RenderFrame()
 
     ImDrawData* imGuiDrawData = ImGui::GetDrawData();
 
+    // imgui sets the scissor per draw command and does not restore it; the next frame
+    // clears and draws with that leftover rect, so keep the caller's state intact
+    Rect prevScissorBox = gGraphicsDevice.mScissorBox;
+
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     int fb_width = (int)(imGuiDrawData->DisplaySize.x * imGuiDrawData->FramebufferScale.x);
     int fb_height = (int)(imGuiDrawData->DisplaySize.y * imGuiDrawData->FramebufferScale.y);
@@ -144,6 +149,8 @@ void ImGuiManager::RenderFrame()
             gGraphicsDevice.RenderIndexedPrimitives(ePrimitiveType_Triangles, indicesType, idxBufferOffset, pcmd->ElemCount);
         }
     }
+
+    gGraphicsDevice.SetScissorRect(prevScissorBox);
 }
 
 void ImGuiManager::UpdateFrame()
@@ -179,7 +186,8 @@ void ImGuiManager::UpdateFrame()
         anyWindowShown = true;
     }
 
-    io.MouseDrawCursor = anyWindowShown;
+    // the software cursor is drawn in fullscreen when a debug window is open or mouse aiming is enabled
+    io.MouseDrawCursor = gGraphicsDevice.IsFullscreen() && (anyWindowShown || gCvarMouseAiming.mValue);
 }
 
 void ImGuiManager::InputEvent(MouseMovedInputEvent& inputEvent)

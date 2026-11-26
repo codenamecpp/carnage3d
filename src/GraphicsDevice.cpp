@@ -320,6 +320,9 @@ bool GraphicsDevice::Initialize()
     mGraphicsWindow = graphicsWindow;
     mGraphicsMonitor = graphicsMonitor;
 
+    // the system cursor is hidden in fullscreen
+    SetCursorVisible(mGraphicsMonitor == nullptr);
+
     QueryGraphicsDeviceCaps();
 
     // create global vertex array object
@@ -451,11 +454,25 @@ void GraphicsDevice::EnableFullscreen(bool fullscreenEnabled)
         ::glfwSetWindowMonitor(mGraphicsWindow, nullptr, 60, 60, mScreenResolution.x, mScreenResolution.y, 0);
     }
 
+    SetCursorVisible(mGraphicsMonitor == nullptr);
+
     mViewportRect.Set(0, 0, mScreenResolution.x, mScreenResolution.y);
     UpdateFramebufferScale();
     ApplyViewportRect();
     mScissorBox = mViewportRect;
     ApplyScissorRect();
+}
+
+void GraphicsDevice::SetCursorVisible(bool isVisible)
+{
+    if (mGraphicsWindow == nullptr)
+        return;
+
+    const int cursorMode = isVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN;
+    if (::glfwGetInputMode(mGraphicsWindow, GLFW_CURSOR) != cursorMode)
+    {
+        ::glfwSetInputMode(mGraphicsWindow, GLFW_CURSOR, cursorMode);
+    }
 }
 
 GpuTexture2D* GraphicsDevice::CreateTexture2D()
