@@ -124,6 +124,24 @@ static eGamepadButton GlfwGamepadButtonToNative(int gpbutton)
     return eGamepadButton_null;
 }
 
+static const float GamepadLeftStickDeadZone = 0.35f;
+
+// the game consumes only button actions, so the left stick is merged into the dpad buttons
+static bool GlfwGamepadButtonPressed(const GLFWgamepadstate& gamepadstate, int gpbutton)
+{
+    if (gamepadstate.buttons[gpbutton] == GLFW_PRESS)
+        return true;
+
+    switch (gpbutton)
+    {
+        case GLFW_GAMEPAD_BUTTON_DPAD_UP: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_DOWN: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_LEFT: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -GamepadLeftStickDeadZone;
+        case GLFW_GAMEPAD_BUTTON_DPAD_RIGHT: return gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > GamepadLeftStickDeadZone;
+    };
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 GraphicsDevice::GraphicsDevice()
@@ -179,6 +197,22 @@ bool GraphicsDevice::Initialize()
         ""
 #endif   
     );
+
+    // extended gamepad mappings (SDL_GameControllerDB format), so more controllers are recognized as gamepads
+    {
+        std::string gamepadMappings;
+        if (gFiles.ReadTextFile("config/gamecontrollerdb.txt", gamepadMappings))
+        {
+            if (::glfwUpdateGamepadMappings(gamepadMappings.c_str()) == GLFW_TRUE)
+            {
+                gConsole.LogMessage(eLogMessage_Info, "Applied extended gamepad mappings");
+            }
+            else
+            {
+                gConsole.LogMessage(eLogMessage_Warning, "Cannot parse config/gamecontrollerdb.txt");
+            }
+        }
+    }
 
     GLFWmonitor* graphicsMonitor = nullptr;
     if (enableFullscreen)
@@ -272,9 +306,16 @@ bool GraphicsDevice::Initialize()
         });
     ::glfwSetJoystickCallback([](int gamepad, int gamepadStatus)
         {
+            const char* joystickName = ::glfwGetJoystickName(gamepad);
+            gConsole.LogMessage(eLogMessage_Info, "Joystick %d '%s' %s",
+                gamepad,
+                joystickName ? joystickName : "unknown",
+                (gamepadStatus == GLFW_CONNECTED) ? "connected" : "disconnected");
+
             if (gamepad < eGamepadID_COUNT)
             {
-                gInputs.SetGamepadPresent(gamepad, (gamepadStatus == GLFW_CONNECTED));
+                bool isGamepad = (gamepadStatus == GLFW_CONNECTED) && (::glfwJoystickIsGamepad(gamepad) == GLFW_TRUE);
+                gInputs.SetGamepadPresent(gamepad, isGamepad);
             }
         });
 
@@ -333,10 +374,26 @@ bool GraphicsDevice::Initialize()
 
     // init gamepads
 #ifndef __EMSCRIPTEN__
-    for (int icurr = 0; icurr < eGamepadID_COUNT; ++icurr)
+    for (int jid = 0; jid < GLFW_JOYSTICK_LAST + 1; ++jid)
     {
-        bool isGamepad = ::glfwJoystickIsGamepad(icurr) == GLFW_TRUE;
-        gInputs.SetGamepadPresent(icurr, isGamepad);
+        if (::glfwJoystickPresent(jid) == GLFW_FALSE)
+        {
+            continue;
+        }
+
+        bool isGamepad = ::glfwJoystickIsGamepad(jid) == GLFW_TRUE;
+        const char* joystickName = ::glfwGetJoystickName(jid);
+        const char* joystickGuid = ::glfwGetJoystickGUID(jid);
+        gConsole.LogMessage(eLogMessage_Info, "Joystick %d: '%s' guid '%s' gamepad: %s",
+            jid, 
+            joystickName ? joystickName : "unknown", 
+            joystickGuid ? joystickGuid : "",
+            isGamepad ? "yes" : "no");
+
+        if (jid < eGamepadID_COUNT)
+        {
+            gInputs.SetGamepadPresent(jid, isGamepad);
+        }
     }
 #endif // __EMSCRIPTEN__
 
@@ -791,13 +848,13 @@ void GraphicsDevice::ProcessGamepadsInputs()
         if (::glfwGetGamepadState(icurr, &gamepadstate) != GLFW_TRUE)
             continue;
 
-        for (int ibutton = 0; ibutton < GLFW_JOYSTICK_LAST + 1; ++ibutton)
+        for (int ibutton = 0; ibutton < GLFW_GAMEPAD_BUTTON_LAST + 1; ++ibutton)
         {
             eGamepadButton buttonNative = GlfwGamepadButtonToNative(ibutton);
             if (buttonNative == eGamepadButton_null)
                 continue;
 
-            bool newPressed = gamepadstate.buttons[ibutton] == GLFW_PRESS;
+            bool newPressed = GlfwGamepadButtonPressed(gamepadstate, ibutton);
             if (currGamepad.mButtons[buttonNative] == newPressed)
                 continue;
 
