@@ -13,6 +13,7 @@ Decoration::Decoration(GameObjectID id, GameObjectInfo* gameObjectDesc)
         mAnimationState.mAnimDesc = gameObjectDesc->mAnimationData;
         mDrawSprite.mDrawOrder = gameObjectDesc->mDrawOrder;
         mObjectType = gameObjectDesc->mObjectType;
+        mObjectFlags = gameObjectDesc->mFlags;
     }
 }
 
