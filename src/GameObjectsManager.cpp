@@ -477,7 +477,14 @@ bool GameObjectsManager::CreateStartupObjects()
 
             case eGameObjectClass_Obstacle: 
             {
-                Obstacle* startupObstacle = CreateObstacle(start_position, start_rotation, &objectType);
+                // trees stand 8 pixels higher
+                int heightPixels = (MAP_LAYERS_COUNT * MAP_BLOCK_TEXTURE_DIMS) - currObject.mZ;
+                if ((currObject.mType >= GameObjectType_Tree1) && (currObject.mType <= GameObjectType_Tree3))
+                {
+                    heightPixels += 8;
+                }
+                glm::vec3 obstaclePosition(start_position.x, Convert::PixelsToMeters(heightPixels), start_position.z);
+                Obstacle* startupObstacle = CreateObstacle(obstaclePosition, start_rotation, &objectType);
                 if (startupObstacle)
                 {
                     startupObstacle->mObjectFlags = (startupObstacle->mObjectFlags | GameObjectFlags_Startup);
