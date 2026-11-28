@@ -524,6 +524,7 @@ void PedestrianStatesManager::StateSlideCar_ProcessFrame()
 
 void PedestrianStatesManager::StateSlideCar_ProcessEnter(const PedestrianStateEvent& stateEvent)
 {
+    mPedestrian->mSlideOverCarSortHeight = 0.0f;
     mPedestrian->SetAnimation(ePedestrianAnim_JumpOntoCar, eSpriteAnimLoop_None);
 }
 

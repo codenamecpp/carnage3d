@@ -219,6 +219,10 @@ void Pedestrian::SimulationStep()
         if (Vehicle* contactCar = ToVehicle(currContact.mThatObject))
         {
             mContactingCars = true;
+            if (IsSlidingOverCar())
+            {
+                mSlideOverCarSortHeight = std::max(mSlideOverCarSortHeight, contactCar->GetSortHeight() + Convert::PixelsToMeters(1.0f));
+            }
             if (currContact.mContactPoints->mSeparation > 0.0f)
                 continue;
 
@@ -540,6 +544,11 @@ bool Pedestrian::IsRunning() const
 bool Pedestrian::IsDrowning() const
 {
     return (GetCurrentStateID() == ePedestrianState_Drowning);
+}
+
+bool Pedestrian::IsSlidingOverCar() const
+{
+    return (GetCurrentStateID() == ePedestrianState_SlideOnCar);
 }
 
 bool Pedestrian::IsStunned() const

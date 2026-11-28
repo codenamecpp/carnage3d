@@ -12,6 +12,7 @@ void Sprite2D::Clear()
     mPosition.x = 0.0f;
     mPosition.y = 0.0f;
     mHeight = 0.0f;
+    mSortHeight = 0.0f;
     mScale = MAP_SPRITE_SCALE;
     mPaletteIndex = 0;
 

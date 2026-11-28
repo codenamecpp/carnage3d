@@ -119,6 +119,9 @@ public:
     // Get current vehicle speed in meters per hour
     float GetCurrentSpeed() const;
 
+    // Get collision box corners in local space
+    void GetChassisCornersLocal(glm::vec2 corners[4]) const;
+
 private:
     // override SpriteAnimListener
     bool OnAnimFrameAction(SpriteAnimation* animation, int frameIndex, eSpriteAnimAction actionID) override;
@@ -172,7 +175,6 @@ private:
     // physics stuff
 
     void GetChassisCorners(glm::vec2 corners[4]) const;
-    void GetChassisCornersLocal(glm::vec2 corners[4]) const;
     void GetTireCorners(eCarTire tireID, glm::vec2 corners[4]) const;
 
     struct DriveCtlState

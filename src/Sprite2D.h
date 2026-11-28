@@ -54,6 +54,7 @@ public:
     cxx::angle_t mRotateAngle;
 
     float mHeight = 0.0f; // z order
+    float mSortHeight = 0.0f; // height for depth test and sort, sprite is still drawn at mHeight
     float mScale = MAP_SPRITE_SCALE;
 
     unsigned short mPaletteIndex = 0;

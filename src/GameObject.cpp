@@ -153,49 +153,54 @@ void GameObject::RefreshDrawSprite()
     mDrawSprite.mPosition.y = mTransformSmooth.mPosition.z;
 
     mDrawSprite.mHeight = mTransformSmooth.mPosition.y;
+    mDrawSprite.mSortHeight = mDrawSprite.mHeight;
 
     if (mParentObject)
     {
-        if (mParentObject->mDrawSprite.mHeight > mDrawSprite.mHeight)
-        {
-            mDrawSprite.mHeight = mParentObject->mDrawSprite.mHeight;
-        }
+        mDrawSprite.mHeight = std::max(mDrawSprite.mHeight, mParentObject->mDrawSprite.mHeight);
+        mDrawSprite.mSortHeight = std::max(mDrawSprite.mHeight, mParentObject->mDrawSprite.mSortHeight);
     }
     else if ((mPhysicsBody == nullptr) || !mPhysicsBody->mFalling)
-    // compute draw height for non-attached objects
+    // compute sort height for non-attached objects
     {
+        glm::vec3 groundPoint = mTransformSmooth.mPosition;
+        if (IsVehicleClass())
+        {
+            // highest ground under collision box corners, search starts half block above car
+            const Vehicle* vehicle = static_cast<const Vehicle*>(this);
+            const glm::vec2 center (mTransformSmooth.mPosition.x, mTransformSmooth.mPosition.z);
+            const int searchLayer = (int) std::floor(Convert::MetersToMapUnits(mTransformSmooth.mPosition.y) + 0.5f);
+            glm::vec2 corners[4];
+            vehicle->GetChassisCornersLocal(corners);
+            for (int icorner = 0; icorner < 4; ++icorner)
+            {
+                const glm::vec2 corner = center + glm::rotate(corners[icorner], mTransformSmooth.mOrientation.to_radians());
+                const float cornerHeight = gGameMap.GetGroundHeight(corner, searchLayer, true);
+                if ((icorner == 0) || (cornerHeight > groundPoint.y))
+                {
+                    groundPoint = glm::vec3(corner.x, cornerHeight, corner.y);
+                }
+            }
+            // car is sorted a few pixels above ground
+            const eVehicleModel model = vehicle->mCarInfo->mModelID;
+            const float clearancePixels = (model == eVehicle_ModelCar) ? 2.0f : (model == eVehicle_Tank) ? 4.0f : 3.0f;
+            mDrawSprite.mSortHeight = groundPoint.y + Convert::PixelsToMeters(clearancePixels);
+        }
 
-        // TODO:
-        // this is unreliable and often fails (long vehicles like firetruck, bus etc. get popped under/near the bridges/slopes)
-        // replaced with a constant depth lift in the sprite vertex shader (temporary solution)
+        // sprite on slope is sorted one pixel above slope block
+        const glm::ivec2 groundBlock = Convert::MetersToMapUnits(glm::vec2(groundPoint.x, groundPoint.z));
+        const int groundLayer = (int) std::floor(Convert::MetersToMapUnits(groundPoint.y));
+        if (gGameMap.GetBlockInfo(groundBlock.x, groundBlock.y, groundLayer)->mSlopeType)
+        {
+            mDrawSprite.mSortHeight = Convert::MapUnitsToMeters(groundLayer + 1.0f) + Convert::PixelsToMeters(1.0f);
+        }
 
-        //float newDrawHeight = mDrawSprite.mHeight;
-        //auto GetCornerHeight = [this](const glm::vec2& corner)
-        //{
-        //    float distance = glm::length(corner - glm::vec2(mTransformSmooth.mPosition.x, mTransformSmooth.mPosition.z));
-        //    float maxHeight = mDrawSprite.mHeight + distance + Convert::PixelsToMeters(1);
-        //    float height = gGameMap.GetGroundHeight(corner, (int) std::floor(Convert::MetersToMapUnits(maxHeight)), true);
-        //    return (height <= maxHeight) ? height : mDrawSprite.mHeight;
-        //};
-        //glm::vec2 corners[4];
-        //if (IsPedestrianClass())
-        //{
-        //    const float halfBox = Convert::PixelsToMeters(PED_SPRITE_DRAW_BOX_SIZE_PX) * 0.5f;
-        //    const glm::vec2 position (mTransformSmooth.mPosition.x, mTransformSmooth.mPosition.z);
-        //    corners[0] = position + glm::vec2(-halfBox, -halfBox);
-        //    corners[1] = position + glm::vec2( halfBox, -halfBox);
-        //    corners[2] = position + glm::vec2( halfBox,  halfBox);
-        //    corners[3] = position + glm::vec2(-halfBox,  halfBox);
-        //}
-        //else
-        //{
-        //    mDrawSprite.GetCorners(corners);
-        //}
-        //for (const glm::vec2& currCorner: corners)
-        //{
-        //    newDrawHeight = std::max(newDrawHeight, GetCornerHeight(currCorner));
-        //}
-        //mDrawSprite.mHeight = newDrawHeight;
+        // ped is drawn over car while it slides over it
+        const Pedestrian* pedestrian = IsPedestrianClass() ? static_cast<const Pedestrian*>(this) : nullptr;
+        if (pedestrian && pedestrian->IsSlidingOverCar())
+        {
+            mDrawSprite.mSortHeight = std::max(mDrawSprite.mHeight, pedestrian->mSlideOverCarSortHeight);
+        }
     }
 
     mDrawSprite.GetApproximateBounds(mDrawBounds);

@@ -97,6 +97,9 @@ public:
     GameObject* GetParentObject() const;
     GameObject* GetAttachedObject(int index) const;
 
+    // Get sprite height for depth test and sort
+    inline float GetSortHeight() const { return mDrawSprite.mSortHeight; }
+
     // Audio shortcuts
     bool StartGameObjectSound(int ichannel, SfxSample* sfxSample, SfxFlags sfxFlags);
     bool StartGameObjectSound(int ichannel, eSfxSampleType sampleType, SfxSampleIndex sampleIndex, SfxFlags sfxFlags);
