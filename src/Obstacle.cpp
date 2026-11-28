@@ -11,6 +11,7 @@ Obstacle::Obstacle(GameObjectID id, GameObjectInfo* desc)
     if (mGameObjectDesc)
     {
         mDrawSprite.mDrawOrder = mGameObjectDesc->mDrawOrder;
+        mObjectFlags = mGameObjectDesc->mFlags;
     }
 }
 

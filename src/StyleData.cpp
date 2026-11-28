@@ -1112,6 +1112,11 @@ bool StyleData::InitGameObjects()
         cxx::json_get_attribute(currObjectNode, "drawOrder", currObject.mDrawOrder);
 
         ParseObjectFlags(currObjectNode, "flags", currObject.mFlags);
+        // status 3 is invisible object
+        if (objectRaw.mStatus == 3)
+        {
+            currObject.mFlags = (currObject.mFlags | GameObjectFlags_Invisible);
+        }
 
         int startSpriteIndex = GetSpriteIndex(eSpriteType_Object, objectRaw.mBaseSprite);
 
