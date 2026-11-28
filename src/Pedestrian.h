@@ -39,6 +39,8 @@ public:
 
     int mArmorHitPoints = 0;
 
+    float mSlideOverCarSortHeight = 0.0f; // car sort height plus one pixel while sliding over car
+
 public:
     // @param id: Unique object identifier, constant
     // @param typeIdentifier: Pedestrian type identifier
@@ -99,6 +101,7 @@ public:
     bool IsRunning() const;
     bool IsStunned() const;
     bool IsDrowning() const;
+    bool IsSlidingOverCar() const;
     bool IsDead() const;
     bool IsDies() const;
     bool IsBurn() const;

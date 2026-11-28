@@ -118,6 +118,8 @@ void SpriteBatch::GenerateSpritesBatches()
                 vertexData[vertexOffset + i].mPosition.x = positions[i].x;
                 vertexData[vertexOffset + i].mPosition.z = positions[i].y;
                 vertexData[vertexOffset + i].mPosition.y = sprite.mHeight;
+                vertexData[vertexOffset + i].mDepthPosition = vertexData[vertexOffset + i].mPosition;
+                vertexData[vertexOffset + i].mDepthPosition.y = sprite.mSortHeight;
                 // common part
                 vertexData[vertexOffset + i].mClutIndex = sprite.mPaletteIndex;
                 vertexData[vertexOffset + i].mTextureSize[0] = sprite.mTexture->mSize.x;
@@ -131,6 +133,7 @@ void SpriteBatch::GenerateSpritesBatches()
                 vertexData[vertexOffset + i].mPosition.x = positions[i].x;
                 vertexData[vertexOffset + i].mPosition.y = positions[i].y;
                 vertexData[vertexOffset + i].mPosition.z = sprite.mHeight;
+                vertexData[vertexOffset + i].mDepthPosition = vertexData[vertexOffset + i].mPosition;
                 // common part
                 vertexData[vertexOffset + i].mClutIndex = sprite.mPaletteIndex;
                 vertexData[vertexOffset + i].mTextureSize[0] = sprite.mTexture->mSize.x;
@@ -182,7 +185,7 @@ void SpriteBatch::SortSprites()
     {
         static auto SortProc = [](const Sprite2D& lhs, const Sprite2D& rhs)
         {
-            return lhs.mHeight < rhs.mHeight;
+            return lhs.mSortHeight < rhs.mSortHeight;
         };
         std::stable_sort(mSpritesList.begin(), mSpritesList.end(), SortProc);
         return;
@@ -202,9 +205,9 @@ void SpriteBatch::SortSprites()
     {
         static auto SortProc = [](const Sprite2D& lhs, const Sprite2D& rhs)
         {
-            if (lhs.mHeight != rhs.mHeight)
+            if (lhs.mSortHeight != rhs.mSortHeight)
             {
-                return (lhs.mHeight < rhs.mHeight);
+                return (lhs.mSortHeight < rhs.mSortHeight);
             }
             return (lhs.mDrawOrder < rhs.mDrawOrder);
         };  

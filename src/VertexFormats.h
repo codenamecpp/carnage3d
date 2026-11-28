@@ -82,6 +82,7 @@ public:
     }
 public:
     glm::vec3 mPosition; // 12 bytes
+    glm::vec3 mDepthPosition; // 12 bytes, position for depth test only
     glm::vec2 mTexcoord; // 8 bytes
     unsigned short mTextureSize[2]; // sprite texture size in pixels
     unsigned short mClutIndex; // 2 bytes
@@ -109,6 +110,7 @@ public:
     {
         this->mDataStride = Sizeof_SpriteVertex3D;
         this->SetAttribute(eVertexAttribute_Position0, eVertexAttributeFormat_3F, offsetof(TVertexType, mPosition));
+        this->SetAttribute(eVertexAttribute_Position1, eVertexAttributeFormat_3F, offsetof(TVertexType, mDepthPosition));
         this->SetAttribute(eVertexAttribute_Texcoord0, eVertexAttributeFormat_2F, offsetof(TVertexType, mTexcoord));
         this->SetAttribute(eVertexAttribute_Color0, eVertexAttributeFormat_1US, offsetof(TVertexType, mClutIndex));
         this->SetAttribute(eVertexAttribute_TextureSize, eVertexAttributeFormat_2US, offsetof(TVertexType, mTextureSize));
